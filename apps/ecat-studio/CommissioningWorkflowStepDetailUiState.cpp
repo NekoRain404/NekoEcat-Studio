@@ -1,0 +1,129 @@
+#include "CommissioningWorkflowStepDetailUiState.h"
+
+namespace {
+
+bool commissioningWorkflowNoneText(
+    const QString &text, const CommissioningWorkflowStepDetailTexts &texts) {
+  const QString normalized = text.trimmed().toLower();
+  return normalized.isEmpty() || normalized == QStringLiteral("none") ||
+         normalized == texts.none.trimmed().toLower();
+}
+
+bool commissioningWorkflowReadyStatus(const CommissioningWorkflowTableRow &row,
+                                      const CommissioningWorkflowTexts &texts) {
+  return row.statusKey == QStringLiteral("ready") ||
+         row.status.trimmed() == texts.ready;
+}
+
+bool commissioningWorkflowActionStatus(
+    const CommissioningWorkflowTableRow &row,
+    const CommissioningWorkflowTexts &texts) {
+  return row.statusKey == QStringLiteral("action") ||
+         row.status.trimmed() == texts.action;
+}
+
+bool commissioningWorkflowBlockedStatus(
+    const CommissioningWorkflowTableRow &row,
+    const CommissioningWorkflowTexts &texts) {
+  return row.statusKey == QStringLiteral("blocked") ||
+         row.status.trimmed() == texts.blocked;
+}
+
+bool commissioningWorkflowSevereRiskText(const QString &risk) {
+  return risk.contains(QStringLiteral("failed"), Qt::CaseInsensitive) ||
+         risk.contains(QStringLiteral("error"), Qt::CaseInsensitive) ||
+         risk.contains(QStringLiteral("失败")) ||
+         risk.contains(QStringLiteral("错误"));
+}
+
+} // namespace
+
+CommissioningWorkflowStepDetailUiState
+commissioningWorkflowStepDetailUnavailableState(
+    const CommissioningWorkflowStepDetailTexts &texts) {
+  return {.text = texts.unavailableText,
+          .severityKey = QStringLiteral("neutral"),
+          .tooltip = texts.unavailableTip};
+}
+
+CommissioningWorkflowStepDetailUiState
+commissioningWorkflowStepDetailNoSelectionState(
+    const CommissioningWorkflowStepDetailTexts &texts) {
+  return {.text = texts.noSelectionText,
+          .severityKey = QStringLiteral("neutral"),
+          .tooltip = texts.noSelectionTip};
+}
+
+QString commissioningWorkflowStepDetailSeverityKey(
+    const CommissioningWorkflowTableRow &row,
+    const CommissioningWorkflowTexts &workflowTexts,
+    const CommissioningWorkflowStepDetailTexts &texts) {
+  const bool ready = commissioningWorkflowReadyStatus(row, workflowTexts);
+  const bool action = commissioningWorkflowActionStatus(row, workflowTexts);
+  const bool blocked = commissioningWorkflowBlockedStatus(row, workflowTexts);
+  const bool hasRisk = !commissioningWorkflowNoneText(row.risk, texts);
+  const bool severeRisk =
+      hasRisk && commissioningWorkflowSevereRiskText(row.risk);
+
+  if (severeRisk) {
+    return QStringLiteral("error");
+  }
+  if (ready) {
+    return QStringLiteral("ok");
+  }
+  if (action) {
+    return QStringLiteral("action");
+  }
+  if (blocked) {
+    return QStringLiteral("warning");
+  }
+  return QStringLiteral("neutral");
+}
+
+CommissioningWorkflowStepDetailUiState
+buildCommissioningWorkflowStepDetailUiState(
+    const CommissioningWorkflowTableRow &row,
+    const CommissioningWorkflowTexts &workflowTexts,
+    const CommissioningWorkflowStepDetailTexts &texts) {
+  CommissioningWorkflowStepDetailUiState state;
+  state.ready = commissioningWorkflowReadyStatus(row, workflowTexts);
+  state.action = commissioningWorkflowActionStatus(row, workflowTexts);
+  state.blocked = commissioningWorkflowBlockedStatus(row, workflowTexts);
+  state.hasRisk = !commissioningWorkflowNoneText(row.risk, texts);
+  state.severeRisk =
+      state.hasRisk && commissioningWorkflowSevereRiskText(row.risk);
+  state.displayRisk = state.hasRisk ? row.risk : texts.noRisk;
+  state.severityKey =
+      commissioningWorkflowStepDetailSeverityKey(row, workflowTexts, texts);
+
+  const CommissioningWorkflowStepBoundary boundary =
+      commissioningWorkflowStepBoundary(
+          commissioningWorkflowStepForIndex(row.row), workflowTexts);
+  state.boundaryKind = boundary.kind;
+  state.boundaryDetail = boundary.detail;
+
+  state.text = texts.summaryPattern.arg(row.row + 1)
+                   .arg(row.phase)
+                   .arg(row.status)
+                   .arg(state.boundaryKind)
+                   .arg(state.displayRisk)
+                   .arg(row.evidence)
+                   .arg(row.nextAction);
+
+  state.tooltipLines << texts.selectedTitle;
+  state.tooltipLines << QString("%1: %2").arg(texts.phaseLabel, row.phase);
+  state.tooltipLines << QString("%1: %2").arg(texts.statusLabel, row.status);
+  state.tooltipLines << QString("%1: %2").arg(texts.stepLabel, row.step);
+  state.tooltipLines << QString("%1: %2").arg(texts.riskLabel,
+                                              state.displayRisk);
+  state.tooltipLines << QString("%1: %2").arg(texts.evidenceLabel,
+                                              row.evidence);
+  state.tooltipLines << QString("%1: %2").arg(texts.nextActionLabel,
+                                              row.nextAction);
+  state.tooltipLines << QString("%1: %2").arg(texts.boundaryLabel,
+                                              state.boundaryKind);
+  state.tooltipLines << state.boundaryDetail;
+  state.tooltipLines << texts.localReviewBoundary;
+  state.tooltip = state.tooltipLines.join('\n');
+  return state;
+}

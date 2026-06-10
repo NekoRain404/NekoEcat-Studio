@@ -1,0 +1,17 @@
+build/
+dist/
+docs/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+*.user
+*.autosave
+*.log
+*.tmp
+*.swp
+*.swo
+.cache/
+.DS_Store
