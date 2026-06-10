@@ -264,19 +264,27 @@ ctest --test-dir build --output-on-failure
 最小 Linux 发布包 / Minimal Linux package:
 
 ```text
+NekoEcat-Studio
 bin/ecat-studio
 bin/ecatd
 README.md
+LICENSE
+DEPENDENCIES.md
+RELEASE_NOTES.md
 ```
 
 打包示例 / Example:
 
 ```bash
-mkdir -p dist/NekoEcat-Studio-v0.1.0-linux-x86_64/bin
-cp build/apps/ecat-studio/ecat-studio dist/NekoEcat-Studio-v0.1.0-linux-x86_64/bin/
-cp build/apps/ecatd/ecatd dist/NekoEcat-Studio-v0.1.0-linux-x86_64/bin/
-cp README.md dist/NekoEcat-Studio-v0.1.0-linux-x86_64/
-tar -C dist -czf dist/NekoEcat-Studio-v0.1.0-linux-x86_64.tar.gz NekoEcat-Studio-v0.1.0-linux-x86_64
+chmod +x scripts/package-linux.sh
+scripts/package-linux.sh 0.1.0
+```
+
+解压后运行 / Run after extraction:
+
+```bash
+tar -xzf dist/NekoEcat-Studio-v0.1.0-linux-x86_64.tar.gz -C dist
+dist/NekoEcat-Studio-v0.1.0-linux-x86_64/NekoEcat-Studio
 ```
 
 ## 工程文件 / Project Files

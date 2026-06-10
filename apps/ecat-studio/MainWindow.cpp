@@ -122,9 +122,14 @@ namespace {
 
 QString ecatdPath() {
   const QFileInfo app(QCoreApplication::applicationFilePath());
-  const QString sibling = app.dir().absoluteFilePath("../ecatd/ecatd");
-  if (QFileInfo::exists(sibling)) {
-    return QFileInfo(sibling).canonicalFilePath();
+  const QStringList candidates = {
+      app.dir().absoluteFilePath("ecatd"),
+      app.dir().absoluteFilePath("../ecatd/ecatd"),
+  };
+  for (const QString &candidate : candidates) {
+    if (QFileInfo::exists(candidate)) {
+      return QFileInfo(candidate).canonicalFilePath();
+    }
   }
   return "ecatd";
 }
