@@ -1,4 +1,4 @@
-#include "DiagnosticsEventUiState.h"
+#include "ui_state/DiagnosticsEventUiState.h"
 
 #include <QCoreApplication>
 

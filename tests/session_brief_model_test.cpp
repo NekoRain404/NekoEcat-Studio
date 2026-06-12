@@ -1,4 +1,4 @@
-#include "SessionBriefModel.h"
+#include "models/SessionBriefModel.h"
 
 #include <QCoreApplication>
 

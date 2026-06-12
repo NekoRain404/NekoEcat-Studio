@@ -1,4 +1,4 @@
-#include "ObjectBookmarkDetailUiState.h"
+#include "ui_state/ObjectBookmarkDetailUiState.h"
 
 #include <QCoreApplication>
 

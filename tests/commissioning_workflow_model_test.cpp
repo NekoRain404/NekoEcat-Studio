@@ -1,4 +1,4 @@
-#include "CommissioningWorkflowModel.h"
+#include "models/CommissioningWorkflowModel.h"
 
 #include <QCoreApplication>
 

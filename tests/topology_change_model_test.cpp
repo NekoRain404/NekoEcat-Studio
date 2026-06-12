@@ -1,4 +1,4 @@
-#include "TopologyChangeModel.h"
+#include "models/TopologyChangeModel.h"
 
 #include <QCoreApplication>
 

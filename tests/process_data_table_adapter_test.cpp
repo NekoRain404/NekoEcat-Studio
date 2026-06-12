@@ -1,5 +1,5 @@
-#include "ProcessDataRowModel.h"
-#include "ProcessDataTableAdapter.h"
+#include "models/ProcessDataRowModel.h"
+#include "adapters/ProcessDataTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

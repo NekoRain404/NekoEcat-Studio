@@ -1,4 +1,4 @@
-#include "TopologyBaselineModel.h"
+#include "models/TopologyBaselineModel.h"
 
 #include <QCoreApplication>
 

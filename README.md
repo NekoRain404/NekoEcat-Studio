@@ -171,12 +171,21 @@ Local actions include row selection, filtering, opening evidence links, copying 
 ```text
 .
 ├── apps/
-│   ├── ecat-studio/      Qt desktop GUI and UI/domain helper models
-│   └── ecatd/            local runtime daemon
+│   ├── ecat-studio/          Qt6 desktop GUI
+│   │   ├── models/           pure data/logic types (no widget deps)
+│   │   ├── adapters/         model <-> QTableWidget bridge
+│   │   ├── ui_state/         detail panel text builders
+│   │   ├── helpers/          reusable utilities (table, text, UI)
+│   │   ├── infra/            TCP client, shared types, settings
+│   │   ├── workspaces/       MainWindow partials per workspace
+│   │   ├── MainWindow.h/cpp  core window + entry point
+│   │   └── main.cpp
+│   └── ecatd/                local runtime daemon
 ├── src/
-│   ├── core/             shared EtherCAT types and JSON protocol helpers
-│   └── igh/              IgH EtherCAT Master integration layer
-├── tests/                focused model, adapter, and smoke tests
+│   ├── core/                 shared EtherCAT types and JSON protocol
+│   └── igh/                  IgH EtherCAT Master adapter
+├── tests/                    model, adapter, and UI state tests
+├── scripts/                  packaging scripts
 ├── CMakeLists.txt
 └── README.md
 ```

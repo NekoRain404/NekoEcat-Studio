@@ -1,4 +1,4 @@
-#include "NextBestActionModel.h"
+#include "models/NextBestActionModel.h"
 
 #include <QCoreApplication>
 

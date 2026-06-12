@@ -1,4 +1,4 @@
-#include "SdoDictionaryTableAdapter.h"
+#include "adapters/SdoDictionaryTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

@@ -1,4 +1,4 @@
-#include "CommissioningWorkflowTableAdapter.h"
+#include "adapters/CommissioningWorkflowTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

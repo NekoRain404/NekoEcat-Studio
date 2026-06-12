@@ -1,5 +1,8 @@
 #pragma once
 
+// Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
+
+
 #include "EcatClient.h"
 #include "SdoEvidenceModel.h"
 #include "SettingsDialog.h"

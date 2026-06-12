@@ -1,4 +1,4 @@
-#include "StartupSdoRowDetailUiState.h"
+#include "ui_state/StartupSdoRowDetailUiState.h"
 
 #include <QCoreApplication>
 

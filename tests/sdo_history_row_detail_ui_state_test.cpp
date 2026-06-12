@@ -1,4 +1,4 @@
-#include "SdoHistoryRowDetailUiState.h"
+#include "ui_state/SdoHistoryRowDetailUiState.h"
 
 #include <QCoreApplication>
 

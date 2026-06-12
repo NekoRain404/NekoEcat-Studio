@@ -1,4 +1,4 @@
-#include "WorkspaceTabBadgeUiState.h"
+#include "ui_state/WorkspaceTabBadgeUiState.h"
 
 #include <QCoreApplication>
 

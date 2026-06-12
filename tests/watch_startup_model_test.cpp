@@ -1,4 +1,4 @@
-#include "WatchStartupModel.h"
+#include "models/WatchStartupModel.h"
 
 #include <QCoreApplication>
 

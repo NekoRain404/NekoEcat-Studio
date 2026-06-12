@@ -1,4 +1,4 @@
-#include "SessionBriefTableAdapter.h"
+#include "adapters/SessionBriefTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

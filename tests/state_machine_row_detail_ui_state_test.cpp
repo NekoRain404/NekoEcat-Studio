@@ -1,4 +1,4 @@
-#include "StateMachineRowDetailUiState.h"
+#include "ui_state/StateMachineRowDetailUiState.h"
 
 #include <QCoreApplication>
 

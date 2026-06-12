@@ -1,4 +1,4 @@
-#include "FreeRunEntryDetailUiState.h"
+#include "ui_state/FreeRunEntryDetailUiState.h"
 
 #include <QCoreApplication>
 

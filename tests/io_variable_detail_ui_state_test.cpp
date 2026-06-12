@@ -1,4 +1,4 @@
-#include "IoVariableDetailUiState.h"
+#include "ui_state/IoVariableDetailUiState.h"
 
 #include <QCoreApplication>
 

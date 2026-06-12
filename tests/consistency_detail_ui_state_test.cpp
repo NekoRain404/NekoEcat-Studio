@@ -1,4 +1,4 @@
-#include "ConsistencyDetailUiState.h"
+#include "ui_state/ConsistencyDetailUiState.h"
 
 #include <QCoreApplication>
 

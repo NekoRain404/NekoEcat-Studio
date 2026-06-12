@@ -1,4 +1,4 @@
-#include "SdoEvidenceTableAdapter.h"
+#include "adapters/SdoEvidenceTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

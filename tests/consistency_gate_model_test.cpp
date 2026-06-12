@@ -1,4 +1,4 @@
-#include "ConsistencyGateModel.h"
+#include "models/ConsistencyGateModel.h"
 
 #include <QCoreApplication>
 

@@ -9,10 +9,14 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Network Widgets)
 
-add_subdirectory(src/core)
-add_subdirectory(src/igh)
-add_subdirectory(apps/ecatd)
-add_subdirectory(apps/ecat-studio)
+# Shared libraries
+add_subdirectory(src/core)    # EthercatTypes, JsonProtocol
+add_subdirectory(src/igh)     # IgH ethercat CLI adapter
 
+# Applications
+add_subdirectory(apps/ecatd)       # Runtime daemon
+add_subdirectory(apps/ecat-studio) # Qt6 desktop GUI
+
+# Tests
 enable_testing()
 add_subdirectory(tests)

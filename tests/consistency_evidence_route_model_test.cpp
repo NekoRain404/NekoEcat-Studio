@@ -1,4 +1,4 @@
-#include "ConsistencyEvidenceRouteModel.h"
+#include "models/ConsistencyEvidenceRouteModel.h"
 
 #include <QCoreApplication>
 

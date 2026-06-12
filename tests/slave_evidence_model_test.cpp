@@ -1,4 +1,4 @@
-#include "SlaveEvidenceModel.h"
+#include "models/SlaveEvidenceModel.h"
 
 #include <QCoreApplication>
 

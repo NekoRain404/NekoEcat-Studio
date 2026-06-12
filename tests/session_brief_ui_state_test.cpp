@@ -1,4 +1,4 @@
-#include "SessionBriefUiState.h"
+#include "ui_state/SessionBriefUiState.h"
 
 #include <QCoreApplication>
 

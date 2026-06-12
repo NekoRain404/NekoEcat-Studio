@@ -1,5 +1,8 @@
 #pragma once
 
+// IgH ethercat CLI wrapper: parses stdout into structured domain objects.
+
+
 #include "EthercatTypes.h"
 
 #include <QObject>

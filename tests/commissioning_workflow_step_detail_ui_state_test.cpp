@@ -1,4 +1,4 @@
-#include "CommissioningWorkflowStepDetailUiState.h"
+#include "ui_state/CommissioningWorkflowStepDetailUiState.h"
 
 #include <QCoreApplication>
 

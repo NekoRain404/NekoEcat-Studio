@@ -1,4 +1,4 @@
-#include "StudioTableHelpers.h"
+#include "helpers/StudioTableHelpers.h"
 
 #include <QApplication>
 #include <QTableWidget>

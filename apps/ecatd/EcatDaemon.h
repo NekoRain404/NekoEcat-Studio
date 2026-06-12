@@ -1,5 +1,8 @@
 #pragma once
 
+// ecatd runtime daemon: TCP server, command dispatch, and master lifecycle.
+
+
 #include "EthercatCliBackend.h"
 #include "FreeRunController.h"
 

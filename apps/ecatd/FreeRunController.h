@@ -1,5 +1,8 @@
 #pragma once
 
+// ecrt-based Free Run process image controller for real-time I/O.
+
+
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonObject>

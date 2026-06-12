@@ -1,4 +1,4 @@
-#include "IoVariableFilterModel.h"
+#include "models/IoVariableFilterModel.h"
 
 #include <QCoreApplication>
 

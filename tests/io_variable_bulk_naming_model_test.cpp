@@ -1,4 +1,4 @@
-#include "IoVariableBulkNamingModel.h"
+#include "models/IoVariableBulkNamingModel.h"
 
 #include <QCoreApplication>
 

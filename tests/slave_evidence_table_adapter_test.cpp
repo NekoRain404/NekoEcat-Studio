@@ -1,4 +1,4 @@
-#include "SlaveEvidenceTableAdapter.h"
+#include "adapters/SlaveEvidenceTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

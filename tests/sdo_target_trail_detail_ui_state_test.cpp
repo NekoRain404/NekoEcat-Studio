@@ -1,4 +1,4 @@
-#include "SdoTargetTrailDetailUiState.h"
+#include "ui_state/SdoTargetTrailDetailUiState.h"
 
 #include <QCoreApplication>
 

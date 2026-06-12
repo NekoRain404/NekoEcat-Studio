@@ -1,5 +1,8 @@
 #pragma once
 
+// Newline-delimited JSON framing protocol for GUI-daemon communication.
+
+
 #include <QByteArray>
 #include <QJsonObject>
 #include <QString>

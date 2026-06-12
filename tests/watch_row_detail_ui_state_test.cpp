@@ -1,4 +1,4 @@
-#include "WatchRowDetailUiState.h"
+#include "ui_state/WatchRowDetailUiState.h"
 
 #include <QCoreApplication>
 

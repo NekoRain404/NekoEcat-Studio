@@ -1,9 +1,9 @@
-#include "WorkspaceTabBadgeTableAdapter.h"
+#include "adapters/WorkspaceTabBadgeTableAdapter.h"
 
-#include "ConsistencyTableAdapter.h"
-#include "ProcessDataTableAdapter.h"
-#include "SlaveEvidenceTableAdapter.h"
-#include "WatchStartupTableAdapter.h"
+#include "adapters/ConsistencyTableAdapter.h"
+#include "adapters/ProcessDataTableAdapter.h"
+#include "adapters/SlaveEvidenceTableAdapter.h"
+#include "adapters/WatchStartupTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

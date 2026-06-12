@@ -1,4 +1,4 @@
-#include "WorkspaceBoundaryUiState.h"
+#include "ui_state/WorkspaceBoundaryUiState.h"
 
 #include <QCoreApplication>
 

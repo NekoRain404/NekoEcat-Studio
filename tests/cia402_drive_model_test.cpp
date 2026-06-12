@@ -1,4 +1,4 @@
-#include "Cia402DriveModel.h"
+#include "models/Cia402DriveModel.h"
 
 #include <QCoreApplication>
 

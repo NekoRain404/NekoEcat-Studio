@@ -1,4 +1,4 @@
-#include "ConsistencyTableAdapter.h"
+#include "adapters/ConsistencyTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>

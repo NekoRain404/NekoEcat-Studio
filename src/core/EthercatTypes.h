@@ -1,5 +1,8 @@
 #pragma once
 
+// Shared EtherCAT domain types: SlaveInfo, master state, port info.
+
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QString>

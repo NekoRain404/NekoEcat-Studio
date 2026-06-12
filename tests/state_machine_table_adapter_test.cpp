@@ -1,4 +1,4 @@
-#include "StateMachineTableAdapter.h"
+#include "adapters/StateMachineTableAdapter.h"
 
 #include <QApplication>
 #include <QTableWidget>
