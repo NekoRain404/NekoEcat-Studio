@@ -3716,7 +3716,13 @@ void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
   const int previous = selectedPosition();
   const QVector<SlaveInfo> previousSlaves = slaves_;
   reportTopologyChanges(previousSlaves, slaves);
+
+  // Skip full tree rebuild if slave list is identical (avoids UI flicker)
+  if (slaves == slaves_) {
+    return;
+  }
   slaves_ = slaves;
+  topologyTree_->setUpdatesEnabled(false);
   topologyTree_->clear();
 
   auto *master = new QTreeWidgetItem(
@@ -3762,6 +3768,7 @@ void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
     }
     topologyTree_->setCurrentItem(target);
   }
+  topologyTree_->setUpdatesEnabled(true);
 }
 
 // Parse the daemon's master status text and update the overview metric cards
@@ -4621,6 +4628,7 @@ void MainWindow::updateWatchRowDetail() {
 // Helper: bulk-set table rows with headers in a single operation
 void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
                               const QList<QStringList> &rows) {
+  table->setUpdatesEnabled(false);
   table->clear();
   table->setColumnCount(headers.size());
   table->setHorizontalHeaderLabels(headers);
@@ -4632,6 +4640,7 @@ void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
     }
   }
   table->resizeColumnsToContents();
+  table->setUpdatesEnabled(true);
 }
 
 // Helper: update a metric card label's title and value

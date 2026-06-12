@@ -16,6 +16,8 @@ struct SlaveInfo {
     QString flags;
     QString name;
     QString rawLine;
+
+    bool operator==(const SlaveInfo &other) const = default;
 };
 
 struct MasterInfo {

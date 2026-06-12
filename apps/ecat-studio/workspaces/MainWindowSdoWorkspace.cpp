@@ -4778,11 +4778,71 @@ void MainWindow::filterSdoTable(const QString &text) {
         lastStatus.contains(uiText("Failed", "失败"), Qt::CaseInsensitive) ||
         lastStatus.contains("failed", Qt::CaseInsensitive);
     if (accessForSummary.contains('w')) {
+      ++writableRows;
+    }
+    if (hasEvidence) {
+      ++evidenceRows;
+    }
+    if (failedEvidence) {
+      ++failedRows;
+    }
+    if (tagMode) {
+      // Semantic tag filtering: tag:writable, tag:cia402, tag:identity, etc.
+      const QString access = textAt(row, 3).toLower();
+      const QString objectText = textAt(row, 0).toLower();
+      const QString nameText = textAt(row, 6).toLower();
+      if (tag == "writable") {
+        match = access.contains('w');
+      } else if (tag == "readable") {
+        match = access.contains('r');
+      } else if (tag == "cia402") {
+        match = rowHasIndexPrefix(row, {"0x603f", "0x6040", "0x6041", "0x6060",
+                                        "0x6061", "0x6064", "0x606c", "0x6071",
+                                        "0x6077", "0x607a", "0x60ff"}) ||
+                objectText.contains("cia") ||
+                nameText.contains("controlword") ||
+                nameText.contains("statusword") || nameText.contains("mode") ||
+                nameText.contains("position") ||
+                nameText.contains("velocity") || nameText.contains("torque");
+      } else if (tag == "identity") {
+        match = rowHasIndexPrefix(
+                    row, {"0x1000", "0x1008", "0x1009", "0x100a", "0x1018"}) ||
+                objectText.contains("identity") ||
+                objectText.contains("device") || nameText.contains("vendor") ||
+                nameText.contains("product") || nameText.contains("revision") ||
+                nameText.contains("serial") || nameText.contains("name");
+      } else if (tag == "pdo") {
+        match = rowHasIndexPrefix(
+                    row, {"0x160", "0x1a0", "0x1c1", "0x1c2", "0x1c3"}) ||
+                objectText.contains("pdo") || nameText.contains("pdo") ||
+                nameText.contains("mapping") || nameText.contains("assignment");
+      } else if (tag == "error") {
+        match =
+            rowHasIndexPrefix(row, {"0x1001", "0x1002", "0x1003", "0x1010",
+                                    "0x1011", "0x1029", "0x10f3", "0x603f"}) ||
+            objectText.contains("error") || objectText.contains("emergency") ||
+            objectText.contains("diagnostic") || nameText.contains("error") ||
+            nameText.contains("fault") || nameText.contains("emergency") ||
+            nameText.contains("diagnostic");
+      } else if (tag == "evidence") {
+        match = hasEvidence;
+      } else if (tag == "failed") {
+        match = failedEvidence;
+      } else {
+        match = true;
+      }
+    } else {
+      // Free-text search: match against any column
+      for (int column = 0; column < sdoTable_->columnCount() && !match;
+           ++column) {
+        const auto *item = sdoTable_->item(row, column);
+        match = item && item->text().contains(needle, Qt::CaseInsensitive);
+      }
     }
     if (match) {
       ++visible;
     }
-    sdoTable_->setRowHidden(row, !match); // show/hide based on filter match
+    sdoTable_->setRowHidden(row, !match);
   }
   if (tagMode) {
     updateDiagnostics("Info", "SDO",
