@@ -1,3 +1,4 @@
+// Unit tests for ConsistencyDetailUiState.
 #include "ui_state/ConsistencyDetailUiState.h"
 
 #include <QCoreApplication>

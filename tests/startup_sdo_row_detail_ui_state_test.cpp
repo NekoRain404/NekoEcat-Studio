@@ -1,3 +1,4 @@
+// Unit tests for StartupSdoRowDetailUiState.
 #include "ui_state/StartupSdoRowDetailUiState.h"
 
 #include <QCoreApplication>

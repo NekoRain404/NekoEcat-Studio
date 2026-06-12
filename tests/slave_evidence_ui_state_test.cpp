@@ -1,3 +1,4 @@
+// Unit tests for SlaveEvidenceUiState.
 #include "ui_state/SlaveEvidenceUiState.h"
 
 #include <QCoreApplication>

@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the state machine detail panel.
 struct StateMachineRowDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -38,6 +39,7 @@ struct StateMachineRowDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved state machine detail with boundary, display fields, and tooltip.
 struct StateMachineRowDetailUiState {
   QString text;
   QString severityKey;
@@ -59,9 +61,11 @@ StateMachineRowDetailUiState
 stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts);
 StateMachineRowDetailUiState
 stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts);
+// Maps risk and recommendation to a severity key.
 QString
 stateMachineRowDetailSeverityKey(const StateMachineTableRow &row,
                                  const StateMachineRowDetailTexts &texts);
+// Assembles the full state machine detail state.
 StateMachineRowDetailUiState
 buildStateMachineRowDetailUiState(const StateMachineTableRow &row,
                                   const StateMachineRowDetailTexts &texts);

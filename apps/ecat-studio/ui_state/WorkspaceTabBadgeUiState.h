@@ -5,6 +5,7 @@
 
 #include <QString>
 
+// Localized tab names and tooltip patterns for all 8 workspace tabs.
 struct WorkspaceTabBadgeTexts {
   QString overview;
   QString watch;
@@ -24,6 +25,7 @@ struct WorkspaceTabBadgeTexts {
   QString diagnosticsTipPattern;
 };
 
+// Aggregated counts from all workspace tables for badge computation.
 struct WorkspaceTabBadgeCounts {
   int matrixP0 = 0;
   int matrixP1 = 0;
@@ -48,11 +50,13 @@ struct WorkspaceTabBadgeCounts {
   int diagnosticInfos = 0;
 };
 
+// A single tab badge: formatted text and detailed tooltip.
 struct WorkspaceTabBadge {
   QString text;
   QString tip;
 };
 
+// All 8 workspace tab badges ready for rendering.
 struct WorkspaceTabBadgeUiState {
   WorkspaceTabBadge overview;
   WorkspaceTabBadge watch;
@@ -64,8 +68,10 @@ struct WorkspaceTabBadgeUiState {
   WorkspaceTabBadge diagnostics;
 };
 
+// Formats badge text with optional issue indicator.
 QString workspaceTabBadgeText(const QString &label, int count,
                               bool issue = false);
+// Builds all 8 workspace tab badges.
 WorkspaceTabBadgeUiState
 buildWorkspaceTabBadgeUiState(const WorkspaceTabBadgeCounts &counts,
                               const WorkspaceTabBadgeTexts &texts);

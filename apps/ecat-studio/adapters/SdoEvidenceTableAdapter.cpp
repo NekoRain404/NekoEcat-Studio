@@ -1,3 +1,4 @@
+// Populates and queries the SDO evidence / history QTableWidget.
 #include "SdoEvidenceTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
@@ -7,6 +8,7 @@
 
 namespace {
 
+// Adds a non-empty candidate value with its source label to the evidence list.
 void appendCandidate(SdoEvidenceCandidates *candidates, const QString &source,
                      const QString &value) {
   if (!candidates) {
@@ -18,6 +20,7 @@ void appendCandidate(SdoEvidenceCandidates *candidates, const QString &source,
   }
 }
 
+// Appends a non-empty evidence item, used for both local and write evidence assembly.
 void appendEvidenceItem(QVector<SdoEvidenceItem> *items, const QString &source,
                         const QString &value) {
   if (!items) {
@@ -31,6 +34,7 @@ void appendEvidenceItem(QVector<SdoEvidenceItem> *items, const QString &source,
 
 } // namespace
 
+// Locates the matching row in each evidence table for a given SDO target address.
 SdoEvidenceTableRows
 sdoEvidenceTableRowsForTarget(const SdoEvidenceTables &tables,
                               const SdoEvidenceTarget &target) {
@@ -59,6 +63,7 @@ sdoEvidenceTableRowsForTarget(const SdoEvidenceTables &tables,
   return rows;
 }
 
+// Assembles all available value candidates (read, watch, dictionary, startup, bookmark, trail) for comparison.
 SdoEvidenceCandidates
 sdoEvidenceCandidatesFromTables(const QString &readValue,
                                 const SdoEvidenceTables &tables,
@@ -102,6 +107,7 @@ sdoEvidenceCandidatesFromTables(const QString &readValue,
   return candidates;
 }
 
+// Builds the full list of local evidence items from all tables, for the evidence detail panel.
 QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
     int position, const QString &index, const QString &subIndex,
     const QString &readValue, const QString &cachedDictionaryValue,
@@ -167,6 +173,7 @@ QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
   return items;
 }
 
+// Assembles write-side evidence items from pre-extracted value strings for delta review.
 QVector<SdoEvidenceItem> sdoWriteEvidenceItemsFromValues(
     const QString &readValue, const QString &dictionaryValue,
     const QString &watchValue, const QString &startupValue,
@@ -191,6 +198,7 @@ QVector<SdoEvidenceItem> sdoWriteEvidenceItemsFromValues(
   return items;
 }
 
+// Whether enough evidence is present across tables to render the write-delta review panel.
 bool sdoWriteDeltaReviewEvidenceAvailable(const QString &readValue,
                                           const SdoEvidenceTables &tables,
                                           const SdoEvidenceTableRows &rows) {
@@ -226,6 +234,7 @@ bool sdoWriteDeltaReviewEvidenceAvailable(const QString &readValue,
                .isEmpty());
 }
 
+// Extracts a target trail row capturing the full SDO read/write history entry.
 SdoTargetTrailRow sdoTargetTrailRowFromTable(QTableWidget *table, int row) {
   SdoTargetTrailRow result;
   result.row = row;
@@ -246,15 +255,18 @@ SdoTargetTrailRow sdoTargetTrailRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Whether this trail row addresses a specific position:index:subIndex.
 bool sdoTargetTrailRowHasTarget(const SdoTargetTrailRow &row) {
   return row.positionValid && row.position >= 0 && !row.index.isEmpty() &&
          !row.subIndex.isEmpty();
 }
 
+// Prefers the write value if present, otherwise falls back to the read value.
 QString sdoTargetTrailRowStartupValue(const SdoTargetTrailRow &row) {
   return row.writeValue.isEmpty() ? row.value : row.writeValue;
 }
 
+// Builds a deterministic key from address + metadata for deduplication and set membership.
 QString sdoTargetTrailRowKey(int position, const QString &index,
                              const QString &subIndex, const QString &type,
                              const QString &source, const QString &detail) {
@@ -264,19 +276,23 @@ QString sdoTargetTrailRowKey(int position, const QString &index,
            source, detail.left(96).simplified());
 }
 
+// Convenience overload that delegates to the field-based key builder.
 QString sdoTargetTrailRowKey(const SdoTargetTrailRow &row) {
   return sdoTargetTrailRowKey(row.position, row.index, row.subIndex, row.type,
                               row.source, row.detail);
 }
 
+// Builds the trail key directly from table cells without constructing the full row model.
 QString sdoTargetTrailRowKeyFromTable(QTableWidget *table, int row) {
   return sdoTargetTrailRowKey(sdoTargetTrailRowFromTable(table, row));
 }
 
+// Retrieves the startup-relevant value for a trail row by table index.
 QString sdoTargetTrailStartupValueFromTable(QTableWidget *table, int row) {
   return sdoTargetTrailRowStartupValue(sdoTargetTrailRowFromTable(table, row));
 }
 
+// Collects all trail row keys into a set for quick membership checks during updates.
 QSet<QString> sdoTargetTrailKeysFromTable(QTableWidget *table) {
   QSet<QString> keys;
   if (!table) {
@@ -289,6 +305,7 @@ QSet<QString> sdoTargetTrailKeysFromTable(QTableWidget *table) {
   return keys;
 }
 
+// Extracts a bookmarked SDO object row for the bookmark detail panel.
 SdoObjectBookmarkRow sdoObjectBookmarkRowFromTable(QTableWidget *table,
                                                    int row) {
   SdoObjectBookmarkRow result;
@@ -311,17 +328,20 @@ SdoObjectBookmarkRow sdoObjectBookmarkRowFromTable(QTableWidget *table,
   return result;
 }
 
+// Whether this bookmark row addresses a valid position:index:subIndex.
 bool sdoObjectBookmarkRowHasTarget(const SdoObjectBookmarkRow &row) {
   return row.positionValid && row.position >= 0 && !row.index.isEmpty() &&
          !row.subIndex.isEmpty();
 }
 
+// Checks if an access-rights string indicates read-only, supporting localized labels.
 bool sdoObjectAccessIsReadOnly(const QString &access,
                                const QString &readOnlyText) {
   return access.toLower().contains(QStringLiteral("ro")) ||
          (!readOnlyText.isEmpty() && access.contains(readOnlyText));
 }
 
+// Extracts an SDO history row capturing past read/write operations with timestamps.
 SdoHistoryRow sdoHistoryRowFromTable(QTableWidget *table, int row) {
   SdoHistoryRow result;
   result.row = row;
@@ -342,6 +362,7 @@ SdoHistoryRow sdoHistoryRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Whether this history row addresses a valid position:index:subIndex.
 bool sdoHistoryRowHasTarget(const SdoHistoryRow &row) {
   return row.positionValid && row.position >= 0 && !row.index.isEmpty() &&
          !row.subIndex.isEmpty();

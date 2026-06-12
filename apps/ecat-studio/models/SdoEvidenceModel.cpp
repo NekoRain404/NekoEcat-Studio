@@ -1,7 +1,9 @@
+// SDO read evidence tracking: value, status, source, and comparison.
 #include "SdoEvidenceModel.h"
 
 #include "helpers/StudioTextHelpers.h"
 
+// Builds a normalized composite key for SDO evidence lookup and deduplication.
 QString sdoEvidenceKey(int position, const QString &index,
                        const QString &subIndex) {
   return QString("%1|%2|%3")
@@ -9,6 +11,7 @@ QString sdoEvidenceKey(int position, const QString &index,
       .arg(normalizeHexText(index, 4), normalizeHexText(subIndex, 2));
 }
 
+// Filters out failed/pending reads when checking if startup evidence is usable.
 bool isSdoHistoryStartupSource(const QString &status, const QString &value) {
   if (value.trimmed().isEmpty()) {
     return false;
@@ -21,6 +24,7 @@ bool isSdoHistoryStartupSource(const QString &status, const QString &value) {
   return true;
 }
 
+// Returns the first (highest-priority) evidence candidate's value and its source.
 QString preferredSdoEvidenceValue(const SdoEvidenceCandidates &candidates,
                                   QString *source) {
   if (source) {
@@ -35,12 +39,14 @@ QString preferredSdoEvidenceValue(const SdoEvidenceCandidates &candidates,
   return candidates.first().second;
 }
 
+// Normalized comparison that ignores whitespace and formatting differences.
 bool sdoValuesComparableEqual(const QString &left, const QString &right) {
   const QString normalizedLeft = normalizeComparableValue(left);
   const QString normalizedRight = normalizeComparableValue(right);
   return !normalizedLeft.isEmpty() && normalizedLeft == normalizedRight;
 }
 
+// Detects when multiple evidence sources report different values for the same object.
 bool sdoEvidenceHasConflict(const SdoEvidenceCandidates &candidates) {
   QString firstNormalized;
   for (const auto &candidate : candidates) {
@@ -59,6 +65,7 @@ bool sdoEvidenceHasConflict(const SdoEvidenceCandidates &candidates) {
   return false;
 }
 
+// Clusters evidence items by normalized value for side-by-side comparison display.
 QVector<SdoEvidenceGroup>
 groupSdoEvidence(const QVector<SdoEvidenceItem> &items) {
   QVector<SdoEvidenceGroup> groups;
@@ -87,6 +94,7 @@ groupSdoEvidence(const QVector<SdoEvidenceItem> &items) {
   return groups;
 }
 
+// Compares a proposed write value against all known evidence to surface diffs and conflicts.
 SdoWriteDeltaReview reviewSdoWriteDelta(const QVector<SdoEvidenceItem> &items,
                                         const QString &writeValue) {
   SdoWriteDeltaReview review;

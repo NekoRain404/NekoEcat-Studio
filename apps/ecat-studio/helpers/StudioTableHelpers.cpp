@@ -1,3 +1,4 @@
+// Generic QTableWidget utilities: row selection, CSV, markdown export.
 #include "StudioTableHelpers.h"
 
 #include "StudioTextHelpers.h"
@@ -12,6 +13,7 @@
 #include <QTextStream>
 #include <QtGlobal>
 
+// Escapes and quotes text for safe CSV output, replacing newlines with spaces.
 QString csvCell(QString text) {
   text.replace('"', "\"\"");
   text.replace('\r', " ");
@@ -19,6 +21,7 @@ QString csvCell(QString text) {
   return QString("\"%1\"").arg(text);
 }
 
+// Escapes pipe characters and converts newlines for safe markdown table cells.
 QString markdownCell(QString text) {
   text.replace('\\', "\\\\");
   text.replace('|', "\\|");
@@ -27,6 +30,7 @@ QString markdownCell(QString text) {
   return text;
 }
 
+// Safely reads trimmed text from a table cell, returning empty string for out-of-bounds.
 QString tableText(QTableWidget *table, int row, int column) {
   if (!table || row < 0 || row >= table->rowCount() || column < 0 ||
       column >= table->columnCount()) {
@@ -36,6 +40,7 @@ QString tableText(QTableWidget *table, int row, int column) {
   return item ? item->text().trimmed() : QString();
 }
 
+// Finds the first row where a numeric position column matches the target value.
 int tableRowForPosition(QTableWidget *table, int position, int positionColumn) {
   if (!table || position < 0) {
     return -1;
@@ -51,6 +56,7 @@ int tableRowForPosition(QTableWidget *table, int position, int positionColumn) {
   return -1;
 }
 
+// Compares normalized hex index:subIndex at the given row against a target pair.
 bool tableObjectIndexMatches(QTableWidget *table, int row, const QString &index,
                              const QString &subIndex, int indexColumn,
                              int subIndexColumn) {
@@ -65,6 +71,7 @@ bool tableObjectIndexMatches(QTableWidget *table, int row, const QString &index,
              normalizeHexText(subIndex, 2);
 }
 
+// Checks full position + index:subIndex match for a row, used in evidence lookups.
 bool tableObjectAddressMatches(QTableWidget *table, int row, int position,
                                const QString &index, const QString &subIndex,
                                int positionColumn, int indexColumn,
@@ -80,6 +87,7 @@ bool tableObjectAddressMatches(QTableWidget *table, int row, int position,
                                  subIndexColumn);
 }
 
+// Linear scan for the first row matching an index:subIndex pair.
 int tableRowForObjectIndex(QTableWidget *table, const QString &index,
                            const QString &subIndex, int indexColumn,
                            int subIndexColumn) {
@@ -96,6 +104,7 @@ int tableRowForObjectIndex(QTableWidget *table, const QString &index,
   return -1;
 }
 
+// Linear scan for the first row matching position + index:subIndex.
 int tableRowForObjectAddress(QTableWidget *table, int position,
                              const QString &index, const QString &subIndex,
                              int positionColumn, int indexColumn,
@@ -115,6 +124,7 @@ int tableRowForObjectAddress(QTableWidget *table, int position,
   return -1;
 }
 
+// Returns the first non-hidden row index, or -1 if none visible.
 int firstVisibleTableRow(QTableWidget *table) {
   if (!table) {
     return -1;
@@ -128,6 +138,7 @@ int firstVisibleTableRow(QTableWidget *table) {
   return -1;
 }
 
+// Returns sorted, deduplicated selected row indices with optional fallback to the current row.
 QVector<int> selectedTableRows(QTableWidget *table, bool visibleOnly,
                                bool includeCurrentFallback) {
   QVector<int> rows;
@@ -162,6 +173,7 @@ QVector<int> selectedTableRows(QTableWidget *table, bool visibleOnly,
   return rows;
 }
 
+// Returns indices of all non-hidden rows.
 QVector<int> visibleTableRows(QTableWidget *table) {
   QVector<int> rows;
   if (!table) {
@@ -176,6 +188,7 @@ QVector<int> visibleTableRows(QTableWidget *table) {
   return rows;
 }
 
+// Snapshots all rows as string lists for clipboard or export operations.
 QList<QStringList> copyTableRows(QTableWidget *table) {
   QList<QStringList> rows;
   if (!table) {
@@ -192,6 +205,7 @@ QList<QStringList> copyTableRows(QTableWidget *table) {
   return rows;
 }
 
+// Selects a row, scrolls it into view, and gives the table keyboard focus.
 bool selectAndFocusTableRow(QTableWidget *table, int row, int column) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return false;
@@ -208,6 +222,7 @@ bool selectAndFocusTableRow(QTableWidget *table, int row, int column) {
   return true;
 }
 
+// Auto-sizes columns to content and stretches the designated column to fill remaining space.
 void fitTableColumnsToViewport(QTableWidget *table, int stretchColumn) {
   if (!table || table->columnCount() <= 0) {
     return;
@@ -230,6 +245,7 @@ void fitTableColumnsToViewport(QTableWidget *table, int stretchColumn) {
   header->setSectionResizeMode(safeStretchColumn, QHeaderView::Stretch);
 }
 
+// Renders the table as a markdown-formatted string to the given text stream.
 void writeMarkdownTable(QTextStream &out, QTableWidget *table) {
   if (!table || table->columnCount() <= 0) {
     out << "_No data._\n\n";

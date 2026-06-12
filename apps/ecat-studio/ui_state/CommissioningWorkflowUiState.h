@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QVector>
 
+// All localized strings for the commissioning workflow panel.
 struct CommissioningWorkflowTexts {
   QString ready;
   QString action;
@@ -43,6 +44,7 @@ struct CommissioningWorkflowTexts {
   QString tooltipPattern;
 };
 
+// Domain model row with status, risk, evidence, and action.
 struct CommissioningWorkflowRow {
   QString phase;
   CommissioningWorkflowStatus status = CommissioningWorkflowStatus::Blocked;
@@ -52,6 +54,7 @@ struct CommissioningWorkflowRow {
   QString action;
 };
 
+// UI-ready row with cell strings, tooltip, and color key.
 struct CommissioningWorkflowUiRow {
   QStringList cells;
   QString tooltip;
@@ -59,12 +62,14 @@ struct CommissioningWorkflowUiRow {
   CommissioningWorkflowStatus status = CommissioningWorkflowStatus::Blocked;
 };
 
+// Tallied counts of ready, action, and blocked rows.
 struct CommissioningWorkflowStats {
   int ready = 0;
   int action = 0;
   int blocked = 0;
 };
 
+// Boundary classification for a workflow step (online/local + detail).
 struct CommissioningWorkflowStepBoundary {
   QString kind;
   QString detail;

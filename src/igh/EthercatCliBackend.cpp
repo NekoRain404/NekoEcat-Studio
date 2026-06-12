@@ -1,3 +1,4 @@
+// IgH ethercat CLI wrapper: parses stdout into structured domain objects.
 #include "EthercatCliBackend.h"
 
 #include <QDirIterator>
@@ -14,6 +15,7 @@
 
 namespace {
 
+// Synchronous helper for short-lived external commands (uname, dkms, etc.).
 struct ProcessResult {
   bool started = false;
   int exitCode = -1;
@@ -21,6 +23,7 @@ struct ProcessResult {
   QString stdErr;
 };
 
+// Run a program with arguments, capturing stdout/stderr. Kills on timeout.
 ProcessResult runProgram(const QString &program,
                          const QStringList &arguments = {},
                          int timeoutMs = 5000) {
@@ -51,6 +54,7 @@ ProcessResult runProgram(const QString &program,
   return result;
 }
 
+// Build a standardized diagnostic check object for the GUI's host-diagnostics panel.
 QJsonObject diagnosticItem(const QString &level, const QString &source,
                            const QString &message, const QString &detail = {},
                            const QString &hint = {},
@@ -61,6 +65,7 @@ QJsonObject diagnosticItem(const QString &level, const QString &source,
   };
 }
 
+// Parse /etc/ethercat.conf-style key="value" configuration lines.
 QString configValue(const QString &config, const QString &key) {
   const QRegularExpression re(QString("^\\s*%1\\s*=\\s*\"?([^\"\\n#]*)\"?")
                                   .arg(QRegularExpression::escape(key)),
@@ -69,11 +74,14 @@ QString configValue(const QString &config, const QString &key) {
   return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
 
+// Validate MAC address format for NIC binding checks.
 bool isMacAddress(const QString &value) {
   static const QRegularExpression re(R"(^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$)");
   return re.match(value.trimmed()).hasMatch();
 }
 
+// Scan modprobe.d for kernel module blacklists that could block the Realtek NIC driver
+// needed by certain USB EtherCAT adapters — a false positive causes hard-to-debug failures.
 QStringList matchingBlacklistLines() {
   QStringList matches;
   for (const QString &root : {QStringLiteral("/etc/modprobe.d"),
@@ -108,6 +116,7 @@ QStringList matchingBlacklistLines() {
 
 EthercatCliBackend::EthercatCliBackend(QObject *parent) : QObject(parent) {}
 
+// Return raw `ethercat master` output (timing, DC info, topology).
 QString EthercatCliBackend::masterText(const QString &master,
                                        QString *error) const {
   int exitCode = 0;
@@ -119,6 +128,7 @@ QString EthercatCliBackend::masterText(const QString &master,
   return text;
 }
 
+// Parse `ethercat slaves` tabular output into structured SlaveInfo objects.
 QVector<SlaveInfo> EthercatCliBackend::scanSlaves(const QString &master,
                                                   QString *error) const {
   int exitCode = 0;
@@ -130,6 +140,7 @@ QVector<SlaveInfo> EthercatCliBackend::scanSlaves(const QString &master,
   return exitCode == 0 ? parseSlaves(text) : QVector<SlaveInfo>{};
 }
 
+// Verbose single-slave dump via `ethercat slaves -p N -v`.
 QString EthercatCliBackend::slaveInfo(const QString &master, int position,
                                       QString *error) const {
   int exitCode = 0;
@@ -143,6 +154,7 @@ QString EthercatCliBackend::slaveInfo(const QString &master, int position,
   return text;
 }
 
+// ESI XML descriptor for a single slave (`ethercat xml -p N`).
 QString EthercatCliBackend::slaveXml(const QString &master, int position,
                                      QString *error) const {
   int exitCode = 0;
@@ -155,6 +167,7 @@ QString EthercatCliBackend::slaveXml(const QString &master, int position,
   return text;
 }
 
+// PDO dictionary listing for a single slave.
 QString EthercatCliBackend::pdos(const QString &master, int position,
                                  QString *error) const {
   int exitCode = 0;
@@ -167,6 +180,7 @@ QString EthercatCliBackend::pdos(const QString &master, int position,
   return text;
 }
 
+// SDO dictionary listing for a single slave.
 QString EthercatCliBackend::sdos(const QString &master, int position,
                                  QString *error) const {
   int exitCode = 0;
@@ -179,6 +193,7 @@ QString EthercatCliBackend::sdos(const QString &master, int position,
   return text;
 }
 
+// SDO upload (read) — returns the value as a string from CLI output.
 QString EthercatCliBackend::upload(const QString &master, int position,
                                    const QString &index,
                                    const QString &subIndex,
@@ -194,6 +209,7 @@ QString EthercatCliBackend::upload(const QString &master, int position,
   return text.trimmed();
 }
 
+// SDO download (write) — optionally specifies a type hint (-t) for the CLI.
 bool EthercatCliBackend::download(const QString &master, int position,
                                   const QString &index, const QString &subIndex,
                                   const QString &value, const QString &type,
@@ -212,6 +228,7 @@ bool EthercatCliBackend::download(const QString &master, int position,
   return exitCode == 0;
 }
 
+// Request an AL state transition for a single slave.
 bool EthercatCliBackend::setState(const QString &master, int position,
                                   const QString &state, QString *error) const {
   int exitCode = 0;
@@ -224,6 +241,7 @@ bool EthercatCliBackend::setState(const QString &master, int position,
   return exitCode == 0;
 }
 
+// Broadcast an AL state transition to all slaves on the bus.
 bool EthercatCliBackend::setAllStates(const QString &master,
                                       const QString &state,
                                       QString *error) const {
@@ -236,6 +254,7 @@ bool EthercatCliBackend::setAllStates(const QString &master,
   return exitCode == 0;
 }
 
+// Trigger bus re-enumeration to detect newly connected or removed slaves.
 bool EthercatCliBackend::rescan(const QString &master, QString *error) const {
   int exitCode = 0;
   QString stdErr;
@@ -246,6 +265,8 @@ bool EthercatCliBackend::rescan(const QString &master, QString *error) const {
   return exitCode == 0;
 }
 
+// Run pre-flight host checks: kernel version, NIC driver, module blacklists,
+// DKMS status, and ethercatctl service. Each check is a structured diagnostic item.
 QJsonArray EthercatCliBackend::hostDiagnostics(QString *error) const {
   Q_UNUSED(error)
 
@@ -435,6 +456,8 @@ QJsonArray EthercatCliBackend::hostDiagnostics(QString *error) const {
   return checks;
 }
 
+// Execute the IgH `ethercat` CLI with an optional `-m` master selector.
+// Single exit point for all non-real-time EtherCAT shell commands.
 QString EthercatCliBackend::run(const QString &master,
                                 const QStringList &arguments, int *exitCode,
                                 QString *stdErr) const {
@@ -468,6 +491,9 @@ QString EthercatCliBackend::run(const QString &master,
   return QString::fromLocal8Bit(process.readAllStandardOutput());
 }
 
+// Parse the tabular output of `ethercat slaves`:
+//   <position>  <alias>  <state>  <flags>  <name>
+// Only lines matching this regex produce a SlaveInfo entry.
 QVector<SlaveInfo> EthercatCliBackend::parseSlaves(const QString &text) const {
   QVector<SlaveInfo> slaves;
   const auto lines = text.split('\n', Qt::SkipEmptyParts);

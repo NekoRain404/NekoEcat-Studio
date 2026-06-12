@@ -1,3 +1,4 @@
+// Unit tests for FreeRunEntryDetailUiState.
 #include "ui_state/FreeRunEntryDetailUiState.h"
 
 #include <QCoreApplication>

@@ -1,18 +1,22 @@
+// CiA 402 drive summary card for the selected slave panel.
 #include "SelectedDriveSummaryUiState.h"
 
 #include "models/EvidenceStatusModel.h"
 
 namespace {
 
+// Lowercases and trims the index for case-insensitive CiA 402 object matching.
 QString normalizedIndex(const WatchStartupWatchRow &row) {
   return row.index.trimmed().toLower();
 }
 
+// Whether the raw value represents a zero/no-error state.
 bool isZeroErrorValue(const QString &value) {
   const QString trimmed = value.trimmed();
   return trimmed == "0" || trimmed.toLower() == "0x0000";
 }
 
+// Maps the drive evidence severity enum to a string key for styling.
 QString driveSeverityKey(DriveEvidenceSeverity severity) {
   switch (severity) {
   case DriveEvidenceSeverity::Error:
@@ -29,6 +33,7 @@ QString driveSeverityKey(DriveEvidenceSeverity severity) {
   return QStringLiteral("neutral");
 }
 
+// Joins non-empty evidence fields into a pipe-separated list for severity evaluation.
 QStringList summaryEvidenceParts(const SelectedDriveSummaryEvidence &evidence) {
   QStringList parts;
   if (!evidence.status.isEmpty()) {
@@ -46,6 +51,7 @@ QStringList summaryEvidenceParts(const SelectedDriveSummaryEvidence &evidence) {
   return parts;
 }
 
+// Builds the display list with localized labels for mode and controlword.
 QStringList displayParts(const SelectedDriveSummaryEvidence &evidence,
                          const SelectedDriveSummaryTexts &texts) {
   QStringList parts;
@@ -66,12 +72,14 @@ QStringList displayParts(const SelectedDriveSummaryEvidence &evidence,
 
 } // namespace
 
+// Neutral state when no CiA 402 watch evidence is available.
 SelectedDriveSummaryUiState
 selectedDriveNoWatchEvidenceState(const SelectedDriveSummaryTexts &texts) {
   return {.text = texts.noWatchEvidence,
           .severityKey = QStringLiteral("neutral")};
 }
 
+// Extracts CiA 402 statusword, mode display, error code, and controlword from watch rows.
 SelectedDriveSummaryEvidence
 selectedDriveSummaryEvidence(const QVector<WatchStartupWatchRow> &watchRows,
                              int position) {
@@ -102,12 +110,14 @@ selectedDriveSummaryEvidence(const QVector<WatchStartupWatchRow> &watchRows,
   return evidence;
 }
 
+// Derives severity from the combined drive evidence text.
 QString
 selectedDriveSummarySeverityKey(const SelectedDriveSummaryEvidence &evidence) {
   return driveSeverityKey(
       driveEvidenceSeverity(summaryEvidenceParts(evidence).join(" | ")));
 }
 
+// Assembles the full drive summary card with evidence, severity, and formatted text.
 SelectedDriveSummaryUiState
 buildSelectedDriveSummaryUiState(const QVector<WatchStartupWatchRow> &watchRows,
                                  int position,
@@ -126,6 +136,7 @@ buildSelectedDriveSummaryUiState(const QVector<WatchStartupWatchRow> &watchRows,
   return state;
 }
 
+// Recommends the next CiA 402 controlword based on the current decoded statusword.
 Cia402ControlwordRecommendation selectedDriveControlwordRecommendation(
     const QVector<WatchStartupWatchRow> &watchRows, int position) {
   if (position < 0) {

@@ -1,7 +1,9 @@
+// Workspace boundary banner text: title, detail, severity, and actions.
 #include "WorkspaceBoundaryUiState.h"
 
 namespace {
 
+// Helper to set label, severity, and details in one call to reduce repetition.
 void setBoundary(WorkspaceBoundaryUiState *state, const QString &label,
                  const QString &severity, const QStringList &details) {
   state->label = label;
@@ -11,6 +13,7 @@ void setBoundary(WorkspaceBoundaryUiState *state, const QString &label,
 
 } // namespace
 
+// Maps each workspace kind to its boundary banner: label, severity, detail lines, and tooltip.
 WorkspaceBoundaryUiState
 buildWorkspaceBoundaryUiState(WorkspaceBoundaryKind kind,
                               const QString &workspaceName,

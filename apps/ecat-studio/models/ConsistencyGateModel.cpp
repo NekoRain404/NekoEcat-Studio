@@ -1,5 +1,7 @@
+// Consistency gate issue classification, severity scoring, and blocking rules.
 #include "ConsistencyGateModel.h"
 
+// Maps localized severity text (English/Chinese) to the corresponding enum value.
 ConsistencyIssueLevel consistencyIssueLevelFromText(const QString &level) {
   const QString normalized = level.toLower();
   if (normalized.contains("error") || normalized.contains("错误")) {
@@ -17,6 +19,7 @@ ConsistencyIssueLevel consistencyIssueLevelFromText(const QString &level) {
   return ConsistencyIssueLevel::Empty;
 }
 
+// Tallies one issue into the appropriate severity counter bucket.
 void addConsistencyIssueLevel(ConsistencyIssueCounts *counts,
                               ConsistencyIssueLevel level) {
   if (!counts) {
@@ -40,10 +43,12 @@ void addConsistencyIssueLevel(ConsistencyIssueCounts *counts,
   }
 }
 
+// Errors or warnings block further commissioning progress through the gate.
 bool consistencyHasBlockingIssues(const ConsistencyIssueCounts &counts) {
   return counts.errors > 0 || counts.warnings > 0;
 }
 
+// Derives overall gate status: not run, stale, blocking, or passed.
 ConsistencyGateState
 consistencyGateState(bool available, bool fresh,
                      const ConsistencyIssueCounts &counts) {

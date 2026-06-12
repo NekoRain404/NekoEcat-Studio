@@ -9,6 +9,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the step detail panel.
 struct CommissioningWorkflowStepDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -28,6 +29,7 @@ struct CommissioningWorkflowStepDetailTexts {
   QString localReviewBoundary;
 };
 
+// Resolved detail panel state with severity, boundary, and tooltip.
 struct CommissioningWorkflowStepDetailUiState {
   QString text;
   QString severityKey;
@@ -43,16 +45,20 @@ struct CommissioningWorkflowStepDetailUiState {
   QString tooltip;
 };
 
+// Neutral state when the workflow table is unavailable.
 CommissioningWorkflowStepDetailUiState
 commissioningWorkflowStepDetailUnavailableState(
     const CommissioningWorkflowStepDetailTexts &texts);
+// Neutral state prompting user to select a row.
 CommissioningWorkflowStepDetailUiState
 commissioningWorkflowStepDetailNoSelectionState(
     const CommissioningWorkflowStepDetailTexts &texts);
+// Maps status + risk to a severity key for styling.
 QString commissioningWorkflowStepDetailSeverityKey(
     const CommissioningWorkflowTableRow &row,
     const CommissioningWorkflowTexts &workflowTexts,
     const CommissioningWorkflowStepDetailTexts &texts);
+// Assembles the full detail panel state.
 CommissioningWorkflowStepDetailUiState
 buildCommissioningWorkflowStepDetailUiState(
     const CommissioningWorkflowTableRow &row,

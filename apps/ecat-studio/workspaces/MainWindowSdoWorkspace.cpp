@@ -118,13 +118,17 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Build a human-readable impact summary for a proposed SDO write
 QStringList MainWindow::sdoWriteImpactDetails(int position,
                                               const QString &index,
                                               const QString &subIndex,
                                               const QString &targetValue,
                                               const QString &type) const {
   QStringList details;
+  // Normalize hex address for consistent comparison
   const QString normalizedIndex = normalizeHexText(index, 4);
+  // Normalize hex address for consistent comparison
   const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
   const QString target = targetValue.trimmed();
 
@@ -335,6 +339,8 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
   return details;
 }
 
+
+// — Return the startup sdo impact line
 QString MainWindow::startupSdoImpactLine(int row) const {
   if (!startupSdoTable_ || row < 0 || row >= startupSdoTable_->rowCount()) {
     return QString();
@@ -377,6 +383,8 @@ QString MainWindow::startupSdoImpactLine(int row) const {
   return QString("%1 (%2)").arg(line, suffix.join(" | "));
 }
 
+
+// — Return a list of startup sdo batch impact details
 QStringList MainWindow::startupSdoBatchImpactDetails(const QVector<int> &rows,
                                                      int previewLimit) const {
   QStringList details;
@@ -409,6 +417,7 @@ QStringList MainWindow::startupSdoBatchImpactDetails(const QVector<int> &rows,
 
     const QString riskKey =
         QString("%1 %2")
+            // Normalize hex address for consistent comparison
             .arg(normalizeHexText(tableText(startupSdoTable_, row, 1), 4),
                  tableText(startupSdoTable_, row, 4))
             .toLower();
@@ -470,6 +479,8 @@ QStringList MainWindow::startupSdoBatchImpactDetails(const QVector<int> &rows,
   return details;
 }
 
+
+// — Restore manual sdo write mode
 void MainWindow::restoreManualSdoWriteMode() {
   if (selectedSdoWritable_) {
     updateSdoInspector(uiText("Manual edit", "手动编辑"));
@@ -484,6 +495,8 @@ void MainWindow::restoreManualSdoWriteMode() {
   updateActionAvailability();
 }
 
+
+// — Check whether is current sdo target
 bool MainWindow::isCurrentSdoTarget(int position, const QString &index,
                                     const QString &subIndex) const {
   if (position < 0 || selectedPosition() < 0 || !sdoIndex_ || !sdoSubIndex_) {
@@ -498,6 +511,8 @@ bool MainWindow::isCurrentSdoTarget(int position, const QString &index,
          sdoEvidenceKey(selectedPosition(), currentIndex, currentSubIndex);
 }
 
+
+// — Return the current sdo dictionary row
 int MainWindow::currentSdoDictionaryRow() const {
   const int position = selectedPosition();
   if (position < 0 || !sdoTable_ || !sdoIndex_ || !sdoSubIndex_ ||
@@ -512,6 +527,8 @@ int MainWindow::currentSdoDictionaryRow() const {
       .dictionaryRow;
 }
 
+
+// — Return the current sdo watch row
 int MainWindow::currentSdoWatchRow() const {
   const int position = selectedPosition();
   if (position < 0 || !watchTable_ || !sdoIndex_ || !sdoSubIndex_) {
@@ -524,6 +541,8 @@ int MainWindow::currentSdoWatchRow() const {
       .watchRow;
 }
 
+
+// — Return the current sdo startup row
 int MainWindow::currentSdoStartupRow() const {
   const int position = selectedPosition();
   if (position < 0 || !startupSdoTable_ || !sdoIndex_ || !sdoSubIndex_) {
@@ -536,6 +555,8 @@ int MainWindow::currentSdoStartupRow() const {
       .startupRow;
 }
 
+
+// — Return the current sdo bookmark row
 int MainWindow::currentSdoBookmarkRow() const {
   const int position = selectedPosition();
   if (position < 0 || !objectBookmarkTable_ || !sdoIndex_ || !sdoSubIndex_) {
@@ -548,6 +569,8 @@ int MainWindow::currentSdoBookmarkRow() const {
       .bookmarkRow;
 }
 
+
+// — Return the current sdo target trail row
 int MainWindow::currentSdoTargetTrailRow() const {
   const int position = selectedPosition();
   if (position < 0 || !sdoTargetTrailTable_ || !sdoIndex_ || !sdoSubIndex_) {
@@ -561,10 +584,14 @@ int MainWindow::currentSdoTargetTrailRow() const {
       .targetTrailRow;
 }
 
+
+// — Return the current sdo preferred evidence value
 QString MainWindow::currentSdoPreferredEvidenceValue(QString *source) const {
   return preferredSdoEvidenceValue(currentSdoEvidenceCandidates(), source);
 }
 
+
+// — Current sdo evidence candidates
 SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   const int position = selectedPosition();
   const SdoEvidenceTableRows rows = sdoEvidenceTableRowsForTarget(
@@ -594,10 +621,14 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
        .targetTrail = uiText("Target Trail", "目标轨迹")});
 }
 
+
+// — Check whether current sdo evidence has conflict
 bool MainWindow::currentSdoEvidenceHasConflict() const {
   return sdoEvidenceHasConflict(currentSdoEvidenceCandidates());
 }
 
+
+// — Check whether current sdo write delta review available
 bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
   if (selectedPosition() < 0 || !sdoIndex_ || !sdoSubIndex_) {
     return false;
@@ -622,6 +653,8 @@ bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
        .targetTrailRow = currentSdoTargetTrailRow()});
 }
 
+
+// — Compare the current SDO target value against the last read value
 void MainWindow::reviewCurrentSdoWriteDelta() {
   if (!currentSdoWriteDeltaReviewAvailable()) {
     updateDiagnostics("Info", "Navigation",
@@ -763,6 +796,8 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
                            "正在当前读回字段中审阅写入差异"));
 }
 
+
+// — Populate the SDO read/write controls from the selected target panel row
 bool MainWindow::openSdoTargetPanelRow(int row) {
   if (!sdoTargetTable_ || row < 0 || row >= sdoTargetTable_->rowCount()) {
     return false;
@@ -823,6 +858,8 @@ bool MainWindow::openSdoTargetPanelRow(int row) {
   return true;
 }
 
+
+// — Copy a summary of the SDO target panel row to clipboard
 bool MainWindow::copySdoTargetPanelRowDigest(int row) {
   if (!sdoTargetTable_ || row < 0 || row >= sdoTargetTable_->rowCount()) {
     statusBar()->showMessage(uiText("Select a Selected Object row to copy.",
@@ -896,13 +933,15 @@ bool MainWindow::copySdoTargetPanelRowDigest(int row) {
                   "边界：只复制到剪贴板；不读取总线、不写 SDO、不切换状态、"
                   "不改变 Free Run，也不运行 Host Health。");
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   updateDiagnostics("Info", "SDO",
                     uiText("Copied Selected Object row evidence to clipboard",
                            "已复制选中对象本行证据到剪贴板"));
   return true;
 }
 
+
+// — Copy a summary of the current SDO evidence to clipboard
 void MainWindow::copyCurrentSdoEvidenceDigest() {
   const int position = selectedPosition();
   const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
@@ -990,12 +1029,14 @@ void MainWindow::copyCurrentSdoEvidenceDigest() {
                   "边界：只复制到剪贴板；不读取总线、不写 SDO、不切换状态、"
                   "不改变 Free Run，也不运行 Host Health。");
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   updateDiagnostics("Info", "SDO",
                     uiText("Copied current SDO evidence digest to clipboard",
                            "已复制当前 SDO 证据摘要到剪贴板"));
 }
 
+
+// — Open current sdo watch link
 void MainWindow::openCurrentSdoWatchLink() {
   const int row = currentSdoWatchRow();
   if (row < 0 || !watchTable_) {
@@ -1011,6 +1052,8 @@ void MainWindow::openCurrentSdoWatchLink() {
                            "已打开当前 SDO 目标匹配的 Watch 行"));
 }
 
+
+// — Open current sdo startup link
 void MainWindow::openCurrentSdoStartupLink() {
   const int row = currentSdoStartupRow();
   if (row < 0 || !startupSdoTable_) {
@@ -1031,6 +1074,8 @@ void MainWindow::openCurrentSdoStartupLink() {
                            "已打开当前目标匹配的 Startup SDO 行"));
 }
 
+
+// — Open current sdo bookmark link
 void MainWindow::openCurrentSdoBookmarkLink() {
   const int row = currentSdoBookmarkRow();
   if (row < 0 || !objectBookmarkTable_) {
@@ -1046,6 +1091,8 @@ void MainWindow::openCurrentSdoBookmarkLink() {
                            "已打开当前目标匹配的对象书签"));
 }
 
+
+// — Open current sdo target trail link
 void MainWindow::openCurrentSdoTargetTrailLink() {
   const int row = currentSdoTargetTrailRow();
   if (row < 0 || !sdoTargetTrailTable_) {
@@ -1063,6 +1110,8 @@ void MainWindow::openCurrentSdoTargetTrailLink() {
              "已打开当前目标匹配的 SDO 目标轨迹行"));
 }
 
+
+// — Return the sdo object category
 QString MainWindow::sdoObjectCategory(const QString &index, const QString &name,
                                       const QString &object,
                                       const QString &detail) const {
@@ -1095,6 +1144,8 @@ QString MainWindow::sdoObjectCategory(const QString &index, const QString &name,
   return uiText("Application object", "应用对象");
 }
 
+
+// — Refresh the SDO target panel table from the current SDO history
 void MainWindow::updateSdoTargetPanel(const QString &source,
                                       const QString &detail,
                                       const QString &status,
@@ -1111,7 +1162,9 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
   const QString readValue = sdoValue_ ? sdoValue_->text().trimmed() : QString();
   const QString writeValue =
       sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+  // Normalize hex address for consistent comparison
   const QString normalizedIndex = normalizeHexText(index, 4);
+  // Normalize hex address for consistent comparison
   const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
   const bool hasCompleteTarget = position >= 0 && !normalizedIndex.isEmpty() &&
                                  !normalizedSubIndex.isEmpty();
@@ -1439,7 +1492,7 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
     rows.append({uiText("Check", "检查"), problems.join("; ")});
   }
 
-  const QSignalBlocker blocker(sdoTargetTable_);
+  const QSignalBlocker blocker(sdoTargetTable_); // prevent recursive signal updates
   sdoTargetTable_->clearContents();
   sdoTargetTable_->setRowCount(rows.size());
   auto rowActionText = [this, evidenceSetLabel, writeDeltaLabel, watchRow,
@@ -1571,6 +1624,8 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
   updateSdoTargetRowCopyButton();
 }
 
+
+// — Update sdo target row action button
 void MainWindow::updateSdoTargetRowActionButton() {
   auto *button = findChild<QPushButton *>("runSdoTargetRowAction");
   if (!button) {
@@ -1610,6 +1665,8 @@ void MainWindow::updateSdoTargetRowActionButton() {
                            : field));
 }
 
+
+// — Update sdo target row copy button
 void MainWindow::updateSdoTargetRowCopyButton() {
   auto *button = findChild<QPushButton *>("copySdoTargetRowEvidence");
   if (!button) {
@@ -1643,6 +1700,8 @@ void MainWindow::updateSdoTargetRowCopyButton() {
           .arg(field));
 }
 
+
+// — Update sdo inspector
 void MainWindow::updateSdoInspector(const QString &source,
                                     const QString &detail) {
   if (!sdoInspectorLabel_) {
@@ -1728,10 +1787,12 @@ void MainWindow::updateSdoInspector(const QString &source,
   sdoInspectorLabel_->setText(parts.join("  -  "));
   sdoInspectorLabel_->setToolTip(parts.join("\n"));
   sdoInspectorLabel_->setProperty("state", state);
-  repolish(sdoInspectorLabel_);
+  repolish(sdoInspectorLabel_); // force QSS re-evaluation after property change
   updateSdoTargetPanel(source, detail, status, problems);
 }
 
+
+// — Create the SDO target trail table columns if not yet initialized
 void MainWindow::ensureSdoTargetTrailTable() {
   if (!sdoTargetTrailTable_) {
     return;
@@ -1749,16 +1810,19 @@ void MainWindow::ensureSdoTargetTrailTable() {
   sdoTargetTrailTable_->horizontalHeader()->setStretchLastSection(true);
 }
 
+
+// — Refresh the SDO target trail detail strip for the focused row
 void MainWindow::updateSdoTargetTrailRowDetail() {
   if (!sdoTargetTrailDetailLabel_) {
     return;
   }
   const SdoTargetTrailDetailTexts texts = sdoTargetTrailDetailTexts();
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SdoTargetTrailDetailUiState &state) {
     sdoTargetTrailDetailLabel_->setText(state.text);
     sdoTargetTrailDetailLabel_->setProperty("severity", state.severityKey);
     sdoTargetTrailDetailLabel_->setToolTip(state.tooltip);
-    repolish(sdoTargetTrailDetailLabel_);
+    repolish(sdoTargetTrailDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!sdoTargetTrailTable_) {
@@ -1779,6 +1843,8 @@ void MainWindow::updateSdoTargetTrailRowDetail() {
       trail, sdoTargetTrailRowCanCreateStartup(row), texts));
 }
 
+
+// — Store the current SDO target address in the target trail history
 void MainWindow::rememberCurrentSdoTarget(const QString &source,
                                           const QString &detail) {
   if (!sdoTargetTrailTable_) {
@@ -1786,7 +1852,9 @@ void MainWindow::rememberCurrentSdoTarget(const QString &source,
   }
   const int position = selectedPosition();
   const QString index =
+      // Normalize hex address for consistent comparison
       normalizeHexText(sdoIndex_ ? sdoIndex_->text().trimmed() : QString(), 4);
+  // Normalize hex address for consistent comparison
   const QString subIndex = normalizeHexText(
       sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString(), 2);
   if (position < 0 || index.isEmpty() || subIndex.isEmpty()) {
@@ -1841,11 +1909,13 @@ void MainWindow::rememberCurrentSdoTarget(const QString &source,
         sdoTargetTrailRowKeyFromTable(sdoTargetTrailTable_, lastRow));
     sdoTargetTrailTable_->removeRow(lastRow);
   }
-  sdoTargetTrailTable_->resizeColumnsToContents();
+  sdoTargetTrailTable_->resizeColumnsToContents(); // auto-fit column widths
   updateSdoTargetTrailRowDetail();
   updateActionAvailability();
 }
 
+
+// — Check whether prepare sdo target trail row
 bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
   if (!sdoTargetTrailTable_ || row < 0 ||
       row >= sdoTargetTrailTable_->rowCount()) {
@@ -1870,11 +1940,11 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
-    const QSignalBlocker valueBlocker(sdoValue_);
-    const QSignalBlocker writeBlocker(sdoWriteValue_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
+    const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
+    const QSignalBlocker writeBlocker(sdoWriteValue_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText(trail.index);
     }
@@ -1941,10 +2011,14 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
   return true;
 }
 
+
+// — Return the sdo target trail row startup value
 QString MainWindow::sdoTargetTrailRowStartupValue(int row) const {
   return sdoTargetTrailStartupValueFromTable(sdoTargetTrailTable_, row);
 }
 
+
+// — Check whether sdo target trail row can create startup
 bool MainWindow::sdoTargetTrailRowCanCreateStartup(int row) const {
   const SdoTargetTrailRow trail =
       sdoTargetTrailRowFromTable(sdoTargetTrailTable_, row);
@@ -1982,10 +2056,14 @@ bool MainWindow::sdoTargetTrailRowCanCreateStartup(int row) const {
   return true;
 }
 
+
+// — Restore the SDO target panel from a historical trail entry
 void MainWindow::restoreSdoTargetTrailRow(int row) {
   prepareSdoTargetTrailRow(row, true);
 }
 
+
+// — Add sdo target trail row to watch
 void MainWindow::addSdoTargetTrailRowToWatch() {
   const int row =
       sdoTargetTrailTable_ ? sdoTargetTrailTable_->currentRow() : -1;
@@ -2019,7 +2097,7 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
     updateWatchStartupDelta(watchRow);
   }
   if (watchTable_) {
-    watchTable_->resizeColumnsToContents();
+    watchTable_->resizeColumnsToContents(); // auto-fit column widths
   }
   updateDiagnostics("Info", "SDO Target Trail",
                     uiText("Added selected target trail row to Watch without "
@@ -2028,6 +2106,8 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
   activateWorkspaceTab(watchTabIndex_);
 }
 
+
+// — Bookmark sdo target trail row
 void MainWindow::bookmarkSdoTargetTrailRow() {
   const int row =
       sdoTargetTrailTable_ ? sdoTargetTrailTable_->currentRow() : -1;
@@ -2052,6 +2132,8 @@ void MainWindow::bookmarkSdoTargetTrailRow() {
                            "已收藏所选目标轨迹行，未访问总线"));
 }
 
+
+// — Add sdo target trail row to startup
 void MainWindow::addSdoTargetTrailRowToStartup() {
   const int row =
       sdoTargetTrailTable_ ? sdoTargetTrailTable_->currentRow() : -1;
@@ -2103,6 +2185,8 @@ void MainWindow::addSdoTargetTrailRowToStartup() {
   activateWorkspaceTab(startupSdoTabIndex_);
 }
 
+
+// — Remove selected sdo target trail rows
 void MainWindow::removeSelectedSdoTargetTrailRows() {
   if (!sdoTargetTrailTable_ || !sdoTargetTrailTable_->selectionModel()) {
     return;
@@ -2123,6 +2207,8 @@ void MainWindow::removeSelectedSdoTargetTrailRows() {
   updateActionAvailability();
 }
 
+
+// — Clear sdo target trail
 void MainWindow::clearSdoTargetTrail() {
   if (!sdoTargetTrailTable_) {
     return;
@@ -2138,6 +2224,8 @@ void MainWindow::clearSdoTargetTrail() {
   updateActionAvailability();
 }
 
+
+// — Update sdo table evidence
 void MainWindow::updateSdoTableEvidence(int position, const QString &index,
                                         const QString &subIndex,
                                         const QString &value,
@@ -2148,7 +2236,9 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
     return;
   }
 
+  // Normalize hex address for consistent comparison
   const QString normalizedIndex = normalizeHexText(index, 4);
+  // Normalize hex address for consistent comparison
   const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
   const QString key = sdoEvidenceKey(position, index, subIndex);
   const QString time = QDateTime::currentDateTime().toString("HH:mm:ss");
@@ -2199,6 +2289,8 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
   updateActionAvailability();
 }
 
+
+// — Use read sdo value for write
 void MainWindow::useReadSdoValueForWrite() {
   if (!sdoValue_ || !sdoWriteValue_ || !selectedSdoWritable_) {
     return;
@@ -2222,6 +2314,8 @@ void MainWindow::useReadSdoValueForWrite() {
   updateActionAvailability();
 }
 
+
+// — Use preferred sdo evidence for write
 void MainWindow::usePreferredSdoEvidenceForWrite() {
   if (!sdoWriteValue_ || !selectedSdoWritable_) {
     return;
@@ -2251,6 +2345,8 @@ void MainWindow::usePreferredSdoEvidenceForWrite() {
   updateActionAvailability();
 }
 
+
+// — Pick sdo evidence for write
 void MainWindow::pickSdoEvidenceForWrite() {
   if (!sdoWriteValue_ || !selectedSdoWritable_) {
     return;
@@ -2296,9 +2392,9 @@ void MainWindow::pickSdoEvidenceForWrite() {
       ->setText(uiText("Use Evidence", "使用证据"));
   buttons->button(QDialogButtonBox::Cancel)->setText(uiText("Cancel", "取消"));
   layout->addWidget(buttons);
-  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-  connect(list, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept);
+  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
+  connect(list, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept); // wire signal to slot
 
   if (dialog.exec() != QDialog::Accepted || !list->currentItem()) {
     return;
@@ -2325,6 +2421,8 @@ void MainWindow::pickSdoEvidenceForWrite() {
   updateActionAvailability();
 }
 
+
+// — Write current sdo
 void MainWindow::writeCurrentSdo() {
   if (!selectedSdoWritable_) {
     updateDiagnostics("Warning", "SDO",
@@ -2371,6 +2469,7 @@ void MainWindow::writeCurrentSdo() {
     details << uiText("Validation warning: %1", "校验警告：%1")
                    .arg(validationWarnings.join("; "));
   }
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm SDO Write", "确认 SDO 写入"),
           uiText("This operation writes a value to the selected slave object.",
@@ -2412,6 +2511,8 @@ void MainWindow::writeCurrentSdo() {
                              sdoWriteValue_->text()));
 }
 
+
+// — Prepare cia 402 controlword
 void MainWindow::prepareCia402Controlword(const QString &label,
                                           const QString &value) {
   if (selectedPosition() < 0) {
@@ -2419,9 +2520,9 @@ void MainWindow::prepareCia402Controlword(const QString &label,
   }
   activateObjectDictionaryPaneFor(sdoTable_);
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText("0x6040");
     }
@@ -2455,6 +2556,8 @@ void MainWindow::prepareCia402Controlword(const QString &label,
   writeCurrentSdo();
 }
 
+
+// — Check whether recommended cia 402 controlword
 bool MainWindow::recommendedCia402Controlword(QString *label, QString *value,
                                               QString *reason) const {
   const int position = selectedPosition();
@@ -2481,6 +2584,8 @@ bool MainWindow::recommendedCia402Controlword(QString *label, QString *value,
   return true;
 }
 
+
+// — Check whether validate sdo address and value
 bool MainWindow::validateSdoAddressAndValue(
     const QString &index, const QString &subIndex, const QString &value,
     const QString &type, QStringList *errors, QStringList *warnings) const {
@@ -2494,6 +2599,7 @@ bool MainWindow::validateSdoAddressAndValue(
       warnings->append(message);
     }
   };
+  // Parse a numeric string to double for delta comparison
   auto parseNumber = [](QString text, int *baseOut = nullptr) {
     text = text.trimmed();
     int base = 10;
@@ -2624,6 +2730,8 @@ bool MainWindow::validateSdoAddressAndValue(
   return errors ? errors->isEmpty() : true;
 }
 
+
+// — Create the SDO history table columns if not yet initialized
 void MainWindow::ensureSdoHistoryTable() {
   if (!sdoHistoryTable_) {
     return;
@@ -2638,6 +2746,8 @@ void MainWindow::ensureSdoHistoryTable() {
        uiText("Detail", "详情")});
 }
 
+
+// — Append sdo history
 void MainWindow::appendSdoHistory(const QString &action, int position,
                                   const QString &index, const QString &subIndex,
                                   const QString &type, const QString &value,
@@ -2676,20 +2786,23 @@ void MainWindow::appendSdoHistory(const QString &action, int position,
   if (sdoHistoryTable_->rowCount() > 300) {
     sdoHistoryTable_->removeRow(0);
   }
-  sdoHistoryTable_->resizeColumnsToContents();
+  sdoHistoryTable_->resizeColumnsToContents(); // auto-fit column widths
   updateSdoHistoryRowDetail();
 }
 
+
+// — Refresh the SDO history detail strip for the focused row
 void MainWindow::updateSdoHistoryRowDetail() {
   if (!sdoHistoryDetailLabel_) {
     return;
   }
   const SdoHistoryRowDetailTexts texts = sdoHistoryRowDetailTexts();
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SdoHistoryRowDetailUiState &state) {
     sdoHistoryDetailLabel_->setText(state.text);
     sdoHistoryDetailLabel_->setProperty("severity", state.severityKey);
     sdoHistoryDetailLabel_->setToolTip(state.tooltip);
-    repolish(sdoHistoryDetailLabel_);
+    repolish(sdoHistoryDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!sdoHistoryTable_) {
@@ -2708,6 +2821,8 @@ void MainWindow::updateSdoHistoryRowDetail() {
       sdoHistoryRowFromTable(sdoHistoryTable_, row), texts));
 }
 
+
+// — Send an SDO read request to ecatd for the given object address
 void MainWindow::requestSdoRead(int position, const QString &index,
                                 const QString &subIndex, const QString &source,
                                 const QString &type) {
@@ -2728,6 +2843,8 @@ void MainWindow::requestSdoRead(int position, const QString &index,
   client_.upload(position, trimmedIndex, trimmedSub);
 }
 
+
+// — Fill the SDO target panel from the selected OD row
 void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   if (!sdoTable_ || row < 0 || row >= sdoTable_->rowCount()) {
     return;
@@ -2748,10 +2865,10 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   const QString access = dictionary.access.toLower();
   const bool writable = sdoDictionaryRowIsWritable(dictionary);
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
-  const QSignalBlocker valueBlocker(sdoValue_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
+  const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
 
   sdoIndex_->setText(dictionary.index);
   sdoSubIndex_->setText(dictionary.subIndex);
@@ -2806,6 +2923,8 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Create the object bookmark table columns if not yet initialized
 void MainWindow::ensureObjectBookmarkTable() {
   if (!objectBookmarkTable_) {
     return;
@@ -2823,16 +2942,19 @@ void MainWindow::ensureObjectBookmarkTable() {
   objectBookmarkTable_->horizontalHeader()->setStretchLastSection(true);
 }
 
+
+// — Refresh the object bookmark detail strip for the focused row
 void MainWindow::updateObjectBookmarkRowDetail() {
   if (!objectBookmarkDetailLabel_) {
     return;
   }
   const ObjectBookmarkDetailTexts texts = objectBookmarkDetailTexts();
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const ObjectBookmarkDetailUiState &state) {
     objectBookmarkDetailLabel_->setText(state.text);
     objectBookmarkDetailLabel_->setProperty("severity", state.severityKey);
     objectBookmarkDetailLabel_->setToolTip(state.tooltip);
-    repolish(objectBookmarkDetailLabel_);
+    repolish(objectBookmarkDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!objectBookmarkTable_) {
@@ -2851,10 +2973,14 @@ void MainWindow::updateObjectBookmarkRowDetail() {
       sdoObjectBookmarkRowFromTable(objectBookmarkTable_, row), texts));
 }
 
+
+// — Return selected object bookmark rows
 QVector<int> MainWindow::selectedObjectBookmarkRows() const {
   return selectedTableRows(objectBookmarkTable_);
 }
 
+
+// — Check whether select object bookmark slave
 bool MainWindow::selectObjectBookmarkSlave(int position) {
   if (position < 0) {
     return false;
@@ -2870,7 +2996,7 @@ bool MainWindow::selectObjectBookmarkSlave(int position) {
     for (int child = 0; child < masterItem->childCount(); ++child) {
       auto *slaveItem = masterItem->child(child);
       if (slaveItem && slaveItem->data(0, Qt::UserRole).toInt() == position) {
-        QSignalBlocker blocker(topologyTree_);
+        QSignalBlocker blocker(topologyTree_); // prevent recursive signal updates
         topologyTree_->setCurrentItem(slaveItem);
         selectedLabel_->setText(slaveItem->text(0));
         filterWatchTable();
@@ -2886,6 +3012,8 @@ bool MainWindow::selectObjectBookmarkSlave(int position) {
   return false;
 }
 
+
+// — Add current sdo bookmark
 void MainWindow::addCurrentSdoBookmark() {
   const int position = selectedPosition();
   const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
@@ -2906,6 +3034,8 @@ void MainWindow::addCurrentSdoBookmark() {
       uiText("Current SDO", "当前 SDO"));
 }
 
+
+// — Add selected dictionary rows to bookmarks
 void MainWindow::addSelectedDictionaryRowsToBookmarks() {
   if (selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -2919,6 +3049,8 @@ void MainWindow::addSelectedDictionaryRowsToBookmarks() {
       rows, uiText("selected Object Dictionary row(s)", "选中对象字典行"));
 }
 
+
+// — Add dictionary rows to bookmarks
 void MainWindow::addDictionaryRowsToBookmarks(const QVector<int> &rows,
                                               const QString &sourceLabel) {
   if (selectedPosition() < 0 || !sdoTable_ ||
@@ -2955,6 +3087,8 @@ void MainWindow::addDictionaryRowsToBookmarks(const QVector<int> &rows,
   updateActionAvailability();
 }
 
+
+// — Check whether select slave for local evidence
 bool MainWindow::selectSlaveForLocalEvidence(int position) {
   if (position < 0 || !topologyTree_) {
     return false;
@@ -2969,7 +3103,7 @@ bool MainWindow::selectSlaveForLocalEvidence(int position) {
       if (!slaveItem || slaveItem->data(0, Qt::UserRole).toInt() != position) {
         continue;
       }
-      QSignalBlocker blocker(topologyTree_);
+      QSignalBlocker blocker(topologyTree_); // prevent recursive signal updates
       topologyTree_->setCurrentItem(slaveItem);
       selectedLabel_->setText(slaveItem->text(0));
       filterWatchTable();
@@ -2989,6 +3123,8 @@ bool MainWindow::selectSlaveForLocalEvidence(int position) {
   return false;
 }
 
+
+// — Add object bookmark
 void MainWindow::addObjectBookmark(int position, const QString &index,
                                    const QString &subIndex,
                                    const QString &access, const QString &type,
@@ -3000,7 +3136,9 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
     return;
   }
   ensureObjectBookmarkTable();
+  // Normalize hex address for consistent comparison
   const QString normalizedIndex = normalizeHexText(index, 4);
+  // Normalize hex address for consistent comparison
   const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
   int row =
       tableRowForObjectAddress(objectBookmarkTable_, position, normalizedIndex,
@@ -3037,11 +3175,13 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
     }
     item->setText(values.at(column));
   }
-  objectBookmarkTable_->resizeColumnsToContents();
+  objectBookmarkTable_->resizeColumnsToContents(); // auto-fit column widths
   objectBookmarkTable_->selectRow(row);
   updateObjectBookmarkRowDetail();
 }
 
+
+// — Fill the SDO target panel from the selected object bookmark row
 void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
   if (!objectBookmarkTable_ || row < 0 ||
       row >= objectBookmarkTable_->rowCount()) {
@@ -3068,10 +3208,10 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
     return;
   }
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
-    const QSignalBlocker valueBlocker(sdoValue_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
+    const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
     sdoIndex_->setText(bookmark.index);
     sdoSubIndex_->setText(bookmark.subIndex);
     if (sdoType_) {
@@ -3119,6 +3259,8 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Add selected object bookmarks to watch
 void MainWindow::addSelectedObjectBookmarksToWatch() {
   const QVector<int> rows = selectedObjectBookmarkRows();
   if (rows.isEmpty()) {
@@ -3127,6 +3269,8 @@ void MainWindow::addSelectedObjectBookmarksToWatch() {
   addObjectBookmarkRowsToWatch(rows);
 }
 
+
+// — Add object bookmark rows to watch
 void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
   if (!objectBookmarkTable_ || rows.isEmpty()) {
     return;
@@ -3187,7 +3331,7 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
     updateWatchBaselineDelta(watchRow);
     updateWatchStartupDelta(watchRow);
   }
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateWatchAutoRefresh();
   activateWorkspaceTab(watchTabIndex_);
@@ -3200,6 +3344,8 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
           .arg(skipped));
 }
 
+
+// — Add selected object bookmarks to startup sdo
 void MainWindow::addSelectedObjectBookmarksToStartupSdo() {
   const QVector<int> rows = selectedObjectBookmarkRows();
   if (rows.isEmpty()) {
@@ -3208,6 +3354,8 @@ void MainWindow::addSelectedObjectBookmarksToStartupSdo() {
   addObjectBookmarkRowsToStartupSdo(rows);
 }
 
+
+// — Add object bookmark rows to startup sdo
 void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
   if (!objectBookmarkTable_ || rows.isEmpty()) {
     return;
@@ -3364,6 +3512,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
                    .arg(duplicateSkipped);
   }
 
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup from Bookmarks",
                  "确认从书签创建 Startup SDO"),
@@ -3451,7 +3600,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
   if (lastTouchedRow >= 0) {
     startupSdoTable_->selectRow(lastTouchedRow);
   }
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   filterStartupSdoTable();
   updateStartupSdoControls();
@@ -3474,6 +3623,8 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
   }
 }
 
+
+// — Remove selected object bookmarks
 void MainWindow::removeSelectedObjectBookmarks() {
   QVector<int> rows = selectedObjectBookmarkRows();
   if (rows.isEmpty() || !objectBookmarkTable_) {
@@ -3493,6 +3644,8 @@ void MainWindow::removeSelectedObjectBookmarks() {
   updateActionAvailability();
 }
 
+
+// — Read selected dictionary rows
 void MainWindow::readSelectedDictionaryRows() {
   if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3507,6 +3660,8 @@ void MainWindow::readSelectedDictionaryRows() {
       false);
 }
 
+
+// — Read visible dictionary rows
 void MainWindow::readVisibleDictionaryRows() {
   if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3520,6 +3675,8 @@ void MainWindow::readVisibleDictionaryRows() {
       rows, uiText("visible object dictionary row(s)", "可见对象字典行"), true);
 }
 
+
+// — Read failed dictionary rows
 void MainWindow::readFailedDictionaryRows() {
   if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3546,6 +3703,8 @@ void MainWindow::readFailedDictionaryRows() {
       rows, uiText("failed object dictionary row(s)", "失败对象字典行"), true);
 }
 
+
+// — Read dictionary rows
 void MainWindow::readDictionaryRows(const QVector<int> &rows,
                                     const QString &sourceLabel,
                                     bool confirmLargeBatch) {
@@ -3585,6 +3744,7 @@ void MainWindow::readDictionaryRows(const QVector<int> &rows,
       details << uiText("...and %1 more object(s)", "...另有 %1 个对象")
                      .arg(objects.size() - preview);
     }
+    // Safety gate: require explicit confirmation before bus write
     if (!confirmDangerousOperation(
             uiText("Confirm Visible OD Read", "确认读取可见 OD"),
             uiText("Read the currently visible Object Dictionary rows.",
@@ -3608,6 +3768,8 @@ void MainWindow::readDictionaryRows(const QVector<int> &rows,
           .arg(skipped > 0 ? QString(", skipped %1").arg(skipped) : QString()));
 }
 
+
+// — Add selected dictionary rows to watch
 void MainWindow::addSelectedDictionaryRowsToWatch() {
   if (selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3621,6 +3783,8 @@ void MainWindow::addSelectedDictionaryRowsToWatch() {
       rows, uiText("selected object dictionary row(s)", "选中对象字典行"));
 }
 
+
+// — Add visible dictionary rows to watch
 void MainWindow::addVisibleDictionaryRowsToWatch() {
   if (selectedPosition() < 0 || !sdoTable_ ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3634,6 +3798,8 @@ void MainWindow::addVisibleDictionaryRowsToWatch() {
       rows, uiText("visible object dictionary row(s)", "可见对象字典行"));
 }
 
+
+// — Add dictionary rows to watch
 void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
                                           const QString &sourceLabel) {
   if (selectedPosition() < 0 || !sdoTable_ ||
@@ -3664,9 +3830,9 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
       continue;
     }
     {
-      const QSignalBlocker indexBlocker(sdoIndex_);
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-      const QSignalBlocker typeBlocker(sdoType_);
+      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
       if (sdoIndex_) {
         sdoIndex_->setText(dictionary.index);
       }
@@ -3689,9 +3855,9 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText(previousIndex);
     }
@@ -3723,6 +3889,8 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
   }
 }
 
+
+// — Fill the SDO target panel from the selected PDO map row
 void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
   if (!pdoTable_ || row < 0 || row >= pdoTable_->rowCount()) {
     return;
@@ -3741,8 +3909,8 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
   sdoIndex_->setText(pdoRow.index);
   sdoSubIndex_->setText(pdoRow.subIndex);
   selectedSdoWritable_ = true;
@@ -3772,6 +3940,8 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Fill the SDO target panel from the selected Free Run row
 void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
                                                    bool readAfterFill) {
   if (!freeRunEntryTable_ || row < 0 || row >= freeRunEntryTable_->rowCount()) {
@@ -3790,8 +3960,8 @@ void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
   sdoIndex_->setText(entry.index);
   sdoSubIndex_->setText(entry.subIndex);
   sdoValue_->setText(entry.raw);
@@ -3818,6 +3988,8 @@ void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
   updateActionAvailability();
 }
 
+
+// — Fill the SDO target panel from the selected I/O variable row
 void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
   if (!ioVariableTable_ || row < 0 || row >= ioVariableTable_->rowCount()) {
     return;
@@ -3834,9 +4006,9 @@ void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
   } else if (!selectSlaveForLocalEvidence(variable.position)) {
     return;
   }
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
   if (sdoIndex_) {
     sdoIndex_->setText(variable.index);
   }
@@ -3879,6 +4051,8 @@ void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Add io variable rows to watch
 void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
                                           const QString &sourceLabel) {
   if (!ioVariableTable_ || rows.isEmpty()) {
@@ -3958,7 +4132,7 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
     ++added;
   }
 
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchAutoRefresh();
   updateIoVariableTable();
   updateDiagnostics("Info", "I/O Variables",
@@ -3973,6 +4147,8 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
   }
 }
 
+
+// — Add selected io variables to watch
 void MainWindow::addSelectedIoVariablesToWatch() {
   if (!ioVariableTable_) {
     return;
@@ -3981,11 +4157,14 @@ void MainWindow::addSelectedIoVariablesToWatch() {
                            uiText("selected I/O variables", "所选 I/O 变量"));
 }
 
+
+// — Add visible io variables to watch
 void MainWindow::addVisibleIoVariablesToWatch() {
   QVector<int> rows;
   if (!ioVariableTable_) {
     return;
   }
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     if (!ioVariableTable_->isRowHidden(row)) {
       rows.append(row);
@@ -3995,6 +4174,8 @@ void MainWindow::addVisibleIoVariablesToWatch() {
                            uiText("visible I/O variables", "可见 I/O 变量"));
 }
 
+
+// — Add selected io variables to startup sdo
 void MainWindow::addSelectedIoVariablesToStartupSdo() {
   const QVector<int> rows = selectedIoVariableRows(true);
   if (rows.isEmpty()) {
@@ -4004,6 +4185,8 @@ void MainWindow::addSelectedIoVariablesToStartupSdo() {
       rows, uiText("selected I/O variables", "所选 I/O 变量"));
 }
 
+
+// — Add visible io variables to startup sdo
 void MainWindow::addVisibleIoVariablesToStartupSdo() {
   const QVector<int> rows = visibleIoVariableRows();
   if (rows.isEmpty()) {
@@ -4013,6 +4196,8 @@ void MainWindow::addVisibleIoVariablesToStartupSdo() {
       rows, uiText("visible I/O variables", "可见 I/O 变量"));
 }
 
+
+// — Add io variable rows to startup sdo
 void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
                                                const QString &sourceLabel) {
   if (!ioVariableTable_ || rows.isEmpty()) {
@@ -4192,6 +4377,7 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
                    .arg(duplicateSkipped);
   }
 
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup from I/O Variables",
                  "确认从 I/O 变量创建 Startup SDO"),
@@ -4278,7 +4464,7 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
   if (lastTouchedRow >= 0) {
     startupSdoTable_->selectRow(lastTouchedRow);
   }
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   filterStartupSdoTable();
   updateStartupSdoControls();
@@ -4302,6 +4488,8 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
   }
 }
 
+
+// — Fill the SDO target panel from the selected Watch row
 void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
   if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
     return;
@@ -4327,9 +4515,9 @@ void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
   sdoIndex_->setText(index);
   sdoSubIndex_->setText(subIndex);
   sdoValue_->setText(value);
@@ -4355,6 +4543,8 @@ void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Fill the SDO target panel from the selected SDO history row
 void MainWindow::applySdoSelectionFromHistory(int row, bool readAfterFill) {
   if (!sdoHistoryTable_ || row < 0 || row >= sdoHistoryTable_->rowCount()) {
     return;
@@ -4383,9 +4573,9 @@ void MainWindow::applySdoSelectionFromHistory(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
   sdoIndex_->setText(index);
   sdoSubIndex_->setText(subIndex);
   if (sdoValue_) {
@@ -4420,6 +4610,8 @@ void MainWindow::applySdoSelectionFromHistory(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Fill the SDO target panel from the selected Startup SDO row
 void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
   ensureStartupSdoTable();
   if (!startupSdoTable_ || row < 0 || row >= startupSdoTable_->rowCount()) {
@@ -4448,9 +4640,9 @@ void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
   sdoIndex_->setText(index);
   sdoSubIndex_->setText(subIndex);
   if (sdoValue_) {
@@ -4490,6 +4682,8 @@ void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
   updateActionAvailability();
 }
 
+
+// — Apply a preset filter string to the OD table and activate the pane
 void MainWindow::setSdoFilterPreset(const QString &query) {
   if (!sdoFilter_) {
     return;
@@ -4499,10 +4693,14 @@ void MainWindow::setSdoFilterPreset(const QString &query) {
   activateObjectDictionaryPaneFor(sdoTable_);
 }
 
+
+// — Check whether any OD evidence rows have a Failed status
 bool MainWindow::hasFailedSdoEvidence() const {
   return firstFailedSdoEvidenceRow() >= 0;
 }
 
+
+// — Return the first OD row with a Failed status, or -1
 int MainWindow::firstFailedSdoEvidenceRow() const {
   if (!sdoTable_ || selectedPosition() < 0 ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -4512,6 +4710,8 @@ int MainWindow::firstFailedSdoEvidenceRow() const {
   return rows.isEmpty() ? -1 : rows.first();
 }
 
+
+// — Scroll to and select the first failed OD evidence row
 void MainWindow::focusFailedSdoEvidence() {
   if (!sdoTable_) {
     return;
@@ -4541,9 +4741,12 @@ void MainWindow::focusFailedSdoEvidence() {
                         .arg(dictionary.index, dictionary.subIndex));
 }
 
+
+// — Apply text or tag-based filtering to the Object Dictionary table
 void MainWindow::filterSdoTable(const QString &text) {
   const QString needle = text.trimmed();
   const QString normalizedNeedle = needle.toLower();
+  // Support tag: prefix for semantic filtering
   const bool tagMode = normalizedNeedle.startsWith("tag:");
   const QString tag = tagMode ? normalizedNeedle.mid(4).trimmed() : QString();
 
@@ -4579,7 +4782,7 @@ void MainWindow::filterSdoTable(const QString &text) {
     if (match) {
       ++visible;
     }
-    sdoTable_->setRowHidden(row, !match);
+    sdoTable_->setRowHidden(row, !match); // show/hide based on filter match
   }
   if (tagMode) {
     updateDiagnostics("Info", "SDO",

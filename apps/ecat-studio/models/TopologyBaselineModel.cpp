@@ -1,11 +1,14 @@
+// Topology baseline capture and drift comparison against live slave list.
 #include "TopologyBaselineModel.h"
 
 #include <QHash>
 
+// Falls back to raw scan line when the slave has no parsed name.
 QString topologySlaveDisplayName(const SlaveInfo &slave) {
   return slave.name.isEmpty() ? slave.rawLine : slave.name;
 }
 
+// Diffs baseline against live topology: detects missing, unexpected, renamed, and state-changed slaves.
 QVector<TopologyBaselineIssue>
 compareTopologyBaseline(const QVector<SlaveInfo> &baseline,
                         const QVector<SlaveInfo> &current) {

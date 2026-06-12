@@ -1,3 +1,4 @@
+// ecatd runtime daemon: TCP server, command dispatch, and master lifecycle.
 #include "EcatDaemon.h"
 
 #include "JsonProtocol.h"
@@ -9,11 +10,13 @@
 
 namespace {
 
+// Extract the master identifier from request params; defaults to "0" for single-master setups.
 QString requestedMaster(const QJsonObject &params)
 {
     return params.value("master").toString("0").trimmed();
 }
 
+// Validate that the master param is a numeric IgH index, required by the ecrt API.
 bool requestedMasterIndex(const QJsonObject &params, uint32_t *index, QString *error)
 {
     bool ok = false;
@@ -30,12 +33,14 @@ bool requestedMasterIndex(const QJsonObject &params, uint32_t *index, QString *e
 
 }
 
+// Wire incoming TCP connections to the per-client read handler.
 EcatDaemon::EcatDaemon(QObject *parent)
     : QObject(parent)
 {
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
 }
 
+// Bind to localhost only — the daemon is a local IPC service, not network-exposed.
 bool EcatDaemon::listen(quint16 port)
 {
     return server_.listen(QHostAddress::LocalHost, port);
@@ -43,6 +48,8 @@ bool EcatDaemon::listen(quint16 port)
 
 void EcatDaemon::acceptClient()
 {
+    // Drain all pending connections (edge-triggered) and allocate a per-socket
+    // line buffer for reassembly across TCP fragmentation boundaries.
     while (auto *socket = server_.nextPendingConnection()) {
         buffers_.insert(socket, {});
         connect(socket, &QTcpSocket::readyRead, this, &EcatDaemon::readClient);
@@ -55,6 +62,8 @@ void EcatDaemon::acceptClient()
 
 void EcatDaemon::readClient()
 {
+    // Accumulate bytes and extract complete newline-delimited JSON frames;
+    // partial frames remain buffered until the next readyRead signal.
     auto *socket = qobject_cast<QTcpSocket *>(sender());
     if (!socket) {
         return;
@@ -80,6 +89,7 @@ void EcatDaemon::readClient()
 
 void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request)
 {
+    // Dispatch a JSON-RPC-style request to the matching backend operation.
     const QString id = request.value("id").toString();
     const QString method = request.value("method").toString();
     const QJsonObject params = request.value("params").toObject();
@@ -206,6 +216,7 @@ void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request)
 
 void EcatDaemon::send(QTcpSocket *socket, const QJsonObject &response)
 {
+    // Encode as newline-delimited JSON and flush immediately for low-latency reply.
     socket->write(JsonProtocol::encode(response));
     socket->flush();
 }

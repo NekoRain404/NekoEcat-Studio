@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the I/O variable detail panel.
 struct IoVariableDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -51,6 +52,7 @@ struct IoVariableDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved detail panel state with severity, signal state, and tooltip.
 struct IoVariableDetailUiState {
   QString text;
   QString severityKey;
@@ -63,10 +65,13 @@ IoVariableDetailUiState
 ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts);
 IoVariableDetailUiState
 ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts);
+// Maps row issues to a severity key for styling.
 QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
                                     const QString &readyText);
+// Localized signal state label for the detail panel.
 QString ioVariableDetailSignalState(const IoVariableTableRow &row,
                                     const IoVariableDetailTexts &texts);
+// Assembles the full detail panel state.
 IoVariableDetailUiState
 buildIoVariableDetailUiState(const IoVariableTableRow &row,
                              const IoVariableDetailTexts &texts);

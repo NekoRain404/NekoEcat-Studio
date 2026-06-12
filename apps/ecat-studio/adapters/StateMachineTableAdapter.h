@@ -18,6 +18,7 @@ inline constexpr int kStateMachineProcessColumn = 7;
 inline constexpr int kStateMachineRiskColumn = 8;
 inline constexpr int kStateMachineActionColumn = 9;
 
+// Snapshot of a state machine recommendation row with current, recommended, and evidence fields.
 struct StateMachineTableRow {
   int row = -1;
   QString position;
@@ -32,10 +33,15 @@ struct StateMachineTableRow {
   QString action;
 };
 
+// Extracts all columns into a structured row.
 StateMachineTableRow stateMachineTableRowFromTable(QTableWidget *table,
                                                    int row);
+// Parses position text to int; returns false if non-numeric.
 bool stateMachineTableRowPosition(const StateMachineTableRow &row,
                                   int *position);
+// Whether the row has a non-empty recommendation.
 bool stateMachineTableRowHasRecommendation(const StateMachineTableRow &row);
+// Extracts slave position from a table row.
 int stateMachinePositionFromTable(QTableWidget *table, int row);
+// Checks for a recommendation directly from table indices.
 bool stateMachineRowHasRecommendation(QTableWidget *table, int row);

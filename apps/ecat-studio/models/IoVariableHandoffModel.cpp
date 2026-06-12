@@ -1,3 +1,4 @@
+// PLC handoff issue detection: missing values, duplicate symbols, unmapped PDOs.
 #include "IoVariableHandoffModel.h"
 
 #include "ProcessDataRowModel.h"
@@ -6,6 +7,7 @@
 #include <QHash>
 #include <QStringList>
 
+// Derives a PLC-friendly alias from available row metadata, with cascading fallbacks.
 QString suggestedIoVariableAlias(const IoVariableTableRow &row,
                                  const QString &prefix, bool includeAddress) {
   QString seed = row.alias;
@@ -44,6 +46,7 @@ QString suggestedIoVariableAlias(const IoVariableTableRow &row,
   return alias;
 }
 
+// Resolves alias, fallback, and final PLC symbol for a row.
 IoVariableHandoffName ioVariableHandoffName(const IoVariableTableRow &row) {
   IoVariableHandoffName result;
   result.alias = row.alias;
@@ -52,6 +55,7 @@ IoVariableHandoffName ioVariableHandoffName(const IoVariableTableRow &row) {
   return result;
 }
 
+// Flags naming quality problems (missing alias, auto-generated name, no tags, duplicates).
 QVector<IoVariableHandoffIssue>
 ioVariableHandoffIssues(const IoVariableTableRow &row,
                         const QSet<QString> *duplicateSymbols) {
@@ -73,6 +77,7 @@ ioVariableHandoffIssues(const IoVariableTableRow &row,
   return issues;
 }
 
+// Scans all rows to find symbol name collisions for the duplicate check.
 QSet<QString>
 duplicateIoVariableHandoffSymbols(const QVector<IoVariableTableRow> &rows) {
   QHash<QString, int> counts;
@@ -88,6 +93,7 @@ duplicateIoVariableHandoffSymbols(const QVector<IoVariableTableRow> &rows) {
   return duplicates;
 }
 
+// Serializes issue enums to stable string keys for QML consumption.
 QStringList
 ioVariableHandoffIssueKeys(const QVector<IoVariableHandoffIssue> &issues) {
   QStringList keys;
@@ -110,11 +116,13 @@ ioVariableHandoffIssueKeys(const QVector<IoVariableHandoffIssue> &issues) {
   return keys;
 }
 
+// Tests for a specific issue type in a list.
 bool ioVariableHandoffHasIssue(const QVector<IoVariableHandoffIssue> &issues,
                                IoVariableHandoffIssue issue) {
   return issues.contains(issue);
 }
 
+// Maps row direction metadata to PLC I/O classification (Output/Input/Parameter).
 QString ioVariableHandoffPlcDirection(const IoVariableTableRow &row) {
   if (ioVariableTableRowIsRx(row)) {
     return QStringLiteral("Output");
@@ -125,10 +133,12 @@ QString ioVariableHandoffPlcDirection(const IoVariableTableRow &row) {
   return QStringLiteral("Parameter");
 }
 
+// Delegates to IEC type resolution for PLC variable declaration.
 QString ioVariableHandoffPlcType(const IoVariableTableRow &row) {
   return ioVariableTableRowIecType(row);
 }
 
+// Builds a structured IEC comment with position, OD address, and quality info.
 QString ioVariableHandoffComment(const IoVariableTableRow &row,
                                  const QStringList &qualityLabels) {
   QString comment = QString("#%1 %2:%3")
@@ -157,6 +167,7 @@ QString ioVariableHandoffComment(const IoVariableTableRow &row,
   return comment;
 }
 
+// Appends numeric suffixes to ensure each exported PLC symbol is unique.
 QString ioVariableHandoffUniqueSymbol(const IoVariableTableRow &row,
                                       QSet<QString> *usedSymbols) {
   QString symbol = ioVariableHandoffName(row).symbol;
@@ -173,6 +184,7 @@ QString ioVariableHandoffUniqueSymbol(const IoVariableTableRow &row,
   return symbol;
 }
 
+// Renders one IEC 61131-3 VAR_GLOBAL declaration line with inline comment.
 QString ioVariableHandoffDeclarationLine(const IoVariableTableRow &row,
                                          QSet<QString> *usedSymbols,
                                          const QStringList &qualityLabels) {
@@ -182,6 +194,7 @@ QString ioVariableHandoffDeclarationLine(const IoVariableTableRow &row,
       .arg(symbol, ioVariableHandoffPlcType(row), comment);
 }
 
+// Renders the complete IEC variable declaration block for PLC export.
 QString ioVariableHandoffDeclarationBlock(
     const QVector<IoVariableTableRow> &rows,
     const QVector<QStringList> &qualityLabelsByRow) {
@@ -196,6 +209,7 @@ QString ioVariableHandoffDeclarationBlock(
   return lines.join('\n');
 }
 
+// Column headers for the CSV export format.
 QStringList ioVariableHandoffCsvHeaders() {
   return {"Symbol",   "Direction",   "Type",      "Slave",   "Index",
           "SubIndex", "Bits",        "Pdo",       "Source",  "Raw",
@@ -204,6 +218,7 @@ QStringList ioVariableHandoffCsvHeaders() {
           "Address",  "DefaultName", "ExportedAt"};
 }
 
+// Builds a flat CSV row from an I/O variable table row for export.
 IoVariableHandoffCsvRow ioVariableHandoffCsvRow(const IoVariableTableRow &row,
                                                 QSet<QString> *usedSymbols,
                                                 const QString &exportedAt) {

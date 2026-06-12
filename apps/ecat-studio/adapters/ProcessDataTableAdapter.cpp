@@ -1,3 +1,4 @@
+// Populates and queries the PDO map / process data QTableWidget.
 #include "ProcessDataTableAdapter.h"
 
 #include "models/ProcessDataRowModel.h"
@@ -6,6 +7,7 @@
 
 #include <QTableWidget>
 
+// Extracts a PDO map row snapshot for detail-panel display and navigation.
 PdoMapTableRow pdoMapTableRowFromTable(QTableWidget *table, int row) {
   PdoMapTableRow result;
   result.row = row;
@@ -23,6 +25,7 @@ PdoMapTableRow pdoMapTableRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Extracts a free-run entry row including decoded values and change-tracking data.
 FreeRunEntryTableRow freeRunEntryTableRowFromTable(QTableWidget *table,
                                                    int row) {
   FreeRunEntryTableRow result;
@@ -54,6 +57,7 @@ FreeRunEntryTableRow freeRunEntryTableRowFromTable(QTableWidget *table,
   return result;
 }
 
+// Extracts a complete I/O variable row for detail display, comparison, and export.
 IoVariableTableRow ioVariableTableRowFromTable(QTableWidget *table, int row) {
   IoVariableTableRow result;
   result.row = row;
@@ -86,6 +90,7 @@ IoVariableTableRow ioVariableTableRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Checks whether a visible I/O variable row carries a populated value (used for batch operations).
 bool ioVariableTableRowHasValue(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount() ||
       table->isRowHidden(row)) {
@@ -94,19 +99,23 @@ bool ioVariableTableRowHasValue(QTableWidget *table, int row) {
   return ioVariableTableRowHasValue(ioVariableTableRowFromTable(table, row));
 }
 
+// Builds a stable unique key for tracking I/O variable rows across refreshes.
 QString ioVariableTableRowKey(QTableWidget *table, int row) {
   return ioVariableTableRowKey(ioVariableTableRowFromTable(table, row));
 }
 
+// Returns currently selected row indices, optionally filtered to visible rows only.
 QVector<int> selectedIoVariableTableRows(QTableWidget *table,
                                          bool visibleOnly) {
   return selectedTableRows(table, visibleOnly);
 }
 
+// Returns indices of all non-hidden rows for batch read or export operations.
 QVector<int> visibleIoVariableTableRows(QTableWidget *table) {
   return visibleTableRows(table);
 }
 
+// Returns true if any of the given visible rows carry a populated value.
 bool ioVariableTableRowsContainValue(QTableWidget *table,
                                      const QVector<int> &rows) {
   for (const int row : rows) {

@@ -1,7 +1,9 @@
+// Detail panel text for a selected state machine recommendation row.
 #include "StateMachineRowDetailUiState.h"
 
 namespace {
 
+// Detects high-severity risk keywords (fault/error/offline) in English and Chinese.
 bool stateMachineSevereRiskText(const QString &risk) {
   const QString lowered = risk.toLower();
   return lowered.contains(QStringLiteral("fault")) ||
@@ -12,12 +14,14 @@ bool stateMachineSevereRiskText(const QString &risk) {
          risk.contains(QStringLiteral("离线"));
 }
 
+// Uppercases the recommended state for boundary classification.
 QString stateMachineRecommendedUpper(const StateMachineTableRow &row) {
   return row.recommended.toUpper();
 }
 
 } // namespace
 
+// Neutral state when the state machine table is not available.
 StateMachineRowDetailUiState
 stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -25,6 +29,7 @@ stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a row.
 StateMachineRowDetailUiState
 stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -32,6 +37,7 @@ stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps risk severity, recommendation, and current state to a severity key.
 QString stateMachineRowDetailSeverityKey(const StateMachineTableRow &row,
                                          const StateMachineRowDetailTexts &) {
   const bool hasRecommendation = !row.recommended.isEmpty();
@@ -55,6 +61,7 @@ QString stateMachineRowDetailSeverityKey(const StateMachineTableRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full state machine detail: boundary classification, display fields, and tooltip.
 StateMachineRowDetailUiState
 buildStateMachineRowDetailUiState(const StateMachineTableRow &row,
                                   const StateMachineRowDetailTexts &texts) {

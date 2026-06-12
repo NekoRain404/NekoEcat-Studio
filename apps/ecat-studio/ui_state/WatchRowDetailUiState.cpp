@@ -1,7 +1,9 @@
+// Detail panel text for a selected Watch row.
 #include "WatchRowDetailUiState.h"
 
 #include "helpers/StudioTextHelpers.h"
 
+// Neutral state when the watch table is not available.
 WatchRowDetailUiState
 watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -9,6 +11,7 @@ watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a watch row.
 WatchRowDetailUiState
 watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -16,6 +19,7 @@ watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Whether the delta text represents a match/empty/pending state (not a real change).
 bool watchRowDetailIsMatchText(const QString &text,
                                const WatchRowDetailTexts &texts) {
   const QString normalized = text.trimmed().toLower();
@@ -26,11 +30,13 @@ bool watchRowDetailIsMatchText(const QString &text,
          text == QStringLiteral("待比较");
 }
 
+// Whether the watch row addresses a CiA 402 drive profile object.
 bool watchRowDetailIsCia402(const WatchStartupWatchRow &row) {
   return row.mode.contains(QStringLiteral("cia"), Qt::CaseInsensitive) ||
          normalizeHexText(row.index, 4).startsWith(QStringLiteral("0x60"));
 }
 
+// Maps startup drift, baseline drift, missing value, and change flags to a severity key.
 QString watchRowDetailSeverityKey(const WatchStartupWatchRow &row,
                                   const WatchRowDetailTexts &texts) {
   const bool missingValue = row.value.isEmpty();
@@ -53,6 +59,7 @@ QString watchRowDetailSeverityKey(const WatchStartupWatchRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full watch detail state: drift flags, CiA 402 detection, evidence, and tooltip.
 WatchRowDetailUiState
 buildWatchRowDetailUiState(const WatchStartupWatchRow &row,
                            const WatchRowDetailTexts &texts) {

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the consistency detail panel.
 struct ConsistencyDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -35,6 +36,7 @@ struct ConsistencyDetailTexts {
   QString executionBoundary;
 };
 
+// Extracted row data for a consistency issue.
 struct ConsistencyDetailRow {
   QString level;
   QString scope;
@@ -45,6 +47,7 @@ struct ConsistencyDetailRow {
   QString action;
 };
 
+// Resolved detail panel state with severity, route, and tooltip.
 struct ConsistencyDetailUiState {
   QString text;
   QString severityKey;
@@ -53,13 +56,18 @@ struct ConsistencyDetailUiState {
   QString tooltip;
 };
 
+// Neutral state when the consistency table is unavailable.
 ConsistencyDetailUiState
 consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts);
+// Neutral state prompting user to select a row.
 ConsistencyDetailUiState
 consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts);
+// Maps level text to a canonical severity key.
 QString consistencyDetailSeverityKey(const QString &level);
+// Determines the navigation target tab from issue scope.
 QString consistencyDetailRoute(const ConsistencyDetailRow &row,
                                const ConsistencyDetailTexts &texts);
+// Assembles the full detail panel state.
 ConsistencyDetailUiState
 buildConsistencyDetailUiState(const ConsistencyDetailRow &row,
                               const ConsistencyDetailTexts &texts);

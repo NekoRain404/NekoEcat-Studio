@@ -1,3 +1,4 @@
+// Unit tests for WorkspaceTabBadgeUiState.
 #include "ui_state/WorkspaceTabBadgeUiState.h"
 
 #include <QCoreApplication>

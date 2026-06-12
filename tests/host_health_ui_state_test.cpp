@@ -1,3 +1,4 @@
+// Unit tests for HostHealthUiState.
 #include "ui_state/HostHealthUiState.h"
 
 #include <QCoreApplication>

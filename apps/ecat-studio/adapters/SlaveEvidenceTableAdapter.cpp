@@ -1,3 +1,4 @@
+// Populates and queries the slave evidence matrix QTableWidget.
 #include "SlaveEvidenceTableAdapter.h"
 
 #include "models/EvidenceStatusModel.h"
@@ -9,12 +10,14 @@
 
 namespace {
 
+// Safely parses a position string, returning -1 on invalid input.
 int parsedPosition(const QString &text) {
   bool ok = false;
   const int position = text.toInt(&ok);
   return ok ? position : -1;
 }
 
+// Scans the watch table for rows matching this slave's position and extracts drive-specific status fields.
 void applyWatchEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   if (!input || !table) {
     return;
@@ -61,6 +64,7 @@ void applyWatchEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   input->driveFault = hasDriveFaultEvidence(input->driveEvidence);
 }
 
+// Counts startup SDO rows and diffs for this slave's position to assess startup readiness.
 void applyStartupEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   if (!input || !table) {
     return;
@@ -80,6 +84,7 @@ void applyStartupEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   }
 }
 
+// Counts process data rows and PDO map issues for this slave's position.
 void applyProcessEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   if (!input || !table) {
     return;
@@ -99,6 +104,7 @@ void applyProcessEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
   }
 }
 
+// Checks for localized "missing" keywords in evidence/risk text.
 bool isMissingText(const QString &text) {
   const QString normalized = text.toLower();
   return normalized.contains("missing") || normalized.contains("缺失");
@@ -108,6 +114,7 @@ constexpr int kSlaveEvidenceMatrixRouteRole = Qt::UserRole + 24;
 
 } // namespace
 
+// Aggregates evidence from identity, OD, PDO, watch, startup, and process tables into the slave input model.
 void applyLoadedSlaveEvidence(SlaveEvidenceInput *input,
                               const SlaveEvidenceLoadedPositions &positions,
                               const SlaveEvidenceLoadedTables &tables) {
@@ -130,6 +137,7 @@ void applyLoadedSlaveEvidence(SlaveEvidenceInput *input,
   applyProcessEvidence(input, tables.processTable);
 }
 
+// Derives boolean flags for priority, readiness, missing evidence, and risk from a matrix row.
 SlaveEvidenceMatrixRowState slaveEvidenceMatrixRowState(QTableWidget *table,
                                                         int row) {
   SlaveEvidenceMatrixRowState state;
@@ -176,6 +184,7 @@ SlaveEvidenceMatrixRowState slaveEvidenceMatrixRowState(QTableWidget *table,
   return state;
 }
 
+// Tests whether a matrix row passes the active filter scope (priority, risk, missing evidence, etc.).
 bool slaveEvidenceMatrixScopeMatches(const SlaveEvidenceMatrixRowState &state,
                                      const QString &scope) {
   if (scope == QString::fromLatin1(kSlaveEvidenceScopeRisk)) {
@@ -217,6 +226,7 @@ bool slaveEvidenceMatrixScopeMatches(const SlaveEvidenceMatrixRowState &state,
   return true;
 }
 
+// Case-insensitive full-row search across all matrix columns.
 bool slaveEvidenceMatrixSearchMatches(QTableWidget *table, int row,
                                       const QString &needle) {
   if (needle.trimmed().isEmpty()) {
@@ -234,6 +244,7 @@ bool slaveEvidenceMatrixSearchMatches(QTableWidget *table, int row,
   return false;
 }
 
+// Applies scope + text filters to the matrix, toggles visibility, and collects aggregate stats.
 SlaveEvidenceMatrixFilterStats
 filterSlaveEvidenceMatrixTable(QTableWidget *table, const QString &scope,
                                const QString &needle) {
@@ -275,6 +286,7 @@ filterSlaveEvidenceMatrixTable(QTableWidget *table, const QString &scope,
   return stats;
 }
 
+// Outputs per-priority counts via out-parameters for badge and summary display.
 void countSlaveEvidenceMatrixPriorities(QTableWidget *table, int *p0, int *p1,
                                         int *p2, int *p3) {
   if (p0) {
@@ -309,6 +321,7 @@ void countSlaveEvidenceMatrixPriorities(QTableWidget *table, int *p0, int *p1,
   }
 }
 
+// Counts rows in each priority tier (P0-P3) across the entire matrix.
 SlaveEvidenceMatrixPriorityCounts
 slaveEvidenceMatrixPriorityCounts(QTableWidget *table) {
   SlaveEvidenceMatrixPriorityCounts counts;
@@ -332,6 +345,7 @@ slaveEvidenceMatrixPriorityCounts(QTableWidget *table) {
   return counts;
 }
 
+// Stores the navigation route target as custom data on the position cell for click handling.
 void setSlaveEvidenceMatrixRouteTarget(QTableWidget *table, int row,
                                        SlaveEvidenceRouteTarget target) {
   if (!table || row < 0 || row >= table->rowCount()) {
@@ -343,6 +357,7 @@ void setSlaveEvidenceMatrixRouteTarget(QTableWidget *table, int row,
   }
 }
 
+// Retrieves the stored route target, falling back to Overview for missing or invalid data.
 SlaveEvidenceRouteTarget
 slaveEvidenceMatrixRouteTargetForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
@@ -372,6 +387,7 @@ slaveEvidenceMatrixRouteTargetForRow(QTableWidget *table, int row) {
   return SlaveEvidenceRouteTarget::Overview;
 }
 
+// Finds the first row matching a slave position in a given column, for jump-to navigation.
 int firstSlaveEvidenceRowForPosition(QTableWidget *table, int position,
                                      int positionColumn) {
   if (!table || position < 0 || positionColumn < 0 ||
@@ -387,6 +403,7 @@ int firstSlaveEvidenceRowForPosition(QTableWidget *table, int position,
   return -1;
 }
 
+// Locates the first startup diff row for a specific slave, for auto-scroll to the issue.
 int firstSlaveEvidenceStartupDiffRow(QTableWidget *startupTable, int position) {
   if (!startupTable || position < 0) {
     return -1;
@@ -406,6 +423,7 @@ int firstSlaveEvidenceStartupDiffRow(QTableWidget *startupTable, int position) {
   return -1;
 }
 
+// Locates the first process data issue row for a specific slave.
 int firstSlaveEvidenceProcessIssueRow(QTableWidget *processTable,
                                       int position) {
   if (!processTable || position < 0) {
@@ -426,6 +444,7 @@ int firstSlaveEvidenceProcessIssueRow(QTableWidget *processTable,
   return -1;
 }
 
+// Finds the first drive-related watch row (statusword, mode, error) for a specific slave.
 int firstSlaveEvidenceDriveWatchRow(QTableWidget *watchTable, int position) {
   if (!watchTable || position < 0) {
     return -1;

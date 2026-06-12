@@ -13,10 +13,12 @@ class QDoubleSpinBox;
 class QTableWidget;
 
 struct MasterProfile {
+    // Named IgH master selector: display name + numeric target (e.g. "0", "1").
     QString name = "Master 0";
     QString target = "0";
 };
 
+// Persisted workspace preferences — theme, language, UI scale, and master list.
 struct AppSettings {
     QString theme = "Dark";
     QString language = "English";
@@ -25,6 +27,8 @@ struct AppSettings {
     QString activeMaster = "0";
 };
 
+// Modal dialog for editing workspace preferences.
+// Constructed with current settings; call settings() after accept() to retrieve changes.
 class SettingsDialog : public QDialog {
     Q_OBJECT
 

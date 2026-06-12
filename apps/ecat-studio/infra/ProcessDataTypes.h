@@ -6,6 +6,7 @@
 #include <QString>
 
 struct PdoMapTableRow {
+  // Row model for the PDO mapping table — shows sync manager, PDO, and entry columns.
   int row = -1;
   QString syncManager;
   QString pdo;
@@ -16,6 +17,8 @@ struct PdoMapTableRow {
 };
 
 struct FreeRunEntryTableRow {
+  // Row model for live Free Run entry values. Changed flag tracks value updates
+  // between telemetry polls for UI highlighting.
   int row = -1;
   int position = -1;
   bool positionValid = false;
@@ -37,6 +40,8 @@ struct FreeRunEntryTableRow {
 };
 
 struct IoVariableTableRow {
+  // Row model for the I/O variable view — integrates PDO source, PLC mapping,
+  // startup SDO config, and live value columns in a single table.
   int row = -1;
   int position = -1;
   bool positionValid = false;

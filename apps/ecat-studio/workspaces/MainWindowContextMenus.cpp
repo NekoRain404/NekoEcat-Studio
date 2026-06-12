@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Build and display the right-click menu for the topology tree
 void MainWindow::showTopologyContextMenu(const QPoint &position) {
   if (!topologyTree_) {
     return;
@@ -220,11 +222,13 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
         rows << QString("  %1\t%2").arg(slaveItem->text(0), slaveItem->text(1));
       }
     }
-    QApplication::clipboard()->setText(rows.join('\n'));
+    QApplication::clipboard()->setText(rows.join('\n')); // copy to system clipboard
     log("Copied topology to clipboard");
   }
 }
 
+
+// — Build and display the right-click menu for any evidence table
 void MainWindow::showTableContextMenu(QTableWidget *table,
                                       const QPoint &position) {
   if (!table) {
@@ -473,6 +477,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   QAction *clearSdoTargetTrailAction = nullptr;
   QAction *copyObjectAddress = nullptr;
   QAction *copyObjectValue = nullptr;
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (table == workflowTable_) {
     const int workflowRow = table->currentRow();
     const bool hasWorkflowRow = workflowRow >= 0 &&
@@ -498,6 +503,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         style()->standardIcon(QStyle::SP_FileDialogContentsView));
     copyWorkflowStep->setEnabled(hasWorkflowRow);
     menu.addSeparator();
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   } else if (table == sessionBriefTable_) {
     const bool hasBriefRow = table->currentRow() >= 0;
     openSessionBriefEvidence =
@@ -992,7 +998,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     if (evidence.size() > 3 && !evidence.at(3).trimmed().isEmpty()) {
       parts << uiText("Time: %1", "时间：%1").arg(evidence.at(3).trimmed());
     }
-    QApplication::clipboard()->setText(parts.join(" | "));
+    QApplication::clipboard()->setText(parts.join(" | ")); // copy to system clipboard
     log(QString("Copied object dictionary evidence %1:%2 to clipboard")
             .arg(index, subIndex));
   } else if (chosen == fillSdoFromPdo) {
@@ -1142,11 +1148,11 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   } else if (chosen == openConsistencyEvidence) {
     focusEvidenceFromConsistency(table->currentRow());
   } else if (chosen == copyObjectAddress && objectClipboard.hasAddress()) {
-    QApplication::clipboard()->setText(objectClipboard.addressText());
+    QApplication::clipboard()->setText(objectClipboard.addressText()); // copy to system clipboard
     log(QString("Copied object address %1 to clipboard")
             .arg(objectClipboard.addressText()));
   } else if (chosen == copyObjectValue && objectClipboard.hasAddress()) {
-    QApplication::clipboard()->setText(objectClipboard.valueText());
+    QApplication::clipboard()->setText(objectClipboard.valueText()); // copy to system clipboard
     log(QString("Copied object value %1 to clipboard")
             .arg(objectClipboard.valueText()));
   } else if (chosen == copySelected) {
@@ -1154,13 +1160,15 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   } else if (chosen == copyAll) {
     copyTableToClipboard(table, false);
   } else if (chosen == resizeColumns) {
-    table->resizeColumnsToContents();
+    table->resizeColumnsToContents(); // auto-fit column widths
     table->horizontalHeader()->setStretchLastSection(true);
   } else if (chosen == clearSelection) {
     table->clearSelection();
   }
 }
 
+
+// — Build and display the right-click menu for the SDO target panel
 void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   if (!sdoTargetTable_) {
     return;
@@ -1210,7 +1218,7 @@ void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   } else if (chosen == copyDigest) {
     copyCurrentSdoEvidenceDigest();
   } else if (chosen == resizeColumns) {
-    sdoTargetTable_->resizeColumnsToContents();
+    sdoTargetTable_->resizeColumnsToContents(); // auto-fit column widths
     sdoTargetTable_->horizontalHeader()->setStretchLastSection(false);
     sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
         0, QHeaderView::ResizeToContents);
@@ -1221,6 +1229,8 @@ void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   }
 }
 
+
+// — Dispatch Alt+Enter to open local evidence for the focused table row
 bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
   if (!table) {
     return false;
@@ -1234,8 +1244,10 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     return true;
   }
 
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (table == workflowTable_) {
     copyWorkflowStepDigest(row);
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   } else if (table == sessionBriefTable_) {
     openSessionBriefRow(row);
   } else if (table == slaveEvidenceMatrixTable_) {
@@ -1283,6 +1295,8 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
   return true;
 }
 
+
+// — Copy table rows as TSV text to the system clipboard
 void MainWindow::copyTableToClipboard(QTableWidget *table, bool selectedOnly) {
   if (!table || table->columnCount() <= 0) {
     return;
@@ -1306,6 +1320,7 @@ void MainWindow::copyTableToClipboard(QTableWidget *table, bool selectedOnly) {
     return;
   }
 
+  // Sanitize cell text for clipboard
   auto cleanCell = [](QString value) {
     value.replace('\n', ' ');
     value.replace('\r', ' ');
@@ -1332,7 +1347,7 @@ void MainWindow::copyTableToClipboard(QTableWidget *table, bool selectedOnly) {
     lines << values.join('\t');
   }
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   log(QString("Copied %1 table row(s) to clipboard").arg(rows.size()));
 }
 

@@ -1,3 +1,4 @@
+// Unit tests for EvidenceStatusModel.
 #include "models/EvidenceStatusModel.h"
 
 #include <QCoreApplication>

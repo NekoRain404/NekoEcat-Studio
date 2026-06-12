@@ -1,18 +1,22 @@
+// Detail panel text for a selected PDO map row.
 #include "PdoMapDetailUiState.h"
 
 #include "models/ProcessDataRowModel.h"
 
 namespace {
 
+// Whether the row identifies a specific index:subIndex address.
 bool pdoMapDetailHasAddress(const PdoMapTableRow &row) {
   return !row.index.isEmpty() && !row.subIndex.isEmpty();
 }
 
+// Whether the bit-width field is a positive integer.
 bool pdoMapDetailHasValidBits(const PdoMapTableRow &row) {
   bool ok = false;
   return row.bits.toInt(&ok) > 0 && ok;
 }
 
+// Returns a localized direction label (RX/output, TX/input, or unknown).
 QString pdoMapDetailDirectionText(const PdoMapTableRow &row,
                                   const PdoMapDetailTexts &texts) {
   if (pdoMapDetailIsRxOutput(row)) {
@@ -24,6 +28,7 @@ QString pdoMapDetailDirectionText(const PdoMapTableRow &row,
   return texts.directionUnknown;
 }
 
+// Returns a localized role label describing the PDO entry's data flow role.
 QString pdoMapDetailRoleText(const PdoMapTableRow &row,
                              const PdoMapDetailTexts &texts) {
   if (pdoMapDetailIsRxOutput(row)) {
@@ -37,6 +42,7 @@ QString pdoMapDetailRoleText(const PdoMapTableRow &row,
 
 } // namespace
 
+// Neutral state when the PDO map table is not available.
 PdoMapDetailUiState
 pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -44,6 +50,7 @@ pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a PDO map row.
 PdoMapDetailUiState
 pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -51,6 +58,7 @@ pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Whether the PDO name or sync manager indicates an RxPDO/output mapping.
 bool pdoMapDetailIsRxOutput(const PdoMapTableRow &row) {
   const QString pdoLower = row.pdo.toLower();
   const QString smLower = row.syncManager.toLower();
@@ -60,6 +68,7 @@ bool pdoMapDetailIsRxOutput(const PdoMapTableRow &row) {
          smLower.contains(QStringLiteral("rx"));
 }
 
+// Whether the PDO name or sync manager indicates a TxPDO/input mapping.
 bool pdoMapDetailIsTxInput(const PdoMapTableRow &row) {
   const QString pdoLower = row.pdo.toLower();
   const QString smLower = row.syncManager.toLower();
@@ -69,6 +78,7 @@ bool pdoMapDetailIsTxInput(const PdoMapTableRow &row) {
          smLower.contains(QStringLiteral("tx"));
 }
 
+// Whether the index matches a CiA 402 drive profile object or name hints.
 bool pdoMapDetailIsCia402(const PdoMapTableRow &row) {
   return row.index == QStringLiteral("0x6040") ||
          row.index == QStringLiteral("0x6041") ||
@@ -87,6 +97,7 @@ bool pdoMapDetailIsCia402(const PdoMapTableRow &row) {
          row.name.contains(QStringLiteral("statusword"), Qt::CaseInsensitive);
 }
 
+// Maps address validity, bit width, and direction to a severity key.
 QString pdoMapDetailSeverityKey(const PdoMapTableRow &row) {
   if (!pdoMapDetailHasAddress(row) || !pdoMapDetailHasValidBits(row)) {
     return QStringLiteral("warning");
@@ -97,6 +108,7 @@ QString pdoMapDetailSeverityKey(const PdoMapTableRow &row) {
   return QStringLiteral("ok");
 }
 
+// Assembles the full PDO map detail state: direction, role, inferred type, CiA 402 flag, and tooltip.
 PdoMapDetailUiState buildPdoMapDetailUiState(const PdoMapTableRow &row,
                                              int selectedPosition,
                                              const PdoMapDetailTexts &texts) {

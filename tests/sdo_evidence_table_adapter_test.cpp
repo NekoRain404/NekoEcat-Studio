@@ -1,3 +1,4 @@
+// Unit tests for SdoEvidenceTableAdapter.
 #include "adapters/SdoEvidenceTableAdapter.h"
 
 #include <QApplication>

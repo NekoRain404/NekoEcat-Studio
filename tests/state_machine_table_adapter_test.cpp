@@ -1,3 +1,4 @@
+// Unit tests for StateMachineTableAdapter.
 #include "adapters/StateMachineTableAdapter.h"
 
 #include <QApplication>

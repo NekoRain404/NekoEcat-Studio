@@ -15,6 +15,7 @@ class QTcpSocket;
 class EcatDaemon : public QObject {
     Q_OBJECT
 
+    // Local TCP daemon that multiplexes JSON commands over IgH CLI and ecrt APIs.
 public:
     explicit EcatDaemon(QObject *parent = nullptr);
     bool listen(quint16 port);
@@ -28,7 +29,10 @@ private:
     void send(QTcpSocket *socket, const QJsonObject &response);
 
     QTcpServer server_;
+    // CLI-based backend for non-real-time EtherCAT operations (scan, SDO, state).
     EthercatCliBackend backend_;
+    // ecrt-based controller for real-time process data I/O in Free Run mode.
     FreeRunController freeRun_;
+    // Per-socket read buffers for reassembling fragmented TCP into complete JSON lines.
     QHash<QTcpSocket *, QByteArray> buffers_;
 };

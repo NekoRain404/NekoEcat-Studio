@@ -1,3 +1,4 @@
+// CiA 402 controlword/statusword recommendation and mode-interlock logic.
 #include "Cia402DriveModel.h"
 
 #include <QHash>
@@ -5,6 +6,7 @@
 
 namespace {
 
+// Handles both decimal and 0x-prefixed hex input with optional sign.
 QPair<bool, qint64> parseInteger(QString text) {
   text = text.trimmed();
   if (text.isEmpty()) {
@@ -29,6 +31,7 @@ QPair<bool, qint64> parseInteger(QString text) {
                          : static_cast<qint64>(parsed)};
 }
 
+// Formats a 16-bit value as lowercase 0x-prefixed hex for display.
 QString hex16(qint64 number) {
   return QString("0x%1")
       .arg(static_cast<quint16>(number), 4, 16, QLatin1Char('0'))
@@ -37,6 +40,7 @@ QString hex16(qint64 number) {
 
 } // namespace
 
+// Maps decoded CiA 402 statusword state to the next recommended controlword command.
 Cia402ControlwordRecommendation
 recommendedCia402ControlwordFromStatus(const QString &decodedStatusword) {
   const QString normalized = decodedStatusword.toLower();
@@ -63,6 +67,7 @@ recommendedCia402ControlwordFromStatus(const QString &decodedStatusword) {
   return recommendation;
 }
 
+// Checks whether an OD index belongs to the CiA 402 drive profile range.
 bool isCia402Object(const QString &index, const QString &mode) {
   const QString normalizedIndex = index.trimmed().toLower();
   const QString normalizedMode = mode.trimmed().toLower();
@@ -75,6 +80,7 @@ bool isCia402Object(const QString &index, const QString &mode) {
          normalizedIndex == "0x60ff" || normalizedIndex == "0x6071";
 }
 
+// Produces a human-readable interpretation of raw CiA 402 register values.
 QString decodeCia402Value(const QString &index, const QString &value) {
   const QString normalizedIndex = index.trimmed().toLower();
   const auto parsed = parseInteger(value);

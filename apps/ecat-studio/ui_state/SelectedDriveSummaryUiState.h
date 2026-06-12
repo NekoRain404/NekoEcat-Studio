@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QVector>
 
+// Localized text templates for the drive summary card.
 struct SelectedDriveSummaryTexts {
   QString noWatchEvidence;
   QString noCia402Evidence;
@@ -18,6 +19,7 @@ struct SelectedDriveSummaryTexts {
   QString controlwordPattern;
 };
 
+// Extracted CiA 402 object values for a single slave.
 struct SelectedDriveSummaryEvidence {
   QString status;
   QString mode;
@@ -25,6 +27,7 @@ struct SelectedDriveSummaryEvidence {
   QString controlword;
 };
 
+// Resolved drive summary card state with evidence, severity, and display parts.
 struct SelectedDriveSummaryUiState {
   QString text;
   QString severityKey;
@@ -34,6 +37,7 @@ struct SelectedDriveSummaryUiState {
 
 SelectedDriveSummaryUiState
 selectedDriveNoWatchEvidenceState(const SelectedDriveSummaryTexts &texts);
+// Extracts CiA 402 evidence from watch rows for a specific slave.
 SelectedDriveSummaryEvidence
 selectedDriveSummaryEvidence(const QVector<WatchStartupWatchRow> &watchRows,
                              int position);
@@ -43,5 +47,6 @@ SelectedDriveSummaryUiState
 buildSelectedDriveSummaryUiState(const QVector<WatchStartupWatchRow> &watchRows,
                                  int position,
                                  const SelectedDriveSummaryTexts &texts);
+// Recommends the next controlword from the current statusword.
 Cia402ControlwordRecommendation selectedDriveControlwordRecommendation(
     const QVector<WatchStartupWatchRow> &watchRows, int position);

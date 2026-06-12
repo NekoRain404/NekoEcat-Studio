@@ -1,3 +1,4 @@
+// Unit tests for CommissioningWorkflowTableAdapter.
 #include "adapters/CommissioningWorkflowTableAdapter.h"
 
 #include <QApplication>

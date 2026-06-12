@@ -7,6 +7,7 @@
 
 #include <QString>
 
+// Icon identifiers for the next-best-action card.
 enum class NextBestActionIconKey {
   DriveNet,
   Warning,
@@ -17,6 +18,7 @@ enum class NextBestActionIconKey {
   ContentsView,
 };
 
+// Localized text and tips for all possible next-best-action kinds.
 struct NextBestActionTexts {
   QString commands;
   QString commandPaletteTip;
@@ -51,6 +53,7 @@ struct NextBestActionTexts {
   QString matrixTipPattern;
 };
 
+// Rendered card state: action key, severity, display text, tooltip, and icon.
 struct NextBestActionUiState {
   QString actionKey;
   QString severityKey;
@@ -60,6 +63,7 @@ struct NextBestActionUiState {
   bool enabled = true;
 };
 
+// Maps a decision to the rendered card state.
 NextBestActionUiState
 buildNextBestActionUiState(const NextBestActionDecision &decision,
                            const NextBestActionInput &input,

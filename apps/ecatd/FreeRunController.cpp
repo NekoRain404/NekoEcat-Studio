@@ -1,3 +1,4 @@
+// ecrt-based Free Run process image controller for real-time I/O.
 #include "FreeRunController.h"
 
 #include <QJsonArray>
@@ -13,6 +14,7 @@
 namespace {
 constexpr int64_t NsecPerSec = 1000000000LL;
 
+// CLOCK_MONOTONIC avoids NTP jumps; ecrt requires absolute nanosecond timestamps for DC sync.
 uint64_t monotonicNsec()
 {
     timespec ts {};
@@ -22,17 +24,22 @@ uint64_t monotonicNsec()
 }
 
 FreeRunController::FreeRunController(QObject *parent)
+    // The controller starts idle; call start() to acquire an IgH master.
     : QObject(parent)
 {
 }
 
 FreeRunController::~FreeRunController()
 {
+    // Ensure the real-time thread is stopped and ecrt resources are released.
     stop();
 }
 
 bool FreeRunController::start(uint32_t masterIndex, QString *error)
 {
+    // Acquire exclusive access to the IgH master, auto-discover the slave topology
+    // via the ethercat CLI, register all PDO entries into a single process data domain,
+    // then spin up the real-time cycle thread at ~1 kHz.
     if (running_) {
         if (masterIndex == activeMasterIndex_) {
             return true;
@@ -208,6 +215,7 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
 
 void FreeRunController::stop()
 {
+    // Signal the cycle thread to exit and release all ecrt resources.
     if (running_) {
         running_ = false;
         if (thread_.joinable()) {
@@ -223,11 +231,14 @@ bool FreeRunController::running() const
     return running_;
 }
 
+// Thread-safe status string for display.
 QString FreeRunController::status() const
 {
     return status_;
 }
 
+// Snapshot of master/domain state and per-entry live values; mutex-protected
+// because the real-time thread writes masterState_/domainState_ concurrently.
 QJsonObject FreeRunController::telemetry() const
 {
     std::lock_guard<std::mutex> lock(telemetryMutex_);
@@ -252,6 +263,8 @@ QJsonObject FreeRunController::telemetry() const
 
 bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<SlaveSpec> *slaves, QString *error) const
 {
+    // Auto-discover slave topology by parsing `ethercat slaves` output for positions,
+    // then `ethercat cstruct` for the exact PDO mapping that ecrt needs to configure the domain.
     int exitCode = 0;
     QString stdErr;
     const QString scan = runEthercat(masterIndex, {"slaves"}, &exitCode, &stdErr);
@@ -291,6 +304,8 @@ bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<Sla
 
 bool FreeRunController::parseCStruct(uint16_t position, const QString &text, SlaveSpec *slave, QString *error) const
 {
+    // Extract vendor/product IDs and the full PDO/sync tree from IgH's generated C struct.
+    // Entry names come from inline `/* ... */` comments that IgH places after each entry.
     slave->position = position;
 
     const auto vendor = QRegularExpression(R"(Vendor ID:\s+0x([0-9a-fA-F]+))").match(text);
@@ -368,6 +383,8 @@ bool FreeRunController::parseCStruct(uint16_t position, const QString &text, Sla
 
 void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) const
 {
+    // Fill in human-readable names from `ethercat pdos` verbose output where cstruct had none.
+    // This enriches the telemetry display with symbolic PDO entry names.
     if (!slave) {
         return;
     }
@@ -408,6 +425,8 @@ void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) con
 
 QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList &arguments, int *exitCode, QString *stdErr) const
 {
+    // Shell out to the IgH `ethercat` CLI with a specific master index.
+    // Used during configuration discovery, not in the real-time loop.
     QProcess process;
     process.setProgram("ethercat");
     QStringList scopedArguments = {"-m", QString::number(masterIndex)};
@@ -435,6 +454,9 @@ QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList &
 
 void FreeRunController::loop()
 {
+    // Real-time cycle: receive -> process -> sample state -> queue -> send,
+    // sleeping 1ms between iterations to drive the IgH domain exchange at ~1 kHz.
+    // This is the heartbeat of Free Run — it keeps the bus alive and PDO data flowing.
     using namespace std::chrono_literals;
     while (running_) {
         ecrt_master_application_time(master_, monotonicNsec());
@@ -454,6 +476,7 @@ void FreeRunController::loop()
 
 QString FreeRunController::alStateText(unsigned int alStates) const
 {
+    // Decode AL state bitmask into human-readable names (INIT/PREOP/SAFEOP/OP).
     QStringList states;
     if (alStates & 0x01) {
         states << "INIT";
@@ -472,6 +495,7 @@ QString FreeRunController::alStateText(unsigned int alStates) const
 
 QString FreeRunController::wcStateText(ec_wc_state_t state) const
 {
+    // Working counter completeness — indicates whether all registered slaves responded.
     switch (state) {
     case EC_WC_ZERO:
         return "Zero";
@@ -486,6 +510,8 @@ QString FreeRunController::wcStateText(ec_wc_state_t state) const
 
 QJsonArray FreeRunController::entryTelemetryLocked() const
 {
+    // Build JSON array of all registered PDO entries with live values read from
+    // the shared process data image. Called with telemetryMutex_ held.
     QJsonArray array;
     for (const auto &entry : runtimeEntries_) {
         array.append(QJsonObject{
@@ -510,6 +536,7 @@ QJsonArray FreeRunController::entryTelemetryLocked() const
 
 QString FreeRunController::normalizedEntryName(const QString &name) const
 {
+    // Strip IgH's bracket annotations (e.g. "[0x6000:01]") for cleaner display.
     QString cleaned = name;
     cleaned.remove(QRegularExpression(R"(\s*\[[^\]]+\]\s*)"));
     return cleaned.trimmed();
@@ -517,6 +544,7 @@ QString FreeRunController::normalizedEntryName(const QString &name) const
 
 QString FreeRunController::entryDisplayName(const RuntimeEntry &entry) const
 {
+    // Fall back to direction + hex address when no symbolic name is available.
     const QString cleaned = normalizedEntryName(entry.name);
     if (!cleaned.isEmpty()) {
         return cleaned;
@@ -529,6 +557,8 @@ QString FreeRunController::entryDisplayName(const RuntimeEntry &entry) const
 
 QString FreeRunController::entryMeaning(const RuntimeEntry &entry) const
 {
+    // Infer physical meaning from entry name keywords for UI grouping
+    // (e.g. "flow" -> Flow, "pressure" -> Pressure).
     const QString name = entryDisplayName(entry).toLower();
     if (name.contains("flow")) {
         return "Flow";
@@ -553,6 +583,8 @@ QString FreeRunController::entryMeaning(const RuntimeEntry &entry) const
 
 QString FreeRunController::readEntryRawValue(const RuntimeEntry &entry) const
 {
+    // Read the raw integer value directly from the domain data buffer
+    // using ecrt's width-specific read macros (1/8/16/32/64-bit).
     if (!domainData_ || !entry.offset || *entry.offset == static_cast<unsigned int>(-1)) {
         return {};
     }
@@ -575,6 +607,8 @@ QString FreeRunController::readEntryRawValue(const RuntimeEntry &entry) const
 
 QString FreeRunController::readEntryDecodedValue(const RuntimeEntry &entry) const
 {
+    // Interpret 32-bit values as IEEE 754 floats (common for analog sensors);
+    // other widths fall through to the raw integer representation.
     if (!domainData_ || !entry.offset || *entry.offset == static_cast<unsigned int>(-1)) {
         return {};
     }
@@ -587,6 +621,7 @@ QString FreeRunController::readEntryDecodedValue(const RuntimeEntry &entry) cons
 
 void FreeRunController::cleanup()
 {
+    // Release the IgH master/domain and reset all runtime state to idle.
     if (thread_.joinable()) {
         thread_.join();
     }

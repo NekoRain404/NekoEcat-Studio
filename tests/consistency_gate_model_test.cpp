@@ -1,3 +1,4 @@
+// Unit tests for ConsistencyGateModel.
 #include "models/ConsistencyGateModel.h"
 
 #include <QCoreApplication>

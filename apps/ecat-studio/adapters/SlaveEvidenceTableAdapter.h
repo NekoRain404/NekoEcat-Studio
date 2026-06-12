@@ -46,12 +46,14 @@ inline constexpr const char *kSlaveEvidenceScopeStartupDiff = "startupDiff";
 inline constexpr const char *kSlaveEvidenceScopeProcessMissing =
     "processMissing";
 
+// Table pointers provided after lazy-loading completes for watch, startup, and process tables.
 struct SlaveEvidenceLoadedTables {
   QTableWidget *watchTable = nullptr;
   QTableWidget *startupTable = nullptr;
   QTableWidget *processTable = nullptr;
 };
 
+// Tracks which slave position each evidence table was loaded for, to avoid redundant scans.
 struct SlaveEvidenceLoadedPositions {
   int identityPosition = -1;
   int identityRows = 0;
@@ -61,6 +63,7 @@ struct SlaveEvidenceLoadedPositions {
   int pdoRows = 0;
 };
 
+// Derived boolean flags describing a single slave evidence matrix row.
 struct SlaveEvidenceMatrixRowState {
   bool hasRisk = false;
   bool isReady = false;
@@ -77,6 +80,7 @@ struct SlaveEvidenceMatrixRowState {
   bool processMissing = false;
 };
 
+// Aggregate counts after filtering, for badges and status summaries.
 struct SlaveEvidenceMatrixFilterStats {
   int visible = 0;
   int risk = 0;
@@ -89,6 +93,7 @@ struct SlaveEvidenceMatrixFilterStats {
   bool hasVisibleIssue = false;
 };
 
+// Per-priority-tier row counts (P0 through P3).
 struct SlaveEvidenceMatrixPriorityCounts {
   int p0 = 0;
   int p1 = 0;
@@ -96,28 +101,41 @@ struct SlaveEvidenceMatrixPriorityCounts {
   int p3 = 0;
 };
 
+// Aggregates all evidence sources into the slave input model.
 void applyLoadedSlaveEvidence(SlaveEvidenceInput *input,
                               const SlaveEvidenceLoadedPositions &positions,
                               const SlaveEvidenceLoadedTables &tables);
+// Derives boolean flags for a matrix row.
 SlaveEvidenceMatrixRowState slaveEvidenceMatrixRowState(QTableWidget *table,
                                                         int row);
+// Tests whether a row passes the active filter scope.
 bool slaveEvidenceMatrixScopeMatches(const SlaveEvidenceMatrixRowState &state,
                                      const QString &scope);
+// Case-insensitive full-row text search.
 bool slaveEvidenceMatrixSearchMatches(QTableWidget *table, int row,
                                       const QString &needle);
+// Applies scope + text filters and returns aggregate counts.
 SlaveEvidenceMatrixFilterStats
 filterSlaveEvidenceMatrixTable(QTableWidget *table, const QString &scope,
                                const QString &needle);
+// Counts rows in each priority tier.
 SlaveEvidenceMatrixPriorityCounts
 slaveEvidenceMatrixPriorityCounts(QTableWidget *table);
+// Outputs per-priority counts via out-parameters.
 void countSlaveEvidenceMatrixPriorities(QTableWidget *table, int *p0, int *p1,
                                         int *p2, int *p3);
+// Stores navigation route target on the position cell.
 void setSlaveEvidenceMatrixRouteTarget(QTableWidget *table, int row,
                                        SlaveEvidenceRouteTarget target);
+// Retrieves the stored route target with Overview as default.
 SlaveEvidenceRouteTarget
 slaveEvidenceMatrixRouteTargetForRow(QTableWidget *table, int row);
+// First row matching a slave position in a given column.
 int firstSlaveEvidenceRowForPosition(QTableWidget *table, int position,
                                      int positionColumn);
+// First startup diff row for a specific slave.
 int firstSlaveEvidenceStartupDiffRow(QTableWidget *startupTable, int position);
+// First process data issue row for a specific slave.
 int firstSlaveEvidenceProcessIssueRow(QTableWidget *processTable, int position);
+// First drive-related watch row for a specific slave.
 int firstSlaveEvidenceDriveWatchRow(QTableWidget *watchTable, int position);

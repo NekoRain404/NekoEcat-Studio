@@ -1,3 +1,4 @@
+// Unit tests for CommissioningWorkflowUiState.
 #include "ui_state/CommissioningWorkflowUiState.h"
 
 #include <QCoreApplication>

@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Create the Watch table columns if not yet initialized
 void MainWindow::ensureWatchTable() {
   if (!watchTable_) {
     return;
@@ -133,6 +135,8 @@ void MainWindow::ensureWatchTable() {
        uiText("Startup", "启动值"), uiText("Startup Delta", "启动偏差")});
 }
 
+
+// — Decode a raw Watch value using CiA 402 object semantics, if applicable
 QString MainWindow::decodeWatchValue(const QString &index,
                                      const QString &subIndex,
                                      const QString &type, const QString &value,
@@ -168,6 +172,8 @@ QString MainWindow::decodeWatchValue(const QString &index,
   return decoded;
 }
 
+
+// — Add current sdo to watch
 void MainWindow::addCurrentSdoToWatch(bool requestRead) {
   const int position = selectedPosition();
   if (position < 0) {
@@ -234,7 +240,7 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
   watchTable_->setItem(row, 10, new QTableWidgetItem);
   watchTable_->setItem(row, 11, new QTableWidgetItem);
   updateWatchStartupDelta(row);
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   watchTable_->selectRow(row);
   updateDiagnostics(
       "Info", "Watch",
@@ -247,6 +253,8 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
   updateWatchAutoRefresh();
 }
 
+
+// — Add selected history rows to watch
 void MainWindow::addSelectedHistoryRowsToWatch() {
   if (!sdoHistoryTable_) {
     return;
@@ -363,7 +371,7 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
     ++addedOrReused;
   }
 
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateSelectedDriveSummary();
   updateActionAvailability();
@@ -378,6 +386,8 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
   }
 }
 
+
+// — Add selected pdo entries to watch
 void MainWindow::addSelectedPdoEntriesToWatch() {
   const int position = selectedPosition();
   if (position < 0 || !pdoTable_ || loadedPdoPosition_ != position) {
@@ -415,9 +425,9 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
     }
 
     {
-      const QSignalBlocker indexBlocker(sdoIndex_);
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-      const QSignalBlocker typeBlocker(sdoType_);
+      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
       if (sdoIndex_) {
         sdoIndex_->setText(index);
       }
@@ -450,9 +460,9 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText(previousIndex);
     }
@@ -472,7 +482,7 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
   if (watchTable_) {
-    watchTable_->resizeColumnsToContents();
+    watchTable_->resizeColumnsToContents(); // auto-fit column widths
   }
   filterWatchTable();
   updateSelectedDriveSummary();
@@ -487,6 +497,8 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   activateWorkspaceTab(watchTabIndex_);
 }
 
+
+// — Add cia 402 watch preset
 void MainWindow::addCia402WatchPreset() {
   const int position = selectedPosition();
   if (position < 0) {
@@ -526,9 +538,9 @@ void MainWindow::addCia402WatchPreset() {
 
   for (const auto &object : objects) {
     {
-      const QSignalBlocker indexBlocker(sdoIndex_);
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-      const QSignalBlocker typeBlocker(sdoType_);
+      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
       if (sdoIndex_) {
         sdoIndex_->setText(object.index);
       }
@@ -552,9 +564,9 @@ void MainWindow::addCia402WatchPreset() {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText(previousIndex);
     }
@@ -584,6 +596,8 @@ void MainWindow::addCia402WatchPreset() {
   activateWorkspaceTab(watchTabIndex_);
 }
 
+
+// — Insert a Startup SDO row from the selected Watch row
 void MainWindow::addStartupSdoFromWatchRow(int row) {
   if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
     return;
@@ -610,9 +624,9 @@ void MainWindow::addStartupSdoFromWatchRow(int row) {
   }
 
   setSelectedSlave(position);
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-  const QSignalBlocker typeBlocker(sdoType_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
   sdoIndex_->setText(index);
   sdoSubIndex_->setText(subIndex);
   if (sdoValue_) {
@@ -638,6 +652,8 @@ void MainWindow::addStartupSdoFromWatchRow(int row) {
       QString("Created Startup SDO from watch row %1").arg(row + 1));
 }
 
+
+// — Add startup sdo from selected watch rows
 void MainWindow::addStartupSdoFromSelectedWatchRows() {
   if (!watchTable_ || !watchTable_->selectionModel()) {
     return;
@@ -683,9 +699,9 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
     setSelectedSlave(previousPosition);
   }
   {
-    const QSignalBlocker indexBlocker(sdoIndex_);
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_);
-    const QSignalBlocker typeBlocker(sdoType_);
+    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
     if (sdoIndex_) {
       sdoIndex_->setText(previousIndex);
     }
@@ -716,6 +732,8 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
   }
 }
 
+
+// — Sync watch rows to startup sdo
 void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
   if (!watchTable_ || rows.isEmpty()) {
     return;
@@ -778,7 +796,9 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
       continue;
     }
 
+    // Normalize hex address for consistent comparison
     const QString index = normalizeHexText(rawIndex, 4);
+    // Normalize hex address for consistent comparison
     const QString subIndex = normalizeHexText(rawSubIndex, 2);
     const QString key = sdoEvidenceKey(position, index, subIndex);
     if (processedKeys.contains(key)) {
@@ -801,8 +821,10 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
       const int startupPosition =
           startupTextAt(startupRow, 0).toInt(&startupPositionOk);
       const QString startupIndex =
+          // Normalize hex address for consistent comparison
           normalizeHexText(startupTextAt(startupRow, 1), 4);
       const QString startupSubIndex =
+          // Normalize hex address for consistent comparison
           normalizeHexText(startupTextAt(startupRow, 2), 2);
       if (startupPositionOk && startupPosition == position &&
           startupIndex == index && startupSubIndex == subIndex) {
@@ -883,6 +905,7 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
                    .arg(duplicateSkipped);
   }
 
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup Sync", "确认同步 Startup SDO"),
           uiText("Synchronize selected Watch values into Startup SDO.",
@@ -959,7 +982,7 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
   if (lastTouchedRow >= 0) {
     startupSdoTable_->selectRow(lastTouchedRow);
   }
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   updateStartupSdoControls();
   updateWatchAutoRefresh();
@@ -976,6 +999,8 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
                    : QString()));
 }
 
+
+// — Sync selected watch rows to startup sdo
 void MainWindow::syncSelectedWatchRowsToStartupSdo() {
   if (!watchTable_) {
     return;
@@ -984,6 +1009,8 @@ void MainWindow::syncSelectedWatchRowsToStartupSdo() {
   syncWatchRowsToStartupSdo(selectedTableRows(watchTable_));
 }
 
+
+// — Add selected history rows to startup sdo
 void MainWindow::addSelectedHistoryRowsToStartupSdo() {
   if (!sdoHistoryTable_) {
     return;
@@ -1047,7 +1074,7 @@ void MainWindow::addSelectedHistoryRowsToStartupSdo() {
     ++created;
   }
 
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   updateStartupSdoControls();
   updateActionAvailability();
@@ -1061,6 +1088,8 @@ void MainWindow::addSelectedHistoryRowsToStartupSdo() {
   }
 }
 
+
+// — Add selected dictionary evidence to startup sdo
 void MainWindow::addSelectedDictionaryEvidenceToStartupSdo() {
   const QVector<int> rows = selectedDictionaryRows();
   if (rows.isEmpty()) {
@@ -1069,6 +1098,8 @@ void MainWindow::addSelectedDictionaryEvidenceToStartupSdo() {
   addDictionaryEvidenceRowsToStartupSdo(rows);
 }
 
+
+// — Add dictionary evidence rows to startup sdo
 void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
     const QVector<int> &rows) {
   if (selectedPosition() < 0 || !sdoTable_ ||
@@ -1248,6 +1279,7 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
                    .arg(duplicateSkipped);
   }
 
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup from OD Evidence",
                  "确认从 OD 证据创建 Startup SDO"),
@@ -1333,7 +1365,7 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
   if (lastTouchedRow >= 0) {
     startupSdoTable_->selectRow(lastTouchedRow);
   }
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   filterStartupSdoTable();
   updateStartupSdoControls();
@@ -1357,6 +1389,8 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
   }
 }
 
+
+// — Refresh watch list
 void MainWindow::refreshWatchList(bool quiet) {
   if (!client_.isConnected() || !watchTable_) {
     updateWatchAutoRefresh();
@@ -1393,6 +1427,8 @@ void MainWindow::refreshWatchList(bool quiet) {
   updateWatchAutoRefresh();
 }
 
+
+// — Capture watch baseline
 void MainWindow::captureWatchBaseline() {
   if (!watchTable_) {
     return;
@@ -1410,7 +1446,7 @@ void MainWindow::captureWatchBaseline() {
     ++captured;
     updateWatchBaselineDelta(row);
   }
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateActionAvailability();
   updateDiagnostics(
@@ -1418,6 +1454,8 @@ void MainWindow::captureWatchBaseline() {
       QString("Captured Watch baseline for %1 row(s)").arg(captured));
 }
 
+
+// — Clear watch baseline
 void MainWindow::clearWatchBaseline() {
   if (!watchTable_) {
     return;
@@ -1432,7 +1470,7 @@ void MainWindow::clearWatchBaseline() {
     watchTable_->setItem(row, 8, new QTableWidgetItem);
     watchTable_->setItem(row, 9, new QTableWidgetItem);
   }
-  watchTable_->resizeColumnsToContents();
+  watchTable_->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateActionAvailability();
   updateDiagnostics(
@@ -1440,6 +1478,8 @@ void MainWindow::clearWatchBaseline() {
       QString("Cleared Watch baseline for %1 row(s)").arg(cleared));
 }
 
+
+// — Compute and color the baseline delta cell for a single Watch row
 void MainWindow::updateWatchBaselineDelta(int row) {
   if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
     return;
@@ -1463,6 +1503,7 @@ void MainWindow::updateWatchBaselineDelta(int row) {
     return;
   }
 
+  // Parse a numeric string to double for delta comparison
   auto parseNumber = [](QString text, double *out) {
     text = text.trimmed();
     bool ok = false;
@@ -1514,6 +1555,8 @@ void MainWindow::updateWatchBaselineDelta(int row) {
   }
 }
 
+
+// — Recompute baseline deltas for every Watch row
 void MainWindow::updateWatchBaselineDeltas() {
   if (!watchTable_) {
     return;
@@ -1524,6 +1567,8 @@ void MainWindow::updateWatchBaselineDeltas() {
   }
 }
 
+
+// — Compute and color the Startup SDO delta cell for a single Watch row
 void MainWindow::updateWatchStartupDelta(int row) {
   if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
     return;
@@ -1567,6 +1612,8 @@ void MainWindow::updateWatchStartupDelta(int row) {
                               settings_.theme == "Light");
 }
 
+
+// — Recompute Startup SDO deltas for every Watch row
 void MainWindow::updateWatchStartupDeltas() {
   if (!watchTable_) {
     return;
@@ -1580,6 +1627,8 @@ void MainWindow::updateWatchStartupDeltas() {
   updateStateMachineView();
 }
 
+
+// — Start or stop the Watch auto-refresh timer based on user settings
 void MainWindow::updateWatchAutoRefresh() {
   const bool hasItems = watchTable_ && watchTable_->rowCount() > 0;
   const bool autoEnabled = watchAutoRefresh_ && watchAutoRefresh_->isChecked();
@@ -1588,6 +1637,7 @@ void MainWindow::updateWatchAutoRefresh() {
                            : 1000;
 
   if (watchRefreshTimer_) {
+    // Only tick when connected, items exist, and user opted in
     if (client_.isConnected() && hasItems && autoEnabled) {
       watchRefreshTimer_->start(interval > 0 ? interval : 1000);
     } else {
@@ -1605,6 +1655,8 @@ void MainWindow::updateWatchAutoRefresh() {
   updateStateMachineView();
 }
 
+
+// — Remove all Watch entries and reset tracking state
 void MainWindow::clearWatchList() {
   if (!watchTable_) {
     return;

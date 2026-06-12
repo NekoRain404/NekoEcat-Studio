@@ -1,5 +1,7 @@
+// EtherCAT state transition recommendation based on slave diagnostics.
 #include "StateRecommendationModel.h"
 
+// Suggests next EtherCAT state transition based on current diagnostics and evidence completeness.
 QString recommendedEthercatState(const EthercatStateEvidence &evidence) {
   const QString state = evidence.currentState.trimmed().toUpper();
   if (state.contains("INIT")) {

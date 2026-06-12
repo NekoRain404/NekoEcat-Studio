@@ -1,9 +1,11 @@
+// Summary text for the Watch and Startup SDO workspace panels.
 #include "WatchStartupUiState.h"
 
 #include <QBrush>
 #include <QColor>
 #include <QTableWidgetItem>
 
+// Resets both the value and delta cells to empty with default styling.
 void clearWatchStartupDeltaCells(QTableWidgetItem *valueItem,
                                  QTableWidgetItem *deltaItem) {
   if (valueItem) {
@@ -18,6 +20,7 @@ void clearWatchStartupDeltaCells(QTableWidgetItem *valueItem,
   }
 }
 
+// Applies theme-aware colors and text to the value/delta cells based on the comparison result.
 void applyWatchStartupDeltaCells(QTableWidgetItem *valueItem,
                                  QTableWidgetItem *deltaItem,
                                  WatchStartupDeltaState state,

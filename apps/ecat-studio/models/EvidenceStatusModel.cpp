@@ -1,5 +1,7 @@
+// Drive evidence severity classification and evidence status helpers.
 #include "EvidenceStatusModel.h"
 
+// Detects mismatch/diff indicators in startup evidence text (English and Chinese).
 bool hasStartupDiffEvidence(const QString &status) {
   const QString normalized = status.trimmed().toLower();
   return normalized.contains("diff") || normalized == "不一致" ||
@@ -7,6 +9,7 @@ bool hasStartupDiffEvidence(const QString &status) {
          normalized.contains("偏差");
 }
 
+// Detects PDO mapping problems from status text across supported languages.
 bool hasPdoMapIssueEvidence(const QString &status) {
   const QString normalized = status.toLower();
   return normalized.contains("warning") || normalized.contains("missing") ||
@@ -14,6 +17,7 @@ bool hasPdoMapIssueEvidence(const QString &status) {
          normalized.contains("缺失") || normalized.contains("无 pdo 映射");
 }
 
+// Classifies drive evidence text into a severity level for the evidence matrix.
 DriveEvidenceSeverity driveEvidenceSeverity(const QString &evidence) {
   const QString normalized = evidence.toLower();
   if (normalized.trimmed().isEmpty()) {
@@ -33,6 +37,7 @@ DriveEvidenceSeverity driveEvidenceSeverity(const QString &evidence) {
   return DriveEvidenceSeverity::Action;
 }
 
+// Convenience wrapper: true when evidence indicates a drive fault condition.
 bool hasDriveFaultEvidence(const QString &evidence) {
   return driveEvidenceSeverity(evidence) == DriveEvidenceSeverity::Error;
 }

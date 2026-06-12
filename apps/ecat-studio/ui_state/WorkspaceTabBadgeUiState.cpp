@@ -1,5 +1,7 @@
+// Workspace tab badge text templates and severity color keys.
 #include "WorkspaceTabBadgeUiState.h"
 
+// Formats badge text as "Label !Count" for issues or "Label Count" for normal counts.
 QString workspaceTabBadgeText(const QString &label, int count, bool issue) {
   if (count <= 0) {
     return label;
@@ -8,6 +10,7 @@ QString workspaceTabBadgeText(const QString &label, int count, bool issue) {
                                 QString::number(count));
 }
 
+// Builds all 8 workspace tab badges with formatted text and detailed tooltips.
 WorkspaceTabBadgeUiState
 buildWorkspaceTabBadgeUiState(const WorkspaceTabBadgeCounts &counts,
                               const WorkspaceTabBadgeTexts &texts) {

@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Open the modal command palette dialog for quick action search and execution
 void MainWindow::showCommandPalette() {
   QDialog dialog(this);
   dialog.setObjectName("commandPalette");
@@ -890,7 +892,7 @@ void MainWindow::showCommandPalette() {
           .arg(currentSdoLabel()),
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this, currentSdoLabel] {
-        QApplication::clipboard()->setText(currentSdoLabel());
+        QApplication::clipboard()->setText(currentSdoLabel()); // copy to system clipboard
         updateDiagnostics("Info", "SDO",
                           "Copied current SDO address: " + currentSdoLabel());
       },
@@ -902,7 +904,7 @@ void MainWindow::showCommandPalette() {
              "复制当前对象、类型和读回/写入值"),
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this, currentSdoValueLabel] {
-        QApplication::clipboard()->setText(currentSdoValueLabel());
+        QApplication::clipboard()->setText(currentSdoValueLabel()); // copy to system clipboard
         updateDiagnostics("Info", "SDO",
                           "Copied current SDO value: " +
                               currentSdoValueLabel());
@@ -1082,6 +1084,7 @@ void MainWindow::showCommandPalette() {
         if (!ioVariableTable_) {
           return false;
         }
+        // Iterate all rows and apply active filter predicates
         for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
           if (!ioVariableTable_->isRowHidden(row)) {
             return true;
@@ -1639,6 +1642,7 @@ void MainWindow::showCommandPalette() {
     int originalOrder = -1;
   };
 
+  // Rebuild the command list from the current search and filter state
   auto refill = [&] {
     list->clear();
     const QString needle = search->text().trimmed();
@@ -1776,6 +1780,7 @@ void MainWindow::showCommandPalette() {
                   .arg(parts.join("  |  ")));
   };
 
+  // Refresh the command detail preview panel
   auto updatePreview = [&] {
     auto *item = list->currentItem();
     if (!item) {
@@ -1783,7 +1788,7 @@ void MainWindow::showCommandPalette() {
           "No matching command. Adjust search text or action type filter.",
           "没有匹配命令。请调整搜索内容或操作类型过滤。"));
       commandPreview->setProperty("safety", "empty");
-      repolish(commandPreview);
+      repolish(commandPreview); // force QSS re-evaluation after property change
       return;
     }
     const int index = item->data(Qt::UserRole).toInt();
@@ -1813,9 +1818,10 @@ void MainWindow::showCommandPalette() {
         (isEnabled ? QString()
                    : uiText("\nDisabled in the current context.",
                             "\n当前上下文不可执行。")));
-    repolish(commandPreview);
+    repolish(commandPreview); // force QSS re-evaluation after property change
   };
 
+  // Execute the currently selected command and close the palette
   auto runCurrent = [&] {
     auto *item = list->currentItem();
     if (!item || !(item->flags() & Qt::ItemIsEnabled)) {
@@ -1834,6 +1840,7 @@ void MainWindow::showCommandPalette() {
     }
   };
 
+  // Move the list selection up or down by delta rows
   auto moveSelection = [&list](int delta) {
     if (list->count() <= 0) {
       return;
@@ -1854,12 +1861,14 @@ void MainWindow::showCommandPalette() {
       list->scrollToItem(item);
     }
   };
+  // Programmatically select a safety filter tab
   auto setSafetyFilter = [safetyFilter](const QString &key) {
     const int index = safetyFilter->findData(key);
     if (index >= 0) {
       safetyFilter->setCurrentIndex(index);
     }
   };
+  // Toggle pin state for the currently selected command
   auto toggleCurrentPinned = [&] {
     auto *item = list->currentItem();
     if (!item) {
@@ -1882,10 +1891,10 @@ void MainWindow::showCommandPalette() {
     updatePreview();
   };
 
-  connect(search, &QLineEdit::textChanged, &dialog, refill);
+  connect(search, &QLineEdit::textChanged, &dialog, refill); // wire signal to slot
   connect(safetyFilter, QOverload<int>::of(&QComboBox::currentIndexChanged),
           &dialog, refill);
-  connect(search, &QLineEdit::returnPressed, &dialog, runCurrent);
+  connect(search, &QLineEdit::returnPressed, &dialog, runCurrent); // wire signal to slot
   connect(list, &QListWidget::currentRowChanged, &dialog,
           [&](int) { updatePreview(); });
   connect(list, &QListWidget::itemActivated, &dialog,
@@ -1928,7 +1937,7 @@ void MainWindow::showCommandPalette() {
           [&] { moveSelection(1); });
   connect(upShortcut, &QShortcut::activated, &dialog,
           [&] { moveSelection(-1); });
-  connect(pinShortcut, &QShortcut::activated, &dialog, toggleCurrentPinned);
+  connect(pinShortcut, &QShortcut::activated, &dialog, toggleCurrentPinned); // wire signal to slot
   connect(allFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QString()); });
   connect(localFilterShortcut, &QShortcut::activated, &dialog,

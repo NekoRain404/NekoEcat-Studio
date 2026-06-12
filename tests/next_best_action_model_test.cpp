@@ -1,3 +1,4 @@
+// Unit tests for NextBestActionModel.
 #include "models/NextBestActionModel.h"
 
 #include <QCoreApplication>

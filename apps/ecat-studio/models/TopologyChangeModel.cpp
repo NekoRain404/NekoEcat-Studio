@@ -1,7 +1,9 @@
+// Topology change event classification: appeared, disappeared, reordered.
 #include "TopologyChangeModel.h"
 
 #include <QHash>
 
+// Detects added/removed/name/state/flags changes between two topology snapshots.
 QVector<TopologyChange>
 detectTopologyChanges(const QVector<SlaveInfo> &previous,
                       const QVector<SlaveInfo> &current) {

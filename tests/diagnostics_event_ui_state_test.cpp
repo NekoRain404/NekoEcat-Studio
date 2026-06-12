@@ -1,3 +1,4 @@
+// Unit tests for DiagnosticsEventUiState.
 #include "ui_state/DiagnosticsEventUiState.h"
 
 #include <QCoreApplication>

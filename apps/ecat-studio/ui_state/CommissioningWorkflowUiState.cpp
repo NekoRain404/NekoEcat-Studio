@@ -1,5 +1,7 @@
+// Summary and scope-filter state for the commissioning workflow panel.
 #include "CommissioningWorkflowUiState.h"
 
+// Maps a status enum to its localized display string.
 QString
 commissioningWorkflowStatusText(CommissioningWorkflowStatus status,
                                 const CommissioningWorkflowTexts &texts) {
@@ -14,6 +16,7 @@ commissioningWorkflowStatusText(CommissioningWorkflowStatus status,
   return texts.blocked;
 }
 
+// Returns the color/semantic key string for a status enum value.
 QString commissioningWorkflowColorKey(CommissioningWorkflowStatus status) {
   switch (status) {
   case CommissioningWorkflowStatus::Ready:
@@ -26,6 +29,7 @@ QString commissioningWorkflowColorKey(CommissioningWorkflowStatus status) {
   return QStringLiteral("blocked");
 }
 
+// Maps each workflow step to its boundary kind and detail text for the step boundary display.
 CommissioningWorkflowStepBoundary
 commissioningWorkflowStepBoundary(CommissioningWorkflowStep step,
                                   const CommissioningWorkflowTexts &texts) {
@@ -56,12 +60,14 @@ commissioningWorkflowStepBoundary(CommissioningWorkflowStep step,
           texts.reviewObjectDictionaryEvidenceBoundary};
 }
 
+// Returns the localized column header labels for the workflow table.
 QStringList
 commissioningWorkflowHeaders(const CommissioningWorkflowTexts &texts) {
   return {texts.phaseHeader, texts.statusHeader,   texts.stepHeader,
           texts.riskHeader,  texts.evidenceHeader, texts.nextActionHeader};
 }
 
+// Converts a domain row into a UI row with cells, tooltip, and color key.
 CommissioningWorkflowUiRow
 commissioningWorkflowUiRow(const CommissioningWorkflowRow &row,
                            const CommissioningWorkflowTexts &texts) {
@@ -76,6 +82,7 @@ commissioningWorkflowUiRow(const CommissioningWorkflowRow &row,
   return uiRow;
 }
 
+// Flattens UI rows into a list of string lists for QTableWidget population.
 QList<QStringList> commissioningWorkflowTableRows(
     const QVector<CommissioningWorkflowUiRow> &rows) {
   QList<QStringList> tableRows;
@@ -86,6 +93,7 @@ QList<QStringList> commissioningWorkflowTableRows(
   return tableRows;
 }
 
+// Tallies ready/action/blocked counts across all UI rows for summary badges.
 CommissioningWorkflowStats
 commissioningWorkflowStats(const QVector<CommissioningWorkflowUiRow> &rows) {
   CommissioningWorkflowStats stats;

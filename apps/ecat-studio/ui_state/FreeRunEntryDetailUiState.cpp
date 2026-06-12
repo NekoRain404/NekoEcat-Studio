@@ -1,7 +1,9 @@
+// Detail panel text for a selected Free Run entry row.
 #include "FreeRunEntryDetailUiState.h"
 
 namespace {
 
+// Detects PDO map warnings (missing, no map, direction/bit mismatch) using localized keywords.
 bool freeRunEntryMapWarning(const FreeRunEntryTableRow &row) {
   const QString mapLower = row.mapStatus.toLower();
   return mapLower.contains(QStringLiteral("warning")) ||
@@ -12,24 +14,28 @@ bool freeRunEntryMapWarning(const FreeRunEntryTableRow &row) {
          row.mapStatus.contains(QStringLiteral("无 PDO 映射"));
 }
 
+// Whether the map status indicates a direction mismatch between PDO and IO variable.
 bool freeRunEntryDirectionMismatch(const FreeRunEntryTableRow &row) {
   const QString mapLower = row.mapStatus.toLower();
   return mapLower.contains(QStringLiteral("direction mismatch")) ||
          row.mapStatus.contains(QStringLiteral("方向不一致"));
 }
 
+// Whether the map status indicates a bit-width mismatch.
 bool freeRunEntryBitMismatch(const FreeRunEntryTableRow &row) {
   const QString mapLower = row.mapStatus.toLower();
   return mapLower.contains(QStringLiteral("bit mismatch")) ||
          row.mapStatus.contains(QStringLiteral("位宽不一致"));
 }
 
+// Prefers decoded value over raw, falling back to the empty-value placeholder.
 QString freeRunEntryValueText(const FreeRunEntryTableRow &row,
                               const FreeRunEntryDetailTexts &texts) {
   const QString value = row.decoded.isEmpty() ? row.raw : row.decoded;
   return value.isEmpty() ? texts.emptyValue : value;
 }
 
+// Returns the appropriate boundary text (input/output) based on direction.
 QString freeRunEntryBoundaryText(const FreeRunEntryTableRow &row,
                                  const FreeRunEntryDetailTexts &texts) {
   return freeRunEntryDetailIsOutputLike(row) ? texts.outputBoundary
@@ -38,6 +44,7 @@ QString freeRunEntryBoundaryText(const FreeRunEntryTableRow &row,
 
 } // namespace
 
+// Neutral state when the free-run table is not available.
 FreeRunEntryDetailUiState
 freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -45,6 +52,7 @@ freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a row.
 FreeRunEntryDetailUiState
 freeRunEntryDetailNoSelectionState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -52,6 +60,7 @@ freeRunEntryDetailNoSelectionState(const FreeRunEntryDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Whether the entry direction is RX/output (vs TX/input).
 bool freeRunEntryDetailIsOutputLike(const FreeRunEntryTableRow &row) {
   const QString directionLower = row.direction.toLower();
   return directionLower.contains(QStringLiteral("rx")) ||
@@ -59,6 +68,7 @@ bool freeRunEntryDetailIsOutputLike(const FreeRunEntryTableRow &row) {
          row.direction.contains(QStringLiteral("输出"));
 }
 
+// Extracts the origin of the variable name from the map detail text.
 QString freeRunEntryDetailNameSource(const FreeRunEntryTableRow &row,
                                      const FreeRunEntryDetailTexts &texts) {
   QString nameSource = texts.unknown;
@@ -80,6 +90,7 @@ QString freeRunEntryDetailNameSource(const FreeRunEntryTableRow &row,
   return nameSource;
 }
 
+// Maps map status, direction, and change flags to a severity key for styling.
 QString freeRunEntryDetailSeverityKey(const FreeRunEntryTableRow &row,
                                       const FreeRunEntryDetailTexts &texts) {
   if (freeRunEntryDirectionMismatch(row) || freeRunEntryBitMismatch(row)) {
@@ -97,6 +108,7 @@ QString freeRunEntryDetailSeverityKey(const FreeRunEntryTableRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full detail panel state: summary text, severity, boundary, name source, and tooltip.
 FreeRunEntryDetailUiState
 buildFreeRunEntryDetailUiState(const FreeRunEntryTableRow &row,
                                const FreeRunEntryDetailTexts &texts) {

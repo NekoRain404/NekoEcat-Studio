@@ -9,6 +9,7 @@
 
 class QTableWidgetItem;
 
+// Localized labels for the four delta states: missing, pending, match, diff.
 struct WatchStartupDeltaTexts {
   QString missingWatch;
   QString pending;
@@ -16,8 +17,10 @@ struct WatchStartupDeltaTexts {
   QString diff;
 };
 
+// Resets value and delta cells to empty with default styling.
 void clearWatchStartupDeltaCells(QTableWidgetItem *valueItem,
                                  QTableWidgetItem *deltaItem);
+// Applies themed colors and text based on the comparison result.
 void applyWatchStartupDeltaCells(QTableWidgetItem *valueItem,
                                  QTableWidgetItem *deltaItem,
                                  WatchStartupDeltaState state,

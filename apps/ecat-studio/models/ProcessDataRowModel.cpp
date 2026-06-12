@@ -1,3 +1,4 @@
+// PDO/process data row formatting, matching, and evidence status lookup.
 #include "ProcessDataRowModel.h"
 
 #include "EvidenceStatusModel.h"
@@ -6,6 +7,7 @@
 #include <QSet>
 #include <QStringList>
 
+// Maps bit width to the smallest fitting unsigned integer type name.
 QString processDataTypeFromBits(const QString &bitsText) {
   bool ok = false;
   const int bits = bitsText.trimmed().toInt(&ok);
@@ -27,6 +29,7 @@ QString processDataTypeFromBits(const QString &bitsText) {
   return QStringLiteral("uint64");
 }
 
+// Normalizes vendor-specific type strings (e.g. 'byte', 'dword') to canonical names.
 QString processDataNormalizedKnownType(const QString &type) {
   QString normalized = type.trimmed().toLower().replace(' ', "_");
   static const QSet<QString> knownTypes = {
@@ -53,6 +56,7 @@ QString processDataNormalizedKnownType(const QString &type) {
   return QString();
 }
 
+// Maps canonical type names to IEC 61131-3 type identifiers for PLC export.
 QString processDataIecTypeFromNormalizedType(const QString &type) {
   if (type == QStringLiteral("bool")) {
     return QStringLiteral("BOOL");
@@ -90,36 +94,44 @@ QString processDataIecTypeFromNormalizedType(const QString &type) {
   return QString();
 }
 
+// A PDO map row needs both index and subIndex to be addressable.
 bool pdoMapTableRowHasTarget(const PdoMapTableRow &row) {
   return !row.index.isEmpty() && !row.subIndex.isEmpty();
 }
 
+// A free-run row needs a valid slave position and OD address.
 bool freeRunEntryTableRowHasTarget(const FreeRunEntryTableRow &row) {
   return row.positionValid && row.position >= 0 && !row.index.isEmpty() &&
          !row.subIndex.isEmpty();
 }
 
+// An I/O variable row needs a valid position, index, and subIndex.
 bool ioVariableTableRowHasTarget(const IoVariableTableRow &row) {
   return row.positionValid && row.position >= 0 && !row.index.isEmpty() &&
          !row.subIndex.isEmpty();
 }
 
+// Row has at least one value source (raw reading or watch evidence).
 bool ioVariableTableRowHasValue(const IoVariableTableRow &row) {
   return !row.raw.isEmpty() || !row.watch.isEmpty();
 }
 
+// Prefers raw over watch for display since raw is the authoritative reading.
 QString ioVariableTableRowPreferredValue(const IoVariableTableRow &row) {
   return row.raw.isEmpty() ? row.watch : row.raw;
 }
 
+// Prefers watch over raw for startup comparison since watch reflects live state.
 QString ioVariableTableRowStartupValue(const IoVariableTableRow &row) {
   return row.watch.isEmpty() ? row.raw : row.watch;
 }
 
+// Delegates to bit-width-based type inference for the row.
 QString ioVariableTableRowTypeFromBits(const IoVariableTableRow &row) {
   return processDataTypeFromBits(row.bits);
 }
 
+// Extracts type from SDO source metadata, falling back to bit-width inference.
 QString ioVariableTableRowSdoType(const IoVariableTableRow &row) {
   const QStringList parts = row.source.toLower().split('|');
   if (parts.size() > 1) {
@@ -131,49 +143,59 @@ QString ioVariableTableRowSdoType(const IoVariableTableRow &row) {
   return ioVariableTableRowTypeFromBits(row);
 }
 
+// Resolves IEC type for PLC handoff, defaulting to ANY when type is unknown.
 QString ioVariableTableRowIecType(const IoVariableTableRow &row) {
   const QString type = processDataIecTypeFromNormalizedType(
       processDataNormalizedKnownType(ioVariableTableRowSdoType(row)));
   return type.isEmpty() ? QStringLiteral("ANY") : type;
 }
 
+// True when the row is sourced from the process data image.
 bool ioVariableTableRowHasProcessSource(const IoVariableTableRow &row) {
   const QString source = row.source.toLower();
   return source.contains(QStringLiteral("process")) ||
          source.contains(QStringLiteral("\u8fc7\u7a0b"));
 }
 
+// True when the row originates from PDO mapping configuration.
 bool ioVariableTableRowHasPdoSource(const IoVariableTableRow &row) {
   return row.source.contains(QStringLiteral("pdo"), Qt::CaseInsensitive);
 }
 
+// Row has watch data or is tagged as watch-sourced in its source field.
 bool ioVariableTableRowHasWatchEvidence(const IoVariableTableRow &row) {
   return !row.watch.isEmpty() ||
          row.source.contains(QStringLiteral("watch"), Qt::CaseInsensitive);
 }
 
+// Delegates startup diff detection to the evidence status model.
 bool ioVariableTableRowHasStartupDiff(const IoVariableTableRow &row) {
   return hasStartupDiffEvidence(row.startup);
 }
 
+// Delegates PDO map issue detection to the evidence status model.
 bool ioVariableTableRowHasPdoMapIssue(const IoVariableTableRow &row) {
   return hasPdoMapIssueEvidence(row.map);
 }
 
+// Neither raw nor watch value is available for this row.
 bool ioVariableTableRowHasMissingValue(const IoVariableTableRow &row) {
   return row.raw.isEmpty() && row.watch.isEmpty();
 }
 
+// Value has been modified since the initial read.
 bool ioVariableTableRowHasChangedValue(const IoVariableTableRow &row) {
   return !row.changed.isEmpty();
 }
 
+// PLC quality label differs from the expected 'ready' baseline.
 bool ioVariableTableRowHasPlcIssue(const IoVariableTableRow &row,
                                    const QString &readyText) {
   return !row.plcQuality.isEmpty() &&
          row.plcQuality.compare(readyText, Qt::CaseInsensitive) != 0;
 }
 
+// Row direction indicates Rx (outputs sent to the slave).
 bool ioVariableTableRowIsRx(const IoVariableTableRow &row) {
   const QString direction = row.direction.toLower();
   return direction.contains(QStringLiteral("rx")) ||
@@ -181,6 +203,7 @@ bool ioVariableTableRowIsRx(const IoVariableTableRow &row) {
          direction.contains(QStringLiteral("\u8f93\u51fa"));
 }
 
+// Row direction indicates Tx (inputs received from the slave).
 bool ioVariableTableRowIsTx(const IoVariableTableRow &row) {
   const QString direction = row.direction.toLower();
   return direction.contains(QStringLiteral("tx")) ||
@@ -188,6 +211,7 @@ bool ioVariableTableRowIsTx(const IoVariableTableRow &row) {
          direction.contains(QStringLiteral("\u8f93\u5165"));
 }
 
+// Row belongs to the CiA 402 drive profile based on index or symbol/meaning text.
 bool ioVariableTableRowIsCia402(const IoVariableTableRow &row) {
   return row.index == QStringLiteral("0x6040") ||
          row.index == QStringLiteral("0x6041") ||
@@ -204,6 +228,7 @@ bool ioVariableTableRowIsCia402(const IoVariableTableRow &row) {
          row.meaning.contains(QStringLiteral("cia"), Qt::CaseInsensitive);
 }
 
+// Builds a normalized 'position|index|subIndex' composite key for deduplication.
 QString ioVariableTableObjectKey(int position, const QString &index,
                                  const QString &subIndex) {
   if (position < 0 || index.trimmed().isEmpty() ||
@@ -215,6 +240,7 @@ QString ioVariableTableObjectKey(int position, const QString &index,
       .arg(normalizeHexText(index, 4), normalizeHexText(subIndex, 2));
 }
 
+// Builds the composite key from a row, returning empty if the row lacks a valid address.
 QString ioVariableTableRowKey(const IoVariableTableRow &row) {
   if (!ioVariableTableRowHasTarget(row)) {
     return QString();

@@ -1,9 +1,11 @@
+// Detail panel text for a selected Startup SDO row.
 #include "StartupSdoRowDetailUiState.h"
 
 #include <initializer_list>
 
 namespace {
 
+// Case-insensitive check for any keyword presence in the text.
 bool containsAny(const QString &text,
                  std::initializer_list<const char *> keys) {
   const QString lowered = text.toLower();
@@ -15,38 +17,45 @@ bool containsAny(const QString &text,
   return false;
 }
 
+// Detects error/failed status using English and Chinese keywords.
 bool statusHasValidationIssue(const QString &status) {
   return containsAny(status, {"error", "failed"}) ||
          status.contains(QStringLiteral("错误")) ||
          status.contains(QStringLiteral("失败"));
 }
 
+// Detects in-progress status (applying/verifying).
 bool statusIsApplying(const QString &status) {
   return containsAny(status, {"applying", "verifying"}) ||
          status.contains(QStringLiteral("应用中")) ||
          status.contains(QStringLiteral("校验中"));
 }
 
+// Whether the watch delta indicates a value mismatch.
 bool deltaIsWatchDiff(const QString &delta) {
   return containsAny(delta, {"diff"}) ||
          delta.contains(QStringLiteral("不一致"));
 }
 
+// Whether the delta indicates no watch entry was found.
 bool deltaIsNoWatch(const QString &delta) {
   return containsAny(delta, {"no watch"}) ||
          delta.contains(QStringLiteral("无监视"));
 }
 
+// Whether the comparison is still pending.
 bool deltaIsPending(const QString &delta) {
   return containsAny(delta, {"pending"}) ||
          delta.contains(QStringLiteral("待比较"));
 }
 
+// Whether the startup value matches the watch value.
 bool deltaIsMatch(const QString &delta) {
   return containsAny(delta, {"match"}) ||
          delta.contains(QStringLiteral("匹配"));
 }
 
+// Returns the position text, falling back to the integer position.
 QString startupPositionText(const WatchStartupStartupRow &row) {
   if (!row.positionText.isEmpty()) {
     return row.positionText;
@@ -56,6 +65,7 @@ QString startupPositionText(const WatchStartupStartupRow &row) {
 
 } // namespace
 
+// Neutral state when the startup SDO table is not available.
 StartupSdoRowDetailUiState
 startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -63,6 +73,7 @@ startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a startup row.
 StartupSdoRowDetailUiState
 startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -70,6 +81,7 @@ startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps validation status, watch delta, and target completeness to a severity key.
 QString startupSdoRowDetailSeverityKey(const WatchStartupStartupRow &row,
                                        const StartupSdoRowDetailTexts &) {
   const bool validationIssue = statusHasValidationIssue(row.status);
@@ -97,6 +109,7 @@ QString startupSdoRowDetailSeverityKey(const WatchStartupStartupRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full startup detail state: status flags, evidence text, summary, and tooltip.
 StartupSdoRowDetailUiState
 buildStartupSdoRowDetailUiState(const WatchStartupStartupRow &row,
                                 const StartupSdoRowDetailTexts &texts) {

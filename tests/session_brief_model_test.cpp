@@ -1,3 +1,4 @@
+// Unit tests for SessionBriefModel.
 #include "models/SessionBriefModel.h"
 
 #include <QCoreApplication>

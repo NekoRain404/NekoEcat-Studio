@@ -1,3 +1,4 @@
+// Unit tests for SessionBriefTableAdapter.
 #include "adapters/SessionBriefTableAdapter.h"
 
 #include <QApplication>

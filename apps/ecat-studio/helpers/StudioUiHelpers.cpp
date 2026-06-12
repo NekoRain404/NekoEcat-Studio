@@ -1,3 +1,4 @@
+// Reusable UI widget factories: section titles, metric cards, status labels.
 #include "StudioUiHelpers.h"
 
 #include <QFrame>
@@ -9,12 +10,14 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+// Creates a styled label for grouping content under a named section.
 QLabel *makeSectionTitle(const QString &text) {
   auto *label = new QLabel(text);
   label->setObjectName("sectionTitle");
   return label;
 }
 
+// Builds a compact metric card with a title, a large selectable value, and optional value label pointer.
 QFrame *makeMetricCard(const QString &title, const QString &value,
                        QLabel **valueLabel) {
   auto *card = new QFrame;
@@ -45,12 +48,14 @@ QFrame *makeMetricCard(const QString &title, const QString &value,
   return card;
 }
 
+// Creates a compact label styled for inline toolbar placement.
 QLabel *makeToolbarLabel(const QString &text) {
   auto *label = new QLabel(text);
   label->setObjectName("toolbarLabel");
   return label;
 }
 
+// Creates a word-wrapping, selectable label with severity-based styling for the status bar.
 QLabel *makeStatusSummaryLabel(const QString &text, const QString &tooltip,
                                const QString &severity) {
   auto *label = new QLabel(text);
@@ -64,6 +69,7 @@ QLabel *makeStatusSummaryLabel(const QString &text, const QString &tooltip,
   return label;
 }
 
+// Applies production tab widget settings: document mode, movable tabs, scroll buttons, no elide.
 void configureWorkspaceTabsForRelease(QTabWidget *tabs) {
   if (!tabs) {
     return;
@@ -79,6 +85,7 @@ void configureWorkspaceTabsForRelease(QTabWidget *tabs) {
   }
 }
 
+// Forces a full style recalculation to pick up dynamic property changes (e.g., severity updates).
 void repolish(QWidget *widget) {
   if (!widget) {
     return;
@@ -88,6 +95,7 @@ void repolish(QWidget *widget) {
   widget->update();
 }
 
+// Walks the widget parent chain to find and activate the tab page containing the given widget.
 bool activateTabContainingWidget(QTabWidget *tabs, QWidget *widget) {
   if (!tabs || !widget) {
     return false;

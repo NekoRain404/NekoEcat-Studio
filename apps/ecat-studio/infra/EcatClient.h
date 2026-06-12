@@ -15,6 +15,9 @@
 class EcatClient : public QObject {
   Q_OBJECT
 
+  // TCP client for the ecatd runtime daemon. Uses newline-delimited JSON with a
+  // JSON-RPC-style id/method/params convention. Each request registers a typed
+  // callback handler that fires when the correlated response arrives.
 public:
   explicit EcatClient(QObject *parent = nullptr);
 

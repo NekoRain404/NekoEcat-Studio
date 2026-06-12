@@ -1,3 +1,4 @@
+// Unit tests for CommissioningWorkflowModel.
 #include "models/CommissioningWorkflowModel.h"
 
 #include <QCoreApplication>

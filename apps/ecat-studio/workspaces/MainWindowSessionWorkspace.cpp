@@ -142,6 +142,8 @@ nextBestActionStandardPixmap(NextBestActionIconKey icon) {
   return QStyle::SP_FileDialogContentsView;
 }
 
+
+// — Map a host health severity key to its display color
 QColor hostHealthColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
     return QColor("#ef4444");
@@ -152,6 +154,8 @@ QColor hostHealthColorForKey(const QString &colorKey) {
   return QColor("#22c55e");
 }
 
+
+// — Map a diagnostics severity key to its display color
 QColor diagnosticsEventColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
     return QColor("#ef4444");
@@ -164,7 +168,10 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 
 } // namespace
 
+
+// — Rebuild the session brief table summarizing current workspace health
 void MainWindow::updateSessionBrief() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!sessionBriefTable_) {
     return;
   }
@@ -237,7 +244,9 @@ void MainWindow::updateSessionBrief() {
       !sdoSubIndex_->text().trimmed().isEmpty()) {
     briefInput.currentSdoComplete = true;
     const QString address =
+        // Normalize hex address for consistent comparison
         QString("%1:%2").arg(normalizeHexText(sdoIndex_->text(), 4),
+                             // Normalize hex address for consistent comparison
                              normalizeHexText(sdoSubIndex_->text(), 2));
     const auto candidates = currentSdoEvidenceCandidates();
     QStringList facts;
@@ -432,7 +441,10 @@ void MainWindow::updateSessionBrief() {
   updateSessionBriefCopyButton();
 }
 
+
+// — Update session brief copy button
 void MainWindow::updateSessionBriefCopyButton() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!sessionBriefCopyButton_ || !sessionBriefTable_) {
     return;
   }
@@ -461,6 +473,8 @@ void MainWindow::updateSessionBriefCopyButton() {
           .arg(area.isEmpty() ? uiText("selected row", "所选行") : area));
 }
 
+
+// — Check whether copy session brief row digest
 bool MainWindow::copySessionBriefRowDigest(int row) {
   if (!sessionBriefTable_ || row < 0 || row >= sessionBriefTable_->rowCount()) {
     statusBar()->showMessage(uiText("Select a Session Brief row to copy.",
@@ -510,7 +524,7 @@ bool MainWindow::copySessionBriefRowDigest(int row) {
                   "边界：只复制到剪贴板；不读取总线、不加载 OD/PDO/ESI、不写 "
                   "SDO、不切换状态、不改变 Free Run，也不运行 Host Health。");
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   updateDiagnostics("Info", "Session Brief",
                     uiText("Copied Session Brief row #%1 to clipboard",
                            "已复制会话简报第 %1 行到剪贴板")
@@ -522,7 +536,10 @@ bool MainWindow::copySessionBriefRowDigest(int row) {
   return true;
 }
 
+
+// — Update workflow step copy button
 void MainWindow::updateWorkflowStepCopyButton() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowStepCopyButton_ || !workflowTable_) {
     return;
   }
@@ -554,6 +571,8 @@ void MainWindow::updateWorkflowStepCopyButton() {
           .arg(step.isEmpty() ? uiText("selected step", "所选步骤") : step));
 }
 
+
+// — Update workflow step detail
 void MainWindow::updateWorkflowStepDetail() {
   if (!workflowStepDetailLabel_) {
     return;
@@ -565,9 +584,10 @@ void MainWindow::updateWorkflowStepDetail() {
         workflowStepDetailLabel_->setText(state.text);
         workflowStepDetailLabel_->setProperty("severity", state.severityKey);
         workflowStepDetailLabel_->setToolTip(state.tooltip);
-        repolish(workflowStepDetailLabel_);
+        repolish(workflowStepDetailLabel_); // force QSS re-evaluation after property change
       };
 
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowTable_) {
     applyState(commissioningWorkflowStepDetailUnavailableState(texts));
     return;
@@ -585,7 +605,10 @@ void MainWindow::updateWorkflowStepDetail() {
       commissioningWorkflowTexts(), texts));
 }
 
+
+// — Navigate to the evidence workspace referenced by the session brief row
 void MainWindow::openSessionBriefRow(int row) {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!sessionBriefTable_) {
     return;
   }
@@ -726,6 +749,7 @@ void MainWindow::openSessionBriefRow(int row) {
   if (actionKey == QStringLiteral("next")) {
     const int nextStep = nextCommissioningWorkflowStep();
     activateWorkspaceTab(overviewTabIndex_);
+    // Dispatch Alt+Enter to the correct evidence action for this table type
     if (nextStep >= 0 && workflowTable_) {
       selectAndFocusTableRow(workflowTable_, nextStep, 2);
     }
@@ -739,6 +763,8 @@ void MainWindow::openSessionBriefRow(int row) {
   }
 }
 
+
+// — Recompute and display the highest-priority next-best-action suggestion
 void MainWindow::updateNextBestAction() {
   if (!nextBestActionButton_) {
     return;
@@ -777,9 +803,11 @@ void MainWindow::updateNextBestAction() {
   nextBestActionButton_->setEnabled(uiState.enabled);
   nextBestActionButton_->setProperty("action", uiState.actionKey);
   nextBestActionButton_->setProperty("severity", uiState.severityKey);
-  repolish(nextBestActionButton_);
+  repolish(nextBestActionButton_); // force QSS re-evaluation after property change
 }
 
+
+// — Run next best action
 void MainWindow::runNextBestAction() {
   if (!nextBestActionButton_) {
     return;
@@ -860,7 +888,10 @@ void MainWindow::runNextBestAction() {
   updateNextBestAction();
 }
 
+
+// — Filter commissioning workflow
 void MainWindow::filterCommissioningWorkflow() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowTable_) {
     return;
   }
@@ -922,11 +953,15 @@ void MainWindow::filterCommissioningWorkflow() {
   updateWorkflowStepDetail();
 }
 
+
+// — Review first commissioning workflow issue
 void MainWindow::reviewFirstCommissioningWorkflowIssue() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowTable_) {
     return;
   }
   filterCommissioningWorkflow();
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   const int row = firstCommissioningWorkflowIssueRow(workflowTable_);
   if (row >= 0) {
     selectAndFocusTableRow(workflowTable_, row, 2);
@@ -946,7 +981,10 @@ void MainWindow::reviewFirstCommissioningWorkflowIssue() {
                            3000);
 }
 
+
+// — Review next commissioning workflow issue
 void MainWindow::reviewNextCommissioningWorkflowIssue() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowTable_) {
     return;
   }
@@ -980,6 +1018,8 @@ void MainWindow::reviewNextCommissioningWorkflowIssue() {
                            3000);
 }
 
+
+// — Copy a human-readable summary of the workflow step to clipboard
 bool MainWindow::copyWorkflowStepDigest(int row) {
   if (!workflowTable_ || row < 0 || row >= workflowTable_->rowCount() ||
       workflowTable_->isRowHidden(row)) {
@@ -1049,7 +1089,7 @@ bool MainWindow::copyWorkflowStepDigest(int row) {
                   "边界：只复制到剪贴板；不读取总线、不加载 OD/PDO/ESI、不写 "
                   "SDO、不切换状态、不改变 Free Run，也不运行 Host Health。");
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   updateDiagnostics("Info", "Commissioning Workflow",
                     uiText("Copied commissioning workflow step #%1 to "
                            "clipboard",
@@ -1062,10 +1102,14 @@ bool MainWindow::copyWorkflowStepDigest(int row) {
   return true;
 }
 
+
+// — Return the next commissioning workflow step
 int MainWindow::nextCommissioningWorkflowStep() const {
   return nextCommissioningWorkflowStepIndex(commissioningWorkflowInput());
 }
 
+
+// — Run next commissioning workflow step
 void MainWindow::runNextCommissioningWorkflowStep() {
   const int row = nextCommissioningWorkflowStep();
   if (row < 0) {
@@ -1077,6 +1121,8 @@ void MainWindow::runNextCommissioningWorkflowStep() {
   runCommissioningWorkflowStep(row);
 }
 
+
+// — Run commissioning workflow step
 void MainWindow::runCommissioningWorkflowStep(int row) {
   if (!tabs_) {
     return;
@@ -1156,6 +1202,8 @@ void MainWindow::runCommissioningWorkflowStep(int row) {
   updateSelectedDriveSummary();
 }
 
+
+// — Refresh the host health label from the latest host check result
 void MainWindow::updateHostHealth(const QJsonArray &checks) {
   if (!hostHealthTable_) {
     return;
@@ -1173,7 +1221,7 @@ void MainWindow::updateHostHealth(const QJsonArray &checks) {
       }
     }
   }
-  hostHealthTable_->resizeColumnsToContents();
+  hostHealthTable_->resizeColumnsToContents(); // auto-fit column widths
 
   if (hostHealthSummaryLabel_) {
     hostHealthSummaryLabel_->setText(uiState.summary);
@@ -1182,6 +1230,8 @@ void MainWindow::updateHostHealth(const QJsonArray &checks) {
   updateCommissioningWorkflow();
 }
 
+
+// — Recount diagnostics events by level and update the summary label
 void MainWindow::updateDiagnosticsSummary() {
   if (!diagnosticsSummaryLabel_ || !diagnosticsTable_) {
     return;
@@ -1200,6 +1250,8 @@ void MainWindow::updateDiagnosticsSummary() {
   updateTabBadges();
 }
 
+
+// — Apply foreground color to a diagnostics table row based on severity level
 void MainWindow::styleDiagnosticsRow(int row, const QString &level) {
   if (!diagnosticsTable_ || row < 0 || row >= diagnosticsTable_->rowCount()) {
     return;
@@ -1213,6 +1265,8 @@ void MainWindow::styleDiagnosticsRow(int row, const QString &level) {
   }
 }
 
+
+// — Append a timestamped entry to the diagnostics log table
 void MainWindow::updateDiagnostics(const QString &level, const QString &source,
                                    const QString &message) {
   if (!diagnosticsTable_->columnCount()) {
@@ -1230,15 +1284,18 @@ void MainWindow::updateDiagnostics(const QString &level, const QString &source,
   diagnosticsTable_->setItem(row, 3, new QTableWidgetItem(message));
   styleDiagnosticsRow(row, level);
   filterDiagnosticsTable();
-  diagnosticsTable_->resizeColumnsToContents();
+  diagnosticsTable_->resizeColumnsToContents(); // auto-fit column widths
   updateNextBestAction();
 }
 
+
+// — Recompute badge counts and tooltips for all workspace tabs
 void MainWindow::updateTabBadges() {
   if (!tabs_) {
     return;
   }
 
+  // Helper to set text and tooltip for a tab by index
   auto setTab = [this](int index, const QString &text, const QString &tip) {
     if (index >= 0 && index < tabs_->count()) {
       tabs_->setTabText(index, text);
@@ -1269,6 +1326,8 @@ void MainWindow::updateTabBadges() {
   setTab(diagnosticsTabIndex_, badges.diagnostics.text, badges.diagnostics.tip);
 }
 
+
+// — Refresh the status bar with connection, master, slave, and Free Run state
 void MainWindow::updateStatusBar() {
   if (!statusSummaryLabel_) {
     return;
@@ -1290,6 +1349,8 @@ void MainWindow::updateStatusBar() {
   updateSessionBrief();
 }
 
+
+// — Update the workspace boundary label with the current tab's access scope
 void MainWindow::updateWorkspaceBoundary() {
   if (!workspaceBoundaryLabel_ || !tabs_) {
     return;
@@ -1312,6 +1373,6 @@ void MainWindow::updateWorkspaceBoundary() {
   workspaceBoundaryLabel_->setToolTip(state.tooltip);
   workspaceBoundaryLabel_->setStatusTip(workspaceBoundaryLabel_->toolTip());
   workspaceBoundaryLabel_->setProperty("severity", state.severityKey);
-  repolish(workspaceBoundaryLabel_);
+  repolish(workspaceBoundaryLabel_); // force QSS re-evaluation after property change
 }
 

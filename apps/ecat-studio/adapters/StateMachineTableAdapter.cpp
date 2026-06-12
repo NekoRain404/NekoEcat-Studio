@@ -1,9 +1,11 @@
+// Populates and queries the state machine recommendation QTableWidget.
 #include "StateMachineTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
 
 #include <QTableWidget>
 
+// Extracts all state machine columns into a structured row for recommendation display.
 StateMachineTableRow stateMachineTableRowFromTable(QTableWidget *table,
                                                    int row) {
   StateMachineTableRow result;
@@ -25,6 +27,7 @@ StateMachineTableRow stateMachineTableRowFromTable(QTableWidget *table,
   return result;
 }
 
+// Parses the position text and outputs it via out-parameter; returns false if non-numeric.
 bool stateMachineTableRowPosition(const StateMachineTableRow &row,
                                   int *position) {
   bool ok = false;
@@ -38,10 +41,12 @@ bool stateMachineTableRowPosition(const StateMachineTableRow &row,
   return true;
 }
 
+// Whether this row has a non-empty recommended state transition.
 bool stateMachineTableRowHasRecommendation(const StateMachineTableRow &row) {
   return !row.recommended.trimmed().isEmpty();
 }
 
+// Convenience wrapper to extract the slave position from a table row.
 int stateMachinePositionFromTable(QTableWidget *table, int row) {
   int position = -1;
   if (stateMachineTableRowPosition(stateMachineTableRowFromTable(table, row),
@@ -51,6 +56,7 @@ int stateMachinePositionFromTable(QTableWidget *table, int row) {
   return -1;
 }
 
+// Convenience wrapper to check for a recommendation directly from table indices.
 bool stateMachineRowHasRecommendation(QTableWidget *table, int row) {
   return stateMachineTableRowHasRecommendation(
       stateMachineTableRowFromTable(table, row));

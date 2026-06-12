@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the object bookmark detail panel.
 struct ObjectBookmarkDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -39,6 +40,7 @@ struct ObjectBookmarkDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved bookmark detail state with severity, reuse guidance, and tooltip.
 struct ObjectBookmarkDetailUiState {
   QString text;
   QString severityKey;
@@ -54,8 +56,10 @@ ObjectBookmarkDetailUiState
 objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts);
 ObjectBookmarkDetailUiState
 objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts);
+// Maps row attributes to a severity key.
 QString objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
                                         const ObjectBookmarkDetailTexts &texts);
+// Assembles the full bookmark detail state.
 ObjectBookmarkDetailUiState
 buildObjectBookmarkDetailUiState(const SdoObjectBookmarkRow &row,
                                  const ObjectBookmarkDetailTexts &texts);

@@ -1,7 +1,9 @@
+// Host health check result rows for the diagnostics overview.
 #include "HostHealthUiState.h"
 
 #include <QJsonObject>
 
+// Maps a health check level to its color key (error, warning, ok).
 QString hostHealthColorKey(const QString &level) {
   if (level == QStringLiteral("Error")) {
     return QStringLiteral("error");
@@ -12,6 +14,7 @@ QString hostHealthColorKey(const QString &level) {
   return QStringLiteral("ok");
 }
 
+// Parses host health check JSON into rows, counts, and a localized summary string.
 HostHealthUiState buildHostHealthUiState(const QJsonArray &checks,
                                          const HostHealthTexts &texts) {
   HostHealthUiState state;

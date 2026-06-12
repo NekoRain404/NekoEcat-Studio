@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the PDO map detail panel.
 struct PdoMapDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -39,6 +40,7 @@ struct PdoMapDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved PDO map detail state with direction, role, type, and CiA 402 flag.
 struct PdoMapDetailUiState {
   QString text;
   QString severityKey;
@@ -54,10 +56,15 @@ PdoMapDetailUiState
 pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts);
 PdoMapDetailUiState
 pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts);
+// Whether the PDO indicates RxPDO/output direction.
 bool pdoMapDetailIsRxOutput(const PdoMapTableRow &row);
+// Whether the PDO indicates TxPDO/input direction.
 bool pdoMapDetailIsTxInput(const PdoMapTableRow &row);
+// Whether the entry matches CiA 402 drive profile objects.
 bool pdoMapDetailIsCia402(const PdoMapTableRow &row);
+// Maps row attributes to a severity key.
 QString pdoMapDetailSeverityKey(const PdoMapTableRow &row);
+// Assembles the full PDO map detail state.
 PdoMapDetailUiState buildPdoMapDetailUiState(const PdoMapTableRow &row,
                                              int selectedPosition,
                                              const PdoMapDetailTexts &texts);

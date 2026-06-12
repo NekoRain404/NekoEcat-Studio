@@ -13,6 +13,9 @@
 class EthercatCliBackend : public QObject {
     Q_OBJECT
 
+    // Wraps the IgH `ethercat` CLI to provide structured access to master state,
+    // slave info, PDO/SDO dictionaries, and SDO read/write operations.
+    // All methods are synchronous and shell out to the CLI; not suitable for real-time use.
 public:
     explicit EthercatCliBackend(QObject *parent = nullptr);
 

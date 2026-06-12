@@ -118,7 +118,10 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Construct the entire main window layout, tabs, tables, and toolbars from scratch
 void MainWindow::buildUi() {
+  // Reset all page pointers before constructing the layout
   overviewPage_ = nullptr;
   objectDictionaryPage_ = nullptr;
   pdoMapPage_ = nullptr;
@@ -2305,6 +2308,8 @@ void MainWindow::buildUi() {
   updateNextBestAction();
 }
 
+
+// — Tear down and reconstruct the UI while preserving table data and filter state
 void MainWindow::rebuildUi() {
   const int previousSelectedPosition = selectedPosition();
   const QString masterSnapshot = lastMasterText_;
@@ -2314,6 +2319,7 @@ void MainWindow::rebuildUi() {
   const QString xmlSnapshot = lastXmlText_;
   const int previousLoadedSlaveInfoPosition = loadedSlaveInfoPosition_;
   const int previousLoadedPdoPosition = loadedPdoPosition_;
+  // Preserve loaded position only if the selection hasn't changed
   const int previousLoadedSdoPosition = loadedSdoPosition_;
   const int previousLoadedXmlPosition = loadedXmlPosition_;
   const QString notes =
@@ -2412,7 +2418,7 @@ void MainWindow::rebuildUi() {
       rememberedSdoTargetTrailKeys_.insert(
           sdoTargetTrailRowKeyFromTable(sdoTargetTrailTable_, row));
     }
-    sdoTargetTrailTable_->resizeColumnsToContents();
+    sdoTargetTrailTable_->resizeColumnsToContents(); // auto-fit column widths
   }
 
   if (!currentSlaves.isEmpty()) {
@@ -2454,8 +2460,10 @@ void MainWindow::rebuildUi() {
                                                       currentSelectedPosition
                            ? previousLoadedPdoPosition
                            : -1;
+  // Preserve loaded position only if the selection hasn't changed
   loadedSdoPosition_ = !lastSdoText_.isEmpty() && previousLoadedSdoPosition ==
                                                       currentSelectedPosition
+                           // Preserve loaded position only if the selection hasn't changed
                            ? previousLoadedSdoPosition
                            : -1;
   loadedXmlPosition_ = !lastXmlText_.isEmpty() && previousLoadedXmlPosition ==
@@ -2482,21 +2490,25 @@ void MainWindow::rebuildUi() {
             row, column, new QTableWidgetItem(values.value(column)));
       }
     }
-    objectBookmarkTable_->resizeColumnsToContents();
+    objectBookmarkTable_->resizeColumnsToContents(); // auto-fit column widths
   }
   if (!watchRows.isEmpty()) {
     ensureWatchTable();
     watchTable_->setRowCount(watchRows.size());
     for (int row = 0; row < watchRows.size(); ++row) {
       const QStringList values = watchRows.at(row);
+      // Migrate older 6/7-column watch formats to current 12-column layout
       const bool legacySixColumnWatch = values.size() == 6;
+      // Migrate older watch formats to current layout
       const bool legacySevenColumnWatch = values.size() == 7;
       QStringList migrated;
+      // Migrate older 6/7-column watch formats to current 12-column layout
       if (legacySixColumnWatch) {
         migrated = {values.value(0), values.value(1), values.value(2),
                     values.value(3), values.value(4), QString(),
                     QString(),       values.value(5), QString(),
                     QString()};
+      // Migrate older watch formats to current layout
       } else if (legacySevenColumnWatch) {
         migrated = {values.value(0), values.value(1), values.value(2),
                     values.value(3), values.value(4), QString(),
@@ -2512,7 +2524,7 @@ void MainWindow::rebuildUi() {
     }
     updateWatchBaselineDeltas();
     updateWatchStartupDeltas();
-    watchTable_->resizeColumnsToContents();
+    watchTable_->resizeColumnsToContents(); // auto-fit column widths
   }
   if (!startupRows.isEmpty()) {
     setTableRows(startupSdoTable_,

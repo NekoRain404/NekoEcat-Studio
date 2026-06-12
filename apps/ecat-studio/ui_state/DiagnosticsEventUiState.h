@@ -7,6 +7,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized strings for the diagnostics event table headers and summary.
 struct DiagnosticsEventTexts {
   QString timeHeader;
   QString levelHeader;
@@ -19,11 +20,13 @@ struct DiagnosticsEventTexts {
   QString infoLabel;
 };
 
+// Visibility and level for a single diagnostics row.
 struct DiagnosticsEventRowState {
   QString level;
   bool visible = true;
 };
 
+// Aggregated counts and formatted summary text for diagnostics.
 struct DiagnosticsEventSummary {
   int visible = 0;
   int total = 0;

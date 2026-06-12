@@ -121,6 +121,8 @@
 
 namespace {
 
+
+// — Locate the ecatd binary path relative to the application
 QString ecatdPath() {
   const QFileInfo app(QCoreApplication::applicationFilePath());
   const QStringList candidates = {
@@ -137,6 +139,8 @@ QString ecatdPath() {
 
 } // namespace
 
+
+// — Open the built-in user manual dialog with full HTML documentation
 void MainWindow::showManual() {
   QDialog dialog(this);
   dialog.setObjectName("manualDialog");
@@ -858,7 +862,7 @@ th { background: #f0f4f9; color: #475569; }
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
   layout->addWidget(title);
   layout->addWidget(subtitle);
@@ -868,6 +872,8 @@ th { background: #f0f4f9; color: #475569; }
   dialog.exec();
 }
 
+
+// — Open the About dialog with version and build information
 void MainWindow::showAbout() {
   QDialog dialog(this);
   dialog.setObjectName("aboutDialog");
@@ -1027,7 +1033,7 @@ th { background: #f0f4f9; color: #475569; }
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
   layout->addWidget(title);
   layout->addWidget(tagline);

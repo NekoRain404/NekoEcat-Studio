@@ -1,5 +1,7 @@
+// Next-best-action recommendation engine for the commissioning overview.
 #include "NextBestActionModel.h"
 
+// Priority-ordered decision tree: returns the highest-urgency action the user should take next.
 NextBestActionDecision chooseNextBestAction(const NextBestActionInput &input) {
   const CommissioningWorkflowInput &workflow = input.workflow;
   if (!workflow.connected) {
@@ -53,6 +55,7 @@ NextBestActionDecision chooseNextBestAction(const NextBestActionInput &input) {
   return {NextBestActionKind::CommandPalette, NextBestActionSeverity::Neutral};
 }
 
+// Serializes action kind to a stable string key for persistence/QML.
 QString nextBestActionKey(NextBestActionKind kind) {
   switch (kind) {
   case NextBestActionKind::Connect:
@@ -87,6 +90,7 @@ QString nextBestActionKey(NextBestActionKind kind) {
   return QStringLiteral("commandPalette");
 }
 
+// Serializes severity enum to a stable string key.
 QString nextBestActionSeverityKey(NextBestActionSeverity severity) {
   switch (severity) {
   case NextBestActionSeverity::Ok:

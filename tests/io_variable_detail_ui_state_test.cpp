@@ -1,3 +1,4 @@
+// Unit tests for IoVariableDetailUiState.
 #include "ui_state/IoVariableDetailUiState.h"
 
 #include <QCoreApplication>

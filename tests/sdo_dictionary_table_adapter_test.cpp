@@ -1,3 +1,4 @@
+// Unit tests for SdoDictionaryTableAdapter.
 #include "adapters/SdoDictionaryTableAdapter.h"
 
 #include <QApplication>

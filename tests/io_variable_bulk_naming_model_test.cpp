@@ -1,3 +1,4 @@
+// Unit tests for IoVariableBulkNamingModel.
 #include "models/IoVariableBulkNamingModel.h"
 
 #include <QCoreApplication>

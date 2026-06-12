@@ -118,11 +118,15 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Switch to the consistency check tab and refresh its contents
 void MainWindow::openConsistencyView() {
   updateConsistencyView();
   activateWorkspaceTab(consistencyTabIndex_);
 }
 
+
+// — Rebuild the consistency matrix from current project and online evidence
 void MainWindow::updateConsistencyView() {
   if (!consistencyTable_) {
     return;
@@ -130,6 +134,7 @@ void MainWindow::updateConsistencyView() {
   updateIoVariableTable();
 
   QList<QStringList> rows;
+  // Helper to append a consistency row
   auto addRow = [&](const QString &level, const QString &scope,
                     const QString &target, const QString &evidence,
                     const QString &expected, const QString &actual,
@@ -145,6 +150,7 @@ void MainWindow::updateConsistencyView() {
         uiText("Capture baseline after a known-good scan",
                "在确认正常的扫描后捕获基线"));
   } else {
+    // Collect issue details from the evidence model
     for (const auto &issue :
          compareTopologyBaseline(topologyBaseline_, slaves_)) {
       const QString target =
@@ -153,6 +159,7 @@ void MainWindow::updateConsistencyView() {
               .arg(issue.kind == TopologyBaselineIssueKind::UnexpectedSlave
                        ? issue.current.name
                        : topologySlaveDisplayName(issue.baseline));
+      // Map each baseline deviation type to a human-readable warning row
       switch (issue.kind) {
       case TopologyBaselineIssueKind::MissingSlave:
         addRow(
@@ -190,6 +197,7 @@ void MainWindow::updateConsistencyView() {
 
   QSet<QString> onlineObjects;
   if (ioVariableTable_) {
+    // Iterate all rows and apply active filter predicates
     for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
       const IoVariableTableRow variable =
           ioVariableTableRowFromTable(ioVariableTable_, row);
@@ -305,6 +313,7 @@ void MainWindow::updateConsistencyView() {
             uiText("Error", "错误"), uiText("Startup", "启动"),
             QString("#%1 %2:%3")
                 .arg(position)
+                // Normalize hex address for consistent comparison
                 .arg(normalizeHexText(index, 4), normalizeHexText(subIndex, 2)),
             uiText("Startup row differs from Watch evidence",
                    "Startup 行和 Watch 证据不一致"),
@@ -317,6 +326,7 @@ void MainWindow::updateConsistencyView() {
             uiText("Warning", "警告"), uiText("Startup", "启动"),
             QString("#%1 %2:%3")
                 .arg(position)
+                // Normalize hex address for consistent comparison
                 .arg(normalizeHexText(index, 4), normalizeHexText(subIndex, 2)),
             uiText("Startup row has no Watch comparison",
                    "Startup 行缺少 Watch 对比"),
@@ -376,7 +386,7 @@ void MainWindow::updateConsistencyView() {
       }
     }
   }
-  consistencyTable_->resizeColumnsToContents();
+  consistencyTable_->resizeColumnsToContents(); // auto-fit column widths
   if (consistencySummaryLabel_) {
     const ConsistencyIssueCounts counts =
         consistencyTableIssueCounts(consistencyTable_);
@@ -395,6 +405,8 @@ void MainWindow::updateConsistencyView() {
   updateNextBestAction();
 }
 
+
+// — Filter consistency table
 void MainWindow::filterConsistencyTable() {
   if (!consistencyTable_) {
     return;
@@ -421,15 +433,18 @@ void MainWindow::filterConsistencyTable() {
   updateActionAvailability();
 }
 
+
+// — Refresh the consistency detail strip for the focused row
 void MainWindow::updateConsistencyRowDetail() {
   if (!consistencyDetailLabel_) {
     return;
   }
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const ConsistencyDetailUiState &state) {
     consistencyDetailLabel_->setText(state.text);
     consistencyDetailLabel_->setProperty("severity", state.severityKey);
     consistencyDetailLabel_->setToolTip(state.tooltip);
-    repolish(consistencyDetailLabel_);
+    repolish(consistencyDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!consistencyTable_) {
@@ -460,6 +475,8 @@ void MainWindow::updateConsistencyRowDetail() {
       consistencyDetailTexts()));
 }
 
+
+// — Route to the evidence workspace referenced by the consistency row
 void MainWindow::focusEvidenceFromConsistency(int row) {
   if (!consistencyTable_) {
     return;
@@ -549,6 +566,8 @@ void MainWindow::focusEvidenceFromConsistency(int row) {
   focusIoVariablesFromConsistency(row);
 }
 
+
+// — Route to the I/O variable tab filtered by the consistency issue
 void MainWindow::focusIoVariablesFromConsistency(int row) {
   if (!ioVariableTable_ || !tabs_ || ioVariableTabIndex_ < 0 ||
       ioVariableTabIndex_ >= tabs_->count()) {
@@ -598,18 +617,26 @@ void MainWindow::focusIoVariablesFromConsistency(int row) {
                            "已从一致性行定位到 I/O 变量"));
 }
 
+
+// — Return the first consistency io issue row
 int MainWindow::firstConsistencyIoIssueRow() const {
   return firstConsistencyTableIoIssueRow(consistencyTable_);
 }
 
+
+// — Return the first consistency blocking issue row
 int MainWindow::firstConsistencyBlockingIssueRow() const {
   return firstConsistencyTableBlockingIssueRow(consistencyTable_);
 }
 
+
+// — Check whether consistency check available
 bool MainWindow::consistencyCheckAvailable() const {
   return consistencyTableAvailable(consistencyTable_);
 }
 
+
+// — Consistency issue counts
 void MainWindow::consistencyIssueCounts(int *errors, int *warnings, int *infos,
                                         int *ready) const {
   const ConsistencyIssueCounts counts =
@@ -628,6 +655,8 @@ void MainWindow::consistencyIssueCounts(int *errors, int *warnings, int *infos,
   }
 }
 
+
+// — Return a list of consistency gate details
 QStringList MainWindow::consistencyGateDetails(const QString &operation) const {
   ConsistencyIssueCounts counts;
   consistencyIssueCounts(&counts.errors, &counts.warnings, &counts.infos,
@@ -676,6 +705,8 @@ QStringList MainWindow::consistencyGateDetails(const QString &operation) const {
   return details;
 }
 
+
+// — Commissioning workflow input
 CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
   CommissioningWorkflowInput input;
   input.connected = client_.isConnected();
@@ -703,7 +734,10 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
   return input;
 }
 
+
+// — Rebuild the commissioning workflow step table from current evidence
 void MainWindow::updateCommissioningWorkflow() {
+  // Dispatch Alt+Enter to the correct evidence action for this table type
   if (!workflowTable_) {
     return;
   }
@@ -988,7 +1022,7 @@ void MainWindow::updateCommissioningWorkflow() {
                  .arg(phase, status, step, risk, evidence, actionText);
     }
     workflowSummaryLabel_->setToolTip(tip.join('\n'));
-    repolish(workflowSummaryLabel_);
+    repolish(workflowSummaryLabel_); // force QSS re-evaluation after property change
   }
 
   if (auto *runNextButton = findChild<QPushButton *>("overviewRunNext")) {
@@ -1011,6 +1045,8 @@ void MainWindow::updateCommissioningWorkflow() {
   updateSessionBrief();
 }
 
+
+// — Slave evidence ui texts
 SlaveEvidenceUiTexts MainWindow::slaveEvidenceUiTexts() const {
   return {
       .p0Fault = uiText("P0 Fault", "P0 故障"),
@@ -1111,6 +1147,8 @@ MainWindow::selectedSlaveEvidenceSummaryTexts() const {
   };
 }
 
+
+// — Return localized text constants for the drive summary label
 SelectedDriveSummaryTexts MainWindow::selectedDriveSummaryTexts() const {
   return {
       .noWatchEvidence =
@@ -1123,6 +1161,8 @@ SelectedDriveSummaryTexts MainWindow::selectedDriveSummaryTexts() const {
   };
 }
 
+
+// — Rebuild the slave evidence overview matrix from all loaded evidence sources
 void MainWindow::updateSlaveEvidenceMatrix() {
   if (!slaveEvidenceMatrixTable_) {
     return;
@@ -1193,7 +1233,9 @@ void MainWindow::updateSlaveEvidenceMatrix() {
     }
     const auto evidence = evidenceMatrix.rows.value(rowIndex);
     const SlaveEvidenceUiRow uiRow = slaveEvidenceUiRow(evidence, uiTexts);
+    // Route to the appropriate evidence workspace
     setSlaveEvidenceMatrixRouteTarget(slaveEvidenceMatrixTable_, rowIndex,
+                                      // Route to the appropriate evidence workspace
                                       slaveEvidenceRouteTarget(evidence));
     const QColor readinessColor =
         evidence.risks.isEmpty() && evidence.readiness >= evidence.maxReadiness
@@ -1282,11 +1324,13 @@ void MainWindow::updateSlaveEvidenceMatrix() {
         "severity", evidenceMatrix.riskRows > 0
                         ? "warning"
                         : (evidenceMatrix.actionRows > 0 ? "action" : "ok"));
-    repolish(slaveEvidenceMatrixSummaryLabel_);
+    repolish(slaveEvidenceMatrixSummaryLabel_); // force QSS re-evaluation after property change
   }
   filterSlaveEvidenceMatrix();
 }
 
+
+// — Filter slave evidence matrix
 void MainWindow::filterSlaveEvidenceMatrix() {
   if (!slaveEvidenceMatrixTable_) {
     return;
@@ -1343,6 +1387,8 @@ void MainWindow::filterSlaveEvidenceMatrix() {
   updateWorkspaceBoundary();
 }
 
+
+// — Update slave evidence matrix triage buttons
 void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
   if (slaveEvidenceMatrixTriageButtons_.isEmpty()) {
     return;
@@ -1386,6 +1432,8 @@ void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
   }
 }
 
+
+// — Review first slave evidence matrix issue
 void MainWindow::reviewFirstSlaveEvidenceMatrixIssue() {
   if (!slaveEvidenceMatrixTable_) {
     return;
@@ -1418,6 +1466,8 @@ void MainWindow::reviewFirstSlaveEvidenceMatrixIssue() {
                            3000);
 }
 
+
+// — Review next slave evidence matrix issue
 void MainWindow::reviewNextSlaveEvidenceMatrixIssue() {
   if (!slaveEvidenceMatrixTable_) {
     return;
@@ -1453,6 +1503,8 @@ void MainWindow::reviewNextSlaveEvidenceMatrixIssue() {
                            3000);
 }
 
+
+// — Check whether copy slave evidence matrix row digest
 bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
   if (!slaveEvidenceMatrixTable_ || row < 0 ||
       row >= slaveEvidenceMatrixTable_->rowCount() ||
@@ -1529,7 +1581,7 @@ bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
                   "边界：只复制到剪贴板；不读取总线、不加载 OD/PDO/ESI、不写 "
                   "SDO、不切换状态、不改变 Free Run，也不运行 Host Health。");
 
-  QApplication::clipboard()->setText(lines.join('\n'));
+  QApplication::clipboard()->setText(lines.join('\n')); // copy to system clipboard
   updateDiagnostics("Info", "Slave Evidence Matrix",
                     uiText("Copied slave evidence matrix row #%1 to clipboard",
                            "已复制从站证据矩阵第 %1 行到剪贴板")
@@ -1541,6 +1593,8 @@ bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
   return true;
 }
 
+
+// — Route to the detailed evidence workspace for the selected slave matrix row
 void MainWindow::openSlaveEvidenceMatrixRow(int row) {
   if (!slaveEvidenceMatrixTable_ || row < 0 ||
       row >= slaveEvidenceMatrixTable_->rowCount()) {
@@ -1572,7 +1626,9 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
   QString target = uiText("Overview matrix row", "总览矩阵行");
   bool routed = false;
   switch (
+      // Dispatch to the evidence workspace matching the route target
       slaveEvidenceMatrixRouteTargetForRow(slaveEvidenceMatrixTable_, row)) {
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::ObjectDictionary:
     activateObjectDictionaryPaneFor(sdoTable_);
     if (loadedSdoPosition_ == position && sdoTable_ &&
@@ -1584,6 +1640,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     target = uiText("Object Dictionary evidence", "对象字典证据");
     routed = true;
     break;
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::PdoMap:
     activateWorkspaceTab(pdoMapTabIndex_);
     if (loadedPdoPosition_ == position && pdoTable_ &&
@@ -1595,6 +1652,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     target = uiText("PDO Map evidence", "PDO 映射证据");
     routed = true;
     break;
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Watch: {
     const int watchRow = firstSlaveEvidenceDriveWatchRow(watchTable_, position);
     activateWorkspaceTab(watchTabIndex_);
@@ -1623,6 +1681,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     routed = true;
     break;
   }
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Startup: {
     updateStartupSdoWatchEvidence();
     const int startupRow =
@@ -1641,6 +1700,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     routed = true;
     break;
   }
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Process: {
     const int processRow =
         firstSlaveEvidenceProcessIssueRow(freeRunEntryTable_, position);
@@ -1661,6 +1721,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     routed = true;
     break;
   }
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::StateMachine: {
     updateStateMachineView();
     activateWorkspaceTab(stateMachineTabIndex_);
@@ -1673,6 +1734,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     routed = true;
     break;
   }
+  // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Overview:
     break;
   }
@@ -1693,6 +1755,8 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
       3000);
 }
 
+
+// — Return the matrix table row index matching the given slave position
 int MainWindow::slaveEvidenceMatrixRowForPosition(int position) const {
   return firstSlaveEvidenceRowForPosition(slaveEvidenceMatrixTable_, position,
                                           kSlaveEvidenceMatrixPositionColumn);

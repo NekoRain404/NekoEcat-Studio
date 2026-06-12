@@ -1,5 +1,7 @@
+// Commissioning workflow step model with status, scope, and severity.
 #include "CommissioningWorkflowModel.h"
 
+// Canonical step sequence for the commissioning wizard; drives ordering everywhere.
 const QVector<CommissioningWorkflowStep> &commissioningWorkflowStepOrder() {
   static const QVector<CommissioningWorkflowStep> order = {
       CommissioningWorkflowStep::ConnectRuntime,
@@ -16,6 +18,7 @@ const QVector<CommissioningWorkflowStep> &commissioningWorkflowStepOrder() {
   return order;
 }
 
+// Derives tri-state status from done/ready boolean flags.
 CommissioningWorkflowStatus commissioningWorkflowStatus(bool done, bool ready) {
   if (done) {
     return CommissioningWorkflowStatus::Ready;
@@ -24,6 +27,7 @@ CommissioningWorkflowStatus commissioningWorkflowStatus(bool done, bool ready) {
                : CommissioningWorkflowStatus::Blocked;
 }
 
+// Evaluates each workflow step against current session inputs to determine its status.
 QVector<CommissioningWorkflowStepState>
 buildCommissioningWorkflowStepStates(const CommissioningWorkflowInput &input) {
   QVector<CommissioningWorkflowStepState> states;
@@ -83,6 +87,7 @@ buildCommissioningWorkflowStepStates(const CommissioningWorkflowInput &input) {
   return states;
 }
 
+// Finds the first non-ready step so the UI can focus the user on the next action.
 int nextCommissioningWorkflowStepIndex(
     const CommissioningWorkflowInput &input) {
   const QVector<CommissioningWorkflowStepState> states =
@@ -95,6 +100,7 @@ int nextCommissioningWorkflowStepIndex(
   return -1;
 }
 
+// Looks up a specific step's status in the precomputed state list.
 CommissioningWorkflowStatus commissioningWorkflowStepStatus(
     const QVector<CommissioningWorkflowStepState> &states,
     CommissioningWorkflowStep step) {
@@ -106,6 +112,7 @@ CommissioningWorkflowStatus commissioningWorkflowStepStatus(
   return CommissioningWorkflowStatus::Blocked;
 }
 
+// Safe index-to-enum conversion with a sensible fallback.
 CommissioningWorkflowStep commissioningWorkflowStepForIndex(int index) {
   const QVector<CommissioningWorkflowStep> &order =
       commissioningWorkflowStepOrder();
@@ -115,6 +122,7 @@ CommissioningWorkflowStep commissioningWorkflowStepForIndex(int index) {
   return CommissioningWorkflowStep::ConnectRuntime;
 }
 
+// Reverse lookup: returns the ordinal position of a step enum in the canonical order.
 int commissioningWorkflowStepIndex(CommissioningWorkflowStep step) {
   const QVector<CommissioningWorkflowStep> &order =
       commissioningWorkflowStepOrder();

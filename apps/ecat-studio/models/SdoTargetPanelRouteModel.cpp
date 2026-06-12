@@ -1,13 +1,16 @@
+// SDO target panel source classification (dictionary, watch, startup, etc.).
 #include "SdoTargetPanelRouteModel.h"
 
 namespace {
 
+// Bilingual key comparison: matches against both English and Chinese labels.
 bool keyMatches(const QString &key, const QString &english, const QString &zh) {
   return key == english || key == zh;
 }
 
 } // namespace
 
+// Maps a target panel row key to the appropriate navigation route and copy action.
 SdoTargetPanelRouteDecision
 sdoTargetPanelRouteDecision(const QString &rowKey,
                             bool writeDeltaReviewAvailable) {

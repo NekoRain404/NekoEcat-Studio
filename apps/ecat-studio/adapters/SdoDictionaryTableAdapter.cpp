@@ -1,3 +1,4 @@
+// Populates and queries the Object Dictionary (SDO) QTableWidget.
 #include "SdoDictionaryTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
@@ -5,6 +6,7 @@
 
 #include <QTableWidget>
 
+// Extracts all columns of an Object Dictionary row for detail display and SDO operations.
 SdoDictionaryRow sdoDictionaryRowFromTable(QTableWidget *table, int row) {
   SdoDictionaryRow result;
   result.row = row;
@@ -24,22 +26,27 @@ SdoDictionaryRow sdoDictionaryRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Whether this row identifies a specific index:subIndex target for SDO reads/writes.
 bool sdoDictionaryRowHasTarget(const SdoDictionaryRow &row) {
   return !row.index.isEmpty() && !row.subIndex.isEmpty();
 }
 
+// Whether the row has a populated value (read result or cached).
 bool sdoDictionaryRowHasValue(const SdoDictionaryRow &row) {
   return !row.value.isEmpty();
 }
 
+// Whether the access rights include write permission.
 bool sdoDictionaryRowIsWritable(const SdoDictionaryRow &row) {
   return row.access.toLower().contains('w');
 }
 
+// Returns indices of all non-hidden rows for batch SDO operations.
 QVector<int> visibleSdoDictionaryRows(QTableWidget *table) {
   return visibleTableRows(table);
 }
 
+// Collects row indices whose SDO read status indicates a failure.
 QVector<int> failedSdoDictionaryRows(QTableWidget *table) {
   QVector<int> rows;
   if (!table) {
@@ -56,6 +63,7 @@ QVector<int> failedSdoDictionaryRows(QTableWidget *table) {
   return rows;
 }
 
+// Whether any of the given visible rows have a populated value.
 bool sdoDictionaryRowsContainValue(QTableWidget *table,
                                    const QVector<int> &rows) {
   if (!table) {
@@ -72,6 +80,7 @@ bool sdoDictionaryRowsContainValue(QTableWidget *table,
   return false;
 }
 
+// Looks up the row matching a specific index:subIndex pair for targeted SDO access.
 SdoDictionaryRow sdoDictionaryRowForTarget(QTableWidget *table,
                                            const QString &index,
                                            const QString &subIndex) {
@@ -79,6 +88,7 @@ SdoDictionaryRow sdoDictionaryRowForTarget(QTableWidget *table,
   return sdoDictionaryRowFromTable(table, row);
 }
 
+// Converts selected rows into read-request objects, skipping hidden or invalid entries.
 QVector<SdoDictionaryReadObject>
 sdoDictionaryReadObjectsFromRows(QTableWidget *table, const QVector<int> &rows,
                                  int *skipped) {

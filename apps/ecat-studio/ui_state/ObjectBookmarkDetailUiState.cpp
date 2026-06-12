@@ -1,5 +1,7 @@
+// Detail panel text for a selected object bookmark row.
 #include "ObjectBookmarkDetailUiState.h"
 
+// Neutral state when the bookmark table is not available.
 ObjectBookmarkDetailUiState
 objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -7,6 +9,7 @@ objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a bookmark.
 ObjectBookmarkDetailUiState
 objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -14,6 +17,7 @@ objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps target validity, value presence, and access rights to a severity key.
 QString
 objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
                                 const ObjectBookmarkDetailTexts &texts) {
@@ -34,6 +38,7 @@ objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full bookmark detail state: summary, reuse guidance, severity, and tooltip.
 ObjectBookmarkDetailUiState
 buildObjectBookmarkDetailUiState(const SdoObjectBookmarkRow &row,
                                  const ObjectBookmarkDetailTexts &texts) {

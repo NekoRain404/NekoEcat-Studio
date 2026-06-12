@@ -1,7 +1,9 @@
+// Text formatting helpers: hex normalization, value decoding, address display.
 #include "StudioTextHelpers.h"
 
 #include <QRegularExpression>
 
+// Parses a hex string and reformats it with zero-padded digits for consistent display and comparison.
 QString normalizeHexText(QString text, int minimumDigits) {
   text = text.trimmed();
   if (text.isEmpty()) {
@@ -21,10 +23,12 @@ QString normalizeHexText(QString text, int minimumDigits) {
       .toLower();
 }
 
+// Strips whitespace and lowercases for side-by-side value comparison.
 QString normalizeComparableValue(QString text) {
   return text.trimmed().remove(' ').toLower();
 }
 
+// Converts arbitrary display text into a PLC-safe identifier (alphanumeric + underscore, no leading digit).
 QString plcIdentifier(QString text, const QString &fallback) {
   text = text.trimmed();
   if (text.isEmpty()) {
@@ -54,6 +58,7 @@ QString plcIdentifier(QString text, const QString &fallback) {
   return text;
 }
 
+// Returns the first capture group from a regex match, or empty string on no match.
 QString capture(const QString &text, const QString &pattern) {
   const auto match =
       QRegularExpression(pattern, QRegularExpression::MultilineOption)

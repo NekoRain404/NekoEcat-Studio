@@ -1,3 +1,4 @@
+// Unit tests for WatchRowDetailUiState.
 #include "ui_state/WatchRowDetailUiState.h"
 
 #include <QCoreApplication>

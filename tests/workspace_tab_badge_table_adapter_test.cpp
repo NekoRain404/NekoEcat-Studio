@@ -1,3 +1,4 @@
+// Unit tests for WorkspaceTabBadgeTableAdapter.
 #include "adapters/WorkspaceTabBadgeTableAdapter.h"
 
 #include "adapters/ConsistencyTableAdapter.h"

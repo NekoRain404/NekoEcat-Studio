@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Reset all project state to a blank untitled project
 void MainWindow::newProject() {
   projectPath_.clear();
   projectName_ = "Untitled";
@@ -142,6 +144,8 @@ void MainWindow::newProject() {
   updateStatusBar();
 }
 
+
+// — Prompt the user for a .ecatproj file and load it
 void MainWindow::openProject() {
   const QString path = QFileDialog::getOpenFileName(
       this, uiText("Open Project", "打开工程"), QDir::homePath(),
@@ -155,6 +159,8 @@ void MainWindow::openProject() {
   }
 }
 
+
+// — Save the current project to its existing file path, or prompt for a new one
 void MainWindow::saveProject() {
   if (projectPath_.isEmpty()) {
     saveProjectAs();
@@ -166,6 +172,8 @@ void MainWindow::saveProject() {
   }
 }
 
+
+// — Prompt for a new file path and save the current project there
 void MainWindow::saveProjectAs() {
   const QString path = QFileDialog::getSaveFileName(
       this, uiText("Save Project As", "工程另存为"),
@@ -180,6 +188,8 @@ void MainWindow::saveProjectAs() {
   }
 }
 
+
+// — Serialize all workspace tables and settings to a .ecatproj JSON file
 bool MainWindow::writeProjectFile(const QString &path) {
   QJsonArray slaveArray;
   for (const auto &slave : slaves_) {
@@ -363,6 +373,8 @@ bool MainWindow::writeProjectFile(const QString &path) {
   return true;
 }
 
+
+// — Deserialize a .ecatproj JSON file into all workspace tables and settings
 bool MainWindow::readProjectFile(const QString &path) {
   QFile file(path);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -553,7 +565,9 @@ bool MainWindow::readProjectFile(const QString &path) {
       const QStringList values = {
           object.value("time").toString(),
           QString::number(object.value("position").toInt(-1)),
+          // Normalize hex address for consistent comparison
           normalizeHexText(index, 4),
+          // Normalize hex address for consistent comparison
           normalizeHexText(subIndex, 2),
           object.value("type").toString(),
           object.value("source").toString(),
@@ -570,7 +584,7 @@ bool MainWindow::readProjectFile(const QString &path) {
       ++targetRow;
     }
     sdoTargetTrailTable_->setRowCount(targetRow);
-    sdoTargetTrailTable_->resizeColumnsToContents();
+    sdoTargetTrailTable_->resizeColumnsToContents(); // auto-fit column widths
     updateSdoTargetTrailRowDetail();
   }
   masterText_->setPlainText(lastMasterText_);
@@ -589,9 +603,12 @@ bool MainWindow::readProjectFile(const QString &path) {
     watchTable_->setRowCount(watchArray.size());
     for (int row = 0; row < watchArray.size(); ++row) {
       const auto rowArray = watchArray.at(row).toArray();
+      // Migrate older 6/7-column watch formats to current 12-column layout
       const bool legacySixColumnWatch = rowArray.size() == 6;
+      // Migrate older watch formats to current layout
       const bool legacySevenColumnWatch = rowArray.size() == 7;
       QStringList migrated;
+      // Migrate older 6/7-column watch formats to current 12-column layout
       if (legacySixColumnWatch) {
         migrated = {rowArray.at(0).toString(),
                     rowArray.at(1).toString(),
@@ -603,6 +620,7 @@ bool MainWindow::readProjectFile(const QString &path) {
                     rowArray.at(5).toString(),
                     QString(),
                     QString()};
+      // Migrate older watch formats to current layout
       } else if (legacySevenColumnWatch) {
         migrated = {rowArray.at(0).toString(),
                     rowArray.at(1).toString(),
@@ -626,7 +644,7 @@ bool MainWindow::readProjectFile(const QString &path) {
     }
     updateWatchBaselineDeltas();
     updateWatchStartupDeltas();
-    watchTable_->resizeColumnsToContents();
+    watchTable_->resizeColumnsToContents(); // auto-fit column widths
   }
   ensureWatchTable();
   const auto startupArray = root.value("startupSdos").toArray();
@@ -650,7 +668,7 @@ bool MainWindow::readProjectFile(const QString &path) {
           row, 5, new QTableWidgetItem(uiText("Pending", "待应用")));
       startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
     }
-    startupSdoTable_->resizeColumnsToContents();
+    startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
     updateWatchStartupDeltas();
     updateStartupSdoWatchEvidence();
   }
@@ -672,6 +690,8 @@ bool MainWindow::readProjectFile(const QString &path) {
   return true;
 }
 
+
+// — Prompt the user to select ESI XML files and add them to the repository
 void MainWindow::importEsiFiles() {
   const QStringList files = QFileDialog::getOpenFileNames(
       this, uiText("Import ESI XML", "导入 ESI XML"), QDir::homePath(),
@@ -692,6 +712,8 @@ void MainWindow::importEsiFiles() {
   refreshEsiRepository();
 }
 
+
+// — Parse all stored ESI XML paths and populate the ESI repository table
 void MainWindow::refreshEsiRepository() {
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
   const QStringList repository = settings.value("esi/files").toStringList();

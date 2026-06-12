@@ -1,3 +1,4 @@
+// Unit tests for NextBestActionUiState.
 #include "ui_state/NextBestActionUiState.h"
 
 #include <QCoreApplication>

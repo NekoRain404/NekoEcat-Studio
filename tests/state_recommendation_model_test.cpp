@@ -1,3 +1,4 @@
+// Unit tests for StateRecommendationModel.
 #include "models/StateRecommendationModel.h"
 
 #include <QCoreApplication>

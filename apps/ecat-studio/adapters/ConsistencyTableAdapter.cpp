@@ -1,9 +1,11 @@
+// Populates and queries the consistency issue QTableWidget.
 #include "ConsistencyTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
 
 #include <QTableWidget>
 
+// Extracts level and scope text for a single consistency issue row.
 ConsistencyTableRowState consistencyTableRowState(QTableWidget *table,
                                                   int row) {
   ConsistencyTableRowState state;
@@ -16,6 +18,7 @@ ConsistencyTableRowState consistencyTableRowState(QTableWidget *table,
   return state;
 }
 
+// Tallies issue severity levels across all rows for badge and summary display.
 ConsistencyIssueCounts consistencyTableIssueCounts(QTableWidget *table) {
   ConsistencyIssueCounts counts;
   if (!table) {
@@ -30,6 +33,7 @@ ConsistencyIssueCounts consistencyTableIssueCounts(QTableWidget *table) {
   return counts;
 }
 
+// Maps a filter scope string to the corresponding row-level predicate (error, warning, topology, etc.).
 bool consistencyTableScopeMatches(const ConsistencyTableRowState &state,
                                   const QString &scope) {
   if (scope == QString::fromLatin1(kConsistencyScopeError)) {
@@ -59,6 +63,7 @@ bool consistencyTableScopeMatches(const ConsistencyTableRowState &state,
   return true;
 }
 
+// Case-insensitive search across all columns in a row.
 bool consistencyTableSearchMatches(QTableWidget *table, int row,
                                    const QString &needle) {
   if (needle.trimmed().isEmpty()) {
@@ -77,6 +82,7 @@ bool consistencyTableSearchMatches(QTableWidget *table, int row,
   return false;
 }
 
+// Applies scope + text filters to every row, toggles visibility, and returns aggregate stats.
 ConsistencyTableFilterStats filterConsistencyTableRows(QTableWidget *table,
                                                        const QString &scope,
                                                        const QString &needle) {
@@ -98,6 +104,7 @@ ConsistencyTableFilterStats filterConsistencyTableRows(QTableWidget *table,
   return stats;
 }
 
+// Locates the first row with an error-level issue, for auto-scroll to the most critical problem.
 int firstConsistencyTableBlockingIssueRow(QTableWidget *table) {
   if (!table) {
     return -1;
@@ -115,6 +122,7 @@ int firstConsistencyTableBlockingIssueRow(QTableWidget *table) {
   return -1;
 }
 
+// Finds the first row flagged as an I/O variable issue for targeted navigation.
 int firstConsistencyTableIoIssueRow(QTableWidget *table) {
   if (!table) {
     return -1;
@@ -132,6 +140,7 @@ int firstConsistencyTableIoIssueRow(QTableWidget *table) {
   return -1;
 }
 
+// Quick check: whether the consistency table has any rows at all.
 bool consistencyTableAvailable(QTableWidget *table) {
   return table && table->rowCount() > 0;
 }

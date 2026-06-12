@@ -1,3 +1,4 @@
+// Watch/Startup SDO delta comparison: baseline, startup, and live value diffs.
 #include "WatchStartupModel.h"
 
 #include "SdoEvidenceModel.h"
@@ -5,18 +6,21 @@
 
 #include <QHash>
 
+// Validates that a row has a complete address (position, index, subIndex).
 bool watchStartupHasTarget(int position, const QString &index,
                            const QString &subIndex) {
   return position >= 0 && !index.trimmed().isEmpty() &&
          !subIndex.trimmed().isEmpty();
 }
 
+// Normalized composite key for matching watch rows to startup rows.
 QString watchStartupTargetKey(int position, const QString &index,
                               const QString &subIndex) {
   return sdoEvidenceKey(position, normalizeHexText(index, 4),
                         normalizeHexText(subIndex, 2));
 }
 
+// Finds the matching startup entry for a watch row and evaluates the delta state.
 WatchStartupWatchMatch
 watchStartupMatchForWatchRow(const QVector<WatchStartupStartupRow> &startupRows,
                              const WatchStartupWatchRow &watchRow) {
@@ -54,6 +58,7 @@ watchStartupMatchForWatchRow(const QVector<WatchStartupStartupRow> &startupRows,
   return match;
 }
 
+// For each startup row, compares expected value against live watch readings.
 QVector<WatchStartupStartupDelta>
 evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
                            const QVector<WatchStartupWatchRow> &watchRows) {
@@ -102,6 +107,7 @@ evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
   return deltas;
 }
 
+// Tallies match/diff/missing/pending counts across all delta evaluations.
 WatchStartupSummary
 summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta> &deltas) {
   WatchStartupSummary summary;
@@ -126,6 +132,7 @@ summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta> &deltas) {
   return summary;
 }
 
+// Collects startup row indices where live watch values differ from expected.
 QVector<int>
 startupRowsWithWatchDiffs(const QVector<WatchStartupStartupDelta> &deltas) {
   QVector<int> rows;

@@ -1,3 +1,4 @@
+// Bulk PLC symbol naming rules and collision detection for I/O variables.
 #include "IoVariableBulkNamingModel.h"
 
 #include "IoVariableHandoffModel.h"
@@ -7,6 +8,7 @@
 
 namespace {
 
+// Deduplicates tags case-insensitively before appending to avoid redundant labels.
 void appendUniqueTag(QStringList *tags, QString tag) {
   if (!tags) {
     return;
@@ -26,6 +28,7 @@ void appendUniqueTag(QStringList *tags, QString tag) {
 
 } // namespace
 
+// Counts how many rows already have user-assigned aliases.
 int countIoVariableBulkNamingExistingAliases(
     const QVector<IoVariableTableRow> &rows) {
   int count = 0;
@@ -37,6 +40,7 @@ int countIoVariableBulkNamingExistingAliases(
   return count;
 }
 
+// Generates alias and tag metadata for selected I/O rows, resolving naming collisions.
 IoVariableBulkNamingResult
 buildIoVariableBulkNamingPlan(const QVector<IoVariableTableRow> &allRows,
                               const QVector<int> &targetRows,

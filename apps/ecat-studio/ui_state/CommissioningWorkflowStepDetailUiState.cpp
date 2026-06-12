@@ -1,7 +1,9 @@
+// Detail panel text for a selected commissioning workflow step.
 #include "CommissioningWorkflowStepDetailUiState.h"
 
 namespace {
 
+// Checks if text represents an absent/none value using normalized comparison.
 bool commissioningWorkflowNoneText(
     const QString &text, const CommissioningWorkflowStepDetailTexts &texts) {
   const QString normalized = text.trimmed().toLower();
@@ -9,12 +11,14 @@ bool commissioningWorkflowNoneText(
          normalized == texts.none.trimmed().toLower();
 }
 
+// Whether the row status indicates completion (key-based or localized text match).
 bool commissioningWorkflowReadyStatus(const CommissioningWorkflowTableRow &row,
                                       const CommissioningWorkflowTexts &texts) {
   return row.statusKey == QStringLiteral("ready") ||
          row.status.trimmed() == texts.ready;
 }
 
+// Whether the row status indicates an action is required.
 bool commissioningWorkflowActionStatus(
     const CommissioningWorkflowTableRow &row,
     const CommissioningWorkflowTexts &texts) {
@@ -22,6 +26,7 @@ bool commissioningWorkflowActionStatus(
          row.status.trimmed() == texts.action;
 }
 
+// Whether the row status indicates a blocked/waiting state.
 bool commissioningWorkflowBlockedStatus(
     const CommissioningWorkflowTableRow &row,
     const CommissioningWorkflowTexts &texts) {
@@ -29,6 +34,7 @@ bool commissioningWorkflowBlockedStatus(
          row.status.trimmed() == texts.blocked;
 }
 
+// Detects high-severity risk keywords (failed/error) in both English and Chinese.
 bool commissioningWorkflowSevereRiskText(const QString &risk) {
   return risk.contains(QStringLiteral("failed"), Qt::CaseInsensitive) ||
          risk.contains(QStringLiteral("error"), Qt::CaseInsensitive) ||
@@ -38,6 +44,7 @@ bool commissioningWorkflowSevereRiskText(const QString &risk) {
 
 } // namespace
 
+// Returns a neutral state when the commissioning workflow table is not available.
 CommissioningWorkflowStepDetailUiState
 commissioningWorkflowStepDetailUnavailableState(
     const CommissioningWorkflowStepDetailTexts &texts) {
@@ -46,6 +53,7 @@ commissioningWorkflowStepDetailUnavailableState(
           .tooltip = texts.unavailableTip};
 }
 
+// Returns a neutral state prompting the user to select a row.
 CommissioningWorkflowStepDetailUiState
 commissioningWorkflowStepDetailNoSelectionState(
     const CommissioningWorkflowStepDetailTexts &texts) {
@@ -54,6 +62,7 @@ commissioningWorkflowStepDetailNoSelectionState(
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps the row's status and risk level to a severity key for styling (error, ok, action, warning).
 QString commissioningWorkflowStepDetailSeverityKey(
     const CommissioningWorkflowTableRow &row,
     const CommissioningWorkflowTexts &workflowTexts,
@@ -80,6 +89,7 @@ QString commissioningWorkflowStepDetailSeverityKey(
   return QStringLiteral("neutral");
 }
 
+// Assembles the full detail panel state: summary text, severity, boundary info, and tooltip.
 CommissioningWorkflowStepDetailUiState
 buildCommissioningWorkflowStepDetailUiState(
     const CommissioningWorkflowTableRow &row,

@@ -1,3 +1,4 @@
+// Unit tests for SdoTargetTrailDetailUiState.
 #include "ui_state/SdoTargetTrailDetailUiState.h"
 
 #include <QCoreApplication>

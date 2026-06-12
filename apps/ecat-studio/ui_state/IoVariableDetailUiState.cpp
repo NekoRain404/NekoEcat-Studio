@@ -1,19 +1,23 @@
+// Detail panel text for a selected I/O variable row.
 #include "IoVariableDetailUiState.h"
 
 #include "models/ProcessDataRowModel.h"
 
 namespace {
 
+// Returns the slave position as text, or empty if invalid.
 QString ioVariableDetailSlaveText(const IoVariableTableRow &row) {
   return row.positionValid ? QString::number(row.position) : QString();
 }
 
+// Prefers alias over symbol, falling back to the unnamed placeholder.
 QString ioVariableDetailDisplayName(const IoVariableTableRow &row,
                                     const IoVariableDetailTexts &texts) {
   const QString name = row.alias.isEmpty() ? row.symbol : row.alias;
   return name.isEmpty() ? texts.unnamedSignal : name;
 }
 
+// Prefers decoded > watch > raw, falling back to the no-value placeholder.
 QString ioVariableDetailDisplayValue(const IoVariableTableRow &row,
                                      const IoVariableDetailTexts &texts) {
   if (!row.decoded.isEmpty()) {
@@ -27,6 +31,7 @@ QString ioVariableDetailDisplayValue(const IoVariableTableRow &row,
 
 } // namespace
 
+// Neutral state when the I/O variable table is not available.
 IoVariableDetailUiState
 ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -34,6 +39,7 @@ ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a row.
 IoVariableDetailUiState
 ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -41,6 +47,7 @@ ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps startup diffs, map issues, PLC errors, and value changes to a severity key.
 QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
                                     const QString &readyText) {
   if (ioVariableTableRowHasStartupDiff(row)) {
@@ -61,6 +68,7 @@ QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
   return QStringLiteral("neutral");
 }
 
+// Returns a localized signal state label (startup mismatch, map issue, changed, etc.).
 QString ioVariableDetailSignalState(const IoVariableTableRow &row,
                                     const IoVariableDetailTexts &texts) {
   if (ioVariableTableRowHasStartupDiff(row)) {
@@ -81,6 +89,7 @@ QString ioVariableDetailSignalState(const IoVariableTableRow &row,
   return texts.readyEvidence;
 }
 
+// Assembles the full detail panel state: summary text, severity, signal state, and tooltip.
 IoVariableDetailUiState
 buildIoVariableDetailUiState(const IoVariableTableRow &row,
                              const IoVariableDetailTexts &texts) {

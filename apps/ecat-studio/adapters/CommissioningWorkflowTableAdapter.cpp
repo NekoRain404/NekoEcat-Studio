@@ -1,3 +1,4 @@
+// Populates and queries the commissioning workflow QTableWidget.
 #include "CommissioningWorkflowTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
@@ -8,12 +9,14 @@ namespace {
 
 constexpr int kCommissioningWorkflowStatusRole = Qt::UserRole + 32;
 
+// Normalizes text and checks if it represents an absent or "none" value.
 bool isNoneText(const QString &text, const QString &noneText) {
   const QString normalized = text.trimmed().toLower();
   return normalized.isEmpty() || normalized == QStringLiteral("none") ||
          normalized == noneText.trimmed().toLower();
 }
 
+// Detects localized risk/evidence keywords that indicate missing commissioning data.
 bool hasEvidenceGap(const QString &riskText, const QString &evidence) {
   const QString riskLower = riskText.toLower();
   const QString evidenceLower = evidence.toLower();
@@ -34,6 +37,7 @@ bool hasEvidenceGap(const QString &riskText, const QString &evidence) {
 
 } // namespace
 
+// Stores the status key as custom role data on every cell in the row for later retrieval.
 void setCommissioningWorkflowStatusKey(QTableWidget *table, int row,
                                        const QString &statusKey) {
   if (!table || row < 0 || row >= table->rowCount()) {
@@ -46,6 +50,7 @@ void setCommissioningWorkflowStatusKey(QTableWidget *table, int row,
   }
 }
 
+// Retrieves the stored status key used by scope filters and routing logic.
 QString commissioningWorkflowStatusKeyForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return QString();
@@ -56,6 +61,7 @@ QString commissioningWorkflowStatusKeyForRow(QTableWidget *table, int row) {
   return QString();
 }
 
+// Extracts all visible cell values into a structured row for model binding.
 CommissioningWorkflowTableRow
 commissioningWorkflowTableRowFromTable(QTableWidget *table, int row) {
   CommissioningWorkflowTableRow result;
@@ -74,6 +80,7 @@ commissioningWorkflowTableRowFromTable(QTableWidget *table, int row) {
   return result;
 }
 
+// Derives boolean state flags that drive filtering, badges, and issue navigation.
 CommissioningWorkflowRowState
 commissioningWorkflowRowState(QTableWidget *table, int row,
                               const QString &noneText) {
@@ -97,6 +104,7 @@ commissioningWorkflowRowState(QTableWidget *table, int row,
   return state;
 }
 
+// Tests whether a row's state passes the active filter scope (open, blocked, action, etc.).
 bool commissioningWorkflowScopeMatches(
     const CommissioningWorkflowRowState &state, const QString &scope) {
   if (scope == QString::fromLatin1(kCommissioningWorkflowScopeOpen)) {
@@ -120,6 +128,7 @@ bool commissioningWorkflowScopeMatches(
   return true;
 }
 
+// Case-insensitive full-row search for user-typed filter text.
 bool commissioningWorkflowSearchMatches(QTableWidget *table, int row,
                                         const QString &needle) {
   if (needle.trimmed().isEmpty()) {
@@ -136,6 +145,7 @@ bool commissioningWorkflowSearchMatches(QTableWidget *table, int row,
   return false;
 }
 
+// Applies scope + text filters to all rows, toggles visibility, and collects aggregate stats.
 CommissioningWorkflowFilterStats
 filterCommissioningWorkflowTable(QTableWidget *table, const QString &scope,
                                  const QString &needle,
@@ -183,6 +193,7 @@ filterCommissioningWorkflowTable(QTableWidget *table, const QString &scope,
   return stats;
 }
 
+// Finds the first visible row that still needs review, for initial auto-scroll.
 int firstCommissioningWorkflowIssueRow(QTableWidget *table) {
   if (!table) {
     return -1;
@@ -198,6 +209,7 @@ int firstCommissioningWorkflowIssueRow(QTableWidget *table) {
   return -1;
 }
 
+// Wraps around from the current row to locate the next review issue for cycling navigation.
 int nextCommissioningWorkflowIssueRow(QTableWidget *table, int currentRow) {
   if (!table || table->rowCount() <= 0) {
     return -1;

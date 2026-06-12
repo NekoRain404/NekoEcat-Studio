@@ -1,5 +1,7 @@
+// Detail panel text for a selected consistency issue row.
 #include "ConsistencyDetailUiState.h"
 
+// Returns a neutral state when the consistency table is not available.
 ConsistencyDetailUiState
 consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -7,6 +9,7 @@ consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Returns a neutral state prompting the user to select a visible row.
 ConsistencyDetailUiState
 consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.selectVisibleRowText,
@@ -14,6 +17,7 @@ consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts) {
           .tooltip = texts.selectVisibleRowTip};
 }
 
+// Maps a localized severity level text to a canonical severity key (error, warning, ok, action).
 QString consistencyDetailSeverityKey(const QString &level) {
   const QString normalized = level.toLower();
   if (normalized.contains("error") || level.contains("错误")) {
@@ -28,6 +32,7 @@ QString consistencyDetailSeverityKey(const QString &level) {
   return QStringLiteral("action");
 }
 
+// Determines which workspace tab to navigate to based on the issue scope and content.
 QString consistencyDetailRoute(const ConsistencyDetailRow &row,
                                const ConsistencyDetailTexts &texts) {
   const QString scopeLower = row.scope.toLower();
@@ -53,6 +58,7 @@ QString consistencyDetailRoute(const ConsistencyDetailRow &row,
   return texts.routeIo;
 }
 
+// Assembles the full detail panel state: summary text, severity, route, and tooltip.
 ConsistencyDetailUiState
 buildConsistencyDetailUiState(const ConsistencyDetailRow &row,
                               const ConsistencyDetailTexts &texts) {

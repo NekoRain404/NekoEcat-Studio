@@ -1,3 +1,4 @@
+// Unit tests for SdoHistoryRowDetailUiState.
 #include "ui_state/SdoHistoryRowDetailUiState.h"
 
 #include <QCoreApplication>

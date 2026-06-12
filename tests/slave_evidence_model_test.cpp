@@ -1,3 +1,4 @@
+// Unit tests for SlaveEvidenceModel.
 #include "models/SlaveEvidenceModel.h"
 
 #include <QCoreApplication>

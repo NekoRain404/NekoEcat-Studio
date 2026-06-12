@@ -1,3 +1,4 @@
+// Unit tests for TopologyChangeModel.
 #include "models/TopologyChangeModel.h"
 
 #include <QCoreApplication>

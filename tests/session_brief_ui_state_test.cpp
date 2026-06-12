@@ -1,3 +1,4 @@
+// Unit tests for SessionBriefUiState.
 #include "ui_state/SessionBriefUiState.h"
 
 #include <QCoreApplication>

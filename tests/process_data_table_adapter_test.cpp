@@ -1,3 +1,4 @@
+// Unit tests for ProcessDataTableAdapter.
 #include "models/ProcessDataRowModel.h"
 #include "adapters/ProcessDataTableAdapter.h"
 

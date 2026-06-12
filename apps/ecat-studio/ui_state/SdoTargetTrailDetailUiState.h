@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the SDO target trail detail panel.
 struct SdoTargetTrailDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -39,6 +40,7 @@ struct SdoTargetTrailDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved trail detail state with startup value, reuse guidance, and tooltip.
 struct SdoTargetTrailDetailUiState {
   QString text;
   QString severityKey;
@@ -55,9 +57,11 @@ SdoTargetTrailDetailUiState
 sdoTargetTrailDetailUnavailableState(const SdoTargetTrailDetailTexts &texts);
 SdoTargetTrailDetailUiState
 sdoTargetTrailDetailNoSelectionState(const SdoTargetTrailDetailTexts &texts);
+// Maps row attributes and startup eligibility to a severity key.
 QString sdoTargetTrailDetailSeverityKey(const SdoTargetTrailRow &row,
                                         bool canStartup,
                                         const SdoTargetTrailDetailTexts &texts);
+// Assembles the full trail detail state.
 SdoTargetTrailDetailUiState
 buildSdoTargetTrailDetailUiState(const SdoTargetTrailRow &row, bool canStartup,
                                  const SdoTargetTrailDetailTexts &texts);

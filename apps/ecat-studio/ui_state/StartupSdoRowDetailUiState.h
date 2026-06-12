@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the startup SDO detail panel.
 struct StartupSdoRowDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -37,6 +38,7 @@ struct StartupSdoRowDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved startup detail state with status flags, evidence, and tooltip.
 struct StartupSdoRowDetailUiState {
   QString text;
   QString severityKey;
@@ -56,8 +58,10 @@ StartupSdoRowDetailUiState
 startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts);
 StartupSdoRowDetailUiState
 startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts);
+// Maps status and delta to a severity key.
 QString startupSdoRowDetailSeverityKey(const WatchStartupStartupRow &row,
                                        const StartupSdoRowDetailTexts &texts);
+// Assembles the full startup detail state.
 StartupSdoRowDetailUiState
 buildStartupSdoRowDetailUiState(const WatchStartupStartupRow &row,
                                 const StartupSdoRowDetailTexts &texts);

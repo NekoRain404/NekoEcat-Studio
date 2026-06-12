@@ -1,17 +1,21 @@
+// Detail panel text for a selected SDO history row.
 #include "SdoHistoryRowDetailUiState.h"
 
 namespace {
 
+// Detects "failed" status using English and Chinese keywords.
 bool historyFailed(const QString &status) {
   return status.toLower().contains(QStringLiteral("failed")) ||
          status.contains(QStringLiteral("失败"));
 }
 
+// Detects "requested" (pending) status.
 bool historyRequested(const QString &status) {
   return status.toLower().contains(QStringLiteral("requested")) ||
          status.contains(QStringLiteral("已请求"));
 }
 
+// Detects successful completion status.
 bool historyComplete(const QString &status) {
   const QString lowered = status.toLower();
   return lowered.contains(QStringLiteral("complete")) ||
@@ -20,16 +24,19 @@ bool historyComplete(const QString &status) {
          status.contains(QStringLiteral("成功"));
 }
 
+// Whether the action is a write operation.
 bool historyWriteAction(const QString &action) {
   return action.toLower().contains(QStringLiteral("write")) ||
          action.contains(QStringLiteral("写入"));
 }
 
+// Whether the action is a verify operation.
 bool historyVerifyAction(const QString &action) {
   return action.toLower().contains(QStringLiteral("verify")) ||
          action.contains(QStringLiteral("校验"));
 }
 
+// Whether the action is a read operation.
 bool historyReadAction(const QString &action) {
   return action.toLower().contains(QStringLiteral("read")) ||
          action.contains(QStringLiteral("读取"));
@@ -37,6 +44,7 @@ bool historyReadAction(const QString &action) {
 
 } // namespace
 
+// Neutral state when the SDO history table is not available.
 SdoHistoryRowDetailUiState
 sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
@@ -44,6 +52,7 @@ sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
           .tooltip = texts.unavailableTip};
 }
 
+// Neutral state prompting the user to select a history row.
 SdoHistoryRowDetailUiState
 sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
@@ -51,6 +60,7 @@ sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts) {
           .tooltip = texts.noSelectionTip};
 }
 
+// Maps status and action type to a severity key for styling.
 QString sdoHistoryRowDetailSeverityKey(const SdoHistoryRow &row,
                                        const SdoHistoryRowDetailTexts &) {
   const bool failed = historyFailed(row.status);
@@ -77,6 +87,7 @@ QString sdoHistoryRowDetailSeverityKey(const SdoHistoryRow &row,
   return QStringLiteral("neutral");
 }
 
+// Assembles the full history detail state: severity, reuse guidance, summary, and tooltip.
 SdoHistoryRowDetailUiState
 buildSdoHistoryRowDetailUiState(const SdoHistoryRow &row,
                                 const SdoHistoryRowDetailTexts &texts) {

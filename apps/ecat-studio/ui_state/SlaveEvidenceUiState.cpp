@@ -1,5 +1,7 @@
+// Detail panel text for a selected slave evidence matrix row.
 #include "SlaveEvidenceUiState.h"
 
+// Maps a priority tier enum to its localized display string.
 QString slaveEvidencePriorityText(SlaveEvidencePriority priority,
                                   const SlaveEvidenceUiTexts &texts) {
   switch (priority) {
@@ -15,6 +17,7 @@ QString slaveEvidencePriorityText(SlaveEvidencePriority priority,
   return texts.p3Ready;
 }
 
+// Maps a next-action enum to its localized display string.
 QString slaveEvidenceNextActionText(SlaveEvidenceNextAction action,
                                     const SlaveEvidenceUiTexts &texts) {
   switch (action) {
@@ -36,6 +39,7 @@ QString slaveEvidenceNextActionText(SlaveEvidenceNextAction action,
   return texts.reviewRisk;
 }
 
+// Maps a risk kind (with optional count) to its localized description.
 QString slaveEvidenceRiskText(const SlaveEvidenceRisk &risk,
                               const SlaveEvidenceUiTexts &texts) {
   switch (risk.kind) {
@@ -61,6 +65,7 @@ QString slaveEvidenceRiskText(const SlaveEvidenceRisk &risk,
   return texts.unknownEvidenceRisk;
 }
 
+// Converts all risks to localized text labels.
 QStringList slaveEvidenceRiskTexts(const QVector<SlaveEvidenceRisk> &risks,
                                    const SlaveEvidenceUiTexts &texts) {
   QStringList labels;
@@ -71,18 +76,21 @@ QStringList slaveEvidenceRiskTexts(const QVector<SlaveEvidenceRisk> &risks,
   return labels;
 }
 
+// Returns the display name, falling back to "unnamed" if empty.
 QString slaveEvidenceDisplayName(const QString &name,
                                  const SlaveEvidenceUiTexts &texts) {
   const QString trimmed = name.trimmed();
   return trimmed.isEmpty() ? texts.unnamed : trimmed;
 }
 
+// Returns the display state, falling back to "unknown" if empty.
 QString slaveEvidenceDisplayState(const QString &state,
                                   const SlaveEvidenceUiTexts &texts) {
   const QString trimmed = state.trimmed();
   return trimmed.isEmpty() ? texts.unknown : trimmed;
 }
 
+// Returns all 12 localized column headers for the slave evidence matrix.
 QStringList slaveEvidenceMatrixHeaders(const SlaveEvidenceUiTexts &texts) {
   return {
       texts.priorityHeader, texts.slaveHeader,     texts.nameHeader,
@@ -92,6 +100,7 @@ QStringList slaveEvidenceMatrixHeaders(const SlaveEvidenceUiTexts &texts) {
   };
 }
 
+// Converts a domain row into a UI row with table cells and detail lines for the panel.
 SlaveEvidenceUiRow slaveEvidenceUiRow(const SlaveEvidenceRow &row,
                                       const SlaveEvidenceUiTexts &texts) {
   SlaveEvidenceUiRow uiRow;

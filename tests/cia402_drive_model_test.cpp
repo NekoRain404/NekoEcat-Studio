@@ -1,3 +1,4 @@
+// Unit tests for Cia402DriveModel.
 #include "models/Cia402DriveModel.h"
 
 #include <QCoreApplication>

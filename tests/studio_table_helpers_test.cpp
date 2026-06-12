@@ -1,3 +1,4 @@
+// Unit tests for StudioTableHelpers.
 #include "helpers/StudioTableHelpers.h"
 
 #include <QApplication>

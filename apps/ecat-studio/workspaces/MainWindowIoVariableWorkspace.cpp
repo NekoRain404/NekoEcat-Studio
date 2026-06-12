@@ -118,18 +118,26 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Return the unique key for an I/O variable table row
 QString MainWindow::ioVariableRowKey(int row) const {
   return ioVariableTableRowKey(ioVariableTable_, row);
 }
 
+
+// — Return the list of currently selected I/O variable row indices
 QVector<int> MainWindow::selectedIoVariableRows(bool visibleOnly) const {
   return selectedIoVariableTableRows(ioVariableTable_, visibleOnly);
 }
 
+
+// — Return the list of non-hidden I/O variable row indices
 QVector<int> MainWindow::visibleIoVariableRows() const {
   return visibleIoVariableTableRows(ioVariableTable_);
 }
 
+
+// — Map an internal handoff issue key to a localized display label
 QString MainWindow::ioVariableHandoffIssueLabel(const QString &key) const {
   if (key == QStringLiteral("missingAlias")) {
     return uiText("Missing Alias", "缺少 Alias");
@@ -155,6 +163,8 @@ MainWindow::ioVariableHandoffIssueLabels(const QStringList &keys) const {
   return labels;
 }
 
+
+// — Return the io variable plc quality
 QString MainWindow::ioVariablePlcQuality(int row,
                                          const QSet<QString> *duplicateSymbols,
                                          QString *symbol) const {
@@ -175,18 +185,23 @@ QString MainWindow::ioVariablePlcQuality(int row,
                         : ioVariableHandoffIssueLabels(keys).join(" | ");
 }
 
+
+// — Duplicate io variable plc symbols
 QSet<QString> MainWindow::duplicateIoVariablePlcSymbols() const {
   if (!ioVariableTable_) {
     return {};
   }
   QVector<IoVariableTableRow> rows;
   rows.reserve(ioVariableTable_->rowCount());
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     rows.append(ioVariableTableRowFromTable(ioVariableTable_, row));
   }
   return duplicateIoVariableHandoffSymbols(rows);
 }
 
+
+// — Return plc handoff issue rows
 QVector<int> MainWindow::plcHandoffIssueRows(const QVector<int> &rows) const {
   QVector<int> issueRows;
   if (!ioVariableTable_) {
@@ -207,6 +222,8 @@ QVector<int> MainWindow::plcHandoffIssueRows(const QVector<int> &rows) const {
   return issueRows;
 }
 
+
+// — Return a list of plc handoff issue details
 QStringList MainWindow::plcHandoffIssueDetails(const QVector<int> &rows,
                                                int previewLimit,
                                                int totalRows) const {
@@ -294,6 +311,8 @@ QStringList MainWindow::plcHandoffIssueDetails(const QVector<int> &rows,
   return details;
 }
 
+
+// — Return the plc declaration block
 QString MainWindow::plcDeclarationBlock(const QVector<int> &rows) const {
   if (!ioVariableTable_ || rows.isEmpty()) {
     return QString();
@@ -320,6 +339,8 @@ QString MainWindow::plcDeclarationBlock(const QVector<int> &rows) const {
   return ioVariableHandoffDeclarationBlock(variables, qualityLabelsByRow);
 }
 
+
+// — Edit selected io variable metadata
 void MainWindow::editSelectedIoVariableMetadata() {
   if (!ioVariableTable_) {
     return;
@@ -378,8 +399,8 @@ void MainWindow::editSelectedIoVariableMetadata() {
 
   auto *buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
   layout->addWidget(buttons);
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -400,6 +421,8 @@ void MainWindow::editSelectedIoVariableMetadata() {
                         .arg(key));
 }
 
+
+// — Bulk name io variables
 void MainWindow::bulkNameIoVariables() {
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
     QMessageBox::information(
@@ -475,8 +498,8 @@ void MainWindow::bulkNameIoVariables() {
   auto *buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->button(QDialogButtonBox::Ok)->setText(uiText("Apply", "应用"));
-  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
   layout->addWidget(buttons);
   if (dialog.exec() != QDialog::Accepted) {
     return;
@@ -492,6 +515,7 @@ void MainWindow::bulkNameIoVariables() {
 
   QVector<IoVariableTableRow> allRows;
   allRows.reserve(ioVariableTable_->rowCount());
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     allRows << ioVariableTableRowFromTable(ioVariableTable_, row);
   }
@@ -516,6 +540,7 @@ void MainWindow::bulkNameIoVariables() {
             .arg(existingAliases),
         uiText("The change is project-local metadata only.",
                "此更改只影响工程内元数据。")};
+    // Safety gate: require explicit confirmation before bus write
     if (!confirmDangerousOperation(
             uiText("Replace Existing I/O Aliases", "覆盖已有 I/O Alias"),
             uiText("Bulk naming is about to replace existing aliases.",
@@ -549,6 +574,8 @@ void MainWindow::bulkNameIoVariables() {
           .arg(result.skippedExistingAliases));
 }
 
+
+// — Review plc handoff issues
 void MainWindow::reviewPlcHandoffIssues() {
   updateIoVariableTable();
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
@@ -576,6 +603,8 @@ void MainWindow::reviewPlcHandoffIssues() {
                         .arg(issueRows.size()));
 }
 
+
+// — Focus plc handoff issue rows
 void MainWindow::focusPlcHandoffIssueRows(const QVector<int> &issueRows,
                                           bool showReadyMessage) {
   if (!ioVariableTable_) {
@@ -614,6 +643,8 @@ void MainWindow::focusPlcHandoffIssueRows(const QVector<int> &issueRows,
   }
 }
 
+
+// — Copy IEC 61131-3 style declarations for selected I/O variables
 void MainWindow::copyIoVariablePlcDeclarations(bool selectedOnly) {
   updateIoVariableTable();
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
@@ -642,7 +673,7 @@ void MainWindow::copyIoVariablePlcDeclarations(bool selectedOnly) {
     return;
   }
 
-  QApplication::clipboard()->setText(plcDeclarationBlock(rows));
+  QApplication::clipboard()->setText(plcDeclarationBlock(rows)); // copy to system clipboard
   updateDiagnostics(
       "Info", "I/O Variables",
       uiText("Copied PLC declaration block for %1 I/O variable row(s)",
@@ -650,6 +681,8 @@ void MainWindow::copyIoVariablePlcDeclarations(bool selectedOnly) {
           .arg(rows.size()));
 }
 
+
+// — Clear selected io variable metadata
 void MainWindow::clearSelectedIoVariableMetadata() {
   if (!ioVariableTable_) {
     return;
@@ -671,6 +704,8 @@ void MainWindow::clearSelectedIoVariableMetadata() {
                         .arg(cleared));
 }
 
+
+// — Export io variables csv
 void MainWindow::exportIoVariablesCsv() {
   updateIoVariableTable();
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
@@ -705,6 +740,7 @@ void MainWindow::exportIoVariablesCsv() {
   }
   out << headers.join(',') << '\n';
   int exported = 0;
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     if (ioVariableTable_->isRowHidden(row)) {
       continue;
@@ -723,6 +759,8 @@ void MainWindow::exportIoVariablesCsv() {
                         .arg(path));
 }
 
+
+// — Export io variables plc csv
 void MainWindow::exportIoVariablesPlcCsv() {
   updateIoVariableTable();
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
@@ -793,6 +831,8 @@ void MainWindow::exportIoVariablesPlcCsv() {
                         .arg(path));
 }
 
+
+// — Export io variables plc declarations st
 void MainWindow::exportIoVariablesPlcDeclarationsSt() {
   updateIoVariableTable();
   if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
@@ -843,6 +883,8 @@ void MainWindow::exportIoVariablesPlcDeclarationsSt() {
                         .arg(path));
 }
 
+
+// — Check whether confirm plc handoff operation
 bool MainWindow::confirmPlcHandoffOperation(const QVector<int> &rows,
                                             const QString &operation,
                                             const QString &continueText) {
@@ -899,6 +941,8 @@ bool MainWindow::confirmPlcHandoffOperation(const QVector<int> &rows,
   return false;
 }
 
+
+// — Rebuild the I/O variable table from PDO, Watch, Startup, and project data
 void MainWindow::updateIoVariableTable() {
   if (!ioVariableTable_) {
     return;
@@ -1010,7 +1054,9 @@ void MainWindow::updateIoVariableTable() {
         subIndex.trimmed().isEmpty()) {
       return;
     }
+    // Normalize hex address for consistent comparison
     const QString normalizedIndex = normalizeHexText(index, 4);
+    // Normalize hex address for consistent comparison
     const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
     const QString key =
         ioVariableTableObjectKey(position, normalizedIndex, normalizedSubIndex);
@@ -1118,6 +1164,7 @@ void MainWindow::updateIoVariableTable() {
   const QColor warnColor("#f59e0b");
   const QColor errorColor("#ef4444");
   const QSet<QString> duplicateSymbols = duplicateIoVariablePlcSymbols();
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     const IoVariableTableRow variable =
         ioVariableTableRowFromTable(ioVariableTable_, row);
@@ -1167,7 +1214,7 @@ void MainWindow::updateIoVariableTable() {
       }
     }
   }
-  ioVariableTable_->resizeColumnsToContents();
+  ioVariableTable_->resizeColumnsToContents(); // auto-fit column widths
   if (previousRow >= 0 && previousRow < ioVariableTable_->rowCount()) {
     ioVariableTable_->setCurrentCell(previousRow, 0);
   }
@@ -1180,6 +1227,8 @@ void MainWindow::updateIoVariableTable() {
   filterIoVariableTable();
 }
 
+
+// — Apply text and scope filters to the I/O variable table
 void MainWindow::filterIoVariableTable() {
   if (!ioVariableTable_) {
     return;
@@ -1193,6 +1242,7 @@ void MainWindow::filterIoVariableTable() {
   IoVariableFilterStats stats;
   const QString readyText = uiText("Ready", "就绪");
 
+  // Iterate all rows and apply active filter predicates
   for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
     const IoVariableTableRow variable =
         ioVariableTableRowFromTable(ioVariableTable_, row);
@@ -1204,7 +1254,7 @@ void MainWindow::filterIoVariableTable() {
     }
     const IoVariableFilterDecision decision = evaluateIoVariableFilterRow(
         variable, cells, scope, needle, selected, readyText);
-    ioVariableTable_->setRowHidden(row, !decision.visible);
+    ioVariableTable_->setRowHidden(row, !decision.visible); // show/hide based on filter match
     accumulateIoVariableFilterStats(&stats, decision);
   }
 
@@ -1229,6 +1279,8 @@ void MainWindow::filterIoVariableTable() {
   updateActionAvailability();
 }
 
+
+// — Refresh the I/O variable detail strip for the currently focused row
 void MainWindow::updateIoVariableRowDetail() {
   if (!ioVariableDetailLabel_) {
     return;
@@ -1310,11 +1362,12 @@ void MainWindow::updateIoVariableRowDetail() {
           "直到确认应用启动项。"),
   };
 
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const IoVariableDetailUiState &state) {
     ioVariableDetailLabel_->setText(state.text);
     ioVariableDetailLabel_->setProperty("severity", state.severityKey);
     ioVariableDetailLabel_->setToolTip(state.tooltip);
-    repolish(ioVariableDetailLabel_);
+    repolish(ioVariableDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!ioVariableTable_) {

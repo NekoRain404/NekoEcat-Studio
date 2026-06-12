@@ -1,3 +1,4 @@
+// Unit tests for ProcessDataRowModel.
 #include "models/ProcessDataRowModel.h"
 
 #include <QCoreApplication>

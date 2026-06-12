@@ -1,5 +1,7 @@
+// Detail panel text for a selected session brief row.
 #include "SessionBriefUiState.h"
 
+// Maps a session brief status enum to its localized display string.
 QString sessionBriefStatusText(SessionBriefStatus status,
                                const SessionBriefUiTexts &texts) {
   switch (status) {
@@ -17,6 +19,7 @@ QString sessionBriefStatusText(SessionBriefStatus status,
   return texts.info;
 }
 
+// Maps a session brief status to its color/semantic key.
 QString sessionBriefStatusColorKey(SessionBriefStatus status) {
   switch (status) {
   case SessionBriefStatus::Ready:
@@ -33,11 +36,13 @@ QString sessionBriefStatusColorKey(SessionBriefStatus status) {
   return QStringLiteral("info");
 }
 
+// Returns localized column headers for the session brief table.
 QStringList sessionBriefTableHeaders(const SessionBriefUiTexts &texts) {
   return {texts.areaHeader, texts.statusHeader, texts.evidenceHeader,
           texts.nextHeader};
 }
 
+// Converts a domain row into a UI row with cells, tooltips, and action key.
 SessionBriefUiRow sessionBriefUiRow(const SessionBriefRow &row,
                                     const QString &area,
                                     const QString &evidence,

@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the slave evidence summary card.
 struct SelectedSlaveEvidenceSummaryTexts {
   QString selectSlaveText;
   QString ready;
@@ -24,6 +25,7 @@ struct SelectedSlaveEvidenceSummaryTexts {
   QString topologyIssuePattern;
 };
 
+// Resolved summary card state with evidence group count, severity, and tooltips.
 struct SelectedSlaveEvidenceSummaryUiState {
   QString text;
   QString severityKey;
@@ -34,9 +36,12 @@ struct SelectedSlaveEvidenceSummaryUiState {
 
 SelectedSlaveEvidenceSummaryUiState selectedSlaveEvidenceNoSelectionState(
     const SelectedSlaveEvidenceSummaryTexts &texts);
+// Counts evidence categories with at least one row.
 int selectedSlaveEvidenceSummaryGroupCount(const SlaveEvidenceInput &input);
+// Maps evidence completeness and issues to a severity key.
 QString selectedSlaveEvidenceSummarySeverityKey(const SlaveEvidenceInput &input,
                                                 int topologyIssueCount);
+// Assembles the evidence summary card state.
 SelectedSlaveEvidenceSummaryUiState buildSelectedSlaveEvidenceSummaryUiState(
     const SlaveEvidenceInput &input, int topologyIssueCount,
     const SelectedSlaveEvidenceSummaryTexts &texts);

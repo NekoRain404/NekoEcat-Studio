@@ -1,3 +1,4 @@
+// Unit tests for WorkspaceBoundaryUiState.
 #include "ui_state/WorkspaceBoundaryUiState.h"
 
 #include <QCoreApplication>

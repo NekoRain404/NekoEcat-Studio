@@ -1,14 +1,17 @@
+// Newline-delimited JSON framing protocol for GUI-daemon communication.
 #include "JsonProtocol.h"
 
 #include <QJsonDocument>
 
 namespace JsonProtocol {
 
+// Compact JSON + newline delimiter; the trailing '\n' is the frame boundary.
 QByteArray encode(const QJsonObject &object)
 {
     return QJsonDocument(object).toJson(QJsonDocument::Compact) + '\n';
 }
 
+// JSON-RPC-style request envelope: id correlates request to response.
 QJsonObject request(const QString &id, const QString &method, const QJsonObject &params)
 {
     return {
@@ -18,6 +21,7 @@ QJsonObject request(const QString &id, const QString &method, const QJsonObject 
     };
 }
 
+// Positive response envelope — "ok":true signals success to the client.
 QJsonObject success(const QString &id, const QJsonObject &result)
 {
     return {
@@ -27,6 +31,7 @@ QJsonObject success(const QString &id, const QJsonObject &result)
     };
 }
 
+// Error response; code defaults to -1 for generic/uncategorized failures.
 QJsonObject failure(const QString &id, const QString &message, int code)
 {
     return {
@@ -37,4 +42,3 @@ QJsonObject failure(const QString &id, const QString &message, int code)
 }
 
 }
-

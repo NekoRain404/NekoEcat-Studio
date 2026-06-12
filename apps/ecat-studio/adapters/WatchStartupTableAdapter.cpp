@@ -1,3 +1,4 @@
+// Populates and queries the Watch and Startup SDO QTableWidgets.
 #include "WatchStartupTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
@@ -7,6 +8,7 @@
 
 namespace {
 
+// Safely parses a position string, returning -1 on invalid input.
 int parsedPosition(const QString &text) {
   bool ok = false;
   const int position = text.toInt(&ok);
@@ -15,10 +17,12 @@ int parsedPosition(const QString &text) {
 
 } // namespace
 
+// Overload without change-tracking set, for simple row extraction.
 WatchStartupWatchRow watchStartupWatchRow(QTableWidget *watchTable, int row) {
   return watchStartupWatchRow(watchTable, row, {});
 }
 
+// Extracts a watch row and marks it as changed if its target key is in the changed set.
 WatchStartupWatchRow watchStartupWatchRow(QTableWidget *watchTable, int row,
                                           const QSet<QString> &changedKeys) {
   WatchStartupWatchRow model;
@@ -47,6 +51,7 @@ WatchStartupWatchRow watchStartupWatchRow(QTableWidget *watchTable, int row,
   return model;
 }
 
+// Bulk-extracts all watch rows for snapshot comparison or delta evaluation.
 QVector<WatchStartupWatchRow> watchStartupWatchRows(QTableWidget *watchTable) {
   QVector<WatchStartupWatchRow> rows;
   if (!watchTable) {
@@ -60,6 +65,7 @@ QVector<WatchStartupWatchRow> watchStartupWatchRows(QTableWidget *watchTable) {
   return rows;
 }
 
+// Extracts a startup SDO row including the watch cross-reference values.
 WatchStartupStartupRow watchStartupStartupRow(QTableWidget *startupTable,
                                               int row) {
   WatchStartupStartupRow model;
@@ -85,6 +91,7 @@ WatchStartupStartupRow watchStartupStartupRow(QTableWidget *startupTable,
   return model;
 }
 
+// Bulk-extracts all startup rows for delta evaluation against the watch table.
 QVector<WatchStartupStartupRow>
 watchStartupStartupRows(QTableWidget *startupTable) {
   QVector<WatchStartupStartupRow> rows;
@@ -99,6 +106,7 @@ watchStartupStartupRows(QTableWidget *startupTable) {
   return rows;
 }
 
+// Returns the existing item at (row, column) or creates one if absent, to avoid null checks during updates.
 QTableWidgetItem *ensureWatchStartupTableItem(QTableWidget *table, int row,
                                               int column) {
   if (!table || row < 0 || row >= table->rowCount() || column < 0 ||

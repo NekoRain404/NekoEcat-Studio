@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 
+// Identifies which workspace tab the boundary banner applies to.
 enum class WorkspaceBoundaryKind {
   Overview,
   ObjectDictionary,
@@ -22,6 +23,7 @@ enum class WorkspaceBoundaryKind {
   RawEvidence,
 };
 
+// Matrix priority counts used by the overview boundary to adjust severity.
 struct WorkspaceBoundaryCounts {
   int matrixP0 = 0;
   int matrixP1 = 0;
@@ -29,6 +31,7 @@ struct WorkspaceBoundaryCounts {
   int matrixP3 = 0;
 };
 
+// All localized strings for every workspace boundary banner.
 struct WorkspaceBoundaryTexts {
   QString workspacePattern;
   QString overviewLabel;
@@ -71,6 +74,7 @@ struct WorkspaceBoundaryTexts {
   QString rawEvidenceCachedOutput;
 };
 
+// Resolved boundary banner state with label, severity, detail lines, and tooltip.
 struct WorkspaceBoundaryUiState {
   QString label;
   QString severityKey;
@@ -78,6 +82,7 @@ struct WorkspaceBoundaryUiState {
   QString tooltip;
 };
 
+// Maps a workspace kind to its boundary banner state.
 WorkspaceBoundaryUiState buildWorkspaceBoundaryUiState(
     WorkspaceBoundaryKind kind, const QString &workspaceName,
     const WorkspaceBoundaryCounts &counts, const WorkspaceBoundaryTexts &texts);

@@ -1,21 +1,25 @@
+// Per-slave evidence row model for the commissioning evidence matrix.
 #include "SlaveEvidenceModel.h"
 
 #include <algorithm>
 
 namespace {
 
+// PREOP and above states are expected to have PDO/watch evidence available.
 bool stateNeedsPdoOrWatch(const QString &state) {
   const QString normalized = state.trimmed().toUpper();
   return normalized.contains("PREOP") || normalized.contains("SAFEOP") ||
          normalized == "OP" || normalized.startsWith("OP ");
 }
 
+// SAFEOP and OP states require process image validation evidence.
 bool stateNeedsProcessEvidence(const QString &state) {
   const QString normalized = state.trimmed().toUpper();
   return normalized.contains("SAFEOP") || normalized == "OP" ||
          normalized.startsWith("OP ");
 }
 
+// Null-safe helper: appends a risk entry with optional count.
 void appendRisk(QVector<SlaveEvidenceRisk> *risks, SlaveEvidenceRiskKind kind,
                 int count = 0) {
   if (!risks) {
@@ -26,6 +30,7 @@ void appendRisk(QVector<SlaveEvidenceRisk> *risks, SlaveEvidenceRiskKind kind,
 
 } // namespace
 
+// Maps priority enum to a numeric sort order (lower = higher priority).
 int slaveEvidencePriorityRank(SlaveEvidencePriority priority) {
   switch (priority) {
   case SlaveEvidencePriority::Fault:
@@ -40,11 +45,13 @@ int slaveEvidencePriorityRank(SlaveEvidencePriority priority) {
   return 3;
 }
 
+// Clamped 0-100 readiness percentage for progress display.
 int slaveEvidenceReadinessPercent(const SlaveEvidenceRow &row) {
   return std::clamp((row.readiness * 100) / std::max(1, row.maxReadiness), 0,
                     100);
 }
 
+// Maps next-action enum to the navigation target view in the UI.
 SlaveEvidenceRouteTarget slaveEvidenceRouteTarget(const SlaveEvidenceRow &row) {
   switch (row.nextAction) {
   case SlaveEvidenceNextAction::ReviewOd:
@@ -81,6 +88,7 @@ SlaveEvidenceRouteTarget slaveEvidenceRouteTarget(const SlaveEvidenceRow &row) {
   return SlaveEvidenceRouteTarget::Overview;
 }
 
+// Full evidence matrix: scores readiness, collects risks, determines next actions, and sorts by priority.
 SlaveEvidenceMatrix
 buildSlaveEvidenceMatrix(const QVector<SlaveEvidenceInput> &inputs) {
   SlaveEvidenceMatrix matrix;

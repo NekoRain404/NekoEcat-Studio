@@ -1,3 +1,4 @@
+// Unit tests for SdoEvidenceModel.
 #include "models/SdoEvidenceModel.h"
 
 #include <QCoreApplication>

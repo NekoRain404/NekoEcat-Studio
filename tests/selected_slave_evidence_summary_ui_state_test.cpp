@@ -1,3 +1,4 @@
+// Unit tests for SelectedSlaveEvidenceSummaryUiState.
 #include "ui_state/SelectedSlaveEvidenceSummaryUiState.h"
 
 #include <QCoreApplication>

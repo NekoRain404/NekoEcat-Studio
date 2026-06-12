@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized strings for host health check headers and summary labels.
 struct HostHealthTexts {
   QString levelHeader;
   QString checkHeader;
@@ -23,6 +24,7 @@ struct HostHealthTexts {
   QString okLabel;
 };
 
+// Resolved host health state with rows, counts, color keys, and summary.
 struct HostHealthUiState {
   QStringList headers;
   QList<QStringList> rows;

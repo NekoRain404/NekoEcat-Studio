@@ -1,3 +1,4 @@
+// Unit tests for SelectedDriveSummaryUiState.
 #include "ui_state/SelectedDriveSummaryUiState.h"
 
 #include <QCoreApplication>

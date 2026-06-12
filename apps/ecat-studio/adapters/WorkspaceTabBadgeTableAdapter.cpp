@@ -1,3 +1,4 @@
+// Updates workspace tab badge text and severity indicators.
 #include "WorkspaceTabBadgeTableAdapter.h"
 
 #include "ConsistencyTableAdapter.h"
@@ -12,6 +13,7 @@
 #include <QStringList>
 #include <QTableWidget>
 
+// Determines if a watch delta value represents a real mismatch (not "match" or "pending").
 bool workspaceTabBadgeWatchDeltaIsIssue(const QString &delta) {
   const QString normalized = delta.trimmed().toLower();
   return !normalized.isEmpty() && normalized != QStringLiteral("match") &&
@@ -20,6 +22,7 @@ bool workspaceTabBadgeWatchDeltaIsIssue(const QString &delta) {
          normalized != QStringLiteral("待比较");
 }
 
+// Counts watch rows with non-matching startup deltas for the Watch tab badge.
 int countWorkspaceTabBadgeWatchStartupDiffs(QTableWidget *watchTable) {
   int diffs = 0;
   if (!watchTable) {
@@ -34,6 +37,7 @@ int countWorkspaceTabBadgeWatchStartupDiffs(QTableWidget *watchTable) {
   return diffs;
 }
 
+// Counts I/O variable rows with startup diffs, PDO map issues, missing values, or PLC errors.
 int countWorkspaceTabBadgeIoIssues(QTableWidget *ioVariableTable) {
   int issues = 0;
   if (!ioVariableTable) {
@@ -53,6 +57,7 @@ int countWorkspaceTabBadgeIoIssues(QTableWidget *ioVariableTable) {
   return issues;
 }
 
+// Aggregates issue counts from all workspace tables to drive tab badge text and severity.
 WorkspaceTabBadgeCounts
 workspaceTabBadgeCounts(const WorkspaceTabBadgeTables &tables) {
   WorkspaceTabBadgeCounts counts;

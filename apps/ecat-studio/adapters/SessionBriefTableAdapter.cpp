@@ -1,3 +1,4 @@
+// Populates and queries the session brief QTableWidget.
 #include "SessionBriefTableAdapter.h"
 
 #include "helpers/StudioTableHelpers.h"
@@ -10,6 +11,7 @@ constexpr int kSessionBriefActionKeyRole = Qt::UserRole + 33;
 
 } // namespace
 
+// Stores the action routing key on every cell in the row for later retrieval during navigation.
 void setSessionBriefActionKey(QTableWidget *table, int row,
                               const QString &actionKey) {
   if (!table || row < 0 || row >= table->rowCount()) {
@@ -23,6 +25,7 @@ void setSessionBriefActionKey(QTableWidget *table, int row,
   }
 }
 
+// Retrieves the stored action key, checking both current and legacy data roles for backwards compatibility.
 QString sessionBriefActionKeyForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return QString();
@@ -43,6 +46,7 @@ QString sessionBriefActionKeyForRow(QTableWidget *table, int row) {
   return QString();
 }
 
+// Finds the first non-empty tooltip across a row for the status bar hover hint.
 QString sessionBriefFirstTooltipForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return QString();
@@ -58,6 +62,7 @@ QString sessionBriefFirstTooltipForRow(QTableWidget *table, int row) {
   return QString();
 }
 
+// Extracts all session brief columns into a structured row for the overview panel.
 SessionBriefTableRow sessionBriefTableRowFromTable(QTableWidget *table,
                                                    int row) {
   SessionBriefTableRow result;

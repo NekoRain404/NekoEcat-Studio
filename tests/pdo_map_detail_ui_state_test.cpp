@@ -1,3 +1,4 @@
+// Unit tests for PdoMapDetailUiState.
 #include "ui_state/PdoMapDetailUiState.h"
 
 #include <QCoreApplication>

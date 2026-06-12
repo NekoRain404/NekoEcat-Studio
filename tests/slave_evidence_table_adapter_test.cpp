@@ -1,3 +1,4 @@
+// Unit tests for SlaveEvidenceTableAdapter.
 #include "adapters/SlaveEvidenceTableAdapter.h"
 
 #include <QApplication>

@@ -17,6 +17,9 @@
 class FreeRunController : public QObject {
     Q_OBJECT
 
+    // ecrt-based real-time controller that drives the IgH process data cycle.
+    // Discovers slave topology via CLI, configures the PDO domain via ecrt,
+    // and runs a ~1 kHz receive/process/queue/send loop in a dedicated thread.
 public:
     explicit FreeRunController(QObject *parent = nullptr);
     ~FreeRunController() override;
@@ -28,6 +31,7 @@ public:
     QJsonObject telemetry() const;
 
 private:
+    // Describes a single PDO entry from the cstruct output.
     struct EntrySpec {
         uint16_t index = 0;
         uint8_t subindex = 0;
@@ -35,11 +39,13 @@ private:
         QString name;
     };
 
+    // A PDO containing an ordered list of entries.
     struct PdoSpec {
         uint16_t index = 0;
         std::vector<EntrySpec> entries;
     };
 
+    // A sync manager channel with direction (input/output) and its PDO assignments.
     struct SyncSpec {
         uint8_t index = 0;
         ec_direction_t direction = EC_DIR_INVALID;
@@ -47,6 +53,7 @@ private:
         std::vector<PdoSpec> pdos;
     };
 
+    // Full slave description extracted from `ethercat cstruct` — vendor/product IDs and sync/PDO tree.
     struct SlaveSpec {
         uint16_t alias = 0;
         uint16_t position = 0;
@@ -55,6 +62,8 @@ private:
         std::vector<SyncSpec> syncs;
     };
 
+    // Holds the ecrt-allocated storage that must stay alive for the duration of the domain.
+    // The vectors back the raw C arrays that ecrt_slave_config_pdos expects.
     struct RuntimeSlave {
         SlaveSpec spec;
         std::vector<std::vector<ec_pdo_entry_info_t>> entryStorage;
@@ -62,6 +71,8 @@ private:
         std::vector<ec_sync_info_t> syncStorage;
     };
 
+    // Per-entry metadata used during the real-time loop to read live values
+    // from the domain data buffer at the registered offset.
     struct RuntimeEntry {
         uint16_t slavePosition = 0;
         uint8_t syncIndex = 0;
@@ -95,16 +106,21 @@ private:
     std::thread thread_;
     uint32_t activeMasterIndex_ = 0;
     QString status_ = "Stopped";
+    // Protects masterState_ and domainState_ which are written by the RT thread.
     mutable std::mutex telemetryMutex_;
     ec_master_state_t masterState_ {};
     ec_domain_state_t domainState_ {};
 
+    // IgH master/domain handles; nullptr when not running.
     ec_master_t *master_ = nullptr;
     ec_domain_t *domain_ = nullptr;
+    // Pointer into the domain's shared memory region — the process data image.
     uint8_t *domainData_ = nullptr;
     std::vector<RuntimeSlave> runtimeSlaves_;
+    // Byte offsets returned by ecrt_domain_reg_pdo_entry_list for each registered entry.
     std::vector<unsigned int> offsets_;
     std::vector<unsigned int> bitPositions_;
+    // Sentinelled list passed to ecrt to register all PDO entries in the domain.
     std::vector<ec_pdo_entry_reg_t> registrations_;
     std::vector<RuntimeEntry> runtimeEntries_;
 };

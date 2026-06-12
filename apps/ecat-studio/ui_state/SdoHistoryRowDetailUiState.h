@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the SDO history detail panel.
 struct SdoHistoryRowDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -37,6 +38,7 @@ struct SdoHistoryRowDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved history detail state with status flags, reuse guidance, and tooltip.
 struct SdoHistoryRowDetailUiState {
   QString text;
   QString severityKey;
@@ -57,8 +59,10 @@ SdoHistoryRowDetailUiState
 sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts);
 SdoHistoryRowDetailUiState
 sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts);
+// Maps status and action to a severity key.
 QString sdoHistoryRowDetailSeverityKey(const SdoHistoryRow &row,
                                        const SdoHistoryRowDetailTexts &texts);
+// Assembles the full history detail state.
 SdoHistoryRowDetailUiState
 buildSdoHistoryRowDetailUiState(const SdoHistoryRow &row,
                                 const SdoHistoryRowDetailTexts &texts);

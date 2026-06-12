@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Snapshot the current slave list as the offline topology baseline
 void MainWindow::captureTopologyBaseline() {
   if (slaves_.isEmpty()) {
     updateDiagnostics("Warning", "Topology",
@@ -134,6 +136,8 @@ void MainWindow::captureTopologyBaseline() {
                         .arg(topologyBaseline_.size()));
 }
 
+
+// — Discard the stored topology baseline and mark consistency stale
 void MainWindow::clearTopologyBaseline() {
   topologyBaseline_.clear();
   consistencyFresh_ = false;
@@ -142,6 +146,8 @@ void MainWindow::clearTopologyBaseline() {
   updateDiagnostics("Info", "Topology", "Topology baseline cleared");
 }
 
+
+// — Write a Markdown diagnostics report combining all evidence to a user-chosen file
 void MainWindow::exportDiagnosticsReport() {
   const QString path = QFileDialog::getSaveFileName(
       this, "Export Diagnostics Report",
@@ -302,6 +308,8 @@ void MainWindow::exportDiagnosticsReport() {
   log("Diagnostics report exported: " + path);
 }
 
+
+// — Apply level filter and text search to the diagnostics table
 void MainWindow::filterDiagnosticsTable() {
   if (!diagnosticsTable_) {
     return;
@@ -325,11 +333,13 @@ void MainWindow::filterDiagnosticsTable() {
         match = item && item->text().contains(needle, Qt::CaseInsensitive);
       }
     }
-    diagnosticsTable_->setRowHidden(row, !match);
+    diagnosticsTable_->setRowHidden(row, !match); // show/hide based on filter match
   }
   updateDiagnosticsSummary();
 }
 
+
+// — Refresh the selected-slave summary label from identity, OD, and PDO evidence
 void MainWindow::updateSelectedSlavePanel() {
   if (!selectedSlaveNameLabel_ || !selectedSlaveStateLabel_ ||
       !selectedSlaveFlagsLabel_ || !selectedSlaveHintLabel_) {
@@ -346,7 +356,7 @@ void MainWindow::updateSelectedSlavePanel() {
       selectedDriveSummaryLabel_->setText(
           uiText("Drive: no Watch evidence", "驱动：暂无监视证据"));
       selectedDriveSummaryLabel_->setProperty("severity", "neutral");
-      repolish(selectedDriveSummaryLabel_);
+      repolish(selectedDriveSummaryLabel_); // force QSS re-evaluation after property change
     }
     updateSelectedSlaveEvidenceSummary();
     updateDriveNextButton();
@@ -423,17 +433,20 @@ void MainWindow::updateSelectedSlavePanel() {
   updateSelectedSlaveEvidenceSummary();
 }
 
+
+// — Refresh the slave evidence summary label from all loaded evidence tables
 void MainWindow::updateSelectedSlaveEvidenceSummary() {
   if (!selectedSlaveEvidenceLabel_) {
     return;
   }
   const SelectedSlaveEvidenceSummaryTexts texts =
       selectedSlaveEvidenceSummaryTexts();
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SelectedSlaveEvidenceSummaryUiState &state) {
     selectedSlaveEvidenceLabel_->setText(state.text);
     selectedSlaveEvidenceLabel_->setToolTip(state.tooltip);
     selectedSlaveEvidenceLabel_->setProperty("severity", state.severityKey);
-    repolish(selectedSlaveEvidenceLabel_);
+    repolish(selectedSlaveEvidenceLabel_); // force QSS re-evaluation after property change
   };
 
   const int position = selectedPosition();
@@ -460,14 +473,17 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
       input, topologyIssues.size(), texts));
 }
 
+
+// — Refresh the CiA 402 drive summary label from Watch evidence
 void MainWindow::updateSelectedDriveSummary() {
   if (!selectedDriveSummaryLabel_) {
     return;
   }
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SelectedDriveSummaryUiState &state) {
     selectedDriveSummaryLabel_->setText(state.text);
     selectedDriveSummaryLabel_->setProperty("severity", state.severityKey);
-    repolish(selectedDriveSummaryLabel_);
+    repolish(selectedDriveSummaryLabel_); // force QSS re-evaluation after property change
   };
 
   const SelectedDriveSummaryTexts texts = selectedDriveSummaryTexts();
@@ -483,6 +499,8 @@ void MainWindow::updateSelectedDriveSummary() {
   updateDriveNextButton();
 }
 
+
+// — Enable or disable the 'Drive Next' button based on recommended controlword
 void MainWindow::updateDriveNextButton() {
   auto *button = findChild<QPushButton *>("contextDriveNext");
   if (!button) {
@@ -515,10 +533,14 @@ void MainWindow::updateDriveNextButton() {
              "为选中从站添加或刷新 CiA 402 监视预设后，才能推导推荐控制字。"));
 }
 
+
+// — Return a list of human-readable issues comparing baseline to current slaves
 QStringList MainWindow::topologyBaselineIssues() const {
   QStringList issues;
+  // Collect issue details from the evidence model
   for (const auto &issue :
        compareTopologyBaseline(topologyBaseline_, slaves_)) {
+    // Map each baseline deviation type to a human-readable warning row
     switch (issue.kind) {
     case TopologyBaselineIssueKind::MissingSlave:
       issues << uiText("Missing slave #%1 %2", "缺失从站 #%1 %2")
@@ -548,6 +570,8 @@ QStringList MainWindow::topologyBaselineIssues() const {
   return issues;
 }
 
+
+// — Update the baseline label with current issue count and slave count
 void MainWindow::updateTopologyBaselineSummary() {
   if (!topologyBaselineLabel_) {
     return;

@@ -1,3 +1,4 @@
+// Unit tests for StateMachineRowDetailUiState.
 #include "ui_state/StateMachineRowDetailUiState.h"
 
 #include <QCoreApplication>

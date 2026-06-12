@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Set the application stylesheet for the current theme (Light or Dark)
 void MainWindow::applyTheme() {
   if (settings_.theme == "Light") {
     qApp->setStyleSheet(R"QSS(
@@ -1157,6 +1159,8 @@ void MainWindow::applyTheme() {
     )QSS");
 }
 
+
+// — Apply all user settings: theme, font scale, and refresh the status bar
 void MainWindow::applySettings() {
   applyTheme();
   QFont font = qApp->font();

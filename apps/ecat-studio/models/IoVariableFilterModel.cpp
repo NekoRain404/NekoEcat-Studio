@@ -1,7 +1,9 @@
+// Predicate set for filtering I/O variable table rows by scope and state.
 #include "IoVariableFilterModel.h"
 
 #include "ProcessDataRowModel.h"
 
+// Computes all predicate flags for a single row in one pass to avoid repeated lookups.
 IoVariableFilterRowState ioVariableFilterRowState(const IoVariableTableRow &row,
                                                   int selectedPosition,
                                                   const QString &readyText) {
@@ -20,6 +22,7 @@ IoVariableFilterRowState ioVariableFilterRowState(const IoVariableTableRow &row,
   return state;
 }
 
+// Tests whether a row's state matches the named scope predicate.
 bool ioVariableFilterScopeMatches(const IoVariableFilterRowState &state,
                                   const QString &scope) {
   if (scope == QString::fromLatin1(kIoVariableScopeSelected)) {
@@ -58,6 +61,7 @@ bool ioVariableFilterScopeMatches(const IoVariableFilterRowState &state,
   return true;
 }
 
+// Case-insensitive substring search across all visible cell values.
 bool ioVariableFilterTextMatches(const QStringList &cells,
                                  const QString &needle) {
   const QString trimmedNeedle = needle.trimmed();
@@ -72,6 +76,7 @@ bool ioVariableFilterTextMatches(const QStringList &cells,
   return false;
 }
 
+// Combines scope and text predicates into a single visibility decision per row.
 IoVariableFilterDecision
 evaluateIoVariableFilterRow(const IoVariableTableRow &row,
                             const QStringList &cells, const QString &scope,
@@ -84,6 +89,7 @@ evaluateIoVariableFilterRow(const IoVariableTableRow &row,
   return decision;
 }
 
+// Maintains running totals for the filter summary bar.
 void accumulateIoVariableFilterStats(IoVariableFilterStats *stats,
                                      const IoVariableFilterDecision &decision) {
   if (!stats) {
@@ -114,6 +120,7 @@ void accumulateIoVariableFilterStats(IoVariableFilterStats *stats,
   }
 }
 
+// Formats the 'X of Y visible' summary string with per-category breakdown.
 QString ioVariableFilterSummaryText(const IoVariableFilterStats &stats,
                                     const QString &scopeLabel,
                                     const QString &summaryPattern) {

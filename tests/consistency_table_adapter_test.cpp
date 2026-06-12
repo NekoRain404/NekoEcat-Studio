@@ -1,3 +1,4 @@
+// Unit tests for ConsistencyTableAdapter.
 #include "adapters/ConsistencyTableAdapter.h"
 
 #include <QApplication>

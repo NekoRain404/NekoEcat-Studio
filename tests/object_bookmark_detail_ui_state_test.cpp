@@ -1,3 +1,4 @@
+// Unit tests for ObjectBookmarkDetailUiState.
 #include "ui_state/ObjectBookmarkDetailUiState.h"
 
 #include <QCoreApplication>

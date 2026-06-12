@@ -1,3 +1,4 @@
+// Unit tests for IoVariableHandoffModel.
 #include "models/IoVariableHandoffModel.h"
 
 #include <QCoreApplication>

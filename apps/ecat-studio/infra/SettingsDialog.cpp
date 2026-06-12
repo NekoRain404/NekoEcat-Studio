@@ -1,3 +1,4 @@
+// Application settings dialog: theme, master target, refresh interval.
 #include "SettingsDialog.h"
 
 #include <QAbstractItemView>
@@ -17,6 +18,7 @@
 
 namespace {
 
+// Factory for section headers used to visually group dialog areas.
 QLabel *makeDialogSection(const QString &text)
 {
     auto *label = new QLabel(text);
@@ -26,6 +28,8 @@ QLabel *makeDialogSection(const QString &text)
 
 }
 
+// Build the settings form: appearance (theme/language/scale) and a master profile table.
+// The master table lets users name IgH masters and assign numeric selectors.
 SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     : QDialog(parent)
 {
@@ -130,6 +134,9 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     layout->addWidget(buttons);
 }
 
+// Collect current form values into an AppSettings struct.
+// Preserves the previously active master across edits by matching on target.
+// Ensures at least one default master profile exists.
 AppSettings SettingsDialog::settings() const
 {
     AppSettings result;

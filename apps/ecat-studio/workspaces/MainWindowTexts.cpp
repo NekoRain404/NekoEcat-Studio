@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Return localized text constants for the Startup SDO detail panel
 StartupSdoRowDetailTexts MainWindow::startupSdoRowDetailTexts() const {
   return {
       .unavailableText = uiText("Startup SDO evidence is not available.",
@@ -177,6 +179,8 @@ StartupSdoRowDetailTexts MainWindow::startupSdoRowDetailTexts() const {
   };
 }
 
+
+// — Return localized text constants for the SDO history detail panel
 SdoHistoryRowDetailTexts MainWindow::sdoHistoryRowDetailTexts() const {
   return {
       .unavailableText = uiText("SDO history evidence is not available.",
@@ -241,6 +245,8 @@ SdoHistoryRowDetailTexts MainWindow::sdoHistoryRowDetailTexts() const {
   };
 }
 
+
+// — Return localized text constants for the object bookmark panel
 ObjectBookmarkDetailTexts MainWindow::objectBookmarkDetailTexts() const {
   return {
       .unavailableText = uiText("Object bookmark evidence is not available.",
@@ -308,6 +314,8 @@ ObjectBookmarkDetailTexts MainWindow::objectBookmarkDetailTexts() const {
   };
 }
 
+
+// — Return localized text constants for the SDO target trail panel
 SdoTargetTrailDetailTexts MainWindow::sdoTargetTrailDetailTexts() const {
   return {
       .unavailableText = uiText("SDO target trail evidence is not available.",
@@ -376,11 +384,15 @@ SdoTargetTrailDetailTexts MainWindow::sdoTargetTrailDetailTexts() const {
   };
 }
 
+
+// — Watch startup delta texts
 WatchStartupDeltaTexts MainWindow::watchStartupDeltaTexts() const {
   return {uiText("no watch", "无监视"), uiText("pending", "待比较"),
           uiText("match", "匹配"), uiText("diff", "不一致")};
 }
 
+
+// — Return localized text constants for the state machine detail panel
 StateMachineRowDetailTexts MainWindow::stateMachineRowDetailTexts() const {
   return {
       .unavailableText = uiText("State evidence is not available.",
@@ -482,6 +494,8 @@ MainWindow::commissioningWorkflowStepDetailTexts() const {
   };
 }
 
+
+// — Commissioning workflow texts
 CommissioningWorkflowTexts MainWindow::commissioningWorkflowTexts() const {
   return {
       .ready = uiText("Ready", "就绪"),
@@ -554,6 +568,8 @@ CommissioningWorkflowTexts MainWindow::commissioningWorkflowTexts() const {
   };
 }
 
+
+// — Next best action texts
 NextBestActionTexts MainWindow::nextBestActionTexts() const {
   return {
       .commands = uiText("Commands", "命令"),
@@ -626,6 +642,8 @@ NextBestActionTexts MainWindow::nextBestActionTexts() const {
   };
 }
 
+
+// — Host health texts
 HostHealthTexts MainWindow::hostHealthTexts() const {
   return {
       .levelHeader = uiText("Level", "级别"),
@@ -644,6 +662,8 @@ HostHealthTexts MainWindow::hostHealthTexts() const {
   };
 }
 
+
+// — Return localized text constants for diagnostics event labels
 DiagnosticsEventTexts MainWindow::diagnosticsEventTexts() const {
   return {
       .timeHeader = uiText("Time", "时间"),
@@ -658,6 +678,8 @@ DiagnosticsEventTexts MainWindow::diagnosticsEventTexts() const {
   };
 }
 
+
+// — Return localized text constants for the consistency detail panel
 ConsistencyDetailTexts MainWindow::consistencyDetailTexts() const {
   return {
       .unavailableText = uiText("Consistency evidence is not available.",
@@ -727,6 +749,8 @@ ConsistencyDetailTexts MainWindow::consistencyDetailTexts() const {
   };
 }
 
+
+// — Return localized text constants for the workspace boundary label
 WorkspaceBoundaryTexts MainWindow::workspaceBoundaryTexts() const {
   return {
       .workspacePattern = uiText("Workspace: %1", "工作区：%1"),
@@ -844,6 +868,8 @@ WorkspaceBoundaryTexts MainWindow::workspaceBoundaryTexts() const {
   };
 }
 
+
+// — Return localized text constants for tab badge tooltips
 WorkspaceTabBadgeTexts MainWindow::workspaceTabBadgeTexts() const {
   return {
       .overview = uiText("Overview", "总览"),
@@ -877,6 +903,8 @@ WorkspaceTabBadgeTexts MainWindow::workspaceTabBadgeTexts() const {
   };
 }
 
+
+// — Return localized text constants for the session brief table headers
 SessionBriefUiTexts MainWindow::sessionBriefUiTexts() const {
   return {
       .ready = uiText("Ready", "就绪"),

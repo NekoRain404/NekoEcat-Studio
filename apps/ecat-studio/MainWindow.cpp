@@ -1,3 +1,4 @@
+// Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
 #include "MainWindow.h"
 #include "Cia402DriveModel.h"
 #include "CommissioningWorkflowModel.h"
@@ -117,6 +118,7 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
+// Locate the bundled ecatd binary next to the studio executable
 
 namespace {
 
@@ -126,6 +128,7 @@ QString ecatdPath() {
       app.dir().absoluteFilePath("ecatd"),
       app.dir().absoluteFilePath("../ecatd/ecatd"),
   };
+// Map NextBestAction icon keys to Qt standard pixmaps
   for (const QString &candidate : candidates) {
     if (QFileInfo::exists(candidate)) {
       return QFileInfo(candidate).canonicalFilePath();
@@ -146,6 +149,7 @@ nextBestActionStandardPixmap(NextBestActionIconKey icon) {
   case NextBestActionIconKey::ListView:
     return QStyle::SP_FileDialogListView;
   case NextBestActionIconKey::NewFolder:
+// Semantic color for host-health severity badges
     return QStyle::SP_FileDialogNewFolder;
   case NextBestActionIconKey::MediaPlay:
     return QStyle::SP_MediaPlay;
@@ -157,6 +161,7 @@ nextBestActionStandardPixmap(NextBestActionIconKey icon) {
 
 QColor hostHealthColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
+// Semantic color for diagnostics-event severity badges
     return QColor("#ef4444");
   }
   if (colorKey == QStringLiteral("warning")) {
@@ -168,6 +173,7 @@ QColor hostHealthColorForKey(const QString &colorKey) {
 QColor diagnosticsEventColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
     return QColor("#ef4444");
+// Bootstrap: load persisted settings, build UI, launch daemon
   }
   if (colorKey == QStringLiteral("warning")) {
     return QColor("#f59e0b");
@@ -182,6 +188,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   client_.setMasterTarget(settings_.activeMaster);
   buildUi();
   applySettings();
+// Persist window geometry and gracefully shut down embedded daemon
   wire();
   setMinimumSize(1120, 720);
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
@@ -206,6 +213,7 @@ MainWindow::~MainWindow() {
   }
 }
 
+// Global key handler: Alt+Return triggers evidence action on focused table
 bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
   if (event && event->type() == QEvent::KeyPress) {
     auto *keyEvent = static_cast<QKeyEvent *>(event);
@@ -225,6 +233,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
   return QMainWindow::eventFilter(watched, event);
 }
 
+// Programmatic tab switch — maps logical page indices to their widget
 bool MainWindow::activateWorkspaceTab(int index) {
   if (!tabs_ || index < 0) {
     return false;
@@ -257,6 +266,7 @@ bool MainWindow::activateWorkspaceTab(int index) {
 }
 
 bool MainWindow::activateWorkspacePage(QWidget *page) {
+// Activate a workspace page by its widget pointer
   if (!tabs_ || !page) {
     return false;
   }
@@ -268,10 +278,12 @@ bool MainWindow::activateWorkspacePage(QWidget *page) {
   return true;
 }
 
+// Jump to the Object Dictionary pane, selecting the tab containing the target widget
 bool MainWindow::activateObjectDictionaryPaneFor(QWidget *widget) {
   activateWorkspaceTab(objectDictionaryTabIndex_);
   return activateTabContainingWidget(sdoModeTabs_, widget);
 }
+// Classify a workspace page into its logical boundary category
 
 WorkspaceBoundaryKind
 MainWindow::workspaceBoundaryKindForPage(const QWidget *page) const {
@@ -314,6 +326,7 @@ MainWindow::workspaceBoundaryKindForPage(const QWidget *page) const {
   return WorkspaceBoundaryKind::RawEvidence;
 }
 
+// Record a tab visit for back/forward navigation (capped at 80 entries)
 void MainWindow::recordWorkspaceHistory(int index) {
   if (!tabs_ || suppressWorkspaceHistory_ || index < 0 ||
       index >= tabs_->count()) {
@@ -333,6 +346,7 @@ void MainWindow::recordWorkspaceHistory(int index) {
   updateWorkspaceNavigationActions();
 }
 
+// Navigate to the previously visited workspace tab
 void MainWindow::goWorkspaceBack() {
   if (!tabs_ || workspaceBackStack_.size() < 2) {
     updateWorkspaceNavigationActions();
@@ -350,6 +364,7 @@ void MainWindow::goWorkspaceBack() {
   updateWorkspaceNavigationActions();
 }
 
+// Re-visit the next workspace tab from the forward stack
 void MainWindow::goWorkspaceForward() {
   if (!tabs_ || workspaceForwardStack_.isEmpty()) {
     updateWorkspaceNavigationActions();
@@ -367,6 +382,7 @@ void MainWindow::goWorkspaceForward() {
   updateWorkspaceNavigationActions();
 }
 
+// Enable/disable back/forward actions based on stack depth
 void MainWindow::updateWorkspaceNavigationActions() {
   if (auto *action = findChild<QAction *>("workspaceBackAction")) {
     action->setEnabled(workspaceBackStack_.size() >= 2);
@@ -376,6 +392,7 @@ void MainWindow::updateWorkspaceNavigationActions() {
   }
 }
 
+// Central guard: enable/disable all toolbar/menu actions based on current state
 void MainWindow::updateActionAvailability() {
   auto setEnabled = [this](const char *name, bool enabled) {
     if (auto *action = findChild<QAction *>(name)) {
@@ -608,6 +625,7 @@ void MainWindow::updateActionAvailability() {
   updateTabBadges();
 }
 
+// Restore application preferences from QSettings (theme, language, scale, masters)
 void MainWindow::loadSettings() {
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
   settings_.theme = settings.value("preferences/theme", "Dark").toString();
@@ -653,6 +671,7 @@ void MainWindow::loadSettings() {
   }
 }
 
+// Persist current preferences to QSettings
 void MainWindow::saveSettings() {
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
   settings.setValue("preferences/theme", settings_.theme);
@@ -668,6 +687,7 @@ void MainWindow::saveSettings() {
   settings.endArray();
 }
 
+// Open settings dialog; apply changes and rebuild UI if language changed
 void MainWindow::openSettings() {
   const QString previousLanguage = settings_.language;
   const QString previousMaster = settings_.activeMaster;
@@ -693,10 +713,12 @@ void MainWindow::openSettings() {
                            uiText("Settings were applied.", "设置已应用。"));
 }
 
+// Bilingual string selector — returns Chinese or English based on current language
 QString MainWindow::uiText(const QString &english, const QString &zh) const {
   return settings_.language == "简体中文" ? zh : english;
 }
 
+// Display label for the active master (name + target)
 QString MainWindow::activeMasterName() const {
   for (const auto &profile : settings_.masters) {
     if (profile.target == settings_.activeMaster) {
@@ -706,6 +728,7 @@ QString MainWindow::activeMasterName() const {
   return QString("Master %1").arg(settings_.activeMaster);
 }
 
+// Rebuild the master combo box from the current settings profile list
 void MainWindow::refreshMasterSelector() {
   if (!masterCombo_) {
     return;
@@ -727,6 +750,7 @@ void MainWindow::refreshMasterSelector() {
   masterCombo_->setCurrentIndex(activeIndex);
 }
 
+// Switch the active EtherCAT master — clears views if the target changed
 void MainWindow::setActiveMaster(const QString &target) {
   const QString next = target.trimmed().isEmpty() ? "0" : target.trimmed();
   if (next == settings_.activeMaster) {
@@ -760,6 +784,7 @@ void MainWindow::setActiveMaster(const QString &target) {
   }
 }
 
+// Build and show a confirmation dialog with severity-categorized details
 bool MainWindow::confirmDangerousOperation(const QString &title,
                                            const QString &summary,
                                            const QStringList &details,
@@ -1115,6 +1140,7 @@ MainWindow::stateTransitionImpactDetails(int position,
       }
       ++freeRunRows;
       if (hasPdoMapIssueEvidence(tableText(freeRunEntryTable_, row, 13))) {
+// Aggregate detailed evidence for a slave's state transition target
         ++mapIssues;
       }
     }
@@ -1201,6 +1227,7 @@ MainWindow::stateTransitionImpactDetails(int position,
   return details;
 }
 
+// Heuristic: recommend the next safe EtherCAT state for a slave based on evidence
 QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   const int position = slave.position;
   const QString state = slave.state.trimmed().toUpper();
@@ -1267,6 +1294,7 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   return ::recommendedEthercatState(evidence);
 }
 
+// Rebuild the state-machine table with per-slave state, evidence score, and recommendations
 void MainWindow::updateStateMachineView() {
   if (!stateMachineTable_) {
     return;
@@ -1563,6 +1591,7 @@ void MainWindow::updateStateMachineView() {
   updateStateMachineRowDetail();
 }
 
+// Update the detail strip below the state-machine table for the current row
 void MainWindow::updateStateMachineRowDetail() {
   if (!stateMachineDetailLabel_) {
     return;
@@ -1591,6 +1620,7 @@ void MainWindow::updateStateMachineRowDetail() {
       stateMachineTableRowFromTable(stateMachineTable_, row), texts));
 }
 
+// Request a single-slave state change with safety confirmation dialog
 void MainWindow::requestSlaveStateWithConfirmation(int position,
                                                    const QString &state) {
   if (!client_.isConnected() || position < 0) {
@@ -1630,6 +1660,7 @@ void MainWindow::requestSlaveStateWithConfirmation(int position,
   client_.setState(position, state);
 }
 
+// Broadcast a state request to every detected slave with confirmation
 void MainWindow::requestAllSlaveState(const QString &state) {
   if (!client_.isConnected() || slaves_.isEmpty()) {
     return;
@@ -1703,6 +1734,7 @@ void MainWindow::requestAllSlaveState(const QString &state) {
   client_.setAllStates(state);
 }
 
+// Trigger a host-level health check (network, kernel, IgH module)
 void MainWindow::runHostDiagnostics() {
   if (!client_.isConnected()) {
     updateDiagnostics("Warning", "Host",
@@ -1714,6 +1746,7 @@ void MainWindow::runHostDiagnostics() {
   client_.hostDiagnostics();
 }
 
+// Copy the fix command for the selected host health issue to clipboard
 void MainWindow::copySelectedHostCommand() {
   if (!hostHealthTable_ || hostHealthTable_->currentRow() < 0) {
     return;
@@ -1733,6 +1766,7 @@ void MainWindow::copySelectedHostCommand() {
   updateActionAvailability();
 }
 
+// Collect a full read-only evidence snapshot for the selected slave
 void MainWindow::prepareSelectedSlaveSnapshot() {
   if (!client_.isConnected()) {
     updateDiagnostics("Warning", "Snapshot",
@@ -1788,6 +1822,7 @@ void MainWindow::prepareSelectedSlaveSnapshot() {
   updateNextBestAction();
 }
 
+// Reset cached data and begin loading all slave evidence from the daemon
 void MainWindow::beginSelectedSlaveOnlineLoad(int position) {
   loadedSlaveInfoPosition_ = -1;
   loadedPdoPosition_ = -1;
@@ -1849,6 +1884,7 @@ void MainWindow::beginSelectedSlaveOnlineLoad(int position) {
   updateActionAvailability();
 }
 
+// Wipe all cached online data — called on disconnect or master switch
 void MainWindow::clearOnlineViews() {
   slaves_.clear();
   lastMasterText_.clear();
@@ -1922,6 +1958,7 @@ void MainWindow::clearOnlineViews() {
   updateStatusBar();
 }
 
+// Connect all Qt signals/slots for the entire UI — called once after buildUi()
 void MainWindow::wire() {
   disconnect(&client_, nullptr, this, nullptr);
   if (connectRetryTimer_) {
@@ -3191,6 +3228,7 @@ void MainWindow::wire() {
   updateWatchAutoRefresh();
 }
 
+// Launch the embedded ecatd process and start the connection-retry timer
 void MainWindow::startEmbeddedDaemon() {
   connect(&daemon_, &QProcess::readyReadStandardError, this, [this] {
     const QString text =
@@ -3217,6 +3255,7 @@ void MainWindow::startEmbeddedDaemon() {
   connectRetryTimer_->start();
 }
 
+// Periodic refresh: ping daemon, poll master state, scan slaves
 void MainWindow::requestRefresh() {
   if (!client_.isConnected()) {
     return;
@@ -3229,6 +3268,7 @@ void MainWindow::requestRefresh() {
   }
 }
 
+// Build a human-readable summary of Free Run impact on the selected slave
 QStringList MainWindow::freeRunImpactDetails() const {
   QStringList details;
   const int selected = selectedPosition();
@@ -3394,6 +3434,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
   return details;
 }
 
+// Start or stop Free Run — includes a safety confirmation dialog
 void MainWindow::setFreeRun(bool enabled) {
   if (enabled && client_.isConnected()) {
     QStringList details = {
@@ -3443,6 +3484,7 @@ void MainWindow::setFreeRun(bool enabled) {
   }
 }
 
+// Update the detail strip below the Free Run entry table
 void MainWindow::updateFreeRunEntryDetail() {
   if (!freeRunEntryDetailLabel_) {
     return;
@@ -3536,16 +3578,19 @@ void MainWindow::updateFreeRunEntryDetail() {
       freeRunEntryTableRowFromTable(freeRunEntryTable_, row), texts));
 }
 
+// Append a timestamped message to the diagnostics log
 void MainWindow::log(const QString &message) {
   logText_->appendPlainText(QString("[%1] %2").arg(
       QDateTime::currentDateTime().toString("HH:mm:ss"), message));
 }
 
+// Return the currently selected slave position, or -1 if none
 int MainWindow::selectedPosition() const {
   auto *item = topologyTree_->currentItem();
   return item ? item->data(0, Qt::UserRole).toInt() : -1;
 }
 
+// Return the currently selected Object Dictionary row indices
 QVector<int> MainWindow::selectedDictionaryRows() const {
   if (!sdoTable_ || selectedPosition() < 0 ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -3554,20 +3599,24 @@ QVector<int> MainWindow::selectedDictionaryRows() const {
   return selectedTableRows(sdoTable_);
 }
 
+// Return the currently selected SDO history row indices
 QVector<int> MainWindow::selectedSdoHistoryRows() const {
   return selectedTableRows(sdoHistoryTable_);
 }
 
+// Return the currently selected Startup SDO row indices
 QVector<int> MainWindow::selectedStartupSdoRows() const {
   return selectedTableRows(startupSdoTable_, true);
 }
 
+// Check if a watch table row has a non-empty value
 bool MainWindow::watchRowHasValue(int row) const {
   return watchTable_ && row >= 0 && row < watchTable_->rowCount() &&
          !watchTable_->isRowHidden(row) && watchTable_->item(row, 4) &&
          !watchTable_->item(row, 4)->text().trimmed().isEmpty();
 }
 
+// Check if any of the selected watch rows contain a value
 bool MainWindow::selectedWatchRowsHaveValue() const {
   if (!watchTable_) {
     return false;
@@ -3580,6 +3629,7 @@ bool MainWindow::selectedWatchRowsHaveValue() const {
   return false;
 }
 
+// Highlight a slave in the topology tree and update dependent panels
 void MainWindow::setSelectedSlave(int position) {
   if (position < 0) {
     selectedLabel_->setText(activeMasterName());
@@ -3612,6 +3662,7 @@ void MainWindow::setSelectedSlave(int position) {
   }
 }
 
+// Compare previous and current slave lists; emit diagnostics for topology changes
 void MainWindow::reportTopologyChanges(const QVector<SlaveInfo> &previous,
                                        const QVector<SlaveInfo> &current) {
   const QVector<TopologyChange> changes =
@@ -3660,6 +3711,7 @@ void MainWindow::reportTopologyChanges(const QVector<SlaveInfo> &previous,
   consistencyFresh_ = false;
 }
 
+// Process a fresh slave scan result — update topology tree and detect changes
 void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
   const int previous = selectedPosition();
   const QVector<SlaveInfo> previousSlaves = slaves_;
@@ -3712,6 +3764,7 @@ void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
   }
 }
 
+// Parse the daemon's master status text and update the overview metric cards
 void MainWindow::updateMasterSummary(const QString &text) {
   const QString phase = capture(text, R"(^\s*Phase:\s*(.+)$)");
   const QString slaves = capture(text, R"(^\s*Slaves:\s*(.+)$)");
@@ -3739,6 +3792,7 @@ void MainWindow::updateMasterSummary(const QString &text) {
   updateCommissioningWorkflow();
 }
 
+// Parse identity text from the daemon and populate the identity/port/mailbox tables
 void MainWindow::updateSlaveInfo(const QString &text) {
   QList<QStringList> identity;
   for (const QString &key :
@@ -3789,6 +3843,7 @@ void MainWindow::updateSlaveInfo(const QString &text) {
   updateStateMachineView();
 }
 
+// Parse PDO map text from the daemon and populate the PDO table with direction detection
 void MainWindow::updatePdoTable(const QString &text) {
   QList<QStringList> rows;
   QString sm;
@@ -3822,6 +3877,7 @@ void MainWindow::updatePdoTable(const QString &text) {
   updateStateMachineView();
 }
 
+// Apply text filter to the PDO map table, hiding non-matching rows
 void MainWindow::filterPdoTable() {
   if (!pdoTable_) {
     return;
@@ -3853,6 +3909,7 @@ void MainWindow::filterPdoTable() {
   updateCommissioningWorkflow();
 }
 
+// Update the detail strip below the PDO map table for the current row
 void MainWindow::updatePdoRowDetail() {
   if (!pdoDetailLabel_) {
     return;
@@ -3945,6 +4002,7 @@ void MainWindow::updatePdoRowDetail() {
                                       selectedPosition(), texts));
 }
 
+// Parse Object Dictionary text from the daemon, merge with evidence, and populate the SDO table
 void MainWindow::updateSdoTable(const QString &text) {
   QList<QStringList> rows;
   QString object;
@@ -4023,6 +4081,7 @@ void MainWindow::updateSdoTable(const QString &text) {
   updateStateMachineView();
 }
 
+// Process real-time Free Run telemetry — update signals table and entry table with PDO map cross-reference
 void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
   const QList<QStringList> rows = {
       {"Running", telemetry.value("running").toBool() ? "Yes" : "No"},
@@ -4196,6 +4255,7 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
   updateFreeRunEntryTable(entries);
 }
 
+// Rebuild the Free Run entry table from the processed rows
 void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
   if (!freeRunEntryTable_) {
     return;
@@ -4282,6 +4342,7 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
   updateStateMachineView();
 }
 
+// Apply text/scope filter to the Free Run entry table
 void MainWindow::filterFreeRunEntryTable() {
   if (!freeRunEntryTable_) {
     return;
@@ -4322,6 +4383,7 @@ void MainWindow::filterFreeRunEntryTable() {
   updateCommissioningWorkflow();
 }
 
+// Apply text/scope/changed-only filter to the Watch table
 void MainWindow::filterWatchTable() {
   if (!watchTable_) {
     return;
@@ -4466,6 +4528,7 @@ void MainWindow::filterWatchTable() {
   updateCommissioningWorkflow();
 }
 
+// Update the detail strip below the Watch table for the current row
 void MainWindow::updateWatchRowDetail() {
   if (!watchDetailLabel_) {
     return;
@@ -4555,6 +4618,7 @@ void MainWindow::updateWatchRowDetail() {
       watchStartupWatchRow(watchTable_, row, watchChangedKeys_), texts));
 }
 
+// Helper: bulk-set table rows with headers in a single operation
 void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
                               const QList<QStringList> &rows) {
   table->clear();
@@ -4570,6 +4634,7 @@ void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
   table->resizeColumnsToContents();
 }
 
+// Helper: update a metric card label's title and value
 void MainWindow::setMetricCard(QLabel *label, const QString &title,
                                const QString &value) {
   if (!label) {

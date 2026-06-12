@@ -1,5 +1,7 @@
+// Diagnostics event row model with level, source, message, and timestamp.
 #include "DiagnosticsEventUiState.h"
 
+// Maps a diagnostic level string to its color/semantic key.
 QString diagnosticsEventColorKey(const QString &level) {
   if (level == QStringLiteral("Error")) {
     return QStringLiteral("error");
@@ -10,11 +12,13 @@ QString diagnosticsEventColorKey(const QString &level) {
   return QStringLiteral("info");
 }
 
+// Returns localized column headers for the diagnostics event table.
 QStringList diagnosticsEventHeaders(const DiagnosticsEventTexts &texts) {
   return {texts.timeHeader, texts.levelHeader, texts.sourceHeader,
           texts.messageHeader};
 }
 
+// Tallies error/warning/info counts from a flat list of level strings.
 DiagnosticsEventSummary diagnosticsEventCounts(const QStringList &levels) {
   DiagnosticsEventSummary summary;
   summary.total = levels.size();
@@ -31,6 +35,7 @@ DiagnosticsEventSummary diagnosticsEventCounts(const QStringList &levels) {
   return summary;
 }
 
+// Builds a full summary with visible/total counts and a formatted status text.
 DiagnosticsEventSummary
 diagnosticsEventSummary(const QList<DiagnosticsEventRowState> &rows,
                         const DiagnosticsEventTexts &texts) {

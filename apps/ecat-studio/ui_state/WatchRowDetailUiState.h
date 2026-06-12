@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// Localized text templates for the watch row detail panel.
 struct WatchRowDetailTexts {
   QString unavailableText;
   QString unavailableTip;
@@ -46,6 +47,7 @@ struct WatchRowDetailTexts {
   QString executionBoundary;
 };
 
+// Resolved watch detail state with drift flags, CiA 402 detection, and tooltip.
 struct WatchRowDetailUiState {
   QString text;
   QString severityKey;
@@ -63,11 +65,15 @@ WatchRowDetailUiState
 watchRowDetailUnavailableState(const WatchRowDetailTexts &texts);
 WatchRowDetailUiState
 watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts);
+// Whether delta text represents a non-issue (match/empty/pending).
 bool watchRowDetailIsMatchText(const QString &text,
                                const WatchRowDetailTexts &texts);
+// Whether the row addresses a CiA 402 object.
 bool watchRowDetailIsCia402(const WatchStartupWatchRow &row);
+// Maps drift and change flags to a severity key.
 QString watchRowDetailSeverityKey(const WatchStartupWatchRow &row,
                                   const WatchRowDetailTexts &texts);
+// Assembles the full watch detail state.
 WatchRowDetailUiState
 buildWatchRowDetailUiState(const WatchStartupWatchRow &row,
                            const WatchRowDetailTexts &texts);

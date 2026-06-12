@@ -1,3 +1,4 @@
+// HTML documentation strings for the built-in user manual and about dialog.
 #include "StudioDocumentation.h"
 
 #include <QFrame>
@@ -9,6 +10,7 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+// Generates theme-appropriate CSS for the documentation browser widget.
 QString documentationBrowserStyle(const QString &objectName, bool lightTheme) {
   const QString selector = QString("QTextBrowser#%1").arg(objectName);
   return lightTheme
@@ -22,6 +24,7 @@ QString documentationBrowserStyle(const QString &objectName, bool lightTheme) {
                    .arg(selector);
 }
 
+// Creates a read-only, frameless QTextBrowser styled for the active theme.
 QTextBrowser *makeDocumentationBrowser(const QString &objectName,
                                        bool lightTheme,
                                        bool openExternalLinks) {
@@ -34,6 +37,7 @@ QTextBrowser *makeDocumentationBrowser(const QString &objectName,
   return browser;
 }
 
+// Builds the search toolbar (input + prev/next/contents buttons) with wrap-around find behavior.
 ManualSearchControls
 makeManualSearchControls(QObject *owner, QTextBrowser *browser, QStyle *style,
                          const QString &searchPlaceholder,
@@ -95,6 +99,7 @@ makeManualSearchControls(QObject *owner, QTextBrowser *browser, QStyle *style,
   return controls;
 }
 
+// Substitutes version/path placeholders and inverts colors for dark theme.
 QString finalizeDocumentationHtml(const QString &htmlTemplate,
                                   const QString &version,
                                   const QString &activeMaster,

@@ -1,9 +1,11 @@
+// Navigation route from a consistency issue to its source evidence table.
 #include "ConsistencyEvidenceRouteModel.h"
 
 #include "helpers/StudioTextHelpers.h"
 
 #include <QRegularExpression>
 
+// Extracts slave position and optional OD address from issue target text like '#3 0x6040:0x00'.
 ConsistencyEvidenceAddress
 parseConsistencyEvidenceAddress(const QString &target) {
   ConsistencyEvidenceAddress address;
@@ -23,6 +25,7 @@ parseConsistencyEvidenceAddress(const QString &target) {
   return address;
 }
 
+// Extracts zero-based startup row index from localized issue text (e.g. 'startup row 5').
 int parseConsistencyStartupRow(const QString &target) {
   const QRegularExpression startupRowRe(
       R"((?:startup\s+row|启动行)\s*(\d+))",
@@ -31,6 +34,7 @@ int parseConsistencyStartupRow(const QString &target) {
   return match.hasMatch() ? match.captured(1).toInt() - 1 : -1;
 }
 
+// Classifies an issue row into an I/O scope category for sidebar filtering.
 QString consistencyEvidenceIoScope(const ConsistencyDetailRow &row) {
   const QString combined =
       QString("%1 %2 %3 %4")
@@ -58,6 +62,7 @@ QString consistencyEvidenceIoScope(const ConsistencyDetailRow &row) {
   return QString::fromLatin1(kConsistencyIoScopeAll);
 }
 
+// Combines parsed address, startup row, and scope into a navigation decision.
 ConsistencyEvidenceRouteDecision
 consistencyEvidenceRouteDecision(const ConsistencyDetailRow &row) {
   ConsistencyEvidenceRouteDecision decision;

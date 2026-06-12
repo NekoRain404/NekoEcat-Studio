@@ -8,6 +8,7 @@
 #include <QString>
 #include <QStringList>
 
+// All localized strings for the slave evidence matrix and detail panel.
 struct SlaveEvidenceUiTexts {
   QString p0Fault;
   QString p1Risk;
@@ -65,23 +66,32 @@ struct SlaveEvidenceUiTexts {
   QString nextHeader;
 };
 
+// UI-ready row with table cells and detail lines for the evidence panel.
 struct SlaveEvidenceUiRow {
   QStringList cells;
   QStringList detailLines;
 };
 
+// Maps priority tier to localized display string.
 QString slaveEvidencePriorityText(SlaveEvidencePriority priority,
                                   const SlaveEvidenceUiTexts &texts);
+// Maps next-action enum to localized display string.
 QString slaveEvidenceNextActionText(SlaveEvidenceNextAction action,
                                     const SlaveEvidenceUiTexts &texts);
+// Maps risk kind to localized description.
 QString slaveEvidenceRiskText(const SlaveEvidenceRisk &risk,
                               const SlaveEvidenceUiTexts &texts);
+// Converts all risks to localized text labels.
 QStringList slaveEvidenceRiskTexts(const QVector<SlaveEvidenceRisk> &risks,
                                    const SlaveEvidenceUiTexts &texts);
+// Display name with unnamed fallback.
 QString slaveEvidenceDisplayName(const QString &name,
                                  const SlaveEvidenceUiTexts &texts);
+// Display state with unknown fallback.
 QString slaveEvidenceDisplayState(const QString &state,
                                   const SlaveEvidenceUiTexts &texts);
+// All 12 localized column headers.
 QStringList slaveEvidenceMatrixHeaders(const SlaveEvidenceUiTexts &texts);
+// Converts a domain row into UI cells and detail lines.
 SlaveEvidenceUiRow slaveEvidenceUiRow(const SlaveEvidenceRow &row,
                                       const SlaveEvidenceUiTexts &texts);

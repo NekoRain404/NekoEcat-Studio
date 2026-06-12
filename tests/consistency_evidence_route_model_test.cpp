@@ -1,3 +1,4 @@
+// Unit tests for ConsistencyEvidenceRouteModel.
 #include "models/ConsistencyEvidenceRouteModel.h"
 
 #include <QCoreApplication>

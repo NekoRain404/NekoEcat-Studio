@@ -1,3 +1,4 @@
+// Unit tests for WatchStartupModel.
 #include "models/WatchStartupModel.h"
 
 #include <QCoreApplication>

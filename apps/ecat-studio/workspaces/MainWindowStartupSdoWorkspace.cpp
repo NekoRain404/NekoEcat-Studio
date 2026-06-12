@@ -118,6 +118,8 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+
+// — Create the Startup SDO table columns if not yet initialized
 void MainWindow::ensureStartupSdoTable() {
   if (!startupSdoTable_) {
     return;
@@ -139,11 +141,13 @@ void MainWindow::ensureStartupSdoTable() {
   }
 }
 
+
+// — Cross-reference Startup SDO rows with current Watch values
 void MainWindow::updateStartupSdoWatchEvidence() {
   if (!startupSdoTable_) {
     return;
   }
-  const QSignalBlocker tableBlocker(startupSdoTable_);
+  const QSignalBlocker tableBlocker(startupSdoTable_); // prevent recursive signal updates
   ensureStartupSdoTable();
 
   if (watchTable_) {
@@ -205,6 +209,8 @@ void MainWindow::updateStartupSdoWatchEvidence() {
   updateStateMachineView();
 }
 
+
+// — Apply text and diffs-only filtering to the Startup SDO table
 void MainWindow::filterStartupSdoTable() {
   if (!startupSdoTable_) {
     return;
@@ -221,21 +227,24 @@ void MainWindow::filterStartupSdoTable() {
   }
 
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
-    startupSdoTable_->setRowHidden(row, diffsOnly && !diffRows.contains(row));
+    startupSdoTable_->setRowHidden(row, diffsOnly && !diffRows.contains(row)); // show/hide based on filter match
   }
   updateStartupSdoRowDetail();
 }
 
+
+// — Refresh the Startup SDO detail strip for the focused row
 void MainWindow::updateStartupSdoRowDetail() {
   if (!startupSdoDetailLabel_) {
     return;
   }
   const StartupSdoRowDetailTexts texts = startupSdoRowDetailTexts();
+  // Lambda to push UI state changes to the label widget
   auto applyState = [this](const StartupSdoRowDetailUiState &state) {
     startupSdoDetailLabel_->setText(state.text);
     startupSdoDetailLabel_->setProperty("severity", state.severityKey);
     startupSdoDetailLabel_->setToolTip(state.tooltip);
-    repolish(startupSdoDetailLabel_);
+    repolish(startupSdoDetailLabel_); // force QSS re-evaluation after property change
   };
 
   if (!startupSdoTable_) {
@@ -254,6 +263,8 @@ void MainWindow::updateStartupSdoRowDetail() {
       watchStartupStartupRow(startupSdoTable_, row), texts));
 }
 
+
+// — Focus startup sdo watch diffs
 void MainWindow::focusStartupSdoWatchDiffs() {
   ensureStartupSdoTable();
   updateStartupSdoWatchEvidence();
@@ -293,6 +304,8 @@ void MainWindow::focusStartupSdoWatchDiffs() {
                         .arg(rows.size()));
 }
 
+
+// — Add startup sdo
 void MainWindow::addStartupSdo() {
   ensureStartupSdoTable();
   const int row = startupSdoTable_->rowCount();
@@ -313,7 +326,7 @@ void MainWindow::addStartupSdo() {
   startupSdoTable_->setItem(row, 5,
                             new QTableWidgetItem(uiText("Pending", "待应用")));
   startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   startupSdoTable_->selectRow(row);
   updateWatchStartupDeltas();
   filterStartupSdoTable();
@@ -321,6 +334,8 @@ void MainWindow::addStartupSdo() {
   updateDiagnostics("Info", "Startup SDO", "Added startup SDO row");
 }
 
+
+// — Remove startup sdo
 void MainWindow::removeStartupSdo() {
   ensureStartupSdoTable();
   if (!startupSdoTable_) {
@@ -345,6 +360,8 @@ void MainWindow::removeStartupSdo() {
   updateStartupSdoControls();
 }
 
+
+// — Move startup sdo row
 void MainWindow::moveStartupSdoRow(int delta) {
   ensureStartupSdoTable();
   if (!startupSdoTable_ || delta == 0) {
@@ -373,7 +390,7 @@ void MainWindow::moveStartupSdoRow(int delta) {
                               new QTableWidgetItem(current.value(column)));
   }
   startupSdoTable_->selectRow(target);
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   filterStartupSdoTable();
   updateStartupSdoControls();
@@ -383,6 +400,8 @@ void MainWindow::moveStartupSdoRow(int delta) {
                         .arg(target + 1));
 }
 
+
+// — Verify startup sdo list
 void MainWindow::verifyStartupSdoList() {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ ||
@@ -433,7 +452,7 @@ void MainWindow::verifyStartupSdoList() {
                    uiText("Startup SDO verify", "Startup SDO 校验"), type);
     ++requested;
   }
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   updateStartupSdoControls();
   updateDiagnostics(
@@ -441,6 +460,8 @@ void MainWindow::verifyStartupSdoList() {
       QString("Verification requested for %1 startup entries").arg(requested));
 }
 
+
+// — Verify startup sdo row
 void MainWindow::verifyStartupSdoRow(int row) {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ || row < 0 ||
@@ -479,7 +500,7 @@ void MainWindow::verifyStartupSdoRow(int row) {
                                                      : QColor("#3a1218"));
     detail->setText(
         uiText("Missing slave, index, or subindex", "缺少从站、索引或子项"));
-    startupSdoTable_->resizeColumnsToContents();
+    startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
     updateWatchStartupDeltas();
     updateDiagnostics(
         "Error", "Startup SDO",
@@ -496,7 +517,7 @@ void MainWindow::verifyStartupSdoRow(int row) {
   pendingStartupSdoChecks_[key].append(row);
   requestSdoRead(position, index, subIndex,
                  uiText("Startup SDO row verify", "Startup SDO 行校验"), type);
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   updateStartupSdoControls();
   updateDiagnostics(
@@ -504,6 +525,8 @@ void MainWindow::verifyStartupSdoRow(int row) {
       QString("Verification requested for startup row %1").arg(row + 1));
 }
 
+
+// — Verify selected startup sdo rows
 void MainWindow::verifySelectedStartupSdoRows() {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_) {
@@ -525,6 +548,8 @@ void MainWindow::verifySelectedStartupSdoRows() {
           .arg(requested));
 }
 
+
+// — Add startup sdo row to watch
 void MainWindow::addStartupSdoRowToWatch(int row) {
   ensureStartupSdoTable();
   if (!startupSdoTable_ || row < 0 || row >= startupSdoTable_->rowCount()) {
@@ -552,8 +577,8 @@ void MainWindow::addStartupSdoRowToWatch(int row) {
   }
 
   setSelectedSlave(position);
-  const QSignalBlocker indexBlocker(sdoIndex_);
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_);
+  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
   sdoIndex_->setText(index);
   sdoSubIndex_->setText(subIndex);
   if (sdoValue_) {
@@ -562,6 +587,8 @@ void MainWindow::addStartupSdoRowToWatch(int row) {
   addCurrentSdoToWatch();
 }
 
+
+// — Validate all Startup SDO rows before applying; mark errors inline
 bool MainWindow::preflightStartupSdoList(bool showSuccess) {
   ensureStartupSdoTable();
   if (!startupSdoTable_ || startupSdoTable_->rowCount() <= 0) {
@@ -688,7 +715,7 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
   }
 
   errors += firstConflictRows.size();
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   if (!globalIssues.isEmpty()) {
     updateDiagnostics(
@@ -714,6 +741,8 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
   return errors == 0;
 }
 
+
+// — Enable or disable Verify and Apply buttons based on table state
 void MainWindow::updateStartupSdoControls() {
   if (!startupSdoTable_) {
     return;
@@ -745,6 +774,8 @@ void MainWindow::updateStartupSdoControls() {
   }
 }
 
+
+// — Apply startup sdo row
 void MainWindow::applyStartupSdoRow(int row) {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ || row < 0 ||
@@ -789,7 +820,7 @@ void MainWindow::applyStartupSdoRow(int row) {
     status->setBackground(settings_.theme == "Light" ? QColor("#fef2f2")
                                                      : QColor("#3a1218"));
     detail->setText(validationErrors.join("; "));
-    startupSdoTable_->resizeColumnsToContents();
+    startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
     updateWatchStartupDeltas();
     QMessageBox::warning(
         this, uiText("Startup SDO Validation Failed", "Startup SDO 校验失败"),
@@ -809,6 +840,7 @@ void MainWindow::applyStartupSdoRow(int row) {
     details << uiText("Validation warning: %1", "校验警告：%1")
                    .arg(validationWarnings.join("; "));
   }
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup SDO Row Apply", "确认应用 Startup SDO 行"),
           uiText("This operation writes one Startup SDO value to the bus.",
@@ -843,11 +875,13 @@ void MainWindow::applyStartupSdoRow(int row) {
   client_.download(position, index, subIndex, value, type);
   updateDiagnostics("Info", "Startup SDO",
                     QString("Apply requested for startup row %1").arg(row + 1));
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateWatchStartupDeltas();
   updateStartupSdoControls();
 }
 
+
+// — Apply selected startup sdo rows
 void MainWindow::applySelectedStartupSdoRows() {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_) {
@@ -865,6 +899,8 @@ void MainWindow::applySelectedStartupSdoRows() {
                       uiText("Apply Selected", "应用所选"));
 }
 
+
+// — Send the given Startup SDO rows to ecatd for sequential write
 void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
                                      const QString &operationLabel,
                                      const QString &summary,
@@ -928,6 +964,7 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
                                 .arg(row + 1)
                                 .arg(rowWarnings.join("; "));
     }
+    // Build the SDO write request payload
     items.append(QJsonObject{
         {"row", row},
         {"position", position},
@@ -940,7 +977,7 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
   }
 
   if (!validationErrors.isEmpty()) {
-    startupSdoTable_->resizeColumnsToContents();
+    startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
     updateStartupSdoControls();
     updateDiagnostics("Error", "Startup SDO",
                       uiText("%1 apply blocked: %2", "%1 应用已阻止：%2")
@@ -968,6 +1005,7 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
     details << uiText("Validation warning: %1", "校验警告：%1")
                    .arg(validationWarnings.join("; "));
   }
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm %1 Apply", "确认应用 %1").arg(operationLabel),
           summary, details, confirmText)) {
@@ -999,10 +1037,12 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
                     QString("Apply requested for %1 %2 row(s)")
                         .arg(items.size())
                         .arg(operationLabel));
-  startupSdoTable_->resizeColumnsToContents();
+  startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   updateStartupSdoControls();
 }
 
+
+// — Return indices of Startup SDO rows that differ from Watch values
 QVector<int> MainWindow::startupSdoRowsWithWatchDiffs() const {
   if (!startupSdoTable_ || !watchTable_) {
     return {};
@@ -1012,6 +1052,8 @@ QVector<int> MainWindow::startupSdoRowsWithWatchDiffs() const {
                                  watchStartupWatchRows(watchTable_)));
 }
 
+
+// — Apply only Startup SDO rows that differ from current Watch values
 void MainWindow::applyStartupSdoWatchDiffRows() {
   const QVector<int> rows = startupSdoRowsWithWatchDiffs();
   if (rows.isEmpty()) {
@@ -1030,6 +1072,8 @@ void MainWindow::applyStartupSdoWatchDiffRows() {
       uiText("Apply Diffs", "应用偏差"));
 }
 
+
+// — Validate and apply all Startup SDO rows after confirmation
 void MainWindow::applyStartupSdoList() {
   ensureStartupSdoTable();
   if (!client_.isConnected() || startupSdoTable_->rowCount() <= 0) {
@@ -1057,6 +1101,7 @@ void MainWindow::applyStartupSdoList() {
   }
   updateStartupSdoWatchEvidence();
   details << startupSdoBatchImpactDetails(rows, 5);
+  // Safety gate: require explicit confirmation before bus write
   if (!confirmDangerousOperation(
           uiText("Confirm Startup SDO Apply", "确认应用 Startup SDO"),
           uiText("This operation writes multiple SDO values to the bus.",
@@ -1079,6 +1124,7 @@ void MainWindow::applyStartupSdoList() {
     } else {
       startupSdoTable_->item(row, 6)->setText(QString());
     }
+    // Build the SDO write request payload
     items.append(QJsonObject{
         {"row", row},
         {"position", startupSdoTable_->item(row, 0)
