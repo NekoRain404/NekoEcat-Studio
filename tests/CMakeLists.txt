@@ -1000,3 +1000,19 @@ add_custom_target(release-smoke
         topology_change_model_test
     USES_TERMINAL
 )
+
+add_executable(command_dispatcher_test
+    command_dispatcher_test.cpp
+    ../apps/ecatd/CommandDispatcher.cpp
+    ../apps/ecatd/CommandDispatcher.h
+    ../src/core/JsonProtocol.cpp
+    ../src/core/JsonProtocol.h
+)
+
+target_include_directories(command_dispatcher_test PRIVATE
+    ../apps/ecatd
+    ../src/core
+)
+target_link_libraries(command_dispatcher_test PRIVATE Qt6::Core Qt6::Network)
+
+add_test(NAME command_dispatcher_test COMMAND command_dispatcher_test)
