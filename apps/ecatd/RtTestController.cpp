@@ -141,8 +141,8 @@ QJsonObject RtTestController::telemetry() const
             jitterNs = std::max(maxNs - avgNs, avgNs - minNs);
         }
 
-        // Send up to 2000 samples for dense chart rendering.
-        const int step = std::max(1, static_cast<int>(recentCycles_.size()) / 2000);
+        // Send all recent samples — GUI handles chart downsampling.
+        const int step = 1;
         for (int i = 0; i < static_cast<int>(recentCycles_.size()); i += step) {
             recent.append(static_cast<double>(recentCycles_[i]) / 1000.0);
         }

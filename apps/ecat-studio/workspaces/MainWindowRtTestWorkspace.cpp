@@ -359,10 +359,10 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     // Jitter spark.
     if (rtTestJitterSpark_) rtTestJitterSpark_->pushSample(jitterUs);
 
-    // Chart — chunk the recent samples into ~500 bins for dense rendering.
+    // Chart — send all points directly (daemon already downsamples).
     if (rtTestChart_ && !recent.isEmpty() && cycles > 0) {
         QJsonArray avgA, minA, maxA;
-        const int chunk = qMax(1, recent.size() / 500);
+        const int chunk = qMax(1, recent.size() / 3000);
         for (int i = 0; i < recent.size(); i += chunk) {
             double cMin = 1e18, cMax = 0, cSum = 0;
             int n = 0;
