@@ -1,4 +1,5 @@
 #pragma once
+#include "CommandDispatcher.h"
 
 // ecatd runtime daemon: TCP server, command dispatch, and master lifecycle.
 
@@ -38,4 +39,6 @@ private:
     RtTestController rtTest_;
     // Per-socket read buffers for reassembling fragmented TCP into complete JSON lines.
     QHash<QTcpSocket *, QByteArray> buffers_;
+    CommandDispatcher dispatcher_;
+    void setupHandlers();
 };

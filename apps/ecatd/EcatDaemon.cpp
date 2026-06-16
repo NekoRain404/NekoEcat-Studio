@@ -38,6 +38,7 @@ EcatDaemon::EcatDaemon(QObject *parent)
     : QObject(parent)
 {
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
+    setupHandlers();
 }
 
 // Bind to localhost only — the daemon is a local IPC service, not network-exposed.
@@ -87,71 +88,107 @@ void EcatDaemon::readClient()
     buffers_[socket] = buffer;
 }
 
-void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request)
-{
-    // Dispatch a JSON-RPC-style request to the matching backend operation.
-    const QString id = request.value("id").toString();
-    const QString method = request.value("method").toString();
-    const QJsonObject params = request.value("params").toObject();
-    const QString master = requestedMaster(params);
-    QString error;
+void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request) {
+    send(socket, dispatcher_.dispatch(request));
+}
 
-    if (method == "ping") {
-        send(socket, JsonProtocol::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}}));
-    } else if (method == "hostDiagnostics") {
+void EcatDaemon::setupHandlers() {
+    dispatcher_.registerHandler("ping", [this](const QString &id, const QJsonObject &) {
+        return CommandDispatcher::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}});
+    });
+
+    dispatcher_.registerHandler("hostDiagnostics", [this](const QString &id, const QJsonObject &) {
+        QString error;
         const auto checks = backend_.hostDiagnostics(&error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"checks", checks}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "master") {
-        const QString text = backend_.masterText(master, &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"text", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "scan") {
-        const auto slaves = backend_.scanSlaves(master, &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"slaves", toJson(slaves)}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "rescan") {
-        backend_.rescan(master, &error) ? send(socket, JsonProtocol::success(id))
-                                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "pdos") {
-        const QString text = backend_.pdos(master, params.value("position").toInt(), &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"text", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "slaveInfo") {
-        const QString text = backend_.slaveInfo(master, params.value("position").toInt(), &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"text", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "sdos") {
-        const QString text = backend_.sdos(master, params.value("position").toInt(), &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"text", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "xml") {
-        const QString text = backend_.slaveXml(master, params.value("position").toInt(), &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"text", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "upload") {
-        const QString text = backend_.upload(master,
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"checks", checks}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("master", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.masterText(requestedMaster(params), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"text", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("scan", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const auto slaves = backend_.scanSlaves(requestedMaster(params), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"slaves", toJson(slaves)}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("rescan", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        return backend_.rescan(requestedMaster(params), &error)
+            ? CommandDispatcher::success(id)
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("slaveInfo", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.slaveInfo(requestedMaster(params), params.value("position").toInt(), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"text", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("pdos", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.pdos(requestedMaster(params), params.value("position").toInt(), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"text", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("sdos", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.sdos(requestedMaster(params), params.value("position").toInt(), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"text", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("xml", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.slaveXml(requestedMaster(params), params.value("position").toInt(), &error);
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"text", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("upload", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        const QString text = backend_.upload(requestedMaster(params),
                                              params.value("position").toInt(),
                                              params.value("index").toString(),
                                              params.value("subIndex").toString(),
                                              &error);
-        error.isEmpty() ? send(socket, JsonProtocol::success(id, {{"value", text}}))
-                        : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "download") {
-        backend_.download(master,
-                          params.value("position").toInt(),
-                          params.value("index").toString(),
-                          params.value("subIndex").toString(),
-                          params.value("value").toString(),
-                          params.value("type").toString(),
-                          &error)
-            ? send(socket, JsonProtocol::success(id))
-            : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "applyStartupSdos") {
-        int applied = 0;
-        int failed = 0;
-        QJsonArray failures;
-        QJsonArray results;
+        return error.isEmpty()
+            ? CommandDispatcher::success(id, {{"value", text}})
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("download", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        return backend_.download(requestedMaster(params),
+                                 params.value("position").toInt(),
+                                 params.value("index").toString(),
+                                 params.value("subIndex").toString(),
+                                 params.value("value").toString(),
+                                 params.value("type").toString(),
+                                 &error)
+            ? CommandDispatcher::success(id)
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("applyStartupSdos", [this](const QString &id, const QJsonObject &params) {
+        const QString master = requestedMaster(params);
+        int applied = 0, failed = 0;
+        QJsonArray failures, results;
         int row = 0;
         for (const auto &value : params.value("items").toArray()) {
             const auto item = value.toObject();
@@ -164,69 +201,81 @@ void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request)
                                   item.value("type").toString(),
                                   &itemError)) {
                 ++applied;
-                results.append(QJsonObject{
-                    {"row", row},
-                    {"ok", true},
+                results.append(QJsonObject{{"row", row}, {"ok", true},
                     {"position", item.value("position").toInt()},
                     {"index", item.value("index").toString()},
-                    {"subIndex", item.value("subIndex").toString()},
-                });
+                    {"subIndex", item.value("subIndex").toString()}});
             } else {
                 ++failed;
-                const QJsonObject failure{
-                    {"row", row},
+                QJsonObject fail{{"row", row},
                     {"position", item.value("position").toInt()},
                     {"index", item.value("index").toString()},
                     {"subIndex", item.value("subIndex").toString()},
-                    {"error", itemError},
-                };
-                failures.append(failure);
-                QJsonObject result = failure;
+                    {"error", itemError}};
+                failures.append(fail);
+                QJsonObject result = fail;
                 result.insert("ok", false);
                 results.append(result);
             }
             ++row;
         }
-        send(socket, JsonProtocol::success(id, {{"applied", applied}, {"failed", failed}, {"failures", failures}, {"results", results}}));
-    } else if (method == "setState") {
-        backend_.setState(master, params.value("position").toInt(), params.value("state").toString(), &error)
-            ? send(socket, JsonProtocol::success(id))
-            : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "setAllStates") {
-        backend_.setAllStates(master, params.value("state").toString(), &error)
-            ? send(socket, JsonProtocol::success(id))
-            : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "freeRunStart") {
+        return CommandDispatcher::success(id, {{"applied", applied}, {"failed", failed},
+                                               {"failures", failures}, {"results", results}});
+    });
+
+    dispatcher_.registerHandler("setState", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        return backend_.setState(requestedMaster(params), params.value("position").toInt(),
+                                 params.value("state").toString(), &error)
+            ? CommandDispatcher::success(id)
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("setAllStates", [this](const QString &id, const QJsonObject &params) {
+        QString error;
+        return backend_.setAllStates(requestedMaster(params), params.value("state").toString(), &error)
+            ? CommandDispatcher::success(id)
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("freeRunStart", [this](const QString &id, const QJsonObject &params) {
         uint32_t masterIndex = 0;
-        if (!requestedMasterIndex(params, &masterIndex, &error)) {
-            send(socket, JsonProtocol::failure(id, error));
-            return;
-        }
-        freeRun_.start(masterIndex, &error) ? send(socket, JsonProtocol::success(id, freeRun_.telemetry()))
-                                           : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "freeRunStop") {
+        QString error;
+        if (!requestedMasterIndex(params, &masterIndex, &error))
+            return CommandDispatcher::failure(id, error);
+        return freeRun_.start(masterIndex, &error)
+            ? CommandDispatcher::success(id, freeRun_.telemetry())
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("freeRunStop", [this](const QString &id, const QJsonObject &) {
         freeRun_.stop();
-        send(socket, JsonProtocol::success(id, {{"status", freeRun_.status()}}));
-    } else if (method == "freeRunStatus") {
-        send(socket, JsonProtocol::success(id, freeRun_.telemetry()));
-    } else if (method == "rtTestStart") {
+        return CommandDispatcher::success(id, {{"status", freeRun_.status()}});
+    });
+
+    dispatcher_.registerHandler("freeRunStatus", [this](const QString &id, const QJsonObject &) {
+        return CommandDispatcher::success(id, freeRun_.telemetry());
+    });
+
+    dispatcher_.registerHandler("rtTestStart", [this](const QString &id, const QJsonObject &params) {
         uint32_t masterIndex = 0;
-        if (!requestedMasterIndex(params, &masterIndex, &error)) {
-            send(socket, JsonProtocol::failure(id, error));
-            return;
-        }
+        QString error;
+        if (!requestedMasterIndex(params, &masterIndex, &error))
+            return CommandDispatcher::failure(id, error);
         const int cycleUsec = params.value("cycleUsec").toInt(1000);
-        rtTest_.start(masterIndex, cycleUsec, &error)
-            ? send(socket, JsonProtocol::success(id, rtTest_.telemetry()))
-            : send(socket, JsonProtocol::failure(id, error));
-    } else if (method == "rtTestStop") {
+        return rtTest_.start(masterIndex, cycleUsec, &error)
+            ? CommandDispatcher::success(id, rtTest_.telemetry())
+            : CommandDispatcher::failure(id, error);
+    });
+
+    dispatcher_.registerHandler("rtTestStop", [this](const QString &id, const QJsonObject &) {
         rtTest_.stop();
-        send(socket, JsonProtocol::success(id, rtTest_.telemetry()));
-    } else if (method == "rtTestStatus") {
-        send(socket, JsonProtocol::success(id, rtTest_.telemetry()));
-    } else {
-        send(socket, JsonProtocol::failure(id, QString("Unknown method: %1").arg(method)));
-    }
+        return CommandDispatcher::success(id, rtTest_.telemetry());
+    });
+
+    dispatcher_.registerHandler("rtTestStatus", [this](const QString &id, const QJsonObject &) {
+        return CommandDispatcher::success(id, rtTest_.telemetry());
+    });
 }
 
 void EcatDaemon::send(QTcpSocket *socket, const QJsonObject &response)
