@@ -20,6 +20,9 @@
 
 // ── Latency chart with explicit axes (QtCharts requires axis binding) ───────
 class RtTestLatencyChart : public QChartView {
+    // Fixed-window rolling chart: keeps the last kVisible points on screen.
+    // New data appends to the right, old data drops off the left.
+    static constexpr int kVisible = 2000;
 public:
     explicit RtTestLatencyChart(QWidget *parent = nullptr)
         : QChartView(parent)
@@ -33,10 +36,9 @@ public:
         chart->setPlotAreaBackgroundBrush(QColor("#181825"));
         chart->setPlotAreaBackgroundVisible(true);
 
-        // Create axes explicitly — QtCharts won't render data without them.
         xAxis_ = new QValueAxis;
-        xAxis_->setRange(0, 100);
-        xAxis_->setTitleText("Sample");
+        xAxis_->setRange(0, kVisible);
+        xAxis_->setTitleText("Samples");
         xAxis_->setLabelsColor(QColor("#6c7086"));
         xAxis_->setGridLineColor(QColor("#313244"));
         xAxis_->setLinePenColor(QColor("#45475a"));
@@ -51,62 +53,61 @@ public:
         chart->addAxis(xAxis_, Qt::AlignBottom);
         chart->addAxis(yAxis_, Qt::AlignLeft);
 
-        // Avg series (solid blue line).
-        avgSeries_ = new QLineSeries;
-        avgSeries_->setPen(QPen(QColor("#89b4fa"), 2));
-        avgSeries_->setName("Avg");
-        chart->addSeries(avgSeries_);
-        avgSeries_->attachAxis(xAxis_);
-        avgSeries_->attachAxis(yAxis_);
-
-        // Max series (pink dashed).
-        maxSeries_ = new QLineSeries;
-        maxSeries_->setPen(QPen(QColor("#f38ba8"), 1, Qt::DashLine));
-        maxSeries_->setName("Max");
-        chart->addSeries(maxSeries_);
-        maxSeries_->attachAxis(xAxis_);
-        maxSeries_->attachAxis(yAxis_);
-
-        // Min series (green dashed).
-        minSeries_ = new QLineSeries;
-        minSeries_->setPen(QPen(QColor("#a6e3a1"), 1, Qt::DashLine));
-        minSeries_->setName("Min");
-        chart->addSeries(minSeries_);
-        minSeries_->attachAxis(xAxis_);
-        minSeries_->attachAxis(yAxis_);
+        auto addSeries = [&](const QColor &color, double width, Qt::PenStyle style) {
+            auto *s = new QLineSeries;
+            s->setPen(QPen(color, width, style));
+            chart->addSeries(s);
+            s->attachAxis(xAxis_);
+            s->attachAxis(yAxis_);
+            return s;
+        };
+        avgSeries_ = addSeries(QColor("#89b4fa"), 2, Qt::SolidLine);
+        maxSeries_ = addSeries(QColor("#f38ba8"), 1, Qt::DashLine);
+        minSeries_ = addSeries(QColor("#a6e3a1"), 1, Qt::DashLine);
 
         setChart(chart);
         setRenderHint(QPainter::Antialiasing);
     }
 
-    void updateData(const QJsonArray &avg, const QJsonArray &minArr,
+    // Append new chunks of data to the rolling buffer and redraw.
+    void appendData(const QJsonArray &avg, const QJsonArray &minArr,
                     const QJsonArray &maxArr)
     {
         if (avg.isEmpty()) return;
 
-        // Replace series data.
-        auto fillSeries = [](QLineSeries *s, const QJsonArray &arr) {
+        // Append new points to internal buffers.
+        for (int i = 0; i < avg.size(); ++i) {
+            bufAvg_.append(avg[i].toDouble());
+            bufMin_.append(i < minArr.size() ? minArr[i].toDouble() : avg[i].toDouble());
+            bufMax_.append(i < maxArr.size() ? maxArr[i].toDouble() : avg[i].toDouble());
+        }
+
+        // Trim to keep only the last kVisible points.
+        while (bufAvg_.size() > kVisible) {
+            bufAvg_.removeFirst();
+            bufMin_.removeFirst();
+            bufMax_.removeFirst();
+        }
+
+        // Rewrite series from the buffer.
+        auto rewrite = [](QLineSeries *s, const QVector<double> &buf) {
             s->clear();
-            for (int i = 0; i < arr.size(); ++i) {
-                s->append(i, arr[i].toDouble());
+            for (int i = 0; i < buf.size(); ++i) {
+                s->append(i, buf[i]);
             }
         };
-        fillSeries(avgSeries_, avg);
-        fillSeries(maxSeries_, maxArr);
-        fillSeries(minSeries_, minArr);
+        rewrite(avgSeries_, bufAvg_);
+        rewrite(maxSeries_, bufMax_);
+        rewrite(minSeries_, bufMin_);
 
-        // Compute Y range with padding.
-        double lo = 1e18, hi = 0;
-        for (int i = 0; i < avg.size(); ++i) {
-            double v = avg[i].toDouble();
-            double mn = i < minArr.size() ? minArr[i].toDouble() : v;
-            double mx = i < maxArr.size() ? maxArr[i].toDouble() : v;
-            lo = qMin(lo, mn);
-            hi = qMax(hi, mx);
+        // Auto-scale Y with padding.
+        if (!bufAvg_.isEmpty()) {
+            double lo = *std::min_element(bufMin_.begin(), bufMin_.end());
+            double hi = *std::max_element(bufMax_.begin(), bufMax_.end());
+            double pad = qMax((hi - lo) * 0.15, 20.0);
+            yAxis_->setRange(lo - pad, hi + pad);
         }
-        double pad = qMax((hi - lo) * 0.15, 20.0);
-        yAxis_->setRange(lo - pad, hi + pad);
-        xAxis_->setRange(0, qMax(avg.size() - 1, 1));
+        xAxis_->setRange(0, kVisible);
     }
 
 private:
@@ -115,6 +116,7 @@ private:
     QLineSeries *avgSeries_ = nullptr;
     QLineSeries *maxSeries_ = nullptr;
     QLineSeries *minSeries_ = nullptr;
+    QVector<double> bufAvg_, bufMin_, bufMax_;
 };
 
 // ── Compact jitter sparkline (QPainter) ─────────────────────────────────────
@@ -418,7 +420,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
             minA.append(cMin);
             maxA.append(cMax);
         }
-        rtTestChart_->updateData(avgA, minA, maxA);
+        rtTestChart_->appendData(avgA, minA, maxA);
     }
 
     // Periodic log entry.
