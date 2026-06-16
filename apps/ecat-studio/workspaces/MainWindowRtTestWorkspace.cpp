@@ -7,9 +7,11 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QLegend>
 #include <QComboBox>
+#include <QLineEdit>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QFont>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -197,8 +199,43 @@ QWidget *MainWindow::buildRtTestPage()
     rtTestCycleCombo_->addItem("2000 µs (500 Hz)", 2000);
     rtTestCycleCombo_->addItem("5000 µs (200 Hz)", 5000);
     rtTestCycleCombo_->addItem("10000 µs (100 Hz)", 10000);
+    rtTestCycleCombo_->addItem(uiText("Custom...", "自定义..."), -1);
     rtTestCycleCombo_->setCurrentIndex(3);
     ctrl->addWidget(rtTestCycleCombo_);
+
+    // Custom cycle time input — editable field for non-standard frequencies.
+    rtTestCustomCycle_ = new QLineEdit;
+    rtTestCustomCycle_->setObjectName("rtTestCustomCycle");
+    rtTestCustomCycle_->setPlaceholderText(uiText("µs", "µs"));
+    rtTestCustomCycle_->setMaximumWidth(80);
+    rtTestCustomCycle_->setVisible(false);
+    ctrl->addWidget(rtTestCustomCycle_);
+
+    // Frequency display — shows calculated Hz from the cycle time.
+    rtTestFreqLabel_ = new QLabel("1 kHz");
+    rtTestFreqLabel_->setStyleSheet("color: #89b4fa; font-weight: bold; min-width: 60px;");
+    ctrl->addWidget(rtTestFreqLabel_);
+
+    // Wire combo to show/hide custom input and update freq label.
+    auto updateFreqLabel = [this]() {
+        const int usec = rtTestCustomCycle_->isVisible()
+            ? rtTestCustomCycle_->text().toInt()
+            : rtTestCycleCombo_->currentData().toInt();
+        if (usec > 0) {
+            const double hz = 1000000.0 / usec;
+            rtTestFreqLabel_->setText(hz >= 1000
+                ? QString::number(hz / 1000.0, 'f', 1) + " kHz"
+                : QString::number(hz, 'f', 0) + " Hz");
+        }
+    };
+    connect(rtTestCycleCombo_, &QComboBox::currentIndexChanged, this,
+        [this, updateFreqLabel](int idx) {
+            const bool custom = rtTestCycleCombo_->itemData(idx).toInt() < 0;
+            rtTestCustomCycle_->setVisible(custom);
+            if (custom) rtTestCustomCycle_->setFocus();
+            updateFreqLabel();
+        });
+    connect(rtTestCustomCycle_, &QLineEdit::textChanged, this, updateFreqLabel);
     ctrl->addStretch();
     rtTestStatusLabel_ = new QLabel(uiText("Idle", "空闲"));
     rtTestStatusLabel_->setStyleSheet("font-weight: bold;");
@@ -293,7 +330,10 @@ QWidget *MainWindow::buildRtTestPage()
 
     // ── Wire signals ───────────────────────────────────────────────────────
     connect(rtTestStartButton_, &QPushButton::clicked, this, [this] {
-        client_.rtTestStart(rtTestCycleCombo_->currentData().toInt());
+        const int usec = rtTestCustomCycle_->isVisible()
+            ? rtTestCustomCycle_->text().toInt()
+            : rtTestCycleCombo_->currentData().toInt();
+        if (usec > 0) client_.rtTestStart(usec);
     });
     connect(rtTestStopButton_, &QPushButton::clicked, this, [this] {
         client_.rtTestStop();
@@ -319,6 +359,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     rtTestStartButton_->setEnabled(!running && client_.isConnected());
     rtTestStopButton_->setEnabled(running);
     rtTestCycleCombo_->setEnabled(!running);
+    rtTestCustomCycle_->setEnabled(!running);
 
     // Status.
     if (running) {

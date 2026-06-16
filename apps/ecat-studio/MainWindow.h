@@ -734,6 +734,8 @@ private:
   QPushButton *rtTestStartButton_ = nullptr;
   QPushButton *rtTestStopButton_ = nullptr;
   QComboBox *rtTestCycleCombo_ = nullptr;
+  QLineEdit *rtTestCustomCycle_ = nullptr;
+  QLabel *rtTestFreqLabel_ = nullptr;
   QLabel *rtTestStatusLabel_ = nullptr;
   QLabel *rtTestMinLabel_ = nullptr;
   QLabel *rtTestMaxLabel_ = nullptr;
