@@ -1,4 +1,6 @@
 add_executable(ecatd
+    CommandDispatcher.cpp
+    CommandDispatcher.h
     EcatDaemon.cpp
     EcatDaemon.h
     FreeRunController.cpp
