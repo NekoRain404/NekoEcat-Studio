@@ -44,6 +44,9 @@ public:
   void freeRunStart();
   void freeRunStop();
   void freeRunStatus();
+  void rtTestStart(int cycleUsec = 1000);
+  void rtTestStop();
+  void rtTestStatus();
 
 signals:
   void connected();
@@ -60,6 +63,7 @@ signals:
   void commandSucceeded(const QString &message);
   void freeRunChanged(bool running, const QString &status);
   void freeRunTelemetry(const QJsonObject &telemetry);
+  void rtTestTelemetry(const QJsonObject &telemetry);
 
 private slots:
   void readSocket();

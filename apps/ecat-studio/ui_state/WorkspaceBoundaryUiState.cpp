@@ -76,6 +76,10 @@ buildWorkspaceBoundaryUiState(WorkspaceBoundaryKind kind,
     setBoundary(&state, texts.diagnosticsLabel, QStringLiteral("warning"),
                 {texts.diagnosticsHostOnly, texts.diagnosticsHostCheck});
     break;
+  case WorkspaceBoundaryKind::RtTest:
+    setBoundary(&state, texts.rtTestLabel, QStringLiteral("action"),
+                {texts.rtTestOnlineCycle, texts.rtTestLocalStats});
+    break;
   case WorkspaceBoundaryKind::Esi:
     setBoundary(&state, texts.esiLabel, QStringLiteral("neutral"),
                 {texts.esiFileEvidence, texts.esiImportAction});

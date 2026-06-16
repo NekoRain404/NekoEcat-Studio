@@ -134,6 +134,7 @@ void MainWindow::buildUi() {
   diagnosticsPage_ = nullptr;
   esiRepositoryPage_ = nullptr;
   notesPage_ = nullptr;
+  rtTestPage_ = nullptr;
   esiXmlPage_ = nullptr;
   masterRawPage_ = nullptr;
   slaveRawPage_ = nullptr;
@@ -178,6 +179,7 @@ void MainWindow::buildUi() {
   diagnosticsTabIndex_ = -1;
   esiRepositoryTabIndex_ = -1;
   notesTabIndex_ = -1;
+  rtTestTabIndex_ = -1;
   esiXmlTabIndex_ = -1;
   masterRawTabIndex_ = -1;
   slaveRawTabIndex_ = -1;
@@ -311,6 +313,7 @@ void MainWindow::buildUi() {
       {uiText("Diagnostics", "诊断"), "goDiagnosticsAction", "Ctrl+Alt+0"},
       {uiText("ESI Repository", "ESI 仓库"), "goEsiRepositoryAction", {}},
       {uiText("Notes", "备注"), "goNotesAction", {}},
+      {uiText("RT Test", "RT 测试"), "goRtTestAction", {}},
       {uiText("ESI XML", "ESI XML"), "goEsiXmlAction", {}},
       {uiText("Master Raw", "主站原始输出"), "goMasterRawAction", {}},
       {uiText("Slave Raw", "从站原始输出"), "goSlaveRawAction", {}},
@@ -2261,6 +2264,8 @@ void MainWindow::buildUi() {
   esiRepositoryTabIndex_ =
       tabs_->addTab(esiTable_, uiText("ESI Repository", "ESI 仓库"));
   notesTabIndex_ = tabs_->addTab(notesPage, uiText("Notes", "备注"));
+  rtTestPage_ = buildRtTestPage();
+  rtTestTabIndex_ = tabs_->addTab(rtTestPage_, uiText("RT Test", "RT 测试"));
   esiXmlTabIndex_ = tabs_->addTab(xmlText_, uiText("ESI XML", "ESI XML"));
   masterRawTabIndex_ =
       tabs_->addTab(masterText_, uiText("Master Raw", "主站原始输出"));

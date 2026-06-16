@@ -2,6 +2,8 @@ add_executable(ecatd
     EcatDaemon.cpp
     EcatDaemon.h
     FreeRunController.cpp
+    RtTestController.cpp
+    RtTestController.h
     FreeRunController.h
     main.cpp
 )

@@ -88,6 +88,7 @@ add_executable(ecat-studio
     workspaces/MainWindowIoVariableWorkspace.cpp
     workspaces/MainWindowManual.cpp
     workspaces/MainWindowProjectIo.cpp
+    workspaces/MainWindowRtTestWorkspace.cpp
     workspaces/MainWindowSdoWorkspace.cpp
     workspaces/MainWindowSessionWorkspace.cpp
     workspaces/MainWindowStartupSdoWorkspace.cpp

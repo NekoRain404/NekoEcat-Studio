@@ -211,6 +211,30 @@ void EcatClient::freeRunStatus() {
   });
 }
 
+// Start real-time cycle timing test on the current master target.
+void EcatClient::rtTestStart(int cycleUsec) {
+  send("rtTestStart", {{"cycleUsec", cycleUsec}},
+       [this](const QJsonObject &result) {
+         emit rtTestTelemetry(result);
+         emit commandSucceeded("RT stability test started");
+       });
+}
+
+// Stop the RT stability test and release the IgH master.
+void EcatClient::rtTestStop() {
+  send("rtTestStop", {}, [this](const QJsonObject &result) {
+    emit rtTestTelemetry(result);
+    emit commandSucceeded("RT stability test stopped");
+  });
+}
+
+// Poll current RT test state and telemetry without side effects.
+void EcatClient::rtTestStatus() {
+  send("rtTestStatus", {}, [this](const QJsonObject &result) {
+    emit rtTestTelemetry(result);
+  });
+}
+
 // Accumulate bytes and split on newlines to extract complete JSON response frames.
 void EcatClient::readSocket() {
   buffer_ += socket_.readAll();

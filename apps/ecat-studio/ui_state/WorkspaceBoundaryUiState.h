@@ -18,6 +18,7 @@ enum class WorkspaceBoundaryKind {
   Consistency,
   StateMachine,
   Diagnostics,
+  RtTest,
   Esi,
   Notes,
   RawEvidence,
@@ -65,6 +66,9 @@ struct WorkspaceBoundaryTexts {
   QString diagnosticsLabel;
   QString diagnosticsHostOnly;
   QString diagnosticsHostCheck;
+  QString rtTestLabel;
+  QString rtTestOnlineCycle;
+  QString rtTestLocalStats;
   QString esiLabel;
   QString esiFileEvidence;
   QString esiImportAction;

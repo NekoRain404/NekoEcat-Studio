@@ -209,6 +209,21 @@ void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request)
         send(socket, JsonProtocol::success(id, {{"status", freeRun_.status()}}));
     } else if (method == "freeRunStatus") {
         send(socket, JsonProtocol::success(id, freeRun_.telemetry()));
+    } else if (method == "rtTestStart") {
+        uint32_t masterIndex = 0;
+        if (!requestedMasterIndex(params, &masterIndex, &error)) {
+            send(socket, JsonProtocol::failure(id, error));
+            return;
+        }
+        const int cycleUsec = params.value("cycleUsec").toInt(1000);
+        rtTest_.start(masterIndex, cycleUsec, &error)
+            ? send(socket, JsonProtocol::success(id, rtTest_.telemetry()))
+            : send(socket, JsonProtocol::failure(id, error));
+    } else if (method == "rtTestStop") {
+        rtTest_.stop();
+        send(socket, JsonProtocol::success(id, rtTest_.telemetry()));
+    } else if (method == "rtTestStatus") {
+        send(socket, JsonProtocol::success(id, rtTest_.telemetry()));
     } else {
         send(socket, JsonProtocol::failure(id, QString("Unknown method: %1").arg(method)));
     }

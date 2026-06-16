@@ -79,6 +79,13 @@ private:
   // ── Command Palette ───────────────────────────────────────────
   void showCommandPalette();
   
+  // ── RT Stability Test ──────────────────────────────────────────
+  QWidget *buildRtTestPage();
+  void updateRtTestTelemetry(const QJsonObject &telemetry);
+  void appendRtTestTimeline(const QJsonArray &recent, double avgUsec);
+  void updateRtTestActionAvailability();
+  QString formatDuration(double seconds) const;
+
   // ── Help ──────────────────────────────────────────────────────
   void showManual();
   void showAbout();
@@ -631,6 +638,7 @@ private:
   QWidget *diagnosticsPage_ = nullptr;
   QWidget *esiRepositoryPage_ = nullptr;
   QWidget *notesPage_ = nullptr;
+  QWidget *rtTestPage_ = nullptr;
   QWidget *esiXmlPage_ = nullptr;
   QWidget *masterRawPage_ = nullptr;
   QWidget *slaveRawPage_ = nullptr;
@@ -653,6 +661,7 @@ private:
   int diagnosticsTabIndex_ = -1;
   int esiRepositoryTabIndex_ = -1;
   int notesTabIndex_ = -1;
+  int rtTestTabIndex_ = -1;
   int esiXmlTabIndex_ = -1;
   int masterRawTabIndex_ = -1;
   int slaveRawTabIndex_ = -1;
@@ -719,6 +728,23 @@ private:
   QLabel *startupWatchSummaryLabel_ = nullptr;
   QLabel *startupSdoDetailLabel_ = nullptr;
   
+  // ── RT Test Panel Widgets ─────────────────────────────────────
+  QPushButton *rtTestStartButton_ = nullptr;
+  QPushButton *rtTestStopButton_ = nullptr;
+  QComboBox *rtTestCycleCombo_ = nullptr;
+  QLabel *rtTestStatusLabel_ = nullptr;
+  QLabel *rtTestMinLabel_ = nullptr;
+  QLabel *rtTestMaxLabel_ = nullptr;
+  QLabel *rtTestAvgLabel_ = nullptr;
+  QLabel *rtTestJitterLabel_ = nullptr;
+  QLabel *rtTestCyclesLabel_ = nullptr;
+  QLabel *rtTestErrorsLabel_ = nullptr;
+  QLabel *rtTestLossLabel_ = nullptr;
+  QLabel *rtTestDurationLabel_ = nullptr;
+  QLabel *rtTestHealthLabel_ = nullptr;
+  QPlainTextEdit *rtTestTimelineText_ = nullptr;
+  bool rtTestRunning_ = false;
+
   // ── Free Run Panel Widgets ────────────────────────────────────
   QLineEdit *freeRunFilter_ = nullptr;
   QCheckBox *freeRunChangedOnly_ = nullptr;

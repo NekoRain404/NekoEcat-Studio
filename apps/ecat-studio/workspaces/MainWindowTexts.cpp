@@ -850,6 +850,13 @@ WorkspaceBoundaryTexts MainWindow::workspaceBoundaryTexts() const {
           uiText("Running Host Check inspects the host; Copy Command only "
                  "copies repair text.",
                  "运行 Host Check 会检查主机；复制命令只复制修复文本。"),
+      .rtTestLabel = uiText("Boundary: RT Test", "边界：RT 测试"),
+      .rtTestOnlineCycle =
+          uiText("RT test exercises the bus with ecrt receive/send cycles.",
+                 "RT 测试通过 ecrt 收发周期对总线进行压力测试。"),
+      .rtTestLocalStats =
+          uiText("Timeline and statistics are local display only.",
+                 "时间线和统计仅为本地显示。"),
       .esiLabel = uiText("Boundary: File/ESI", "边界：文件/ESI"),
       .esiFileEvidence =
           uiText("ESI repository and XML review are file/project evidence.",

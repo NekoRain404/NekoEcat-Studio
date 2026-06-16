@@ -5,6 +5,7 @@
 
 #include "EthercatCliBackend.h"
 #include "FreeRunController.h"
+#include "RtTestController.h"
 
 #include <QHash>
 #include <QObject>
@@ -33,6 +34,8 @@ private:
     EthercatCliBackend backend_;
     // ecrt-based controller for real-time process data I/O in Free Run mode.
     FreeRunController freeRun_;
+    // ecrt-based controller for real-time cycle timing / stability test.
+    RtTestController rtTest_;
     // Per-socket read buffers for reassembling fragmented TCP into complete JSON lines.
     QHash<QTcpSocket *, QByteArray> buffers_;
 };

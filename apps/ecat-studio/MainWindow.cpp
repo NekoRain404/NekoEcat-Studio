@@ -251,6 +251,7 @@ bool MainWindow::activateWorkspaceTab(int index) {
       {diagnosticsTabIndex_, diagnosticsPage_},
       {esiRepositoryTabIndex_, esiRepositoryPage_},
       {notesTabIndex_, notesPage_},
+      {rtTestTabIndex_, rtTestPage_},
       {esiXmlTabIndex_, esiXmlPage_},
       {masterRawTabIndex_, masterRawPage_},
       {slaveRawTabIndex_, slaveRawPage_},
@@ -319,6 +320,9 @@ MainWindow::workspaceBoundaryKindForPage(const QWidget *page) const {
   }
   if (page == esiRepositoryPage_ || page == esiXmlPage_) {
     return WorkspaceBoundaryKind::Esi;
+  }
+  if (page == rtTestPage_) {
+    return WorkspaceBoundaryKind::RtTest;
   }
   if (page == notesPage_) {
     return WorkspaceBoundaryKind::Notes;
@@ -2056,6 +2060,7 @@ void MainWindow::wire() {
       {"goDiagnosticsAction", diagnosticsPage_},
       {"goEsiRepositoryAction", esiRepositoryPage_},
       {"goNotesAction", notesPage_},
+      {"goRtTestAction", rtTestPage_},
       {"goEsiXmlAction", esiXmlPage_},
       {"goMasterRawAction", masterRawPage_},
       {"goSlaveRawAction", slaveRawPage_},
@@ -3212,6 +3217,14 @@ void MainWindow::wire() {
   connect(&client_, &EcatClient::freeRunTelemetry, this,
           &MainWindow::updateFreeRunTelemetry);
 
+  // RT stability test telemetry updates.
+  connect(&client_, &EcatClient::rtTestTelemetry, this,
+          [this](const QJsonObject &telemetry) {
+            rtTestRunning_ = telemetry.value("running").toBool();
+            updateRtTestTelemetry(telemetry);
+            updateActionAvailability();
+          });
+
   connectRetryTimer_ = new QTimer(this);
   connectRetryTimer_->setInterval(600);
   connect(connectRetryTimer_, &QTimer::timeout, &client_,
@@ -3265,6 +3278,10 @@ void MainWindow::requestRefresh() {
   if (!freeRun_) {
     client_.master();
     client_.scan();
+  }
+  // Poll RT test status if it's running.
+  if (rtTestRunning_) {
+    client_.rtTestStatus();
   }
 }
 
