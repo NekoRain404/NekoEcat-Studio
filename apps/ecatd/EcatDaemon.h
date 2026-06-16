@@ -32,7 +32,7 @@ private:
 
     QTcpServer server_;
     // CLI-based backend for non-real-time EtherCAT operations (scan, SDO, state).
-    EthercatCliBackend backend_;
+    EcatService *backend_ = nullptr;
     // ecrt-based controller for real-time process data I/O in Free Run mode.
     FreeRunController freeRun_;
     // ecrt-based controller for real-time cycle timing / stability test.

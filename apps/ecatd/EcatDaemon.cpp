@@ -37,6 +37,7 @@ bool requestedMasterIndex(const QJsonObject &params, uint32_t *index, QString *e
 EcatDaemon::EcatDaemon(QObject *parent)
     : QObject(parent)
 {
+    backend_ = new EthercatCliBackend(this);
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
     setupHandlers();
 }
@@ -99,7 +100,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("hostDiagnostics", [this](const QString &id, const QJsonObject &) {
         QString error;
-        const auto checks = backend_.hostDiagnostics(&error);
+        const auto checks = backend_->hostDiagnostics(&error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"checks", checks}})
             : CommandDispatcher::failure(id, error);
@@ -107,7 +108,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("master", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.masterText(requestedMaster(params), &error);
+        const QString text = backend_->masterText(requestedMaster(params), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"text", text}})
             : CommandDispatcher::failure(id, error);
@@ -115,7 +116,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("scan", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const auto slaves = backend_.scanSlaves(requestedMaster(params), &error);
+        const auto slaves = backend_->scanSlaves(requestedMaster(params), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"slaves", toJson(slaves)}})
             : CommandDispatcher::failure(id, error);
@@ -123,14 +124,14 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("rescan", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_.rescan(requestedMaster(params), &error)
+        return backend_->rescan(requestedMaster(params), &error)
             ? CommandDispatcher::success(id)
             : CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("slaveInfo", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.slaveInfo(requestedMaster(params), params.value("position").toInt(), &error);
+        const QString text = backend_->slaveInfo(requestedMaster(params), params.value("position").toInt(), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"text", text}})
             : CommandDispatcher::failure(id, error);
@@ -138,7 +139,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("pdos", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.pdos(requestedMaster(params), params.value("position").toInt(), &error);
+        const QString text = backend_->pdos(requestedMaster(params), params.value("position").toInt(), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"text", text}})
             : CommandDispatcher::failure(id, error);
@@ -146,7 +147,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("sdos", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.sdos(requestedMaster(params), params.value("position").toInt(), &error);
+        const QString text = backend_->sdos(requestedMaster(params), params.value("position").toInt(), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"text", text}})
             : CommandDispatcher::failure(id, error);
@@ -154,7 +155,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("xml", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.slaveXml(requestedMaster(params), params.value("position").toInt(), &error);
+        const QString text = backend_->slaveXml(requestedMaster(params), params.value("position").toInt(), &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"text", text}})
             : CommandDispatcher::failure(id, error);
@@ -162,7 +163,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("upload", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        const QString text = backend_.upload(requestedMaster(params),
+        const QString text = backend_->upload(requestedMaster(params),
                                              params.value("position").toInt(),
                                              params.value("index").toString(),
                                              params.value("subIndex").toString(),
@@ -174,7 +175,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("download", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_.download(requestedMaster(params),
+        return backend_->download(requestedMaster(params),
                                  params.value("position").toInt(),
                                  params.value("index").toString(),
                                  params.value("subIndex").toString(),
@@ -193,7 +194,7 @@ void EcatDaemon::setupHandlers() {
         for (const auto &value : params.value("items").toArray()) {
             const auto item = value.toObject();
             QString itemError;
-            if (backend_.download(master,
+            if (backend_->download(master,
                                   item.value("position").toInt(),
                                   item.value("index").toString(),
                                   item.value("subIndex").toString(),
@@ -225,7 +226,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("setState", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_.setState(requestedMaster(params), params.value("position").toInt(),
+        return backend_->setState(requestedMaster(params), params.value("position").toInt(),
                                  params.value("state").toString(), &error)
             ? CommandDispatcher::success(id)
             : CommandDispatcher::failure(id, error);
@@ -233,7 +234,7 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("setAllStates", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_.setAllStates(requestedMaster(params), params.value("state").toString(), &error)
+        return backend_->setAllStates(requestedMaster(params), params.value("state").toString(), &error)
             ? CommandDispatcher::success(id)
             : CommandDispatcher::failure(id, error);
     });
