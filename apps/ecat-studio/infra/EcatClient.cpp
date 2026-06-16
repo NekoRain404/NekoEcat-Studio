@@ -3,31 +3,68 @@
 
 #include "JsonProtocol.h"
 
+#include <QDateTime>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 
 EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   // Wire Qt socket signals for connection lifecycle and incoming data.
-  connect(&socket_, &QTcpSocket::connected, this, &EcatClient::connected);
-  connect(&socket_, &QTcpSocket::disconnected, this, &EcatClient::disconnected);
+  connect(&socket_, &QTcpSocket::connected, this, [this] {
+    setConnectionState(ConnectionState::Connected);
+    emit connected();
+  });
+  connect(&socket_, &QTcpSocket::disconnected, this, [this] {
+    setConnectionState(ConnectionState::Disconnected);
+    handlers_.clear();
+    requestTimestamps_.clear();
+    emit disconnected();
+  });
   connect(&socket_, &QTcpSocket::readyRead, this, &EcatClient::readSocket);
   connect(&socket_, &QTcpSocket::errorOccurred, this,
           [this](QAbstractSocket::SocketError) {
             emit errorMessage(socket_.errorString());
           });
+
+  // Request timeout sweep — evicts stale handlers every 2s.
+  requestSweepTimer_ = new QTimer(this);
+  requestSweepTimer_->setInterval(2000);
+  connect(requestSweepTimer_, &QTimer::timeout, this, &EcatClient::sweepTimedOutRequests);
+  requestSweepTimer_->start();
 }
 
 // Connect to ecatd's localhost TCP port; no-op if already connected or connecting.
 void EcatClient::connectToDaemon() {
-  if (socket_.state() == QAbstractSocket::ConnectedState ||
-      socket_.state() == QAbstractSocket::ConnectingState) {
+  if (connectionState_ == ConnectionState::Connected ||
+      connectionState_ == ConnectionState::Connecting) {
     return;
   }
+  setConnectionState(ConnectionState::Connecting);
   socket_.connectToHost(QHostAddress::LocalHost, 5877);
 }
 
+ConnectionState EcatClient::connectionState() const {
+  return connectionState_;
+}
+
+void EcatClient::setConnectionState(ConnectionState state) {
+  if (connectionState_ != state) {
+    connectionState_ = state;
+    emit connectionStateChanged(state);
+  }
+}
+
+void EcatClient::connectToHost(const QHostAddress &address, quint16 port) {
+  if (connectionState_ == ConnectionState::Connected ||
+      connectionState_ == ConnectionState::Connecting) {
+    return;
+  }
+  setConnectionState(ConnectionState::Connecting);
+  socket_.connectToHost(address, port);
+}
+
 bool EcatClient::isConnected() const {
-  return socket_.state() == QAbstractSocket::ConnectedState;
+  return connectionState_ == ConnectionState::Connected;
 }
 
 // The IgH master index injected into every request's params as "master".
@@ -257,6 +294,7 @@ void EcatClient::send(const QString &method, const QJsonObject &params,
 
   const QString id = QString::number(nextId_++);
   handlers_.insert(id, std::move(handler));
+  requestTimestamps_.insert(id, QDateTime::currentMSecsSinceEpoch());
   QJsonObject scopedParams = params;
   scopedParams.insert("master", masterTarget_);
   socket_.write(
@@ -275,6 +313,7 @@ void EcatClient::handleLine(const QByteArray &line) {
   const auto object = document.object();
   const QString id = object.value("id").toString();
   const auto handler = handlers_.take(id);
+  requestTimestamps_.remove(id);
   if (!object.value("ok").toBool()) {
     emit errorMessage(
         object.value("error").toObject().value("message").toString(
@@ -284,4 +323,23 @@ void EcatClient::handleLine(const QByteArray &line) {
   if (handler) {
     handler(object.value("result").toObject());
   }
+}
+
+void EcatClient::sweepTimedOutRequests() {
+    const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    QStringList timedOut;
+    for (auto it = requestTimestamps_.begin(); it != requestTimestamps_.end(); ++it) {
+        if (now - it.value() > requestTimeoutMs_) {
+            timedOut.append(it.key());
+        }
+    }
+    for (const QString &id : timedOut) {
+        handlers_.remove(id);
+        requestTimestamps_.remove(id);
+        emit errorMessage(QString("Request %1 timed out after %2ms").arg(id).arg(requestTimeoutMs_));
+    }
+}
+
+void EcatClient::setRequestTimeout(int ms) {
+    requestTimeoutMs_ = ms > 0 ? ms : kDefaultRequestTimeoutMs;
 }

@@ -10,7 +10,15 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QTcpSocket>
+#include <QTimer>
 #include <functional>
+
+enum class ConnectionState {
+    Disconnected,
+    Connecting,
+    Connected,
+    Reconnecting,
+};
 
 class EcatClient : public QObject {
   Q_OBJECT
@@ -47,9 +55,13 @@ public:
   void rtTestStart(int cycleUsec = 1000);
   void rtTestStop();
   void rtTestStatus();
+  void setRequestTimeout(int ms);
+  ConnectionState connectionState() const;
+  void connectToHost(const QHostAddress &address, quint16 port);
 
 signals:
   void connected();
+  void connectionStateChanged(ConnectionState state);
   void disconnected();
   void errorMessage(const QString &message);
   void daemonInfo(const QString &text);
@@ -79,4 +91,13 @@ private:
   int nextId_ = 1;
   QString masterTarget_ = "0";
   QHash<QString, Handler> handlers_;
+
+  ConnectionState connectionState_ = ConnectionState::Disconnected;
+  void setConnectionState(ConnectionState state);
+
+  static constexpr int kDefaultRequestTimeoutMs = 10000;
+  int requestTimeoutMs_ = kDefaultRequestTimeoutMs;
+  QTimer *requestSweepTimer_ = nullptr;
+  QHash<QString, qint64> requestTimestamps_;
+  void sweepTimedOutRequests();
 };
