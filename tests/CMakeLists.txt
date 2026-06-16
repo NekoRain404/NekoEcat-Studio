@@ -1016,3 +1016,26 @@ target_include_directories(command_dispatcher_test PRIVATE
 target_link_libraries(command_dispatcher_test PRIVATE Qt6::Core Qt6::Network)
 
 add_test(NAME command_dispatcher_test COMMAND command_dispatcher_test)
+
+add_executable(protocol_integration_test
+    protocol_integration_test.cpp
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+    ../apps/ecatd/CommandDispatcher.cpp
+    ../apps/ecatd/CommandDispatcher.h
+    ../src/core/JsonProtocol.cpp
+    ../src/core/JsonProtocol.h
+    ../src/core/EthercatTypes.cpp
+    ../src/core/EthercatTypes.h
+)
+
+target_include_directories(protocol_integration_test PRIVATE
+    ../apps/ecatd
+    ../apps/ecat-studio/infra
+    ../src/core
+)
+target_link_libraries(protocol_integration_test PRIVATE Qt6::Core Qt6::Network)
+
+set_target_properties(protocol_integration_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME protocol_integration_test COMMAND protocol_integration_test)
