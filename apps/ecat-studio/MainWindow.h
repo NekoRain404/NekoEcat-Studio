@@ -31,6 +31,7 @@ class QTreeWidgetItem;
 class QWidget;
 class RtTestLatencyChart;
 class RtTestJitterSpark;
+struct RtTestWidgets;
 struct CommissioningWorkflowInput;
 struct 
   // ── UI Text Builders ──────────────────────────────────────────
@@ -730,25 +731,8 @@ private:
   QLabel *startupWatchSummaryLabel_ = nullptr;
   QLabel *startupSdoDetailLabel_ = nullptr;
   
-  // ── RT Test Panel Widgets ─────────────────────────────────────
-  QPushButton *rtTestStartButton_ = nullptr;
-  QPushButton *rtTestStopButton_ = nullptr;
-  QComboBox *rtTestCycleCombo_ = nullptr;
-  QLineEdit *rtTestCustomCycle_ = nullptr;
-  QLabel *rtTestFreqLabel_ = nullptr;
-  QLabel *rtTestStatusLabel_ = nullptr;
-  QLabel *rtTestMinLabel_ = nullptr;
-  QLabel *rtTestMaxLabel_ = nullptr;
-  QLabel *rtTestAvgLabel_ = nullptr;
-  QLabel *rtTestJitterLabel_ = nullptr;
-  QLabel *rtTestCyclesLabel_ = nullptr;
-  QLabel *rtTestErrorsLabel_ = nullptr;
-  QLabel *rtTestLossLabel_ = nullptr;
-  QLabel *rtTestDurationLabel_ = nullptr;
-  QLabel *rtTestHealthLabel_ = nullptr;
-  QPlainTextEdit *rtTestTimelineText_ = nullptr;
-  RtTestLatencyChart *rtTestChart_ = nullptr;
-  RtTestJitterSpark *rtTestJitterSpark_ = nullptr;
+  // ── RT Test Panel Widgets (aggregated in workspace file) ─────
+  RtTestWidgets *rtTest_ = nullptr;
   bool rtTestRunning_ = false;
 
   // ── Free Run Panel Widgets ────────────────────────────────────

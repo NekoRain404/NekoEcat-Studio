@@ -14,6 +14,29 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
+// Aggregated RT test widget pointers — keeps MainWindow.h lean.
+struct RtTestWidgets {
+    QPushButton *startButton = nullptr;
+    QPushButton *stopButton = nullptr;
+    QComboBox *cycleCombo = nullptr;
+    QLineEdit *customCycle = nullptr;
+    QLabel *freqLabel = nullptr;
+    QLabel *statusLabel = nullptr;
+    QLabel *minLabel = nullptr;
+    QLabel *maxLabel = nullptr;
+    QLabel *avgLabel = nullptr;
+    QLabel *jitterLabel = nullptr;
+    QLabel *cyclesLabel = nullptr;
+    QLabel *errorsLabel = nullptr;
+    QLabel *lossLabel = nullptr;
+    QLabel *durationLabel = nullptr;
+    QLabel *healthLabel = nullptr;
+    QPlainTextEdit *timelineText = nullptr;
+    RtTestLatencyChart *chart = nullptr;
+    RtTestJitterSpark *jitterSpark = nullptr;
+};
+
+
 // ── High-performance QPainter latency chart (no QtCharts dependency) ─────────
 // Direct QPainter rendering — 10-100x faster than QtCharts for streaming data.
 class RtTestLatencyChart : public QWidget {
@@ -206,7 +229,8 @@ private:
 // ── Build the RT Test workspace page ────────────────────────────────────────
 QWidget *MainWindow::buildRtTestPage()
 {
-    auto *page = new QWidget;
+    rtTest_ = new RtTestWidgets;
+auto *page = new QWidget;
     page->setObjectName("rtTestPage");
     auto *root = new QVBoxLayout(page);
     root->setContentsMargins(4, 4, 4, 4);
@@ -215,64 +239,64 @@ QWidget *MainWindow::buildRtTestPage()
     // ── Control Bar ────────────────────────────────────────────────────────
     auto *ctrl = new QHBoxLayout;
     ctrl->setSpacing(6);
-    rtTestStartButton_ = new QPushButton(uiText("Start", "开始"));
-    rtTestStartButton_->setMinimumWidth(56);
-    rtTestStopButton_ = new QPushButton(uiText("Stop", "停止"));
-    rtTestStopButton_->setMinimumWidth(56);
-    rtTestStopButton_->setEnabled(false);
-    ctrl->addWidget(rtTestStartButton_);
-    ctrl->addWidget(rtTestStopButton_);
+    rtTest_->startButton = new QPushButton(uiText("Start", "开始"));
+    rtTest_->startButton->setMinimumWidth(56);
+    rtTest_->stopButton = new QPushButton(uiText("Stop", "停止"));
+    rtTest_->stopButton->setMinimumWidth(56);
+    rtTest_->stopButton->setEnabled(false);
+    ctrl->addWidget(rtTest_->startButton);
+    ctrl->addWidget(rtTest_->stopButton);
     ctrl->addSpacing(8);
     ctrl->addWidget(new QLabel(uiText("Cycle:", "周期:")));
-    rtTestCycleCombo_ = new QComboBox;
-    rtTestCycleCombo_->addItem("125 µs (8 kHz)", 125);
-    rtTestCycleCombo_->addItem("250 µs (4 kHz)", 250);
-    rtTestCycleCombo_->addItem("500 µs (2 kHz)", 500);
-    rtTestCycleCombo_->addItem("1000 µs (1 kHz)", 1000);
-    rtTestCycleCombo_->addItem("2000 µs (500 Hz)", 2000);
-    rtTestCycleCombo_->addItem("5000 µs (200 Hz)", 5000);
-    rtTestCycleCombo_->addItem("10000 µs (100 Hz)", 10000);
-    rtTestCycleCombo_->addItem(uiText("Custom...", "自定义..."), -1);
-    rtTestCycleCombo_->setCurrentIndex(3);
-    ctrl->addWidget(rtTestCycleCombo_);
+    rtTest_->cycleCombo = new QComboBox;
+    rtTest_->cycleCombo->addItem("125 µs (8 kHz)", 125);
+    rtTest_->cycleCombo->addItem("250 µs (4 kHz)", 250);
+    rtTest_->cycleCombo->addItem("500 µs (2 kHz)", 500);
+    rtTest_->cycleCombo->addItem("1000 µs (1 kHz)", 1000);
+    rtTest_->cycleCombo->addItem("2000 µs (500 Hz)", 2000);
+    rtTest_->cycleCombo->addItem("5000 µs (200 Hz)", 5000);
+    rtTest_->cycleCombo->addItem("10000 µs (100 Hz)", 10000);
+    rtTest_->cycleCombo->addItem(uiText("Custom...", "自定义..."), -1);
+    rtTest_->cycleCombo->setCurrentIndex(3);
+    ctrl->addWidget(rtTest_->cycleCombo);
 
     // Custom cycle time input — editable field for non-standard frequencies.
-    rtTestCustomCycle_ = new QLineEdit;
-    rtTestCustomCycle_->setObjectName("rtTestCustomCycle");
-    rtTestCustomCycle_->setPlaceholderText(uiText("µs", "µs"));
-    rtTestCustomCycle_->setMaximumWidth(80);
-    rtTestCustomCycle_->setVisible(false);
-    ctrl->addWidget(rtTestCustomCycle_);
+    rtTest_->customCycle = new QLineEdit;
+    rtTest_->customCycle->setObjectName("rtTestCustomCycle");
+    rtTest_->customCycle->setPlaceholderText(uiText("µs", "µs"));
+    rtTest_->customCycle->setMaximumWidth(80);
+    rtTest_->customCycle->setVisible(false);
+    ctrl->addWidget(rtTest_->customCycle);
 
     // Frequency display — shows calculated Hz from the cycle time.
-    rtTestFreqLabel_ = new QLabel("1 kHz");
-    rtTestFreqLabel_->setStyleSheet("color: #89b4fa; font-weight: bold; min-width: 60px;");
-    ctrl->addWidget(rtTestFreqLabel_);
+    rtTest_->freqLabel = new QLabel("1 kHz");
+    rtTest_->freqLabel->setStyleSheet("color: #89b4fa; font-weight: bold; min-width: 60px;");
+    ctrl->addWidget(rtTest_->freqLabel);
 
     // Wire combo to show/hide custom input and update freq label.
     auto updateFreqLabel = [this]() {
-        const int usec = rtTestCustomCycle_->isVisible()
-            ? rtTestCustomCycle_->text().toInt()
-            : rtTestCycleCombo_->currentData().toInt();
+        const int usec = rtTest_->customCycle->isVisible()
+            ? rtTest_->customCycle->text().toInt()
+            : rtTest_->cycleCombo->currentData().toInt();
         if (usec > 0) {
             const double hz = 1000000.0 / usec;
-            rtTestFreqLabel_->setText(hz >= 1000
+            rtTest_->freqLabel->setText(hz >= 1000
                 ? QString::number(hz / 1000.0, 'f', 1) + " kHz"
                 : QString::number(hz, 'f', 0) + " Hz");
         }
     };
-    connect(rtTestCycleCombo_, &QComboBox::currentIndexChanged, this,
+    connect(rtTest_->cycleCombo, &QComboBox::currentIndexChanged, this,
         [this, updateFreqLabel](int idx) {
-            const bool custom = rtTestCycleCombo_->itemData(idx).toInt() < 0;
-            rtTestCustomCycle_->setVisible(custom);
-            if (custom) rtTestCustomCycle_->setFocus();
+            const bool custom = rtTest_->cycleCombo->itemData(idx).toInt() < 0;
+            rtTest_->customCycle->setVisible(custom);
+            if (custom) rtTest_->customCycle->setFocus();
             updateFreqLabel();
         });
-    connect(rtTestCustomCycle_, &QLineEdit::textChanged, this, updateFreqLabel);
+    connect(rtTest_->customCycle, &QLineEdit::textChanged, this, updateFreqLabel);
     ctrl->addStretch();
-    rtTestStatusLabel_ = new QLabel(uiText("Idle", "空闲"));
-    rtTestStatusLabel_->setStyleSheet("font-weight: bold;");
-    ctrl->addWidget(rtTestStatusLabel_);
+    rtTest_->statusLabel = new QLabel(uiText("Idle", "空闲"));
+    rtTest_->statusLabel->setStyleSheet("font-weight: bold;");
+    ctrl->addWidget(rtTest_->statusLabel);
     root->addLayout(ctrl);
 
     // ── Main area: Left stats + Right chart ────────────────────────────────
@@ -300,10 +324,10 @@ QWidget *MainWindow::buildRtTestPage()
         grid->addWidget(v, r * 2 + 1, c);
         return v;
     };
-    rtTestMinLabel_      = stat(uiText("Min µs", "最小"), 0, 0);
-    rtTestMaxLabel_      = stat(uiText("Max µs", "最大"), 0, 1);
-    rtTestAvgLabel_      = stat(uiText("Avg µs", "平均"), 1, 0);
-    rtTestJitterLabel_   = stat(uiText("Jitter µs", "抖动"), 1, 1);
+    rtTest_->minLabel      = stat(uiText("Min µs", "最小"), 0, 0);
+    rtTest_->maxLabel      = stat(uiText("Max µs", "最大"), 0, 1);
+    rtTest_->avgLabel      = stat(uiText("Avg µs", "平均"), 1, 0);
+    rtTest_->jitterLabel   = stat(uiText("Jitter µs", "抖动"), 1, 1);
     leftLay->addLayout(grid);
 
     // Counters (compact row).
@@ -324,28 +348,28 @@ QWidget *MainWindow::buildRtTestPage()
         cnt->addLayout(col);
         return v;
     };
-    rtTestCyclesLabel_   = ctr(uiText("Cycles", "周期数"));
-    rtTestErrorsLabel_   = ctr(uiText("Errors", "错误"));
-    rtTestLossLabel_     = ctr(uiText("Loss %", "丢包%"));
-    rtTestDurationLabel_ = ctr(uiText("Time", "时间"));
+    rtTest_->cyclesLabel   = ctr(uiText("Cycles", "周期数"));
+    rtTest_->errorsLabel   = ctr(uiText("Errors", "错误"));
+    rtTest_->lossLabel     = ctr(uiText("Loss %", "丢包%"));
+    rtTest_->durationLabel = ctr(uiText("Time", "时间"));
     leftLay->addLayout(cnt);
 
     // Health bar + jitter spark.
-    rtTestHealthLabel_ = new QLabel;
-    rtTestHealthLabel_->setFixedHeight(4);
-    rtTestHealthLabel_->setStyleSheet("background: #45475a; border-radius: 2px;");
-    leftLay->addWidget(rtTestHealthLabel_);
+    rtTest_->healthLabel = new QLabel;
+    rtTest_->healthLabel->setFixedHeight(4);
+    rtTest_->healthLabel->setStyleSheet("background: #45475a; border-radius: 2px;");
+    leftLay->addWidget(rtTest_->healthLabel);
 
-    rtTestJitterSpark_ = new RtTestJitterSpark;
-    leftLay->addWidget(rtTestJitterSpark_);
+    rtTest_->jitterSpark = new RtTestJitterSpark;
+    leftLay->addWidget(rtTest_->jitterSpark);
 
     leftLay->addStretch();
 
     splitter->addWidget(left);
 
     // ── Right: chart ───────────────────────────────────────────────────────
-    rtTestChart_ = new RtTestLatencyChart;
-    splitter->addWidget(rtTestChart_);
+    rtTest_->chart = new RtTestLatencyChart;
+    splitter->addWidget(rtTest_->chart);
 
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 4);
@@ -353,22 +377,22 @@ QWidget *MainWindow::buildRtTestPage()
     root->addWidget(splitter, 1);
 
     // ── Timeline log ───────────────────────────────────────────────────────
-    rtTestTimelineText_ = new QPlainTextEdit;
-    rtTestTimelineText_->setReadOnly(true);
-    rtTestTimelineText_->setMaximumBlockCount(1000);
-    rtTestTimelineText_->setMaximumHeight(80);
-    rtTestTimelineText_->setPlaceholderText(
+    rtTest_->timelineText = new QPlainTextEdit;
+    rtTest_->timelineText->setReadOnly(true);
+    rtTest_->timelineText->setMaximumBlockCount(1000);
+    rtTest_->timelineText->setMaximumHeight(80);
+    rtTest_->timelineText->setPlaceholderText(
         uiText("Cycle log...", "周期日志..."));
-    root->addWidget(rtTestTimelineText_);
+    root->addWidget(rtTest_->timelineText);
 
     // ── Wire signals ───────────────────────────────────────────────────────
-    connect(rtTestStartButton_, &QPushButton::clicked, this, [this] {
-        const int usec = rtTestCustomCycle_->isVisible()
-            ? rtTestCustomCycle_->text().toInt()
-            : rtTestCycleCombo_->currentData().toInt();
+    connect(rtTest_->startButton, &QPushButton::clicked, this, [this] {
+        const int usec = rtTest_->customCycle->isVisible()
+            ? rtTest_->customCycle->text().toInt()
+            : rtTest_->cycleCombo->currentData().toInt();
         if (usec > 0) client_.rtTestStart(usec);
     });
-    connect(rtTestStopButton_, &QPushButton::clicked, this, [this] {
+    connect(rtTest_->stopButton, &QPushButton::clicked, this, [this] {
         client_.rtTestStop();
     });
 
@@ -389,35 +413,35 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     const QJsonArray recent = telemetry.value("recent").toArray();
 
     // Buttons.
-    rtTestStartButton_->setEnabled(!running && client_.isConnected());
-    rtTestStopButton_->setEnabled(running);
-    rtTestCycleCombo_->setEnabled(!running);
-    rtTestCustomCycle_->setEnabled(!running);
+    rtTest_->startButton->setEnabled(!running && client_.isConnected());
+    rtTest_->stopButton->setEnabled(running);
+    rtTest_->cycleCombo->setEnabled(!running);
+    rtTest_->customCycle->setEnabled(!running);
 
     // Status.
     if (running) {
-        rtTestStatusLabel_->setText(uiText("Running", "运行中"));
-        rtTestStatusLabel_->setStyleSheet("color: #22c55e; font-weight: bold;");
+        rtTest_->statusLabel->setText(uiText("Running", "运行中"));
+        rtTest_->statusLabel->setStyleSheet("color: #22c55e; font-weight: bold;");
     } else if (cycles > 0) {
-        rtTestStatusLabel_->setText(uiText("Stopped", "已停止"));
-        rtTestStatusLabel_->setStyleSheet("color: #f59e0b; font-weight: bold;");
+        rtTest_->statusLabel->setText(uiText("Stopped", "已停止"));
+        rtTest_->statusLabel->setStyleSheet("color: #f59e0b; font-weight: bold;");
     } else {
-        rtTestStatusLabel_->setText(uiText("Idle", "空闲"));
-        rtTestStatusLabel_->setStyleSheet("font-weight: bold;");
+        rtTest_->statusLabel->setText(uiText("Idle", "空闲"));
+        rtTest_->statusLabel->setStyleSheet("font-weight: bold;");
     }
 
     // Metrics.
     if (cycles > 0) {
-        rtTestMinLabel_->setText(QString::number(minUs, 'f', 1));
-        rtTestMaxLabel_->setText(QString::number(maxUs, 'f', 1));
-        rtTestAvgLabel_->setText(QString::number(avgUs, 'f', 1));
-        rtTestJitterLabel_->setText(QString::number(jitterUs, 'f', 1));
+        rtTest_->minLabel->setText(QString::number(minUs, 'f', 1));
+        rtTest_->maxLabel->setText(QString::number(maxUs, 'f', 1));
+        rtTest_->avgLabel->setText(QString::number(avgUs, 'f', 1));
+        rtTest_->jitterLabel->setText(QString::number(jitterUs, 'f', 1));
     }
-    rtTestCyclesLabel_->setText(QString::number(cycles));
-    rtTestErrorsLabel_->setText(QString::number(errors));
-    rtTestLossLabel_->setText(QString::number(lossRate, 'f', 3));
+    rtTest_->cyclesLabel->setText(QString::number(cycles));
+    rtTest_->errorsLabel->setText(QString::number(errors));
+    rtTest_->lossLabel->setText(QString::number(lossRate, 'f', 3));
     if (cycles > 0 && avgUs > 0) {
-        rtTestDurationLabel_->setText(
+        rtTest_->durationLabel->setText(
             formatDuration(static_cast<double>(cycles) * avgUs / 1e6));
     }
 
@@ -427,14 +451,14 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
         hc = (lossRate > 0.1 || jitterUs > 500) ? "#ef4444"
              : (jitterUs > 100) ? "#f59e0b" : "#22c55e";
     }
-    rtTestHealthLabel_->setStyleSheet(
+    rtTest_->healthLabel->setStyleSheet(
         QString("background: %1; border-radius: 2px;").arg(hc));
 
     // Jitter spark.
-    if (rtTestJitterSpark_) rtTestJitterSpark_->pushSample(jitterUs);
+    if (rtTest_->jitterSpark) rtTest_->jitterSpark->pushSample(jitterUs);
 
     // Chart — send all points directly (daemon already downsamples).
-    if (rtTestChart_ && !recent.isEmpty() && cycles > 0) {
+    if (rtTest_->chart && !recent.isEmpty() && cycles > 0) {
         QJsonArray avgA, minA, maxA;
         const int chunk = qMax(1, recent.size() / 3000);
         for (int i = 0; i < recent.size(); i += chunk) {
@@ -451,12 +475,12 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
             minA.append(cMin);
             maxA.append(cMax);
         }
-        rtTestChart_->appendData(avgA, minA, maxA);
+        rtTest_->chart->appendData(avgA, minA, maxA);
     }
 
     // Periodic log entry.
     if (running && cycles > 0 && (cycles % 5000 == 0)) {
-        rtTestTimelineText_->appendPlainText(
+        rtTest_->timelineText->appendPlainText(
             QString("#%1  avg=%2µs  jit=%3µs  loss=%4%")
                 .arg(cycles).arg(avgUs, 0, 'f', 1)
                 .arg(jitterUs, 0, 'f', 1).arg(lossRate, 0, 'f', 3));
@@ -465,9 +489,9 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
 
 void MainWindow::updateRtTestActionAvailability()
 {
-    if (!rtTestStartButton_) return;
-    rtTestStartButton_->setEnabled(client_.isConnected() && !rtTestRunning_);
-    rtTestStopButton_->setEnabled(rtTestRunning_);
+    if (!rtTest_->startButton) return;
+    rtTest_->startButton->setEnabled(client_.isConnected() && !rtTestRunning_);
+    rtTest_->stopButton->setEnabled(rtTestRunning_);
 }
 
 QString MainWindow::formatDuration(double seconds) const
