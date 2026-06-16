@@ -109,4 +109,4 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/infra
 )
 
-target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Charts ecat_core)
+target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core)

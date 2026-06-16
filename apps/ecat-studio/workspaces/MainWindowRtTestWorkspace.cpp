@@ -1,11 +1,6 @@
 // Real-time stability test workspace: controls, live statistics, and latency chart.
 #include "MainWindow.h"
 
-#include <QtCharts/QChart>
-#include <QtCharts/QChartView>
-#include <QtCharts/QValueAxis>
-#include <QtCharts/QLineSeries>
-#include <QtCharts/QLegend>
 #include <QComboBox>
 #include <QLineEdit>
 #include <QFont>
@@ -13,110 +8,144 @@
 #include <QLabel>
 #include <QFont>
 #include <QPainter>
+#include <QtMath>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSplitter>
 #include <QVBoxLayout>
 
-// ── Latency chart with explicit axes (QtCharts requires axis binding) ───────
-class RtTestLatencyChart : public QChartView {
-    // Fixed-window rolling chart: keeps the last kVisible points on screen.
-    // New data appends to the right, old data drops off the left.
-    static constexpr int kVisible = 2000;
+// ── High-performance QPainter latency chart (no QtCharts dependency) ─────────
+// Direct QPainter rendering — 10-100x faster than QtCharts for streaming data.
+class RtTestLatencyChart : public QWidget {
+    static constexpr int kMax = 3000;
 public:
-    explicit RtTestLatencyChart(QWidget *parent = nullptr)
-        : QChartView(parent)
-    {
-        auto *chart = new QChart;
-        chart->setTitle("Cycle Latency (µs)");
-        chart->legend()->hide();
-        chart->setMargins(QMargins(2, 2, 2, 2));
-        chart->setBackgroundBrush(QColor("#1e1e2e"));
-        chart->setTitleBrush(QColor("#cdd6f4"));
-        chart->setPlotAreaBackgroundBrush(QColor("#181825"));
-        chart->setPlotAreaBackgroundVisible(true);
-
-        xAxis_ = new QValueAxis;
-        xAxis_->setRange(0, kVisible);
-        xAxis_->setTitleText("Samples");
-        xAxis_->setLabelsColor(QColor("#6c7086"));
-        xAxis_->setGridLineColor(QColor("#313244"));
-        xAxis_->setLinePenColor(QColor("#45475a"));
-
-        yAxis_ = new QValueAxis;
-        yAxis_->setRange(0, 1000);
-        yAxis_->setTitleText("µs");
-        yAxis_->setLabelsColor(QColor("#6c7086"));
-        yAxis_->setGridLineColor(QColor("#313244"));
-        yAxis_->setLinePenColor(QColor("#45475a"));
-
-        chart->addAxis(xAxis_, Qt::AlignBottom);
-        chart->addAxis(yAxis_, Qt::AlignLeft);
-
-        auto addSeries = [&](const QColor &color, double width, Qt::PenStyle style) {
-            auto *s = new QLineSeries;
-            s->setPen(QPen(color, width, style));
-            chart->addSeries(s);
-            s->attachAxis(xAxis_);
-            s->attachAxis(yAxis_);
-            return s;
-        };
-        avgSeries_ = addSeries(QColor("#89b4fa"), 2, Qt::SolidLine);
-        maxSeries_ = addSeries(QColor("#f38ba8"), 1, Qt::DashLine);
-        minSeries_ = addSeries(QColor("#a6e3a1"), 1, Qt::DashLine);
-
-        setChart(chart);
-        setRenderHint(QPainter::Antialiasing);
+    explicit RtTestLatencyChart(QWidget *parent = nullptr) : QWidget(parent) {
+        setMinimumSize(300, 200);
     }
 
-    // Append new chunks of data to the rolling buffer and redraw.
     void appendData(const QJsonArray &avg, const QJsonArray &minArr,
                     const QJsonArray &maxArr)
     {
-        if (avg.isEmpty()) return;
-
-        // Append new points to internal buffers.
         for (int i = 0; i < avg.size(); ++i) {
             bufAvg_.append(avg[i].toDouble());
             bufMin_.append(i < minArr.size() ? minArr[i].toDouble() : avg[i].toDouble());
             bufMax_.append(i < maxArr.size() ? maxArr[i].toDouble() : avg[i].toDouble());
         }
-
-        // Trim to keep only the last kVisible points.
-        while (bufAvg_.size() > kVisible) {
+        while (bufAvg_.size() > kMax) {
             bufAvg_.removeFirst();
             bufMin_.removeFirst();
             bufMax_.removeFirst();
         }
-
-        // Rewrite series from the buffer.
-        auto rewrite = [](QLineSeries *s, const QVector<double> &buf) {
-            s->clear();
-            for (int i = 0; i < buf.size(); ++i) {
-                s->append(i, buf[i]);
-            }
-        };
-        rewrite(avgSeries_, bufAvg_);
-        rewrite(maxSeries_, bufMax_);
-        rewrite(minSeries_, bufMin_);
-
-        // Auto-scale Y with padding.
-        if (!bufAvg_.isEmpty()) {
-            double lo = *std::min_element(bufMin_.begin(), bufMin_.end());
-            double hi = *std::max_element(bufMax_.begin(), bufMax_.end());
-            double pad = qMax((hi - lo) * 0.15, 20.0);
-            yAxis_->setRange(lo - pad, hi + pad);
+        // Recompute Y range.
+        if (!bufMin_.isEmpty()) {
+            yLo_ = *std::min_element(bufMin_.begin(), bufMin_.end());
+            yHi_ = *std::max_element(bufMax_.begin(), bufMax_.end());
+            double pad = qMax((yHi_ - yLo_) * 0.15, 20.0);
+            yLo_ -= pad;
+            yHi_ += pad;
         }
-        xAxis_->setRange(0, kVisible);
+        update();
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QRect r = rect().adjusted(48, 24, -8, -20); // margins for labels
+        // Background.
+        p.fillRect(rect(), QColor("#1e1e2e"));
+        // Title.
+        p.setPen(QColor("#cdd6f4"));
+        p.setFont(QFont("sans-serif", 10, QFont::Bold));
+        p.drawText(rect().adjusted(8, 4, 0, 0), Qt::AlignTop, "Cycle Latency (µs)");
+
+        if (bufAvg_.size() < 2 || r.width() < 10 || r.height() < 10) return;
+
+        const int n = bufAvg_.size();
+        const double xScale = static_cast<double>(r.width()) / (kMax - 1);
+        const double yRange = yHi_ - yLo_;
+        const double yScale = yRange > 0 ? static_cast<double>(r.height()) / yRange : 1.0;
+
+        auto toY = [&](double val) {
+            return r.bottom() - (val - yLo_) * yScale;
+        };
+        auto toX = [&](int i) {
+            return r.left() + i * xScale;
+        };
+
+        // Grid lines (horizontal).
+        p.setPen(QPen(QColor("#313244"), 1));
+        const double yStep = qPow(10, std::floor(std::log10(qMax(yRange / 5, 1.0))));
+        for (double y = std::ceil(yLo_ / yStep) * yStep; y <= yHi_; y += yStep) {
+            int py = static_cast<int>(toY(y));
+            if (py >= r.top() && py <= r.bottom()) {
+                p.drawLine(r.left(), py, r.right(), py);
+                p.setPen(QColor("#6c7086"));
+                p.setFont(QFont("monospace", 7));
+                p.drawText(r.left() - 46, py - 6, 44, 12, Qt::AlignRight | Qt::AlignVCenter,
+                           QString::number(y, 'f', 0));
+                p.setPen(QPen(QColor("#313244"), 1));
+            }
+        }
+
+        // Draw max (pink dashed) as filled area under it.
+        {
+            QColor maxFill("#f38ba8");
+            maxFill.setAlpha(25);
+            QPolygonF poly;
+            poly << QPointF(toX(0), r.bottom());
+            for (int i = 0; i < n; ++i) {
+                poly << QPointF(toX(i), toY(bufMax_[i]));
+            }
+            poly << QPointF(toX(n - 1), r.bottom());
+            p.setPen(Qt::NoPen);
+            p.setBrush(maxFill);
+            p.drawPolygon(poly);
+        }
+
+        // Draw max line (pink dashed).
+        {
+            QVector<QPointF> pts(n);
+            for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufMax_[i]));
+            p.setPen(QPen(QColor("#f38ba8"), 1, Qt::DashLine));
+            p.setBrush(Qt::NoBrush);
+            p.drawPolyline(pts);
+        }
+
+        // Draw min line (green dashed).
+        {
+            QVector<QPointF> pts(n);
+            for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufMin_[i]));
+            p.setPen(QPen(QColor("#a6e3a1"), 1, Qt::DashLine));
+            p.drawPolyline(pts);
+        }
+
+        // Draw avg line (solid blue, thickest).
+        {
+            QVector<QPointF> pts(n);
+            for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufAvg_[i]));
+            p.setPen(QPen(QColor("#89b4fa"), 2));
+            p.drawPolyline(pts);
+        }
+
+        // Legend (bottom-right).
+        p.setFont(QFont("monospace", 8));
+        int lx = r.right() - 180;
+        int ly = r.bottom() + 4;
+        auto legendItem = [&](const QColor &c, const QString &label) {
+            p.setPen(c);
+            p.drawLine(lx, ly + 6, lx + 16, ly + 6);
+            p.drawText(lx + 20, ly, label);
+            lx += 60;
+        };
+        legendItem(QColor("#89b4fa"), "Avg");
+        legendItem(QColor("#f38ba8"), "Max");
+        legendItem(QColor("#a6e3a1"), "Min");
     }
 
 private:
-    QValueAxis *xAxis_ = nullptr;
-    QValueAxis *yAxis_ = nullptr;
-    QLineSeries *avgSeries_ = nullptr;
-    QLineSeries *maxSeries_ = nullptr;
-    QLineSeries *minSeries_ = nullptr;
     QVector<double> bufAvg_, bufMin_, bufMax_;
+    double yLo_ = 0, yHi_ = 1000;
 };
 
 // ── Compact jitter sparkline (QPainter) ─────────────────────────────────────
