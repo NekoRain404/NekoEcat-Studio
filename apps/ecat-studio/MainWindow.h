@@ -29,6 +29,8 @@ class QTimer;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QWidget;
+class RtTestLatencyChart;
+class RtTestJitterSpark;
 struct CommissioningWorkflowInput;
 struct 
   // ── UI Text Builders ──────────────────────────────────────────
@@ -743,6 +745,8 @@ private:
   QLabel *rtTestDurationLabel_ = nullptr;
   QLabel *rtTestHealthLabel_ = nullptr;
   QPlainTextEdit *rtTestTimelineText_ = nullptr;
+  RtTestLatencyChart *rtTestChart_ = nullptr;
+  RtTestJitterSpark *rtTestJitterSpark_ = nullptr;
   bool rtTestRunning_ = false;
 
   // ── Free Run Panel Widgets ────────────────────────────────────

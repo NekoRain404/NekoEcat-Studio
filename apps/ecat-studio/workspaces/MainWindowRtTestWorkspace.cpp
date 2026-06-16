@@ -1,146 +1,322 @@
 // Real-time stability test workspace: controls, live statistics, and cycle timeline.
 #include "MainWindow.h"
 
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QFontMetrics>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QtCharts/QLegend>
+#include <QtCharts/QLineSeries>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSplitter>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QtCharts/QAreaSeries>
+#include <QtCharts/QAbstractAxis>
+
+// ── Rolling latency graph widget ────────────────────────────────────────────
+// Custom chart that renders cycle-time history as a filled area plot with
+// min/max envelope and avg line, using QtCharts for pixel-accurate rendering.
+class RtTestLatencyChart : public QChartView {
+public:
+    explicit RtTestLatencyChart(QWidget *parent = nullptr)
+        : QChartView(parent)
+    {
+        auto *chart = new QChart;
+        chart->setTitle("Cycle Latency (µs)");
+        chart->legend()->hide();
+        chart->setMargins(QMargins(4, 4, 4, 4));
+        chart->setBackgroundBrush(QColor("#1e1e2e"));
+        chart->setTitleBrush(QColor("#cdd6f4"));
+        chart->setPlotAreaBackgroundBrush(QColor("#181825"));
+        chart->setPlotAreaBackgroundVisible(true);
+
+        // Avg series (main line).
+        avgSeries_ = new QLineSeries;
+        avgSeries_->setPen(QPen(QColor("#89b4fa"), 2));
+        avgSeries_->setName("Avg");
+
+        // Max series (upper envelope).
+        maxSeries_ = new QLineSeries;
+        maxSeries_->setPen(QPen(QColor("#f38ba8"), 1, Qt::DashLine));
+        maxSeries_->setName("Max");
+
+        // Min series (lower envelope).
+        minSeries_ = new QLineSeries;
+        minSeries_->setPen(QPen(QColor("#a6e3a1"), 1, Qt::DashLine));
+        minSeries_->setName("Min");
+
+        // Jitter band (area between min and avg).
+        jitterUpper_ = new QLineSeries;
+        jitterLower_ = new QLineSeries;
+        jitterArea_ = new QAreaSeries(jitterUpper_, jitterLower_);
+        jitterArea_->setBrush(QColor("#f9e2af"));
+        jitterArea_->setPen(Qt::NoPen);
+        jitterArea_->setName("Jitter");
+
+        chart->addSeries(avgSeries_);
+        chart->addSeries(maxSeries_);
+        chart->addSeries(minSeries_);
+        chart->addSeries(jitterArea_);
+
+        setChart(chart);
+        setRenderHint(QPainter::Antialiasing);
+        setStyleSheet("background: transparent;");
+    }
+
+    // Push new data points and refresh the chart axes.
+    void updateData(const QJsonArray &avg, const QJsonArray &minArr,
+                    const QJsonArray &maxArr)
+    {
+        auto seriesReplace = [](QLineSeries *s, const QJsonArray &arr) {
+            s->clear();
+            for (int i = 0; i < arr.size(); ++i) {
+                s->append(i, arr[i].toDouble());
+            }
+        };
+        seriesReplace(avgSeries_, avg);
+        seriesReplace(maxSeries_, maxArr);
+        seriesReplace(minSeries_, minArr);
+
+        // Rebuild jitter area between min and avg.
+        jitterUpper_->clear();
+        jitterLower_->clear();
+        for (int i = 0; i < avg.size(); ++i) {
+            jitterUpper_->append(i, avg[i].toDouble());
+            jitterLower_->append(i, i < minArr.size() ? minArr[i].toDouble() : avg[i].toDouble());
+        }
+
+        // Auto-scale axes with 10% padding on Y.
+        auto axes = chart()->axes();
+        QAbstractAxis *yAxis = nullptr;
+        QAbstractAxis *xAxis = nullptr;
+        for (auto *axis : axes) {
+            if (axis->orientation() == Qt::Vertical) yAxis = axis;
+            else xAxis = axis;
+        }
+        if (!avg.isEmpty() && yAxis) {
+            double lo = 1e18, hi = 0;
+            for (int i = 0; i < avg.size(); ++i) {
+                double v = avg[i].toDouble();
+                double mn = i < minArr.size() ? minArr[i].toDouble() : v;
+                double mx = i < maxArr.size() ? maxArr[i].toDouble() : v;
+                lo = qMin(lo, mn);
+                hi = qMax(hi, mx);
+            }
+            double pad = qMax((hi - lo) * 0.1, 10.0);
+            yAxis->setRange(lo - pad, hi + pad);
+        }
+        if (xAxis) {
+            xAxis->setRange(0, qMax(avg.size() - 1, 1));
+        }
+    }
+
+private:
+    QLineSeries *avgSeries_ = nullptr;
+    QLineSeries *maxSeries_ = nullptr;
+    QLineSeries *minSeries_ = nullptr;
+    QLineSeries *jitterUpper_ = nullptr;
+    QLineSeries *jitterLower_ = nullptr;
+    QAreaSeries *jitterArea_ = nullptr;
+};
+
+// ── Jitter sparkline widget (lightweight QPainter, no QtCharts dependency) ──
+// Draws a real-time scrolling waveform of jitter values.
+class RtTestJitterSpark : public QWidget {
+public:
+    explicit RtTestJitterSpark(QWidget *parent = nullptr) : QWidget(parent) {
+        setMinimumHeight(60);
+        setMaximumHeight(80);
+    }
+
+    void pushSample(double jitterUs) {
+        samples_.append(jitterUs);
+        if (samples_.size() > kMaxSamples) {
+            samples_.removeFirst();
+        }
+        update();
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        const QRect r = rect().adjusted(2, 2, -2, -2);
+        // Background.
+        p.fillRect(rect(), QColor("#181825"));
+        // Border.
+        p.setPen(QPen(QColor("#45475a"), 1));
+        p.drawRect(rect().adjusted(0, 0, -1, -1));
+
+        if (samples_.size() < 2) return;
+
+        // Scale: map jitter range to pixel height.
+        double maxVal = 0;
+        for (double v : samples_) maxVal = qMax(maxVal, v);
+        maxVal = qMax(maxVal, 50.0); // Minimum scale
+        const double scale = r.height() / maxVal;
+
+        // Draw filled area.
+        QPolygonF poly;
+        poly << QPointF(r.left(), r.bottom());
+        for (int i = 0; i < samples_.size(); ++i) {
+            double x = r.left() + (i * r.width()) / (kMaxSamples - 1);
+            double y = r.bottom() - samples_[i] * scale;
+            poly << QPointF(x, y);
+        }
+        poly << QPointF(r.left() + ((samples_.size() - 1) * r.width()) / (kMaxSamples - 1), r.bottom());
+        QColor sparkFill("#89b4fa"); sparkFill.setAlpha(40); p.setBrush(sparkFill);
+        p.setPen(QPen(QColor("#89b4fa"), 1));
+        p.drawPolygon(poly);
+
+        // Current value label.
+        p.setPen(QColor("#cdd6f4"));
+        p.setFont(QFont("monospace", 9));
+        p.drawText(r.adjusted(4, 2, 0, 0), Qt::AlignTop,
+                   QString("Jitter: %1 µs").arg(samples_.last(), 0, 'f', 1));
+    }
+
+private:
+    static constexpr int kMaxSamples = 200;
+    QVector<double> samples_;
+};
 
 // ── Build the RT Test workspace page ────────────────────────────────────────
-// Creates the full RT test panel with controls, statistics, and a cycle timeline.
 QWidget *MainWindow::buildRtTestPage()
 {
     auto *page = new QWidget;
     page->setObjectName("rtTestPage");
     auto *root = new QVBoxLayout(page);
-    root->setContentsMargins(8, 8, 8, 8);
-    root->setSpacing(8);
+    root->setContentsMargins(6, 6, 6, 6);
+    root->setSpacing(4);
 
     // ── Control Bar ────────────────────────────────────────────────────────
-    auto *controlGroup = new QGroupBox(uiText("RT Stability Test", "实时稳定性测试"));
-    controlGroup->setObjectName("rtTestControlGroup");
-    auto *controlLayout = new QHBoxLayout(controlGroup);
-    controlLayout->setContentsMargins(8, 6, 8, 6);
-    controlLayout->setSpacing(8);
+    auto *controlBar = new QHBoxLayout;
+    controlBar->setSpacing(6);
 
-    rtTestStartButton_ = new QPushButton(uiText("Start Test", "开始测试"));
+    rtTestStartButton_ = new QPushButton(uiText("Start", "开始"));
     rtTestStartButton_->setObjectName("rtTestStart");
-    rtTestStopButton_ = new QPushButton(uiText("Stop Test", "停止测试"));
+    rtTestStartButton_->setMinimumWidth(60);
+    rtTestStopButton_ = new QPushButton(uiText("Stop", "停止"));
     rtTestStopButton_->setObjectName("rtTestStop");
+    rtTestStopButton_->setMinimumWidth(60);
     rtTestStopButton_->setEnabled(false);
 
-    controlLayout->addWidget(rtTestStartButton_);
-    controlLayout->addWidget(rtTestStopButton_);
+    controlBar->addWidget(rtTestStartButton_);
+    controlBar->addWidget(rtTestStopButton_);
 
-    controlLayout->addSpacing(12);
-    controlLayout->addWidget(new QLabel(uiText("Cycle:", "周期:")));
+    controlBar->addSpacing(8);
+    controlBar->addWidget(new QLabel(uiText("Cycle:", "周期:")));
     rtTestCycleCombo_ = new QComboBox;
     rtTestCycleCombo_->setObjectName("rtTestCycleCombo");
+    rtTestCycleCombo_->addItem("125 µs (8 kHz)", 125);
+    rtTestCycleCombo_->addItem("250 µs (4 kHz)", 250);
     rtTestCycleCombo_->addItem("500 µs (2 kHz)", 500);
     rtTestCycleCombo_->addItem("1000 µs (1 kHz)", 1000);
     rtTestCycleCombo_->addItem("2000 µs (500 Hz)", 2000);
     rtTestCycleCombo_->addItem("5000 µs (200 Hz)", 5000);
     rtTestCycleCombo_->addItem("10000 µs (100 Hz)", 10000);
-    rtTestCycleCombo_->setCurrentIndex(1); // Default 1 kHz
-    controlLayout->addWidget(rtTestCycleCombo_);
+    rtTestCycleCombo_->setCurrentIndex(3); // Default 1 kHz
+    controlBar->addWidget(rtTestCycleCombo_);
 
-    controlLayout->addStretch();
-    rtTestStatusLabel_ = new QLabel(uiText("Status: Idle", "状态: 空闲"));
+    controlBar->addStretch();
+
+    rtTestStatusLabel_ = new QLabel(uiText("Idle", "空闲"));
     rtTestStatusLabel_->setObjectName("rtTestStatus");
-    controlLayout->addWidget(rtTestStatusLabel_);
+    rtTestStatusLabel_->setStyleSheet("font-weight: bold;");
+    controlBar->addWidget(rtTestStatusLabel_);
 
-    root->addWidget(controlGroup);
+    root->addLayout(controlBar);
 
-    // ── Splitter: Stats + Timeline ─────────────────────────────────────────
-    auto *splitter = new QSplitter(Qt::Vertical);
-    splitter->setObjectName("rtTestSplitter");
+    // ── Main splitter: Stats (left) + Chart (right) ───────────────────────
+    auto *mainSplitter = new QSplitter(Qt::Horizontal);
+    mainSplitter->setObjectName("rtTestMainSplitter");
 
-    // ── Statistics Panel ───────────────────────────────────────────────────
-    auto *statsGroup = new QGroupBox(uiText("Live Statistics", "实时统计"));
-    statsGroup->setObjectName("rtTestStatsGroup");
-    auto *statsLayout = new QVBoxLayout(statsGroup);
-    statsLayout->setContentsMargins(8, 6, 8, 6);
+    // ── Left panel: Stats ──────────────────────────────────────────────────
+    auto *statsWidget = new QWidget;
+    auto *statsLayout = new QVBoxLayout(statsWidget);
+    statsLayout->setContentsMargins(0, 0, 0, 0);
     statsLayout->setSpacing(4);
 
-    // Row 1: Core timing metrics
-    auto *timingRow = new QHBoxLayout;
-    timingRow->setSpacing(16);
-    auto addMetric = [&](const QString &label) -> QLabel * {
-        auto *col = new QVBoxLayout;
-        col->setSpacing(2);
+    // Core timing (compact 2x2 grid).
+    auto *timingGrid = new QGridLayout;
+    timingGrid->setSpacing(4);
+    auto makeStat = [&](const QString &label, int row, int col) -> QLabel * {
         auto *title = new QLabel(label);
         title->setObjectName("rtTestMetricTitle");
         auto *value = new QLabel("--");
         value->setObjectName("rtTestMetricValue");
-        col->addWidget(title);
-        col->addWidget(value);
-        timingRow->addLayout(col);
+        value->setAlignment(Qt::AlignCenter);
+        timingGrid->addWidget(title, row * 2, col);
+        timingGrid->addWidget(value, row * 2 + 1, col);
         return value;
     };
-    rtTestMinLabel_ = addMetric(uiText("Min (µs)", "最小 (µs)"));
-    rtTestMaxLabel_ = addMetric(uiText("Max (µs)", "最大 (µs)"));
-    rtTestAvgLabel_ = addMetric(uiText("Avg (µs)", "平均 (µs)"));
-    rtTestJitterLabel_ = addMetric(uiText("Jitter (µs)", "抖动 (µs)"));
-    timingRow->addStretch();
-    statsLayout->addLayout(timingRow);
+    rtTestMinLabel_  = makeStat(uiText("Min µs", "最小 µs"), 0, 0);
+    rtTestMaxLabel_  = makeStat(uiText("Max µs", "最大 µs"), 0, 1);
+    rtTestAvgLabel_  = makeStat(uiText("Avg µs", "平均 µs"), 1, 0);
+    rtTestJitterLabel_ = makeStat(uiText("Jitter µs", "抖动 µs"), 1, 1);
+    statsLayout->addLayout(timingGrid);
 
-    // Row 2: Counters
-    auto *countRow = new QHBoxLayout;
-    countRow->setSpacing(16);
-    auto addCounter = [&](const QString &label) -> QLabel * {
+    // Counters (horizontal row).
+    auto *countLayout = new QHBoxLayout;
+    countLayout->setSpacing(8);
+    auto makeCount = [&](const QString &label) -> QLabel * {
         auto *col = new QVBoxLayout;
-        col->setSpacing(2);
-        auto *title = new QLabel(label);
-        title->setObjectName("rtTestMetricTitle");
-        auto *value = new QLabel("--");
-        value->setObjectName("rtTestMetricValue");
-        col->addWidget(title);
-        col->addWidget(value);
-        countRow->addLayout(col);
-        return value;
+        col->setSpacing(1);
+        auto *t = new QLabel(label);
+        t->setObjectName("rtTestMetricTitle");
+        t->setAlignment(Qt::AlignCenter);
+        auto *v = new QLabel("--");
+        v->setObjectName("rtTestMetricValue");
+        v->setAlignment(Qt::AlignCenter);
+        col->addWidget(t);
+        col->addWidget(v);
+        countLayout->addLayout(col);
+        return v;
     };
-    rtTestCyclesLabel_ = addCounter(uiText("Cycles", "周期数"));
-    rtTestErrorsLabel_ = addCounter(uiText("Errors", "错误数"));
-    rtTestLossLabel_ = addCounter(uiText("Loss Rate", "丢包率"));
-    rtTestDurationLabel_ = addCounter(uiText("Duration", "持续时间"));
-    countRow->addStretch();
-    statsLayout->addLayout(countRow);
+    rtTestCyclesLabel_ = makeCount(uiText("Cycles", "周期数"));
+    rtTestErrorsLabel_ = makeCount(uiText("Errors", "错误"));
+    rtTestLossLabel_   = makeCount(uiText("Loss %", "丢包%"));
+    rtTestDurationLabel_ = makeCount(uiText("Time", "时间"));
+    statsLayout->addLayout(countLayout);
 
-    // Health indicator — a colored bar showing overall test health.
+    // Health bar.
     rtTestHealthLabel_ = new QLabel;
     rtTestHealthLabel_->setObjectName("rtTestHealth");
-    rtTestHealthLabel_->setFixedHeight(6);
-    rtTestHealthLabel_->setStyleSheet("background: #334155; border-radius: 3px;");
+    rtTestHealthLabel_->setFixedHeight(4);
     statsLayout->addWidget(rtTestHealthLabel_);
 
-    splitter->addWidget(statsGroup);
+    // Jitter sparkline.
+    rtTestJitterSpark_ = new RtTestJitterSpark;
+    statsLayout->addWidget(rtTestJitterSpark_);
 
-    // ── Timeline Panel ─────────────────────────────────────────────────────
-    auto *timelineGroup = new QGroupBox(uiText("Cycle Timeline", "周期时间线"));
-    timelineGroup->setObjectName("rtTestTimelineGroup");
-    auto *timelineLayout = new QVBoxLayout(timelineGroup);
-    timelineLayout->setContentsMargins(8, 6, 8, 6);
+    mainSplitter->addWidget(statsWidget);
 
+    // ── Right panel: Latency chart ─────────────────────────────────────────
+    rtTestChart_ = new RtTestLatencyChart;
+    rtTestChart_->setMinimumWidth(400);
+    mainSplitter->addWidget(rtTestChart_);
+
+    mainSplitter->setStretchFactor(0, 1);
+    mainSplitter->setStretchFactor(1, 3);
+
+    root->addWidget(mainSplitter, 1);
+
+    // ── Timeline log (collapsible) ─────────────────────────────────────────
     rtTestTimelineText_ = new QPlainTextEdit;
     rtTestTimelineText_->setObjectName("rtTestTimeline");
     rtTestTimelineText_->setReadOnly(true);
-    rtTestTimelineText_->setMaximumBlockCount(5000);
-    rtTestTimelineText_->setLineWrapMode(QPlainTextEdit::NoWrap);
+    rtTestTimelineText_->setMaximumBlockCount(2000);
+    rtTestTimelineText_->setMaximumHeight(120);
     rtTestTimelineText_->setPlaceholderText(
-        uiText("Start the RT test to see cycle timing data...",
-               "开始 RT 测试以查看周期时序数据..."));
-    timelineLayout->addWidget(rtTestTimelineText_);
-
-    splitter->addWidget(timelineGroup);
-    splitter->setSizes({200, 400});
-
-    root->addWidget(splitter, 1);
+        uiText("Cycle log will appear here...",
+               "周期日志将在此显示..."));
+    root->addWidget(rtTestTimelineText_);
 
     // ── Wire signals ───────────────────────────────────────────────────────
     connect(rtTestStartButton_, &QPushButton::clicked, this, [this] {
@@ -155,7 +331,6 @@ QWidget *MainWindow::buildRtTestPage()
 }
 
 // ── Handle RT test telemetry from daemon ────────────────────────────────────
-// Updates all statistics labels, health bar, and appends data to the timeline.
 void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
 {
     const bool running = telemetry.value("running").toBool();
@@ -167,15 +342,24 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     const double maxUs = telemetry.value("maxUsec").toDouble();
     const double avgUs = telemetry.value("avgUsec").toDouble();
     const double jitterUs = telemetry.value("jitterUsec").toDouble();
+    const QJsonArray recent = telemetry.value("recent").toArray();
 
-    // Update button states.
+    // Button states.
     rtTestStartButton_->setEnabled(!running && client_.isConnected());
     rtTestStopButton_->setEnabled(running);
     rtTestCycleCombo_->setEnabled(!running);
 
-    // Status label.
-    rtTestStatusLabel_->setText(
-        QString("%1: %2").arg(uiText("Status", "状态"), status));
+    // Status with color.
+    if (running) {
+        rtTestStatusLabel_->setText(uiText("Running", "运行中"));
+        rtTestStatusLabel_->setStyleSheet("color: #22c55e; font-weight: bold;");
+    } else if (cycles > 0) {
+        rtTestStatusLabel_->setText(uiText("Stopped", "已停止"));
+        rtTestStatusLabel_->setStyleSheet("color: #f59e0b; font-weight: bold;");
+    } else {
+        rtTestStatusLabel_->setText(uiText("Idle", "空闲"));
+        rtTestStatusLabel_->setStyleSheet("font-weight: bold;");
+    }
 
     // Core timing metrics.
     if (cycles > 0) {
@@ -188,92 +372,66 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     // Counters.
     rtTestCyclesLabel_->setText(QString::number(cycles));
     rtTestErrorsLabel_->setText(QString::number(errors));
-    rtTestLossLabel_->setText(QString::number(lossRate, 'f', 3) + "%");
+    rtTestLossLabel_->setText(QString::number(lossRate, 'f', 3));
 
-    // Duration estimate from cycle count and average cycle time.
+    // Duration.
     if (cycles > 0 && avgUs > 0) {
         const double seconds = static_cast<double>(cycles) * avgUs / 1000000.0;
         rtTestDurationLabel_->setText(formatDuration(seconds));
     }
 
-    // Health bar color: green if jitter < 100µs, yellow if < 500µs, red otherwise.
-    // Also turns red if loss rate > 0.1%.
-    if (lossRate > 0.1 || jitterUs > 500) {
-        rtTestHealthLabel_->setStyleSheet(
-            "background: #ef4444; border-radius: 3px;");
+    // Health bar color.
+    QString color;
+    if (cycles == 0) {
+        color = "#45475a";
+    } else if (lossRate > 0.1 || jitterUs > 500) {
+        color = "#ef4444";
     } else if (jitterUs > 100) {
-        rtTestHealthLabel_->setStyleSheet(
-            "background: #f59e0b; border-radius: 3px;");
-    } else if (cycles > 0) {
-        rtTestHealthLabel_->setStyleSheet(
-            "background: #22c55e; border-radius: 3px;");
+        color = "#f59e0b";
     } else {
-        rtTestHealthLabel_->setStyleSheet(
-            "background: #334155; border-radius: 3px;");
+        color = "#22c55e";
+    }
+    rtTestHealthLabel_->setStyleSheet(
+        QString("background: %1; border-radius: 2px;").arg(color));
+
+    // Update jitter sparkline.
+    if (rtTestJitterSpark_) {
+        rtTestJitterSpark_->pushSample(jitterUs);
     }
 
-    // Append timeline data — ASCII sparkline of recent cycle times.
-    const auto recent = telemetry.value("recent").toArray();
-    if (!recent.isEmpty() && running) {
-        appendRtTestTimeline(recent, avgUs);
-    }
-}
-
-// ── Append a timeline block to the text panel ──────────────────────────────
-// Renders cycle times as a compact ASCII histogram for quick visual scanning.
-void MainWindow::appendRtTestTimeline(const QJsonArray &recent, double avgUsec)
-{
-    // Downsample to ~80 columns for display.
-    const int columns = 80;
-    const int step = std::max(1, static_cast<int>(recent.size()) / columns);
-
-    // Build ASCII bar chart — each character represents a bucket of samples.
-    // Height is proportional to deviation from average.
-    QStringList lines;
-    QString barLine;
-    for (int i = 0; i < static_cast<int>(recent.size()); i += step) {
-        const double us = recent[i].toDouble();
-        const double deviation = us - avgUsec;
-        // Map deviation to a character: · for near-avg, ▂▃▄▅▆▇ for increasing, ░ for negative.
-        QChar ch;
-        if (deviation < -50) {
-            ch = QChar(0x00B7); // · (below avg)
-        } else if (deviation < 10) {
-            ch = QChar(0x00B7); // · (near avg)
-        } else if (deviation < 30) {
-            ch = QChar(0x2581); // ▂
-        } else if (deviation < 60) {
-            ch = QChar(0x2582); // ▃
-        } else if (deviation < 100) {
-            ch = QChar(0x2583); // ▄
-        } else if (deviation < 200) {
-            ch = QChar(0x2585); // ▅
-        } else if (deviation < 400) {
-            ch = QChar(0x2586); // ▆
-        } else if (deviation < 800) {
-            ch = QChar(0x2587); // ▇
-        } else {
-            ch = QChar(0x2588); // █ (severe spike)
+    // Update latency chart with recent sample arrays.
+    if (rtTestChart_ && !recent.isEmpty()) {
+        // Build separate avg/min/max arrays from the recent samples.
+        // The daemon sends per-sample values; we derive min/max from chunks.
+        QJsonArray avgArr, minArr, maxArr;
+        const int chunk = qMax(1, recent.size() / 100);
+        for (int i = 0; i < recent.size(); i += chunk) {
+            double chunkMin = 1e18, chunkMax = 0, chunkSum = 0;
+            int count = 0;
+            for (int j = i; j < qMin(i + chunk, recent.size()); ++j) {
+                double v = recent[j].toDouble();
+                chunkMin = qMin(chunkMin, v);
+                chunkMax = qMax(chunkMax, v);
+                chunkSum += v;
+                ++count;
+            }
+            avgArr.append(chunkSum / count);
+            minArr.append(chunkMin);
+            maxArr.append(chunkMax);
         }
-        barLine += ch;
-    }
-    if (!barLine.isEmpty()) {
-        lines << barLine;
+        rtTestChart_->updateData(avgArr, minArr, maxArr);
     }
 
-    // Append a summary line with current stats.
-    const qint64 cycles = rtTestCyclesLabel_->text().toLongLong();
-    lines << QString("  #%1  avg=%2µs  jit=%3µs  loss=%4%")
-                 .arg(cycles)
-                 .arg(avgUsec, 0, 'f', 1)
-                 .arg(rtTestJitterLabel_->text())
-                 .arg(rtTestLossLabel_->text());
-
-    rtTestTimelineText_->appendPlainText(lines.join('\n'));
+    // Append periodic summary to log.
+    if (running && cycles > 0 && (cycles % 5000 == 0)) {
+        rtTestTimelineText_->appendPlainText(
+            QString("#%1  avg=%2µs  jit=%3µs  loss=%4%")
+                .arg(cycles).arg(avgUs, 0, 'f', 1)
+                .arg(jitterUs, 0, 'f', 1).arg(lossRate, 0, 'f', 3));
+    }
 }
 
 // ── Update RT test action availability ─────────────────────────────────────
-// Called from updateActionAvailability() to enable/disable RT test controls.
 void MainWindow::updateRtTestActionAvailability()
 {
     if (!rtTestStartButton_) return;
@@ -282,18 +440,18 @@ void MainWindow::updateRtTestActionAvailability()
     rtTestStopButton_->setEnabled(rtTestRunning_);
 }
 
-// ── Format a duration in seconds to a human-readable string ────────────────
+// ── Format seconds to human-readable duration ──────────────────────────────
 QString MainWindow::formatDuration(double seconds) const
 {
     if (seconds < 60) {
         return QString::number(seconds, 'f', 1) + "s";
     }
     if (seconds < 3600) {
-        const int min = static_cast<int>(seconds) / 60;
-        const int sec = static_cast<int>(seconds) % 60;
-        return QString("%1m %2s").arg(min).arg(sec);
+        return QString("%1m %2s")
+            .arg(static_cast<int>(seconds) / 60)
+            .arg(static_cast<int>(seconds) % 60);
     }
-    const int hours = static_cast<int>(seconds) / 3600;
-    const int min = (static_cast<int>(seconds) % 3600) / 60;
-    return QString("%1h %2m").arg(hours).arg(min);
+    return QString("%1h %2m")
+        .arg(static_cast<int>(seconds) / 3600)
+        .arg((static_cast<int>(seconds) % 3600) / 60);
 }
