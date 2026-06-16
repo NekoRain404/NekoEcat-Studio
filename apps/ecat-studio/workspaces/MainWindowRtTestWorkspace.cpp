@@ -62,6 +62,7 @@ protected:
         if (bufAvg_.size() < 2 || r.width() < 10 || r.height() < 10) return;
 
         const int n = bufAvg_.size();
+        const int xOff = kMax - n;  // right-align: empty bins on the left
         const double xScale = static_cast<double>(r.width()) / (kMax - 1);
         const double yRange = yHi_ - yLo_;
         const double yScale = yRange > 0 ? static_cast<double>(r.height()) / yRange : 1.0;
@@ -146,6 +147,7 @@ protected:
 private:
     QVector<double> bufAvg_, bufMin_, bufMax_;
     double yLo_ = 0, yHi_ = 1000;
+    bool ySnapped_ = false;
 };
 
 // ── Compact jitter sparkline (QPainter) ─────────────────────────────────────
