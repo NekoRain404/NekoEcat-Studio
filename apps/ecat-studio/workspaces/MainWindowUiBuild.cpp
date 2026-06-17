@@ -667,7 +667,7 @@ void MainWindow::buildUi() {
   sdo_->sdoTable = new QTableWidget;
   sdoTargetTrailTable_ = new QTableWidget;
   sdoHistoryTable_ = new QTableWidget;
-  freeRunTable_ = new QTableWidget;
+  freeRunWidgets_->freeRunTable = new QTableWidget;
   freeRunWidgets_->freeRunEntryTable = new QTableWidget;
   ioVar_->ioVariableTable = new QTableWidget;
   consistency_->consistencyTable = new QTableWidget;
@@ -688,7 +688,7 @@ void MainWindow::buildUi() {
                       sdo_->sdoTable,
                       sdoTargetTrailTable_,
                       sdoHistoryTable_,
-                      freeRunTable_,
+                      freeRunWidgets_->freeRunTable,
                       freeRunWidgets_->freeRunEntryTable,
                       ioVar_->ioVariableTable,
                       consistency_->consistencyTable,
@@ -1748,7 +1748,7 @@ void MainWindow::buildUi() {
   freeRunLayout->setSpacing(10);
   freeRunLayout->addWidget(
       makeSectionTitle(uiText("Runtime Status", "运行时状态")));
-  freeRunLayout->addWidget(freeRunTable_, 1);
+  freeRunLayout->addWidget(freeRunWidgets_->freeRunTable, 1);
   freeRunLayout->addWidget(
       makeSectionTitle(uiText("Process Image", "过程映像")));
   freeRunWidgets_->freeRunFilter = new QLineEdit;

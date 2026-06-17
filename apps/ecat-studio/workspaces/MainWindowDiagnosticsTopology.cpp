@@ -294,7 +294,7 @@ void MainWindow::exportDiagnosticsReport() {
     out << "\n";
   }
   out << "## Free Run Summary\n\n";
-  writeMarkdownTable(out, freeRunTable_);
+  writeMarkdownTable(out, freeRunWidgets_->freeRunTable);
   out << "## Free Run Entries\n\n";
   writeMarkdownTable(out, freeRunWidgets_->freeRunEntryTable);
   out << "## Project Notes\n\n";

@@ -623,7 +623,6 @@ private:
   QLabel *objectBookmarkDetailLabel_ = nullptr;
   QTableWidget *sdoHistoryTable_ = nullptr;
   QLabel *sdoHistoryDetailLabel_ = nullptr;
-  QTableWidget *freeRunTable_ = nullptr;
   QTableWidget *hostHealthTable_ = nullptr;
   QTableWidget *esiTable_ = nullptr;
   QTableWidget *startupSdoTable_ = nullptr;

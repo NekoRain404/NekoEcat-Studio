@@ -1925,7 +1925,7 @@ void MainWindow::clearOnlineViews() {
   for (auto *table :
        {metricTable_, workflow_->workflowTable, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidence_->slaveEvidenceMatrixTable, portTable_, mailboxTable_, sdo_->pdoTable,
-        sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunWidgets_->freeRunEntryTable,
+        sdo_->sdoTable, sdoHistoryTable_, freeRunWidgets_->freeRunTable, freeRunWidgets_->freeRunEntryTable,
         ioVar_->ioVariableTable, watch_->watchTable}) {
     if (table) {
       table->clear();
@@ -2744,7 +2744,7 @@ void MainWindow::wire() {
                       sdoTargetTrailTable_,
                       bookmark_->objectBookmarkTable,
                       sdoHistoryTable_,
-                      freeRunTable_,
+                      freeRunWidgets_->freeRunTable,
                       freeRunWidgets_->freeRunEntryTable,
                       ioVar_->ioVariableTable,
                       hostHealthTable_,
@@ -4128,7 +4128,7 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
       {"Redundancy Active",
        QString::number(telemetry.value("redundancyActive").toInt())},
   };
-  setTableRows(freeRunTable_, {"Signal", "Value"}, rows);
+  setTableRows(freeRunWidgets_->freeRunTable, {"Signal", "Value"}, rows);
 
   QList<QStringList> entries;
   const auto array = telemetry.value("entries").toArray();

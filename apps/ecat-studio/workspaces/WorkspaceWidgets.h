@@ -44,6 +44,7 @@ struct WatchWorkspaceWidgets {
 // ── Free Run entry workspace ───────────────────────────────────────────────
 struct FreeRunWorkspaceWidgets {
     QTableWidget *freeRunEntryTable = nullptr;
+    QTableWidget    *freeRunTable = nullptr;
     QLineEdit    *freeRunFilter = nullptr;
     QCheckBox    *freeRunChangedOnly = nullptr;
     QLabel       *freeRunEntrySummaryLabel = nullptr;
