@@ -367,7 +367,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
           normalizedHex(tableText(table, currentRow, 2), 2);
       objectClipboard.value = tableText(table, currentRow, 3);
       objectClipboard.type = tableText(table, currentRow, 4);
-    } else if (table == objectBookmarkTable_) {
+    } else if (table == bookmark_->objectBookmarkTable) {
       objectClipboard.position =
           parsedPosition(tableText(table, currentRow, 0));
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 2), 4);
@@ -836,7 +836,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         menu.addAction(uiText("Remove Selected Rows", "删除所选行"));
     removeStartupRow->setEnabled(hasSelectedStartupRows);
     menu.addSeparator();
-  } else if (table == objectBookmarkTable_) {
+  } else if (table == bookmark_->objectBookmarkTable) {
     const int row = table->currentRow();
     const bool hasBookmarkRow = row >= 0;
     const bool hasBookmarkSelection = !selectedObjectBookmarkRows().isEmpty();
@@ -1272,7 +1272,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     applySdoSelectionFromHistory(row, false);
   } else if (table == startupSdoTable_) {
     applySdoSelectionFromStartup(row, false);
-  } else if (table == objectBookmarkTable_) {
+  } else if (table == bookmark_->objectBookmarkTable) {
     applySdoSelectionFromBookmark(row, false);
   } else if (table == sdoTargetTrailTable_) {
     restoreSdoTargetTrailRow(row);

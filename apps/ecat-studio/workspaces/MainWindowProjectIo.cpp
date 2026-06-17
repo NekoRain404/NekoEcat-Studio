@@ -126,9 +126,9 @@ void MainWindow::newProject() {
   projectPath_.clear();
   projectName_ = "Untitled";
   ioVariableMetadata_.clear();
-  if (objectBookmarkTable_) {
-    objectBookmarkTable_->clearContents();
-    objectBookmarkTable_->setRowCount(0);
+  if (bookmark_->objectBookmarkTable) {
+    bookmark_->objectBookmarkTable->clearContents();
+    bookmark_->objectBookmarkTable->setRowCount(0);
     ensureObjectBookmarkTable();
     updateObjectBookmarkRowDetail();
   }
@@ -267,10 +267,10 @@ bool MainWindow::writeProjectFile(const QString &path) {
     }
   }
   QJsonArray bookmarkArray;
-  if (objectBookmarkTable_) {
-    for (int row = 0; row < objectBookmarkTable_->rowCount(); ++row) {
+  if (bookmark_->objectBookmarkTable) {
+    for (int row = 0; row < bookmark_->objectBookmarkTable->rowCount(); ++row) {
       const SdoObjectBookmarkRow bookmark =
-          sdoObjectBookmarkRowFromTable(objectBookmarkTable_, row);
+          sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, row);
       if (bookmark.index.trimmed().isEmpty() ||
           bookmark.subIndex.trimmed().isEmpty()) {
         continue;
@@ -528,10 +528,10 @@ bool MainWindow::readProjectFile(const QString &path) {
       ioVariableMetadata_.insert(key, {alias, tags, note});
     }
   }
-  if (objectBookmarkTable_) {
+  if (bookmark_->objectBookmarkTable) {
     ensureObjectBookmarkTable();
-    objectBookmarkTable_->clearContents();
-    objectBookmarkTable_->setRowCount(0);
+    bookmark_->objectBookmarkTable->clearContents();
+    bookmark_->objectBookmarkTable->setRowCount(0);
     const auto bookmarkArray = root.value("objectBookmarks").toArray();
     for (const auto &value : bookmarkArray) {
       const auto object = value.toObject();

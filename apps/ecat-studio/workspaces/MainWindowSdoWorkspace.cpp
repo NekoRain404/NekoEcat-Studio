@@ -194,7 +194,7 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
           {.dictionaryTable = sdo_->sdoTable,
            .watchTable = watch_->watchTable,
            .startupTable = startupSdoTable_,
-           .bookmarkTable = objectBookmarkTable_},
+           .bookmarkTable = bookmark_->objectBookmarkTable},
           {.read = uiText("Read", "读回"),
            .watchPrefix = uiText("Watch", "Watch"),
            .dictionary = uiText("OD", "OD"),
@@ -561,10 +561,10 @@ int MainWindow::currentSdoStartupRow() const {
 // — Return the current sdo bookmark row
 int MainWindow::currentSdoBookmarkRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !objectBookmarkTable_ || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !bookmark_->objectBookmarkTable || !sdoIndex_ || !sdoSubIndex_) {
     return -1;
   }
-  return sdoEvidenceTableRowsForTarget({.bookmarkTable = objectBookmarkTable_},
+  return sdoEvidenceTableRowsForTarget({.bookmarkTable = bookmark_->objectBookmarkTable},
                                        {.position = position,
                                         .index = sdoIndex_->text(),
                                         .subIndex = sdoSubIndex_->text()})
@@ -600,7 +600,7 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
       {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
-       .bookmarkTable = objectBookmarkTable_,
+       .bookmarkTable = bookmark_->objectBookmarkTable,
        .targetTrailTable = sdoTargetTrailTable_},
       {.position = position,
        .index = sdoIndex_ ? sdoIndex_->text() : QString(),
@@ -611,7 +611,7 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
       {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
-       .bookmarkTable = objectBookmarkTable_,
+       .bookmarkTable = bookmark_->objectBookmarkTable,
        .targetTrailTable = sdoTargetTrailTable_},
       rows,
       {.readValue = uiText("Read Value", "读回值"),
@@ -646,7 +646,7 @@ bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
       {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
-       .bookmarkTable = objectBookmarkTable_,
+       .bookmarkTable = bookmark_->objectBookmarkTable,
        .targetTrailTable = sdoTargetTrailTable_},
       {.dictionaryRow = currentSdoDictionaryRow(),
        .watchRow = currentSdoWatchRow(),
@@ -726,7 +726,7 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
 
   const int bookmarkRow = currentSdoBookmarkRow();
   const SdoObjectBookmarkRow bookmark =
-      sdoObjectBookmarkRowFromTable(objectBookmarkTable_, bookmarkRow);
+      sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow);
   if (bookmarkRow >= 0 && shouldReviewValue(bookmark.lastValue)) {
     openCurrentSdoBookmarkLink();
     updateDiagnostics("Info", "Navigation",
@@ -1080,14 +1080,14 @@ void MainWindow::openCurrentSdoStartupLink() {
 // — Open current sdo bookmark link
 void MainWindow::openCurrentSdoBookmarkLink() {
   const int row = currentSdoBookmarkRow();
-  if (row < 0 || !objectBookmarkTable_) {
+  if (row < 0 || !bookmark_->objectBookmarkTable) {
     updateDiagnostics("Info", "Navigation",
                       uiText("No matching Object Bookmark for current target",
                              "当前目标没有匹配的对象书签"));
     return;
   }
-  activateObjectDictionaryPaneFor(objectBookmarkTable_);
-  selectAndFocusTableRow(objectBookmarkTable_, row, 0);
+  activateObjectDictionaryPaneFor(bookmark_->objectBookmarkTable);
+  selectAndFocusTableRow(bookmark_->objectBookmarkTable, row, 0);
   updateDiagnostics("Info", "Navigation",
                     uiText("Opened matching Object Bookmark for current target",
                            "已打开当前目标匹配的对象书签"));
@@ -1232,18 +1232,18 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
 
   int bookmarkRows = 0;
   QString bookmarkValue;
-  if (hasCompleteTarget && objectBookmarkTable_) {
+  if (hasCompleteTarget && bookmark_->objectBookmarkTable) {
     ensureObjectBookmarkTable();
     const int primaryBookmarkRow = currentSdoBookmarkRow();
-    for (int row = 0; row < objectBookmarkTable_->rowCount(); ++row) {
-      if (!tableObjectAddressMatches(objectBookmarkTable_, row, position,
+    for (int row = 0; row < bookmark_->objectBookmarkTable->rowCount(); ++row) {
+      if (!tableObjectAddressMatches(bookmark_->objectBookmarkTable, row, position,
                                      normalizedIndex, normalizedSubIndex, 0, 2,
                                      3)) {
         continue;
       }
       ++bookmarkRows;
       const SdoObjectBookmarkRow bookmark =
-          sdoObjectBookmarkRowFromTable(objectBookmarkTable_, row);
+          sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, row);
       if (bookmarkValue.isEmpty() || row == primaryBookmarkRow) {
         bookmarkValue = bookmark.lastValue;
       }
@@ -1977,7 +1977,7 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
     const int bookmarkRow = currentSdoBookmarkRow();
     if (bookmarkRow >= 0) {
       selectedSdoWritable_ = !sdoObjectAccessIsReadOnly(
-          sdoObjectBookmarkRowFromTable(objectBookmarkTable_, bookmarkRow)
+          sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow)
               .access,
           uiText("只读", "只读"));
     }
@@ -2040,16 +2040,16 @@ bool MainWindow::sdoTargetTrailRowCanCreateStartup(int row) const {
     }
   }
 
-  if (objectBookmarkTable_) {
-    for (int bookmarkRow = 0; bookmarkRow < objectBookmarkTable_->rowCount();
+  if (bookmark_->objectBookmarkTable) {
+    for (int bookmarkRow = 0; bookmarkRow < bookmark_->objectBookmarkTable->rowCount();
          ++bookmarkRow) {
-      if (!tableObjectAddressMatches(objectBookmarkTable_, bookmarkRow,
+      if (!tableObjectAddressMatches(bookmark_->objectBookmarkTable, bookmarkRow,
                                      trail.position, trail.index,
                                      trail.subIndex, 0, 2, 3)) {
         continue;
       }
       return !sdoObjectAccessIsReadOnly(
-          sdoObjectBookmarkRowFromTable(objectBookmarkTable_, bookmarkRow)
+          sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow)
               .access,
           uiText("只读", "只读"));
     }
@@ -2928,20 +2928,20 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
 
 // — Create the object bookmark table columns if not yet initialized
 void MainWindow::ensureObjectBookmarkTable() {
-  if (!objectBookmarkTable_) {
+  if (!bookmark_->objectBookmarkTable) {
     return;
   }
-  if (objectBookmarkTable_->columnCount() != 10) {
-    objectBookmarkTable_->setColumnCount(10);
+  if (bookmark_->objectBookmarkTable->columnCount() != 10) {
+    bookmark_->objectBookmarkTable->setColumnCount(10);
   }
-  objectBookmarkTable_->setHorizontalHeaderLabels(
+  bookmark_->objectBookmarkTable->setHorizontalHeaderLabels(
       {uiText("Slave", "从站"), uiText("Slave Name", "从站名称"),
        uiText("Index", "索引"), uiText("Sub", "子项"), uiText("Access", "权限"),
        uiText("Type", "类型"), uiText("Bits", "位宽"), uiText("Name", "名称"),
        uiText("Last Value", "最后值"), uiText("Source", "来源")});
-  objectBookmarkTable_->horizontalHeader()->setSectionResizeMode(
+  bookmark_->objectBookmarkTable->horizontalHeader()->setSectionResizeMode(
       QHeaderView::ResizeToContents);
-  objectBookmarkTable_->horizontalHeader()->setStretchLastSection(true);
+  bookmark_->objectBookmarkTable->horizontalHeader()->setStretchLastSection(true);
 }
 
 
@@ -2959,26 +2959,26 @@ void MainWindow::updateObjectBookmarkRowDetail() {
     repolish(objectBookmarkDetailLabel_); // force QSS re-evaluation after property change
   };
 
-  if (!objectBookmarkTable_) {
+  if (!bookmark_->objectBookmarkTable) {
     applyState(objectBookmarkDetailUnavailableState(texts));
     return;
   }
 
-  const int row = objectBookmarkTable_->currentRow();
-  if (row < 0 || row >= objectBookmarkTable_->rowCount() ||
-      objectBookmarkTable_->isRowHidden(row)) {
+  const int row = bookmark_->objectBookmarkTable->currentRow();
+  if (row < 0 || row >= bookmark_->objectBookmarkTable->rowCount() ||
+      bookmark_->objectBookmarkTable->isRowHidden(row)) {
     applyState(objectBookmarkDetailNoSelectionState(texts));
     return;
   }
 
   applyState(buildObjectBookmarkDetailUiState(
-      sdoObjectBookmarkRowFromTable(objectBookmarkTable_, row), texts));
+      sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, row), texts));
 }
 
 
 // — Return selected object bookmark rows
 QVector<int> MainWindow::selectedObjectBookmarkRows() const {
-  return selectedTableRows(objectBookmarkTable_);
+  return selectedTableRows(bookmark_->objectBookmarkTable);
 }
 
 
@@ -3143,11 +3143,11 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
   // Normalize hex address for consistent comparison
   const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
   int row =
-      tableRowForObjectAddress(objectBookmarkTable_, position, normalizedIndex,
+      tableRowForObjectAddress(bookmark_->objectBookmarkTable, position, normalizedIndex,
                                normalizedSubIndex, 0, 2, 3);
   if (row < 0) {
-    row = objectBookmarkTable_->rowCount();
-    objectBookmarkTable_->insertRow(row);
+    row = bookmark_->objectBookmarkTable->rowCount();
+    bookmark_->objectBookmarkTable->insertRow(row);
   }
 
   QString slaveName;
@@ -3170,27 +3170,27 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
       source.trimmed().isEmpty() ? uiText("Project", "工程") : source,
   };
   for (int column = 0; column < values.size(); ++column) {
-    auto *item = objectBookmarkTable_->item(row, column);
+    auto *item = bookmark_->objectBookmarkTable->item(row, column);
     if (!item) {
       item = new QTableWidgetItem;
-      objectBookmarkTable_->setItem(row, column, item);
+      bookmark_->objectBookmarkTable->setItem(row, column, item);
     }
     item->setText(values.at(column));
   }
-  objectBookmarkTable_->resizeColumnsToContents(); // auto-fit column widths
-  objectBookmarkTable_->selectRow(row);
+  bookmark_->objectBookmarkTable->resizeColumnsToContents(); // auto-fit column widths
+  bookmark_->objectBookmarkTable->selectRow(row);
   updateObjectBookmarkRowDetail();
 }
 
 
 // — Fill the SDO target panel from the selected object bookmark row
 void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
-  if (!objectBookmarkTable_ || row < 0 ||
-      row >= objectBookmarkTable_->rowCount()) {
+  if (!bookmark_->objectBookmarkTable || row < 0 ||
+      row >= bookmark_->objectBookmarkTable->rowCount()) {
     return;
   }
   const SdoObjectBookmarkRow bookmark =
-      sdoObjectBookmarkRowFromTable(objectBookmarkTable_, row);
+      sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, row);
   if (!sdoObjectBookmarkRowHasTarget(bookmark)) {
     return;
   }
@@ -3274,7 +3274,7 @@ void MainWindow::addSelectedObjectBookmarksToWatch() {
 
 // — Add object bookmark rows to watch
 void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
-  if (!objectBookmarkTable_ || rows.isEmpty()) {
+  if (!bookmark_->objectBookmarkTable || rows.isEmpty()) {
     return;
   }
   ensureWatchTable();
@@ -3283,7 +3283,7 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
   int skipped = 0;
   for (const int bookmarkRow : rows) {
     const SdoObjectBookmarkRow bookmark =
-        sdoObjectBookmarkRowFromTable(objectBookmarkTable_, bookmarkRow);
+        sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow);
     if (!sdoObjectBookmarkRowHasTarget(bookmark)) {
       ++skipped;
       continue;
@@ -3359,7 +3359,7 @@ void MainWindow::addSelectedObjectBookmarksToStartupSdo() {
 
 // — Add object bookmark rows to startup sdo
 void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
-  if (!objectBookmarkTable_ || rows.isEmpty()) {
+  if (!bookmark_->objectBookmarkTable || rows.isEmpty()) {
     return;
   }
   ensureStartupSdoTable();
@@ -3400,9 +3400,9 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
 
   for (const int bookmarkRow : uniqueRows) {
     const SdoObjectBookmarkRow bookmark =
-        sdoObjectBookmarkRowFromTable(objectBookmarkTable_, bookmarkRow);
+        sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow);
     if (!sdoObjectBookmarkRowHasTarget(bookmark) ||
-        objectBookmarkTable_->isRowHidden(bookmarkRow) ||
+        bookmark_->objectBookmarkTable->isRowHidden(bookmarkRow) ||
         bookmark.lastValue.isEmpty()) {
       ++skipped;
       continue;
@@ -3629,13 +3629,13 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
 // — Remove selected object bookmarks
 void MainWindow::removeSelectedObjectBookmarks() {
   QVector<int> rows = selectedObjectBookmarkRows();
-  if (rows.isEmpty() || !objectBookmarkTable_) {
+  if (rows.isEmpty() || !bookmark_->objectBookmarkTable) {
     return;
   }
   std::sort(rows.begin(), rows.end(), std::greater<int>());
   for (const int row : rows) {
-    if (row >= 0 && row < objectBookmarkTable_->rowCount()) {
-      objectBookmarkTable_->removeRow(row);
+    if (row >= 0 && row < bookmark_->objectBookmarkTable->rowCount()) {
+      bookmark_->objectBookmarkTable->removeRow(row);
     }
   }
   updateDiagnostics(

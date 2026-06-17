@@ -168,6 +168,7 @@ void MainWindow::buildUi() {
   workflow_ = nullptr;
   slaveEvidence_ = nullptr;
   freeRunWidgets_ = nullptr;
+  bookmark_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
   slaveEvidence_->slaveEvidenceMatrixFilter = nullptr;
@@ -1516,15 +1517,16 @@ void MainWindow::buildUi() {
   bookmarkHeader->addWidget(startupBookmarkSdo);
   bookmarkHeader->addWidget(removeBookmarkSdo);
   sdoBookmarkLayout->addLayout(bookmarkHeader);
-  objectBookmarkTable_ = new QTableWidget;
-  objectBookmarkTable_->setObjectName("objectBookmarkTable");
-  objectBookmarkTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-  objectBookmarkTable_->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  objectBookmarkTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  objectBookmarkTable_->setContextMenuPolicy(Qt::CustomContextMenu);
-  objectBookmarkTable_->verticalHeader()->setVisible(false);
-  objectBookmarkTable_->setMinimumHeight(120);
-  objectBookmarkTable_->setToolTip(uiText(
+  bookmark_ = new BookmarkWorkspaceWidgets;
+  bookmark_->objectBookmarkTable = new QTableWidget;
+  bookmark_->objectBookmarkTable->setObjectName("objectBookmarkTable");
+  bookmark_->objectBookmarkTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+  bookmark_->objectBookmarkTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  bookmark_->objectBookmarkTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  bookmark_->objectBookmarkTable->setContextMenuPolicy(Qt::CustomContextMenu);
+  bookmark_->objectBookmarkTable->verticalHeader()->setVisible(false);
+  bookmark_->objectBookmarkTable->setMinimumHeight(120);
+  bookmark_->objectBookmarkTable->setToolTip(uiText(
       "Project-local SDO object bookmarks. Double-click fills the SDO target; "
       "reads and writes still require explicit user actions.",
       "工程内 SDO 对象书签。双击只回填 SDO "
@@ -1541,7 +1543,7 @@ void MainWindow::buildUi() {
              "只复用"
              "工程数据，直到用户显式请求读取或应用。"));
   sdoBookmarkLayout->addWidget(objectBookmarkDetailLabel_);
-  sdoBookmarkLayout->addWidget(objectBookmarkTable_, 1);
+  sdoBookmarkLayout->addWidget(bookmark_->objectBookmarkTable, 1);
 
   auto *sdoHistoryHeader = new QHBoxLayout;
   sdoHistoryHeader->setSpacing(8);
@@ -2359,7 +2361,7 @@ void MainWindow::rebuildUi() {
   const QList<QStringList> sdoTargetTrailRows =
       copyTableRows(sdoTargetTrailTable_);
   const QList<QStringList> objectBookmarkRows =
-      copyTableRows(objectBookmarkTable_);
+      copyTableRows(bookmark_->objectBookmarkTable);
   const QList<QStringList> watchRows = copyTableRows(watch_->watchTable);
   const bool watchAutoRefresh =
       watch_->watchAutoRefresh ? watch_->watchAutoRefresh->isChecked() : false;
@@ -2505,16 +2507,16 @@ void MainWindow::rebuildUi() {
   updateSdoTable(lastSdoText_);
   if (!objectBookmarkRows.isEmpty()) {
     ensureObjectBookmarkTable();
-    objectBookmarkTable_->setRowCount(objectBookmarkRows.size());
+    bookmark_->objectBookmarkTable->setRowCount(objectBookmarkRows.size());
     for (int row = 0; row < objectBookmarkRows.size(); ++row) {
       const QStringList values = objectBookmarkRows.at(row);
-      for (int column = 0; column < objectBookmarkTable_->columnCount();
+      for (int column = 0; column < bookmark_->objectBookmarkTable->columnCount();
            ++column) {
-        objectBookmarkTable_->setItem(
+        bookmark_->objectBookmarkTable->setItem(
             row, column, new QTableWidgetItem(values.value(column)));
       }
     }
-    objectBookmarkTable_->resizeColumnsToContents(); // auto-fit column widths
+    bookmark_->objectBookmarkTable->resizeColumnsToContents(); // auto-fit column widths
   }
   if (!watchRows.isEmpty()) {
     ensureWatchTable();

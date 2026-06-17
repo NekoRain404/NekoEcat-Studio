@@ -614,12 +614,12 @@ private:
   WorkflowWorkspaceWidgets *workflow_ = nullptr;
   SlaveEvidenceWorkspaceWidgets *slaveEvidence_ = nullptr;
   FreeRunWorkspaceWidgets *freeRunWidgets_ = nullptr;
+  BookmarkWorkspaceWidgets *bookmark_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
   QTableWidget *sdoTargetTrailTable_ = nullptr;
   QLabel *sdoTargetTrailDetailLabel_ = nullptr;
-  QTableWidget *objectBookmarkTable_ = nullptr;
   QLabel *objectBookmarkDetailLabel_ = nullptr;
   QTableWidget *sdoHistoryTable_ = nullptr;
   QLabel *sdoHistoryDetailLabel_ = nullptr;

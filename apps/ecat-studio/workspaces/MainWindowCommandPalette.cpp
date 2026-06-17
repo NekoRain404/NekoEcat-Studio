@@ -723,7 +723,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogNewFolder),
       [this] { addSelectedObjectBookmarksToWatch(); },
       [this] {
-        return objectBookmarkTable_ && !selectedObjectBookmarkRows().isEmpty();
+        return bookmark_->objectBookmarkTable && !selectedObjectBookmarkRows().isEmpty();
       },
   });
   commands.append(CommandItem{
@@ -735,7 +735,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_DialogApplyButton),
       [this] { addSelectedObjectBookmarksToStartupSdo(); },
       [this] {
-        return objectBookmarkTable_ && !selectedObjectBookmarkRows().isEmpty();
+        return bookmark_->objectBookmarkTable && !selectedObjectBookmarkRows().isEmpty();
       },
   });
   commands.append(CommandItem{

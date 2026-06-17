@@ -428,9 +428,9 @@ void MainWindow::updateActionAvailability() {
         sdoDictionaryRowsContainValue(sdo_->sdoTable, selectedDictionaryRows());
   }
   const bool hasObjectBookmarks =
-      objectBookmarkTable_ && objectBookmarkTable_->rowCount() > 0;
+      bookmark_->objectBookmarkTable && bookmark_->objectBookmarkTable->rowCount() > 0;
   const bool hasObjectBookmarkSelection =
-      objectBookmarkTable_ && !selectedObjectBookmarkRows().isEmpty();
+      bookmark_->objectBookmarkTable && !selectedObjectBookmarkRows().isEmpty();
   const bool hasSdoTargetTrailSelection =
       sdoTargetTrailTable_ && sdoTargetTrailTable_->currentRow() >= 0;
   const bool hasSdoTargetTrailRows =
@@ -563,14 +563,14 @@ void MainWindow::updateActionAvailability() {
   setEnabled("clearSdoTargetTrail", hasSdoTargetTrailRows);
   updateSdoTargetRowActionButton();
   updateSdoTargetRowCopyButton();
-  if (objectBookmarkTable_) {
-    objectBookmarkTable_->setToolTip(
+  if (bookmark_->objectBookmarkTable) {
+    bookmark_->objectBookmarkTable->setToolTip(
         uiText(
             "%1 project object bookmark(s). Double-click fills the SDO target; "
             "reads and writes still require explicit user actions.",
             "%1 个工程对象书签。双击只回填 SDO "
             "目标；读取和写入仍需用户显式操作。")
-            .arg(hasObjectBookmarks ? objectBookmarkTable_->rowCount() : 0));
+            .arg(hasObjectBookmarks ? bookmark_->objectBookmarkTable->rowCount() : 0));
   }
   setEnabled("addSelectedPdoWatch", hasSlave && hasPdoSelection);
   setEnabled("refreshIoVariables", ioVar_->ioVariableTable != nullptr);
@@ -2329,7 +2329,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("fillBookmarkSdo"), &QPushButton::clicked,
           this, [this] {
             applySdoSelectionFromBookmark(
-                objectBookmarkTable_ ? objectBookmarkTable_->currentRow() : -1,
+                bookmark_->objectBookmarkTable ? bookmark_->objectBookmarkTable->currentRow() : -1,
                 false);
           });
   connect(findChild<QPushButton *>("watchBookmarkSdo"), &QPushButton::clicked,
@@ -2668,11 +2668,11 @@ void MainWindow::wire() {
           &MainWindow::updateActionAvailability);
   connect(sdo_->sdoTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromDictionary(row, true); });
-  connect(objectBookmarkTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(bookmark_->objectBookmarkTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
-  connect(objectBookmarkTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(bookmark_->objectBookmarkTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateObjectBookmarkRowDetail);
-  connect(objectBookmarkTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(bookmark_->objectBookmarkTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromBookmark(row, false); });
   connect(sdoHistoryTable_, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
@@ -2742,7 +2742,7 @@ void MainWindow::wire() {
                       sdo_->pdoTable,
                       sdo_->sdoTable,
                       sdoTargetTrailTable_,
-                      objectBookmarkTable_,
+                      bookmark_->objectBookmarkTable,
                       sdoHistoryTable_,
                       freeRunTable_,
                       freeRunWidgets_->freeRunEntryTable,
