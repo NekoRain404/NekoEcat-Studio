@@ -609,6 +609,7 @@ private:
   ConsistencyWorkspaceWidgets *consistency_ = nullptr;
   DiagnosticsWorkspaceWidgets *diagnostics_ = nullptr;
   IoVariableWorkspaceWidgets *ioVar_ = nullptr;
+  WatchWorkspaceWidgets *watch_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
@@ -625,7 +626,6 @@ private:
   QTableWidget *freeRunTable_ = nullptr;
   QTableWidget *freeRunEntryTable_ = nullptr;
   QTableWidget *hostHealthTable_ = nullptr;
-  QTableWidget *watchTable_ = nullptr;
   QTableWidget *esiTable_ = nullptr;
   QTableWidget *startupSdoTable_ = nullptr;
   QTabWidget *tabs_ = nullptr;
@@ -718,16 +718,6 @@ private:
   QLineEdit *sdoFilter_ = nullptr;
   
   // ── Watch Panel Widgets ───────────────────────────────────────
-  QLineEdit *watchFilter_ = nullptr;
-  QCheckBox *watchAutoRefresh_ = nullptr;
-  QCheckBox *watchChangedOnly_ = nullptr;
-  QComboBox *watchScopeFilter_ = nullptr;
-  QComboBox *watchRefreshInterval_ = nullptr;
-  QLabel *watchSummaryLabel_ = nullptr;
-  QLabel *watchDetailLabel_ = nullptr;
-  QCheckBox *startupWatchDiffsOnly_ = nullptr;
-  QLabel *startupWatchSummaryLabel_ = nullptr;
-  QLabel *startupSdoDetailLabel_ = nullptr;
   
   // ── RT Test Panel Widgets (aggregated in workspace file) ─────
   RtTestWidgets *rtTest_ = nullptr;

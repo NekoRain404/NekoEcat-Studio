@@ -1007,21 +1007,21 @@ void MainWindow::updateIoVariableTable() {
   };
 
   QHash<QString, QStringList> watchByObject;
-  if (watchTable_) {
+  if (watch_->watchTable) {
     ensureWatchTable();
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
       bool ok = false;
-      const int position = tableText(watchTable_, row, 1).toInt(&ok);
-      const QString index = tableText(watchTable_, row, 2);
-      const QString subIndex = tableText(watchTable_, row, 3);
+      const int position = tableText(watch_->watchTable, row, 1).toInt(&ok);
+      const QString index = tableText(watch_->watchTable, row, 2);
+      const QString subIndex = tableText(watch_->watchTable, row, 3);
       if (!ok || position < 0 || index.isEmpty() || subIndex.isEmpty()) {
         continue;
       }
       const QString key = ioVariableTableObjectKey(position, index, subIndex);
       const bool changed = watchChangedKeys_.contains(key);
       watchByObject.insert(
-          key, {tableText(watchTable_, row, 4), tableText(watchTable_, row, 5),
-                tableText(watchTable_, row, 6), tableText(watchTable_, row, 7),
+          key, {tableText(watch_->watchTable, row, 4), tableText(watch_->watchTable, row, 5),
+                tableText(watch_->watchTable, row, 6), tableText(watch_->watchTable, row, 7),
                 changed ? uiText("Yes", "是") : QString()});
     }
   }

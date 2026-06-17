@@ -215,7 +215,7 @@ void MainWindow::exportDiagnosticsReport() {
               ? "not captured"
               : QString("%1 slave(s)").arg(topologyBaseline_.size()))
       << "\n";
-  out << "- Watch Items: " << (watchTable_ ? watchTable_->rowCount() : 0)
+  out << "- Watch Items: " << (watch_->watchTable ? watch_->watchTable->rowCount() : 0)
       << "\n";
   out << "- I/O Variables: "
       << (ioVar_->ioVariableTable ? ioVar_->ioVariableTable->rowCount() : 0) << "\n";
@@ -249,7 +249,7 @@ void MainWindow::exportDiagnosticsReport() {
         << "\n\n";
   }
   out << "## Watch\n\n";
-  writeMarkdownTable(out, watchTable_);
+  writeMarkdownTable(out, watch_->watchTable);
   out << "## I/O Variables\n\n";
   writeMarkdownTable(out, ioVar_->ioVariableTable);
   updateConsistencyView();
@@ -467,7 +467,7 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
        .odRows = sdoTable_ ? sdoTable_->rowCount() : 0,
        .pdoPosition = loadedPdoPosition_,
        .pdoRows = pdoTable_ ? pdoTable_->rowCount() : 0},
-      {.watchTable = watchTable_,
+      {.watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .processTable = freeRunEntryTable_});
   const QStringList topologyIssues = topologyBaselineIssues();
@@ -490,14 +490,14 @@ void MainWindow::updateSelectedDriveSummary() {
 
   const SelectedDriveSummaryTexts texts = selectedDriveSummaryTexts();
   const int position = selectedPosition();
-  if (position < 0 || !watchTable_) {
+  if (position < 0 || !watch_->watchTable) {
     applyState(selectedDriveNoWatchEvidenceState(texts));
     updateDriveNextButton();
     return;
   }
 
   applyState(buildSelectedDriveSummaryUiState(
-      watchStartupWatchRows(watchTable_), position, texts));
+      watchStartupWatchRows(watch_->watchTable), position, texts));
   updateDriveNextButton();
 }
 

@@ -214,11 +214,11 @@ bool MainWindow::writeProjectFile(const QString &path) {
     });
   }
   QJsonArray watchArray;
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
     QJsonArray rowArray;
-    for (int column = 0; column < watchTable_->columnCount(); ++column) {
-      rowArray.append(watchTable_->item(row, column)
-                          ? watchTable_->item(row, column)->text()
+    for (int column = 0; column < watch_->watchTable->columnCount(); ++column) {
+      rowArray.append(watch_->watchTable->item(row, column)
+                          ? watch_->watchTable->item(row, column)->text()
                           : QString());
     }
     watchArray.append(rowArray);
@@ -602,7 +602,7 @@ bool MainWindow::readProjectFile(const QString &path) {
   const auto watchArray = root.value("watch").toArray();
   if (!watchArray.isEmpty()) {
     ensureWatchTable();
-    watchTable_->setRowCount(watchArray.size());
+    watch_->watchTable->setRowCount(watchArray.size());
     for (int row = 0; row < watchArray.size(); ++row) {
       const auto rowArray = watchArray.at(row).toArray();
       // Migrate older 6/7-column watch formats to current 12-column layout
@@ -640,13 +640,13 @@ bool MainWindow::readProjectFile(const QString &path) {
         }
       }
       for (int column = 0; column < 12; ++column) {
-        watchTable_->setItem(row, column,
+        watch_->watchTable->setItem(row, column,
                              new QTableWidgetItem(migrated.value(column)));
       }
     }
     updateWatchBaselineDeltas();
     updateWatchStartupDeltas();
-    watchTable_->resizeColumnsToContents(); // auto-fit column widths
+    watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   }
   ensureWatchTable();
   const auto startupArray = root.value("startupSdos").toArray();

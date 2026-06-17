@@ -186,7 +186,7 @@ void MainWindow::updateSessionBrief() {
                           sdoTable_ && sdoTable_->rowCount() > 0;
   const bool hasPdoRows = hasSelectedSlave && loadedPdoPosition_ == selected &&
                           pdoTable_ && pdoTable_->rowCount() > 0;
-  const bool hasWatchRows = watchTable_ && watchTable_->rowCount() > 0;
+  const bool hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   const bool hasFreeRunRows =
       freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
   const bool hasFailedOdEvidence = hasFailedSdoEvidence();
@@ -389,7 +389,7 @@ void MainWindow::updateSessionBrief() {
       briefRows.at(4), uiText("Runtime Evidence", "运行证据"),
       uiText("Watch %1 row(s) | Startup diff %2 | Free Run %3 | process %4",
              "Watch %1 行 | Startup 偏差 %2 | Free Run %3 | 过程项 %4")
-          .arg(watchTable_ ? watchTable_->rowCount() : 0)
+          .arg(watch_->watchTable ? watch_->watchTable->rowCount() : 0)
           .arg(startupDiffs)
           .arg(freeRun_ ? uiText("on", "开启") : uiText("off", "关闭"))
           .arg(freeRunEntryTable_ ? freeRunEntryTable_->rowCount() : 0),
@@ -728,13 +728,13 @@ void MainWindow::openSessionBriefRow(int row) {
       logNavigation(uiText("Startup diffs", "Startup 偏差"));
       return;
     }
-    if (watchTable_ && watchTable_->rowCount() > 0) {
+    if (watch_->watchTable && watch_->watchTable->rowCount() > 0) {
       activateWorkspaceTab(watchTabIndex_);
       const int watchRow = currentSdoWatchRow();
       if (watchRow >= 0) {
-        selectAndFocusTableRow(watchTable_, watchRow, 1);
-      } else if (watchTable_->currentRow() >= 0) {
-        selectAndFocusTableRow(watchTable_, watchTable_->currentRow(), 1);
+        selectAndFocusTableRow(watch_->watchTable, watchRow, 1);
+      } else if (watch_->watchTable->currentRow() >= 0) {
+        selectAndFocusTableRow(watch_->watchTable, watch_->watchTable->currentRow(), 1);
       }
       logNavigation(uiText("Watch evidence", "Watch 证据"));
       return;
@@ -1306,7 +1306,7 @@ void MainWindow::updateTabBadges() {
   };
 
   const WorkspaceTabBadgeCounts badgeCounts = workspaceTabBadgeCounts(
-      {.watchTable = watchTable_,
+      {.watchTable = watch_->watchTable,
        .startupSdoTable = startupSdoTable_,
        .freeRunEntryTable = freeRunEntryTable_,
        .ioVariableTable = ioVar_->ioVariableTable,

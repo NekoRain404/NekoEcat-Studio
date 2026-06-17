@@ -602,13 +602,13 @@ void MainWindow::updateActionAvailability() {
   setEnabled("startupFromSelectedHistory", hasHistoryValueSelection);
   setEnabled("addCia402WatchPreset", hasSlave);
   setEnabled("refreshWatch",
-             connected && watchTable_ && watchTable_->rowCount() > 0);
+             connected && watch_->watchTable && watch_->watchTable->rowCount() > 0);
   setEnabled("captureWatchBaseline",
-             watchTable_ && watchTable_->rowCount() > 0);
-  setEnabled("clearWatchBaseline", watchTable_ && watchTable_->rowCount() > 0);
+             watch_->watchTable && watch_->watchTable->rowCount() > 0);
+  setEnabled("clearWatchBaseline", watch_->watchTable && watch_->watchTable->rowCount() > 0);
   setEnabled("startupFromSelectedWatch", hasWatchValueSelection);
   setEnabled("syncStartupFromWatch", hasWatchValueSelection);
-  setEnabled("clearWatch", watchTable_ && watchTable_->rowCount() > 0);
+  setEnabled("clearWatch", watch_->watchTable && watch_->watchTable->rowCount() > 0);
   setEnabled("runHostCheck", connected);
   setEnabled("copyHostCommand", hasHostCommand);
   setEnabled("initAction", connected && hasSlave);
@@ -1099,18 +1099,18 @@ MainWindow::stateTransitionImpactDetails(int position,
   QString statusword;
   QString modeDisplay;
   QString errorCode;
-  if (watchTable_) {
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
-      if (tableText(watchTable_, row, 1).toInt() != position) {
+  if (watch_->watchTable) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+      if (tableText(watch_->watchTable, row, 1).toInt() != position) {
         continue;
       }
       ++watchRows;
-      const QString value = tableText(watchTable_, row, 4);
-      const QString decoded = tableText(watchTable_, row, 5);
+      const QString value = tableText(watch_->watchTable, row, 4);
+      const QString decoded = tableText(watch_->watchTable, row, 5);
       if (!value.isEmpty()) {
         ++watchValueRows;
       }
-      const QString index = normalizeHexText(tableText(watchTable_, row, 2), 4);
+      const QString index = normalizeHexText(tableText(watch_->watchTable, row, 2), 4);
       if (index == "0x6041" && !decoded.isEmpty()) {
         statusword = decoded;
       } else if (index == "0x6061" && !decoded.isEmpty()) {
@@ -1240,12 +1240,12 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
       loadedPdoPosition_ == position && pdoTable_ && pdoTable_->rowCount() > 0;
 
   int watchValueRows = 0;
-  if (watchTable_) {
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
-      if (tableText(watchTable_, row, 1).toInt() != position) {
+  if (watch_->watchTable) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+      if (tableText(watch_->watchTable, row, 1).toInt() != position) {
         continue;
       }
-      if (!tableText(watchTable_, row, 4).isEmpty()) {
+      if (!tableText(watch_->watchTable, row, 4).isEmpty()) {
         ++watchValueRows;
       }
     }
@@ -1356,19 +1356,19 @@ void MainWindow::updateStateMachineView() {
     QString statusword;
     QString modeDisplay;
     QString errorCode;
-    if (watchTable_) {
-      for (int row = 0; row < watchTable_->rowCount(); ++row) {
-        if (tableText(watchTable_, row, 1).toInt() != position) {
+    if (watch_->watchTable) {
+      for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+        if (tableText(watch_->watchTable, row, 1).toInt() != position) {
           continue;
         }
         ++watchRows;
-        const QString value = tableText(watchTable_, row, 4);
-        const QString decoded = tableText(watchTable_, row, 5);
+        const QString value = tableText(watch_->watchTable, row, 4);
+        const QString decoded = tableText(watch_->watchTable, row, 5);
         if (!value.isEmpty()) {
           ++watchValueRows;
         }
         const QString index =
-            normalizeHexText(tableText(watchTable_, row, 2), 4);
+            normalizeHexText(tableText(watch_->watchTable, row, 2), 4);
         if (index == "0x6041" && !decoded.isEmpty()) {
           statusword = decoded;
         } else if (index == "0x6061" && !decoded.isEmpty()) {
@@ -1926,7 +1926,7 @@ void MainWindow::clearOnlineViews() {
        {metricTable_, workflowTable_, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidenceMatrixTable_, portTable_, mailboxTable_, pdoTable_,
         sdoTable_, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
-        ioVar_->ioVariableTable, watchTable_}) {
+        ioVar_->ioVariableTable, watch_->watchTable}) {
     if (table) {
       table->clear();
       table->setRowCount(0);
@@ -2287,7 +2287,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("verifySelectedStartupSdo"),
           &QPushButton::clicked, this,
           &MainWindow::verifySelectedStartupSdoRows);
-  connect(startupWatchDiffsOnly_, &QCheckBox::toggled, this, [this] {
+  connect(watch_->startupWatchDiffsOnly, &QCheckBox::toggled, this, [this] {
     filterStartupSdoTable();
     updateStartupSdoControls();
     updateStartupSdoRowDetail();
@@ -2378,23 +2378,23 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("startupFromSelectedHistory"),
           &QPushButton::clicked, this,
           &MainWindow::addSelectedHistoryRowsToStartupSdo);
-  connect(watchAutoRefresh_, &QCheckBox::toggled, this,
+  connect(watch_->watchAutoRefresh, &QCheckBox::toggled, this,
           &MainWindow::updateWatchAutoRefresh);
-  connect(watchRefreshInterval_,
+  connect(watch_->watchRefreshInterval,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           &MainWindow::updateWatchAutoRefresh);
-  connect(watchFilter_, &QLineEdit::textChanged, this,
+  connect(watch_->watchFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterWatchTable);
-  connect(watchScopeFilter_,
+  connect(watch_->watchScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterWatchTable(); });
-  connect(watchChangedOnly_, &QCheckBox::toggled, this,
+  connect(watch_->watchChangedOnly, &QCheckBox::toggled, this,
           &MainWindow::filterWatchTable);
-  connect(watchTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(watch_->watchTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
-  connect(watchTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(watch_->watchTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateWatchRowDetail);
-  connect(watchTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(watch_->watchTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromWatch(row, true); });
   connect(session_->sessionBriefTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateSessionBriefCopyButton);
@@ -2749,7 +2749,7 @@ void MainWindow::wire() {
                       ioVar_->ioVariableTable,
                       hostHealthTable_,
                       diagnostics_->diagnosticsTable,
-                      watchTable_,
+                      watch_->watchTable,
                       esiTable_,
                       startupSdoTable_}) {
     connect(table, &QTableWidget::customContextMenuRequested, this,
@@ -3026,15 +3026,15 @@ void MainWindow::wire() {
                              : source);
         ensureWatchTable();
         int row = -1;
-        for (int i = 0; i < watchTable_->rowCount(); ++i) {
+        for (int i = 0; i < watch_->watchTable->rowCount(); ++i) {
           const bool match =
-              (watchTable_->item(i, 1) &&
-               watchTable_->item(i, 1)->text().toInt() == position) &&
-              (watchTable_->item(i, 2) &&
-               watchTable_->item(i, 2)->text().compare(
+              (watch_->watchTable->item(i, 1) &&
+               watch_->watchTable->item(i, 1)->text().toInt() == position) &&
+              (watch_->watchTable->item(i, 2) &&
+               watch_->watchTable->item(i, 2)->text().compare(
                    index, Qt::CaseInsensitive) == 0) &&
-              (watchTable_->item(i, 3) &&
-               watchTable_->item(i, 3)->text().compare(
+              (watch_->watchTable->item(i, 3) &&
+               watch_->watchTable->item(i, 3)->text().compare(
                    subIndex, Qt::CaseInsensitive) == 0);
           if (match) {
             row = i;
@@ -3042,16 +3042,16 @@ void MainWindow::wire() {
           }
         }
         if (row < 0) {
-          row = watchTable_->rowCount();
-          watchTable_->insertRow(row);
-          watchTable_->setItem(row, 1,
+          row = watch_->watchTable->rowCount();
+          watch_->watchTable->insertRow(row);
+          watch_->watchTable->setItem(row, 1,
                                new QTableWidgetItem(QString::number(position)));
-          watchTable_->setItem(row, 2, new QTableWidgetItem(index));
-          watchTable_->setItem(row, 3, new QTableWidgetItem(subIndex));
-          watchTable_->setItem(row, 8, new QTableWidgetItem);
-          watchTable_->setItem(row, 9, new QTableWidgetItem);
-          watchTable_->setItem(row, 10, new QTableWidgetItem);
-          watchTable_->setItem(row, 11, new QTableWidgetItem);
+          watch_->watchTable->setItem(row, 2, new QTableWidgetItem(index));
+          watch_->watchTable->setItem(row, 3, new QTableWidgetItem(subIndex));
+          watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+          watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
+          watch_->watchTable->setItem(row, 10, new QTableWidgetItem);
+          watch_->watchTable->setItem(row, 11, new QTableWidgetItem);
         }
         const bool changed =
             watchValues_.contains(key) && watchValues_.value(key) != value;
@@ -3061,10 +3061,10 @@ void MainWindow::wire() {
         }
 
         auto setCell = [this, row](int column, const QString &text) {
-          auto *item = watchTable_->item(row, column);
+          auto *item = watch_->watchTable->item(row, column);
           if (!item) {
             item = new QTableWidgetItem;
-            watchTable_->setItem(row, column, item);
+            watch_->watchTable->setItem(row, column, item);
           }
           item->setText(text);
           return item;
@@ -3072,14 +3072,14 @@ void MainWindow::wire() {
 
         setCell(0, QDateTime::currentDateTime().toString("HH:mm:ss"));
         auto *valueItem = setCell(4, value);
-        const QString currentType = watchTable_->item(row, 6)
-                                        ? watchTable_->item(row, 6)->text()
+        const QString currentType = watch_->watchTable->item(row, 6)
+                                        ? watch_->watchTable->item(row, 6)->text()
                                         : QString();
-        const QString currentMode = watchTable_->item(row, 7)
-                                        ? watchTable_->item(row, 7)->text()
+        const QString currentMode = watch_->watchTable->item(row, 7)
+                                        ? watch_->watchTable->item(row, 7)->text()
                                         : QString();
-        if (!watchTable_->item(row, 6) ||
-            watchTable_->item(row, 6)->text().trimmed().isEmpty()) {
+        if (!watch_->watchTable->item(row, 6) ||
+            watch_->watchTable->item(row, 6)->text().trimmed().isEmpty()) {
           const bool watchRefreshSource =
               source.contains("Watch", Qt::CaseInsensitive) ||
               source.contains("监视", Qt::CaseInsensitive);
@@ -3089,8 +3089,8 @@ void MainWindow::wire() {
             setCell(6, sdoType_->currentText());
           }
         }
-        const QString effectiveType = watchTable_->item(row, 6)
-                                          ? watchTable_->item(row, 6)->text()
+        const QString effectiveType = watch_->watchTable->item(row, 6)
+                                          ? watch_->watchTable->item(row, 6)->text()
                                           : currentType;
         setCell(5, decodeWatchValue(index, subIndex, effectiveType, value,
                                     currentMode));
@@ -3110,7 +3110,7 @@ void MainWindow::wire() {
           valueItem->setBackground(QBrush());
           valueItem->setForeground(QBrush());
         }
-        watchTable_->resizeColumnsToContents();
+        watch_->watchTable->resizeColumnsToContents();
         updateWatchAutoRefresh();
         updateSelectedDriveSummary();
       });
@@ -3406,15 +3406,15 @@ QStringList MainWindow::freeRunImpactDetails() const {
 
   QString statusword;
   QString errorCode;
-  if (watchTable_ && selected >= 0) {
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
-      const int rowPosition = tableText(watchTable_, row, 1).toInt();
+  if (watch_->watchTable && selected >= 0) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+      const int rowPosition = tableText(watch_->watchTable, row, 1).toInt();
       if (rowPosition != selected) {
         continue;
       }
-      const QString index = normalizeHexText(tableText(watchTable_, row, 2), 4);
-      const QString value = tableText(watchTable_, row, 4);
-      const QString decoded = tableText(watchTable_, row, 5);
+      const QString index = normalizeHexText(tableText(watch_->watchTable, row, 2), 4);
+      const QString value = tableText(watch_->watchTable, row, 4);
+      const QString decoded = tableText(watch_->watchTable, row, 5);
       if (index == "0x6041" && !decoded.isEmpty()) {
         statusword = decoded;
       } else if (index == "0x603f" && !decoded.isEmpty() && !value.isEmpty() &&
@@ -3629,17 +3629,17 @@ QVector<int> MainWindow::selectedStartupSdoRows() const {
 
 // Check if a watch table row has a non-empty value
 bool MainWindow::watchRowHasValue(int row) const {
-  return watchTable_ && row >= 0 && row < watchTable_->rowCount() &&
-         !watchTable_->isRowHidden(row) && watchTable_->item(row, 4) &&
-         !watchTable_->item(row, 4)->text().trimmed().isEmpty();
+  return watch_->watchTable && row >= 0 && row < watch_->watchTable->rowCount() &&
+         !watch_->watchTable->isRowHidden(row) && watch_->watchTable->item(row, 4) &&
+         !watch_->watchTable->item(row, 4)->text().trimmed().isEmpty();
 }
 
 // Check if any of the selected watch rows contain a value
 bool MainWindow::selectedWatchRowsHaveValue() const {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return false;
   }
-  for (const int row : selectedTableRows(watchTable_, true)) {
+  for (const int row : selectedTableRows(watch_->watchTable, true)) {
     if (watchRowHasValue(row)) {
       return true;
     }
@@ -4410,14 +4410,14 @@ void MainWindow::filterFreeRunEntryTable() {
 
 // Apply text/scope/changed-only filter to the Watch table
 void MainWindow::filterWatchTable() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
   const QString needle =
-      watchFilter_ ? watchFilter_->text().trimmed() : QString();
+      watch_->watchFilter ? watch_->watchFilter->text().trimmed() : QString();
   const QString scope =
-      watchScopeFilter_ ? watchScopeFilter_->currentData().toString() : "all";
-  const bool changedOnly = watchChangedOnly_ && watchChangedOnly_->isChecked();
+      watch_->watchScopeFilter ? watch_->watchScopeFilter->currentData().toString() : "all";
+  const bool changedOnly = watch_->watchChangedOnly && watch_->watchChangedOnly->isChecked();
   const int selected = selectedPosition();
   int visible = 0;
   int changedRows = 0;
@@ -4425,30 +4425,30 @@ void MainWindow::filterWatchTable() {
   int startupDriftRows = 0;
   int missingValueRows = 0;
 
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
-    const int position = watchTable_->item(row, 1)
-                             ? watchTable_->item(row, 1)->text().toInt()
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    const int position = watch_->watchTable->item(row, 1)
+                             ? watch_->watchTable->item(row, 1)->text().toInt()
                              : -1;
-    const QString index = watchTable_->item(row, 2)
-                              ? watchTable_->item(row, 2)->text().trimmed()
+    const QString index = watch_->watchTable->item(row, 2)
+                              ? watch_->watchTable->item(row, 2)->text().trimmed()
                               : QString();
-    const QString subIndex = watchTable_->item(row, 3)
-                                 ? watchTable_->item(row, 3)->text().trimmed()
+    const QString subIndex = watch_->watchTable->item(row, 3)
+                                 ? watch_->watchTable->item(row, 3)->text().trimmed()
                                  : QString();
     const QString key = QString("%1|%2|%3").arg(position).arg(index, subIndex);
     const bool changed = watchChangedKeys_.contains(key);
     if (changed) {
       ++changedRows;
     }
-    const QString value = watchTable_->item(row, 4)
-                              ? watchTable_->item(row, 4)->text().trimmed()
+    const QString value = watch_->watchTable->item(row, 4)
+                              ? watch_->watchTable->item(row, 4)->text().trimmed()
                               : QString();
     const bool missingValue = value.isEmpty();
     if (missingValue) {
       ++missingValueRows;
     }
-    const QString delta = watchTable_->item(row, 9)
-                              ? watchTable_->item(row, 9)->text().trimmed()
+    const QString delta = watch_->watchTable->item(row, 9)
+                              ? watch_->watchTable->item(row, 9)->text().trimmed()
                               : QString();
     const QString normalizedDelta = delta.toLower();
     const bool baselineDrift = !delta.isEmpty() && normalizedDelta != "0" &&
@@ -4457,8 +4457,8 @@ void MainWindow::filterWatchTable() {
       ++driftRows;
     }
     const QString startupDelta =
-        watchTable_->item(row, 11)
-            ? watchTable_->item(row, 11)->text().trimmed()
+        watch_->watchTable->item(row, 11)
+            ? watch_->watchTable->item(row, 11)->text().trimmed()
             : QString();
     const QString normalizedStartupDelta = startupDelta.toLower();
     const bool startupDrift =
@@ -4468,8 +4468,8 @@ void MainWindow::filterWatchTable() {
     if (startupDrift) {
       ++startupDriftRows;
     }
-    const QString mode = watchTable_->item(row, 7)
-                             ? watchTable_->item(row, 7)->text().trimmed()
+    const QString mode = watch_->watchTable->item(row, 7)
+                             ? watch_->watchTable->item(row, 7)->text().trimmed()
                              : QString();
     const QString normalizedMode = mode.toLower();
     const QString normalizedIndex = normalizeHexText(index, 4);
@@ -4484,9 +4484,9 @@ void MainWindow::filterWatchTable() {
     const bool selectedSlave = selected >= 0 && position == selected;
 
     bool match = needle.isEmpty();
-    for (int column = 0; column < watchTable_->columnCount() && !match;
+    for (int column = 0; column < watch_->watchTable->columnCount() && !match;
          ++column) {
-      const auto *item = watchTable_->item(row, column);
+      const auto *item = watch_->watchTable->item(row, column);
       match = item && item->text().contains(needle, Qt::CaseInsensitive);
     }
     bool scopeMatch = true;
@@ -4505,44 +4505,44 @@ void MainWindow::filterWatchTable() {
     }
     match = match && scopeMatch;
     match = match && (!changedOnly || changed);
-    watchTable_->setRowHidden(row, !match);
+    watch_->watchTable->setRowHidden(row, !match);
     if (match) {
       ++visible;
     }
   }
 
-  if (watchSummaryLabel_) {
+  if (watch_->watchSummaryLabel) {
     const bool autoEnabled =
-        watchAutoRefresh_ && watchAutoRefresh_->isChecked();
-    const int interval = watchRefreshInterval_
-                             ? watchRefreshInterval_->currentData().toInt()
+        watch_->watchAutoRefresh && watch_->watchAutoRefresh->isChecked();
+    const int interval = watch_->watchRefreshInterval
+                             ? watch_->watchRefreshInterval->currentData().toInt()
                              : 1000;
     const QString mode = autoEnabled ? uiText("auto %1 ms", "自动 %1 ms")
                                            .arg(interval > 0 ? interval : 1000)
                                      : uiText("manual", "手动");
-    const QString scopeLabel = watchScopeFilter_
-                                   ? watchScopeFilter_->currentText()
+    const QString scopeLabel = watch_->watchScopeFilter
+                                   ? watch_->watchScopeFilter->currentText()
                                    : uiText("All", "全部");
     const QString summary =
         uiText("%1/%2 | %3 | %4 | changed %5 | drift %6 | startup %7 | missing "
                "%8",
                "%1/%2 | %3 | %4 | 变化 %5 | 偏离 %6 | 启动 %7 | 缺失 %8")
             .arg(visible)
-            .arg(watchTable_->rowCount())
+            .arg(watch_->watchTable->rowCount())
             .arg(scopeLabel, mode)
             .arg(changedRows)
             .arg(driftRows)
             .arg(startupDriftRows)
             .arg(missingValueRows);
-    watchSummaryLabel_->setText(summary);
-    watchSummaryLabel_->setToolTip(
+    watch_->watchSummaryLabel->setText(summary);
+    watch_->watchSummaryLabel->setToolTip(
         uiText(
             "Visible rows: %1/%2\nScope: %3\nRefresh: %4\nChanged rows: "
             "%5\nBaseline drift: %6\nStartup diff: %7\nMissing values: %8",
             "可见行：%1/%2\n范围：%3\n刷新：%4\n变化项：%5\n基线偏离：%6\n启动"
             "不一致：%7\n缺失值：%8")
             .arg(visible)
-            .arg(watchTable_->rowCount())
+            .arg(watch_->watchTable->rowCount())
             .arg(scopeLabel, mode)
             .arg(changedRows)
             .arg(driftRows)
@@ -4555,7 +4555,7 @@ void MainWindow::filterWatchTable() {
 
 // Update the detail strip below the Watch table for the current row
 void MainWindow::updateWatchRowDetail() {
-  if (!watchDetailLabel_) {
+  if (!watch_->watchDetailLabel) {
     return;
   }
   const WatchRowDetailTexts texts = {
@@ -4621,26 +4621,26 @@ void MainWindow::updateWatchRowDetail() {
   };
 
   auto applyState = [this](const WatchRowDetailUiState &state) {
-    watchDetailLabel_->setText(state.text);
-    watchDetailLabel_->setProperty("severity", state.severityKey);
-    watchDetailLabel_->setToolTip(state.tooltip);
-    repolish(watchDetailLabel_);
+    watch_->watchDetailLabel->setText(state.text);
+    watch_->watchDetailLabel->setProperty("severity", state.severityKey);
+    watch_->watchDetailLabel->setToolTip(state.tooltip);
+    repolish(watch_->watchDetailLabel);
   };
 
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     applyState(watchRowDetailUnavailableState(texts));
     return;
   }
 
-  const int row = watchTable_->currentRow();
-  if (row < 0 || row >= watchTable_->rowCount() ||
-      watchTable_->isRowHidden(row)) {
+  const int row = watch_->watchTable->currentRow();
+  if (row < 0 || row >= watch_->watchTable->rowCount() ||
+      watch_->watchTable->isRowHidden(row)) {
     applyState(watchRowDetailNoSelectionState(texts));
     return;
   }
 
   applyState(buildWatchRowDetailUiState(
-      watchStartupWatchRow(watchTable_, row, watchChangedKeys_), texts));
+      watchStartupWatchRow(watch_->watchTable, row, watchChangedKeys_), texts));
 }
 
 // Helper: bulk-set table rows with headers in a single operation

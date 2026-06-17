@@ -123,13 +123,13 @@
 
 // — Create the Watch table columns if not yet initialized
 void MainWindow::ensureWatchTable() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
-  if (watchTable_->columnCount() != 12) {
-    watchTable_->setColumnCount(12);
+  if (watch_->watchTable->columnCount() != 12) {
+    watch_->watchTable->setColumnCount(12);
   }
-  watchTable_->setHorizontalHeaderLabels(
+  watch_->watchTable->setHorizontalHeaderLabels(
       {uiText("Time", "时间"), uiText("Slave", "从站"), uiText("Index", "索引"),
        uiText("Sub", "子项"), uiText("Value", "值"), uiText("Decoded", "解析"),
        uiText("Type", "类型"), uiText("Mode", "模式"),
@@ -189,26 +189,26 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
     return;
   }
 
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
     const bool match =
-        (watchTable_->item(row, 1) &&
-         watchTable_->item(row, 1)->text().toInt() == position) &&
-        (watchTable_->item(row, 2) && watchTable_->item(row, 2)->text().compare(
+        (watch_->watchTable->item(row, 1) &&
+         watch_->watchTable->item(row, 1)->text().toInt() == position) &&
+        (watch_->watchTable->item(row, 2) && watch_->watchTable->item(row, 2)->text().compare(
                                           index, Qt::CaseInsensitive) == 0) &&
-        (watchTable_->item(row, 3) && watchTable_->item(row, 3)->text().compare(
+        (watch_->watchTable->item(row, 3) && watch_->watchTable->item(row, 3)->text().compare(
                                           subIndex, Qt::CaseInsensitive) == 0);
     if (match) {
-      watchTable_->selectRow(row);
+      watch_->watchTable->selectRow(row);
       const QString type = sdoType_ ? sdoType_->currentText() : QString();
       if (!type.isEmpty() &&
-          (!watchTable_->item(row, 6) ||
-           watchTable_->item(row, 6)->text().trimmed().isEmpty())) {
-        watchTable_->setItem(row, 6, new QTableWidgetItem(type));
+          (!watch_->watchTable->item(row, 6) ||
+           watch_->watchTable->item(row, 6)->text().trimmed().isEmpty())) {
+        watch_->watchTable->setItem(row, 6, new QTableWidgetItem(type));
       }
       if (requestRead && client_.isConnected()) {
         const QString type =
-            watchTable_->item(row, 6)
-                ? watchTable_->item(row, 6)->text().trimmed()
+            watch_->watchTable->item(row, 6)
+                ? watch_->watchTable->item(row, 6)->text().trimmed()
                 : (sdoType_ ? sdoType_->currentText() : QString());
         requestSdoRead(position, index, subIndex,
                        uiText("Existing Watch item", "已有监视项"), type);
@@ -218,32 +218,32 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
     }
   }
 
-  const int row = watchTable_->rowCount();
-  watchTable_->insertRow(row);
-  watchTable_->setItem(
+  const int row = watch_->watchTable->rowCount();
+  watch_->watchTable->insertRow(row);
+  watch_->watchTable->setItem(
       row, 0,
       new QTableWidgetItem(QDateTime::currentDateTime().toString("HH:mm:ss")));
-  watchTable_->setItem(row, 1, new QTableWidgetItem(QString::number(position)));
-  watchTable_->setItem(row, 2, new QTableWidgetItem(index));
-  watchTable_->setItem(row, 3, new QTableWidgetItem(subIndex));
-  watchTable_->setItem(
+  watch_->watchTable->setItem(row, 1, new QTableWidgetItem(QString::number(position)));
+  watch_->watchTable->setItem(row, 2, new QTableWidgetItem(index));
+  watch_->watchTable->setItem(row, 3, new QTableWidgetItem(subIndex));
+  watch_->watchTable->setItem(
       row, 4, new QTableWidgetItem(sdoValue_ ? sdoValue_->text() : QString()));
-  watchTable_->setItem(
+  watch_->watchTable->setItem(
       row, 5,
       new QTableWidgetItem(decodeWatchValue(
           index, subIndex, sdoType_ ? sdoType_->currentText() : QString(),
           sdoValue_ ? sdoValue_->text() : QString(), "Watch")));
-  watchTable_->setItem(
+  watch_->watchTable->setItem(
       row, 6,
       new QTableWidgetItem(sdoType_ ? sdoType_->currentText() : QString()));
-  watchTable_->setItem(row, 7, new QTableWidgetItem("Watch"));
-  watchTable_->setItem(row, 8, new QTableWidgetItem);
-  watchTable_->setItem(row, 9, new QTableWidgetItem);
-  watchTable_->setItem(row, 10, new QTableWidgetItem);
-  watchTable_->setItem(row, 11, new QTableWidgetItem);
+  watch_->watchTable->setItem(row, 7, new QTableWidgetItem("Watch"));
+  watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+  watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
+  watch_->watchTable->setItem(row, 10, new QTableWidgetItem);
+  watch_->watchTable->setItem(row, 11, new QTableWidgetItem);
   updateWatchStartupDelta(row);
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
-  watchTable_->selectRow(row);
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->selectRow(row);
   updateDiagnostics(
       "Info", "Watch",
       QString("Added SDO watch #%1 %2:%3").arg(position).arg(index, subIndex));
@@ -298,17 +298,17 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
     }
 
     int watchRow = -1;
-    for (int existingRow = 0; existingRow < watchTable_->rowCount();
+    for (int existingRow = 0; existingRow < watch_->watchTable->rowCount();
          ++existingRow) {
       const bool match =
-          (watchTable_->item(existingRow, 1) &&
-           watchTable_->item(existingRow, 1)->text().toInt() == position) &&
-          (watchTable_->item(existingRow, 2) &&
-           watchTable_->item(existingRow, 2)
+          (watch_->watchTable->item(existingRow, 1) &&
+           watch_->watchTable->item(existingRow, 1)->text().toInt() == position) &&
+          (watch_->watchTable->item(existingRow, 2) &&
+           watch_->watchTable->item(existingRow, 2)
                    ->text()
                    .compare(index, Qt::CaseInsensitive) == 0) &&
-          (watchTable_->item(existingRow, 3) &&
-           watchTable_->item(existingRow, 3)
+          (watch_->watchTable->item(existingRow, 3) &&
+           watch_->watchTable->item(existingRow, 3)
                    ->text()
                    .compare(subIndex, Qt::CaseInsensitive) == 0);
       if (match) {
@@ -318,62 +318,62 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
     }
 
     if (watchRow < 0) {
-      watchRow = watchTable_->rowCount();
-      watchTable_->insertRow(watchRow);
-      watchTable_->setItem(
+      watchRow = watch_->watchTable->rowCount();
+      watch_->watchTable->insertRow(watchRow);
+      watch_->watchTable->setItem(
           watchRow, 0,
           new QTableWidgetItem(
               QDateTime::currentDateTime().toString("HH:mm:ss")));
-      watchTable_->setItem(watchRow, 1,
+      watch_->watchTable->setItem(watchRow, 1,
                            new QTableWidgetItem(QString::number(position)));
-      watchTable_->setItem(watchRow, 2, new QTableWidgetItem(index));
-      watchTable_->setItem(watchRow, 3, new QTableWidgetItem(subIndex));
-      watchTable_->setItem(watchRow, 8, new QTableWidgetItem);
-      watchTable_->setItem(watchRow, 9, new QTableWidgetItem);
-      watchTable_->setItem(watchRow, 10, new QTableWidgetItem);
-      watchTable_->setItem(watchRow, 11, new QTableWidgetItem);
+      watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(index));
+      watch_->watchTable->setItem(watchRow, 3, new QTableWidgetItem(subIndex));
+      watch_->watchTable->setItem(watchRow, 8, new QTableWidgetItem);
+      watch_->watchTable->setItem(watchRow, 9, new QTableWidgetItem);
+      watch_->watchTable->setItem(watchRow, 10, new QTableWidgetItem);
+      watch_->watchTable->setItem(watchRow, 11, new QTableWidgetItem);
     } else {
-      auto *timeItem = watchTable_->item(watchRow, 0);
+      auto *timeItem = watch_->watchTable->item(watchRow, 0);
       if (!timeItem) {
         timeItem = new QTableWidgetItem;
-        watchTable_->setItem(watchRow, 0, timeItem);
+        watch_->watchTable->setItem(watchRow, 0, timeItem);
       }
       timeItem->setText(QDateTime::currentDateTime().toString("HH:mm:ss"));
     }
 
     if (!value.isEmpty()) {
-      watchTable_->setItem(watchRow, 4, new QTableWidgetItem(value));
+      watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(value));
       const QString key =
           QString("%1|%2|%3").arg(position).arg(index, subIndex);
       watchValues_[key] = value;
-    } else if (!watchTable_->item(watchRow, 4)) {
-      watchTable_->setItem(watchRow, 4, new QTableWidgetItem);
+    } else if (!watch_->watchTable->item(watchRow, 4)) {
+      watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem);
     }
 
     const QString effectiveValue =
-        value.isEmpty() && watchTable_->item(watchRow, 4)
-            ? watchTable_->item(watchRow, 4)->text().trimmed()
+        value.isEmpty() && watch_->watchTable->item(watchRow, 4)
+            ? watch_->watchTable->item(watchRow, 4)->text().trimmed()
             : value;
     const QString decoded =
         decodeWatchValue(index, subIndex, type, effectiveValue,
                          uiText("SDO History", "SDO 历史"));
-    watchTable_->setItem(watchRow, 5, new QTableWidgetItem(decoded));
-    watchTable_->setItem(watchRow, 6, new QTableWidgetItem(type));
-    watchTable_->setItem(watchRow, 7,
+    watch_->watchTable->setItem(watchRow, 5, new QTableWidgetItem(decoded));
+    watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
+    watch_->watchTable->setItem(watchRow, 7,
                          new QTableWidgetItem(uiText("History", "历史")));
-    if (!status.isEmpty() && watchTable_->item(watchRow, 7)) {
-      watchTable_->item(watchRow, 7)
+    if (!status.isEmpty() && watch_->watchTable->item(watchRow, 7)) {
+      watch_->watchTable->item(watchRow, 7)
           ->setToolTip(detail.isEmpty()
                            ? status
                            : QString("%1 - %2").arg(status, detail));
     }
     updateWatchBaselineDelta(watchRow);
     updateWatchStartupDelta(watchRow);
-    watchTable_->selectRow(watchRow);
+    watch_->watchTable->selectRow(watchRow);
     ++addedOrReused;
   }
 
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateSelectedDriveSummary();
   updateActionAvailability();
@@ -446,7 +446,7 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
     }
     selectedSdoWritable_ = true;
     addCurrentSdoToWatch(false);
-    const int watchRow = watchTable_ ? watchTable_->currentRow() : -1;
+    const int watchRow = watch_->watchTable ? watch_->watchTable->currentRow() : -1;
     if (watchRow >= 0) {
       const QString mode =
           textAt(0).contains("Rx", Qt::CaseInsensitive) ||
@@ -456,7 +456,7 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
                          textAt(1).contains("TxPDO", Qt::CaseInsensitive)
                      ? "TxPDO"
                      : "PDO");
-      watchTable_->setItem(watchRow, 7, new QTableWidgetItem(mode));
+      watch_->watchTable->setItem(watchRow, 7, new QTableWidgetItem(mode));
     }
     ++addedOrReused;
   }
@@ -483,8 +483,8 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   }
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
-  if (watchTable_) {
-    watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  if (watch_->watchTable) {
+    watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   }
   filterWatchTable();
   updateSelectedDriveSummary();
@@ -536,7 +536,7 @@ void MainWindow::addCia402WatchPreset() {
   const QString previousWriteValue =
       sdoWriteValue_ ? sdoWriteValue_->text() : QString();
   const bool previousWritable = selectedSdoWritable_;
-  const int before = watchTable_ ? watchTable_->rowCount() : 0;
+  const int before = watch_->watchTable ? watch_->watchTable->rowCount() : 0;
 
   for (const auto &object : objects) {
     {
@@ -558,10 +558,10 @@ void MainWindow::addCia402WatchPreset() {
     }
     selectedSdoWritable_ = true;
     addCurrentSdoToWatch();
-    const int row = watchTable_ ? watchTable_->currentRow() : -1;
+    const int row = watch_->watchTable ? watch_->watchTable->currentRow() : -1;
     if (row >= 0) {
-      watchTable_->setItem(row, 5, new QTableWidgetItem(object.note));
-      watchTable_->setItem(row, 7, new QTableWidgetItem("CiA 402"));
+      watch_->watchTable->setItem(row, 5, new QTableWidgetItem(object.note));
+      watch_->watchTable->setItem(row, 7, new QTableWidgetItem("CiA 402"));
     }
   }
 
@@ -589,7 +589,7 @@ void MainWindow::addCia402WatchPreset() {
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
   updateActionAvailability();
 
-  const int after = watchTable_ ? watchTable_->rowCount() : before;
+  const int after = watch_->watchTable ? watch_->watchTable->rowCount() : before;
   updateDiagnostics(
       "Info", "Watch",
       QString("CiA 402 watch preset added for slave #%1: %2 new item(s)")
@@ -601,12 +601,12 @@ void MainWindow::addCia402WatchPreset() {
 
 // — Insert a Startup SDO row from the selected Watch row
 void MainWindow::addStartupSdoFromWatchRow(int row) {
-  if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
+  if (!watch_->watchTable || row < 0 || row >= watch_->watchTable->rowCount()) {
     return;
   }
 
   auto textAt = [this, row](int column) {
-    const auto *item = watchTable_->item(row, column);
+    const auto *item = watch_->watchTable->item(row, column);
     return item ? item->text().trimmed() : QString();
   };
 
@@ -657,11 +657,11 @@ void MainWindow::addStartupSdoFromWatchRow(int row) {
 
 // — Add startup sdo from selected watch rows
 void MainWindow::addStartupSdoFromSelectedWatchRows() {
-  if (!watchTable_ || !watchTable_->selectionModel()) {
+  if (!watch_->watchTable || !watch_->watchTable->selectionModel()) {
     return;
   }
 
-  const QVector<int> rows = selectedTableRows(watchTable_);
+  const QVector<int> rows = selectedTableRows(watch_->watchTable);
 
   const int previousPosition = selectedPosition();
   const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
@@ -676,12 +676,12 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
   int created = 0;
   int skipped = 0;
   for (const int row : rows) {
-    if (row < 0 || row >= watchTable_->rowCount() ||
-        watchTable_->isRowHidden(row)) {
+    if (row < 0 || row >= watch_->watchTable->rowCount() ||
+        watch_->watchTable->isRowHidden(row)) {
       continue;
     }
-    const QString value = watchTable_->item(row, 4)
-                              ? watchTable_->item(row, 4)->text().trimmed()
+    const QString value = watch_->watchTable->item(row, 4)
+                              ? watch_->watchTable->item(row, 4)->text().trimmed()
                               : QString();
     if (value.isEmpty()) {
       ++skipped;
@@ -737,7 +737,7 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
 
 // — Sync watch rows to startup sdo
 void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
-  if (!watchTable_ || rows.isEmpty()) {
+  if (!watch_->watchTable || rows.isEmpty()) {
     return;
   }
 
@@ -745,7 +745,7 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
   ensureStartupSdoTable();
 
   auto watchTextAt = [this](int row, int column) {
-    const auto *item = watchTable_->item(row, column);
+    const auto *item = watch_->watchTable->item(row, column);
     return item ? item->text().trimmed() : QString();
   };
   auto startupTextAt = [this](int row, int column) {
@@ -781,8 +781,8 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
   int duplicateSkipped = 0;
 
   for (const int row : uniqueRows) {
-    if (row < 0 || row >= watchTable_->rowCount() ||
-        watchTable_->isRowHidden(row)) {
+    if (row < 0 || row >= watch_->watchTable->rowCount() ||
+        watch_->watchTable->isRowHidden(row)) {
       continue;
     }
 
@@ -1004,11 +1004,11 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
 
 // — Sync selected watch rows to startup sdo
 void MainWindow::syncSelectedWatchRowsToStartupSdo() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
 
-  syncWatchRowsToStartupSdo(selectedTableRows(watchTable_));
+  syncWatchRowsToStartupSdo(selectedTableRows(watch_->watchTable));
 }
 
 
@@ -1394,24 +1394,24 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
 
 // — Refresh watch list
 void MainWindow::refreshWatchList(bool quiet) {
-  if (!client_.isConnected() || !watchTable_) {
+  if (!client_.isConnected() || !watch_->watchTable) {
     updateWatchAutoRefresh();
     return;
   }
   ensureWatchTable();
   int requested = 0;
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
-    const int position = watchTable_->item(row, 1)
-                             ? watchTable_->item(row, 1)->text().toInt()
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    const int position = watch_->watchTable->item(row, 1)
+                             ? watch_->watchTable->item(row, 1)->text().toInt()
                              : -1;
-    const QString index = watchTable_->item(row, 2)
-                              ? watchTable_->item(row, 2)->text().trimmed()
+    const QString index = watch_->watchTable->item(row, 2)
+                              ? watch_->watchTable->item(row, 2)->text().trimmed()
                               : QString();
-    const QString subIndex = watchTable_->item(row, 3)
-                                 ? watchTable_->item(row, 3)->text().trimmed()
+    const QString subIndex = watch_->watchTable->item(row, 3)
+                                 ? watch_->watchTable->item(row, 3)->text().trimmed()
                                  : QString();
-    const QString type = watchTable_->item(row, 6)
-                             ? watchTable_->item(row, 6)->text().trimmed()
+    const QString type = watch_->watchTable->item(row, 6)
+                             ? watch_->watchTable->item(row, 6)->text().trimmed()
                              : QString();
     if (position >= 0 && !index.isEmpty() && !subIndex.isEmpty()) {
       requestSdoRead(position, index, subIndex,
@@ -1432,23 +1432,23 @@ void MainWindow::refreshWatchList(bool quiet) {
 
 // — Capture watch baseline
 void MainWindow::captureWatchBaseline() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
   ensureWatchTable();
   int captured = 0;
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
-    const QString value = watchTable_->item(row, 4)
-                              ? watchTable_->item(row, 4)->text().trimmed()
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    const QString value = watch_->watchTable->item(row, 4)
+                              ? watch_->watchTable->item(row, 4)->text().trimmed()
                               : QString();
     if (value.isEmpty()) {
       continue;
     }
-    watchTable_->setItem(row, 8, new QTableWidgetItem(value));
+    watch_->watchTable->setItem(row, 8, new QTableWidgetItem(value));
     ++captured;
     updateWatchBaselineDelta(row);
   }
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateActionAvailability();
   updateDiagnostics(
@@ -1459,20 +1459,20 @@ void MainWindow::captureWatchBaseline() {
 
 // — Clear watch baseline
 void MainWindow::clearWatchBaseline() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
   ensureWatchTable();
   int cleared = 0;
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
-    if (watchTable_->item(row, 8) &&
-        !watchTable_->item(row, 8)->text().trimmed().isEmpty()) {
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    if (watch_->watchTable->item(row, 8) &&
+        !watch_->watchTable->item(row, 8)->text().trimmed().isEmpty()) {
       ++cleared;
     }
-    watchTable_->setItem(row, 8, new QTableWidgetItem);
-    watchTable_->setItem(row, 9, new QTableWidgetItem);
+    watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+    watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
   }
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateActionAvailability();
   updateDiagnostics(
@@ -1483,20 +1483,20 @@ void MainWindow::clearWatchBaseline() {
 
 // — Compute and color the baseline delta cell for a single Watch row
 void MainWindow::updateWatchBaselineDelta(int row) {
-  if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
+  if (!watch_->watchTable || row < 0 || row >= watch_->watchTable->rowCount()) {
     return;
   }
   ensureWatchTable();
-  const QString value = watchTable_->item(row, 4)
-                            ? watchTable_->item(row, 4)->text().trimmed()
+  const QString value = watch_->watchTable->item(row, 4)
+                            ? watch_->watchTable->item(row, 4)->text().trimmed()
                             : QString();
-  const QString baseline = watchTable_->item(row, 8)
-                               ? watchTable_->item(row, 8)->text().trimmed()
+  const QString baseline = watch_->watchTable->item(row, 8)
+                               ? watch_->watchTable->item(row, 8)->text().trimmed()
                                : QString();
-  auto *deltaItem = watchTable_->item(row, 9);
+  auto *deltaItem = watch_->watchTable->item(row, 9);
   if (!deltaItem) {
     deltaItem = new QTableWidgetItem;
-    watchTable_->setItem(row, 9, deltaItem);
+    watch_->watchTable->setItem(row, 9, deltaItem);
   }
   if (value.isEmpty() || baseline.isEmpty()) {
     deltaItem->setText(QString());
@@ -1560,11 +1560,11 @@ void MainWindow::updateWatchBaselineDelta(int row) {
 
 // — Recompute baseline deltas for every Watch row
 void MainWindow::updateWatchBaselineDeltas() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
   ensureWatchTable();
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
     updateWatchBaselineDelta(row);
   }
 }
@@ -1572,16 +1572,16 @@ void MainWindow::updateWatchBaselineDeltas() {
 
 // — Compute and color the Startup SDO delta cell for a single Watch row
 void MainWindow::updateWatchStartupDelta(int row) {
-  if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
+  if (!watch_->watchTable || row < 0 || row >= watch_->watchTable->rowCount()) {
     return;
   }
   ensureWatchTable();
 
-  const WatchStartupWatchRow watchRow = watchStartupWatchRow(watchTable_, row);
+  const WatchStartupWatchRow watchRow = watchStartupWatchRow(watch_->watchTable, row);
 
   auto *expectedItem = ensureWatchStartupTableItem(
-      watchTable_, row, kWatchStartupWatchExpectedColumn);
-  auto *deltaItem = ensureWatchStartupTableItem(watchTable_, row,
+      watch_->watchTable, row, kWatchStartupWatchExpectedColumn);
+  auto *deltaItem = ensureWatchStartupTableItem(watch_->watchTable, row,
                                                 kWatchStartupWatchDeltaColumn);
   clearWatchStartupDeltaCells(expectedItem, deltaItem);
 
@@ -1617,11 +1617,11 @@ void MainWindow::updateWatchStartupDelta(int row) {
 
 // — Recompute Startup SDO deltas for every Watch row
 void MainWindow::updateWatchStartupDeltas() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
   ensureWatchTable();
-  for (int row = 0; row < watchTable_->rowCount(); ++row) {
+  for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
     updateWatchStartupDelta(row);
   }
   updateStartupSdoWatchEvidence();
@@ -1632,10 +1632,10 @@ void MainWindow::updateWatchStartupDeltas() {
 
 // — Start or stop the Watch auto-refresh timer based on user settings
 void MainWindow::updateWatchAutoRefresh() {
-  const bool hasItems = watchTable_ && watchTable_->rowCount() > 0;
-  const bool autoEnabled = watchAutoRefresh_ && watchAutoRefresh_->isChecked();
-  const int interval = watchRefreshInterval_
-                           ? watchRefreshInterval_->currentData().toInt()
+  const bool hasItems = watch_->watchTable && watch_->watchTable->rowCount() > 0;
+  const bool autoEnabled = watch_->watchAutoRefresh && watch_->watchAutoRefresh->isChecked();
+  const int interval = watch_->watchRefreshInterval
+                           ? watch_->watchRefreshInterval->currentData().toInt()
                            : 1000;
 
   if (watchRefreshTimer_) {
@@ -1646,8 +1646,8 @@ void MainWindow::updateWatchAutoRefresh() {
       watchRefreshTimer_->stop();
     }
   }
-  if (watchRefreshInterval_) {
-    watchRefreshInterval_->setEnabled(autoEnabled);
+  if (watch_->watchRefreshInterval) {
+    watch_->watchRefreshInterval->setEnabled(autoEnabled);
   }
   filterWatchTable();
   updateStartupSdoWatchEvidence();
@@ -1660,11 +1660,11 @@ void MainWindow::updateWatchAutoRefresh() {
 
 // — Remove all Watch entries and reset tracking state
 void MainWindow::clearWatchList() {
-  if (!watchTable_) {
+  if (!watch_->watchTable) {
     return;
   }
-  watchTable_->clearContents();
-  watchTable_->setRowCount(0);
+  watch_->watchTable->clearContents();
+  watch_->watchTable->setRowCount(0);
   watchValues_.clear();
   watchChangedKeys_.clear();
   ensureWatchTable();

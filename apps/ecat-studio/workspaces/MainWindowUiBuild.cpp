@@ -159,11 +159,12 @@ void MainWindow::buildUi() {
   workflowReviewButton_ = nullptr;
   workflowReviewNextButton_ = nullptr;
   workflowStepCopyButton_ = nullptr;
-  watchDetailLabel_ = nullptr;
-  startupSdoDetailLabel_ = nullptr;
+  watch_->watchDetailLabel = nullptr;
+  watch_->startupSdoDetailLabel = nullptr;
   ioVar_->ioVariableDetailLabel = nullptr;
   consistency_ = nullptr;
   ioVar_ = nullptr;
+  watch_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
@@ -676,7 +677,8 @@ void MainWindow::buildUi() {
   hostHealthTable_ = new QTableWidget;
   diagnostics_ = new DiagnosticsWorkspaceWidgets;
   diagnostics_->diagnosticsTable = new QTableWidget;
-  watchTable_ = new QTableWidget;
+  watch_ = new WatchWorkspaceWidgets;
+  watch_->watchTable = new QTableWidget;
   esiTable_ = new QTableWidget;
   startupSdoTable_ = new QTableWidget;
   for (auto *table : {metricTable_,
@@ -697,7 +699,7 @@ void MainWindow::buildUi() {
                       consistency_->consistencyTable,
                       hostHealthTable_,
                       diagnostics_->diagnosticsTable,
-                      watchTable_,
+                      watch_->watchTable,
                       esiTable_,
                       startupSdoTable_}) {
     table->setAlternatingRowColors(true);
@@ -1653,9 +1655,9 @@ void MainWindow::buildUi() {
   verifySelectedStartup->setObjectName("verifySelectedStartupSdo");
   verifySelectedStartup->setIcon(
       style()->standardIcon(QStyle::SP_DialogApplyButton));
-  startupWatchDiffsOnly_ = new QCheckBox(uiText("Diffs Only", "只看偏差"));
-  startupWatchDiffsOnly_->setObjectName("startupWatchDiffsOnly");
-  startupWatchDiffsOnly_->setToolTip(uiText(
+  watch_->startupWatchDiffsOnly = new QCheckBox(uiText("Diffs Only", "只看偏差"));
+  watch_->startupWatchDiffsOnly->setObjectName("startupWatchDiffsOnly");
+  watch_->startupWatchDiffsOnly->setToolTip(uiText(
       "Show only Startup SDO rows whose expected value differs from current "
       "Watch evidence.",
       "只显示期望启动值和当前 Watch 证据不一致的 Startup SDO 行。"));
@@ -1691,32 +1693,32 @@ void MainWindow::buildUi() {
   startupControls->addWidget(preflightStartup);
   startupControls->addWidget(verifyStartup);
   startupControls->addWidget(verifySelectedStartup);
-  startupControls->addWidget(startupWatchDiffsOnly_);
+  startupControls->addWidget(watch_->startupWatchDiffsOnly);
   startupControls->addWidget(focusWatchDiffStartup);
   startupControls->addWidget(applyWatchDiffStartup);
   startupControls->addWidget(applyStartup);
   startupControls->addWidget(applySelectedStartup);
   startupControls->addStretch(1);
   startupLayout->addLayout(startupControls);
-  startupWatchSummaryLabel_ =
+  watch_->startupWatchSummaryLabel =
       new QLabel(uiText("No Startup SDO rows", "暂无 Startup SDO 行"));
-  startupWatchSummaryLabel_->setObjectName("diagnosticsSummary");
-  startupWatchSummaryLabel_->setWordWrap(true);
-  startupLayout->addWidget(startupWatchSummaryLabel_);
-  startupSdoDetailLabel_ =
+  watch_->startupWatchSummaryLabel->setObjectName("diagnosticsSummary");
+  watch_->startupWatchSummaryLabel->setWordWrap(true);
+  startupLayout->addWidget(watch_->startupWatchSummaryLabel);
+  watch_->startupSdoDetailLabel =
       new QLabel(uiText("Select a Startup SDO row to review apply evidence.",
                         "选择 Startup SDO 行以复核应用证据。"));
-  startupSdoDetailLabel_->setObjectName("statusSummary");
-  startupSdoDetailLabel_->setProperty("severity", "neutral");
-  startupSdoDetailLabel_->setWordWrap(true);
-  startupSdoDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  startupSdoDetailLabel_->setToolTip(uiText(
+  watch_->startupSdoDetailLabel->setObjectName("statusSummary");
+  watch_->startupSdoDetailLabel->setProperty("severity", "neutral");
+  watch_->startupSdoDetailLabel->setWordWrap(true);
+  watch_->startupSdoDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  watch_->startupSdoDetailLabel->setToolTip(uiText(
       "This preview is local. It summarizes the selected Startup SDO target, "
       "expected value, Watch evidence, and apply boundary without writing the "
       "bus.",
       "此预览仅在本地工作。它汇总选中的 Startup SDO 目标、期望值、Watch 证据"
       "和应用边界，不写入总线。"));
-  startupLayout->addWidget(startupSdoDetailLabel_);
+  startupLayout->addWidget(watch_->startupSdoDetailLabel);
   ensureStartupSdoTable();
   startupLayout->addWidget(startupSdoTable_);
 
@@ -2065,38 +2067,38 @@ void MainWindow::buildUi() {
   auto *clearWatch = new QPushButton(uiText("Clear Watch", "清空监视"));
   clearWatch->setObjectName("clearWatch");
   clearWatch->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
-  watchAutoRefresh_ = new QCheckBox(uiText("Auto", "自动"));
-  watchAutoRefresh_->setObjectName("watchAutoRefresh");
-  watchRefreshInterval_ = new QComboBox;
-  watchRefreshInterval_->setObjectName("watchRefreshInterval");
-  watchRefreshInterval_->addItem("250 ms", 250);
-  watchRefreshInterval_->addItem("500 ms", 500);
-  watchRefreshInterval_->addItem("1 s", 1000);
-  watchRefreshInterval_->addItem("2 s", 2000);
-  watchRefreshInterval_->setCurrentIndex(2);
-  watchFilter_ = new QLineEdit;
-  watchFilter_->setPlaceholderText(
+  watch_->watchAutoRefresh = new QCheckBox(uiText("Auto", "自动"));
+  watch_->watchAutoRefresh->setObjectName("watchAutoRefresh");
+  watch_->watchRefreshInterval = new QComboBox;
+  watch_->watchRefreshInterval->setObjectName("watchRefreshInterval");
+  watch_->watchRefreshInterval->addItem("250 ms", 250);
+  watch_->watchRefreshInterval->addItem("500 ms", 500);
+  watch_->watchRefreshInterval->addItem("1 s", 1000);
+  watch_->watchRefreshInterval->addItem("2 s", 2000);
+  watch_->watchRefreshInterval->setCurrentIndex(2);
+  watch_->watchFilter = new QLineEdit;
+  watch_->watchFilter->setPlaceholderText(
       uiText("Filter watch by slave, index, sub, value, type, or mode",
              "按从站、索引、子项、值、类型或模式过滤监视"));
-  watchScopeFilter_ = new QComboBox;
-  watchScopeFilter_->setObjectName("watchScopeFilter");
-  watchScopeFilter_->setToolTip(
+  watch_->watchScopeFilter = new QComboBox;
+  watch_->watchScopeFilter->setObjectName("watchScopeFilter");
+  watch_->watchScopeFilter->setToolTip(
       uiText("Limit Watch rows to the active engineering scope.",
              "按当前工程关注范围筛选 Watch 行。"));
-  watchScopeFilter_->addItem(uiText("All", "全部"), "all");
-  watchScopeFilter_->addItem(uiText("Selected Slave", "当前从站"), "selected");
-  watchScopeFilter_->addItem(uiText("Changed", "变化项"), "changed");
-  watchScopeFilter_->addItem(uiText("Baseline Drift", "基线偏离"),
+  watch_->watchScopeFilter->addItem(uiText("All", "全部"), "all");
+  watch_->watchScopeFilter->addItem(uiText("Selected Slave", "当前从站"), "selected");
+  watch_->watchScopeFilter->addItem(uiText("Changed", "变化项"), "changed");
+  watch_->watchScopeFilter->addItem(uiText("Baseline Drift", "基线偏离"),
                              "baselineDrift");
-  watchScopeFilter_->addItem(uiText("Startup Diff", "启动不一致"),
+  watch_->watchScopeFilter->addItem(uiText("Startup Diff", "启动不一致"),
                              "startupDiff");
-  watchScopeFilter_->addItem(uiText("Missing Value", "缺失值"), "missingValue");
-  watchScopeFilter_->addItem("CiA 402", "cia402");
-  watchChangedOnly_ = new QCheckBox(uiText("Changed only", "仅变化项"));
-  watchSummaryLabel_ = new QLabel(uiText("No watch items", "暂无监视项"));
-  watchSummaryLabel_->setObjectName("diagnosticsSummary");
-  watchSummaryLabel_->setWordWrap(true);
-  watchSummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  watch_->watchScopeFilter->addItem(uiText("Missing Value", "缺失值"), "missingValue");
+  watch_->watchScopeFilter->addItem("CiA 402", "cia402");
+  watch_->watchChangedOnly = new QCheckBox(uiText("Changed only", "仅变化项"));
+  watch_->watchSummaryLabel = new QLabel(uiText("No watch items", "暂无监视项"));
+  watch_->watchSummaryLabel->setObjectName("diagnosticsSummary");
+  watch_->watchSummaryLabel->setWordWrap(true);
+  watch_->watchSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   watchControls->addWidget(addWatch);
   watchControls->addWidget(addCia402Watch);
   watchControls->addWidget(refreshWatch);
@@ -2105,34 +2107,34 @@ void MainWindow::buildUi() {
   watchControls->addWidget(startupFromSelectedWatch);
   watchControls->addWidget(syncStartupFromWatch);
   watchControls->addWidget(clearWatch);
-  watchControls->addWidget(watchAutoRefresh_);
-  watchControls->addWidget(watchRefreshInterval_);
+  watchControls->addWidget(watch_->watchAutoRefresh);
+  watchControls->addWidget(watch_->watchRefreshInterval);
   watchControls->addStretch(1);
   watchLayout->addLayout(watchControls);
   auto *watchFilterLayout = new QHBoxLayout;
   watchFilterLayout->setSpacing(8);
-  watchFilterLayout->addWidget(watchFilter_, 1);
+  watchFilterLayout->addWidget(watch_->watchFilter, 1);
   watchFilterLayout->addWidget(new QLabel(uiText("Scope", "范围")));
-  watchFilterLayout->addWidget(watchScopeFilter_);
-  watchFilterLayout->addWidget(watchChangedOnly_);
-  watchFilterLayout->addWidget(watchSummaryLabel_);
+  watchFilterLayout->addWidget(watch_->watchScopeFilter);
+  watchFilterLayout->addWidget(watch_->watchChangedOnly);
+  watchFilterLayout->addWidget(watch_->watchSummaryLabel);
   watchLayout->addLayout(watchFilterLayout);
-  watchDetailLabel_ =
+  watch_->watchDetailLabel =
       new QLabel(uiText("Select a Watch row to review value evidence.",
                         "选择 Watch 行以复核数值证据。"));
-  watchDetailLabel_->setObjectName("statusSummary");
-  watchDetailLabel_->setProperty("severity", "neutral");
-  watchDetailLabel_->setWordWrap(true);
-  watchDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  watchDetailLabel_->setToolTip(uiText(
+  watch_->watchDetailLabel->setObjectName("statusSummary");
+  watch_->watchDetailLabel->setProperty("severity", "neutral");
+  watch_->watchDetailLabel->setWordWrap(true);
+  watch_->watchDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  watch_->watchDetailLabel->setToolTip(uiText(
       "This preview is local. It summarizes the selected Watch value, baseline "
       "delta, Startup comparison, and refresh boundary without reading the "
       "bus.",
       "此预览仅在本地工作。它汇总选中 Watch 值、基线偏差、Startup 对照和刷新"
       "边界，不读取总线。"));
-  watchLayout->addWidget(watchDetailLabel_);
+  watchLayout->addWidget(watch_->watchDetailLabel);
   ensureWatchTable();
-  watchLayout->addWidget(watchTable_, 1);
+  watchLayout->addWidget(watch_->watchTable, 1);
 
   auto *stateMachinePage = new QWidget;
   stateMachinePage_ = stateMachinePage;
@@ -2350,17 +2352,17 @@ void MainWindow::rebuildUi() {
       copyTableRows(sdoTargetTrailTable_);
   const QList<QStringList> objectBookmarkRows =
       copyTableRows(objectBookmarkTable_);
-  const QList<QStringList> watchRows = copyTableRows(watchTable_);
+  const QList<QStringList> watchRows = copyTableRows(watch_->watchTable);
   const bool watchAutoRefresh =
-      watchAutoRefresh_ ? watchAutoRefresh_->isChecked() : false;
-  const int watchInterval = watchRefreshInterval_
-                                ? watchRefreshInterval_->currentData().toInt()
+      watch_->watchAutoRefresh ? watch_->watchAutoRefresh->isChecked() : false;
+  const int watchInterval = watch_->watchRefreshInterval
+                                ? watch_->watchRefreshInterval->currentData().toInt()
                                 : 1000;
-  const QString watchFilter = watchFilter_ ? watchFilter_->text() : QString();
+  const QString watchFilter = watch_->watchFilter ? watch_->watchFilter->text() : QString();
   const QString watchScope =
-      watchScopeFilter_ ? watchScopeFilter_->currentData().toString() : "all";
+      watch_->watchScopeFilter ? watch_->watchScopeFilter->currentData().toString() : "all";
   const bool watchChangedOnly =
-      watchChangedOnly_ ? watchChangedOnly_->isChecked() : false;
+      watch_->watchChangedOnly ? watch_->watchChangedOnly->isChecked() : false;
   const QList<QStringList> startupRows = copyTableRows(startupSdoTable_);
   const QList<QStringList> diagnosticsRows = copyTableRows(diagnostics_->diagnosticsTable);
   const QString workflowFilter =
@@ -2508,7 +2510,7 @@ void MainWindow::rebuildUi() {
   }
   if (!watchRows.isEmpty()) {
     ensureWatchTable();
-    watchTable_->setRowCount(watchRows.size());
+    watch_->watchTable->setRowCount(watchRows.size());
     for (int row = 0; row < watchRows.size(); ++row) {
       const QStringList values = watchRows.at(row);
       // Migrate older 6/7-column watch formats to current 12-column layout
@@ -2532,13 +2534,13 @@ void MainWindow::rebuildUi() {
         migrated = values;
       }
       for (int column = 0; column < 12; ++column) {
-        watchTable_->setItem(row, column,
+        watch_->watchTable->setItem(row, column,
                              new QTableWidgetItem(migrated.value(column)));
       }
     }
     updateWatchBaselineDeltas();
     updateWatchStartupDeltas();
-    watchTable_->resizeColumnsToContents(); // auto-fit column widths
+    watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   }
   if (!startupRows.isEmpty()) {
     setTableRows(startupSdoTable_,
@@ -2581,22 +2583,22 @@ void MainWindow::rebuildUi() {
   if (freeRunChangedOnly_) {
     freeRunChangedOnly_->setChecked(freeRunChangedOnly);
   }
-  if (watchRefreshInterval_) {
-    const int index = watchRefreshInterval_->findData(watchInterval);
-    watchRefreshInterval_->setCurrentIndex(index >= 0 ? index : 2);
+  if (watch_->watchRefreshInterval) {
+    const int index = watch_->watchRefreshInterval->findData(watchInterval);
+    watch_->watchRefreshInterval->setCurrentIndex(index >= 0 ? index : 2);
   }
-  if (watchAutoRefresh_) {
-    watchAutoRefresh_->setChecked(watchAutoRefresh);
+  if (watch_->watchAutoRefresh) {
+    watch_->watchAutoRefresh->setChecked(watchAutoRefresh);
   }
-  if (watchFilter_) {
-    watchFilter_->setText(watchFilter);
+  if (watch_->watchFilter) {
+    watch_->watchFilter->setText(watchFilter);
   }
-  if (watchScopeFilter_) {
-    const int index = watchScopeFilter_->findData(watchScope);
-    watchScopeFilter_->setCurrentIndex(index >= 0 ? index : 0);
+  if (watch_->watchScopeFilter) {
+    const int index = watch_->watchScopeFilter->findData(watchScope);
+    watch_->watchScopeFilter->setCurrentIndex(index >= 0 ? index : 0);
   }
-  if (watchChangedOnly_) {
-    watchChangedOnly_->setChecked(watchChangedOnly);
+  if (watch_->watchChangedOnly) {
+    watch_->watchChangedOnly->setChecked(watchChangedOnly);
   }
   if (diagnostics_->diagnosticsLevelFilter) {
     const int index = diagnostics_->diagnosticsLevelFilter->findData(diagnosticsLevel);

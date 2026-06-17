@@ -527,8 +527,8 @@ void MainWindow::focusEvidenceFromConsistency(int row) {
       startupRow = route.startupRow;
     }
     if (startupRow >= 0) {
-      if (startupWatchDiffsOnly_) {
-        startupWatchDiffsOnly_->setChecked(false);
+      if (watch_->startupWatchDiffsOnly) {
+        watch_->startupWatchDiffsOnly->setChecked(false);
       }
       filterStartupSdoTable();
       activateTabContainingWidget(tabs_, startupSdoTable_);
@@ -543,21 +543,21 @@ void MainWindow::focusEvidenceFromConsistency(int row) {
 
   if (route.kind == ConsistencyEvidenceRouteKind::Watch) {
     const int watchRow = tableRowForObjectAddress(
-        watchTable_, route.address.position, route.address.index,
+        watch_->watchTable, route.address.position, route.address.index,
         route.address.subIndex, 1, 2, 3);
     if (watchRow >= 0) {
-      if (watchScopeFilter_) {
-        const int index = watchScopeFilter_->findData("all");
+      if (watch_->watchScopeFilter) {
+        const int index = watch_->watchScopeFilter->findData("all");
         if (index >= 0) {
-          watchScopeFilter_->setCurrentIndex(index);
+          watch_->watchScopeFilter->setCurrentIndex(index);
         }
       }
-      if (watchChangedOnly_) {
-        watchChangedOnly_->setChecked(false);
+      if (watch_->watchChangedOnly) {
+        watch_->watchChangedOnly->setChecked(false);
       }
       filterWatchTable();
-      activateTabContainingWidget(tabs_, watchTable_);
-      selectAndFocusTableRow(watchTable_, watchRow, 1);
+      activateTabContainingWidget(tabs_, watch_->watchTable);
+      selectAndFocusTableRow(watch_->watchTable, watchRow, 1);
       updateDiagnostics("Info", "Consistency",
                         uiText("Opened Watch evidence from Consistency",
                                "已从一致性打开 Watch 证据"));
@@ -719,7 +719,7 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
                      sdoTable_ && sdoTable_->rowCount() > 0;
   input.hasPdoRows = input.hasSelectedSlave && loadedPdoPosition_ == selected &&
                      pdoTable_ && pdoTable_->rowCount() > 0;
-  input.hasWatchRows = watchTable_ && watchTable_->rowCount() > 0;
+  input.hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   input.hasFreeRunRows =
       freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
   input.hasFailedOdEvidence = hasFailedSdoEvidence();
@@ -860,7 +860,7 @@ void MainWindow::updateCommissioningWorkflow() {
                      : uiText("No live SDO evidence", "无实时 SDO 证据"),
                  workflowInput.hasWatchRows
                      ? uiText("%1 watch item(s)", "%1 个监视项")
-                           .arg(watchTable_->rowCount())
+                           .arg(watch_->watchTable->rowCount())
                      : uiText("No watch items", "暂无监视项"),
                  workflowInput.hasSelectedSlave
                      ? uiText("Add current SDO to Watch", "添加当前 SDO 到监视")
@@ -1193,7 +1193,7 @@ void MainWindow::updateSlaveEvidenceMatrix() {
       loadedPdoPosition_,       pdoTable_ ? pdoTable_->rowCount() : 0,
   };
   const SlaveEvidenceLoadedTables loadedTables = {
-      watchTable_,
+      watch_->watchTable,
       startupSdoTable_,
       freeRunEntryTable_,
   };
@@ -1656,26 +1656,26 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     break;
   // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Watch: {
-    const int watchRow = firstSlaveEvidenceDriveWatchRow(watchTable_, position);
+    const int watchRow = firstSlaveEvidenceDriveWatchRow(watch_->watchTable, position);
     activateWorkspaceTab(watchTabIndex_);
-    if (watchScopeFilter_) {
-      const int scope = watchScopeFilter_->findData("all");
+    if (watch_->watchScopeFilter) {
+      const int scope = watch_->watchScopeFilter->findData("all");
       if (scope >= 0) {
-        watchScopeFilter_->setCurrentIndex(scope);
+        watch_->watchScopeFilter->setCurrentIndex(scope);
       }
     }
-    if (watchChangedOnly_) {
-      watchChangedOnly_->setChecked(false);
+    if (watch_->watchChangedOnly) {
+      watch_->watchChangedOnly->setChecked(false);
     }
     filterWatchTable();
     if (watchRow >= 0) {
-      selectAndFocusTableRow(watchTable_, watchRow,
+      selectAndFocusTableRow(watch_->watchTable, watchRow,
                              kSlaveEvidenceWatchPositionColumn);
     } else {
       const int anyWatchRow = firstSlaveEvidenceRowForPosition(
-          watchTable_, position, kSlaveEvidenceWatchPositionColumn);
+          watch_->watchTable, position, kSlaveEvidenceWatchPositionColumn);
       if (anyWatchRow >= 0) {
-        selectAndFocusTableRow(watchTable_, anyWatchRow,
+        selectAndFocusTableRow(watch_->watchTable, anyWatchRow,
                                kSlaveEvidenceWatchPositionColumn);
       }
     }
@@ -1689,8 +1689,8 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     const int startupRow =
         firstSlaveEvidenceStartupDiffRow(startupSdoTable_, position);
     activateWorkspaceTab(startupSdoTabIndex_);
-    if (startupWatchDiffsOnly_) {
-      startupWatchDiffsOnly_->setChecked(false);
+    if (watch_->startupWatchDiffsOnly) {
+      watch_->startupWatchDiffsOnly->setChecked(false);
     }
     filterStartupSdoTable();
     if (startupRow >= 0) {

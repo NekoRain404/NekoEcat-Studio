@@ -920,8 +920,8 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_BrowserReload),
       [this] { refreshWatchList(); },
       [this] {
-        return client_.isConnected() && watchTable_ &&
-               watchTable_->rowCount() > 0;
+        return client_.isConnected() && watch_->watchTable &&
+               watch_->watchTable->rowCount() > 0;
       },
   });
   commands.append(CommandItem{
@@ -930,7 +930,7 @@ void MainWindow::showCommandPalette() {
              "保存当前 Watch 值用于偏差比较"),
       style()->standardIcon(QStyle::SP_DialogSaveButton),
       [this] { captureWatchBaseline(); },
-      [this] { return watchTable_ && watchTable_->rowCount() > 0; },
+      [this] { return watch_->watchTable && watch_->watchTable->rowCount() > 0; },
   });
   commands.append(CommandItem{
       uiText("Clear Watch Baseline", "清除 Watch 基线"),
@@ -938,7 +938,7 @@ void MainWindow::showCommandPalette() {
              "清除已保存基线和偏差结果"),
       style()->standardIcon(QStyle::SP_TrashIcon),
       [this] { clearWatchBaseline(); },
-      [this] { return watchTable_ && watchTable_->rowCount() > 0; },
+      [this] { return watch_->watchTable && watch_->watchTable->rowCount() > 0; },
   });
   struct WatchScopeCommand {
     QString label;
@@ -973,12 +973,12 @@ void MainWindow::showCommandPalette() {
         scopeCommand.description,
         style()->standardIcon(QStyle::SP_FileDialogDetailedView),
         [this, scope = scopeCommand.scope, label = scopeCommand.label] {
-          if (!watchScopeFilter_) {
+          if (!watch_->watchScopeFilter) {
             return;
           }
-          const int index = watchScopeFilter_->findData(scope);
+          const int index = watch_->watchScopeFilter->findData(scope);
           if (index >= 0) {
-            watchScopeFilter_->setCurrentIndex(index);
+            watch_->watchScopeFilter->setCurrentIndex(index);
           }
           activateWorkspaceTab(watchTabIndex_);
           filterWatchTable();
@@ -988,7 +988,7 @@ void MainWindow::showCommandPalette() {
                   .arg(label));
         },
         [this, scope = scopeCommand.scope] {
-          if (!watchTable_ || watchTable_->rowCount() <= 0) {
+          if (!watch_->watchTable || watch_->watchTable->rowCount() <= 0) {
             return false;
           }
           return scope != "selected" || selectedPosition() >= 0;
@@ -1335,7 +1335,7 @@ void MainWindow::showCommandPalette() {
       uiText("Remove all SDO watch rows", "移除所有 SDO 监视行"),
       style()->standardIcon(QStyle::SP_TrashIcon),
       [this] { clearWatchList(); },
-      [this] { return watchTable_ && watchTable_->rowCount() > 0; },
+      [this] { return watch_->watchTable && watch_->watchTable->rowCount() > 0; },
   });
   QString selectedRecommendedState;
   const int stateCommandPosition = selectedPosition();

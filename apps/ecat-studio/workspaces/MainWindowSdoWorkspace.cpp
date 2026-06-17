@@ -192,7 +192,7 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
               isCurrentSdoTarget(position, normalizedIndex, normalizedSubIndex),
           sdoTable_ && loadedSdoPosition_ == position,
           {.dictionaryTable = sdoTable_,
-           .watchTable = watchTable_,
+           .watchTable = watch_->watchTable,
            .startupTable = startupSdoTable_,
            .bookmarkTable = objectBookmarkTable_},
           {.read = uiText("Read", "读回"),
@@ -242,10 +242,10 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
 
   QString currentValue;
   QString currentSource;
-  if (watchTable_) {
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
-      const QString value = tableText(watchTable_, row, 4);
-      if (tableObjectAddressMatches(watchTable_, row, position, normalizedIndex,
+  if (watch_->watchTable) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+      const QString value = tableText(watch_->watchTable, row, 4);
+      if (tableObjectAddressMatches(watch_->watchTable, row, position, normalizedIndex,
                                     normalizedSubIndex, 1, 2, 3) &&
           !value.isEmpty()) {
         currentValue = value;
@@ -533,10 +533,10 @@ int MainWindow::currentSdoDictionaryRow() const {
 // — Return the current sdo watch row
 int MainWindow::currentSdoWatchRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !watchTable_ || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !watch_->watchTable || !sdoIndex_ || !sdoSubIndex_) {
     return -1;
   }
-  return sdoEvidenceTableRowsForTarget({.watchTable = watchTable_},
+  return sdoEvidenceTableRowsForTarget({.watchTable = watch_->watchTable},
                                        {.position = position,
                                         .index = sdoIndex_->text(),
                                         .subIndex = sdoSubIndex_->text()})
@@ -598,7 +598,7 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   const int position = selectedPosition();
   const SdoEvidenceTableRows rows = sdoEvidenceTableRowsForTarget(
       {.dictionaryTable = sdoTable_,
-       .watchTable = watchTable_,
+       .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
        .targetTrailTable = sdoTargetTrailTable_},
@@ -609,7 +609,7 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   return sdoEvidenceCandidatesFromTables(
       sdoValue_ ? sdoValue_->text() : QString(),
       {.dictionaryTable = sdoTable_,
-       .watchTable = watchTable_,
+       .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
        .targetTrailTable = sdoTargetTrailTable_},
@@ -644,7 +644,7 @@ bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
   return sdoWriteDeltaReviewEvidenceAvailable(
       sdoValue_ ? sdoValue_->text() : QString(),
       {.dictionaryTable = sdoTable_,
-       .watchTable = watchTable_,
+       .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
        .targetTrailTable = sdoTargetTrailTable_},
@@ -698,7 +698,7 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
   };
 
   const int watchRow = currentSdoWatchRow();
-  if (watchRow >= 0 && shouldReviewValue(tableText(watchTable_, watchRow, 4))) {
+  if (watchRow >= 0 && shouldReviewValue(tableText(watch_->watchTable, watchRow, 4))) {
     openCurrentSdoWatchLink();
     updateDiagnostics("Info", "Navigation",
                       writeValue.isEmpty()
@@ -1041,14 +1041,14 @@ void MainWindow::copyCurrentSdoEvidenceDigest() {
 // — Open current sdo watch link
 void MainWindow::openCurrentSdoWatchLink() {
   const int row = currentSdoWatchRow();
-  if (row < 0 || !watchTable_) {
+  if (row < 0 || !watch_->watchTable) {
     updateDiagnostics("Info", "Navigation",
                       uiText("No matching Watch row for current SDO target",
                              "当前 SDO 目标没有匹配的 Watch 行"));
     return;
   }
   activateWorkspaceTab(watchTabIndex_);
-  selectAndFocusTableRow(watchTable_, row, 1);
+  selectAndFocusTableRow(watch_->watchTable, row, 1);
   updateDiagnostics("Info", "Navigation",
                     uiText("Opened matching Watch row for current SDO target",
                            "已打开当前 SDO 目标匹配的 Watch 行"));
@@ -1065,8 +1065,8 @@ void MainWindow::openCurrentSdoStartupLink() {
     return;
   }
   activateWorkspaceTab(startupSdoTabIndex_);
-  if (startupWatchDiffsOnly_) {
-    startupWatchDiffsOnly_->setChecked(false);
+  if (watch_->startupWatchDiffsOnly) {
+    watch_->startupWatchDiffsOnly->setChecked(false);
   }
   filterStartupSdoTable();
   selectAndFocusTableRow(startupSdoTable_, row, 0);
@@ -1196,11 +1196,11 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
   int watchRow = -1;
   QString watchValue;
   QString watchDecoded;
-  if (hasCompleteTarget && watchTable_) {
+  if (hasCompleteTarget && watch_->watchTable) {
     watchRow = currentSdoWatchRow();
     if (watchRow >= 0) {
-      watchValue = tableText(watchTable_, watchRow, 4);
-      watchDecoded = tableText(watchTable_, watchRow, 5);
+      watchValue = tableText(watch_->watchTable, watchRow, 4);
+      watchDecoded = tableText(watch_->watchTable, watchRow, 5);
     }
   }
 
@@ -2078,28 +2078,28 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
   const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
   const QString value = sdoValue_ ? sdoValue_->text().trimmed() : QString();
   addCurrentSdoToWatch(false);
-  if (watchTable_ && watchTable_->currentRow() >= 0) {
-    const int watchRow = watchTable_->currentRow();
+  if (watch_->watchTable && watch_->watchTable->currentRow() >= 0) {
+    const int watchRow = watch_->watchTable->currentRow();
     if (!value.isEmpty()) {
-      watchTable_->setItem(watchRow, 4, new QTableWidgetItem(value));
+      watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(value));
       watchValues_
           [QString("%1|%2|%3").arg(selectedPosition()).arg(index, subIndex)] =
               value;
     }
-    watchTable_->setItem(
+    watch_->watchTable->setItem(
         watchRow, 5,
         new QTableWidgetItem(decodeWatchValue(
             index, subIndex, type,
-            value.isEmpty() ? tableText(watchTable_, watchRow, 4) : value,
+            value.isEmpty() ? tableText(watch_->watchTable, watchRow, 4) : value,
             uiText("Target Trail", "目标轨迹"))));
-    watchTable_->setItem(watchRow, 6, new QTableWidgetItem(type));
-    watchTable_->setItem(
+    watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
+    watch_->watchTable->setItem(
         watchRow, 7, new QTableWidgetItem(uiText("Target Trail", "目标轨迹")));
     updateWatchBaselineDelta(watchRow);
     updateWatchStartupDelta(watchRow);
   }
-  if (watchTable_) {
-    watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  if (watch_->watchTable) {
+    watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   }
   updateDiagnostics("Info", "SDO Target Trail",
                     uiText("Added selected target trail row to Watch without "
@@ -2563,12 +2563,12 @@ void MainWindow::prepareCia402Controlword(const QString &label,
 bool MainWindow::recommendedCia402Controlword(QString *label, QString *value,
                                               QString *reason) const {
   const int position = selectedPosition();
-  if (position < 0 || !watchTable_) {
+  if (position < 0 || !watch_->watchTable) {
     return false;
   }
 
   const Cia402ControlwordRecommendation recommendation =
-      selectedDriveControlwordRecommendation(watchStartupWatchRows(watchTable_),
+      selectedDriveControlwordRecommendation(watchStartupWatchRows(watch_->watchTable),
                                              position);
   if (recommendation.label.isEmpty() || recommendation.value.isEmpty()) {
     return false;
@@ -3289,9 +3289,9 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
       continue;
     }
     int watchRow = -1;
-    for (int row = 0; row < watchTable_->rowCount(); ++row) {
+    for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
       const bool match =
-          tableObjectAddressMatches(watchTable_, row, bookmark.position,
+          tableObjectAddressMatches(watch_->watchTable, row, bookmark.position,
                                     bookmark.index, bookmark.subIndex, 1, 2, 3);
       if (match) {
         watchRow = row;
@@ -3299,41 +3299,41 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
       }
     }
     if (watchRow < 0) {
-      watchRow = watchTable_->rowCount();
-      watchTable_->insertRow(watchRow);
-      watchTable_->setItem(
+      watchRow = watch_->watchTable->rowCount();
+      watch_->watchTable->insertRow(watchRow);
+      watch_->watchTable->setItem(
           watchRow, 0,
           new QTableWidgetItem(
               QDateTime::currentDateTime().toString("HH:mm:ss")));
-      watchTable_->setItem(
+      watch_->watchTable->setItem(
           watchRow, 1,
           new QTableWidgetItem(QString::number(bookmark.position)));
-      watchTable_->setItem(watchRow, 2, new QTableWidgetItem(bookmark.index));
-      watchTable_->setItem(watchRow, 3,
+      watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(bookmark.index));
+      watch_->watchTable->setItem(watchRow, 3,
                            new QTableWidgetItem(bookmark.subIndex));
       ++added;
     } else {
       ++reused;
     }
-    watchTable_->setItem(watchRow, 4, new QTableWidgetItem(bookmark.lastValue));
-    watchTable_->setItem(watchRow, 5,
+    watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(bookmark.lastValue));
+    watch_->watchTable->setItem(watchRow, 5,
                          new QTableWidgetItem(decodeWatchValue(
                              bookmark.index, bookmark.subIndex, bookmark.type,
                              bookmark.lastValue, "Object Bookmark")));
-    watchTable_->setItem(watchRow, 6, new QTableWidgetItem(bookmark.type));
-    watchTable_->setItem(watchRow, 7,
+    watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(bookmark.type));
+    watch_->watchTable->setItem(watchRow, 7,
                          new QTableWidgetItem(bookmark.name.isEmpty()
                                                   ? "Object Bookmark"
                                                   : bookmark.name));
     for (int column = 8; column < 12; ++column) {
-      if (!watchTable_->item(watchRow, column)) {
-        watchTable_->setItem(watchRow, column, new QTableWidgetItem);
+      if (!watch_->watchTable->item(watchRow, column)) {
+        watch_->watchTable->setItem(watchRow, column, new QTableWidgetItem);
       }
     }
     updateWatchBaselineDelta(watchRow);
     updateWatchStartupDelta(watchRow);
   }
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   filterWatchTable();
   updateWatchAutoRefresh();
   activateWorkspaceTab(watchTabIndex_);
@@ -4080,12 +4080,12 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
     const QString type = ioVariableTableRowTypeFromBits(variable);
 
     int existing = -1;
-    for (int watchRow = 0; watchRow < watchTable_->rowCount(); ++watchRow) {
+    for (int watchRow = 0; watchRow < watch_->watchTable->rowCount(); ++watchRow) {
       const bool match =
-          tableText(watchTable_, watchRow, 1).toInt() == variable.position &&
-          tableText(watchTable_, watchRow, 2)
+          tableText(watch_->watchTable, watchRow, 1).toInt() == variable.position &&
+          tableText(watch_->watchTable, watchRow, 2)
                   .compare(variable.index, Qt::CaseInsensitive) == 0 &&
-          tableText(watchTable_, watchRow, 3)
+          tableText(watch_->watchTable, watchRow, 3)
                   .compare(variable.subIndex, Qt::CaseInsensitive) == 0;
       if (match) {
         existing = watchRow;
@@ -4094,47 +4094,47 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
     }
 
     if (existing >= 0) {
-      if (!type.isEmpty() && tableText(watchTable_, existing, 6).isEmpty()) {
-        watchTable_->setItem(existing, 6, new QTableWidgetItem(type));
+      if (!type.isEmpty() && tableText(watch_->watchTable, existing, 6).isEmpty()) {
+        watch_->watchTable->setItem(existing, 6, new QTableWidgetItem(type));
       }
-      watchTable_->selectRow(existing);
+      watch_->watchTable->selectRow(existing);
       ++reused;
       continue;
     }
 
-    const int watchRow = watchTable_->rowCount();
-    watchTable_->insertRow(watchRow);
-    watchTable_->setItem(
+    const int watchRow = watch_->watchTable->rowCount();
+    watch_->watchTable->insertRow(watchRow);
+    watch_->watchTable->setItem(
         watchRow, 0,
         new QTableWidgetItem(
             QDateTime::currentDateTime().toString("HH:mm:ss")));
-    watchTable_->setItem(
+    watch_->watchTable->setItem(
         watchRow, 1, new QTableWidgetItem(QString::number(variable.position)));
-    watchTable_->setItem(watchRow, 2, new QTableWidgetItem(variable.index));
-    watchTable_->setItem(watchRow, 3, new QTableWidgetItem(variable.subIndex));
-    watchTable_->setItem(watchRow, 4, new QTableWidgetItem(variable.raw));
-    watchTable_->setItem(
+    watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(variable.index));
+    watch_->watchTable->setItem(watchRow, 3, new QTableWidgetItem(variable.subIndex));
+    watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(variable.raw));
+    watch_->watchTable->setItem(
         watchRow, 5,
         new QTableWidgetItem(
             variable.decoded.isEmpty()
                 ? decodeWatchValue(variable.index, variable.subIndex, type,
                                    variable.raw, "I/O Variables")
                 : variable.decoded));
-    watchTable_->setItem(watchRow, 6, new QTableWidgetItem(type));
-    watchTable_->setItem(watchRow, 7,
+    watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
+    watch_->watchTable->setItem(watchRow, 7,
                          new QTableWidgetItem(variable.meaning.isEmpty()
                                                   ? "I/O Variables"
                                                   : variable.meaning));
-    watchTable_->setItem(watchRow, 8, new QTableWidgetItem);
-    watchTable_->setItem(watchRow, 9, new QTableWidgetItem);
-    watchTable_->setItem(watchRow, 10, new QTableWidgetItem);
-    watchTable_->setItem(watchRow, 11, new QTableWidgetItem);
+    watch_->watchTable->setItem(watchRow, 8, new QTableWidgetItem);
+    watch_->watchTable->setItem(watchRow, 9, new QTableWidgetItem);
+    watch_->watchTable->setItem(watchRow, 10, new QTableWidgetItem);
+    watch_->watchTable->setItem(watchRow, 11, new QTableWidgetItem);
     updateWatchStartupDelta(watchRow);
-    watchTable_->selectRow(watchRow);
+    watch_->watchTable->selectRow(watchRow);
     ++added;
   }
 
-  watchTable_->resizeColumnsToContents(); // auto-fit column widths
+  watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
   updateWatchAutoRefresh();
   updateIoVariableTable();
   updateDiagnostics("Info", "I/O Variables",
@@ -4493,12 +4493,12 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
 
 // — Fill the SDO target panel from the selected Watch row
 void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
-  if (!watchTable_ || row < 0 || row >= watchTable_->rowCount()) {
+  if (!watch_->watchTable || row < 0 || row >= watch_->watchTable->rowCount()) {
     return;
   }
 
   auto textAt = [this, row](int column) {
-    const auto *item = watchTable_->item(row, column);
+    const auto *item = watch_->watchTable->item(row, column);
     return item ? item->text().trimmed() : QString();
   };
 

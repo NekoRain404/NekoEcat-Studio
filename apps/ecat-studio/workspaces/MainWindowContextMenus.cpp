@@ -323,7 +323,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 2), 4);
       objectClipboard.subIndex =
           normalizedHex(tableText(table, currentRow, 3), 2);
-    } else if (table == watchTable_) {
+    } else if (table == watch_->watchTable) {
       objectClipboard.position =
           parsedPosition(tableText(table, currentRow, 1));
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 2), 4);
@@ -635,7 +635,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         uiText("Add Selected PDOs to Watch", "将选中 PDO 加入监视"));
     addSelectedPdoWatch->setEnabled(pdoReady && hasPdoSelection);
     menu.addSeparator();
-  } else if (table == watchTable_) {
+  } else if (table == watch_->watchTable) {
     const bool hasWatchRow = table->currentRow() >= 0;
     bool hasWatchValueSelection = selectedWatchRowsHaveValue();
     fillSdoFromWatch =
@@ -815,8 +815,8 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     toggleStartupWatchDiffRows =
         menu.addAction(uiText("Show Watch Diffs Only", "只显示 Watch 偏差"));
     toggleStartupWatchDiffRows->setCheckable(true);
-    toggleStartupWatchDiffRows->setChecked(startupWatchDiffsOnly_ &&
-                                           startupWatchDiffsOnly_->isChecked());
+    toggleStartupWatchDiffRows->setChecked(watch_->startupWatchDiffsOnly &&
+                                           watch_->startupWatchDiffsOnly->isChecked());
     toggleStartupWatchDiffRows->setEnabled(table->rowCount() > 0);
     applyStartupWatchDiffRows =
         menu.addAction(uiText("Apply Watch Diffs", "应用 Watch 偏差"));
@@ -1122,8 +1122,8 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   } else if (chosen == focusStartupWatchDiffRows) {
     focusStartupSdoWatchDiffs();
   } else if (chosen == toggleStartupWatchDiffRows) {
-    if (startupWatchDiffsOnly_) {
-      startupWatchDiffsOnly_->setChecked(!startupWatchDiffsOnly_->isChecked());
+    if (watch_->startupWatchDiffsOnly) {
+      watch_->startupWatchDiffsOnly->setChecked(!watch_->startupWatchDiffsOnly->isChecked());
     }
     filterStartupSdoTable();
     updateStartupSdoControls();
@@ -1262,7 +1262,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     applySdoSelectionFromDictionary(row, false);
   } else if (table == pdoTable_) {
     applySdoSelectionFromPdoMap(row, false);
-  } else if (table == watchTable_) {
+  } else if (table == watch_->watchTable) {
     applySdoSelectionFromWatch(row, false);
   } else if (table == freeRunEntryTable_) {
     applySdoSelectionFromFreeRunEntry(row, false);

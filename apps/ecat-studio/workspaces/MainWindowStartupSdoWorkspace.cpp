@@ -152,12 +152,12 @@ void MainWindow::updateStartupSdoWatchEvidence() {
   const QSignalBlocker tableBlocker(startupSdoTable_); // prevent recursive signal updates
   ensureStartupSdoTable();
 
-  if (watchTable_) {
+  if (watch_->watchTable) {
     ensureWatchTable();
   }
   const QVector<WatchStartupStartupDelta> deltas =
       evaluateStartupWatchDeltas(watchStartupStartupRows(startupSdoTable_),
-                                 watchStartupWatchRows(watchTable_));
+                                 watchStartupWatchRows(watch_->watchTable));
   const WatchStartupSummary summary = summarizeStartupWatchDeltas(deltas);
 
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
@@ -188,9 +188,9 @@ void MainWindow::updateStartupSdoWatchEvidence() {
                                 settings_.theme == "Light");
   }
 
-  if (startupWatchSummaryLabel_) {
+  if (watch_->startupWatchSummaryLabel) {
     const int rows = startupSdoTable_->rowCount();
-    startupWatchSummaryLabel_->setText(
+    watch_->startupWatchSummaryLabel->setText(
         rows <= 0
             ? uiText("No Startup SDO rows", "暂无 Startup SDO 行")
             : uiText("Startup rows: %1 | Watch match: %2 | diff: %3 | "
@@ -219,7 +219,7 @@ void MainWindow::filterStartupSdoTable() {
   }
 
   const bool diffsOnly =
-      startupWatchDiffsOnly_ && startupWatchDiffsOnly_->isChecked();
+      watch_->startupWatchDiffsOnly && watch_->startupWatchDiffsOnly->isChecked();
   QSet<int> diffRows;
   if (diffsOnly) {
     const QVector<int> rows = startupSdoRowsWithWatchDiffs();
@@ -237,16 +237,16 @@ void MainWindow::filterStartupSdoTable() {
 
 // — Refresh the Startup SDO detail strip for the focused row
 void MainWindow::updateStartupSdoRowDetail() {
-  if (!startupSdoDetailLabel_) {
+  if (!watch_->startupSdoDetailLabel) {
     return;
   }
   const StartupSdoRowDetailTexts texts = startupSdoRowDetailTexts();
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const StartupSdoRowDetailUiState &state) {
-    startupSdoDetailLabel_->setText(state.text);
-    startupSdoDetailLabel_->setProperty("severity", state.severityKey);
-    startupSdoDetailLabel_->setToolTip(state.tooltip);
-    repolish(startupSdoDetailLabel_); // force QSS re-evaluation after property change
+    watch_->startupSdoDetailLabel->setText(state.text);
+    watch_->startupSdoDetailLabel->setProperty("severity", state.severityKey);
+    watch_->startupSdoDetailLabel->setToolTip(state.tooltip);
+    repolish(watch_->startupSdoDetailLabel); // force QSS re-evaluation after property change
   };
 
   if (!startupSdoTable_) {
@@ -272,8 +272,8 @@ void MainWindow::focusStartupSdoWatchDiffs() {
   updateStartupSdoWatchEvidence();
   const QVector<int> rows = startupSdoRowsWithWatchDiffs();
   if (rows.isEmpty()) {
-    if (startupWatchDiffsOnly_) {
-      startupWatchDiffsOnly_->setChecked(false);
+    if (watch_->startupWatchDiffsOnly) {
+      watch_->startupWatchDiffsOnly->setChecked(false);
     }
     filterStartupSdoTable();
     updateDiagnostics(
@@ -289,8 +289,8 @@ void MainWindow::focusStartupSdoWatchDiffs() {
       tabs_->setCurrentIndex(startupIndex);
     }
   }
-  if (startupWatchDiffsOnly_) {
-    startupWatchDiffsOnly_->setChecked(true);
+  if (watch_->startupWatchDiffsOnly) {
+    watch_->startupWatchDiffsOnly->setChecked(true);
   } else {
     filterStartupSdoTable();
   }
@@ -771,8 +771,8 @@ void MainWindow::updateStartupSdoControls() {
   setEnabled("applyStartupSdoWatchDiffs", connected && hasWatchDiffs);
   setEnabled("applyStartupSdo", connected && rows > 0);
   setEnabled("applySelectedStartupSdo", connected && hasSelectedRows);
-  if (startupWatchDiffsOnly_) {
-    startupWatchDiffsOnly_->setEnabled(rows > 0);
+  if (watch_->startupWatchDiffsOnly) {
+    watch_->startupWatchDiffsOnly->setEnabled(rows > 0);
   }
 }
 
@@ -1046,12 +1046,12 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
 
 // — Return indices of Startup SDO rows that differ from Watch values
 QVector<int> MainWindow::startupSdoRowsWithWatchDiffs() const {
-  if (!startupSdoTable_ || !watchTable_) {
+  if (!startupSdoTable_ || !watch_->watchTable) {
     return {};
   }
   return ::startupRowsWithWatchDiffs(
       evaluateStartupWatchDeltas(watchStartupStartupRows(startupSdoTable_),
-                                 watchStartupWatchRows(watchTable_)));
+                                 watchStartupWatchRows(watch_->watchTable)));
 }
 
 
