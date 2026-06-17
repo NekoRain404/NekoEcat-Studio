@@ -90,6 +90,7 @@ add_executable(ecat-studio
     workspaces/MainWindowContextMenus.cpp
     workspaces/MainWindowDiagnosticsTopology.cpp
     workspaces/MainWindowIoVariableWorkspace.cpp
+    workspaces/MainWindowIoVariableTable.cpp
     workspaces/MainWindowManual.cpp
     workspaces/MainWindowProjectIo.cpp
     workspaces/MainWindowRtTestWorkspace.cpp
