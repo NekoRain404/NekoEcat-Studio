@@ -82,6 +82,7 @@ add_executable(ecat-studio
     # ── MainWindow (core + partial per workspace) ───────────────────────
     MainWindow.h
     MainWindow.cpp
+    workspaces/MainWindowStateMachine.cpp                workspaces/MainWindowTopologyUi.cpp
     workspaces/MainWindowCommandPalette.cpp
     workspaces/MainWindowConsistencyCommissioning.cpp
     workspaces/MainWindowContextMenus.cpp
