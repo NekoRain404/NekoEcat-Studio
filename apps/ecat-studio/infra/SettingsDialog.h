@@ -1,5 +1,11 @@
 #pragma once
 
+// SettingsDialog — modal dialog for application preferences.
+//
+// Allows users to configure theme (Dark/Light), language (8 languages),
+// UI scale, and EtherCAT master profiles. Changes are applied immediately
+// and persisted via QSettings.
+
 // Application settings dialog: theme, master target, refresh interval.
 
 

@@ -1,5 +1,11 @@
 #pragma once
 
+// EcatClient — Qt network client for communicating with the ecatd daemon.
+//
+// Wraps QLocalSocket to send JSON commands and receive responses.
+// Manages connection state, timeouts, and reconnection logic.
+// Used by MainWindow to issue SDO reads/writes, PDO queries, and topology scans.
+
 // JSON-over-TCP client for communicating with the ecatd runtime daemon.
 
 

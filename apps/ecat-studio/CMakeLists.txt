@@ -76,6 +76,7 @@ add_executable(ecat-studio
     # ── Infrastructure ──────────────────────────────────────────────────
     infra/EcatClient.cpp                               infra/EcatClient.h
     infra/LanguageManager.cpp                       infra/LanguageManager.h
+    infra/TranslationRegistry.cpp                   infra/TranslationRegistry.h
     infra/ProcessDataTypes.h
     infra/SettingsDialog.cpp                           infra/SettingsDialog.h
 

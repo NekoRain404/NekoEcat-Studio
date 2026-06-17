@@ -1,5 +1,10 @@
 #pragma once
 
+// ProcessDataTypes — data structures for EtherCAT process data exchange.
+//
+// Defines value types, PDO entry descriptors, and process data row models
+// used across the SDO/PDO/Watch workspaces.
+
 // Shared POD types for PDO maps, Free Run entries, and I/O variables.
 
 

@@ -1,16 +1,19 @@
 #pragma once
 
-// Centralized language registry for NekoEcat Studio.
+// LanguageManager — centralized language registry for NekoEcat Studio.
+//
+// Supports 8 languages for global EtherCAT development teams:
+//   English, 简体中文, 日本語, Deutsch, 한국어, 繁體中文, Français, Español
 //
 // The application uses inline bilingual strings via uiText(english, localized).
 // This manager provides:
 //   - A canonical list of supported languages (enum + display names)
-//   - Lookup helpers for language-aware formatting (date, number, RTL detection)
-//   - Future hook point for QTranslator / .ts file loading
+//   - Lookup helpers for language-aware formatting
+//   - Singleton access for the language list (compile-time constant)
 //
 // Usage:
 //   const auto &lang = LanguageManager::instance();
-//   if (lang.isCurrentLanguage(Language::ChineseSimplified)) { ... }
+//   if (lang.isCurrentLanguage(Language::Japanese)) { ... }
 
 #include <QString>
 #include <QStringList>
@@ -19,16 +22,21 @@
 // Supported UI languages.  Values are stable — do not renumber.
 enum class Language {
     English = 0,
-    ChineseSimplified,
-    // Future: Japanese, German, Korean, etc.
+    ChineseSimplified,   // 简体中文
+    Japanese,            // 日本語
+    German,              // Deutsch
+    Korean,              // 한국어
+    ChineseTraditional,  // 繁體中文
+    French,              // Français
+    Spanish,             // Español
 };
 
 // Metadata for one supported language.
 struct LanguageInfo {
     Language id;
-    QString displayName;    // Native name shown in the settings combo ("English", "简体中文")
-    QString localeCode;     // BCP-47 tag ("en", "zh-CN")
-    bool rtl = false;       // Right-to-left script flag (future Arabic/Hebrew support)
+    QString displayName;    // Native name shown in the settings combo
+    QString localeCode;     // BCP-47 tag
+    bool rtl = false;       // Right-to-left script flag (future Arabic/Hebrew)
 };
 
 class LanguageManager {

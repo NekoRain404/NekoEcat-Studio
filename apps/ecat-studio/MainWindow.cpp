@@ -1,5 +1,7 @@
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
 #include "MainWindow.h"
+#include "infra/TranslationRegistry.h"
+#include "infra/LanguageManager.h"
 #include "Cia402DriveModel.h"
 #include "CommissioningWorkflowModel.h"
 #include "CommissioningWorkflowStepDetailUiState.h"
@@ -718,9 +720,16 @@ void MainWindow::openSettings() {
                            uiText("Settings were applied.", "设置已应用。"));
 }
 
-// Bilingual string selector — returns Chinese or English based on current language
+// Multi-language string selector — returns localized string based on active language.
+// For Chinese Simplified, uses the inline zh parameter (preserving existing behavior).
+// For other languages, delegates to TranslationRegistry for lookup by English key.
+// Falls back to English if no translation is found.
 QString MainWindow::uiText(const QString &english, const QString &zh) const {
-  return settings_.language == "简体中文" ? zh : english;
+  const Language lang = LanguageManager::instance().fromDisplayName(settings_.language);
+  if (lang == Language::English) return english;
+  if (lang == Language::ChineseSimplified) return zh;
+  const QString translated = TranslationRegistry::instance().translate(english, lang);
+  return translated.isEmpty() ? english : translated;
 }
 
 // Display label for the active master (name + target)

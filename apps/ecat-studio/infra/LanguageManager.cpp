@@ -1,4 +1,4 @@
-// LanguageManager implementation — centralized language registry.
+// LanguageManager implementation — centralized language registry for 8 languages.
 #include "LanguageManager.h"
 
 LanguageManager &LanguageManager::instance()
@@ -10,8 +10,14 @@ LanguageManager &LanguageManager::instance()
 LanguageManager::LanguageManager()
 {
     languages_ = {
-        {Language::English,           QStringLiteral("English"),  QStringLiteral("en"),    false},
-        {Language::ChineseSimplified, QStringLiteral("简体中文"), QStringLiteral("zh-CN"), false},
+        {Language::English,           QStringLiteral("English"),    QStringLiteral("en"),    false},
+        {Language::ChineseSimplified, QStringLiteral("简体中文"),   QStringLiteral("zh-CN"), false},
+        {Language::Japanese,          QStringLiteral("日本語"),     QStringLiteral("ja"),    false},
+        {Language::German,            QStringLiteral("Deutsch"),    QStringLiteral("de"),    false},
+        {Language::Korean,            QStringLiteral("한국어"),     QStringLiteral("ko"),    false},
+        {Language::ChineseTraditional,QStringLiteral("繁體中文"),   QStringLiteral("zh-TW"), false},
+        {Language::French,            QStringLiteral("Français"),   QStringLiteral("fr"),    false},
+        {Language::Spanish,           QStringLiteral("Español"),    QStringLiteral("es"),    false},
     };
 }
 
