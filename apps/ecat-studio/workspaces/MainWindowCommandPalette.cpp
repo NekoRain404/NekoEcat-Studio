@@ -1212,10 +1212,10 @@ void MainWindow::showCommandPalette() {
       [this] {
         activateWorkspaceTab(overviewTabIndex_);
         openSessionBriefRow(
-            sessionBriefTable_ ? sessionBriefTable_->currentRow() : -1);
+            session_->sessionBriefTable ? session_->sessionBriefTable->currentRow() : -1);
       },
       [this] {
-        return sessionBriefTable_ && sessionBriefTable_->currentRow() >= 0;
+        return session_->sessionBriefTable && session_->sessionBriefTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{
@@ -1227,10 +1227,10 @@ void MainWindow::showCommandPalette() {
       [this] {
         activateWorkspaceTab(overviewTabIndex_);
         copySessionBriefRowDigest(
-            sessionBriefTable_ ? sessionBriefTable_->currentRow() : -1);
+            session_->sessionBriefTable ? session_->sessionBriefTable->currentRow() : -1);
       },
       [this] {
-        return sessionBriefTable_ && sessionBriefTable_->currentRow() >= 0;
+        return session_->sessionBriefTable && session_->sessionBriefTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{

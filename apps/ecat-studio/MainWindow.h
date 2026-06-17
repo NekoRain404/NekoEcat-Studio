@@ -6,6 +6,7 @@
 #include "EcatClient.h"
 #include "SdoEvidenceModel.h"
 #include "SettingsDialog.h"
+#include "workspaces/WorkspaceWidgets.h"
 
 #include <QHash>
 #include <QMainWindow>
@@ -603,7 +604,7 @@ private:
   QComboBox *masterCombo_ = nullptr;
   QTreeWidget *topologyTree_ = nullptr;
   QTableWidget *metricTable_ = nullptr;
-  QTableWidget *sessionBriefTable_ = nullptr;
+  SessionWorkspaceWidgets *session_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *stateMachineTable_ = nullptr;
@@ -705,7 +706,6 @@ private:
   QPushButton *workflowReviewButton_ = nullptr;
   QPushButton *workflowReviewNextButton_ = nullptr;
   QPushButton *workflowStepCopyButton_ = nullptr;
-  QPushButton *sessionBriefCopyButton_ = nullptr;
   QLabel *slaveEvidenceMatrixSummaryLabel_ = nullptr;
   QPushButton *slaveEvidenceMatrixReviewButton_ = nullptr;
   QPushButton *slaveEvidenceMatrixReviewNextButton_ = nullptr;

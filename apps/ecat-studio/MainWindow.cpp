@@ -2396,13 +2396,13 @@ void MainWindow::wire() {
           &MainWindow::updateWatchRowDetail);
   connect(watchTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromWatch(row, true); });
-  connect(sessionBriefTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(session_->sessionBriefTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateSessionBriefCopyButton);
-  connect(sessionBriefCopyButton_, &QPushButton::clicked, this, [this] {
+  connect(session_->sessionBriefCopyButton, &QPushButton::clicked, this, [this] {
     copySessionBriefRowDigest(
-        sessionBriefTable_ ? sessionBriefTable_->currentRow() : -1);
+        session_->sessionBriefTable ? session_->sessionBriefTable->currentRow() : -1);
   });
-  connect(sessionBriefTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(session_->sessionBriefTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSessionBriefRow(row); });
   connect(workflowTable_, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateWorkflowStepCopyButton);
@@ -2450,13 +2450,13 @@ void MainWindow::wire() {
     });
   }
   auto *sessionBriefEnter =
-      new QShortcut(QKeySequence(Qt::Key_Return), sessionBriefTable_);
+      new QShortcut(QKeySequence(Qt::Key_Return), session_->sessionBriefTable);
   connect(sessionBriefEnter, &QShortcut::activated, this,
-          [this] { openSessionBriefRow(sessionBriefTable_->currentRow()); });
+          [this] { openSessionBriefRow(session_->sessionBriefTable->currentRow()); });
   auto *sessionBriefKeypadEnter =
-      new QShortcut(QKeySequence(Qt::Key_Enter), sessionBriefTable_);
+      new QShortcut(QKeySequence(Qt::Key_Enter), session_->sessionBriefTable);
   connect(sessionBriefKeypadEnter, &QShortcut::activated, this,
-          [this] { openSessionBriefRow(sessionBriefTable_->currentRow()); });
+          [this] { openSessionBriefRow(session_->sessionBriefTable->currentRow()); });
   connect(workflowTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { runCommissioningWorkflowStep(row); });
   connect(slaveEvidenceMatrixTable_, &QTableWidget::cellDoubleClicked, this,
@@ -2732,7 +2732,7 @@ void MainWindow::wire() {
             updateActionAvailability();
           });
   for (auto *table : {metricTable_,
-                      sessionBriefTable_,
+                      session_->sessionBriefTable,
                       workflowTable_,
                       slaveEvidenceMatrixTable_,
                       stateMachineTable_,

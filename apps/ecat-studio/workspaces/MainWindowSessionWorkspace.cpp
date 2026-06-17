@@ -174,7 +174,7 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 // — Rebuild the session brief table summarizing current workspace health
 void MainWindow::updateSessionBrief() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!sessionBriefTable_) {
+  if (!session_->sessionBriefTable) {
     return;
   }
 
@@ -414,14 +414,14 @@ void MainWindow::updateSessionBrief() {
   for (const auto &row : rows) {
     tableRows.append(row.cells);
   }
-  setTableRows(sessionBriefTable_, sessionBriefTableHeaders(uiTexts),
+  setTableRows(session_->sessionBriefTable, sessionBriefTableHeaders(uiTexts),
                tableRows);
 
   const QColor readyColor("#22c55e");
   const QColor actionColor("#f59e0b");
   const QColor warningColor("#f59e0b");
   const QColor errorColor("#ef4444");
-  for (int row = 0; row < sessionBriefTable_->rowCount(); ++row) {
+  for (int row = 0; row < session_->sessionBriefTable->rowCount(); ++row) {
     const SessionBriefUiRow uiRow = rows.value(row);
     const QString colorKey = sessionBriefStatusColorKey(uiRow.status);
     const QColor color =
@@ -431,15 +431,15 @@ void MainWindow::updateSessionBrief() {
                    ? errorColor
                    : (colorKey == QStringLiteral("warning") ? warningColor
                                                             : actionColor));
-    for (int column = 0; column < sessionBriefTable_->columnCount(); ++column) {
-      if (auto *item = sessionBriefTable_->item(row, column)) {
+    for (int column = 0; column < session_->sessionBriefTable->columnCount(); ++column) {
+      if (auto *item = session_->sessionBriefTable->item(row, column)) {
         item->setForeground(color);
         item->setToolTip(uiRow.tooltips.value(column));
       }
     }
-    setSessionBriefActionKey(sessionBriefTable_, row, uiRow.actionKey);
+    setSessionBriefActionKey(session_->sessionBriefTable, row, uiRow.actionKey);
   }
-  fitTableColumnsToViewport(sessionBriefTable_, kSessionBriefEvidenceColumn);
+  fitTableColumnsToViewport(session_->sessionBriefTable, kSessionBriefEvidenceColumn);
   updateSessionBriefCopyButton();
 }
 
@@ -447,15 +447,15 @@ void MainWindow::updateSessionBrief() {
 // — Update session brief copy button
 void MainWindow::updateSessionBriefCopyButton() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!sessionBriefCopyButton_ || !sessionBriefTable_) {
+  if (!session_->sessionBriefCopyButton || !session_->sessionBriefTable) {
     return;
   }
-  const int row = sessionBriefTable_->currentRow();
-  const bool hasRow = row >= 0 && row < sessionBriefTable_->rowCount();
-  sessionBriefCopyButton_->setEnabled(hasRow);
+  const int row = session_->sessionBriefTable->currentRow();
+  const bool hasRow = row >= 0 && row < session_->sessionBriefTable->rowCount();
+  session_->sessionBriefCopyButton->setEnabled(hasRow);
   if (!hasRow) {
-    sessionBriefCopyButton_->setText(uiText("Copy Row", "复制本行"));
-    sessionBriefCopyButton_->setToolTip(uiText(
+    session_->sessionBriefCopyButton->setText(uiText("Copy Row", "复制本行"));
+    session_->sessionBriefCopyButton->setToolTip(uiText(
         "Select a Session Brief row to copy its local evidence summary. No "
         "bus request is sent.",
         "选择一条会话简报行以复制本地证据摘要；不会发送总线请求。"));
@@ -463,11 +463,11 @@ void MainWindow::updateSessionBriefCopyButton() {
   }
 
   const QString area =
-      sessionBriefTableRowFromTable(sessionBriefTable_, row).area.trimmed();
-  sessionBriefCopyButton_->setText(
+      sessionBriefTableRowFromTable(session_->sessionBriefTable, row).area.trimmed();
+  session_->sessionBriefCopyButton->setText(
       area.isEmpty() ? uiText("Copy Row", "复制本行")
                      : uiText("Copy: %1", "复制：%1").arg(area));
-  sessionBriefCopyButton_->setToolTip(
+  session_->sessionBriefCopyButton->setToolTip(
       uiText("Copy the Session Brief row \"%1\" with status, evidence, next "
              "action, and local boundary. Clipboard only; no bus access.",
              "复制会话简报行“%1”的状态、依据、下一步和本地边界。只写剪贴板；"
@@ -478,7 +478,7 @@ void MainWindow::updateSessionBriefCopyButton() {
 
 // — Check whether copy session brief row digest
 bool MainWindow::copySessionBriefRowDigest(int row) {
-  if (!sessionBriefTable_ || row < 0 || row >= sessionBriefTable_->rowCount()) {
+  if (!session_->sessionBriefTable || row < 0 || row >= session_->sessionBriefTable->rowCount()) {
     statusBar()->showMessage(uiText("Select a Session Brief row to copy.",
                                     "请选择一条会话简报行再复制。"),
                              3000);
@@ -486,7 +486,7 @@ bool MainWindow::copySessionBriefRowDigest(int row) {
   }
 
   const SessionBriefTableRow briefRow =
-      sessionBriefTableRowFromTable(sessionBriefTable_, row);
+      sessionBriefTableRowFromTable(session_->sessionBriefTable, row);
 
   QStringList lines;
   lines << uiText("NekoEcat Studio Session Brief Row",
@@ -611,18 +611,18 @@ void MainWindow::updateWorkflowStepDetail() {
 // — Navigate to the evidence workspace referenced by the session brief row
 void MainWindow::openSessionBriefRow(int row) {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!sessionBriefTable_) {
+  if (!session_->sessionBriefTable) {
     return;
   }
-  if (row < 0 || row >= sessionBriefTable_->rowCount()) {
-    row = sessionBriefTable_->currentRow();
+  if (row < 0 || row >= session_->sessionBriefTable->rowCount()) {
+    row = session_->sessionBriefTable->currentRow();
   }
-  if (row < 0 || row >= sessionBriefTable_->rowCount()) {
+  if (row < 0 || row >= session_->sessionBriefTable->rowCount()) {
     return;
   }
 
   const SessionBriefTableRow briefRow =
-      sessionBriefTableRowFromTable(sessionBriefTable_, row);
+      sessionBriefTableRowFromTable(session_->sessionBriefTable, row);
   QString actionKey = briefRow.actionKey;
   const QString area = briefRow.area.toLower();
   const QString status = briefRow.status.toLower();

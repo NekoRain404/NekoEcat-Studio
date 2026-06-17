@@ -506,7 +506,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     copyWorkflowStep->setEnabled(hasWorkflowRow);
     menu.addSeparator();
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  } else if (table == sessionBriefTable_) {
+  } else if (table == session_->sessionBriefTable) {
     const bool hasBriefRow = table->currentRow() >= 0;
     openSessionBriefEvidence =
         menu.addAction(uiText("Open Local Evidence", "打开本地证据"));
@@ -1250,7 +1250,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
   if (table == workflowTable_) {
     copyWorkflowStepDigest(row);
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  } else if (table == sessionBriefTable_) {
+  } else if (table == session_->sessionBriefTable) {
     openSessionBriefRow(row);
   } else if (table == slaveEvidenceMatrixTable_) {
     openSlaveEvidenceMatrixRow(row);

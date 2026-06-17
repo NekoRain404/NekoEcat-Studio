@@ -152,7 +152,7 @@ void MainWindow::buildUi() {
   slaveEvidenceMatrixCopyButton_ = nullptr;
   stateMachineDetailLabel_ = nullptr;
   freeRunEntryDetailLabel_ = nullptr;
-  sessionBriefCopyButton_ = nullptr;
+  session_ = nullptr;
   workflowScopeFilter_ = nullptr;
   workflowFilter_ = nullptr;
   workflowStepDetailLabel_ = nullptr;
@@ -652,7 +652,8 @@ void MainWindow::buildUi() {
   tabs_ = new QTabWidget;
   configureWorkspaceTabsForRelease(tabs_);
   metricTable_ = new QTableWidget;
-  sessionBriefTable_ = new QTableWidget;
+  session_ = new SessionWorkspaceWidgets;
+  session_->sessionBriefTable = new QTableWidget;
   workflowTable_ = new QTableWidget;
   slaveEvidenceMatrixTable_ = new QTableWidget;
   stateMachineTable_ = new QTableWidget;
@@ -673,7 +674,7 @@ void MainWindow::buildUi() {
   esiTable_ = new QTableWidget;
   startupSdoTable_ = new QTableWidget;
   for (auto *table : {metricTable_,
-                      sessionBriefTable_,
+                      session_->sessionBriefTable,
                       workflowTable_,
                       slaveEvidenceMatrixTable_,
                       stateMachineTable_,
@@ -744,30 +745,30 @@ void MainWindow::buildUi() {
       "选中从站和当前 SDO 的只读决策上下文。"));
   sessionHint->setObjectName("diagnosticsSummary");
   sessionHint->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  sessionBriefCopyButton_ = new QPushButton(uiText("Copy Row", "复制本行"));
-  sessionBriefCopyButton_->setIcon(
+  session_->sessionBriefCopyButton = new QPushButton(uiText("Copy Row", "复制本行"));
+  session_->sessionBriefCopyButton->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogContentsView));
-  sessionBriefCopyButton_->setEnabled(false);
-  sessionBriefCopyButton_->setToolTip(uiText(
+  session_->sessionBriefCopyButton->setEnabled(false);
+  session_->sessionBriefCopyButton->setToolTip(uiText(
       "Copy the selected Session Brief row summary to the clipboard. No bus "
       "request is sent.",
       "把当前会话简报行摘要复制到剪贴板；不会发送总线请求。"));
   sessionHeader->addWidget(sessionHint, 1);
-  sessionHeader->addWidget(sessionBriefCopyButton_);
+  sessionHeader->addWidget(session_->sessionBriefCopyButton);
   briefLayout->addLayout(sessionHeader);
-  setTableRows(sessionBriefTable_,
+  setTableRows(session_->sessionBriefTable,
                {uiText("Area", "区域"), uiText("Status", "状态"),
                 uiText("Evidence", "依据"), uiText("Next", "下一步")},
                {});
-  sessionBriefTable_->setMinimumHeight(320);
-  sessionBriefTable_->setToolTip(uiText(
+  session_->sessionBriefTable->setMinimumHeight(320);
+  session_->sessionBriefTable->setToolTip(uiText(
       "A read-only brief assembled from loaded UI evidence. It does not read "
       "the bus, write SDOs, change state, toggle Free Run, or run Host Health. "
       "Double-click a row to open the matching local evidence surface.",
       "基于已加载界面证据生成的只读简报；不会读取总线、写入 SDO、切换状态、"
       "启动 Free Run 或运行 Host Health。双击、按 Enter 或右键行可打开匹配的"
       "本地证据界面。"));
-  briefLayout->addWidget(sessionBriefTable_, 1);
+  briefLayout->addWidget(session_->sessionBriefTable, 1);
   auto *workflowHeader = new QHBoxLayout;
   workflowHeader->setSpacing(8);
   workflowSummaryLabel_ =
