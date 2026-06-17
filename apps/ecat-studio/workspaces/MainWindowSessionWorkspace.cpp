@@ -1311,7 +1311,7 @@ void MainWindow::updateTabBadges() {
        .freeRunEntryTable = freeRunEntryTable_,
        .ioVariableTable = ioVariableTable_,
        .consistencyTable = consistencyTable_,
-       .stateMachineTable = stateMachineTable_,
+       .stateMachineTable = stateMachine_->stateMachineTable,
        .diagnosticsTable = diagnosticsTable_,
        .slaveEvidenceMatrixTable = slaveEvidenceMatrixTable_});
   const WorkspaceTabBadgeUiState badges =

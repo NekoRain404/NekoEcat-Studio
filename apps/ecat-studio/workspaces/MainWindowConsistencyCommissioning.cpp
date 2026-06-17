@@ -505,10 +505,10 @@ void MainWindow::focusEvidenceFromConsistency(int row) {
   if (route.kind == ConsistencyEvidenceRouteKind::Topology) {
     updateStateMachineView();
     const int stateRow =
-        tableRowForPosition(stateMachineTable_, route.address.position, 0);
-    activateTabContainingWidget(tabs_, stateMachineTable_);
+        tableRowForPosition(stateMachine_->stateMachineTable, route.address.position, 0);
+    activateTabContainingWidget(tabs_, stateMachine_->stateMachineTable);
     if (stateRow >= 0) {
-      selectAndFocusTableRow(stateMachineTable_, stateRow, 0);
+      selectAndFocusTableRow(stateMachine_->stateMachineTable, stateRow, 0);
     }
     updateDiagnostics("Info", "Consistency",
                       uiText("Opened state/topology evidence from Consistency",
@@ -1728,9 +1728,9 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     updateStateMachineView();
     activateWorkspaceTab(stateMachineTabIndex_);
     const int stateRow =
-        firstSlaveEvidenceRowForPosition(stateMachineTable_, position, 0);
+        firstSlaveEvidenceRowForPosition(stateMachine_->stateMachineTable, position, 0);
     if (stateRow >= 0) {
-      selectAndFocusTableRow(stateMachineTable_, stateRow, 0);
+      selectAndFocusTableRow(stateMachine_->stateMachineTable, stateRow, 0);
     }
     target = uiText("State Machine risk evidence", "状态机风险证据");
     routed = true;

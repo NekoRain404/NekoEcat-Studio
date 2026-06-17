@@ -150,7 +150,7 @@ void MainWindow::buildUi() {
   slaveEvidenceMatrixReviewButton_ = nullptr;
   slaveEvidenceMatrixReviewNextButton_ = nullptr;
   slaveEvidenceMatrixCopyButton_ = nullptr;
-  stateMachineDetailLabel_ = nullptr;
+  stateMachine_ = nullptr;
   freeRunEntryDetailLabel_ = nullptr;
   session_ = nullptr;
   workflowScopeFilter_ = nullptr;
@@ -656,7 +656,8 @@ void MainWindow::buildUi() {
   session_->sessionBriefTable = new QTableWidget;
   workflowTable_ = new QTableWidget;
   slaveEvidenceMatrixTable_ = new QTableWidget;
-  stateMachineTable_ = new QTableWidget;
+  stateMachine_ = new StateMachineWorkspaceWidgets;
+  stateMachine_->stateMachineTable = new QTableWidget;
   identityTable_ = new QTableWidget;
   portTable_ = new QTableWidget;
   mailboxTable_ = new QTableWidget;
@@ -677,7 +678,7 @@ void MainWindow::buildUi() {
                       session_->sessionBriefTable,
                       workflowTable_,
                       slaveEvidenceMatrixTable_,
-                      stateMachineTable_,
+                      stateMachine_->stateMachineTable,
                       identityTable_,
                       portTable_,
                       mailboxTable_,
@@ -2135,11 +2136,11 @@ void MainWindow::buildUi() {
   stateMachineLayout->setSpacing(10);
   auto *stateMachineHeader = new QHBoxLayout;
   stateMachineHeader->setSpacing(8);
-  stateMachineSummaryLabel_ =
+  stateMachine_->stateMachineSummaryLabel =
       new QLabel(uiText("No state evidence", "暂无状态机证据"));
-  stateMachineSummaryLabel_->setObjectName("diagnosticsSummary");
-  stateMachineSummaryLabel_->setWordWrap(true);
-  stateMachineSummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  stateMachine_->stateMachineSummaryLabel->setObjectName("diagnosticsSummary");
+  stateMachine_->stateMachineSummaryLabel->setWordWrap(true);
+  stateMachine_->stateMachineSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *stateSelectedNext =
       new QPushButton(uiText("Send Recommended", "发送推荐状态"));
   stateSelectedNext->setObjectName("stateSelectedNext");
@@ -2160,7 +2161,7 @@ void MainWindow::buildUi() {
   stateAllSafeOp->setObjectName("stateAllSafeOp");
   stateMachineHeader->addWidget(
       makeSectionTitle(uiText("EtherCAT State Machine", "EtherCAT 状态机")));
-  stateMachineHeader->addWidget(stateMachineSummaryLabel_, 1);
+  stateMachineHeader->addWidget(stateMachine_->stateMachineSummaryLabel, 1);
   stateMachineHeader->addWidget(stateSelectedNext);
   stateMachineHeader->addWidget(stateSelectedPreOp);
   stateMachineHeader->addWidget(stateSelectedSafeOp);
@@ -2168,34 +2169,34 @@ void MainWindow::buildUi() {
   stateMachineHeader->addWidget(stateAllPreOp);
   stateMachineHeader->addWidget(stateAllSafeOp);
   stateMachineLayout->addLayout(stateMachineHeader);
-  stateMachineDetailLabel_ =
+  stateMachine_->stateMachineDetailLabel =
       new QLabel(uiText("Select a state row to review transition evidence.",
                         "选择状态机行以复核状态切换证据。"));
-  stateMachineDetailLabel_->setObjectName("statusSummary");
-  stateMachineDetailLabel_->setProperty("severity", "neutral");
-  stateMachineDetailLabel_->setWordWrap(true);
-  stateMachineDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  stateMachineDetailLabel_->setToolTip(uiText(
+  stateMachine_->stateMachineDetailLabel->setObjectName("statusSummary");
+  stateMachine_->stateMachineDetailLabel->setProperty("severity", "neutral");
+  stateMachine_->stateMachineDetailLabel->setWordWrap(true);
+  stateMachine_->stateMachineDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  stateMachine_->stateMachineDetailLabel->setToolTip(uiText(
       "Selecting a state-machine row only updates this local evidence preview. "
       "State requests still use the explicit buttons or row double-click and "
       "the normal confirmation dialog.",
       "选择状态机行只会更新此本地证据预览。状态请求仍必须通过显式按钮或双击行，"
       "并继续走常规确认对话框。"));
-  stateMachineLayout->addWidget(stateMachineDetailLabel_);
-  stateMachineTable_->setToolTip(uiText(
+  stateMachineLayout->addWidget(stateMachine_->stateMachineDetailLabel);
+  stateMachine_->stateMachineTable->setToolTip(uiText(
       "State matrix for each detected slave. Select a row to review evidence; "
       "double-click a row only when you intend to send the recommended state "
       "through the normal confirmation flow.",
       "按从站展示状态矩阵。选择行可复核证据；只有明确要通过常规确认流程发送"
       "推荐状态时，才双击该行。"));
-  setTableRows(stateMachineTable_,
+  setTableRows(stateMachine_->stateMachineTable,
                {uiText("Slave", "从站"), uiText("Name", "名称"),
                 uiText("Current", "当前"), uiText("Recommended", "推荐"),
                 uiText("Evidence", "证据"), uiText("Drive", "驱动"),
                 uiText("Startup", "启动"), uiText("PDO/Process", "PDO/过程"),
                 uiText("Risk", "风险"), uiText("Action", "动作")},
                {});
-  stateMachineLayout->addWidget(stateMachineTable_, 1);
+  stateMachineLayout->addWidget(stateMachine_->stateMachineTable, 1);
 
   auto *diagnosticsPage = new QWidget;
   diagnosticsPage_ = diagnosticsPage;

@@ -605,9 +605,9 @@ private:
   QTreeWidget *topologyTree_ = nullptr;
   QTableWidget *metricTable_ = nullptr;
   SessionWorkspaceWidgets *session_ = nullptr;
+  StateMachineWorkspaceWidgets *stateMachine_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
-  QTableWidget *stateMachineTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
@@ -713,8 +713,6 @@ private:
   QVector<QPushButton *> slaveEvidenceMatrixTriageButtons_;
   QLineEdit *slaveEvidenceMatrixFilter_ = nullptr;
   QComboBox *slaveEvidenceMatrixScopeFilter_ = nullptr;
-  QLabel *stateMachineSummaryLabel_ = nullptr;
-  QLabel *stateMachineDetailLabel_ = nullptr;
   
   // ── SDO Filter Widgets ────────────────────────────────────────
   QLineEdit *sdoFilter_ = nullptr;

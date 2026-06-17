@@ -1301,14 +1301,14 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
 
 // Rebuild the state-machine table with per-slave state, evidence score, and recommendations
 void MainWindow::updateStateMachineView() {
-  if (!stateMachineTable_) {
+  if (!stateMachine_->stateMachineTable) {
     return;
   }
 
   int previousPosition = selectedPosition();
-  if (stateMachineTable_->currentRow() >= 0) {
+  if (stateMachine_->stateMachineTable->currentRow() >= 0) {
     const int rowPosition = stateMachinePositionFromTable(
-        stateMachineTable_, stateMachineTable_->currentRow());
+        stateMachine_->stateMachineTable, stateMachine_->stateMachineTable->currentRow());
     if (rowPosition >= 0) {
       previousPosition = rowPosition;
     }
@@ -1493,7 +1493,7 @@ void MainWindow::updateStateMachineView() {
                  risks.join("; "), action});
   }
 
-  setTableRows(stateMachineTable_,
+  setTableRows(stateMachine_->stateMachineTable,
                {uiText("Slave", "从站"), uiText("Name", "名称"),
                 uiText("Current", "当前"), uiText("Recommended", "推荐"),
                 uiText("Evidence", "证据"), uiText("Drive", "驱动"),
@@ -1506,9 +1506,9 @@ void MainWindow::updateStateMachineView() {
   const QColor warningColor("#ef4444");
   const QColor infoColor("#60a5fa");
   int restoreRow = -1;
-  for (int row = 0; row < stateMachineTable_->rowCount(); ++row) {
+  for (int row = 0; row < stateMachine_->stateMachineTable->rowCount(); ++row) {
     const StateMachineTableRow tableRow =
-        stateMachineTableRowFromTable(stateMachineTable_, row);
+        stateMachineTableRowFromTable(stateMachine_->stateMachineTable, row);
     int rowPosition = -1;
     if (stateMachineTableRowPosition(tableRow, &rowPosition) &&
         rowPosition == previousPosition) {
@@ -1523,25 +1523,25 @@ void MainWindow::updateStateMachineView() {
             : (current.contains("SAFEOP") || current.contains("PREOP")
                    ? actionColor
                    : infoColor);
-    if (auto *item = stateMachineTable_->item(row, 2)) {
+    if (auto *item = stateMachine_->stateMachineTable->item(row, 2)) {
       item->setForeground(currentColor);
     }
-    if (auto *item = stateMachineTable_->item(row, 3)) {
+    if (auto *item = stateMachine_->stateMachineTable->item(row, 3)) {
       item->setForeground(target.isEmpty() ? QColor("#64748b") : actionColor);
     }
-    if (auto *item = stateMachineTable_->item(row, 8)) {
+    if (auto *item = stateMachine_->stateMachineTable->item(row, 8)) {
       item->setForeground(risk.isEmpty() ? okColor : warningColor);
     }
-    if (auto *item = stateMachineTable_->item(row, 9)) {
+    if (auto *item = stateMachine_->stateMachineTable->item(row, 9)) {
       item->setForeground(target.isEmpty() ? infoColor : actionColor);
     }
   }
   if (restoreRow >= 0) {
-    stateMachineTable_->setCurrentCell(restoreRow, 0);
+    stateMachine_->stateMachineTable->setCurrentCell(restoreRow, 0);
   }
-  stateMachineTable_->resizeColumnsToContents();
+  stateMachine_->stateMachineTable->resizeColumnsToContents();
 
-  if (stateMachineSummaryLabel_) {
+  if (stateMachine_->stateMachineSummaryLabel) {
     const QString summary =
         slaves_.isEmpty()
             ? uiText("No slaves in current scan", "当前扫描没有从站")
@@ -1557,8 +1557,8 @@ void MainWindow::updateStateMachineView() {
                   .arg(other)
                   .arg(recommended)
                   .arg(riskRows);
-    stateMachineSummaryLabel_->setText(summary);
-    stateMachineSummaryLabel_->setToolTip(
+    stateMachine_->stateMachineSummaryLabel->setText(summary);
+    stateMachine_->stateMachineSummaryLabel->setToolTip(
         topologyIssues.isEmpty()
             ? uiText(
                   "State recommendations are based on slave state, loaded "
@@ -1568,24 +1568,24 @@ void MainWindow::updateStateMachineView() {
                   "偏差、Free Run 过程证据和 PDO 映射证据。")
             : uiText("Topology baseline issue(s):\n%1", "拓扑基线问题：\n%1")
                   .arg(topologyIssues.join('\n')));
-    stateMachineSummaryLabel_->setProperty(
+    stateMachine_->stateMachineSummaryLabel->setProperty(
         "severity",
         riskRows > 0 ? "warning" : (recommended > 0 ? "action" : "ok"));
-    repolish(stateMachineSummaryLabel_);
+    repolish(stateMachine_->stateMachineSummaryLabel);
   }
 
   const bool canSend = client_.isConnected() && !slaves_.isEmpty();
   const bool hasRecommendedState =
-      canSend && stateMachineTable_->currentRow() >= 0 &&
-      stateMachineRowHasRecommendation(stateMachineTable_,
-                                       stateMachineTable_->currentRow());
+      canSend && stateMachine_->stateMachineTable->currentRow() >= 0 &&
+      stateMachineRowHasRecommendation(stateMachine_->stateMachineTable,
+                                       stateMachine_->stateMachineTable->currentRow());
   for (const char *name : {"stateSelectedNext", "stateSelectedPreOp",
                            "stateSelectedSafeOp", "stateSelectedOp"}) {
     if (auto *button = findChild<QPushButton *>(name)) {
       button->setEnabled(QString::fromLatin1(name) == "stateSelectedNext"
                              ? hasRecommendedState
                              : canSend &&
-                                   stateMachineTable_->currentRow() >= 0);
+                                   stateMachine_->stateMachineTable->currentRow() >= 0);
     }
   }
   for (const char *name : {"stateAllPreOp", "stateAllSafeOp"}) {
@@ -1598,31 +1598,31 @@ void MainWindow::updateStateMachineView() {
 
 // Update the detail strip below the state-machine table for the current row
 void MainWindow::updateStateMachineRowDetail() {
-  if (!stateMachineDetailLabel_) {
+  if (!stateMachine_->stateMachineDetailLabel) {
     return;
   }
   const StateMachineRowDetailTexts texts = stateMachineRowDetailTexts();
   auto applyState = [this](const StateMachineRowDetailUiState &state) {
-    stateMachineDetailLabel_->setText(state.text);
-    stateMachineDetailLabel_->setProperty("severity", state.severityKey);
-    stateMachineDetailLabel_->setToolTip(state.tooltip);
-    repolish(stateMachineDetailLabel_);
+    stateMachine_->stateMachineDetailLabel->setText(state.text);
+    stateMachine_->stateMachineDetailLabel->setProperty("severity", state.severityKey);
+    stateMachine_->stateMachineDetailLabel->setToolTip(state.tooltip);
+    repolish(stateMachine_->stateMachineDetailLabel);
   };
 
-  if (!stateMachineTable_) {
+  if (!stateMachine_->stateMachineTable) {
     applyState(stateMachineRowDetailUnavailableState(texts));
     return;
   }
 
-  const int row = stateMachineTable_->currentRow();
-  if (row < 0 || row >= stateMachineTable_->rowCount() ||
-      stateMachineTable_->isRowHidden(row)) {
+  const int row = stateMachine_->stateMachineTable->currentRow();
+  if (row < 0 || row >= stateMachine_->stateMachineTable->rowCount() ||
+      stateMachine_->stateMachineTable->isRowHidden(row)) {
     applyState(stateMachineRowDetailNoSelectionState(texts));
     return;
   }
 
   applyState(buildStateMachineRowDetailUiState(
-      stateMachineTableRowFromTable(stateMachineTable_, row), texts));
+      stateMachineTableRowFromTable(stateMachine_->stateMachineTable, row), texts));
 }
 
 // Request a single-slave state change with safety confirmation dialog
@@ -1923,7 +1923,7 @@ void MainWindow::clearOnlineViews() {
     topologyTree_->clear();
   }
   for (auto *table :
-       {metricTable_, workflowTable_, stateMachineTable_, identityTable_,
+       {metricTable_, workflowTable_, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidenceMatrixTable_, portTable_, mailboxTable_, pdoTable_,
         sdoTable_, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
         ioVariableTable_, watchTable_}) {
@@ -2462,10 +2462,10 @@ void MainWindow::wire() {
   connect(slaveEvidenceMatrixTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSlaveEvidenceMatrixRow(row); });
   auto stateMachinePositionForRow = [this](int row) -> int {
-    if (stateMachineTable_ && row >= 0 &&
-        row < stateMachineTable_->rowCount()) {
+    if (stateMachine_->stateMachineTable && row >= 0 &&
+        row < stateMachine_->stateMachineTable->rowCount()) {
       const int position =
-          stateMachinePositionFromTable(stateMachineTable_, row);
+          stateMachinePositionFromTable(stateMachine_->stateMachineTable, row);
       if (position >= 0) {
         return position;
       }
@@ -2480,15 +2480,15 @@ void MainWindow::wire() {
                  "状态请求已跳过：运行时尚未连接"));
       return;
     }
-    if (!stateMachineTable_) {
+    if (!stateMachine_->stateMachineTable) {
       return;
     }
     int targetRow = row;
     if (targetRow < 0) {
-      targetRow = stateMachineTable_->currentRow();
+      targetRow = stateMachine_->stateMachineTable->currentRow();
     }
     if (targetRow < 0 && selectedPosition() >= 0) {
-      for (int candidate = 0; candidate < stateMachineTable_->rowCount();
+      for (int candidate = 0; candidate < stateMachine_->stateMachineTable->rowCount();
            ++candidate) {
         if (stateMachinePositionForRow(candidate) == selectedPosition()) {
           targetRow = candidate;
@@ -2498,7 +2498,7 @@ void MainWindow::wire() {
     }
     const int position = stateMachinePositionForRow(targetRow);
     const QString target =
-        stateMachineTableRowFromTable(stateMachineTable_, targetRow)
+        stateMachineTableRowFromTable(stateMachine_->stateMachineTable, targetRow)
             .recommended;
     if (position < 0 || target.isEmpty()) {
       updateDiagnostics(
@@ -2512,7 +2512,7 @@ void MainWindow::wire() {
   auto requestStateMachineRowState =
       [this, stateMachinePositionForRow](const QString &state) {
         const int position = stateMachinePositionForRow(
-            stateMachineTable_ ? stateMachineTable_->currentRow() : -1);
+            stateMachine_->stateMachineTable ? stateMachine_->stateMachineTable->currentRow() : -1);
         if (position < 0) {
           updateDiagnostics(
               "Info", "State",
@@ -2538,14 +2538,14 @@ void MainWindow::wire() {
           this, [this] { requestAllSlaveState("PREOP"); });
   connect(findChild<QPushButton *>("stateAllSafeOp"), &QPushButton::clicked,
           this, [this] { requestAllSlaveState("SAFEOP"); });
-  connect(stateMachineTable_, &QTableWidget::currentCellChanged, this, [this] {
+  connect(stateMachine_->stateMachineTable, &QTableWidget::currentCellChanged, this, [this] {
     updateActionAvailability();
     updateStateMachineRowDetail();
-    const bool canSend = client_.isConnected() && stateMachineTable_ &&
-                         stateMachineTable_->currentRow() >= 0;
+    const bool canSend = client_.isConnected() && stateMachine_->stateMachineTable &&
+                         stateMachine_->stateMachineTable->currentRow() >= 0;
     const bool hasRecommendedState =
         canSend && stateMachineRowHasRecommendation(
-                       stateMachineTable_, stateMachineTable_->currentRow());
+                       stateMachine_->stateMachineTable, stateMachine_->stateMachineTable->currentRow());
     for (const char *name : {"stateSelectedNext", "stateSelectedPreOp",
                              "stateSelectedSafeOp", "stateSelectedOp"}) {
       if (auto *button = findChild<QPushButton *>(name)) {
@@ -2555,7 +2555,7 @@ void MainWindow::wire() {
       }
     }
   });
-  connect(stateMachineTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(stateMachine_->stateMachineTable, &QTableWidget::cellDoubleClicked, this,
           [requestRecommendedState](int row, int) {
             requestRecommendedState(row);
           });
@@ -2735,7 +2735,7 @@ void MainWindow::wire() {
                       session_->sessionBriefTable,
                       workflowTable_,
                       slaveEvidenceMatrixTable_,
-                      stateMachineTable_,
+                      stateMachine_->stateMachineTable,
                       identityTable_,
                       portTable_,
                       mailboxTable_,
