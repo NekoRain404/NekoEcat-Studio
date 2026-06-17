@@ -1,7 +1,7 @@
 // CiA 402 drive summary card for the selected slave panel.
 #include "detail/SelectedDriveSummaryDetail.h"
 
-#include "models/EvidenceStatusModel.h"
+#include "models/EvidenceModel.h"
 
 namespace {
 

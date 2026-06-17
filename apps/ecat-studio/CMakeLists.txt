@@ -4,19 +4,16 @@
 #   models/      Pure data/logic types (no widget dependencies)
 #   adapters/    Bridge between models and QTableWidget
 #   detail/    Detail panel text builders for each workspace
-#   helpers/     Reusable utilities (table, text, UI, docs)
+#   utils/     Reusable utilities (table, text, UI, docs)
 #   infra/       Client, settings, shared types
 #   workspaces/  MainWindow partial implementations per workspace
 #   (root)       MainWindow core, main entry point
 
 add_executable(ecat-studio
-
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h
     models/CommissioningWorkflowModel.cpp              models/CommissioningWorkflowModel.h
-    models/ConsistencyEvidenceRouteModel.cpp           models/ConsistencyEvidenceRouteModel.h
-    models/ConsistencyGateModel.cpp                    models/ConsistencyGateModel.h
-    models/EvidenceStatusModel.cpp                     models/EvidenceStatusModel.h
+    models/EvidenceModel.cpp                     models/EvidenceModel.h
     models/IoVariableBulkNamingModel.cpp               models/IoVariableBulkNamingModel.h
     models/IoVariableFilterModel.cpp                   models/IoVariableFilterModel.h
     models/IoVariableHandoffModel.cpp                  models/IoVariableHandoffModel.h
@@ -26,11 +23,12 @@ add_executable(ecat-studio
     models/SdoTargetPanelRouteModel.cpp                models/SdoTargetPanelRouteModel.h
     models/SessionBriefModel.cpp                       models/SessionBriefModel.h
     models/SlaveEvidenceModel.cpp                      models/SlaveEvidenceModel.h
-    models/StateRecommendationModel.cpp                models/StateRecommendationModel.h
-    models/TopologyBaselineModel.cpp                   models/TopologyBaselineModel.h
-    models/TopologyChangeModel.cpp                     models/TopologyChangeModel.h
+    models/EvidenceModel.cpp                models/EvidenceModel.h
+    models/TopologyModel.cpp                   models/TopologyModel.h
+    models/ConsistencyModel.cpp                  models/ConsistencyModel.h
+    models/TopologyModel.cpp                     models/TopologyModel.h
+    models/ConsistencyModel.cpp                  models/ConsistencyModel.h
     models/WatchStartupModel.cpp                       models/WatchStartupModel.h
-
     # ── Table Adapters (model <-> QTableWidget) ─────────────────────────
     adapters/CommissioningWorkflowTableAdapter.cpp     adapters/CommissioningWorkflowTableAdapter.h
     adapters/ConsistencyTableAdapter.cpp               adapters/ConsistencyTableAdapter.h
@@ -42,7 +40,6 @@ add_executable(ecat-studio
     adapters/StateMachineTableAdapter.cpp              adapters/StateMachineTableAdapter.h
     adapters/WatchStartupTableAdapter.cpp              adapters/WatchStartupTableAdapter.h
     adapters/WorkspaceTabBadgeTableAdapter.cpp         adapters/WorkspaceTabBadgeTableAdapter.h
-
     # ── UI State (detail panel text builders) ───────────────────────────
     detail/CommissioningWorkflowStepDetail.cpp  detail/CommissioningWorkflowStepDetail.h
     detail/CommissioningWorkflowDetail.cpp            detail/CommissioningWorkflowDetail.h
@@ -66,20 +63,17 @@ add_executable(ecat-studio
     detail/WatchStartupDetail.cpp                     detail/WatchStartupDetail.h
     detail/WorkspaceBoundaryDetail.cpp                detail/WorkspaceBoundaryDetail.h
     detail/WorkspaceTabBadgeDetail.cpp                detail/WorkspaceTabBadgeDetail.h
-
     # ── Helpers ─────────────────────────────────────────────────────────
     utils/Documentation.cpp                    utils/Documentation.h
     utils/TableHelpers.cpp                     utils/TableHelpers.h
     utils/TextHelpers.cpp                      utils/TextHelpers.h
     utils/UiHelpers.cpp                        utils/UiHelpers.h
-
     # ── Infrastructure ──────────────────────────────────────────────────
     infra/EcatClient.cpp                               infra/EcatClient.h
     infra/LanguageManager.cpp                       infra/LanguageManager.h
     infra/TranslationRegistry.cpp                   infra/TranslationRegistry.h
     infra/ProcessDataTypes.h
     infra/SettingsDialog.cpp                           infra/SettingsDialog.h
-
     # ── MainWindow (core + partial per workspace) ───────────────────────
     MainWindow.h
     MainWindow.cpp
@@ -107,17 +101,14 @@ add_executable(ecat-studio
     workspaces/MainWindowUiBuild.cpp
     workspaces/MainWindowWatchWorkspace.cpp
     workspaces/MainWindowWatchSync.cpp
-
     main.cpp
 )
-
 target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/models
     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
-    ${CMAKE_CURRENT_SOURCE_DIR}/ui_state
-    ${CMAKE_CURRENT_SOURCE_DIR}/helpers
+    ${CMAKE_CURRENT_SOURCE_DIR}/detail
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/infra
 )
-
 target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core)

@@ -3,7 +3,7 @@
 // Populates and queries the consistency issue QTableWidget.
 
 
-#include "models/ConsistencyGateModel.h"
+#include "models/ConsistencyModel.h"
 
 #include <QString>
 

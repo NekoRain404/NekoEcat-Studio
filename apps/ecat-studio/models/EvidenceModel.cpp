@@ -1,5 +1,9 @@
-// Drive evidence severity classification and evidence status helpers.
-#include "EvidenceStatusModel.h"
+// Evidence assessment models: drive evidence severity and state recommendations.
+#include "EvidenceModel.h"
+
+#include <QRegularExpression>
+
+// ── Evidence Severity ───────────────────────────────────────────────
 
 // Detects mismatch/diff indicators in startup evidence text (English and Chinese).
 bool hasStartupDiffEvidence(const QString &status) {
@@ -40,4 +44,26 @@ DriveEvidenceSeverity driveEvidenceSeverity(const QString &evidence) {
 // Convenience wrapper: true when evidence indicates a drive fault condition.
 bool hasDriveFaultEvidence(const QString &evidence) {
   return driveEvidenceSeverity(evidence) == DriveEvidenceSeverity::Error;
+}
+
+
+// ── State Recommendation ────────────────────────────────────────────
+
+// Suggests next EtherCAT state transition based on current diagnostics and evidence completeness.
+QString recommendedEthercatState(const EthercatStateEvidence &evidence) {
+  const QString state = evidence.currentState.trimmed().toUpper();
+  if (state.contains("INIT")) {
+    return "PREOP";
+  }
+  if (state.contains("PREOP")) {
+    return evidence.pdoLoaded && evidence.watchValueRows > 0 ? QString("SAFEOP")
+                                                             : QString();
+  }
+  if (state.contains("SAFEOP")) {
+    return evidence.freeRunRows > 0 && evidence.startupDiffs <= 0 &&
+                   evidence.mapIssues <= 0 && evidence.consistencyOk
+               ? QString("OP")
+               : QString();
+  }
+  return QString();
 }

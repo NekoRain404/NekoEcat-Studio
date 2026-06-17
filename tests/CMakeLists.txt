@@ -18,8 +18,8 @@ add_executable(process_data_row_model_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -40,8 +40,8 @@ add_executable(io_variable_detail_ui_state_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -78,8 +78,8 @@ add_executable(pdo_map_detail_ui_state_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -100,8 +100,8 @@ add_executable(io_variable_filter_model_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -122,8 +122,8 @@ add_executable(process_data_table_adapter_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TableHelpers.cpp
     ../apps/ecat-studio/utils/TableHelpers.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
@@ -152,8 +152,8 @@ add_executable(io_variable_handoff_model_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -176,8 +176,8 @@ add_executable(io_variable_bulk_naming_model_test
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/infra/ProcessDataTypes.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -389,8 +389,8 @@ add_test(NAME startup_sdo_row_detail_ui_state_test
 
 add_executable(topology_baseline_model_test
     topology_baseline_model_test.cpp
-    ../apps/ecat-studio/models/TopologyBaselineModel.cpp
-    ../apps/ecat-studio/models/TopologyBaselineModel.h
+    ../apps/ecat-studio/models/TopologyModel.cpp
+    ../apps/ecat-studio/models/TopologyModel.h
 )
 
 target_include_directories(topology_baseline_model_test PRIVATE
@@ -402,8 +402,8 @@ add_test(NAME topology_baseline_model_test COMMAND topology_baseline_model_test)
 
 add_executable(topology_change_model_test
     topology_change_model_test.cpp
-    ../apps/ecat-studio/models/TopologyChangeModel.cpp
-    ../apps/ecat-studio/models/TopologyChangeModel.h
+    ../apps/ecat-studio/models/TopologyModel.cpp
+    ../apps/ecat-studio/models/TopologyModel.h
 )
 
 target_include_directories(topology_change_model_test PRIVATE
@@ -415,8 +415,8 @@ add_test(NAME topology_change_model_test COMMAND topology_change_model_test)
 
 add_executable(state_recommendation_model_test
     state_recommendation_model_test.cpp
-    ../apps/ecat-studio/models/StateRecommendationModel.cpp
-    ../apps/ecat-studio/models/StateRecommendationModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
 )
 
 target_include_directories(state_recommendation_model_test PRIVATE
@@ -485,8 +485,8 @@ add_test(NAME consistency_detail_ui_state_test
 add_executable(consistency_evidence_route_model_test
     consistency_evidence_route_model_test.cpp
     ../apps/ecat-studio/detail/ConsistencyDetail.h
-    ../apps/ecat-studio/models/ConsistencyEvidenceRouteModel.cpp
-    ../apps/ecat-studio/models/ConsistencyEvidenceRouteModel.h
+    ../apps/ecat-studio/models/ConsistencyModel.cpp
+    ../apps/ecat-studio/models/ConsistencyModel.h
     ../apps/ecat-studio/utils/TextHelpers.cpp
     ../apps/ecat-studio/utils/TextHelpers.h
 )
@@ -502,8 +502,8 @@ add_test(NAME consistency_evidence_route_model_test
 
 add_executable(consistency_gate_model_test
     consistency_gate_model_test.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.h
+    ../apps/ecat-studio/models/ConsistencyModel.cpp
+    ../apps/ecat-studio/models/ConsistencyModel.h
 )
 
 target_include_directories(consistency_gate_model_test PRIVATE
@@ -515,8 +515,8 @@ add_test(NAME consistency_gate_model_test COMMAND consistency_gate_model_test)
 
 add_executable(consistency_table_adapter_test
     consistency_table_adapter_test.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.h
+    ../apps/ecat-studio/models/ConsistencyModel.cpp
+    ../apps/ecat-studio/models/ConsistencyModel.h
     ../apps/ecat-studio/adapters/ConsistencyTableAdapter.cpp
     ../apps/ecat-studio/adapters/ConsistencyTableAdapter.h
     ../apps/ecat-studio/utils/TableHelpers.cpp
@@ -542,8 +542,8 @@ set_tests_properties(consistency_table_adapter_test PROPERTIES
 
 add_executable(evidence_status_model_test
     evidence_status_model_test.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
 )
 
 target_include_directories(evidence_status_model_test PRIVATE
@@ -724,14 +724,14 @@ add_test(NAME workspace_tab_badge_ui_state_test
 
 add_executable(workspace_tab_badge_table_adapter_test
     workspace_tab_badge_table_adapter_test.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.cpp
-    ../apps/ecat-studio/models/ConsistencyGateModel.h
+    ../apps/ecat-studio/models/ConsistencyModel.cpp
+    ../apps/ecat-studio/models/ConsistencyModel.h
     ../apps/ecat-studio/adapters/ConsistencyTableAdapter.cpp
     ../apps/ecat-studio/adapters/ConsistencyTableAdapter.h
     ../apps/ecat-studio/detail/DiagnosticsEventDetail.cpp
     ../apps/ecat-studio/detail/DiagnosticsEventDetail.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/models/ProcessDataRowModel.cpp
     ../apps/ecat-studio/models/ProcessDataRowModel.h
     ../apps/ecat-studio/adapters/ProcessDataTableAdapter.cpp
@@ -880,8 +880,8 @@ add_executable(selected_drive_summary_ui_state_test
     selected_drive_summary_ui_state_test.cpp
     ../apps/ecat-studio/models/Cia402DriveModel.cpp
     ../apps/ecat-studio/models/Cia402DriveModel.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/detail/SelectedDriveSummaryDetail.cpp
     ../apps/ecat-studio/detail/SelectedDriveSummaryDetail.h
     ../apps/ecat-studio/models/WatchStartupModel.h
@@ -935,8 +935,8 @@ add_executable(slave_evidence_table_adapter_test
     ../apps/ecat-studio/adapters/SlaveEvidenceTableAdapter.h
     ../apps/ecat-studio/models/SlaveEvidenceModel.cpp
     ../apps/ecat-studio/models/SlaveEvidenceModel.h
-    ../apps/ecat-studio/models/EvidenceStatusModel.cpp
-    ../apps/ecat-studio/models/EvidenceStatusModel.h
+    ../apps/ecat-studio/models/EvidenceModel.cpp
+    ../apps/ecat-studio/models/EvidenceModel.h
     ../apps/ecat-studio/utils/TableHelpers.cpp
     ../apps/ecat-studio/utils/TableHelpers.h
     ../apps/ecat-studio/utils/TextHelpers.cpp

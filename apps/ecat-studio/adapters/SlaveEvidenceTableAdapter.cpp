@@ -1,7 +1,7 @@
 // Populates and queries the slave evidence matrix QTableWidget.
 #include "SlaveEvidenceTableAdapter.h"
 
-#include "models/EvidenceStatusModel.h"
+#include "models/EvidenceModel.h"
 #include "utils/TableHelpers.h"
 #include "utils/TextHelpers.h"
 

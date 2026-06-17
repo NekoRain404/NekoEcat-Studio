@@ -1,7 +1,7 @@
 // PDO/process data row formatting, matching, and evidence status lookup.
 #include "ProcessDataRowModel.h"
 
-#include "EvidenceStatusModel.h"
+#include "EvidenceModel.h"
 #include "utils/TextHelpers.h"
 
 #include <QSet>
