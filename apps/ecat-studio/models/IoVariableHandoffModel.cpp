@@ -82,6 +82,7 @@ QSet<QString>
 duplicateIoVariableHandoffSymbols(const QVector<IoVariableTableRow> &rows) {
   QHash<QString, int> counts;
   QSet<QString> duplicates;
+    // Iterate over collection
   for (const IoVariableTableRow &row : rows) {
     const QString symbol = ioVariableHandoffName(row).symbol.toLower();
     const int count = counts.value(symbol, 0) + 1;
@@ -97,6 +98,7 @@ duplicateIoVariableHandoffSymbols(const QVector<IoVariableTableRow> &rows) {
 QStringList
 ioVariableHandoffIssueKeys(const QVector<IoVariableHandoffIssue> &issues) {
   QStringList keys;
+    // Iterate over collection
   for (const IoVariableHandoffIssue issue : issues) {
     switch (issue) {
     case IoVariableHandoffIssue::MissingAlias:
@@ -201,6 +203,7 @@ QString ioVariableHandoffDeclarationBlock(
   QSet<QString> usedSymbols;
   QStringList lines;
   lines << QStringLiteral("VAR_GLOBAL");
+    // Iterate over collection
   for (int i = 0; i < rows.size(); ++i) {
     lines << ioVariableHandoffDeclarationLine(rows.at(i), &usedSymbols,
                                               qualityLabelsByRow.value(i));

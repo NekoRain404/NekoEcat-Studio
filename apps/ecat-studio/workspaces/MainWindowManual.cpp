@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -871,6 +874,7 @@ th { background: #f0f4f9; color: #475569; }
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    // Connect QDialogButtonBox::rejected signal to handler
   connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
   layout->addWidget(title);
@@ -1045,6 +1049,7 @@ th { background: #f0f4f9; color: #475569; }
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    // Connect QDialogButtonBox::rejected signal to handler
   connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
   layout->addWidget(title);

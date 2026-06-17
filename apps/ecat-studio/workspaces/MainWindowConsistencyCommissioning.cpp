@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -355,10 +358,13 @@ void MainWindow::updateConsistencyView() {
                rows);
 
   const QColor errorBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#fee2e2") : QColor("#3a1218");
   const QColor warningBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#fff7cc") : QColor("#3a2f16");
   const QColor infoBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#eef6ff") : QColor("#122033");
   for (int row = 0; row < consistency_->consistencyTable->rowCount(); ++row) {
     const QString level = tableText(consistency_->consistencyTable, row, 0);
@@ -366,14 +372,18 @@ void MainWindow::updateConsistencyView() {
     QColor foreground;
     if (level == uiText("Error", "错误")) {
       background = errorBackground;
+    // Define color for visual feedback
       foreground = QColor("#ef4444");
     } else if (level == uiText("Warning", "警告")) {
       background = warningBackground;
+    // Define color for visual feedback
       foreground = QColor("#f59e0b");
     } else if (level == uiText("Ready", "就绪")) {
+    // Define color for visual feedback
       foreground = QColor("#22c55e");
     } else {
       background = infoBackground;
+    // Define color for visual feedback
       foreground = QColor("#60a5fa");
     }
     for (int column = 0; column < consistency_->consistencyTable->columnCount(); ++column) {
@@ -407,7 +417,7 @@ void MainWindow::updateConsistencyView() {
 }
 
 
-// — Filter consistency table
+// Apply text and severity filters to the consistency check table, hiding rows that do not match
 void MainWindow::filterConsistencyTable() {
   if (!consistency_->consistencyTable) {
     return;
@@ -443,6 +453,7 @@ void MainWindow::updateConsistencyRowDetail() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const ConsistencyDetailUiState &state) {
     consistency_->consistencyDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     consistency_->consistencyDetailLabel->setProperty("severity", state.severityKey);
     consistency_->consistencyDetailLabel->setToolTip(state.tooltip);
     repolish(consistency_->consistencyDetailLabel); // force QSS re-evaluation after property change
@@ -637,7 +648,7 @@ bool MainWindow::consistencyCheckAvailable() const {
 }
 
 
-// — Consistency issue counts
+// Count consistency issues by severity level (errors, warnings, info, ready) for the gate check
 void MainWindow::consistencyIssueCounts(int *errors, int *warnings, int *infos,
                                         int *ready) const {
   const ConsistencyIssueCounts counts =

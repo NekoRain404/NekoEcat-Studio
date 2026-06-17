@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -147,11 +150,14 @@ nextBestActionStandardPixmap(NextBestActionIconKey icon) {
 // — Map a host health severity key to its display color
 QColor hostHealthColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
+    // Define color for visual feedback
     return QColor("#ef4444");
   }
   if (colorKey == QStringLiteral("warning")) {
+    // Define color for visual feedback
     return QColor("#f59e0b");
   }
+    // Define color for visual feedback
   return QColor("#22c55e");
 }
 
@@ -159,11 +165,14 @@ QColor hostHealthColorForKey(const QString &colorKey) {
 // — Map a diagnostics severity key to its display color
 QColor diagnosticsEventColorForKey(const QString &colorKey) {
   if (colorKey == QStringLiteral("error")) {
+    // Define color for visual feedback
     return QColor("#ef4444");
   }
   if (colorKey == QStringLiteral("warning")) {
+    // Define color for visual feedback
     return QColor("#f59e0b");
   }
+    // Define color for visual feedback
   return QColor("#60a5fa");
 }
 
@@ -583,6 +592,7 @@ void MainWindow::updateWorkflowStepDetail() {
   auto applyState =
       [this](const CommissioningWorkflowStepDetailUiState &state) {
         workflow_->workflowStepDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
         workflow_->workflowStepDetailLabel->setProperty("severity", state.severityKey);
         workflow_->workflowStepDetailLabel->setToolTip(state.tooltip);
         repolish(workflow_->workflowStepDetailLabel); // force QSS re-evaluation after property change
@@ -802,13 +812,15 @@ void MainWindow::updateNextBestAction() {
   nextBestActionButton_->setIcon(
       style()->standardIcon(nextBestActionStandardPixmap(uiState.icon)));
   nextBestActionButton_->setEnabled(uiState.enabled);
+    // Set action property for styling/theming
   nextBestActionButton_->setProperty("action", uiState.actionKey);
+    // Set severity property for styling/theming
   nextBestActionButton_->setProperty("severity", uiState.severityKey);
   repolish(nextBestActionButton_); // force QSS re-evaluation after property change
 }
 
 
-// — Run next best action
+// Execute the highest-priority next-best-action recommendation from the session brief
 void MainWindow::runNextBestAction() {
   if (!nextBestActionButton_) {
     return;
@@ -1272,6 +1284,7 @@ void MainWindow::updateDiagnostics(const QString &level, const QString &source,
                                    const QString &message) {
   if (!diagnostics_->diagnosticsTable->columnCount()) {
     diagnostics_->diagnosticsTable->setColumnCount(4);
+    // Define column headers for the table
     diagnostics_->diagnosticsTable->setHorizontalHeaderLabels(
         diagnosticsEventHeaders(diagnosticsEventTexts()));
   }
@@ -1377,6 +1390,7 @@ void MainWindow::updateWorkspaceBoundary() {
   workspaceBoundaryLabel_->setText(state.label);
   workspaceBoundaryLabel_->setToolTip(state.tooltip);
   workspaceBoundaryLabel_->setStatusTip(workspaceBoundaryLabel_->toolTip());
+    // Set severity property for styling/theming
   workspaceBoundaryLabel_->setProperty("severity", state.severityKey);
   repolish(workspaceBoundaryLabel_); // force QSS re-evaluation after property change
 }

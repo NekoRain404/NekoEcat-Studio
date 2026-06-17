@@ -48,7 +48,9 @@ bool historyReadAction(const QString &action) {
 SdoHistoryRowDetailUiState
 sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -56,7 +58,9 @@ sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
 SdoHistoryRowDetailUiState
 sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

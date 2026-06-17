@@ -35,7 +35,9 @@ QString ioVariableDetailDisplayValue(const IoVariableTableRow &row,
 IoVariableDetailUiState
 ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -43,7 +45,9 @@ ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
 IoVariableDetailUiState
 ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

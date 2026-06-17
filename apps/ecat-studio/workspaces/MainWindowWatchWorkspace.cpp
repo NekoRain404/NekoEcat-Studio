@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -128,6 +131,7 @@ void MainWindow::ensureWatchTable() {
   if (watch_->watchTable->columnCount() != 12) {
     watch_->watchTable->setColumnCount(12);
   }
+    // Define column headers for the table
   watch_->watchTable->setHorizontalHeaderLabels(
       {uiText("Time", "时间"), uiText("Slave", "从站"), uiText("Index", "索引"),
        uiText("Sub", "子项"), uiText("Value", "值"), uiText("Decoded", "解析"),
@@ -741,7 +745,9 @@ void MainWindow::updateWatchBaselineDelta(int row) {
   }
   if (value.isEmpty() || baseline.isEmpty()) {
     deltaItem->setText(QString());
+    // Define color for visual feedback
     deltaItem->setBackground(QBrush());
+    // Define color for visual feedback
     deltaItem->setForeground(QBrush());
     return;
   }
@@ -786,14 +792,22 @@ void MainWindow::updateWatchBaselineDelta(int row) {
   const bool changed =
       numeric ? std::abs(numericValue - numericBaseline) >= 1e-12 : !same;
   if (changed) {
+    // Define color for visual feedback
     deltaItem->setBackground(settings_.theme == "Light" ? QColor("#fff7cc")
+    // Define color for visual feedback
                                                         : QColor("#3a2f16"));
+    // Define color for visual feedback
     deltaItem->setForeground(settings_.theme == "Light" ? QColor("#854d0e")
+    // Define color for visual feedback
                                                         : QColor("#fde68a"));
   } else {
+    // Define color for visual feedback
     deltaItem->setBackground(settings_.theme == "Light" ? QColor("#dcfce7")
+    // Define color for visual feedback
                                                         : QColor("#12351f"));
+    // Define color for visual feedback
     deltaItem->setForeground(settings_.theme == "Light" ? QColor("#166534")
+    // Define color for visual feedback
                                                         : QColor("#86efac"));
   }
 }

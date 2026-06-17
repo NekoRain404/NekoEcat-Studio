@@ -7,7 +7,9 @@
 WatchRowDetailUiState
 watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -15,7 +17,9 @@ watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
 WatchRowDetailUiState
 watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

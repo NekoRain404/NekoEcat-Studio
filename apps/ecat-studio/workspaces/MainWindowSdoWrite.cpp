@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -333,6 +336,7 @@ void MainWindow::ensureSdoTargetTrailTable() {
   if (sdoTargetTrailTable_->columnCount() != 9) {
     sdoTargetTrailTable_->setColumnCount(9);
   }
+    // Define column headers for the table
   sdoTargetTrailTable_->setHorizontalHeaderLabels(
       {uiText("Time", "时间"), uiText("Slave", "从站"), uiText("Index", "索引"),
        uiText("Sub", "子项"), uiText("Type", "类型"), uiText("Source", "来源"),
@@ -353,6 +357,7 @@ void MainWindow::updateSdoTargetTrailRowDetail() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SdoTargetTrailDetailUiState &state) {
     sdoTargetTrailDetailLabel_->setText(state.text);
+    // Set severity property for styling/theming
     sdoTargetTrailDetailLabel_->setProperty("severity", state.severityKey);
     sdoTargetTrailDetailLabel_->setToolTip(state.tooltip);
     repolish(sdoTargetTrailDetailLabel_); // force QSS re-evaluation after property change
@@ -432,7 +437,9 @@ void MainWindow::rememberCurrentSdoTarget(const QString &source,
     auto *item = new QTableWidgetItem(values.at(column));
     item->setToolTip(values.at(column));
     if (column == 5) {
+    // Define color for visual feedback
       item->setForeground(settings_.theme == "Light" ? QColor("#1d4ed8")
+    // Define color for visual feedback
                                                      : QColor("#93c5fd"));
     }
     sdoTargetTrailTable_->setItem(0, column, item);
@@ -748,7 +755,7 @@ void MainWindow::removeSelectedSdoTargetTrailRows() {
 }
 
 
-// — Clear sdo target trail
+// Remove all entries from the SDO target trail history table
 void MainWindow::clearSdoTargetTrail() {
   if (!sdoTargetTrailTable_) {
     return;
@@ -791,10 +798,14 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
   const QColor statusColor =
       status == uiText("Complete", "完成") || status == uiText("OK", "成功") ||
               status == uiText("Write OK", "写入完成")
+    // Define color for visual feedback
           ? QColor("#22c55e")
+    // Define color for visual feedback
           : (status == uiText("Failed", "失败") ? QColor("#ef4444")
+    // Define color for visual feedback
                                                 : QColor("#f59e0b"));
   const QColor valueBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#eef2ff") : QColor("#172036");
 
   for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
@@ -933,8 +944,11 @@ void MainWindow::pickSdoEvidenceForWrite() {
       ->setText(uiText("Use Evidence", "使用证据"));
   buttons->button(QDialogButtonBox::Cancel)->setText(uiText("Cancel", "取消"));
   layout->addWidget(buttons);
+    // Connect QDialogButtonBox::accepted signal to handler
   connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+    // Connect QDialogButtonBox::rejected signal to handler
   connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
+    // Connect QListWidget::itemDoubleClicked signal to handler
   connect(list, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept); // wire signal to slot
 
   if (dialog.exec() != QDialog::Accepted || !list->currentItem()) {
@@ -963,7 +977,7 @@ void MainWindow::pickSdoEvidenceForWrite() {
 }
 
 
-// — Write current sdo
+// Execute an SDO write operation for the currently selected object with the typed value
 void MainWindow::writeCurrentSdo() {
   if (!selectedSdoWritable_) {
     updateDiagnostics("Warning", "SDO",
@@ -1280,6 +1294,7 @@ void MainWindow::ensureSdoHistoryTable() {
   if (sdoHistoryTable_->columnCount() != 9) {
     sdoHistoryTable_->setColumnCount(9);
   }
+    // Define column headers for the table
   sdoHistoryTable_->setHorizontalHeaderLabels(
       {uiText("Time", "时间"), uiText("Action", "动作"),
        uiText("Slave", "从站"), uiText("Index", "索引"), uiText("Sub", "子项"),
@@ -1288,7 +1303,7 @@ void MainWindow::ensureSdoHistoryTable() {
 }
 
 
-// — Append sdo history
+// Add a timestamped entry to the SDO history table with action, status, and detail
 void MainWindow::appendSdoHistory(const QString &action, int position,
                                   const QString &index, const QString &subIndex,
                                   const QString &type, const QString &value,
@@ -1312,10 +1327,13 @@ void MainWindow::appendSdoHistory(const QString &action, int position,
       detail,
   };
   const QColor color = status == uiText("Failed", "失败")
+    // Define color for visual feedback
                            ? QColor("#ef4444")
                            : (status == uiText("Complete", "完成") ||
                                       status == uiText("OK", "成功")
+    // Define color for visual feedback
                                   ? QColor("#22c55e")
+    // Define color for visual feedback
                                   : QColor("#f59e0b"));
   for (int column = 0; column < values.size(); ++column) {
     // Create table cell
@@ -1342,6 +1360,7 @@ void MainWindow::updateSdoHistoryRowDetail() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SdoHistoryRowDetailUiState &state) {
     sdoHistoryDetailLabel_->setText(state.text);
+    // Set severity property for styling/theming
     sdoHistoryDetailLabel_->setProperty("severity", state.severityKey);
     sdoHistoryDetailLabel_->setToolTip(state.tooltip);
     repolish(sdoHistoryDetailLabel_); // force QSS re-evaluation after property change

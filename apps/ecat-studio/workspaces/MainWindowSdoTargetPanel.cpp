@@ -86,8 +86,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -114,6 +116,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -884,72 +887,96 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
         "Palette to run this local row action. It does not access the bus.",
         "双击、按 "
         "Alt+Enter、右键或使用命令面板可执行该本地行动作；不访问总线。"));
+    // Define color for visual feedback
     actionItem->setForeground(settings_.theme == "Light" ? QColor("#2563eb")
+    // Define color for visual feedback
                                                          : QColor("#93c5fd"));
     if (rows.at(row).first == uiText("State", "状态")) {
       const QColor color =
           status == uiText("Blocked", "受阻") ||
                   status == uiText("Read only", "只读")
+    // Define color for visual feedback
               ? QColor("#ef4444")
               : (status == uiText("Warning", "警告") ||
                          status == uiText("Incomplete", "未完整")
+    // Define color for visual feedback
                      ? QColor("#f59e0b")
+    // Define color for visual feedback
                      : QColor("#22c55e"));
       valueItem->setForeground(color);
     }
     if (rows.at(row).first == uiText("Check", "检查")) {
+    // Define color for visual feedback
       valueItem->setForeground(QColor("#f59e0b"));
     }
     if (rows.at(row).first == uiText("Next Action", "下一步")) {
+    // Define color for visual feedback
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#1d4ed8")
+    // Define color for visual feedback
                                                           : QColor("#93c5fd"));
     }
     if (rows.at(row).first == uiText("Safety", "安全边界")) {
+    // Define color for visual feedback
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#475569")
+    // Define color for visual feedback
                                                           : QColor("#b9c6d6"));
     }
     if (rows.at(row).first == evidenceSetLabel) {
       if (evidenceSetState == QStringLiteral("match")) {
 // Update the SDO target row action button based on current state.
         valueItem->setForeground(
+    // Define color for visual feedback
             settings_.theme == "Light" ? QColor("#166534") : QColor("#86efac"));
       } else if (evidenceSetState == QStringLiteral("conflict")) {
+    // Define color for visual feedback
         valueItem->setForeground(QColor("#ef4444"));
       } else {
         valueItem->setForeground(
+    // Define color for visual feedback
             settings_.theme == "Light" ? QColor("#475569") : QColor("#b9c6d6"));
       }
     }
     if (rows.at(row).first == writeDeltaLabel) {
       if (writeDeltaState == QStringLiteral("match")) {
         valueItem->setForeground(
+    // Define color for visual feedback
             settings_.theme == "Light" ? QColor("#166534") : QColor("#86efac"));
       } else if (writeDeltaState == QStringLiteral("diff")) {
+    // Define color for visual feedback
         valueItem->setForeground(QColor("#f59e0b"));
       } else if (writeDeltaState == QStringLiteral("conflict")) {
+    // Define color for visual feedback
         valueItem->setForeground(QColor("#ef4444"));
       } else {
         valueItem->setForeground(
+    // Define color for visual feedback
             settings_.theme == "Light" ? QColor("#475569") : QColor("#b9c6d6"));
       }
     }
     if (rows.at(row).first == uiText("Watch Link", "Watch 关联") &&
         watchRow >= 0) {
+    // Define color for visual feedback
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#166534")
+    // Define color for visual feedback
                                                           : QColor("#86efac"));
     }
     if (rows.at(row).first == uiText("Startup Link", "Startup 关联") &&
         startupRows > 0) {
       const bool diff = startupDelta.contains("diff", Qt::CaseInsensitive) ||
                         startupDelta.contains("不一致");
+    // Define color for visual feedback
       valueItem->setForeground(diff ? QColor("#f59e0b")
                                     : (settings_.theme == "Light"
+    // Define color for visual feedback
                                            ? QColor("#166534")
+    // Define color for visual feedback
                                            : QColor("#86efac")));
     }
     if (rows.at(row).first == uiText("Target Trail", "目标轨迹") &&
         targetTrailRow >= 0) {
+    // Define color for visual feedback
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#1d4ed8")
+    // Define color for visual feedback
                                                           : QColor("#93c5fd"));
 // Update the SDO target row copy button based on available data.
     }
@@ -1040,7 +1067,7 @@ void MainWindow::updateSdoTargetRowCopyButton() {
 }
 
 
-// — Update sdo inspector
+// Refresh the SDO inspector panel with the current object metadata and evidence status
 void MainWindow::updateSdoInspector(const QString &source,
                                     const QString &detail) {
   if (!sdoInspector_->sdoInspectorLabel) {
@@ -1125,6 +1152,7 @@ void MainWindow::updateSdoInspector(const QString &source,
 
   sdoInspector_->sdoInspectorLabel->setText(parts.join("  -  "));
   sdoInspector_->sdoInspectorLabel->setToolTip(parts.join("\n"));
+    // Set state property for styling/theming
   sdoInspector_->sdoInspectorLabel->setProperty("state", state);
   repolish(sdoInspector_->sdoInspectorLabel); // force QSS re-evaluation after property change
   updateSdoTargetPanel(source, detail, status, problems);

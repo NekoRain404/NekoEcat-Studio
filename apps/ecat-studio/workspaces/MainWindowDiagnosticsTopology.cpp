@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -356,6 +359,7 @@ void MainWindow::updateSelectedSlavePanel() {
     if (selectedDriveSummaryLabel_) {
       selectedDriveSummaryLabel_->setText(
           uiText("Drive: no Watch evidence", "驱动：暂无监视证据"));
+    // Set severity property for styling/theming
       selectedDriveSummaryLabel_->setProperty("severity", "neutral");
       repolish(selectedDriveSummaryLabel_); // force QSS re-evaluation after property change
     }
@@ -446,6 +450,7 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
   auto applyState = [this](const SelectedSlaveEvidenceSummaryUiState &state) {
     selectedSlaveEvidenceLabel_->setText(state.text);
     selectedSlaveEvidenceLabel_->setToolTip(state.tooltip);
+    // Set severity property for styling/theming
     selectedSlaveEvidenceLabel_->setProperty("severity", state.severityKey);
     repolish(selectedSlaveEvidenceLabel_); // force QSS re-evaluation after property change
   };
@@ -483,6 +488,7 @@ void MainWindow::updateSelectedDriveSummary() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const SelectedDriveSummaryUiState &state) {
     selectedDriveSummaryLabel_->setText(state.text);
+    // Set severity property for styling/theming
     selectedDriveSummaryLabel_->setProperty("severity", state.severityKey);
     repolish(selectedDriveSummaryLabel_); // force QSS re-evaluation after property change
   };

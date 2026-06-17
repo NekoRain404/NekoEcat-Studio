@@ -70,6 +70,7 @@ QStringList slaveEvidenceRiskTexts(const QVector<SlaveEvidenceRisk> &risks,
                                    const SlaveEvidenceUiTexts &texts) {
   QStringList labels;
   labels.reserve(risks.size());
+    // Iterate over collection
   for (const auto &risk : risks) {
     labels << slaveEvidenceRiskText(risk, texts);
   }

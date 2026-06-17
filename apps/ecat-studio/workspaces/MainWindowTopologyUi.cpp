@@ -87,6 +87,7 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
 // Return the EtherCAT position of the currently selected slave.
@@ -117,6 +118,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -287,8 +289,10 @@ void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
         {QString("#%1  %2").arg(slave.position).arg(slave.name), slave.state});
     item->setData(0, Qt::UserRole, slave.position);
     if (slave.state == "OP") {
+    // Define color for visual feedback
       item->setForeground(1, QColor("#8ff0c8"));
     } else if (slave.state == "PREOP") {
+    // Define color for visual feedback
       item->setForeground(1, QColor("#ffd27b"));
     }
   }
@@ -543,6 +547,7 @@ void MainWindow::updatePdoRowDetail() {
 
   auto applyState = [this](const PdoMapDetailUiState &state) {
     sdo_->pdoDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     sdo_->pdoDetailLabel->setProperty("severity", state.severityKey);
     sdo_->pdoDetailLabel->setToolTip(state.tooltip);
     repolish(sdo_->pdoDetailLabel);
@@ -626,16 +631,21 @@ void MainWindow::updateSdoTable(const QString &text) {
         lastStatus.contains(uiText("Complete", "完成")) ||
                 lastStatus.contains(uiText("OK", "成功")) ||
                 lastStatus.contains(uiText("Write OK", "写入完成"))
+    // Define color for visual feedback
             ? QColor("#22c55e")
             : (lastStatus.contains(uiText("Failed", "失败"))
+    // Define color for visual feedback
                    ? QColor("#ef4444")
+    // Define color for visual feedback
                    : QColor("#f59e0b"));
     if (auto *statusItem = sdo_->sdoTable->item(row, 8)) {
       statusItem->setForeground(color);
 // Update Free Run telemetry from daemon push.
     }
     if (auto *valueItem = sdo_->sdoTable->item(row, 7)) {
+    // Define color for visual feedback
       valueItem->setBackground(settings_.theme == "Light" ? QColor("#eef2ff")
+    // Define color for visual feedback
                                                           : QColor("#172036"));
     }
   }
@@ -841,6 +851,7 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
 
   if (freeRunWidgets_->freeRunEntryTable->columnCount() != headers.size()) {
     freeRunWidgets_->freeRunEntryTable->setColumnCount(headers.size());
+    // Define column headers for the table
     freeRunWidgets_->freeRunEntryTable->setHorizontalHeaderLabels(headers);
   }
   if (freeRunWidgets_->freeRunEntryTable->rowCount() != rows.size()) {
@@ -848,8 +859,10 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
   }
 
   const QColor changedBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#fff7cc") : QColor("#3a2f16");
   const QColor changedForeground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#854d0e") : QColor("#fde68a");
   for (int row = 0; row < rows.size(); ++row) {
     const QStringList values = rows[row];
@@ -884,10 +897,14 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
                             Qt::CaseInsensitive);
         const bool mapped = status == uiText("Mapped", "已映射");
         item->setForeground(
+    // Define color for visual feedback
             mapped ? QColor("#22c55e")
+    // Define color for visual feedback
                    : (warning ? QColor("#f59e0b") : QColor("#64748b")));
       } else {
+    // Define color for visual feedback
         item->setBackground(QBrush());
+    // Define color for visual feedback
         item->setForeground(QBrush());
       }
     }
@@ -1165,6 +1182,7 @@ void MainWindow::updateWatchRowDetail() {
 
   auto applyState = [this](const WatchRowDetailUiState &state) {
     watch_->watchDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     watch_->watchDetailLabel->setProperty("severity", state.severityKey);
     watch_->watchDetailLabel->setToolTip(state.tooltip);
     repolish(watch_->watchDetailLabel);
@@ -1193,6 +1211,7 @@ void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
   table->setUpdatesEnabled(false);
   table->clear();
   table->setColumnCount(headers.size());
+    // Define column headers for the table
   table->setHorizontalHeaderLabels(headers);
   table->setRowCount(rows.size());
   for (int row = 0; row < rows.size(); ++row) {

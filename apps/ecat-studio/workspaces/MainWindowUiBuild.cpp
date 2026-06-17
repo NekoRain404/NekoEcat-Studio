@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -465,6 +468,7 @@ void MainWindow::buildUi() {
 
   connectionLabel_ = new QLabel(uiText("Starting runtime", "正在启动运行时"));
   connectionLabel_->setObjectName("connectionPill");
+    // Set state property for styling/theming
   connectionLabel_->setProperty("state", "pending");
   toolbar->addSeparator();
   toolbar->addWidget(connectionLabel_);
@@ -542,6 +546,7 @@ void MainWindow::buildUi() {
   selectedSlaveEvidenceLabel_ =
       new QLabel(uiText("Evidence: select a slave", "证据：请选择从站"));
   selectedSlaveEvidenceLabel_->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   selectedSlaveEvidenceLabel_->setProperty("severity", "neutral");
   selectedSlaveEvidenceLabel_->setWordWrap(true);
   selectedSlaveEvidenceLabel_->setTextInteractionFlags(
@@ -633,6 +638,7 @@ void MainWindow::buildUi() {
   slaveActions->addWidget(prepareSnapshot, 5, 0, 1, 3);
   slavePanelLayout->addLayout(slaveActions);
   leftLayout->addWidget(slavePanel);
+    // Add widget to layout
   root->addWidget(left);
 
   auto *right = new QWidget;
@@ -648,19 +654,24 @@ void MainWindow::buildUi() {
   cards->setContentsMargins(0, 0, 0, 2);
   cards->setHorizontalSpacing(10);
   cards->setVerticalSpacing(10);
+    // Add widget to layout
   cards->addWidget(makeMetricCard(uiText("Master", "主站"),
                                   uiText("Idle", "空闲"), &masterStateLabel_),
                    0, 0);
+    // Add widget to layout
   cards->addWidget(makeMetricCard(uiText("Slaves", "从站"),
                                   QString::number(slaves_.size()),
                                   &slaveCountLabel_),
 // ── Tab Widget: all workspace pages ───────────────────────────────────
                    0, 1);
+    // Add widget to layout
   cards->addWidget(makeMetricCard(uiText("Link", "链路"),
                                   uiText("Unknown", "未知"), &linkStateLabel_),
                    0, 2);
+    // Add widget to layout
   cards->addWidget(
       makeMetricCard(uiText("Frame Loss", "丢帧"), "0", &lossLabel_), 0, 3);
+    // Add widget to layout
   cards->addWidget(
       makeMetricCard(uiText("Free Run", "自由运行"),
                      freeRun_ ? uiText("On", "开启") : uiText("Off", "关闭"),
@@ -761,6 +772,7 @@ void MainWindow::buildUi() {
   detailsLayout->setSpacing(10);
   auto *sessionHeader = new QHBoxLayout;
   sessionHeader->setSpacing(8);
+    // Add widget to layout
   sessionHeader->addWidget(
       makeSectionTitle(uiText("Session Brief", "会话简报")));
   auto *sessionHint = new QLabel(uiText(
@@ -798,6 +810,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Follow the commissioning workflow from left to right.",
                         "按调试流程从上到下推进。"));
   workflow_->workflowSummaryLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   workflow_->workflowSummaryLabel->setProperty("severity", "neutral");
 // ── Startup SDO Page ────────────────────────────────────────────────
   workflow_->workflowSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -898,11 +911,13 @@ void MainWindow::buildUi() {
 
   auto *matrixHeader = new QHBoxLayout;
   matrixHeader->setSpacing(8);
+    // Add widget to layout
   matrixHeader->addWidget(
       makeSectionTitle(uiText("Slave Evidence Matrix", "从站证据矩阵")));
   slaveEvidence_->slaveEvidenceMatrixSummaryLabel =
       new QLabel(uiText("No slave evidence matrix yet", "暂无从站证据矩阵"));
   slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setProperty("severity", "neutral");
   slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setTextInteractionFlags(
       Qt::TextSelectableByMouse);
@@ -993,6 +1008,7 @@ void MainWindow::buildUi() {
   };
   for (const auto &triage : triageScopes) {
     auto *button = new QPushButton(triage.label);
+    // Set scope property for styling/theming
     button->setProperty("scope", triage.scope);
     button->setToolTip(uiText(
         "Filter the slave evidence matrix by this priority. This is local UI "
@@ -1026,15 +1042,23 @@ void MainWindow::buildUi() {
 // ── I/O Variable Page ─────────────────────────────────────────────────
   overviewGrid->setHorizontalSpacing(12);
   overviewGrid->setVerticalSpacing(10);
+    // Add widget to layout
   overviewGrid->addWidget(
       makeSectionTitle(uiText("Master Metrics", "主站指标")), 0, 0);
+    // Add widget to layout
   overviewGrid->addWidget(makeSectionTitle(uiText("Identity", "身份信息")), 0,
                           1);
+    // Add widget to layout
   overviewGrid->addWidget(metricTable_, 1, 0);
+    // Add widget to layout
   overviewGrid->addWidget(identityTable_, 1, 1);
+    // Add widget to layout
   overviewGrid->addWidget(makeSectionTitle(uiText("Ports", "端口")), 2, 0);
+    // Add widget to layout
   overviewGrid->addWidget(makeSectionTitle(uiText("Mailboxes", "邮箱")), 2, 1);
+    // Add widget to layout
   overviewGrid->addWidget(portTable_, 3, 0);
+    // Add widget to layout
   overviewGrid->addWidget(mailboxTable_, 3, 1);
   overviewGrid->setRowStretch(1, 1);
   overviewGrid->setRowStretch(3, 1);
@@ -1177,6 +1201,7 @@ void MainWindow::buildUi() {
   sdoHistoryLayout->setSpacing(8);
   auto *sdoTargetHeader = new QHBoxLayout;
   sdoTargetHeader->setSpacing(8);
+    // Add widget to layout
   sdoTargetHeader->addWidget(
       makeSectionTitle(uiText("Selected Object", "选中对象")));
   sdoTargetHeader->addStretch(1);
@@ -1271,23 +1296,37 @@ void MainWindow::buildUi() {
   startupTargetSdo->setIcon(
       style()->standardIcon(QStyle::SP_DialogApplyButton));
   sdoSelectedLayout->addLayout(sdoTargetHeader);
+    // Add widget to layout
   sdoTargetActions->addWidget(reviewWriteDeltaSdo, 0, 0);
+    // Add widget to layout
   sdoTargetActions->addWidget(runSelectedObjectRowAction, 0, 1);
+    // Add widget to layout
   sdoTargetActions->addWidget(copySelectedObjectRow, 0, 2);
+    // Add widget to layout
   sdoTargetActions->addWidget(copyEvidenceDigestSdo, 0, 3);
+    // Add widget to layout
   sdoTargetActions->addWidget(openWatchLinkSdo, 0, 4);
+    // Add widget to layout
   sdoTargetActions->addWidget(openStartupLinkSdo, 0, 5);
+    // Add widget to layout
   sdoTargetActions->addWidget(openBookmarkLinkSdo, 0, 6);
+    // Add widget to layout
   sdoTargetActions->addWidget(openTargetTrailLinkSdo, 0, 7);
+    // Add widget to layout
   sdoTargetActions->addWidget(readTargetSdo, 1, 0);
+    // Add widget to layout
   sdoTargetActions->addWidget(writeTargetSdo, 1, 1);
+    // Add widget to layout
   sdoTargetActions->addWidget(watchTargetSdo, 1, 2);
+    // Add widget to layout
   sdoTargetActions->addWidget(bookmarkTargetSdo, 1, 3);
+    // Add widget to layout
   sdoTargetActions->addWidget(startupTargetSdo, 1, 4);
   sdoTargetActions->setColumnStretch(8, 1);
   sdoSelectedLayout->addLayout(sdoTargetActions);
   sdoInspector_->sdoTargetTable = new QTableWidget(0, 3);
   sdoInspector_->sdoTargetTable->setObjectName("sdoTargetTable");
+    // Define column headers for the table
   sdoInspector_->sdoTargetTable->setHorizontalHeaderLabels({uiText("Field", "字段"),
                                               uiText("Value", "值"),
                                               uiText("Action", "动作")});
@@ -1321,6 +1360,7 @@ void MainWindow::buildUi() {
 
   auto *sdoTargetTrailHeader = new QHBoxLayout;
   sdoTargetTrailHeader->setSpacing(8);
+    // Add widget to layout
   sdoTargetTrailHeader->addWidget(
       makeSectionTitle(uiText("SDO Target Trail", "SDO 目标轨迹")));
   auto *sdoTargetTrailHint = new QLabel(uiText(
@@ -1446,8 +1486,10 @@ void MainWindow::buildUi() {
   for (const auto &preset : sdoFilterPresets) {
     auto *button = new QPushButton(preset.label);
     button->setObjectName("sdoFilterChip");
+    // Set filterQuery property for styling/theming
     button->setProperty("filterQuery", preset.query);
     button->setToolTip(preset.tip);
+    // Connect QPushButton::clicked signal to handler
     connect(button, &QPushButton::clicked, this,
             [this, query = preset.query] { setSdoFilterPreset(query); });
     sdoFilterChips->addWidget(button);
@@ -1743,6 +1785,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Select a Startup SDO row to review apply evidence.",
                         "选择 Startup SDO 行以复核应用证据。"));
   watch_->startupSdoDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   watch_->startupSdoDetailLabel->setProperty("severity", "neutral");
   watch_->startupSdoDetailLabel->setWordWrap(true);
   watch_->startupSdoDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -1811,6 +1854,7 @@ void MainWindow::buildUi() {
                         "evidence.",
                         "选择过程映像条目以复核映射和名称证据。"));
   freeRunWidgets_->freeRunEntryDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   freeRunWidgets_->freeRunEntryDetailLabel->setProperty("severity", "neutral");
 // Build the Consistency workspace page with commissioning workflow
   freeRunWidgets_->freeRunEntryDetailLabel->setWordWrap(true);
@@ -1946,6 +1990,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Select an I/O variable to review signal evidence.",
                         "选择 I/O 变量以复核信号证据。"));
   ioVar_->ioVariableDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   ioVar_->ioVariableDetailLabel->setProperty("severity", "neutral");
   ioVar_->ioVariableDetailLabel->setWordWrap(true);
   ioVar_->ioVariableDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -2025,6 +2070,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Select a Consistency row to review gate evidence.",
                         "选择一致性行以复核门禁证据。"));
   consistency_->consistencyDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   consistency_->consistencyDetailLabel->setProperty("severity", "neutral");
   consistency_->consistencyDetailLabel->setWordWrap(true);
   consistency_->consistencyDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -2165,6 +2211,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Select a Watch row to review value evidence.",
                         "选择 Watch 行以复核数值证据。"));
   watch_->watchDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   watch_->watchDetailLabel->setProperty("severity", "neutral");
   watch_->watchDetailLabel->setWordWrap(true);
   watch_->watchDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -2224,6 +2271,7 @@ void MainWindow::buildUi() {
       new QLabel(uiText("Select a state row to review transition evidence.",
                         "选择状态机行以复核状态切换证据。"));
   stateMachine_->stateMachineDetailLabel->setObjectName("statusSummary");
+    // Set severity property for styling/theming
   stateMachine_->stateMachineDetailLabel->setProperty("severity", "neutral");
   stateMachine_->stateMachineDetailLabel->setWordWrap(true);
   stateMachine_->stateMachineDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -2331,6 +2379,7 @@ void MainWindow::buildUi() {
   sdoRawTabIndex_ = tabs_->addTab(rawText_->sdoText, uiText("SDO Raw", "SDO 原始输出"));
   tabs_->setCurrentIndex(0);
   rightLayout->addWidget(tabs_);
+    // Add widget to layout
   root->addWidget(right);
   root->setSizes({360, 1080});
 

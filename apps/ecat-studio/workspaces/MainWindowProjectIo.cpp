@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -192,8 +195,10 @@ void MainWindow::saveProjectAs() {
 
 // — Serialize all workspace tables and settings to a .ecatproj JSON file
 bool MainWindow::writeProjectFile(const QString &path) {
+    // Serialize/deserialize JSON data
   QJsonArray slaveArray;
   for (const auto &slave : slaves_) {
+    // Serialize/deserialize JSON data
     slaveArray.append(QJsonObject{
         {"position", slave.position},
         {"state", slave.state},
@@ -202,8 +207,10 @@ bool MainWindow::writeProjectFile(const QString &path) {
         {"rawLine", slave.rawLine},
     });
   }
+    // Serialize/deserialize JSON data
   QJsonArray baselineArray;
   for (const auto &slave : topologyBaseline_) {
+    // Serialize/deserialize JSON data
     baselineArray.append(QJsonObject{
         {"position", slave.position},
         {"state", slave.state},
@@ -212,8 +219,10 @@ bool MainWindow::writeProjectFile(const QString &path) {
         {"rawLine", slave.rawLine},
     });
   }
+    // Serialize/deserialize JSON data
   QJsonArray watchArray;
   for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    // Serialize/deserialize JSON data
     QJsonArray rowArray;
     for (int column = 0; column < watch_->watchTable->columnCount(); ++column) {
       rowArray.append(watch_->watchTable->item(row, column)
@@ -222,8 +231,10 @@ bool MainWindow::writeProjectFile(const QString &path) {
     }
     watchArray.append(rowArray);
   }
+    // Serialize/deserialize JSON data
   QJsonArray startupArray;
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
+    // Serialize/deserialize JSON data
     startupArray.append(QJsonObject{
         {"position", startupSdoTable_->item(row, 0)
                          ? startupSdoTable_->item(row, 0)->text().toInt()
@@ -242,6 +253,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
                      : QString()},
     });
   }
+    // Serialize/deserialize JSON data
   QJsonArray sdoTargetTrailArray;
   if (sdoTargetTrailTable_) {
     ensureSdoTargetTrailTable();
@@ -252,6 +264,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
           trail.subIndex.trimmed().isEmpty()) {
         continue;
       }
+    // Serialize/deserialize JSON data
       sdoTargetTrailArray.append(QJsonObject{
           {"time", trail.time},
           {"position", trail.position},
@@ -265,6 +278,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
       });
     }
   }
+    // Serialize/deserialize JSON data
   QJsonArray bookmarkArray;
   if (bookmark_->objectBookmarkTable) {
     for (int row = 0; row < bookmark_->objectBookmarkTable->rowCount(); ++row) {
@@ -274,6 +288,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
           bookmark.subIndex.trimmed().isEmpty()) {
         continue;
       }
+    // Serialize/deserialize JSON data
       bookmarkArray.append(QJsonObject{
           {"position", bookmark.position},
           {"slave", bookmark.slaveName},
@@ -288,18 +303,22 @@ bool MainWindow::writeProjectFile(const QString &path) {
       });
     }
   }
+    // Serialize/deserialize JSON data
   QJsonArray masterArray;
   for (const auto &profile : settings_.masters) {
+    // Serialize/deserialize JSON data
     masterArray.append(QJsonObject{
         {"name", profile.name},
         {"target", profile.target},
     });
   }
+    // Serialize/deserialize JSON data
   QJsonArray sdoEvidenceArray;
   QStringList sdoEvidenceKeys = sdoEvidence_.keys();
   sdoEvidenceKeys.sort();
   for (const QString &key : sdoEvidenceKeys) {
     const QStringList evidence = sdoEvidence_.value(key);
+    // Serialize/deserialize JSON data
     sdoEvidenceArray.append(QJsonObject{
         {"key", key},
         {"value", evidence.value(0)},
@@ -308,6 +327,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
         {"time", evidence.value(3)},
     });
   }
+    // Serialize/deserialize JSON data
   QJsonArray ioVariableArray;
   QStringList ioVariableKeys = ioVariableMetadata_.keys();
   ioVariableKeys.sort();
@@ -319,6 +339,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
                               metadata.value(2).trimmed().isEmpty())) {
       continue;
     }
+    // Serialize/deserialize JSON data
     ioVariableArray.append(QJsonObject{
         {"position", parts.value(0).toInt()},
         {"index", parts.value(1)},
@@ -329,6 +350,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
     });
   }
 
+    // Serialize/deserialize JSON data
   const QJsonObject root{
       {"format", "NekoEcatStudioProject"},
       {"version", 1},
@@ -349,6 +371,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
       {"startupSdos", startupArray},
       {"notes", rawText_->projectNotes ? rawText_->projectNotes->toPlainText() : QString()},
       {"snapshots",
+    // Serialize/deserialize JSON data
        QJsonObject{
            {"master", lastMasterText_},
            {"slaveInfo", lastSlaveInfoText_},
@@ -366,6 +389,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     return false;
   }
+    // Serialize/deserialize JSON data
   file.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
   projectPath_ = path;
   projectName_ = QFileInfo(path).completeBaseName();
@@ -381,6 +405,7 @@ bool MainWindow::readProjectFile(const QString &path) {
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return false;
   }
+    // Serialize/deserialize JSON data
   const auto document = QJsonDocument::fromJson(file.readAll());
   if (!document.isObject()) {
     return false;

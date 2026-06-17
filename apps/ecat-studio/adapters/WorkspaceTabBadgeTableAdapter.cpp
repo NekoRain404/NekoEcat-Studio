@@ -28,6 +28,7 @@ int countWorkspaceTabBadgeWatchStartupDiffs(QTableWidget *watchTable) {
   if (!watchTable) {
     return diffs;
   }
+    // Iterate over collection
   for (int row = 0; row < watchTable->rowCount(); ++row) {
     if (workspaceTabBadgeWatchDeltaIsIssue(
             tableText(watchTable, row, kWorkspaceTabBadgeWatchDeltaColumn))) {
@@ -44,6 +45,7 @@ int countWorkspaceTabBadgeIoIssues(QTableWidget *ioVariableTable) {
     return issues;
   }
 
+    // Iterate over collection
   for (int row = 0; row < ioVariableTable->rowCount(); ++row) {
     const IoVariableTableRow variable =
         ioVariableTableRowFromTable(ioVariableTable, row);
@@ -87,6 +89,7 @@ workspaceTabBadgeCounts(const WorkspaceTabBadgeTables &tables) {
   counts.consistencyReady = consistency.ready;
 
   if (tables.stateMachineTable) {
+    // Iterate over collection
     for (int row = 0; row < tables.stateMachineTable->rowCount(); ++row) {
       if (!tableText(tables.stateMachineTable, row,
                      kWorkspaceTabBadgeStateRiskColumn)
@@ -101,6 +104,7 @@ workspaceTabBadgeCounts(const WorkspaceTabBadgeTables &tables) {
   if (tables.diagnosticsTable) {
     counts.diagnosticRows = tables.diagnosticsTable->rowCount();
     diagnosticLevels.reserve(tables.diagnosticsTable->rowCount());
+    // Iterate over collection
     for (int row = 0; row < tables.diagnosticsTable->rowCount(); ++row) {
       diagnosticLevels.append(
           tableText(tables.diagnosticsTable, row,

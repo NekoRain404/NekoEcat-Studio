@@ -59,6 +59,7 @@ QVector<WatchStartupWatchRow> watchStartupWatchRows(QTableWidget *watchTable) {
   }
 
   rows.reserve(watchTable->rowCount());
+    // Iterate over collection
   for (int row = 0; row < watchTable->rowCount(); ++row) {
     rows.append(watchStartupWatchRow(watchTable, row));
   }
@@ -100,6 +101,7 @@ watchStartupStartupRows(QTableWidget *startupTable) {
   }
 
   rows.reserve(startupTable->rowCount());
+    // Iterate over collection
   for (int row = 0; row < startupTable->rowCount(); ++row) {
     rows.append(watchStartupStartupRow(startupTable, row));
   }

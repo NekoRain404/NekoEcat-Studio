@@ -119,6 +119,7 @@ QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
     appendEvidenceItem(&items, labels.read, readValue);
   }
 
+    // Iterate over collection
   for (int row = 0; tables.watchTable && row < tables.watchTable->rowCount();
        ++row) {
     if (tableObjectAddressMatches(tables.watchTable, row, position, index,
@@ -131,6 +132,7 @@ QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
 
   bool usedDictionaryTableEvidence = false;
   if (dictionaryTableLoaded) {
+    // Iterate over collection
     for (int row = 0;
          tables.dictionaryTable && row < tables.dictionaryTable->rowCount();
          ++row) {
@@ -150,6 +152,7 @@ QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
     appendEvidenceItem(&items, labels.dictionary, cachedDictionaryValue);
   }
 
+    // Iterate over collection
   for (int row = 0;
        tables.startupTable && row < tables.startupTable->rowCount(); ++row) {
     if (tableObjectAddressMatches(tables.startupTable, row, position, index,
@@ -160,6 +163,7 @@ QVector<SdoEvidenceItem> sdoLocalEvidenceItemsFromTables(
     }
   }
 
+    // Iterate over collection
   for (int row = 0;
        tables.bookmarkTable && row < tables.bookmarkTable->rowCount(); ++row) {
     if (tableObjectAddressMatches(tables.bookmarkTable, row, position, index,
@@ -299,6 +303,7 @@ QSet<QString> sdoTargetTrailKeysFromTable(QTableWidget *table) {
     return keys;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     keys.insert(sdoTargetTrailRowKeyFromTable(table, row));
   }

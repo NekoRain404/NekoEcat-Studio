@@ -68,6 +68,7 @@ bool ioVariableFilterTextMatches(const QStringList &cells,
   if (trimmedNeedle.isEmpty()) {
     return true;
   }
+    // Iterate over collection
   for (const QString &cell : cells) {
     if (cell.contains(trimmedNeedle, Qt::CaseInsensitive)) {
       return true;

@@ -18,6 +18,7 @@ void appendUniqueTag(QStringList *tags, QString tag) {
   if (tag.isEmpty()) {
     return;
   }
+    // Iterate over collection
   for (const QString &existing : *tags) {
     if (existing.trimmed().compare(tag, Qt::CaseInsensitive) == 0) {
       return;
@@ -32,6 +33,7 @@ void appendUniqueTag(QStringList *tags, QString tag) {
 int countIoVariableBulkNamingExistingAliases(
     const QVector<IoVariableTableRow> &rows) {
   int count = 0;
+    // Iterate over collection
   for (const IoVariableTableRow &row : rows) {
     if (!row.alias.trimmed().isEmpty()) {
       ++count;
@@ -50,16 +52,19 @@ buildIoVariableBulkNamingPlan(const QVector<IoVariableTableRow> &allRows,
 
   QHash<int, IoVariableTableRow> rowsByNumber;
   rowsByNumber.reserve(allRows.size());
+    // Iterate over collection
   for (const IoVariableTableRow &row : allRows) {
     rowsByNumber.insert(row.row, row);
   }
 
   QSet<int> scopedRows;
+    // Iterate over collection
   for (const int row : targetRows) {
     scopedRows.insert(row);
   }
 
   QSet<QString> usedAliases;
+    // Iterate over collection
   for (const IoVariableTableRow &row : allRows) {
     if (scopedRows.contains(row.row) && !options.keepExistingAliases) {
       continue;
@@ -70,6 +75,7 @@ buildIoVariableBulkNamingPlan(const QVector<IoVariableTableRow> &allRows,
     }
   }
 
+    // Iterate over collection
   for (const int rowNumber : targetRows) {
     if (!rowsByNumber.contains(rowNumber)) {
       ++result.skippedInvalidRows;
@@ -103,6 +109,7 @@ buildIoVariableBulkNamingPlan(const QVector<IoVariableTableRow> &allRows,
     }
 
     QStringList tags = metadata.value(1).split(',', Qt::SkipEmptyParts);
+    // Iterate over collection
     for (const QString &tag : options.requestedTags) {
       appendUniqueTag(&tags, tag);
     }

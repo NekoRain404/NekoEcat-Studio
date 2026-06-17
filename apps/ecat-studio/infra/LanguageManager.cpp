@@ -28,6 +28,7 @@ const QVector<LanguageInfo> &LanguageManager::languages() const
 
 Language LanguageManager::fromDisplayName(const QString &name) const
 {
+    // Iterate over collection
     for (const auto &info : languages_) {
         if (info.displayName == name) {
             return info.id;
@@ -38,6 +39,7 @@ Language LanguageManager::fromDisplayName(const QString &name) const
 
 Language LanguageManager::fromLocaleCode(const QString &code) const
 {
+    // Iterate over collection
     for (const auto &info : languages_) {
         if (info.localeCode == code) {
             return info.id;
@@ -48,6 +50,7 @@ Language LanguageManager::fromLocaleCode(const QString &code) const
 
 QString LanguageManager::displayName(Language lang) const
 {
+    // Iterate over collection
     for (const auto &info : languages_) {
         if (info.id == lang) {
             return info.displayName;

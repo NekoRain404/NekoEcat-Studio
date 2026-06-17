@@ -43,6 +43,7 @@ void setCommissioningWorkflowStatusKey(QTableWidget *table, int row,
   if (!table || row < 0 || row >= table->rowCount()) {
     return;
   }
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (auto *item = table->item(row, column)) {
       item->setData(kCommissioningWorkflowStatusRole, statusKey);
@@ -137,6 +138,7 @@ bool commissioningWorkflowSearchMatches(QTableWidget *table, int row,
   if (!table || row < 0 || row >= table->rowCount()) {
     return false;
   }
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (tableText(table, row, column).contains(needle, Qt::CaseInsensitive)) {
       return true;
@@ -155,6 +157,7 @@ filterCommissioningWorkflowTable(QTableWidget *table, const QString &scope,
     return stats;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const CommissioningWorkflowRowState state =
         commissioningWorkflowRowState(table, row, noneText);
@@ -198,6 +201,7 @@ int firstCommissioningWorkflowIssueRow(QTableWidget *table) {
   if (!table) {
     return -1;
   }
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (table->isRowHidden(row) ||
         !commissioningWorkflowRowState(table, row, QStringLiteral("None"))
@@ -215,6 +219,7 @@ int nextCommissioningWorkflowIssueRow(QTableWidget *table, int currentRow) {
     return -1;
   }
   const int start = qMax(0, currentRow);
+    // Iterate over collection
   for (int offset = 1; offset <= table->rowCount(); ++offset) {
     const int row = (start + offset) % table->rowCount();
     if (table->isRowHidden(row) ||

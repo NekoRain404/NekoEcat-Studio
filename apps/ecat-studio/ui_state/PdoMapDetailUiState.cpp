@@ -46,7 +46,9 @@ QString pdoMapDetailRoleText(const PdoMapTableRow &row,
 PdoMapDetailUiState
 pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -54,7 +56,9 @@ pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
 PdoMapDetailUiState
 pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

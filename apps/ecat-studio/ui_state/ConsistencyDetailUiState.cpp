@@ -5,7 +5,9 @@
 ConsistencyDetailUiState
 consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -13,7 +15,9 @@ consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
 ConsistencyDetailUiState
 consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.selectVisibleRowText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.selectVisibleRowTip};
 }
 

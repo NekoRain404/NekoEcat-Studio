@@ -87,8 +87,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -115,13 +117,14 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
-// Recommended ethercat state
+// Determine the recommended EtherCAT state machine transition based on current evidence
 QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   const int position = slave.position;
   const QString state = slave.state.trimmed().toUpper();
@@ -417,6 +420,7 @@ void MainWindow::updateStateMachineView() {
       item->setForeground(currentColor);
     }
     if (auto *item = stateMachine_->stateMachineTable->item(row, 3)) {
+    // Define color for visual feedback
       item->setForeground(target.isEmpty() ? QColor("#64748b") : actionColor);
     }
     if (auto *item = stateMachine_->stateMachineTable->item(row, 8)) {
@@ -496,6 +500,7 @@ void MainWindow::updateStateMachineRowDetail() {
   const StateMachineRowDetailTexts texts = stateMachineRowDetailTexts();
   auto applyState = [this](const StateMachineRowDetailUiState &state) {
     stateMachine_->stateMachineDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     stateMachine_->stateMachineDetailLabel->setProperty("severity", state.severityKey);
     stateMachine_->stateMachineDetailLabel->setToolTip(state.tooltip);
     repolish(stateMachine_->stateMachineDetailLabel);

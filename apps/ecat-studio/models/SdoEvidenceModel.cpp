@@ -49,6 +49,7 @@ bool sdoValuesComparableEqual(const QString &left, const QString &right) {
 // Detects when multiple evidence sources report different values for the same object.
 bool sdoEvidenceHasConflict(const SdoEvidenceCandidates &candidates) {
   QString firstNormalized;
+    // Iterate over collection
   for (const auto &candidate : candidates) {
     const QString normalized = normalizeComparableValue(candidate.second);
     if (normalized.isEmpty()) {
@@ -69,6 +70,7 @@ bool sdoEvidenceHasConflict(const SdoEvidenceCandidates &candidates) {
 QVector<SdoEvidenceGroup>
 groupSdoEvidence(const QVector<SdoEvidenceItem> &items) {
   QVector<SdoEvidenceGroup> groups;
+    // Iterate over collection
   for (const auto &item : items) {
     const QString value = item.value.trimmed();
     const QString normalized = normalizeComparableValue(value);
@@ -78,6 +80,7 @@ groupSdoEvidence(const QVector<SdoEvidenceItem> &items) {
     }
 
     int groupIndex = -1;
+    // Iterate over collection
     for (int i = 0; i < groups.size(); ++i) {
       if (groups.at(i).normalized == normalized) {
         groupIndex = i;
@@ -106,6 +109,7 @@ SdoWriteDeltaReview reviewSdoWriteDelta(const QVector<SdoEvidenceItem> &items,
   }
 
   const QString normalizedWrite = normalizeComparableValue(writeValue);
+    // Iterate over collection
   for (const auto &group : groups) {
     const QString sources = group.sources.join("/");
     review.conflictFacts << QString("%1=%2").arg(sources, group.value);

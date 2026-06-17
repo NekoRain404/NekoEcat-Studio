@@ -23,6 +23,7 @@ DiagnosticsEventSummary diagnosticsEventCounts(const QStringList &levels) {
   DiagnosticsEventSummary summary;
   summary.total = levels.size();
   summary.visible = levels.size();
+    // Iterate over collection
   for (const QString &level : levels) {
     if (level == QStringLiteral("Error")) {
       ++summary.errors;
@@ -42,6 +43,7 @@ diagnosticsEventSummary(const QList<DiagnosticsEventRowState> &rows,
   QStringList levels;
   levels.reserve(rows.size());
   int visible = 0;
+    // Iterate over collection
   for (const auto &row : rows) {
     levels.append(row.level);
     if (row.visible) {

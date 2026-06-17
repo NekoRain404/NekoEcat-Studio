@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -400,7 +403,9 @@ void MainWindow::editSelectedIoVariableMetadata() {
 
   auto *buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    // Connect QDialogButtonBox::accepted signal to handler
   connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+    // Connect QDialogButtonBox::rejected signal to handler
   connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
   layout->addWidget(buttons);
   if (dialog.exec() != QDialog::Accepted) {
@@ -423,7 +428,7 @@ void MainWindow::editSelectedIoVariableMetadata() {
 }
 
 
-// — Bulk name io variables
+// Apply bulk naming rules to rename selected I/O variables using the configured pattern
 void MainWindow::bulkNameIoVariables() {
   if (!ioVar_->ioVariableTable || ioVar_->ioVariableTable->rowCount() <= 0) {
     QMessageBox::information(
@@ -499,7 +504,9 @@ void MainWindow::bulkNameIoVariables() {
   auto *buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->button(QDialogButtonBox::Ok)->setText(uiText("Apply", "应用"));
+    // Connect QDialogButtonBox::accepted signal to handler
   connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept); // wire signal to slot
+    // Connect QDialogButtonBox::rejected signal to handler
   connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
   layout->addWidget(buttons);
   if (dialog.exec() != QDialog::Accepted) {
@@ -706,7 +713,7 @@ void MainWindow::clearSelectedIoVariableMetadata() {
 }
 
 
-// — Export io variables csv
+// Export the I/O variable table to a CSV file for external tooling
 void MainWindow::exportIoVariablesCsv() {
   updateIoVariableTable();
   if (!ioVar_->ioVariableTable || ioVar_->ioVariableTable->rowCount() <= 0) {

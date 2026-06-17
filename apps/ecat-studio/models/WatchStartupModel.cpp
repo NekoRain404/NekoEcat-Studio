@@ -33,6 +33,7 @@ watchStartupMatchForWatchRow(const QVector<WatchStartupStartupRow> &startupRows,
 
   const QString key = watchStartupTargetKey(watchRow.position, watchRow.index,
                                             watchRow.subIndex);
+    // Iterate over collection
   for (const auto &startupRow : startupRows) {
     if (!watchStartupHasTarget(startupRow.position, startupRow.index,
                                startupRow.subIndex) ||
@@ -63,6 +64,7 @@ QVector<WatchStartupStartupDelta>
 evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
                            const QVector<WatchStartupWatchRow> &watchRows) {
   QHash<QString, QString> watchValues;
+    // Iterate over collection
   for (const auto &watchRow : watchRows) {
     if (!watchStartupHasTarget(watchRow.position, watchRow.index,
                                watchRow.subIndex)) {
@@ -75,6 +77,7 @@ evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
 
   QVector<WatchStartupStartupDelta> deltas;
   deltas.reserve(startupRows.size());
+    // Iterate over collection
   for (const auto &startupRow : startupRows) {
     WatchStartupStartupDelta delta;
     delta.startupRow = startupRow.row;
@@ -111,6 +114,7 @@ evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
 WatchStartupSummary
 summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta> &deltas) {
   WatchStartupSummary summary;
+    // Iterate over collection
   for (const auto &delta : deltas) {
     switch (delta.state) {
     case WatchStartupDeltaState::Match:
@@ -136,6 +140,7 @@ summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta> &deltas) {
 QVector<int>
 startupRowsWithWatchDiffs(const QVector<WatchStartupStartupDelta> &deltas) {
   QVector<int> rows;
+    // Iterate over collection
   for (const auto &delta : deltas) {
     if (delta.state == WatchStartupDeltaState::Diff && delta.startupRow >= 0) {
       rows.append(delta.startupRow);

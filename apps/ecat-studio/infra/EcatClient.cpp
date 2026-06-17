@@ -196,6 +196,7 @@ void EcatClient::applyStartupSdos(const QJsonArray &items) {
          if (failed > 0) {
            const auto failures = result.value("failures").toArray();
            QStringList messages;
+    // Iterate over collection
            for (const auto &failure : failures) {
              const auto object = failure.toObject();
              messages << QString("#%1 %2:%3 %4")
@@ -333,11 +334,13 @@ void EcatClient::handleLine(const QByteArray &line) {
 void EcatClient::sweepTimedOutRequests() {
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     QStringList timedOut;
+    // Iterate over collection
     for (auto it = requestTimestamps_.begin(); it != requestTimestamps_.end(); ++it) {
         if (now - it.value() > requestTimeoutMs_) {
             timedOut.append(it.key());
         }
     }
+    // Iterate over collection
     for (const QString &id : timedOut) {
         handlers_.remove(id);
         requestTimestamps_.remove(id);

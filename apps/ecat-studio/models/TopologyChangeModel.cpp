@@ -14,13 +14,16 @@ detectTopologyChanges(const QVector<SlaveInfo> &previous,
 
   QHash<int, SlaveInfo> before;
   QHash<int, SlaveInfo> after;
+    // Iterate over collection
   for (const auto &slave : previous) {
     before.insert(slave.position, slave);
   }
+    // Iterate over collection
   for (const auto &slave : current) {
     after.insert(slave.position, slave);
   }
 
+    // Iterate over collection
   for (const auto &currentSlave : current) {
     if (!before.contains(currentSlave.position)) {
       TopologyChange change;
@@ -58,6 +61,7 @@ detectTopologyChanges(const QVector<SlaveInfo> &previous,
     }
   }
 
+    // Iterate over collection
   for (const auto &previousSlave : previous) {
     if (!after.contains(previousSlave.position)) {
       TopologyChange change;

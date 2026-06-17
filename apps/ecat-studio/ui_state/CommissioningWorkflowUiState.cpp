@@ -87,6 +87,7 @@ QList<QStringList> commissioningWorkflowTableRows(
     const QVector<CommissioningWorkflowUiRow> &rows) {
   QList<QStringList> tableRows;
   tableRows.reserve(rows.size());
+    // Iterate over collection
   for (const auto &row : rows) {
     tableRows.append(row.cells);
   }
@@ -97,6 +98,7 @@ QList<QStringList> commissioningWorkflowTableRows(
 CommissioningWorkflowStats
 commissioningWorkflowStats(const QVector<CommissioningWorkflowUiRow> &rows) {
   CommissioningWorkflowStats stats;
+    // Iterate over collection
   for (const auto &row : rows) {
     switch (row.status) {
     case CommissioningWorkflowStatus::Ready:

@@ -53,6 +53,7 @@ QVector<int> failedSdoDictionaryRows(QTableWidget *table) {
     return rows;
   }
   rows.reserve(table->rowCount());
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const QString status = sdoDictionaryRowFromTable(table, row).status;
     if (status.contains(QStringLiteral("failed"), Qt::CaseInsensitive) ||
@@ -69,6 +70,7 @@ bool sdoDictionaryRowsContainValue(QTableWidget *table,
   if (!table) {
     return false;
   }
+    // Iterate over collection
   for (const int row : rows) {
     if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
       continue;
@@ -104,6 +106,7 @@ sdoDictionaryReadObjectsFromRows(QTableWidget *table, const QVector<int> &rows,
     return objects;
   }
 
+    // Iterate over collection
   for (const int row : rows) {
     if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
       if (skipped) {

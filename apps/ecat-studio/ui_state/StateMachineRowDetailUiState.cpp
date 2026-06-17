@@ -25,7 +25,9 @@ QString stateMachineRecommendedUpper(const StateMachineTableRow &row) {
 StateMachineRowDetailUiState
 stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -33,7 +35,9 @@ stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
 StateMachineRowDetailUiState
 stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

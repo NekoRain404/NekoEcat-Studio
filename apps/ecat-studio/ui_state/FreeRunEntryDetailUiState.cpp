@@ -48,7 +48,9 @@ QString freeRunEntryBoundaryText(const FreeRunEntryTableRow &row,
 FreeRunEntryDetailUiState
 freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -56,7 +58,9 @@ freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
 FreeRunEntryDetailUiState
 freeRunEntryDetailNoSelectionState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 
@@ -72,6 +76,7 @@ bool freeRunEntryDetailIsOutputLike(const FreeRunEntryTableRow &row) {
 QString freeRunEntryDetailNameSource(const FreeRunEntryTableRow &row,
                                      const FreeRunEntryDetailTexts &texts) {
   QString nameSource = texts.unknown;
+    // Iterate over collection
   for (const QString &marker : texts.nameSourceMarkers) {
     if (marker.isEmpty()) {
       continue;

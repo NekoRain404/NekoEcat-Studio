@@ -46,6 +46,7 @@ int tableRowForPosition(QTableWidget *table, int position, int positionColumn) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     bool ok = false;
     const int rowPosition = tableText(table, row, positionColumn).toInt(&ok);
@@ -95,6 +96,7 @@ int tableRowForObjectIndex(QTableWidget *table, const QString &index,
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (tableObjectIndexMatches(table, row, index, subIndex, indexColumn,
                                 subIndexColumn)) {
@@ -114,6 +116,7 @@ int tableRowForObjectAddress(QTableWidget *table, int position,
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (tableObjectAddressMatches(table, row, position, index, subIndex,
                                   positionColumn, indexColumn,
@@ -130,6 +133,7 @@ int firstVisibleTableRow(QTableWidget *table) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (!table->isRowHidden(row)) {
       return row;
@@ -149,6 +153,7 @@ QVector<int> selectedTableRows(QTableWidget *table, bool visibleOnly,
   if (table->selectionModel()) {
     const QModelIndexList selected = table->selectionModel()->selectedRows();
     rows.reserve(selected.size());
+    // Iterate over collection
     for (const auto &index : selected) {
       const int row = index.row();
       if (!index.isValid() || row < 0 || row >= table->rowCount()) {
@@ -180,6 +185,7 @@ QVector<int> visibleTableRows(QTableWidget *table) {
     return rows;
   }
   rows.reserve(table->rowCount());
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (!table->isRowHidden(row)) {
       rows.append(row);
@@ -194,8 +200,10 @@ QList<QStringList> copyTableRows(QTableWidget *table) {
   if (!table) {
     return rows;
   }
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     QStringList values;
+    // Iterate over collection
     for (int column = 0; column < table->columnCount(); ++column) {
       values << (table->item(row, column) ? table->item(row, column)->text()
                                           : QString());
@@ -234,6 +242,7 @@ void fitTableColumnsToViewport(QTableWidget *table, int stretchColumn) {
   }
 
   header->setStretchLastSection(false);
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     header->setSectionResizeMode(column, QHeaderView::ResizeToContents);
   }
@@ -253,6 +262,7 @@ void writeMarkdownTable(QTextStream &out, QTableWidget *table) {
   }
 
   out << "|";
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     const auto *header = table->horizontalHeaderItem(column);
     out << " "
@@ -261,13 +271,16 @@ void writeMarkdownTable(QTextStream &out, QTableWidget *table) {
         << " |";
   }
   out << "\n|";
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     out << " --- |";
   }
   out << "\n";
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     out << "|";
+    // Iterate over collection
     for (int column = 0; column < table->columnCount(); ++column) {
       const auto *item = table->item(row, column);
       out << " " << markdownCell(item ? item->text() : QString()) << " |";

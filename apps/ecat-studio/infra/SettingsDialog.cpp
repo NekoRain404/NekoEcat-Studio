@@ -59,6 +59,7 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     themeCombo_->setCurrentText(settings.theme);
 
     languageCombo_ = new QComboBox;
+    // Iterate over collection
     for (const auto &lang : LanguageManager::instance().languages()) { languageCombo_->addItem(lang.displayName); }
     languageCombo_->setCurrentText(settings.language);
 
@@ -92,6 +93,7 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     masterTable_->setProperty("activeMaster", settings.activeMaster);
     const QVector<MasterProfile> masters = settings.masters.isEmpty() ? QVector<MasterProfile>{MasterProfile{}} : settings.masters;
     masterTable_->setRowCount(masters.size());
+    // Iterate over collection
     for (int row = 0; row < masters.size(); ++row) {
         masterTable_->setItem(row, 0, new QTableWidgetItem(masters[row].name));
         masterTable_->setItem(row, 1, new QTableWidgetItem(masters[row].target));
@@ -146,6 +148,7 @@ AppSettings SettingsDialog::settings() const
     result.scale = scaleSpin_->value();
     result.masters.clear();
 
+    // Iterate over collection
     for (int row = 0; row < masterTable_->rowCount(); ++row) {
         MasterProfile profile;
         profile.name = masterTable_->item(row, 0) ? masterTable_->item(row, 0)->text().trimmed() : QString();
@@ -167,6 +170,7 @@ AppSettings SettingsDialog::settings() const
 
     const QString previousActive = masterTable_->property("activeMaster").toString();
     result.activeMaster = result.masters.first().target;
+    // Iterate over collection
     for (const auto &profile : result.masters) {
         if (profile.target == previousActive) {
             result.activeMaster = profile.target;

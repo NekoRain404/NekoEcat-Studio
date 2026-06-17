@@ -45,7 +45,9 @@ public:
         setMinimumSize(300, 200);
     }
 
+    // Serialize/deserialize JSON data
     void appendData(const QJsonArray &avg, const QJsonArray &minArr,
+    // Serialize/deserialize JSON data
                     const QJsonArray &maxArr)
     {
         for (int i = 0; i < avg.size(); ++i) {
@@ -78,6 +80,7 @@ protected:
         p.fillRect(rect(), QColor("#1e1e2e"));
         // Title.
         p.setPen(QColor("#cdd6f4"));
+    // Configure font for visual hierarchy
         p.setFont(QFont("sans-serif", 10, QFont::Bold));
         p.drawText(rect().adjusted(8, 4, 0, 0), Qt::AlignTop, "Cycle Latency (µs)");
 
@@ -103,10 +106,13 @@ protected:
             int py = static_cast<int>(toY(y));
             if (py >= r.top() && py <= r.bottom()) {
                 p.drawLine(r.left(), py, r.right(), py);
+    // Define color for visual feedback
                 p.setPen(QColor("#6c7086"));
+    // Configure font for visual hierarchy
                 p.setFont(QFont("monospace", 7));
                 p.drawText(r.left() - 46, py - 6, 44, 12, Qt::AlignRight | Qt::AlignVCenter,
                            QString::number(y, 'f', 0));
+    // Define color for visual feedback
                 p.setPen(QPen(QColor("#313244"), 1));
             }
         }
@@ -130,6 +136,7 @@ protected:
         {
             QVector<QPointF> pts(n);
             for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufMax_[i]));
+    // Define color for visual feedback
             p.setPen(QPen(QColor("#f38ba8"), 1, Qt::DashLine));
             p.setBrush(Qt::NoBrush);
             p.drawPolyline(pts);
@@ -139,6 +146,7 @@ protected:
         {
             QVector<QPointF> pts(n);
             for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufMin_[i]));
+    // Define color for visual feedback
             p.setPen(QPen(QColor("#a6e3a1"), 1, Qt::DashLine));
             p.drawPolyline(pts);
         }
@@ -147,6 +155,7 @@ protected:
         {
             QVector<QPointF> pts(n);
             for (int i = 0; i < n; ++i) pts[i] = QPointF(toX(i), toY(bufAvg_[i]));
+    // Define color for visual feedback
             p.setPen(QPen(QColor("#89b4fa"), 2));
             p.drawPolyline(pts);
         }
@@ -161,8 +170,11 @@ protected:
             p.drawText(lx + 20, ly, label);
             lx += 60;
         };
+    // Define color for visual feedback
         legendItem(QColor("#89b4fa"), "Avg");
+    // Define color for visual feedback
         legendItem(QColor("#f38ba8"), "Max");
+    // Define color for visual feedback
         legendItem(QColor("#a6e3a1"), "Min");
     }
 
@@ -190,7 +202,9 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         const QRect r = rect().adjusted(1, 1, -1, -1);
+    // Define color for visual feedback
         p.fillRect(rect(), QColor("#181825"));
+    // Define color for visual feedback
         p.setPen(QPen(QColor("#45475a"), 1));
         p.drawRect(rect().adjusted(0, 0, -1, -1));
         if (samples_.size() < 2) return;
@@ -211,10 +225,13 @@ protected:
         QColor fill("#89b4fa");
         fill.setAlpha(50);
         p.setBrush(fill);
+    // Define color for visual feedback
         p.setPen(QPen(QColor("#89b4fa"), 1));
         p.drawPolygon(poly);
 
+    // Define color for visual feedback
         p.setPen(QColor("#cdd6f4"));
+    // Configure font for visual hierarchy
         p.setFont(QFont("monospace", 8));
         p.drawText(r.adjusted(4, 2, 0, 0), Qt::AlignTop,
                    QString("Jitter: %1 µs").arg(samples_.last(), 0, 'f', 1));
@@ -243,9 +260,12 @@ auto *page = new QWidget;
     rtTest_->stopButton = new QPushButton(uiText("Stop", "停止"));
     rtTest_->stopButton->setMinimumWidth(56);
     rtTest_->stopButton->setEnabled(false);
+    // Add widget to layout
     ctrl->addWidget(rtTest_->startButton);
+    // Add widget to layout
     ctrl->addWidget(rtTest_->stopButton);
     ctrl->addSpacing(8);
+    // Add widget to layout
     ctrl->addWidget(new QLabel(uiText("Cycle:", "周期:")));
     rtTest_->cycleCombo = new QComboBox;
     rtTest_->cycleCombo->addItem("125 µs (8 kHz)", 125);
@@ -269,6 +289,7 @@ auto *page = new QWidget;
 
     // Frequency display — shows calculated Hz from the cycle time.
     rtTest_->freqLabel = new QLabel("1 kHz");
+    // Apply QSS stylesheet to widget
     rtTest_->freqLabel->setStyleSheet("color: #89b4fa; font-weight: bold; min-width: 60px;");
     ctrl->addWidget(rtTest_->freqLabel);
 
@@ -284,6 +305,7 @@ auto *page = new QWidget;
                 : QString::number(hz, 'f', 0) + " Hz");
         }
     };
+    // Connect QComboBox::currentIndexChanged signal to handler
     connect(rtTest_->cycleCombo, &QComboBox::currentIndexChanged, this,
         [this, updateFreqLabel](int idx) {
             const bool custom = rtTest_->cycleCombo->itemData(idx).toInt() < 0;
@@ -291,9 +313,11 @@ auto *page = new QWidget;
             if (custom) rtTest_->customCycle->setFocus();
             updateFreqLabel();
         });
+    // Connect QLineEdit::textChanged signal to handler
     connect(rtTest_->customCycle, &QLineEdit::textChanged, this, updateFreqLabel);
     ctrl->addStretch();
     rtTest_->statusLabel = new QLabel(uiText("Idle", "空闲"));
+    // Apply QSS stylesheet to widget
     rtTest_->statusLabel->setStyleSheet("font-weight: bold;");
     ctrl->addWidget(rtTest_->statusLabel);
     root->addLayout(ctrl);
@@ -318,6 +342,7 @@ auto *page = new QWidget;
         auto *v = new QLabel("--");
         v->setObjectName("rtTestMetricValue");
         v->setAlignment(Qt::AlignCenter);
+    // Apply QSS stylesheet to widget
         v->setStyleSheet("font-size: 18px; font-weight: bold;");
         grid->addWidget(t, r * 2, c);
         grid->addWidget(v, r * 2 + 1, c);
@@ -341,8 +366,11 @@ auto *page = new QWidget;
         auto *v = new QLabel("--");
         v->setObjectName("rtTestMetricValue");
         v->setAlignment(Qt::AlignCenter);
+    // Apply QSS stylesheet to widget
         v->setStyleSheet("font-size: 14px;");
+    // Add widget to layout
         col->addWidget(t);
+    // Add widget to layout
         col->addWidget(v);
         cnt->addLayout(col);
         return v;
@@ -356,23 +384,29 @@ auto *page = new QWidget;
     // Health bar + jitter spark.
     rtTest_->healthLabel = new QLabel;
     rtTest_->healthLabel->setFixedHeight(4);
+    // Apply QSS stylesheet to widget
     rtTest_->healthLabel->setStyleSheet("background: #45475a; border-radius: 2px;");
+    // Add widget to layout
     leftLay->addWidget(rtTest_->healthLabel);
 
     rtTest_->jitterSpark = new RtTestJitterSpark;
+    // Add widget to layout
     leftLay->addWidget(rtTest_->jitterSpark);
 
     leftLay->addStretch();
 
+    // Add widget to layout
     splitter->addWidget(left);
 
     // ── Right: chart ───────────────────────────────────────────────────────
     rtTest_->chart = new RtTestLatencyChart;
+    // Add widget to layout
     splitter->addWidget(rtTest_->chart);
 
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 4);
 
+    // Add widget to layout
     root->addWidget(splitter, 1);
 
     // ── Timeline log ───────────────────────────────────────────────────────
@@ -382,6 +416,7 @@ auto *page = new QWidget;
     rtTest_->timelineText->setMaximumHeight(80);
     rtTest_->timelineText->setPlaceholderText(
         uiText("Cycle log...", "周期日志..."));
+    // Add widget to layout
     root->addWidget(rtTest_->timelineText);
 
     // ── Wire signals ───────────────────────────────────────────────────────
@@ -410,6 +445,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     const double maxUs = telemetry.value("maxUsec").toDouble();
     const double avgUs = telemetry.value("avgUsec").toDouble();
     const double jitterUs = telemetry.value("jitterUsec").toDouble();
+    // Serialize/deserialize JSON data
     const QJsonArray recent = telemetry.value("recent").toArray();
 
     // Buttons.
@@ -421,12 +457,15 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     // Status.
     if (running) {
         rtTest_->statusLabel->setText(uiText("Running", "运行中"));
+    // Apply QSS stylesheet to widget
         rtTest_->statusLabel->setStyleSheet("color: #22c55e; font-weight: bold;");
     } else if (cycles > 0) {
         rtTest_->statusLabel->setText(uiText("Stopped", "已停止"));
+    // Apply QSS stylesheet to widget
         rtTest_->statusLabel->setStyleSheet("color: #f59e0b; font-weight: bold;");
     } else {
         rtTest_->statusLabel->setText(uiText("Idle", "空闲"));
+    // Apply QSS stylesheet to widget
         rtTest_->statusLabel->setStyleSheet("font-weight: bold;");
     }
 
@@ -451,6 +490,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
         hc = (lossRate > 0.1 || jitterUs > 500) ? "#ef4444"
              : (jitterUs > 100) ? "#f59e0b" : "#22c55e";
     }
+    // Apply QSS stylesheet to widget
     rtTest_->healthLabel->setStyleSheet(
         QString("background: %1; border-radius: 2px;").arg(hc));
 
@@ -459,6 +499,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
 
     // Chart — send all points directly (daemon already downsamples).
     if (rtTest_->chart && !recent.isEmpty() && cycles > 0) {
+    // Serialize/deserialize JSON data
         QJsonArray avgA, minA, maxA;
         const int chunk = qMax(1, recent.size() / 3000);
         for (int i = 0; i < recent.size(); i += chunk) {
@@ -495,7 +536,7 @@ void MainWindow::updateRtTestActionAvailability()
     rtTest_->stopButton->setEnabled(rtTestRunning_);
 }
 
-// Format duration
+// Format a duration value in milliseconds to a human-readable string
 QString MainWindow::formatDuration(double seconds) const
 {
     if (seconds < 60) return QString::number(seconds, 'f', 1) + "s";

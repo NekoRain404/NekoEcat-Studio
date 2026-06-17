@@ -34,6 +34,7 @@ buildCommissioningWorkflowStepStates(const CommissioningWorkflowInput &input) {
   const QVector<CommissioningWorkflowStep> &order =
       commissioningWorkflowStepOrder();
   states.reserve(order.size());
+    // Iterate over collection
   for (const CommissioningWorkflowStep step : order) {
     switch (step) {
     case CommissioningWorkflowStep::ConnectRuntime:
@@ -92,6 +93,7 @@ int nextCommissioningWorkflowStepIndex(
     const CommissioningWorkflowInput &input) {
   const QVector<CommissioningWorkflowStepState> states =
       buildCommissioningWorkflowStepStates(input);
+    // Iterate over collection
   for (int row = 0; row < states.size(); ++row) {
     if (states.at(row).status != CommissioningWorkflowStatus::Ready) {
       return row;
@@ -104,6 +106,7 @@ int nextCommissioningWorkflowStepIndex(
 CommissioningWorkflowStatus commissioningWorkflowStepStatus(
     const QVector<CommissioningWorkflowStepState> &states,
     CommissioningWorkflowStep step) {
+    // Iterate over collection
   for (const auto &state : states) {
     if (state.step == step) {
       return state.status;

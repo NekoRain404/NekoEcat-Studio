@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -189,7 +192,9 @@ void MainWindow::showCommandPalette() {
   commandStats->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   layout->addWidget(title);
+    // Add widget to layout
   commandFilterRow->addWidget(search, 1);
+    // Add widget to layout
   commandFilterRow->addWidget(safetyFilter);
   layout->addLayout(commandFilterRow);
   layout->addWidget(list, 1);
@@ -1595,6 +1600,7 @@ void MainWindow::showCommandPalette() {
               uiText("Queries host environment diagnostics only from explicit "
                      "host-check commands",
                      "仅在显式主机检查命令中查询主机环境诊断"),
+    // Define color for visual feedback
               QColor("#2563eb")};
     }
     if (containsAny({"write current sdo", "download the current write",
@@ -1608,6 +1614,7 @@ void MainWindow::showCommandPalette() {
               uiText("Uses the existing confirmation path before writing or "
                      "changing EtherCAT state",
                      "写入或切换 EtherCAT 状态前会继续走现有确认流程"),
+    // Define color for visual feedback
               QColor("#dc2626")};
     }
     if (containsAny({"new project", "open project", "save project",
@@ -1620,6 +1627,7 @@ void MainWindow::showCommandPalette() {
               uiText("Changes project files, exports data, imports resources, "
                      "or opens documentation",
                      "修改工程文件、导出数据、导入资源或打开文档"),
+    // Define color for visual feedback
               QColor("#64748b")};
     }
     if (containsAny({"connect runtime",
@@ -1653,12 +1661,14 @@ void MainWindow::showCommandPalette() {
       return {QStringLiteral("online"), uiText("Online", "在线"),
               uiText("May talk to the EtherCAT runtime or read live evidence",
                      "可能访问 EtherCAT 运行时或读取实时证据"),
+    // Define color for visual feedback
               QColor("#d97706")};
     }
     return {QStringLiteral("local"), uiText("Local", "本地"),
             uiText("Uses loaded UI/project evidence or navigates without bus "
                    "access",
                    "只使用已加载界面/工程证据，或进行不访问总线的导航"),
+    // Define color for visual feedback
             QColor("#16a34a")};
   };
 
@@ -1764,6 +1774,7 @@ void MainWindow::showCommandPalette() {
       item->setFlags(isEnabled ? item->flags()
                                : (item->flags() & ~Qt::ItemIsEnabled));
       if (isEnabled) {
+    // Define color for visual feedback
         item->setForeground(QBrush(safety.color));
       }
       const QString pinnedPrefix =
@@ -1816,6 +1827,7 @@ void MainWindow::showCommandPalette() {
       commandPreview->setText(uiText(
           "No matching command. Adjust search text or action type filter.",
           "没有匹配命令。请调整搜索内容或操作类型过滤。"));
+    // Set safety property for styling/theming
       commandPreview->setProperty("safety", "empty");
       repolish(commandPreview); // force QSS re-evaluation after property change
       return;
@@ -1832,6 +1844,7 @@ void MainWindow::showCommandPalette() {
     const int recentRank = item->data(Qt::UserRole + 4).toInt();
     const int pinnedRank = item->data(Qt::UserRole + 5).toInt();
     const bool isEnabled = item->flags() & Qt::ItemIsEnabled;
+    // Set safety property for styling/theming
     commandPreview->setProperty("safety", safetyKey);
     commandPreview->setText(
         QString("%1: %2\n%3\n%4: %5")
@@ -1921,16 +1934,23 @@ void MainWindow::showCommandPalette() {
     updatePreview();
   };
 
+    // Connect QLineEdit::textChanged signal to handler
   connect(search, &QLineEdit::textChanged, &dialog, refill); // wire signal to slot
+    // Connect QComboBox::currentIndexChanged signal to handler
   connect(safetyFilter, QOverload<int>::of(&QComboBox::currentIndexChanged),
           &dialog, refill);
+    // Connect QLineEdit::returnPressed signal to handler
   connect(search, &QLineEdit::returnPressed, &dialog, runCurrent); // wire signal to slot
+    // Connect QListWidget::currentRowChanged signal to handler
   connect(list, &QListWidget::currentRowChanged, &dialog,
           [&](int) { updatePreview(); });
+    // Connect QListWidget::itemActivated signal to handler
   connect(list, &QListWidget::itemActivated, &dialog,
           [&](QListWidgetItem *) { runCurrent(); });
+    // Connect QListWidget::itemDoubleClicked signal to handler
   connect(list, &QListWidget::itemDoubleClicked, &dialog,
           [&](QListWidgetItem *) { runCurrent(); });
+    // Connect QListWidget::customContextMenuRequested signal to handler
   connect(list, &QListWidget::customContextMenuRequested, &dialog,
           [&](const QPoint &position) {
             auto *item = list->itemAt(position);
@@ -1963,21 +1983,30 @@ void MainWindow::showCommandPalette() {
   auto *dangerFilterShortcut = new QShortcut(QKeySequence("Alt+D"), &dialog);
   auto *hostFilterShortcut = new QShortcut(QKeySequence("Alt+H"), &dialog);
   auto *fileFilterShortcut = new QShortcut(QKeySequence("Alt+F"), &dialog);
+    // Connect QShortcut::activated signal to handler
   connect(downShortcut, &QShortcut::activated, &dialog,
           [&] { moveSelection(1); });
+    // Connect QShortcut::activated signal to handler
   connect(upShortcut, &QShortcut::activated, &dialog,
           [&] { moveSelection(-1); });
+    // Connect QShortcut::activated signal to handler
   connect(pinShortcut, &QShortcut::activated, &dialog, toggleCurrentPinned); // wire signal to slot
+    // Connect QShortcut::activated signal to handler
   connect(allFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QString()); });
+    // Connect QShortcut::activated signal to handler
   connect(localFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QStringLiteral("local")); });
+    // Connect QShortcut::activated signal to handler
   connect(onlineFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QStringLiteral("online")); });
+    // Connect QShortcut::activated signal to handler
   connect(dangerFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QStringLiteral("danger")); });
+    // Connect QShortcut::activated signal to handler
   connect(hostFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QStringLiteral("host")); });
+    // Connect QShortcut::activated signal to handler
   connect(fileFilterShortcut, &QShortcut::activated, &dialog,
           [setSafetyFilter] { setSafetyFilter(QStringLiteral("file")); });
 

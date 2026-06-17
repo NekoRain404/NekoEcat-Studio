@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -128,6 +131,7 @@ void MainWindow::ensureStartupSdoTable() {
   if (startupSdoTable_->columnCount() != 9) {
     startupSdoTable_->setColumnCount(9);
   }
+    // Define column headers for the table
   startupSdoTable_->setHorizontalHeaderLabels(
       {uiText("Slave", "从站"), uiText("Index", "索引"), uiText("Sub", "子项"),
        uiText("Value", "值"), uiText("Type", "类型"), uiText("Status", "状态"),
@@ -246,6 +250,7 @@ void MainWindow::updateStartupSdoRowDetail() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const StartupSdoRowDetailUiState &state) {
     watch_->startupSdoDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     watch_->startupSdoDetailLabel->setProperty("severity", state.severityKey);
     watch_->startupSdoDetailLabel->setToolTip(state.tooltip);
     repolish(watch_->startupSdoDetailLabel); // force QSS re-evaluation after property change
@@ -309,7 +314,7 @@ void MainWindow::focusStartupSdoWatchDiffs() {
 }
 
 
-// — Add startup sdo
+// Add a new entry to the Startup SDO list with the specified address and value
 void MainWindow::addStartupSdo() {
   ensureStartupSdoTable();
   const int row = startupSdoTable_->rowCount();
@@ -346,7 +351,7 @@ void MainWindow::addStartupSdo() {
 }
 
 
-// — Remove startup sdo
+// Remove the selected entries from the Startup SDO list
 void MainWindow::removeStartupSdo() {
   ensureStartupSdoTable();
   if (!startupSdoTable_) {
@@ -372,7 +377,7 @@ void MainWindow::removeStartupSdo() {
 }
 
 
-// — Move startup sdo row
+// Reorder a Startup SDO row by moving it up or down in the list
 void MainWindow::moveStartupSdoRow(int delta) {
   ensureStartupSdoTable();
   if (!startupSdoTable_ || delta == 0) {
@@ -414,7 +419,7 @@ void MainWindow::moveStartupSdoRow(int delta) {
 }
 
 
-// — Verify startup sdo list
+// Validate all Startup SDO entries against the current slave configuration
 void MainWindow::verifyStartupSdoList() {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ ||
@@ -452,13 +457,16 @@ void MainWindow::verifyStartupSdoList() {
     }
     if (position < 0 || index.isEmpty() || subIndex.isEmpty()) {
       status->setText(uiText("Failed", "失败"));
+    // Define color for visual feedback
       status->setForeground(QColor("#ef4444"));
       detail->setText(
           uiText("Missing slave, index, or subindex", "缺少从站、索引或子项"));
       continue;
     }
     status->setText(uiText("Verifying", "校验中"));
+    // Define color for visual feedback
     status->setForeground(QColor("#f59e0b"));
+    // Define color for visual feedback
     status->setBackground(QBrush());
     detail->setText(QString());
     const QString key = sdoEvidenceKey(position, index, subIndex);
@@ -476,7 +484,7 @@ void MainWindow::verifyStartupSdoList() {
 }
 
 
-// — Verify startup sdo row
+// Validate a single Startup SDO entry for address format and value range
 void MainWindow::verifyStartupSdoRow(int row) {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ || row < 0 ||
@@ -512,8 +520,11 @@ void MainWindow::verifyStartupSdoRow(int row) {
 
   if (!positionOk || position < 0 || index.isEmpty() || subIndex.isEmpty()) {
     status->setText(uiText("Failed", "失败"));
+    // Define color for visual feedback
     status->setForeground(QColor("#ef4444"));
+    // Define color for visual feedback
     status->setBackground(settings_.theme == "Light" ? QColor("#fef2f2")
+    // Define color for visual feedback
                                                      : QColor("#3a1218"));
     detail->setText(
         uiText("Missing slave, index, or subindex", "缺少从站、索引或子项"));
@@ -527,7 +538,9 @@ void MainWindow::verifyStartupSdoRow(int row) {
   }
 
   status->setText(uiText("Verifying", "校验中"));
+    // Define color for visual feedback
   status->setForeground(QColor("#f59e0b"));
+    // Define color for visual feedback
   status->setBackground(QBrush());
   detail->setText(QString());
   const QString key = sdoEvidenceKey(position, index, subIndex);
@@ -675,9 +688,12 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
               startupSdoTable_->setItem(firstRowIndex, 6, firstDetail);
             }
             firstStatus->setText(uiText("Preflight Error", "预检查错误"));
+    // Define color for visual feedback
             firstStatus->setForeground(QColor("#ef4444"));
             firstStatus->setBackground(settings_.theme == "Light"
+    // Define color for visual feedback
                                            ? QColor("#fef2f2")
+    // Define color for visual feedback
                                            : QColor("#3a1218"));
             firstDetail->setText(
                 uiText("conflicting duplicate object also appears on row %1",
@@ -716,20 +732,28 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
     if (!rowErrors.isEmpty()) {
       ++errors;
       status->setText(uiText("Preflight Error", "预检查错误"));
+    // Define color for visual feedback
       status->setForeground(QColor("#ef4444"));
+    // Define color for visual feedback
       status->setBackground(settings_.theme == "Light" ? QColor("#fef2f2")
+    // Define color for visual feedback
                                                        : QColor("#3a1218"));
       detail->setText(rowErrors.join("; "));
     } else if (!rowWarnings.isEmpty()) {
       ++warnings;
       status->setText(uiText("Preflight Warning", "预检查警告"));
+    // Define color for visual feedback
       status->setForeground(QColor("#f59e0b"));
+    // Define color for visual feedback
       status->setBackground(settings_.theme == "Light" ? QColor("#fff7ed")
+    // Define color for visual feedback
                                                        : QColor("#2b1d10"));
       detail->setText(rowWarnings.join("; "));
     } else {
       status->setText(uiText("Preflight OK", "预检查通过"));
+    // Define color for visual feedback
       status->setForeground(QColor("#22c55e"));
+    // Define color for visual feedback
       status->setBackground(QBrush());
       detail->setText(QString());
     }
@@ -796,7 +820,7 @@ void MainWindow::updateStartupSdoControls() {
 }
 
 
-// — Apply startup sdo row
+// Apply a Startup SDO entry to the target slave via ecatd write command
 void MainWindow::applyStartupSdoRow(int row) {
   ensureStartupSdoTable();
   if (!client_.isConnected() || !startupSdoTable_ || row < 0 ||
@@ -839,8 +863,11 @@ void MainWindow::applyStartupSdoRow(int row) {
       startupSdoTable_->setItem(row, 6, detail);
     }
     status->setText(uiText("Validation Error", "校验错误"));
+    // Define color for visual feedback
     status->setForeground(QColor("#ef4444"));
+    // Define color for visual feedback
     status->setBackground(settings_.theme == "Light" ? QColor("#fef2f2")
+    // Define color for visual feedback
                                                      : QColor("#3a1218"));
     detail->setText(validationErrors.join("; "));
     startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
@@ -885,7 +912,9 @@ void MainWindow::applyStartupSdoRow(int row) {
     startupSdoTable_->setItem(row, 6, detail);
   }
   status->setText(uiText("Applying", "应用中"));
+    // Define color for visual feedback
   status->setForeground(QColor("#f59e0b"));
+    // Define color for visual feedback
   status->setBackground(QBrush());
   detail->setText(QString());
 
@@ -935,6 +964,7 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
     return;
   }
 
+    // Serialize/deserialize JSON data
   QJsonArray items;
   QVector<int> validRows;
   QStringList validationErrors;
@@ -976,8 +1006,11 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
         startupSdoTable_->setItem(row, 6, detail);
       }
       status->setText(uiText("Validation Error", "校验错误"));
+    // Define color for visual feedback
       status->setForeground(QColor("#ef4444"));
+    // Define color for visual feedback
       status->setBackground(settings_.theme == "Light" ? QColor("#fef2f2")
+    // Define color for visual feedback
                                                        : QColor("#3a1218"));
       detail->setText(rowErrors.join("; "));
       validationErrors << uiText("Row %1: %2", "第 %1 行：%2")
@@ -1057,7 +1090,9 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
       startupSdoTable_->setItem(row, 6, detail);
     }
     status->setText(uiText("Applying", "应用中"));
+    // Define color for visual feedback
     status->setForeground(QBrush());
+    // Define color for visual feedback
     status->setBackground(QBrush());
     detail->setText(QString());
   }
@@ -1138,6 +1173,7 @@ void MainWindow::applyStartupSdoList() {
           details, uiText("Apply Startup SDO", "应用 Startup SDO"))) {
     return;
   }
+    // Serialize/deserialize JSON data
   QJsonArray items;
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
     auto *status = startupSdoTable_->item(row, 5);
@@ -1147,7 +1183,9 @@ void MainWindow::applyStartupSdoList() {
       startupSdoTable_->setItem(row, 5, status);
     }
     status->setText(uiText("Applying", "应用中"));
+    // Define color for visual feedback
     status->setForeground(QBrush());
+    // Define color for visual feedback
     status->setBackground(QBrush());
     if (!startupSdoTable_->item(row, 6)) {
     // Create table cell

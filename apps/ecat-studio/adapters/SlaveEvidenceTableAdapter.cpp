@@ -23,6 +23,7 @@ void applyWatchEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
     return;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (parsedPosition(
             tableText(table, row, kSlaveEvidenceWatchPositionColumn)) !=
@@ -70,6 +71,7 @@ void applyStartupEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
     return;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (parsedPosition(
             tableText(table, row, kSlaveEvidenceStartupPositionColumn)) !=
@@ -90,6 +92,7 @@ void applyProcessEvidence(SlaveEvidenceInput *input, QTableWidget *table) {
     return;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (parsedPosition(
             tableText(table, row, kSlaveEvidenceProcessPositionColumn)) !=
@@ -236,6 +239,7 @@ bool slaveEvidenceMatrixSearchMatches(QTableWidget *table, int row,
     return false;
   }
 
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (tableText(table, row, column).contains(needle, Qt::CaseInsensitive)) {
       return true;
@@ -253,6 +257,7 @@ filterSlaveEvidenceMatrixTable(QTableWidget *table, const QString &scope,
     return stats;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const SlaveEvidenceMatrixRowState state =
         slaveEvidenceMatrixRowState(table, row);
@@ -329,6 +334,7 @@ slaveEvidenceMatrixPriorityCounts(QTableWidget *table) {
     return counts;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const SlaveEvidenceMatrixRowState state =
         slaveEvidenceMatrixRowState(table, row);
@@ -395,6 +401,7 @@ int firstSlaveEvidenceRowForPosition(QTableWidget *table, int position,
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     if (parsedPosition(tableText(table, row, positionColumn)) == position) {
       return row;
@@ -409,6 +416,7 @@ int firstSlaveEvidenceStartupDiffRow(QTableWidget *startupTable, int position) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < startupTable->rowCount(); ++row) {
     if (parsedPosition(tableText(startupTable, row,
                                  kSlaveEvidenceStartupPositionColumn)) !=
@@ -430,6 +438,7 @@ int firstSlaveEvidenceProcessIssueRow(QTableWidget *processTable,
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < processTable->rowCount(); ++row) {
     if (parsedPosition(tableText(processTable, row,
                                  kSlaveEvidenceProcessPositionColumn)) !=
@@ -450,6 +459,7 @@ int firstSlaveEvidenceDriveWatchRow(QTableWidget *watchTable, int position) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < watchTable->rowCount(); ++row) {
     if (parsedPosition(tableText(
             watchTable, row, kSlaveEvidenceWatchPositionColumn)) != position) {

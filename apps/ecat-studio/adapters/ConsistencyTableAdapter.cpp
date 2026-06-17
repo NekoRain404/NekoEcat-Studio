@@ -25,6 +25,7 @@ ConsistencyIssueCounts consistencyTableIssueCounts(QTableWidget *table) {
     return counts;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     addConsistencyIssueLevel(
         &counts, consistencyIssueLevelFromText(
@@ -73,6 +74,7 @@ bool consistencyTableSearchMatches(QTableWidget *table, int row,
     return false;
   }
 
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     const auto *item = table->item(row, column);
     if (item && item->text().contains(needle, Qt::CaseInsensitive)) {
@@ -92,6 +94,7 @@ ConsistencyTableFilterStats filterConsistencyTableRows(QTableWidget *table,
   }
 
   stats.total = table->rowCount();
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const bool show = consistencyTableScopeMatches(
                           consistencyTableRowState(table, row), scope) &&
@@ -110,6 +113,7 @@ int firstConsistencyTableBlockingIssueRow(QTableWidget *table) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     ConsistencyIssueCounts counts;
     addConsistencyIssueLevel(
@@ -128,6 +132,7 @@ int firstConsistencyTableIoIssueRow(QTableWidget *table) {
     return -1;
   }
 
+    // Iterate over collection
   for (int row = 0; row < table->rowCount(); ++row) {
     const ConsistencyTableRowState state = consistencyTableRowState(table, row);
     if (consistencyTableScopeMatches(

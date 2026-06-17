@@ -118,6 +118,7 @@ QVector<int> visibleIoVariableTableRows(QTableWidget *table) {
 // Returns true if any of the given visible rows carry a populated value.
 bool ioVariableTableRowsContainValue(QTableWidget *table,
                                      const QVector<int> &rows) {
+    // Iterate over collection
   for (const int row : rows) {
     if (ioVariableTableRowHasValue(table, row)) {
       return true;

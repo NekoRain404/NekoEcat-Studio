@@ -76,6 +76,7 @@ QStringList displayParts(const SelectedDriveSummaryEvidence &evidence,
 SelectedDriveSummaryUiState
 selectedDriveNoWatchEvidenceState(const SelectedDriveSummaryTexts &texts) {
   return {.text = texts.noWatchEvidence,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral")};
 }
 
@@ -88,6 +89,7 @@ selectedDriveSummaryEvidence(const QVector<WatchStartupWatchRow> &watchRows,
     return evidence;
   }
 
+    // Iterate over collection
   for (const auto &row : watchRows) {
     if (row.position != position) {
       continue;
@@ -144,6 +146,7 @@ Cia402ControlwordRecommendation selectedDriveControlwordRecommendation(
   }
 
   QString decodedStatus;
+    // Iterate over collection
   for (const auto &row : watchRows) {
     if (row.position != position || normalizedIndex(row) != "0x6041") {
       continue;

@@ -85,8 +85,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -113,6 +115,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -336,9 +339,11 @@ void MainWindow::updateIoVariableTable() {
 
   setTableRows(ioVar_->ioVariableTable, headers, rows);
   const QColor changedBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#fff7cc") : QColor("#3a2f16");
   const QColor warningBackground = changedBackground;
   const QColor diffBackground =
+    // Define color for visual feedback
       settings_.theme == "Light" ? QColor("#fee2e2") : QColor("#3a1218");
   const QColor okColor("#22c55e");
   const QColor warnColor("#f59e0b");
@@ -356,6 +361,7 @@ void MainWindow::updateIoVariableTable() {
       item->setForeground(ioVariableTableRowHasProcessSource(variable)
                               ? okColor
                               : (ioVariableTableRowHasPdoSource(variable)
+    // Define color for visual feedback
                                      ? QColor("#60a5fa")
                                      : warnColor));
     }
@@ -372,7 +378,9 @@ void MainWindow::updateIoVariableTable() {
     if (ioVariableTableRowHasChangedValue(variable)) {
       if (auto *item = ioVar_->ioVariableTable->item(row, 14)) {
         item->setBackground(changedBackground);
+    // Define color for visual feedback
         item->setForeground(settings_.theme == "Light" ? QColor("#854d0e")
+    // Define color for visual feedback
                                                        : QColor("#fde68a"));
       }
     }
@@ -385,11 +393,13 @@ void MainWindow::updateIoVariableTable() {
     }
     if (hasAlias) {
       if (auto *item = ioVar_->ioVariableTable->item(row, 16)) {
+    // Define color for visual feedback
         item->setForeground(QColor("#22c55e"));
       }
     }
     if (auto *item = ioVar_->ioVariableTable->item(row, 17)) {
       if (!item->text().trimmed().isEmpty()) {
+    // Define color for visual feedback
         item->setForeground(QColor("#60a5fa"));
       }
     }
@@ -546,6 +556,7 @@ void MainWindow::updateIoVariableRowDetail() {
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const IoVariableDetailUiState &state) {
     ioVar_->ioVariableDetailLabel->setText(state.text);
+    // Set severity property for styling/theming
     ioVar_->ioVariableDetailLabel->setProperty("severity", state.severityKey);
     ioVar_->ioVariableDetailLabel->setToolTip(state.tooltip);
     repolish(ioVar_->ioVariableDetailLabel); // force QSS re-evaluation after property change

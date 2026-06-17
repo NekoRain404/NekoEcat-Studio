@@ -86,8 +86,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -114,6 +116,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -130,6 +133,7 @@ void MainWindow::ensureObjectBookmarkTable() {
   if (bookmark_->objectBookmarkTable->columnCount() != 10) {
     bookmark_->objectBookmarkTable->setColumnCount(10);
   }
+    // Define column headers for the table
   bookmark_->objectBookmarkTable->setHorizontalHeaderLabels(
       {uiText("Slave", "从站"), uiText("Slave Name", "从站名称"),
        uiText("Index", "索引"), uiText("Sub", "子项"), uiText("Access", "权限"),
@@ -151,6 +155,7 @@ void MainWindow::updateObjectBookmarkRowDetail() {
   auto applyState = [this](const ObjectBookmarkDetailUiState &state) {
 // Update the object bookmark row detail panel.
     objectBookmarkDetailLabel_->setText(state.text);
+    // Set severity property for styling/theming
     objectBookmarkDetailLabel_->setProperty("severity", state.severityKey);
     objectBookmarkDetailLabel_->setToolTip(state.tooltip);
     repolish(objectBookmarkDetailLabel_); // force QSS re-evaluation after property change
@@ -213,7 +218,7 @@ bool MainWindow::selectObjectBookmarkSlave(int position) {
 }
 
 
-// — Add current sdo bookmark
+// Bookmark the currently selected SDO object for quick access in the Object Bookmarks panel
 void MainWindow::addCurrentSdoBookmark() {
   const int position = selectedPosition();
   const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
@@ -327,7 +332,7 @@ bool MainWindow::selectSlaveForLocalEvidence(int position) {
 }
 
 
-// — Add object bookmark
+// Insert a new object bookmark entry with the given slave position, index, and sub-index
 void MainWindow::addObjectBookmark(int position, const QString &index,
                                    const QString &subIndex,
                                    const QString &access, const QString &type,

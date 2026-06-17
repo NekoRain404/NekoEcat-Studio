@@ -87,8 +87,10 @@
 #include <QHash>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+    // Serialize/deserialize JSON data
 #include <QJsonArray>
 #include <QJsonDocument>
+    // Serialize/deserialize JSON data
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -115,6 +117,7 @@
 #include <QTableWidget>
 #include <QTextBrowser>
 #include <QTextStream>
+    // Schedule deferred or periodic execution
 #include <QTimer>
 #include <QToolBar>
 #include <QTreeWidget>
@@ -127,6 +130,7 @@
 // — Set the application stylesheet for the current theme (Light or Dark)
 void MainWindow::applyTheme() {
   if (settings_.theme == "Light") {
+    // Apply QSS stylesheet to widget
     qApp->setStyleSheet(R"QSS(
             QWidget {
                 color: #172033;
@@ -650,6 +654,7 @@ void MainWindow::applyTheme() {
     return;
   }
 
+    // Apply QSS stylesheet to widget
   qApp->setStyleSheet(R"QSS(
         QWidget {
             color: #e6edf5;
@@ -1178,6 +1183,7 @@ void MainWindow::applySettings() {
   LanguageManager::instance().setCurrentLanguage(settings_.language);
   applyTheme();
   QFont font = qApp->font();
+    // Configure font for visual hierarchy
   font.setPointSizeF(10.0 * settings_.scale);
   qApp->setFont(font);
   refreshMasterSelector();

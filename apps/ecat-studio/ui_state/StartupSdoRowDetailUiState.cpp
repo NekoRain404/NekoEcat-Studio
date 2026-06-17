@@ -9,6 +9,7 @@ namespace {
 bool containsAny(const QString &text,
                  std::initializer_list<const char *> keys) {
   const QString lowered = text.toLower();
+    // Iterate over collection
   for (const char *key : keys) {
     if (lowered.contains(QLatin1String(key))) {
       return true;
@@ -69,7 +70,9 @@ QString startupPositionText(const WatchStartupStartupRow &row) {
 StartupSdoRowDetailUiState
 startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.unavailableTip};
 }
 
@@ -77,7 +80,9 @@ startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
 StartupSdoRowDetailUiState
 startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral"),
+    // Set tooltip field
           .tooltip = texts.noSelectionTip};
 }
 

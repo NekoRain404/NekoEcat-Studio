@@ -5,6 +5,7 @@
 SelectedSlaveEvidenceSummaryUiState selectedSlaveEvidenceNoSelectionState(
     const SelectedSlaveEvidenceSummaryTexts &texts) {
   return {.text = texts.selectSlaveText,
+    // Set severityKey field
           .severityKey = QStringLiteral("neutral")};
 }
 

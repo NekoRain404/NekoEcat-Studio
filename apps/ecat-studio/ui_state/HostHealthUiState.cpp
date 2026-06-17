@@ -21,6 +21,7 @@ HostHealthUiState buildHostHealthUiState(const QJsonArray &checks,
   state.headers = {texts.levelHeader,  texts.checkHeader,   texts.resultHeader,
                    texts.actionHeader, texts.commandHeader, texts.detailHeader};
 
+    // Iterate over collection
   for (const auto &value : checks) {
     const auto check = value.toObject();
     const QString level = check.value("level").toString("Info");

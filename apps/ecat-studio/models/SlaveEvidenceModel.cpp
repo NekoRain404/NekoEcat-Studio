@@ -71,6 +71,7 @@ SlaveEvidenceRouteTarget slaveEvidenceRouteTarget(const SlaveEvidenceRow &row) {
   }
 
   bool hasRisk = false;
+    // Iterate over collection
   for (const auto &risk : row.risks) {
     hasRisk = true;
     if (risk.kind == SlaveEvidenceRiskKind::PdoMapIssue ||
@@ -94,6 +95,7 @@ buildSlaveEvidenceMatrix(const QVector<SlaveEvidenceInput> &inputs) {
   SlaveEvidenceMatrix matrix;
   matrix.rows.reserve(inputs.size());
 
+    // Iterate over collection
   for (const auto &input : inputs) {
     SlaveEvidenceRow row;
     row.position = input.position;

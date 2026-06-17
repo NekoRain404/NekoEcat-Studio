@@ -17,6 +17,7 @@ void setSessionBriefActionKey(QTableWidget *table, int row,
   if (!table || row < 0 || row >= table->rowCount()) {
     return;
   }
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (auto *item = table->item(row, column)) {
       item->setData(kSessionBriefActionKeyRole, actionKey);
@@ -30,6 +31,7 @@ QString sessionBriefActionKeyForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return QString();
   }
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (auto *item = table->item(row, column)) {
       const QString stableKey =
@@ -51,6 +53,7 @@ QString sessionBriefFirstTooltipForRow(QTableWidget *table, int row) {
   if (!table || row < 0 || row >= table->rowCount()) {
     return QString();
   }
+    // Iterate over collection
   for (int column = 0; column < table->columnCount(); ++column) {
     if (auto *item = table->item(row, column)) {
       const QString tooltip = item->toolTip().trimmed();

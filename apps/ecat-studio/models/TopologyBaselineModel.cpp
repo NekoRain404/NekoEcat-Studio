@@ -19,13 +19,16 @@ compareTopologyBaseline(const QVector<SlaveInfo> &baseline,
 
   QHash<int, SlaveInfo> expected;
   QHash<int, SlaveInfo> actual;
+    // Iterate over collection
   for (const auto &slave : baseline) {
     expected.insert(slave.position, slave);
   }
+    // Iterate over collection
   for (const auto &slave : current) {
     actual.insert(slave.position, slave);
   }
 
+    // Iterate over collection
   for (const auto &expectedSlave : baseline) {
     if (!actual.contains(expectedSlave.position)) {
       TopologyBaselineIssue issue;
@@ -56,6 +59,7 @@ compareTopologyBaseline(const QVector<SlaveInfo> &baseline,
     }
   }
 
+    // Iterate over collection
   for (const auto &currentSlave : current) {
     if (!expected.contains(currentSlave.position)) {
       TopologyBaselineIssue issue;
