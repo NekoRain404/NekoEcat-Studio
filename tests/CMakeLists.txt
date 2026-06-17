@@ -1077,3 +1077,17 @@ target_link_libraries(language_manager_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(language_manager_test PROPERTIES AUTOMOC ON)
 
 add_test(NAME language_manager_test COMMAND language_manager_test)
+
+add_executable(workspace_widgets_test
+    workspace_widgets_test.cpp
+)
+
+target_include_directories(workspace_widgets_test PRIVATE
+    ../apps/ecat-studio
+    ../apps/ecat-studio/workspaces
+)
+target_link_libraries(workspace_widgets_test PRIVATE Qt6::Core Qt6::Test)
+
+set_target_properties(workspace_widgets_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME workspace_widgets_test COMMAND workspace_widgets_test)
