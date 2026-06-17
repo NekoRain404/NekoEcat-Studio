@@ -2,8 +2,8 @@
 #include "ProcessDataTableAdapter.h"
 
 #include "models/ProcessDataRowModel.h"
-#include "helpers/StudioTableHelpers.h"
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TableHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QTableWidget>
 

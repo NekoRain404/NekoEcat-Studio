@@ -1,7 +1,7 @@
 // Populates and queries the Watch and Startup SDO QTableWidgets.
 #include "WatchStartupTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
 #include <QTableWidget>
 #include <QTableWidgetItem>

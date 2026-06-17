@@ -1,7 +1,7 @@
 // Detail panel text for a selected Watch row.
 #include "detail/WatchRowDetail.h"
 
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 // Neutral state when the watch table is not available.
 WatchRowDetailUiState

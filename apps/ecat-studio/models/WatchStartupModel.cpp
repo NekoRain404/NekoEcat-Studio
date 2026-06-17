@@ -2,7 +2,7 @@
 #include "WatchStartupModel.h"
 
 #include "SdoEvidenceModel.h"
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QHash>
 

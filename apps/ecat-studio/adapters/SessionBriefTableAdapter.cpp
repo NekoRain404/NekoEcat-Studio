@@ -1,7 +1,7 @@
 // Populates and queries the session brief QTableWidget.
 #include "SessionBriefTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
 #include <QTableWidget>
 

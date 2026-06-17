@@ -6,7 +6,7 @@
 #include "models/ProcessDataRowModel.h"
 #include "ProcessDataTableAdapter.h"
 #include "SlaveEvidenceTableAdapter.h"
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 #include "models/WatchStartupModel.h"
 #include "WatchStartupTableAdapter.h"
 

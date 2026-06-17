@@ -68,10 +68,10 @@ add_executable(ecat-studio
     detail/WorkspaceTabBadgeDetail.cpp                detail/WorkspaceTabBadgeDetail.h
 
     # ── Helpers ─────────────────────────────────────────────────────────
-    helpers/StudioDocumentation.cpp                    helpers/StudioDocumentation.h
-    helpers/StudioTableHelpers.cpp                     helpers/StudioTableHelpers.h
-    helpers/StudioTextHelpers.cpp                      helpers/StudioTextHelpers.h
-    helpers/StudioUiHelpers.cpp                        helpers/StudioUiHelpers.h
+    utils/Documentation.cpp                    utils/Documentation.h
+    utils/TableHelpers.cpp                     utils/TableHelpers.h
+    utils/TextHelpers.cpp                      utils/TextHelpers.h
+    utils/UiHelpers.cpp                        utils/UiHelpers.h
 
     # ── Infrastructure ──────────────────────────────────────────────────
     infra/EcatClient.cpp                               infra/EcatClient.h

@@ -2,7 +2,7 @@
 #include "ProcessDataRowModel.h"
 
 #include "EvidenceStatusModel.h"
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QSet>
 #include <QStringList>

@@ -1,5 +1,5 @@
 // Reusable UI widget factories: section titles, metric cards, status labels.
-#include "StudioUiHelpers.h"
+#include "utils/UiHelpers.h"
 
 #include <QFrame>
 #include <QLabel>

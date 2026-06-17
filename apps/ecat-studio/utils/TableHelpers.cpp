@@ -1,7 +1,7 @@
 // Generic QTableWidget utilities: row selection, CSV, markdown export.
-#include "StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
-#include "StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <algorithm>
 

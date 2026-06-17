@@ -1,7 +1,7 @@
 // Populates and queries the consistency issue QTableWidget.
 #include "ConsistencyTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
 #include <QTableWidget>
 

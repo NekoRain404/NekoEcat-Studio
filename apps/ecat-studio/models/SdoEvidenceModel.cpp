@@ -1,7 +1,7 @@
 // SDO read evidence tracking: value, status, source, and comparison.
 #include "SdoEvidenceModel.h"
 
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 // Builds a normalized composite key for SDO evidence lookup and deduplication.
 QString sdoEvidenceKey(int position, const QString &index,

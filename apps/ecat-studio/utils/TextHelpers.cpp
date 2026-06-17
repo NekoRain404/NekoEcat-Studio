@@ -1,5 +1,5 @@
 // Text formatting helpers: hex normalization, value decoding, address display.
-#include "StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QRegularExpression>
 

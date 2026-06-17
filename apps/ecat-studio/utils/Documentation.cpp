@@ -1,5 +1,5 @@
 // HTML documentation strings for the built-in user manual and about dialog.
-#include "StudioDocumentation.h"
+#include "utils/Documentation.h"
 
 #include <QFrame>
 #include <QHBoxLayout>

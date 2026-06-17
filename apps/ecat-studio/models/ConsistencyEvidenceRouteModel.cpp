@@ -1,7 +1,7 @@
 // Navigation route from a consistency issue to its source evidence table.
 #include "ConsistencyEvidenceRouteModel.h"
 
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QRegularExpression>
 

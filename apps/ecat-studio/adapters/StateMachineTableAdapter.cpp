@@ -1,7 +1,7 @@
 // Populates and queries the state machine recommendation QTableWidget.
 #include "StateMachineTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
 #include <QTableWidget>
 

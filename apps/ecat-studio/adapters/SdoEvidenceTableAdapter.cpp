@@ -1,8 +1,8 @@
 // Populates and queries the SDO evidence / history QTableWidget.
 #include "SdoEvidenceTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TableHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QTableWidget>
 

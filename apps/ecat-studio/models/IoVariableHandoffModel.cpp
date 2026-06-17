@@ -2,7 +2,7 @@
 #include "IoVariableHandoffModel.h"
 
 #include "ProcessDataRowModel.h"
-#include "helpers/StudioTextHelpers.h"
+#include "utils/TextHelpers.h"
 
 #include <QHash>
 #include <QStringList>

@@ -1,7 +1,7 @@
 // Populates and queries the commissioning workflow QTableWidget.
 #include "CommissioningWorkflowTableAdapter.h"
 
-#include "helpers/StudioTableHelpers.h"
+#include "utils/TableHelpers.h"
 
 #include <QTableWidget>
 
