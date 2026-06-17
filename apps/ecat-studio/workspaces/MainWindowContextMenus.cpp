@@ -1,3 +1,4 @@
+// Context menu builders for topology tree, evidence tables, and SDO target panel.
 // Context menus for topology tree, tables, and SDO target panel.
 
 #include "MainWindow.h"
@@ -120,6 +121,7 @@
 #include <QXmlStreamReader>
 
 
+// Build and display the right-click menu for the topology tree.
 // — Build and display the right-click menu for the topology tree
 void MainWindow::showTopologyContextMenu(const QPoint &position) {
   if (!topologyTree_) {
@@ -132,6 +134,7 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
 
   const int slave = selectedPosition();
   const bool hasSlave = slave >= 0;
+// ── Topology Actions: Refresh, State Transitions, Baseline ────────────
   const bool connected = client_.isConnected();
 
   QMenu menu(this);
@@ -172,6 +175,7 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
   for (auto *action : {allInit, allPreop, allSafeop, allOp}) {
     action->setEnabled(connected && !slaves_.isEmpty());
   }
+// ── Topology Copy Actions ────────────────────────────────────────────
   menu.addSeparator();
 
   auto *copyDevice =
@@ -229,6 +233,7 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
 }
 
 
+// Build and display the right-click menu for any evidence table.
 // — Build and display the right-click menu for any evidence table
 void MainWindow::showTableContextMenu(QTableWidget *table,
                                       const QPoint &position) {
@@ -387,6 +392,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       }
     }
   }
+// ── Table Menu: Build based on table identity and current state ────────
 
   QMenu menu(this);
   QAction *fillSdo = nullptr;
@@ -547,6 +553,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       if (!table->isRowHidden(row)) {
         hasVisibleDictionaryRows = true;
         break;
+// ── SDO Actions: Fill Fields, Read/Write ──────────────────────────────
       }
     }
     fillSdo = menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
@@ -647,6 +654,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     readWatch->setEnabled(hasWatchRow && client_.isConnected());
     captureWatchBaselineAction =
         menu.addAction(uiText("Capture Watch Baseline", "捕获 Watch 基线"));
+// ── Watch Actions: Add to Watch, Refresh ──────────────────────────────
     captureWatchBaselineAction->setEnabled(table->rowCount() > 0);
     clearWatchBaselineAction =
         menu.addAction(uiText("Clear Watch Baseline", "清除 Watch 基线"));
@@ -747,6 +755,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     const bool hasHistoryRow = row >= 0;
     const QVector<int> selectedRows = selectedSdoHistoryRows();
     const bool hasHistorySelection = !selectedRows.isEmpty();
+// ── Startup SDO Actions ───────────────────────────────────────────────
     bool hasHistoryValueSelection = false;
     for (const int selectedRow : selectedRows) {
       if (selectedRow >= 0 && selectedRow < table->rowCount() &&
@@ -847,6 +856,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     readSdoFromBookmark->setEnabled(hasBookmarkRow && client_.isConnected());
     addWatchFromBookmark =
         menu.addAction(uiText("Add Bookmark to Watch", "书签加入监视"));
+// ── Bookmark Actions ──────────────────────────────────────────────────
     addWatchFromBookmark->setEnabled(hasBookmarkSelection);
     addStartupFromBookmark = menu.addAction(
         uiText("Create Startup SDO from Bookmark", "从书签创建 Startup SDO"));
@@ -947,6 +957,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     readSelectedDictionaryRows();
   } else if (chosen == readVisibleDictionaryAction) {
     readVisibleDictionaryRows();
+// ── Evidence Actions: Review, Copy, Navigate ──────────────────────────
   } else if (chosen == readFailedDictionaryAction) {
     readFailedDictionaryRows();
   } else if (chosen == addWatch) {
@@ -1047,6 +1058,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     const QString key =
         QString("%1|%2|%3")
             .arg(table->item(row, 1) ? table->item(row, 1)->text().toInt() : -1)
+// ── Export Actions: CSV, Markdown ────────────────────────────────────
             .arg(table->item(row, 2) ? table->item(row, 2)->text().trimmed()
                                      : QString(),
                  table->item(row, 3) ? table->item(row, 3)->text().trimmed()

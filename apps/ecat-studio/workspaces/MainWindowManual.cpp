@@ -182,6 +182,7 @@ body { font-family: "Inter", "Segoe UI", "Noto Sans", sans-serif; font-size: 14p
 h1 { font-size: 26px; margin: 0 0 8px 0; color: #0f172a; }
 h2 { font-size: 20px; margin: 26px 0 8px 0; color: #12376f; }
 h3 { font-size: 16px; margin: 18px 0 6px 0; color: #1f2937; }
+// ── Dialog Layout: title, subtitle, search bar, tabbed content browser ──
 p { margin: 7px 0; }
 ul, ol { margin-top: 6px; margin-bottom: 10px; padding-left: 22px; }
 li { margin: 4px 0; }
@@ -207,6 +208,7 @@ th { background: #f0f4f9; color: #475569; }
 <li><a href="#prerequisites">Host Prerequisites</a></li>
 <li><a href="#masters">Multi-Master Configuration</a></li>
 <li><a href="#topology">Topology and Slave Selection</a></li>
+// ── Embedded HTML Manual (English) ─────────────────────────────────────
 <li><a href="#overview">Overview Tab</a></li>
 <li><a href="#state-machine">EtherCAT State Model</a></li>
 <li><a href="#od">Object Dictionary and SDO</a></li>
@@ -497,6 +499,7 @@ th { background: #f0f4f9; color: #475569; }
 <li><a href="#first-run">第一次启动与运行时连接</a></li>
 <li><a href="#prerequisites">主机前置条件</a></li>
 <li><a href="#masters">多主站配置与切换</a></li>
+// ── Embedded HTML Manual (Chinese) ─────────────────────────────────────
 <li><a href="#topology">拓扑树与从站选择</a></li>
 <li><a href="#overview">总览页</a></li>
 <li><a href="#state-machine">EtherCAT 状态模型</a></li>
@@ -867,6 +870,7 @@ th { background: #f0f4f9; color: #475569; }
 
   layout->addWidget(title);
   layout->addWidget(subtitle);
+// ── Tab Widget Assembly: manual tabs + search controls ──────────────────
   layout->addLayout(manualTools.layout);
   layout->addWidget(browser, 1);
   layout->addWidget(buttons);
@@ -917,6 +921,7 @@ th { background: #f0f4f9; color: #475569; }
 <body>
 <p><b>NekoEcat Studio</b> is a focused EtherCAT commissioning, online inspection, and diagnostics workstation for Linux systems using IgH EtherCAT Master. It is designed for practical field work: scan the bus, inspect slaves, read and write Object Dictionary entries, analyze PDO maps, compose I/O variable signal tables, monitor SDO values, apply repeatable startup writes, run process-image telemetry, check the host environment, and export diagnostics.</p>
 <table>
+// ── About Dialog Layout ────────────────────────────────────────────────
 <tr><th>Item</th><th>Value</th></tr>
 <tr><td>Version</td><td><code>%1</code></td></tr>
 <tr><td>Runtime</td><td><code>ecatd</code></td></tr>
@@ -957,6 +962,7 @@ th { background: #f0f4f9; color: #475569; }
 <h2>Runtime Boundary</h2>
 <p>The GUI is not the EtherCAT master. It connects to <code>ecatd</code> on localhost, and <code>ecatd</code> routes requests to IgH tools and the ecrt Free Run path. This keeps online operations explicit and allows the GUI to keep a clear audit trail for reads, writes, state changes, host checks, and exported reports.</p>
 <h2>Design Goal</h2>
+// ── License Text Display ───────────────────────────────────────────────
 <p>The application is built as a modern engineering station rather than a raw command wrapper. Frequent bus operations stay near the front, online data is structured into task-oriented tabs, and diagnostics stay in the dedicated Diagnostics workspace so hardware, driver, and runtime issues can be reviewed without polluting the Overview page.</p>
 <div class="warn"><b>Safety:</b> SDO writes, Startup SDO, OP transitions, and Free Run can affect real hardware. Confirm the selected master, selected slave, object index, subindex, value, and machine state before executing write or output-related operations.</div>
 </body>
