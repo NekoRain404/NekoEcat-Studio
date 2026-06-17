@@ -365,6 +365,7 @@ void MainWindow::updateCommissioningWorkflow() {
                                                           : blockedColor);
     for (int column = 0; column < workflow_->workflowTable->columnCount(); ++column) {
       if (auto *item = workflow_->workflowTable->item(row, column)) {
+    // Apply color coding for status
         item->setForeground(color);
         item->setToolTip(uiRow.tooltip);
       }
@@ -388,6 +389,7 @@ void MainWindow::updateCommissioningWorkflow() {
                                  ? nextAction
                                  : uiText("Ready", "已就绪");
     const int openItems = stats.action + stats.blocked;
+    // Set display text
     workflow_->workflowSummaryLabel->setText(uiText("Readiness %1 | Next: %2 | Open %3",
                                           "就绪度 %1 | 下一步：%2 | 未完成 %3")
                                        .arg(percent, nextText)
@@ -447,6 +449,7 @@ void MainWindow::updateCommissioningWorkflow() {
 
   if (auto *runNextButton = findChild<QPushButton *>("overviewRunNext")) {
     runNextButton->setEnabled(nextStep >= 0);
+    // Set display text
     runNextButton->setText(
         nextStep >= 0 && !nextAction.isEmpty()
             ? uiText("Next: %1", "下一步：%1").arg(nextAction)

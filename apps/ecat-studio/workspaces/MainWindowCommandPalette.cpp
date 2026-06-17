@@ -93,8 +93,10 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QLabel>
+    // Search input field
 #include <QLineEdit>
 #include <QListWidget>
+    // Create list item for command
 #include <QListWidgetItem>
 #include <QMenu>
 #include <QMenuBar>
@@ -148,19 +150,25 @@ void MainWindow::showCommandPalette() {
   auto *safetyFilter = new QComboBox;
   safetyFilter->setObjectName("commandSafetyFilter");
   safetyFilter->setMinimumWidth(180);
+    // Add command to palette list
   safetyFilter->addItem(
       uiText("All action types  Alt+A", "全部操作类型  Alt+A"), QString());
+    // Add command to palette list
   safetyFilter->addItem(
       uiText("Local navigation/data  Alt+L", "本地导航/数据  Alt+L"),
       QStringLiteral("local"));
+    // Add command to palette list
   safetyFilter->addItem(
       uiText("Online read/runtime  Alt+O", "在线读取/运行  Alt+O"),
       QStringLiteral("online"));
+    // Add command to palette list
   safetyFilter->addItem(
       uiText("Writes/state changes  Alt+D", "写入/状态切换  Alt+D"),
       QStringLiteral("danger"));
+    // Add command to palette list
   safetyFilter->addItem(uiText("Host checks  Alt+H", "主机检查  Alt+H"),
                         QStringLiteral("host"));
+    // Add command to palette list
   safetyFilter->addItem(uiText("Project/file  Alt+F", "工程/文件  Alt+F"),
                         QStringLiteral("file"));
   safetyFilter->setToolTip(
@@ -273,8 +281,10 @@ void MainWindow::showCommandPalette() {
   };
   auto currentSdoLabel = [this] {
     const int position = selectedPosition();
+    // Get current search text
     const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
     const QString subIndex =
+    // Get current search text
         sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
     const QString object = !index.isEmpty() && !subIndex.isEmpty()
                                ? QString("%1:%2").arg(index, subIndex)
@@ -285,8 +295,10 @@ void MainWindow::showCommandPalette() {
     QString line = currentSdoLabel();
     const QString type =
         sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+    // Get current search text
     QString value = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
     if (value.isEmpty() && sdoInspector_->sdoWriteValue) {
+    // Get current search text
       value = sdoInspector_->sdoWriteValue->text().trimmed();
     }
     if (!type.isEmpty()) {
@@ -299,13 +311,17 @@ void MainWindow::showCommandPalette() {
   };
   auto hasCurrentSdo = [this] {
     return selectedPosition() >= 0 && sdoInspector_->sdoIndex &&
+    // Get current search text
            !sdoInspector_->sdoIndex->text().trimmed().isEmpty() && sdoInspector_->sdoSubIndex &&
+    // Get current search text
            !sdoInspector_->sdoSubIndex->text().trimmed().isEmpty();
   };
   auto hasCurrentSdoValue = [this, hasCurrentSdo] {
     const bool hasReadValue =
+    // Get current search text
         sdoInspector_->sdoValue && !sdoInspector_->sdoValue->text().trimmed().isEmpty();
     const bool hasWriteValue =
+    // Get current search text
         sdoInspector_->sdoWriteValue && !sdoInspector_->sdoWriteValue->text().trimmed().isEmpty();
     return hasCurrentSdo() && (hasReadValue || hasWriteValue);
   };
@@ -540,6 +556,7 @@ void MainWindow::showCommandPalette() {
       [this] { useReadSdoValueForWrite(); },
       [this] {
         return sdoInspector_->useSdoValueButton && sdoInspector_->useSdoValueButton->isEnabled() &&
+    // Get current search text
                sdoInspector_->sdoValue && !sdoInspector_->sdoValue->text().trimmed().isEmpty();
       },
   });
@@ -1684,6 +1701,7 @@ void MainWindow::showCommandPalette() {
   // Rebuild the command list from the current search and filter state
   auto refill = [&] {
     list->clear();
+    // Get current search text
     const QString needle = search->text().trimmed();
     const QString safetyKey = safetyFilter->currentData().toString();
     QHash<QString, int> visibleCounts;
@@ -1730,6 +1748,7 @@ void MainWindow::showCommandPalette() {
       displayRows.append(
           CommandDisplayRow{i, safety, isEnabled, pinnedRank, recentRank, i});
     }
+    // Sort commands by relevance
     std::stable_sort(
         displayRows.begin(), displayRows.end(),
         [](const CommandDisplayRow &left, const CommandDisplayRow &right) {
@@ -1757,12 +1776,19 @@ void MainWindow::showCommandPalette() {
       const auto &command = commands[row.index];
       const CommandSafety safety = row.safety;
       const bool isEnabled = row.enabled;
+    // Create list item for command
       auto *item = new QListWidgetItem(command.icon, command.title);
+    // Store command identifier
       item->setData(Qt::UserRole, row.index);
+    // Store command identifier
       item->setData(Qt::UserRole + 1, safety.key);
+    // Store command identifier
       item->setData(Qt::UserRole + 2, safety.label);
+    // Store command identifier
       item->setData(Qt::UserRole + 3, safety.hint);
+    // Store command identifier
       item->setData(Qt::UserRole + 4, row.recentRank);
+    // Store command identifier
       item->setData(Qt::UserRole + 5, row.pinnedRank);
       item->setToolTip(QString("%1: %2\n%3\n%4")
                            .arg(safety.label, safety.hint, command.subtitle,
@@ -1785,6 +1811,7 @@ void MainWindow::showCommandPalette() {
                         .arg(pinnedPrefix, recentPrefix, safety.label,
                              command.title, command.subtitle));
       item->setSizeHint(QSize(0, 54));
+    // Add command to palette list
       list->addItem(item);
     }
     if (list->count() > 0) {
@@ -1946,9 +1973,11 @@ void MainWindow::showCommandPalette() {
           [&](int) { updatePreview(); });
     // Connect QListWidget::itemActivated signal to handler
   connect(list, &QListWidget::itemActivated, &dialog,
+    // Create list item for command
           [&](QListWidgetItem *) { runCurrent(); });
     // Connect QListWidget::itemDoubleClicked signal to handler
   connect(list, &QListWidget::itemDoubleClicked, &dialog,
+    // Create list item for command
           [&](QListWidgetItem *) { runCurrent(); });
     // Connect QListWidget::customContextMenuRequested signal to handler
   connect(list, &QListWidget::customContextMenuRequested, &dialog,

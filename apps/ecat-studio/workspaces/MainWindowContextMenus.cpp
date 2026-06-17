@@ -142,52 +142,78 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
 
   QMenu menu(this);
   auto *refresh =
+    // Add menu action with icon and handler
       menu.addAction(style()->standardIcon(QStyle::SP_BrowserReload),
                      uiText("Refresh Online Data", "刷新在线数据"));
+    // Enable/disable based on action availability
   refresh->setEnabled(connected);
   auto *rescan =
+    // Add menu action with icon and handler
       menu.addAction(style()->standardIcon(QStyle::SP_FileDialogDetailedView),
                      uiText("Rescan Bus", "重新扫描总线"));
+    // Enable/disable based on action availability
   rescan->setEnabled(connected);
+    // Add visual separator between menu groups
   menu.addSeparator();
 
   auto *readInfo =
+    // Add menu action with icon and handler
       menu.addAction(style()->standardIcon(QStyle::SP_FileDialogInfoView),
                      uiText("Read Selected Slave", "读取选中从站"));
+    // Enable/disable based on action availability
   readInfo->setEnabled(connected && hasSlave);
+    // Add menu action with icon and handler
   auto *addStartup = menu.addAction(
       style()->standardIcon(QStyle::SP_FileDialogNewFolder),
       uiText("Add Startup SDO from Current Fields", "用当前字段添加启动 SDO"));
+    // Enable/disable based on action availability
   addStartup->setEnabled(connected && hasSlave);
+    // Add visual separator between menu groups
   menu.addSeparator();
 
+    // Add menu action with icon and handler
   auto *init = menu.addAction("INIT");
+    // Add menu action with icon and handler
   auto *preop = menu.addAction("PREOP");
+    // Add menu action with icon and handler
   auto *safeop = menu.addAction("SAFEOP");
+    // Add menu action with icon and handler
   auto *op = menu.addAction("OP");
   for (auto *action : {init, preop, safeop, op}) {
+    // Enable/disable based on action availability
     action->setEnabled(connected && hasSlave);
   }
+    // Add visual separator between menu groups
   menu.addSeparator();
+    // Add menu action with icon and handler
   auto *allInit = menu.addAction(uiText("All Slaves: INIT", "全部从站：INIT"));
   auto *allPreop =
+    // Add menu action with icon and handler
       menu.addAction(uiText("All Slaves: PREOP", "全部从站：PREOP"));
   auto *allSafeop =
+    // Add menu action with icon and handler
       menu.addAction(uiText("All Slaves: SAFEOP", "全部从站：SAFEOP"));
+    // Add menu action with icon and handler
   auto *allOp = menu.addAction(uiText("All Slaves: OP", "全部从站：OP"));
   for (auto *action : {allInit, allPreop, allSafeop, allOp}) {
+    // Enable/disable based on action availability
     action->setEnabled(connected && !slaves_.isEmpty());
   }
 // ── Topology Copy Actions ────────────────────────────────────────────
   menu.addSeparator();
 
   auto *copyDevice =
+    // Add menu action with icon and handler
       menu.addAction(uiText("Copy Device Label", "复制设备标签"));
+    // Enable/disable based on action availability
   copyDevice->setEnabled(item != nullptr);
+    // Add menu action with icon and handler
   auto *copyTopology = menu.addAction(uiText("Copy Topology", "复制拓扑"));
+    // Enable/disable based on action availability
   copyTopology->setEnabled(topologyTree_->topLevelItemCount() > 0);
 
   const QAction *chosen =
+    // Show menu at cursor position
       menu.exec(topologyTree_->viewport()->mapToGlobal(position));
   if (!chosen) {
     return;
@@ -494,59 +520,83 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     const bool hasWorkflowRow = workflowRow >= 0 &&
                                 workflowRow < table->rowCount() &&
                                 !table->isRowHidden(workflowRow);
+    // Add menu action with icon and handler
     reviewFirstWorkflowIssue = menu.addAction(
         uiText("Review First Workflow Issue", "审阅首个工作流问题"));
+    // Set icon for menu action
     reviewFirstWorkflowIssue->setIcon(
         style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    // Enable/disable based on action availability
     reviewFirstWorkflowIssue->setEnabled(
         workflow_->workflowReviewButton ? workflow_->workflowReviewButton->isEnabled()
                               : table->rowCount() > 0);
 // ── Table Context Menu ──────────────────────────────────────────────
     reviewNextWorkflowIssue = menu.addAction(
         uiText("Review Next Workflow Issue", "审阅下个工作流问题"));
+    // Set icon for menu action
     reviewNextWorkflowIssue->setIcon(
         style()->standardIcon(QStyle::SP_ArrowForward));
+    // Enable/disable based on action availability
     reviewNextWorkflowIssue->setEnabled(
         workflow_->workflowReviewNextButton ? workflow_->workflowReviewNextButton->isEnabled()
                                   : table->rowCount() > 0);
     copyWorkflowStep =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Step Evidence", "复制步骤证据"));
+    // Set icon for menu action
     copyWorkflowStep->setIcon(
         style()->standardIcon(QStyle::SP_FileDialogContentsView));
+    // Enable/disable based on action availability
     copyWorkflowStep->setEnabled(hasWorkflowRow);
+    // Add visual separator between menu groups
     menu.addSeparator();
   // Dispatch Alt+Enter to the correct evidence action for this table type
   } else if (table == session_->sessionBriefTable) {
     const bool hasBriefRow = table->currentRow() >= 0;
     openSessionBriefEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Open Local Evidence", "打开本地证据"));
+    // Enable/disable based on action availability
     openSessionBriefEvidence->setEnabled(hasBriefRow);
     copySessionBriefRow =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Row Evidence", "复制本行证据"));
+    // Set icon for menu action
     copySessionBriefRow->setIcon(
         style()->standardIcon(QStyle::SP_FileDialogContentsView));
+    // Enable/disable based on action availability
     copySessionBriefRow->setEnabled(hasBriefRow);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == slaveEvidence_->slaveEvidenceMatrixTable) {
     const bool hasMatrixRow = table->currentRow() >= 0;
     openSlaveMatrixEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Open Matrix Evidence", "打开矩阵证据"));
+    // Enable/disable based on action availability
     openSlaveMatrixEvidence->setEnabled(hasMatrixRow);
     copySlaveMatrixRow =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Matrix Row Evidence", "复制矩阵本行证据"));
+    // Enable/disable based on action availability
     copySlaveMatrixRow->setEnabled(hasMatrixRow);
     reviewFirstMatrixIssue =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Review First Matrix Issue", "审阅首个矩阵问题"));
+    // Enable/disable based on action availability
     reviewFirstMatrixIssue->setEnabled(
         slaveEvidence_->slaveEvidenceMatrixReviewButton
             ? slaveEvidence_->slaveEvidenceMatrixReviewButton->isEnabled()
             : table->rowCount() > 0);
     reviewNextMatrixIssue =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Review Next Matrix Issue", "审阅下个矩阵问题"));
+    // Enable/disable based on action availability
     reviewNextMatrixIssue->setEnabled(
         slaveEvidence_->slaveEvidenceMatrixReviewNextButton
             ? slaveEvidence_->slaveEvidenceMatrixReviewNextButton->isEnabled()
             : table->rowCount() > 0);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == sdo_->sdoTable) {
     const bool hasDictionaryRow = table->currentRow() >= 0;
@@ -561,33 +611,49 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
 // ── SDO Actions: Fill Fields, Read/Write ──────────────────────────────
       }
     }
+    // Add menu action with icon and handler
     fillSdo = menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdo->setEnabled(dictionaryReady && hasDictionaryRow);
+    // Add menu action with icon and handler
     readSdo = menu.addAction(uiText("Fill and Read", "填充并读取"));
+    // Enable/disable based on action availability
     readSdo->setEnabled(dictionaryReady && hasDictionaryRow &&
                         client_.isConnected());
     readSelectedDictionary =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Read Selected Objects", "读取所选对象"));
+    // Enable/disable based on action availability
     readSelectedDictionary->setEnabled(hasDictionarySelection &&
                                        client_.isConnected() &&
                                        selectedPosition() >= 0);
     readVisibleDictionaryAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Read Visible Objects", "读取可见对象"));
+    // Enable/disable based on action availability
     readVisibleDictionaryAction->setEnabled(
         dictionaryReady && hasVisibleDictionaryRows && client_.isConnected());
     readFailedDictionaryAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Retry Failed Objects", "重试失败对象"));
+    // Enable/disable based on action availability
     readFailedDictionaryAction->setEnabled(
         dictionaryReady && hasFailedSdoEvidence() && client_.isConnected() &&
         selectedPosition() >= 0);
+    // Add menu action with icon and handler
     addWatch = menu.addAction(uiText("Add to Watch", "加入监视"));
+    // Enable/disable based on action availability
     addWatch->setEnabled(dictionaryReady && hasDictionaryRow);
     addSelectedDictionaryWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Selected to Watch", "所选加入监视"));
+    // Enable/disable based on action availability
     addSelectedDictionaryWatch->setEnabled(hasDictionarySelection &&
                                            selectedPosition() >= 0);
     addVisibleDictionaryWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Visible to Watch", "将可见项加入监视"));
+    // Enable/disable based on action availability
     addVisibleDictionaryWatch->setEnabled(dictionaryReady &&
                                           hasVisibleDictionaryRows);
     bool hasDictionaryValueSelection = false;
@@ -600,69 +666,103 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       }
     }
     addSelectedDictionaryStartupEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Create Startup SDOs from Selected Evidence",
                               "从所选证据创建 Startup SDO"));
+    // Enable/disable based on action availability
     addSelectedDictionaryStartupEvidence->setEnabled(
         dictionaryReady && hasDictionaryValueSelection);
+    // Add menu action with icon and handler
     addStartup = menu.addAction(uiText("Add Startup SDO", "添加启动 SDO"));
+    // Enable/disable based on action availability
     addStartup->setEnabled(dictionaryReady && hasDictionaryRow &&
                            selectedSdoWritable_);
     bookmarkDictionaryObject =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Bookmark Object", "收藏对象"));
+    // Enable/disable based on action availability
     bookmarkDictionaryObject->setEnabled(dictionaryReady && hasDictionaryRow);
     bookmarkSelectedDictionaryObjects =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Bookmark Selected Objects", "收藏所选对象"));
+    // Enable/disable based on action availability
     bookmarkSelectedDictionaryObjects->setEnabled(dictionaryReady &&
                                                   hasDictionarySelection);
+    // Add visual separator between menu groups
     menu.addSeparator();
     filterDictionaryEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Show Evidence Rows", "只看有证据行"));
+    // Enable/disable based on action availability
     filterDictionaryEvidence->setEnabled(dictionaryReady &&
                                          table->rowCount() > 0);
     filterDictionaryFailed =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Show Failed Evidence", "只看失败证据"));
+    // Enable/disable based on action availability
     filterDictionaryFailed->setEnabled(dictionaryReady &&
                                        table->rowCount() > 0);
     copyDictionaryEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Last Evidence", "复制最后证据"));
+    // Enable/disable based on action availability
     copyDictionaryEvidence->setEnabled(
         dictionaryReady && hasDictionaryRow &&
         (!tableText(table, table->currentRow(), 7).isEmpty() ||
          !tableText(table, table->currentRow(), 8).isEmpty()));
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == sdo_->pdoTable) {
     const bool hasPdoRow = table->currentRow() >= 0;
     const bool pdoReady =
         selectedPosition() >= 0 && loadedPdoPosition_ == selectedPosition();
     const bool hasPdoSelection = !selectedTableRows(table).isEmpty();
+    // Add menu action with icon and handler
     fillSdoFromPdo = menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromPdo->setEnabled(pdoReady && hasPdoRow);
     readSdoFromPdo =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromPdo->setEnabled(pdoReady && hasPdoRow && client_.isConnected());
+    // Add menu action with icon and handler
     addWatchFromPdo = menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
+    // Enable/disable based on action availability
     addWatchFromPdo->setEnabled(pdoReady && hasPdoRow);
+    // Add menu action with icon and handler
     addSelectedPdoWatch = menu.addAction(
         uiText("Add Selected PDOs to Watch", "将选中 PDO 加入监视"));
+    // Enable/disable based on action availability
     addSelectedPdoWatch->setEnabled(pdoReady && hasPdoSelection);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == watch_->watchTable) {
     const bool hasWatchRow = table->currentRow() >= 0;
     bool hasWatchValueSelection = selectedWatchRowsHaveValue();
     fillSdoFromWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromWatch->setEnabled(hasWatchRow);
     readSdoFromWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromWatch->setEnabled(hasWatchRow && client_.isConnected());
+    // Add menu action with icon and handler
     readWatch = menu.addAction(uiText("Read Watch Item", "读取监视项"));
+    // Enable/disable based on action availability
     readWatch->setEnabled(hasWatchRow && client_.isConnected());
     captureWatchBaselineAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Capture Watch Baseline", "捕获 Watch 基线"));
 // ── Watch Actions: Add to Watch, Refresh ──────────────────────────────
     captureWatchBaselineAction->setEnabled(table->rowCount() > 0);
     clearWatchBaselineAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Clear Watch Baseline", "清除 Watch 基线"));
+    // Enable/disable based on action availability
     clearWatchBaselineAction->setEnabled(table->rowCount() > 0);
     const QString watchValue =
         hasWatchRow && table->item(table->currentRow(), 4)
@@ -671,33 +771,51 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     if (!hasWatchValueSelection && hasWatchRow) {
       hasWatchValueSelection = !watchValue.isEmpty();
     }
+    // Add menu action with icon and handler
     addStartupFromWatch = menu.addAction(
         uiText("Add Startup SDO from Watch", "从监视添加启动 SDO"));
+    // Enable/disable based on action availability
     addStartupFromWatch->setEnabled(hasWatchRow && !watchValue.isEmpty());
     addStartupFromSelectedWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Create Startup SDOs from Selected Watch",
                               "从选中监视批量创建启动 SDO"));
+    // Enable/disable based on action availability
     addStartupFromSelectedWatch->setEnabled(hasWatchValueSelection);
+    // Add menu action with icon and handler
     syncStartupFromWatch = menu.addAction(
         uiText("Sync Startup SDO from Watch", "从监视同步 Startup SDO"));
+    // Enable/disable based on action availability
     syncStartupFromWatch->setEnabled(hasWatchRow && !watchValue.isEmpty());
+    // Add menu action with icon and handler
     syncStartupFromSelectedWatch = menu.addAction(uiText(
         "Sync Startup SDOs from Selected Watch", "从选中监视同步 Startup SDO"));
+    // Enable/disable based on action availability
     syncStartupFromSelectedWatch->setEnabled(hasWatchValueSelection);
+    // Add menu action with icon and handler
     removeWatch = menu.addAction(uiText("Remove Watch Item", "移除监视项"));
+    // Enable/disable based on action availability
     removeWatch->setEnabled(hasWatchRow);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == freeRunWidgets_->freeRunEntryTable) {
     const bool hasFreeRunRow = table->currentRow() >= 0;
     fillSdoFromFreeRun =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromFreeRun->setEnabled(hasFreeRunRow);
     readSdoFromFreeRun =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromFreeRun->setEnabled(hasFreeRunRow && client_.isConnected());
     addWatchFromFreeRun =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
+    // Enable/disable based on action availability
     addWatchFromFreeRun->setEnabled(hasFreeRunRow);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == ioVar_->ioVariableTable) {
     const bool hasIoRow = table->currentRow() >= 0;
@@ -709,51 +827,82 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     const bool hasVisibleIoValueRows =
         ioVariableTableRowsContainValue(table, visibleIoRows);
     fillSdoFromIoVariable =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromIoVariable->setEnabled(hasIoRow);
     readSdoFromIoVariable =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromIoVariable->setEnabled(hasIoRow && client_.isConnected());
     addWatchFromIoVariable =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Selected to Watch", "所选加入监视"));
+    // Enable/disable based on action availability
     addWatchFromIoVariable->setEnabled(hasIoRow);
     addVisibleIoVariableWatch =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Visible to Watch", "将可见项加入监视"));
+    // Enable/disable based on action availability
     addVisibleIoVariableWatch->setEnabled(hasVisibleIoRows);
     addStartupFromIoVariable =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Create Startup SDOs from Selected I/O",
                               "从所选 I/O 创建 Startup SDO"));
+    // Enable/disable based on action availability
     addStartupFromIoVariable->setEnabled(hasSelectedIoValueRows);
+    // Add menu action with icon and handler
     addVisibleIoVariableStartup = menu.addAction(uiText(
         "Create Startup SDOs from Visible I/O", "从可见 I/O 创建 Startup SDO"));
+    // Enable/disable based on action availability
     addVisibleIoVariableStartup->setEnabled(hasVisibleIoValueRows);
     editIoVariableMetadataAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Set Alias / Tags", "设置别名 / 标签"));
+    // Enable/disable based on action availability
     editIoVariableMetadataAction->setEnabled(hasIoRow);
+    // Add menu action with icon and handler
     bulkNameIoVariableAction = menu.addAction(
         uiText("Bulk Name Visible / Selected", "批量命名可见 / 所选"));
+    // Enable/disable based on action availability
     bulkNameIoVariableAction->setEnabled(hasIoRow || hasVisibleIoRows);
+    // Add menu action with icon and handler
     reviewPlcHandoffAction = menu.addAction(
         uiText("Review PLC Handoff Issues", "审阅 PLC 交接问题"));
+    // Enable/disable based on action availability
     reviewPlcHandoffAction->setEnabled(hasVisibleIoRows);
+    // Add menu action with icon and handler
     copySelectedPlcDeclarationsAction = menu.addAction(
         uiText("Copy Selected PLC Declarations", "复制所选 PLC 声明"));
+    // Enable/disable based on action availability
     copySelectedPlcDeclarationsAction->setEnabled(hasIoRow);
+    // Add menu action with icon and handler
     copyVisiblePlcDeclarationsAction = menu.addAction(
         uiText("Copy Visible PLC Declarations", "复制可见 PLC 声明"));
+    // Enable/disable based on action availability
     copyVisiblePlcDeclarationsAction->setEnabled(hasVisibleIoRows);
+    // Add menu action with icon and handler
     exportPlcDeclarationsAction = menu.addAction(
         uiText("Export PLC Declarations ST", "导出 PLC 声明 ST"));
+    // Enable/disable based on action availability
     exportPlcDeclarationsAction->setEnabled(hasVisibleIoRows);
     clearIoVariableMetadataAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Clear Alias / Tags", "清除别名 / 标签"));
+    // Enable/disable based on action availability
     clearIoVariableMetadataAction->setEnabled(hasIoRow);
     exportIoVariableCsvAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Export Visible CSV", "导出可见 CSV"));
+    // Enable/disable based on action availability
     exportIoVariableCsvAction->setEnabled(table->rowCount() > 0);
     exportIoVariablePlcCsvAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Export PLC Symbols CSV", "导出 PLC 符号 CSV"));
+    // Enable/disable based on action availability
     exportIoVariablePlcCsvAction->setEnabled(table->rowCount() > 0);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == sdoHistoryTable_) {
     const int row = table->currentRow();
@@ -782,145 +931,226 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
                               ? table->item(row, 6)->text().trimmed()
                               : QString();
     fillSdoFromHistory =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromHistory->setEnabled(hasHistoryRow);
     readSdoFromHistory =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromHistory->setEnabled(hasHistoryRow && client_.isConnected());
     addWatchFromHistory =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
+    // Enable/disable based on action availability
     addWatchFromHistory->setEnabled(hasHistoryRow);
+    // Add menu action with icon and handler
     addSelectedHistoryWatch = menu.addAction(
         uiText("Add Selected History to Watch", "将所选历史加入监视"));
+    // Enable/disable based on action availability
     addSelectedHistoryWatch->setEnabled(hasHistorySelection);
+    // Add menu action with icon and handler
     addStartupFromHistory = menu.addAction(
         uiText("Add Startup SDO from History", "从历史添加启动 SDO"));
+    // Enable/disable based on action availability
     addStartupFromHistory->setEnabled(hasHistoryRow && !value.isEmpty());
+    // Add menu action with icon and handler
     addStartupFromSelectedHistory = menu.addAction(uiText(
         "Create Startup SDOs from Selected History", "从所选历史创建启动 SDO"));
+    // Enable/disable based on action availability
     addStartupFromSelectedHistory->setEnabled(hasHistoryValueSelection);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == startupSdoTable_) {
     const int row = table->currentRow();
     const bool hasStartupRow = row >= 0;
     const bool hasSelectedStartupRows = !selectedStartupSdoRows().isEmpty();
     fillSdoFromStartup =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromStartup->setEnabled(hasStartupRow);
     readSdoFromStartup =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromStartup->setEnabled(hasStartupRow && client_.isConnected());
     addWatchFromStartup =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
+    // Enable/disable based on action availability
     addWatchFromStartup->setEnabled(hasStartupRow);
+    // Add menu action with icon and handler
     verifyStartupRow = menu.addAction(uiText("Verify This Row", "校验此行"));
+    // Enable/disable based on action availability
     verifyStartupRow->setEnabled(hasStartupRow && client_.isConnected());
+    // Add menu action with icon and handler
     applyStartupRow = menu.addAction(uiText("Apply This Row", "应用此行"));
+    // Enable/disable based on action availability
     applyStartupRow->setEnabled(hasStartupRow && client_.isConnected());
     verifySelectedStartupRows =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Verify Selected Rows", "校验所选行"));
+    // Enable/disable based on action availability
     verifySelectedStartupRows->setEnabled(hasSelectedStartupRows &&
                                           client_.isConnected());
     const bool hasStartupWatchDiffs = !startupSdoRowsWithWatchDiffs().isEmpty();
     focusStartupWatchDiffRows =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Review Watch Diffs", "审阅 Watch 偏差"));
+    // Enable/disable based on action availability
     focusStartupWatchDiffRows->setEnabled(hasStartupWatchDiffs);
     toggleStartupWatchDiffRows =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Show Watch Diffs Only", "只显示 Watch 偏差"));
     toggleStartupWatchDiffRows->setCheckable(true);
     toggleStartupWatchDiffRows->setChecked(watch_->startupWatchDiffsOnly &&
                                            watch_->startupWatchDiffsOnly->isChecked());
+    // Enable/disable based on action availability
     toggleStartupWatchDiffRows->setEnabled(table->rowCount() > 0);
     applyStartupWatchDiffRows =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Apply Watch Diffs", "应用 Watch 偏差"));
+    // Enable/disable based on action availability
     applyStartupWatchDiffRows->setEnabled(client_.isConnected() &&
                                           hasStartupWatchDiffs);
     applySelectedStartupRows =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Apply Selected Rows", "应用所选行"));
+    // Enable/disable based on action availability
     applySelectedStartupRows->setEnabled(hasSelectedStartupRows &&
                                          client_.isConnected());
+    // Add visual separator between menu groups
     menu.addSeparator();
+    // Add menu action with icon and handler
     moveStartupRowUp = menu.addAction(uiText("Move Row Up", "上移此行"));
+    // Enable/disable based on action availability
     moveStartupRowUp->setEnabled(hasStartupRow && row > 0);
+    // Add menu action with icon and handler
     moveStartupRowDown = menu.addAction(uiText("Move Row Down", "下移此行"));
+    // Enable/disable based on action availability
     moveStartupRowDown->setEnabled(hasStartupRow &&
                                    row < table->rowCount() - 1);
     removeStartupRow =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Remove Selected Rows", "删除所选行"));
+    // Enable/disable based on action availability
     removeStartupRow->setEnabled(hasSelectedStartupRows);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == bookmark_->objectBookmarkTable) {
     const int row = table->currentRow();
     const bool hasBookmarkRow = row >= 0;
     const bool hasBookmarkSelection = !selectedObjectBookmarkRows().isEmpty();
     fillSdoFromBookmark =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
+    // Enable/disable based on action availability
     fillSdoFromBookmark->setEnabled(hasBookmarkRow);
     readSdoFromBookmark =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Fill and Read SDO", "填充并读取 SDO"));
+    // Enable/disable based on action availability
     readSdoFromBookmark->setEnabled(hasBookmarkRow && client_.isConnected());
     addWatchFromBookmark =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Bookmark to Watch", "书签加入监视"));
 // ── Bookmark Actions ──────────────────────────────────────────────────
     addWatchFromBookmark->setEnabled(hasBookmarkSelection);
+    // Add menu action with icon and handler
     addStartupFromBookmark = menu.addAction(
         uiText("Create Startup SDO from Bookmark", "从书签创建 Startup SDO"));
+    // Enable/disable based on action availability
     addStartupFromBookmark->setEnabled(hasBookmarkSelection);
     removeBookmark =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Remove Selected Bookmarks", "移除所选书签"));
+    // Enable/disable based on action availability
     removeBookmark->setEnabled(hasBookmarkSelection);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == sdoTargetTrailTable_) {
     const bool hasTrailRow = table->currentRow() >= 0;
     const bool trailStartupReady =
         hasTrailRow && sdoTargetTrailRowCanCreateStartup(table->currentRow());
     restoreSdoTargetTrail =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Restore Target", "恢复目标"));
+    // Enable/disable based on action availability
     restoreSdoTargetTrail->setEnabled(hasTrailRow);
     watchSdoTargetTrail =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Add Target to Watch", "目标加入 Watch"));
+    // Enable/disable based on action availability
     watchSdoTargetTrail->setEnabled(hasTrailRow);
     bookmarkSdoTargetTrail =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Bookmark Target", "收藏目标"));
+    // Enable/disable based on action availability
     bookmarkSdoTargetTrail->setEnabled(hasTrailRow);
+    // Add menu action with icon and handler
     startupSdoTargetTrail = menu.addAction(
         uiText("Create Startup SDO from Target", "从目标创建 Startup SDO"));
+    // Enable/disable based on action availability
     startupSdoTargetTrail->setEnabled(trailStartupReady);
+    // Add visual separator between menu groups
     menu.addSeparator();
     removeSdoTargetTrail =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Remove Selected Targets", "移除所选目标"));
+    // Enable/disable based on action availability
     removeSdoTargetTrail->setEnabled(hasTrailRow);
     clearSdoTargetTrailAction =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Clear Target Trail", "清空目标轨迹"));
+    // Enable/disable based on action availability
     clearSdoTargetTrailAction->setEnabled(table->rowCount() > 0);
+    // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == consistency_->consistencyTable) {
     const bool hasConsistencyRow = table->currentRow() >= 0;
     openConsistencyEvidence =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Open Evidence", "打开证据"));
+    // Enable/disable based on action availability
     openConsistencyEvidence->setEnabled(hasConsistencyRow);
+    // Add visual separator between menu groups
     menu.addSeparator();
   }
   if (objectClipboard.hasAddress()) {
 // ── SDO Target Panel Context Menu ───────────────────────────────────
     copyObjectAddress =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Object Address", "复制对象地址"));
     copyObjectValue =
+    // Add menu action with icon and handler
         menu.addAction(uiText("Copy Object and Value", "复制对象和值"));
+    // Enable/disable based on action availability
     copyObjectValue->setEnabled(!objectClipboard.value.isEmpty());
+    // Add visual separator between menu groups
     menu.addSeparator();
   }
   auto *copySelected =
+    // Add menu action with icon and handler
       menu.addAction(uiText("Copy Selected Rows", "复制所选行"));
+    // Enable/disable based on action availability
   copySelected->setEnabled(!table->selectedRanges().isEmpty());
+    // Add menu action with icon and handler
   auto *copyAll = menu.addAction(uiText("Copy Table", "复制整表"));
+    // Enable/disable based on action availability
   copyAll->setEnabled(table->rowCount() > 0 && table->columnCount() > 0);
+    // Add visual separator between menu groups
   menu.addSeparator();
   auto *resizeColumns =
+    // Add menu action with icon and handler
       menu.addAction(uiText("Autosize Columns", "自动调整列宽"));
+    // Add menu action with icon and handler
   auto *clearSelection = menu.addAction(uiText("Clear Selection", "清除选择"));
+    // Enable/disable based on action availability
   clearSelection->setEnabled(!table->selectedRanges().isEmpty());
 
+    // Show menu at cursor position
   const QAction *chosen = menu.exec(table->viewport()->mapToGlobal(position));
   if (!chosen) {
     return;
@@ -1204,27 +1434,43 @@ void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   const bool hasRow = row >= 0 && row < sdoInspector_->sdoTargetTable->rowCount();
 
   QMenu menu(this);
+    // Add menu action with icon and handler
   auto *openRow = menu.addAction(uiText("Open Row Evidence", "打开本行证据"));
+    // Set icon for menu action
   openRow->setIcon(style()->standardIcon(QStyle::SP_FileDialogDetailedView));
+    // Enable/disable based on action availability
   openRow->setEnabled(hasRow);
+    // Add menu action with icon and handler
   auto *copyRow = menu.addAction(uiText("Copy Row Evidence", "复制本行证据"));
+    // Set icon for menu action
   copyRow->setIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
+    // Enable/disable based on action availability
   copyRow->setEnabled(hasRow);
+    // Add visual separator between menu groups
   menu.addSeparator();
+    // Add menu action with icon and handler
   auto *reviewDelta = menu.addAction(uiText("Review Delta", "审阅差异"));
+    // Set icon for menu action
   reviewDelta->setIcon(style()->standardIcon(QStyle::SP_MessageBoxWarning));
+    // Enable/disable based on action availability
   reviewDelta->setEnabled(currentSdoWriteDeltaReviewAvailable());
   auto *copyDigest =
+    // Add menu action with icon and handler
       menu.addAction(uiText("Copy Full Evidence Digest", "复制完整证据摘要"));
+    // Set icon for menu action
   copyDigest->setIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
+    // Enable/disable based on action availability
   copyDigest->setEnabled(selectedPosition() >= 0 && sdoInspector_->sdoIndex && sdoInspector_->sdoSubIndex &&
                          !sdoInspector_->sdoIndex->text().trimmed().isEmpty() &&
                          !sdoInspector_->sdoSubIndex->text().trimmed().isEmpty());
+    // Add visual separator between menu groups
   menu.addSeparator();
   auto *resizeColumns =
+    // Add menu action with icon and handler
       menu.addAction(uiText("Autosize Columns", "自动调整列宽"));
 
   const QAction *chosen =
+    // Show menu at cursor position
       menu.exec(sdoInspector_->sdoTargetTable->viewport()->mapToGlobal(position));
   if (!chosen) {
     return;
