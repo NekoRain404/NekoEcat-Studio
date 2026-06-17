@@ -1,3 +1,4 @@
+// State machine recommendations, host diagnostics, and slave operations.
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
 #include "MainWindow.h"
 #include "Cia402DriveModel.h"
@@ -77,6 +78,7 @@
 #include <QEvent>
 #include <QFile>
 #include <QFileDialog>
+// Recommend the next EtherCAT state for a slave based on current state and diagnostics.
 #include <QFileInfo>
 #include <QFrame>
 #include <QGridLayout>
@@ -147,6 +149,7 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
         ++startupDiffs;
       }
     }
+// Rebuild the state machine recommendation table from slave topology and diagnostics.
   }
 
   int freeRunRows = 0;
@@ -447,6 +450,7 @@ void MainWindow::updateStateMachineView() {
     stateMachine_->stateMachineSummaryLabel->setToolTip(
         topologyIssues.isEmpty()
             ? uiText(
+// Update the state machine detail panel for the currently selected row.
                   "State recommendations are based on slave state, loaded "
                   "OD/PDO evidence, Watch values, Startup diffs, Free Run "
                   "process evidence, and PDO map evidence.",
@@ -477,6 +481,7 @@ void MainWindow::updateStateMachineView() {
   for (const char *name : {"stateAllPreOp", "stateAllSafeOp"}) {
     if (auto *button = findChild<QPushButton *>(name)) {
       button->setEnabled(canSend);
+// Request a slave state transition with user confirmation and evidence summary.
     }
   }
   updateStateMachineRowDetail();
@@ -517,6 +522,7 @@ void MainWindow::requestSlaveStateWithConfirmation(int position,
   if (!client_.isConnected() || position < 0) {
     return;
   }
+// Broadcast a state transition command to all slaves (INIT/PREOP/SAFEOP/OP).
 
   QString currentState = uiText("Unknown", "未知");
   QString slaveName = uiText("Unnamed", "未命名");
@@ -597,6 +603,7 @@ void MainWindow::requestAllSlaveState(const QString &state) {
   if (!topologyIssues.isEmpty()) {
     details << uiText("Topology baseline: %1 issue(s); review before changing "
                       "all slaves",
+// Run host diagnostics and update the health summary.
                       "拓扑基线：%1 个问题；切换全部从站前请复核")
                    .arg(topologyIssues.size());
   }
@@ -607,6 +614,7 @@ void MainWindow::requestAllSlaveState(const QString &state) {
   }
   if (state.trimmed().compare("OP", Qt::CaseInsensitive) == 0 ||
       state.trimmed().compare("SAFEOP", Qt::CaseInsensitive) == 0) {
+// Copy the selected host diagnostic command to clipboard.
     details << consistencyGateDetails(
         uiText("all-slave state change", "全部从站状态切换"));
   }
@@ -627,6 +635,7 @@ void MainWindow::requestAllSlaveState(const QString &state) {
 
 // Trigger a host-level health check (network, kernel, IgH module)
 void MainWindow::runHostDiagnostics() {
+// Capture a point-in-time snapshot of the selected slave's configuration.
   if (!client_.isConnected()) {
     updateDiagnostics("Warning", "Host",
                       "Host check skipped: runtime is not connected");
@@ -687,6 +696,7 @@ void MainWindow::prepareSelectedSlaveSnapshot() {
   }
 
   client_.slaveInfo(position);
+// Begin asynchronous online load of slave data (SDO dictionary, PDO map, etc.).
   client_.sdos(position);
   client_.pdos(position);
   client_.xml(position);
@@ -747,6 +757,7 @@ void MainWindow::beginSelectedSlaveOnlineLoad(int position) {
         uiText("Loading ESI XML for %1...", "正在加载 %1 的 ESI XML...")
             .arg(target));
   }
+// Clear all online-loaded views (SDO, PDO, identity, mailbox, etc.).
 
   setTableRows(identityTable_, {"Field", "Value"},
                {{uiText("Loading", "加载中"), target}});

@@ -1,3 +1,4 @@
+// Topology updates, SDO/PDO/Watch/FreeRun UI update handlers.
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
 #include "MainWindow.h"
 #include "Cia402DriveModel.h"
@@ -77,6 +78,7 @@
 #include <QEvent>
 #include <QFile>
 #include <QFileDialog>
+// Append a timestamped message to the log panel.
 #include <QFileInfo>
 #include <QFrame>
 #include <QGridLayout>
@@ -87,6 +89,7 @@
 #include <QItemSelectionModel>
 #include <QJsonArray>
 #include <QJsonDocument>
+// Return the EtherCAT position of the currently selected slave.
 #include <QJsonObject>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -97,6 +100,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+// Return row indices of selected SDO dictionary/history/startup rows.
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -117,6 +121,7 @@
 #include <QToolBar>
 #include <QTreeWidget>
 #include <QVBoxLayout>
+// Check if a Watch table row has a non-empty value.
 #include <QXmlStreamReader>
 
 void MainWindow::log(const QString &message) {
@@ -137,6 +142,7 @@ QVector<int> MainWindow::selectedDictionaryRows() const {
     return {};
   }
   return selectedTableRows(sdo_->sdoTable);
+// Set the selected slave in the topology tree and refresh all views.
 }
 
 // Return the currently selected SDO history row indices
@@ -177,6 +183,7 @@ void MainWindow::setSelectedSlave(int position) {
     filterWatchTable();
     updateSelectedSlavePanel();
     updateActionAvailability();
+// Report topology changes between previous and current slave scans.
     updateCommissioningWorkflow();
     updateIoVariableTable();
     updateStateMachineView();
@@ -227,6 +234,7 @@ void MainWindow::reportTopologyChanges(const QVector<SlaveInfo> &previous,
       break;
     case TopologyChangeKind::StateChanged: {
       const QString level = change.current.state == "OP" ? "Info" : "Warning";
+// Update the slave list from a fresh topology scan.
       updateDiagnostics(level, "Topology",
                         QString("Slave #%1 state changed: %2 -> %3 (%4)")
                             .arg(change.position)
@@ -297,6 +305,7 @@ void MainWindow::updateSlaves(const QVector<SlaveInfo> &slaves) {
   updateIoVariableTable();
   updateStateMachineView();
   updateStatusBar();
+// Update the master summary label from daemon response.
 
   if (!slaves.isEmpty()) {
     QTreeWidgetItem *target = master->child(0);
@@ -327,6 +336,7 @@ void MainWindow::updateMasterSummary(const QString &text) {
   setMetricCard(lossLabel_, uiText("Frame Loss", "丢帧"),
                 loss.isEmpty() ? "0" : loss);
 
+// Update the slave info panel from daemon response.
   QList<QStringList> rows;
   const auto lines = text.split('\n');
   for (const auto &line : lines) {
@@ -377,6 +387,7 @@ void MainWindow::updateSlaveInfo(const QString &text) {
   for (const QString &prefix :
        {"Bootstrap", "Standard", "Supported protocols"}) {
     const QString value = capture(
+// Update the PDO table from daemon response.
         text,
         QString(R"(^\s*%1\s*(.*)$)").arg(QRegularExpression::escape(prefix)));
     if (!value.isEmpty()) {
@@ -417,6 +428,7 @@ void MainWindow::updatePdoTable(const QString &text) {
       rows.append({sm, pdo, m.captured(1), m.captured(2), m.captured(3),
                    m.captured(4)});
     }
+// Filter the PDO table by text query.
   }
   setTableRows(sdo_->pdoTable, {"SM", "PDO", "Index", "Sub", "Bits", "Name"}, rows);
   filterPdoTable();
@@ -447,6 +459,7 @@ void MainWindow::filterPdoTable() {
     const int total = sdo_->pdoTable->rowCount();
     sdo_->pdoSummaryLabel->setText(
         total > 0 ? uiText("%1/%2 PDO entries", "%1/%2 个 PDO 条目")
+// Update the PDO row detail panel.
                         .arg(visible)
                         .arg(total)
                   : uiText("No PDO entries", "暂无 PDO 条目"));
@@ -537,6 +550,7 @@ void MainWindow::updatePdoRowDetail() {
   if (!sdo_->pdoTable) {
     applyState(pdoMapDetailUnavailableState(texts));
     return;
+// Update the SDO table from daemon response.
   }
 
   const int row = sdo_->pdoTable->currentRow();
@@ -617,6 +631,7 @@ void MainWindow::updateSdoTable(const QString &text) {
                    : QColor("#f59e0b"));
     if (auto *statusItem = sdo_->sdoTable->item(row, 8)) {
       statusItem->setForeground(color);
+// Update Free Run telemetry from daemon push.
     }
     if (auto *valueItem = sdo_->sdoTable->item(row, 7)) {
       valueItem->setBackground(settings_.theme == "Light" ? QColor("#eef2ff")
@@ -797,6 +812,7 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
             : QString("%1 | %2").arg(mappedDetail,
                                      uiText("Name source: %1", "名称来源：%1")
                                          .arg(displayNameSource)),
+// Update the Free Run entry table from daemon data.
     });
   }
   updateFreeRunEntryTable(entries);
@@ -887,6 +903,7 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
   filterFreeRunEntryTable();
   updateIoVariableTable();
   updateStateMachineView();
+// Filter the Free Run entry table by text query.
 }
 
 // Apply text/scope filter to the Free Run entry table
@@ -927,6 +944,7 @@ void MainWindow::filterFreeRunEntryTable() {
             .arg(changedRows));
   }
   updateFreeRunEntryDetail();
+// Filter the Watch table by text query.
   updateCommissioningWorkflow();
 }
 
@@ -1067,6 +1085,7 @@ void MainWindow::filterWatchTable() {
             .arg(watch_->watchTable->rowCount())
             .arg(scopeLabel, mode)
             .arg(changedRows)
+// Update the Watch row detail panel.
             .arg(driftRows)
             .arg(startupDriftRows)
             .arg(missingValueRows));
@@ -1157,6 +1176,7 @@ void MainWindow::updateWatchRowDetail() {
   const int row = watch_->watchTable->currentRow();
   if (row < 0 || row >= watch_->watchTable->rowCount() ||
       watch_->watchTable->isRowHidden(row)) {
+// Helper: bulk-set table rows with headers in a single operation.
     applyState(watchRowDetailNoSelectionState(texts));
     return;
   }
@@ -1177,6 +1197,7 @@ void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
     for (int column = 0; column < headers.size(); ++column) {
       table->setItem(row, column,
                      new QTableWidgetItem(rows[row].value(column)));
+// Helper: update a metric card label's title and value.
     }
   }
   table->resizeColumnsToContents();
