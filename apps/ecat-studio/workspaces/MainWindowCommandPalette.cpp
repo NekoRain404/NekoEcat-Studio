@@ -122,18 +122,21 @@
 
 // — Open the modal command palette dialog for quick action search and execution
 void MainWindow::showCommandPalette() {
+// Command palette: fuzzy search dialog for quick action access.
   QDialog dialog(this);
   dialog.setObjectName("commandPalette");
   dialog.setWindowTitle(uiText("Command Palette", "命令面板"));
   dialog.setModal(true);
   dialog.resize(760, 560);
 
+// ── Dialog Layout ─────────────────────────────────────────────────────
   auto *layout = new QVBoxLayout(&dialog);
   layout->setContentsMargins(18, 18, 18, 16);
   layout->setSpacing(12);
 
   auto *title = new QLabel(uiText("Command Palette", "命令面板"));
   title->setObjectName("dialogTitle");
+// ── Search Input + Safety Filter ──────────────────────────────────────
   auto *search = new QLineEdit;
   search->setPlaceholderText(uiText("Search commands, workspaces, or masters",
                                     "搜索命令、工作区或主站"));
@@ -160,6 +163,7 @@ void MainWindow::showCommandPalette() {
   safetyFilter->setToolTip(
       uiText("Filter command types with Alt+A/L/O/D/H/F inside the palette",
              "在命令面板内用 Alt+A/L/O/D/H/F 切换操作类型过滤"));
+// ── Command List Widget ───────────────────────────────────────────────
   auto *list = new QListWidget;
   list->setObjectName("commandList");
   list->setUniformItemSizes(true);
@@ -170,6 +174,7 @@ void MainWindow::showCommandPalette() {
                           "unpins it. Right-click for pin actions.",
                           "Enter 执行选中命令。Alt+P 固定或取消固定。右键可"
                           "管理固定状态。"));
+// ── Preview + Stats Labels ────────────────────────────────────────────
   auto *commandPreview = new QLabel(
       uiText("Select a command to review its action type and safety boundary.",
              "选择命令以查看操作类型和安全边界。"));
@@ -191,13 +196,16 @@ void MainWindow::showCommandPalette() {
   layout->addWidget(commandStats);
   layout->addWidget(commandPreview);
 
+// ── Command Registry ──────────────────────────────────────────────────
   struct CommandItem {
     QString title;
+// Each CommandItem defines a searchable action: title, subtitle, icon, run callback, and enabled check.
     QString subtitle;
     QIcon icon;
     std::function<void()> run;
     std::function<bool()> enabled;
   };
+// Safety categories: local (no I/O), online (reads), danger (writes/state), host (diagnostics), file (project).
   struct CommandSafety {
     QString key;
     QString label;
@@ -217,6 +225,7 @@ void MainWindow::showCommandPalette() {
         action ? action->icon() : QIcon(),
         [action] {
           if (action && action->isEnabled()) {
+// ── Build Command List ────────────────────────────────────────────────
             action->trigger();
           }
         },
@@ -297,6 +306,7 @@ void MainWindow::showCommandPalette() {
   };
   auto hasSelectedObjectPanelRow = [this] {
     return sdoTargetTable_ && sdoTargetTable_->currentRow() >= 0 &&
+// ── Navigation Commands ───────────────────────────────────────────────
            sdoTargetTable_->currentRow() < sdoTargetTable_->rowCount();
   };
   auto hasSdoTargetTrailRow = [this] {
@@ -327,6 +337,7 @@ void MainWindow::showCommandPalette() {
              "更新主站、从站和遥测数据")));
   commands.append(
       actionCommand("rescanAction", uiText("Rescan Bus", "重新扫描总线"),
+// ── Commissioning Workflow Commands ────────────────────────────────────
                     uiText("Request a bus rescan on the active master",
                            "请求当前主站重新扫描总线")));
   commands.append(CommandItem{
@@ -356,6 +367,7 @@ void MainWindow::showCommandPalette() {
         return workflow_->workflowTable && row >= 0 && !workflow_->workflowTable->isRowHidden(row);
       },
   });
+// ── Workflow Scope Commands (per-workspace actions) ────────────────────
   struct WorkflowScopeCommand {
     QString label;
     QString scope;
@@ -447,6 +459,7 @@ void MainWindow::showCommandPalette() {
       uiText("Prepare Selected Slave Snapshot", "准备选中从站快照"),
       uiText("Read identity, Object Dictionary, PDO Map, ESI XML, and CiA 402 "
              "Watch evidence without state changes or writes",
+// ── State Machine Commands ────────────────────────────────────────────
              "读取身份、对象字典、PDO 映射、ESI XML 和 CiA 402 Watch "
              "证据，不切换状态也不写入"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
@@ -497,6 +510,7 @@ void MainWindow::showCommandPalette() {
       [this] {
         if (auto *button = findChild<QPushButton *>("readSdo");
             button && button->isEnabled()) {
+// ── SDO Commands ──────────────────────────────────────────────────────
           button->click();
         }
       },
@@ -597,6 +611,7 @@ void MainWindow::showCommandPalette() {
       },
       hasSelectedObjectPanelRow,
   });
+// ── Watch Commands ────────────────────────────────────────────────────
   commands.append(CommandItem{
       uiText("Restore SDO Target Trail Row", "恢复 SDO 目标轨迹行"),
       uiText("Refill the SDO fields from the selected local target trail row",
@@ -697,6 +712,7 @@ void MainWindow::showCommandPalette() {
   commands.append(CommandItem{
       uiText("Create Startup SDO from OD Evidence",
              "从 OD 证据创建 Startup SDO"),
+// ── Free Run Commands ─────────────────────────────────────────────────
       uiText(
           "Create or update Startup SDO rows from selected Object "
           "Dictionary rows that have Last Value evidence without bus "
@@ -797,6 +813,7 @@ void MainWindow::showCommandPalette() {
   });
   commands.append(CommandItem{
       uiText("Add CiA 402 Watch Preset", "添加 CiA 402 监视预设"),
+// ── I/O Variable Commands ─────────────────────────────────────────────
       uiText("Add common drive objects to Watch for the selected slave",
              "把常见驱动对象加入选中从站的监视列表"),
       style()->standardIcon(QStyle::SP_DialogApplyButton),
@@ -897,6 +914,7 @@ void MainWindow::showCommandPalette() {
         updateDiagnostics("Info", "SDO",
                           "Copied current SDO address: " + currentSdoLabel());
       },
+// ── Consistency Commands ──────────────────────────────────────────────
       [hasCurrentSdo] { return hasCurrentSdo(); },
   });
   commands.append(CommandItem{
@@ -997,6 +1015,7 @@ void MainWindow::showCommandPalette() {
   commands.append(CommandItem{
       uiText("Open I/O Variables", "打开 I/O 变量"),
       uiText("Review PDO, process-image, Watch, and Startup evidence in one "
+// ── Diagnostics Commands ──────────────────────────────────────────────
              "signal table",
              "在一张信号表中复核 PDO、过程映像、Watch 和 Startup 证据"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
@@ -1097,6 +1116,7 @@ void MainWindow::showCommandPalette() {
   commands.append(CommandItem{
       uiText("Create Startup SDO from Selected I/O Variables",
              "从所选 I/O 变量创建 Startup SDO"),
+// ── Project Commands ──────────────────────────────────────────────────
       uiText("Create or update Startup SDO rows from selected I/O variable "
              "Watch or Raw evidence without bus access",
              "使用所选 I/O 变量的 Watch 或 Raw 证据创建或更新 Startup SDO，"
@@ -1197,6 +1217,7 @@ void MainWindow::showCommandPalette() {
              "I/O Variables, or State Machine without bus access",
              "从所选一致性行跳到 Startup、Watch、I/O 变量或状态机；不访问总线"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
+// ── Command Filtering + Search Logic ──────────────────────────────────
       [this] { focusEvidenceFromConsistency(); },
       [this] {
         return consistency_->consistencyTable && consistency_->consistencyTable->currentRow() >= 0;
@@ -1397,6 +1418,7 @@ void MainWindow::showCommandPalette() {
              "返回上一个工作区，不执行在线命令"),
       style()->standardIcon(QStyle::SP_ArrowBack),
       [this] { goWorkspaceBack(); },
+// ── Keyboard Shortcuts ────────────────────────────────────────────────
       [this] { return workspaceBackStack_.size() >= 2; },
   });
   commands.append(CommandItem{
@@ -1597,6 +1619,7 @@ void MainWindow::showCommandPalette() {
     }
     if (containsAny({"connect runtime",
                      "refresh online data",
+// ── Pin/Unpin Logic ───────────────────────────────────────────────────
                      "rescan bus",
                      "read current sdo",
                      "read visible object dictionary",
@@ -1797,6 +1820,7 @@ void MainWindow::showCommandPalette() {
       return;
     }
     const auto &command = commands[index];
+// ── Dialog Execution ──────────────────────────────────────────────────
     const QString safetyKey = item->data(Qt::UserRole + 1).toString();
     const QString safetyLabel = item->data(Qt::UserRole + 2).toString();
     const QString safetyHint = item->data(Qt::UserRole + 3).toString();
