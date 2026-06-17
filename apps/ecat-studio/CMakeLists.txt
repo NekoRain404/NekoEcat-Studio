@@ -91,6 +91,7 @@ add_executable(ecat-studio
     workspaces/MainWindowProjectIo.cpp
     workspaces/MainWindowRtTestWorkspace.cpp
     workspaces/MainWindowSdoWorkspace.cpp
+    workspaces/MainWindowSdoTargetPanel.cpp                workspaces/MainWindowSdoBookmarks.cpp
     workspaces/MainWindowSessionWorkspace.cpp
     workspaces/MainWindowStartupSdoWorkspace.cpp
     workspaces/MainWindowTexts.cpp
