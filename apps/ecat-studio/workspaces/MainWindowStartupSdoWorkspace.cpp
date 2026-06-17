@@ -315,15 +315,15 @@ void MainWindow::addStartupSdo() {
       row, 0,
       new QTableWidgetItem(
           QString::number(selectedPosition() >= 0 ? selectedPosition() : 0)));
-  startupSdoTable_->setItem(row, 1, new QTableWidgetItem(sdoIndex_->text()));
-  startupSdoTable_->setItem(row, 2, new QTableWidgetItem(sdoSubIndex_->text()));
+  startupSdoTable_->setItem(row, 1, new QTableWidgetItem(sdoInspector_->sdoIndex->text()));
+  startupSdoTable_->setItem(row, 2, new QTableWidgetItem(sdoInspector_->sdoSubIndex->text()));
   startupSdoTable_->setItem(row, 3,
-                            new QTableWidgetItem(sdoWriteValue_
-                                                     ? sdoWriteValue_->text()
+                            new QTableWidgetItem(sdoInspector_->sdoWriteValue
+                                                     ? sdoInspector_->sdoWriteValue->text()
                                                      : QString()));
   startupSdoTable_->setItem(
       row, 4,
-      new QTableWidgetItem(sdoType_ ? sdoType_->currentText() : QString()));
+      new QTableWidgetItem(sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString()));
   startupSdoTable_->setItem(row, 5,
                             new QTableWidgetItem(uiText("Pending", "待应用")));
   startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
@@ -578,12 +578,12 @@ void MainWindow::addStartupSdoRowToWatch(int row) {
   }
 
   setSelectedSlave(position);
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  sdoIndex_->setText(index);
-  sdoSubIndex_->setText(subIndex);
-  if (sdoValue_) {
-    sdoValue_->setText(textAt(3));
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(index);
+  sdoInspector_->sdoSubIndex->setText(subIndex);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(textAt(3));
   }
   addCurrentSdoToWatch();
 }

@@ -240,15 +240,15 @@ void MainWindow::updateSessionBrief() {
       uiText("No complete SDO target", "尚无完整 SDO 目标");
   QString sdoNext = uiText("Select an OD row or fill SDO fields",
                            "选择 OD 行或填写 SDO 字段");
-  if (hasSelectedSlave && sdoIndex_ && sdoSubIndex_ &&
-      !sdoIndex_->text().trimmed().isEmpty() &&
-      !sdoSubIndex_->text().trimmed().isEmpty()) {
+  if (hasSelectedSlave && sdoInspector_->sdoIndex && sdoInspector_->sdoSubIndex &&
+      !sdoInspector_->sdoIndex->text().trimmed().isEmpty() &&
+      !sdoInspector_->sdoSubIndex->text().trimmed().isEmpty()) {
     briefInput.currentSdoComplete = true;
     const QString address =
         // Normalize hex address for consistent comparison
-        QString("%1:%2").arg(normalizeHexText(sdoIndex_->text(), 4),
+        QString("%1:%2").arg(normalizeHexText(sdoInspector_->sdoIndex->text(), 4),
                              // Normalize hex address for consistent comparison
-                             normalizeHexText(sdoSubIndex_->text(), 2));
+                             normalizeHexText(sdoInspector_->sdoSubIndex->text(), 2));
     const auto candidates = currentSdoEvidenceCandidates();
     QStringList facts;
     QStringList groups;
@@ -272,7 +272,7 @@ void MainWindow::updateSessionBrief() {
     }
 
     const QString writeValue =
-        sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+        sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
     bool writeDiffers = false;
     bool writeMatches = false;
     if (!writeValue.isEmpty() && !groups.isEmpty()) {

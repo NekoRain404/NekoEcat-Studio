@@ -337,8 +337,8 @@ bool MainWindow::writeProjectFile(const QString &path) {
       {"selectedPosition", selectedPosition()},
       {"activeMaster", settings_.activeMaster},
       {"masters", masterArray},
-      {"sdoIndex", sdoIndex_->text()},
-      {"sdoSubIndex", sdoSubIndex_->text()},
+      {"sdoIndex", sdoInspector_->sdoIndex->text()},
+      {"sdoSubIndex", sdoInspector_->sdoSubIndex->text()},
       {"sdoEvidence", sdoEvidenceArray},
       {"slaves", slaveArray},
       {"topologyBaseline", baselineArray},
@@ -347,7 +347,7 @@ bool MainWindow::writeProjectFile(const QString &path) {
       {"objectBookmarks", bookmarkArray},
       {"ioVariables", ioVariableArray},
       {"startupSdos", startupArray},
-      {"notes", projectNotes_ ? projectNotes_->toPlainText() : QString()},
+      {"notes", rawText_->projectNotes ? rawText_->projectNotes->toPlainText() : QString()},
       {"snapshots",
        QJsonObject{
            {"master", lastMasterText_},
@@ -588,11 +588,11 @@ bool MainWindow::readProjectFile(const QString &path) {
     sdoTargetTrailTable_->resizeColumnsToContents(); // auto-fit column widths
     updateSdoTargetTrailRowDetail();
   }
-  masterText_->setPlainText(lastMasterText_);
-  infoText_->setPlainText(lastSlaveInfoText_);
-  pdoText_->setPlainText(lastPdoText_);
-  sdoText_->setPlainText(lastSdoText_);
-  xmlText_->setPlainText(lastXmlText_);
+  rawText_->masterText->setPlainText(lastMasterText_);
+  rawText_->infoText->setPlainText(lastSlaveInfoText_);
+  rawText_->pdoText->setPlainText(lastPdoText_);
+  rawText_->sdoText->setPlainText(lastSdoText_);
+  rawText_->xmlText->setPlainText(lastXmlText_);
   updateMasterSummary(lastMasterText_);
   updateSlaveInfo(lastSlaveInfoText_);
   updatePdoTable(lastPdoText_);
@@ -673,12 +673,12 @@ bool MainWindow::readProjectFile(const QString &path) {
     updateWatchStartupDeltas();
     updateStartupSdoWatchEvidence();
   }
-  if (projectNotes_) {
-    projectNotes_->setPlainText(root.value("notes").toString());
+  if (rawText_->projectNotes) {
+    rawText_->projectNotes->setPlainText(root.value("notes").toString());
   }
 
-  sdoIndex_->setText(root.value("sdoIndex").toString("0x1000"));
-  sdoSubIndex_->setText(root.value("sdoSubIndex").toString("0x00"));
+  sdoInspector_->sdoIndex->setText(root.value("sdoIndex").toString("0x1000"));
+  sdoInspector_->sdoSubIndex->setText(root.value("sdoSubIndex").toString("0x00"));
   projectPath_ = path;
   projectName_ =
       root.value("name").toString(QFileInfo(path).completeBaseName());

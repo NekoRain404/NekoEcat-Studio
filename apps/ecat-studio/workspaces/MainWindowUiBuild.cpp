@@ -157,6 +157,8 @@ void MainWindow::buildUi() {
   freeRunWidgets_ = nullptr;
   bookmark_ = nullptr;
   diagnostics_ = nullptr;
+  sdoInspector_ = nullptr;
+  rawText_ = nullptr;
 
   overviewPage_ = nullptr;
 // Allocate all workspace widget structs before any member access.
@@ -172,6 +174,8 @@ void MainWindow::buildUi() {
   diagnostics_ = new DiagnosticsWorkspaceWidgets;
   watch_ = new WatchWorkspaceWidgets;
   bookmark_ = new BookmarkWorkspaceWidgets;
+  sdoInspector_ = new SdoInspectorWidgets;
+  rawText_ = new RawTextWidgets;
   workspaceBackStack_.clear();
   workspaceForwardStack_.clear();
   suppressWorkspaceHistory_ = false;
@@ -1049,17 +1053,17 @@ void MainWindow::buildUi() {
       uiText("Select an object row to fill the SDO command fields; "
              "double-click a row to read it.",
              "选中对象行会自动填充 SDO 指令字段；双击行会直接读取。"));
-  sdoIndex_ = new QLineEdit("0x1000");
-  sdoIndex_->setMaximumWidth(110);
-  sdoSubIndex_ = new QLineEdit("0x00");
-  sdoSubIndex_->setMaximumWidth(86);
-  sdoValue_ = new QLineEdit;
-  sdoValue_->setReadOnly(true);
-  sdoValue_->setPlaceholderText(uiText("Last read value", "最后读回值"));
-  sdoWriteValue_ = new QLineEdit;
-  sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
-  sdoType_ = new QComboBox;
-  sdoType_->addItems({"", "bool", "int8", "int16", "int32", "int64", "uint8",
+  sdoInspector_->sdoIndex = new QLineEdit("0x1000");
+  sdoInspector_->sdoIndex->setMaximumWidth(110);
+  sdoInspector_->sdoSubIndex = new QLineEdit("0x00");
+  sdoInspector_->sdoSubIndex->setMaximumWidth(86);
+  sdoInspector_->sdoValue = new QLineEdit;
+  sdoInspector_->sdoValue->setReadOnly(true);
+  sdoInspector_->sdoValue->setPlaceholderText(uiText("Last read value", "最后读回值"));
+  sdoInspector_->sdoWriteValue = new QLineEdit;
+  sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
+  sdoInspector_->sdoType = new QComboBox;
+  sdoInspector_->sdoType->addItems({"", "bool", "int8", "int16", "int32", "int64", "uint8",
                       "uint16", "uint32", "uint64", "float", "double", "string",
                       "octet_string"});
   auto *readSdo = new QPushButton(uiText("Read", "读取"));
@@ -1069,10 +1073,10 @@ void MainWindow::buildUi() {
   readSelectedDictionary->setObjectName("readSelectedDictionary");
   readSelectedDictionary->setIcon(
       style()->standardIcon(QStyle::SP_BrowserReload));
-  useSdoValueButton_ = new QPushButton(uiText("Use Read Value", "使用读回值"));
-  useSdoValueButton_->setObjectName("useSdoValue");
-  useSdoValueButton_->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
-  useSdoValueButton_->setToolTip(
+  sdoInspector_->useSdoValueButton = new QPushButton(uiText("Use Read Value", "使用读回值"));
+  sdoInspector_->useSdoValueButton->setObjectName("useSdoValue");
+  sdoInspector_->useSdoValueButton->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
+  sdoInspector_->useSdoValueButton->setToolTip(
       uiText("Copy the current read value into the write field for tuning or "
              "Startup SDO creation.",
              "把当前读回值复制到写入框，便于微调或创建 Startup SDO。"));
@@ -1116,28 +1120,28 @@ void MainWindow::buildUi() {
       "用选中且已有 Last Value 证据的对象字典行创建或更新 Startup SDO；不会读写"
       "总线。"));
   sdoControls->addWidget(new QLabel(uiText("Index", "索引")), 0, 0);
-  sdoControls->addWidget(sdoIndex_, 0, 1);
+  sdoControls->addWidget(sdoInspector_->sdoIndex, 0, 1);
   sdoControls->addWidget(new QLabel(uiText("Sub", "子项")), 0, 2);
-  sdoControls->addWidget(sdoSubIndex_, 0, 3);
+  sdoControls->addWidget(sdoInspector_->sdoSubIndex, 0, 3);
   sdoControls->addWidget(readSdo, 0, 4);
   sdoControls->addWidget(readSelectedDictionary, 0, 5);
-  sdoControls->addWidget(sdoValue_, 0, 6);
-  sdoControls->addWidget(useSdoValueButton_, 0, 7);
+  sdoControls->addWidget(sdoInspector_->sdoValue, 0, 6);
+  sdoControls->addWidget(sdoInspector_->useSdoValueButton, 0, 7);
   sdoControls->addWidget(useSdoEvidenceButton, 0, 8);
   sdoControls->addWidget(pickSdoEvidenceButton, 0, 9);
   sdoControls->addWidget(new QLabel(uiText("Type", "类型")), 1, 0);
-  sdoControls->addWidget(sdoType_, 1, 1, 1, 2);
+  sdoControls->addWidget(sdoInspector_->sdoType, 1, 1, 1, 2);
   sdoControls->addWidget(new QLabel(uiText("Write", "写入")), 1, 3);
-  sdoControls->addWidget(sdoWriteValue_, 1, 4, 1, 3);
+  sdoControls->addWidget(sdoInspector_->sdoWriteValue, 1, 4, 1, 3);
   sdoControls->addWidget(writeSdo, 1, 7);
   sdoControls->addWidget(watchSelectedDictionary, 1, 8);
   sdoControls->addWidget(startupSelectedEvidence, 1, 9);
   sdoLayout->addLayout(sdoControls);
-  sdoInspectorLabel_ = new QLabel;
-  sdoInspectorLabel_->setObjectName("sdoInspector");
-  sdoInspectorLabel_->setWordWrap(true);
-  sdoInspectorLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  sdoLayout->addWidget(sdoInspectorLabel_);
+  sdoInspector_->sdoInspectorLabel = new QLabel;
+  sdoInspector_->sdoInspectorLabel->setObjectName("sdoInspector");
+  sdoInspector_->sdoInspectorLabel->setWordWrap(true);
+  sdoInspector_->sdoInspectorLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  sdoLayout->addWidget(sdoInspector_->sdoInspectorLabel);
 
   sdoModeTabs_ = new QTabWidget;
   sdoModeTabs_->setObjectName("sdoModeTabs");
@@ -1272,26 +1276,26 @@ void MainWindow::buildUi() {
   sdoTargetActions->addWidget(startupTargetSdo, 1, 4);
   sdoTargetActions->setColumnStretch(8, 1);
   sdoSelectedLayout->addLayout(sdoTargetActions);
-  sdoTargetTable_ = new QTableWidget(0, 3);
-  sdoTargetTable_->setObjectName("sdoTargetTable");
-  sdoTargetTable_->setHorizontalHeaderLabels({uiText("Field", "字段"),
+  sdoInspector_->sdoTargetTable = new QTableWidget(0, 3);
+  sdoInspector_->sdoTargetTable->setObjectName("sdoTargetTable");
+  sdoInspector_->sdoTargetTable->setHorizontalHeaderLabels({uiText("Field", "字段"),
                                               uiText("Value", "值"),
                                               uiText("Action", "动作")});
-  sdoTargetTable_->verticalHeader()->setVisible(false);
-  sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+  sdoInspector_->sdoTargetTable->verticalHeader()->setVisible(false);
+  sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
       0, QHeaderView::ResizeToContents);
-  sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+  sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
       2, QHeaderView::ResizeToContents);
-  sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+  sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
       1, QHeaderView::Stretch);
-  sdoTargetTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  sdoTargetTable_->setSelectionMode(QAbstractItemView::SingleSelection);
-  sdoTargetTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
-  sdoTargetTable_->setFocusPolicy(Qt::StrongFocus);
-  sdoTargetTable_->setContextMenuPolicy(Qt::CustomContextMenu);
-  sdoTargetTable_->setMinimumHeight(170);
-  sdoTargetTable_->setMaximumHeight(QWIDGETSIZE_MAX);
-  sdoTargetTable_->setToolTip(uiText(
+  sdoInspector_->sdoTargetTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  sdoInspector_->sdoTargetTable->setSelectionMode(QAbstractItemView::SingleSelection);
+  sdoInspector_->sdoTargetTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+  sdoInspector_->sdoTargetTable->setFocusPolicy(Qt::StrongFocus);
+  sdoInspector_->sdoTargetTable->setContextMenuPolicy(Qt::CustomContextMenu);
+  sdoInspector_->sdoTargetTable->setMinimumHeight(170);
+  sdoInspector_->sdoTargetTable->setMaximumHeight(QWIDGETSIZE_MAX);
+  sdoInspector_->sdoTargetTable->setToolTip(uiText(
       "Live context for the currently selected Object Dictionary, Watch, PDO, "
       "Free Run, History, Startup, or manual SDO target. Write Delta compares "
       "the pending write value with local "
@@ -1303,7 +1307,7 @@ void MainWindow::buildUi() {
       "实时上下文；写入差异会在确认前把待写值与本地读回、OD、Watch、Startup、"
       "书签或目标轨迹证据进行比较。双击或在可操作行按 Alt+Enter，可打开本地"
       "证据、审阅差异或复制证据摘要。右键某一行可执行明确的本行证据动作。"));
-  sdoSelectedLayout->addWidget(sdoTargetTable_, 1);
+  sdoSelectedLayout->addWidget(sdoInspector_->sdoTargetTable, 1);
 
   auto *sdoTargetTrailHeader = new QHBoxLayout;
   sdoTargetTrailHeader->setSpacing(8);
@@ -1742,23 +1746,23 @@ void MainWindow::buildUi() {
   notesPage_ = notesPage;
   auto *notesLayout = new QVBoxLayout(notesPage);
   notesLayout->setContentsMargins(14, 14, 14, 14);
-  projectNotes_ = new QPlainTextEdit;
-  projectNotes_->setPlaceholderText(
+  rawText_->projectNotes = new QPlainTextEdit;
+  rawText_->projectNotes->setPlaceholderText(
       uiText("Project notes, commissioning steps, and handoff details",
              "工程备注、调试步骤和交接信息"));
-  notesLayout->addWidget(projectNotes_);
+  notesLayout->addWidget(rawText_->projectNotes);
 
-  masterText_ = new QPlainTextEdit;
-  infoText_ = new QPlainTextEdit;
-  pdoText_ = new QPlainTextEdit;
-  sdoText_ = new QPlainTextEdit;
-  xmlText_ = new QPlainTextEdit;
-  masterRawPage_ = masterText_;
-  slaveRawPage_ = infoText_;
-  pdoRawPage_ = pdoText_;
-  sdoRawPage_ = sdoText_;
-  esiXmlPage_ = xmlText_;
-  for (auto *editor : {masterText_, infoText_, pdoText_, sdoText_, xmlText_}) {
+  rawText_->masterText = new QPlainTextEdit;
+  rawText_->infoText = new QPlainTextEdit;
+  rawText_->pdoText = new QPlainTextEdit;
+  rawText_->sdoText = new QPlainTextEdit;
+  rawText_->xmlText = new QPlainTextEdit;
+  masterRawPage_ = rawText_->masterText;
+  slaveRawPage_ = rawText_->infoText;
+  pdoRawPage_ = rawText_->pdoText;
+  sdoRawPage_ = rawText_->sdoText;
+  esiXmlPage_ = rawText_->xmlText;
+  for (auto *editor : {rawText_->masterText, rawText_->infoText, rawText_->pdoText, rawText_->sdoText, rawText_->xmlText}) {
     editor->setReadOnly(true);
     editor->setLineWrapMode(QPlainTextEdit::NoWrap);
   }
@@ -2298,24 +2302,24 @@ void MainWindow::buildUi() {
   notesTabIndex_ = tabs_->addTab(notesPage, uiText("Notes", "备注"));
   rtTestPage_ = buildRtTestPage();
   rtTestTabIndex_ = tabs_->addTab(rtTestPage_, uiText("RT Test", "RT 测试"));
-  esiXmlTabIndex_ = tabs_->addTab(xmlText_, uiText("ESI XML", "ESI XML"));
+  esiXmlTabIndex_ = tabs_->addTab(rawText_->xmlText, uiText("ESI XML", "ESI XML"));
   masterRawTabIndex_ =
-      tabs_->addTab(masterText_, uiText("Master Raw", "主站原始输出"));
+      tabs_->addTab(rawText_->masterText, uiText("Master Raw", "主站原始输出"));
   slaveRawTabIndex_ =
-      tabs_->addTab(infoText_, uiText("Slave Raw", "从站原始输出"));
-  pdoRawTabIndex_ = tabs_->addTab(pdoText_, uiText("PDO Raw", "PDO 原始输出"));
-  sdoRawTabIndex_ = tabs_->addTab(sdoText_, uiText("SDO Raw", "SDO 原始输出"));
+      tabs_->addTab(rawText_->infoText, uiText("Slave Raw", "从站原始输出"));
+  pdoRawTabIndex_ = tabs_->addTab(rawText_->pdoText, uiText("PDO Raw", "PDO 原始输出"));
+  sdoRawTabIndex_ = tabs_->addTab(rawText_->sdoText, uiText("SDO Raw", "SDO 原始输出"));
   tabs_->setCurrentIndex(0);
   rightLayout->addWidget(tabs_);
   root->addWidget(right);
   root->setSizes({360, 1080});
 
-  logText_ = new QPlainTextEdit;
-  logText_->setReadOnly(true);
-  logText_->setMaximumBlockCount(1000);
+  rawText_->logText = new QPlainTextEdit;
+  rawText_->logText->setReadOnly(true);
+  rawText_->logText->setMaximumBlockCount(1000);
   auto *logDock = new QDockWidget(uiText("Runtime Log", "运行日志"), this);
   logDock->setObjectName("runtimeLogDock");
-  logDock->setWidget(logText_);
+  logDock->setWidget(rawText_->logText);
   addDockWidget(Qt::BottomDockWidgetArea, logDock);
   logDock->hide();
 
@@ -2361,15 +2365,15 @@ void MainWindow::rebuildUi() {
   const int previousLoadedSdoPosition = loadedSdoPosition_;
   const int previousLoadedXmlPosition = loadedXmlPosition_;
   const QString notes =
-      projectNotes_ ? projectNotes_->toPlainText() : QString();
-  const QString runtimeLog = logText_ ? logText_->toPlainText() : QString();
-  const QString sdoIndex = sdoIndex_ ? sdoIndex_->text() : QString("0x1000");
+      rawText_->projectNotes ? rawText_->projectNotes->toPlainText() : QString();
+  const QString runtimeLog = rawText_->logText ? rawText_->logText->toPlainText() : QString();
+  const QString sdoIndex = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString("0x1000");
   const QString sdoSubIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text() : QString("0x00");
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString("0x00");
   const QString sdoWriteValue =
-      sdoWriteValue_ ? sdoWriteValue_->text() : QString();
-  const QString sdoValue = sdoValue_ ? sdoValue_->text() : QString();
-  const QString sdoType = sdoType_ ? sdoType_->currentText() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text() : QString();
+  const QString sdoValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString();
+  const QString sdoType = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
   const QList<QStringList> sdoTargetTrailRows =
       copyTableRows(sdoTargetTrailTable_);
   const QList<QStringList> objectBookmarkRows =
@@ -2434,13 +2438,13 @@ void MainWindow::rebuildUi() {
   buildUi();
   wire();
 
-  projectNotes_->setPlainText(notes);
-  logText_->setPlainText(runtimeLog);
-  sdoIndex_->setText(sdoIndex);
-  sdoSubIndex_->setText(sdoSubIndex);
-  sdoWriteValue_->setText(sdoWriteValue);
-  sdoValue_->setText(sdoValue);
-  sdoType_->setCurrentText(sdoType);
+  rawText_->projectNotes->setPlainText(notes);
+  rawText_->logText->setPlainText(runtimeLog);
+  sdoInspector_->sdoIndex->setText(sdoIndex);
+  sdoInspector_->sdoSubIndex->setText(sdoSubIndex);
+  sdoInspector_->sdoWriteValue->setText(sdoWriteValue);
+  sdoInspector_->sdoValue->setText(sdoValue);
+  sdoInspector_->sdoType->setCurrentText(sdoType);
   updateSdoInspector(uiText("Restored session", "恢复会话"));
   if (!sdoTargetTrailRows.isEmpty()) {
     ensureSdoTargetTrailTable();
@@ -2508,11 +2512,11 @@ void MainWindow::rebuildUi() {
                                                       currentSelectedPosition
                            ? previousLoadedXmlPosition
                            : -1;
-  masterText_->setPlainText(lastMasterText_);
-  infoText_->setPlainText(lastSlaveInfoText_);
-  pdoText_->setPlainText(lastPdoText_);
-  sdoText_->setPlainText(lastSdoText_);
-  xmlText_->setPlainText(lastXmlText_);
+  rawText_->masterText->setPlainText(lastMasterText_);
+  rawText_->infoText->setPlainText(lastSlaveInfoText_);
+  rawText_->pdoText->setPlainText(lastPdoText_);
+  rawText_->sdoText->setPlainText(lastSdoText_);
+  rawText_->xmlText->setPlainText(lastXmlText_);
   updateMasterSummary(lastMasterText_);
   updateSlaveInfo(lastSlaveInfoText_);
   updatePdoTable(lastPdoText_);

@@ -615,6 +615,8 @@ private:
   SlaveEvidenceWorkspaceWidgets *slaveEvidence_ = nullptr;
   FreeRunWorkspaceWidgets *freeRunWidgets_ = nullptr;
   BookmarkWorkspaceWidgets *bookmark_ = nullptr;
+  SdoInspectorWidgets *sdoInspector_ = nullptr;
+  RawTextWidgets *rawText_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
@@ -671,26 +673,11 @@ private:
   int sdoRawTabIndex_ = -1;
   
   // ── Raw Text Panels ───────────────────────────────────────────
-  QPlainTextEdit *masterText_ = nullptr;
-  QPlainTextEdit *infoText_ = nullptr;
-  QPlainTextEdit *pdoText_ = nullptr;
-  QPlainTextEdit *sdoText_ = nullptr;
-  QPlainTextEdit *xmlText_ = nullptr;
-  QPlainTextEdit *logText_ = nullptr;
-  QPlainTextEdit *projectNotes_ = nullptr;
   QLabel *statusSummaryLabel_ = nullptr;
   QLabel *workspaceBoundaryLabel_ = nullptr;
   QPushButton *nextBestActionButton_ = nullptr;
   
   // ── SDO Panel Widgets ─────────────────────────────────────────
-  QLabel *sdoInspectorLabel_ = nullptr;
-  QTableWidget *sdoTargetTable_ = nullptr;
-  QLineEdit *sdoIndex_ = nullptr;
-  QLineEdit *sdoSubIndex_ = nullptr;
-  QLineEdit *sdoValue_ = nullptr;
-  QLineEdit *sdoWriteValue_ = nullptr;
-  QPushButton *useSdoValueButton_ = nullptr;
-  QComboBox *sdoType_ = nullptr;
   
   // ── PDO Panel Widgets ─────────────────────────────────────────
   

@@ -1171,18 +1171,18 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
 
 // — Build and display the right-click menu for the SDO target panel
 void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
-  if (!sdoTargetTable_) {
+  if (!sdoInspector_->sdoTargetTable) {
     return;
   }
 
-  const int rowAtCursor = sdoTargetTable_->indexAt(position).row();
+  const int rowAtCursor = sdoInspector_->sdoTargetTable->indexAt(position).row();
   if (rowAtCursor >= 0) {
-    sdoTargetTable_->setCurrentCell(rowAtCursor, 0,
+    sdoInspector_->sdoTargetTable->setCurrentCell(rowAtCursor, 0,
                                     QItemSelectionModel::NoUpdate);
-    sdoTargetTable_->selectRow(rowAtCursor);
+    sdoInspector_->sdoTargetTable->selectRow(rowAtCursor);
   }
-  const int row = sdoTargetTable_->currentRow();
-  const bool hasRow = row >= 0 && row < sdoTargetTable_->rowCount();
+  const int row = sdoInspector_->sdoTargetTable->currentRow();
+  const bool hasRow = row >= 0 && row < sdoInspector_->sdoTargetTable->rowCount();
 
   QMenu menu(this);
   auto *openRow = menu.addAction(uiText("Open Row Evidence", "打开本行证据"));
@@ -1198,15 +1198,15 @@ void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   auto *copyDigest =
       menu.addAction(uiText("Copy Full Evidence Digest", "复制完整证据摘要"));
   copyDigest->setIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
-  copyDigest->setEnabled(selectedPosition() >= 0 && sdoIndex_ && sdoSubIndex_ &&
-                         !sdoIndex_->text().trimmed().isEmpty() &&
-                         !sdoSubIndex_->text().trimmed().isEmpty());
+  copyDigest->setEnabled(selectedPosition() >= 0 && sdoInspector_->sdoIndex && sdoInspector_->sdoSubIndex &&
+                         !sdoInspector_->sdoIndex->text().trimmed().isEmpty() &&
+                         !sdoInspector_->sdoSubIndex->text().trimmed().isEmpty());
   menu.addSeparator();
   auto *resizeColumns =
       menu.addAction(uiText("Autosize Columns", "自动调整列宽"));
 
   const QAction *chosen =
-      menu.exec(sdoTargetTable_->viewport()->mapToGlobal(position));
+      menu.exec(sdoInspector_->sdoTargetTable->viewport()->mapToGlobal(position));
   if (!chosen) {
     return;
   }
@@ -1219,13 +1219,13 @@ void MainWindow::showSdoTargetPanelContextMenu(const QPoint &position) {
   } else if (chosen == copyDigest) {
     copyCurrentSdoEvidenceDigest();
   } else if (chosen == resizeColumns) {
-    sdoTargetTable_->resizeColumnsToContents(); // auto-fit column widths
-    sdoTargetTable_->horizontalHeader()->setStretchLastSection(false);
-    sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+    sdoInspector_->sdoTargetTable->resizeColumnsToContents(); // auto-fit column widths
+    sdoInspector_->sdoTargetTable->horizontalHeader()->setStretchLastSection(false);
+    sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
         0, QHeaderView::ResizeToContents);
-    sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+    sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
         1, QHeaderView::Stretch);
-    sdoTargetTable_->horizontalHeader()->setSectionResizeMode(
+    sdoInspector_->sdoTargetTable->horizontalHeader()->setSectionResizeMode(
         2, QHeaderView::ResizeToContents);
   }
 }
@@ -1255,7 +1255,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     openSlaveEvidenceMatrixRow(row);
   } else if (table == consistency_->consistencyTable) {
     focusEvidenceFromConsistency(row);
-  } else if (table == sdoTargetTable_) {
+  } else if (table == sdoInspector_->sdoTargetTable) {
     openSdoTargetPanelRow(row);
   } else if (table == sdo_->sdoTable) {
     applySdoSelectionFromDictionary(row, false);

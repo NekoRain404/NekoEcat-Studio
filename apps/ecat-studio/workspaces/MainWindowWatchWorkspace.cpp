@@ -181,9 +181,9 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
     return;
   }
   ensureWatchTable();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
   if (index.isEmpty() || subIndex.isEmpty()) {
     return;
   }
@@ -198,7 +198,7 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
                                           subIndex, Qt::CaseInsensitive) == 0);
     if (match) {
       watch_->watchTable->selectRow(row);
-      const QString type = sdoType_ ? sdoType_->currentText() : QString();
+      const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
       if (!type.isEmpty() &&
           (!watch_->watchTable->item(row, 6) ||
            watch_->watchTable->item(row, 6)->text().trimmed().isEmpty())) {
@@ -208,7 +208,7 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
         const QString type =
             watch_->watchTable->item(row, 6)
                 ? watch_->watchTable->item(row, 6)->text().trimmed()
-                : (sdoType_ ? sdoType_->currentText() : QString());
+                : (sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString());
         requestSdoRead(position, index, subIndex,
                        uiText("Existing Watch item", "已有监视项"), type);
       }
@@ -226,15 +226,15 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
   watch_->watchTable->setItem(row, 2, new QTableWidgetItem(index));
   watch_->watchTable->setItem(row, 3, new QTableWidgetItem(subIndex));
   watch_->watchTable->setItem(
-      row, 4, new QTableWidgetItem(sdoValue_ ? sdoValue_->text() : QString()));
+      row, 4, new QTableWidgetItem(sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString()));
   watch_->watchTable->setItem(
       row, 5,
       new QTableWidgetItem(decodeWatchValue(
-          index, subIndex, sdoType_ ? sdoType_->currentText() : QString(),
-          sdoValue_ ? sdoValue_->text() : QString(), "Watch")));
+          index, subIndex, sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString(),
+          sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString(), "Watch")));
   watch_->watchTable->setItem(
       row, 6,
-      new QTableWidgetItem(sdoType_ ? sdoType_->currentText() : QString()));
+      new QTableWidgetItem(sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString()));
   watch_->watchTable->setItem(row, 7, new QTableWidgetItem("Watch"));
   watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
   watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
@@ -247,7 +247,7 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
       "Info", "Watch",
       QString("Added SDO watch #%1 %2:%3").arg(position).arg(index, subIndex));
   if (requestRead && client_.isConnected()) {
-    const QString type = sdoType_ ? sdoType_->currentText() : QString();
+    const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
     requestSdoRead(position, index, subIndex,
                    uiText("Add to Watch", "加入监视"), type);
   }
@@ -398,13 +398,13 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
 
   const QVector<int> rows = selectedTableRows(sdo_->pdoTable);
 
-  const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
+  const QString previousIndex = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString();
   const QString previousSubIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text() : QString();
-  const QString previousType = sdoType_ ? sdoType_->currentText() : QString();
-  const QString previousReadValue = sdoValue_ ? sdoValue_->text() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString();
+  const QString previousType = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
+  const QString previousReadValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString();
   const QString previousWriteValue =
-      sdoWriteValue_ ? sdoWriteValue_->text() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text() : QString();
   const bool previousWritable = selectedSdoWritable_;
 
   int addedOrReused = 0;
@@ -426,21 +426,21 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
     }
 
     {
-      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-      if (sdoIndex_) {
-        sdoIndex_->setText(index);
+      const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+      if (sdoInspector_->sdoIndex) {
+        sdoInspector_->sdoIndex->setText(index);
       }
-      if (sdoSubIndex_) {
-        sdoSubIndex_->setText(
+      if (sdoInspector_->sdoSubIndex) {
+        sdoInspector_->sdoSubIndex->setText(
             QString("0x%1").arg(subIndex.rightJustified(2, '0')));
       }
-      if (sdoType_) {
-        sdoType_->setCurrentIndex(0);
+      if (sdoInspector_->sdoType) {
+        sdoInspector_->sdoType->setCurrentIndex(0);
       }
-      if (sdoValue_) {
-        sdoValue_->clear();
+      if (sdoInspector_->sdoValue) {
+        sdoInspector_->sdoValue->clear();
       }
     }
     selectedSdoWritable_ = true;
@@ -461,24 +461,24 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText(previousIndex);
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText(previousIndex);
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText(previousSubIndex);
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText(previousSubIndex);
     }
-    if (sdoType_) {
-      sdoType_->setCurrentText(previousType);
+    if (sdoInspector_->sdoType) {
+      sdoInspector_->sdoType->setCurrentText(previousType);
     }
   }
-  if (sdoValue_) {
-    sdoValue_->setText(previousReadValue);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(previousReadValue);
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setText(previousWriteValue);
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setText(previousWriteValue);
   }
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
@@ -527,32 +527,32 @@ void MainWindow::addCia402WatchPreset() {
       {"0x6071", "0x00", "int16", "Target torque"},
   };
 
-  const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
+  const QString previousIndex = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString();
   const QString previousSubIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text() : QString();
-  const QString previousType = sdoType_ ? sdoType_->currentText() : QString();
-  const QString previousReadValue = sdoValue_ ? sdoValue_->text() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString();
+  const QString previousType = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
+  const QString previousReadValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString();
   const QString previousWriteValue =
-      sdoWriteValue_ ? sdoWriteValue_->text() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text() : QString();
   const bool previousWritable = selectedSdoWritable_;
   const int before = watch_->watchTable ? watch_->watchTable->rowCount() : 0;
 
   for (const auto &object : objects) {
     {
-      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-      if (sdoIndex_) {
-        sdoIndex_->setText(object.index);
+      const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+      if (sdoInspector_->sdoIndex) {
+        sdoInspector_->sdoIndex->setText(object.index);
       }
-      if (sdoSubIndex_) {
-        sdoSubIndex_->setText(object.subIndex);
+      if (sdoInspector_->sdoSubIndex) {
+        sdoInspector_->sdoSubIndex->setText(object.subIndex);
       }
-      if (sdoType_) {
-        sdoType_->setCurrentText(object.type);
+      if (sdoInspector_->sdoType) {
+        sdoInspector_->sdoType->setCurrentText(object.type);
       }
-      if (sdoValue_) {
-        sdoValue_->clear();
+      if (sdoInspector_->sdoValue) {
+        sdoInspector_->sdoValue->clear();
       }
     }
     selectedSdoWritable_ = true;
@@ -565,24 +565,24 @@ void MainWindow::addCia402WatchPreset() {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText(previousIndex);
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText(previousIndex);
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText(previousSubIndex);
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText(previousSubIndex);
     }
-    if (sdoType_) {
-      sdoType_->setCurrentText(previousType);
+    if (sdoInspector_->sdoType) {
+      sdoInspector_->sdoType->setCurrentText(previousType);
     }
   }
-  if (sdoValue_) {
-    sdoValue_->setText(previousReadValue);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(previousReadValue);
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setText(previousWriteValue);
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setText(previousWriteValue);
   }
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
@@ -625,22 +625,22 @@ void MainWindow::addStartupSdoFromWatchRow(int row) {
   }
 
   setSelectedSlave(position);
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  sdoIndex_->setText(index);
-  sdoSubIndex_->setText(subIndex);
-  if (sdoValue_) {
-    sdoValue_->setText(value);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(index);
+  sdoInspector_->sdoSubIndex->setText(subIndex);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(value);
   }
-  if (sdoType_) {
-    sdoType_->setCurrentText(type);
+  if (sdoInspector_->sdoType) {
+    sdoInspector_->sdoType->setCurrentText(type);
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setText(value);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setText(value);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         uiText("Value from Watch", "来自 Watch 的值"));
   }
   updateSdoInspector(uiText("Watch", "监视"),
@@ -663,13 +663,13 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
   const QVector<int> rows = selectedTableRows(watch_->watchTable);
 
   const int previousPosition = selectedPosition();
-  const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
+  const QString previousIndex = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString();
   const QString previousSubIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text() : QString();
-  const QString previousType = sdoType_ ? sdoType_->currentText() : QString();
-  const QString previousReadValue = sdoValue_ ? sdoValue_->text() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString();
+  const QString previousType = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
+  const QString previousReadValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString();
   const QString previousWriteValue =
-      sdoWriteValue_ ? sdoWriteValue_->text() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text() : QString();
   const bool previousWritable = selectedSdoWritable_;
 
   int created = 0;
@@ -700,24 +700,24 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
     setSelectedSlave(previousPosition);
   }
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText(previousIndex);
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText(previousIndex);
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText(previousSubIndex);
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText(previousSubIndex);
     }
-    if (sdoType_) {
-      sdoType_->setCurrentText(previousType);
+    if (sdoInspector_->sdoType) {
+      sdoInspector_->sdoType->setCurrentText(previousType);
     }
   }
-  if (sdoValue_) {
-    sdoValue_->setText(previousReadValue);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(previousReadValue);
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setText(previousWriteValue);
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setText(previousWriteValue);
   }
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));

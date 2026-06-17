@@ -299,13 +299,13 @@ void MainWindow::exportDiagnosticsReport() {
   writeMarkdownTable(out, freeRunWidgets_->freeRunEntryTable);
   out << "## Project Notes\n\n";
   out << "```text\n"
-      << (projectNotes_ ? projectNotes_->toPlainText() : QString())
+      << (rawText_->projectNotes ? rawText_->projectNotes->toPlainText() : QString())
       << "\n```\n\n";
   out << "\n## Master\n\n```text\n" << lastMasterText_ << "\n```\n\n";
   out << "## Selected Slave\n\n```text\n" << lastSlaveInfoText_ << "\n```\n\n";
   out << "## PDO\n\n```text\n" << lastPdoText_ << "\n```\n\n";
   out << "## SDO\n\n```text\n" << lastSdoText_.left(20000) << "\n```\n\n";
-  out << "## Runtime Log\n\n```text\n" << logText_->toPlainText() << "\n```\n";
+  out << "## Runtime Log\n\n```text\n" << rawText_->logText->toPlainText() << "\n```\n";
   log("Diagnostics report exported: " + path);
 }
 

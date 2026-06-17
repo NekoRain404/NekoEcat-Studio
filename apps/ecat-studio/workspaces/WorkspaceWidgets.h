@@ -9,6 +9,7 @@
 #include <QVector>
 
 class QCheckBox;
+class QPlainTextEdit;
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -119,4 +120,27 @@ struct DiagnosticsWorkspaceWidgets {
 // ── Object bookmark workspace ──────────────────────────────────────────────
 struct BookmarkWorkspaceWidgets {
     QTableWidget *objectBookmarkTable = nullptr;
+};
+
+// ── SDO Inspector panel (right side of Object Dictionary page) ─────────────
+struct SdoInspectorWidgets {
+    QLabel       *sdoInspectorLabel = nullptr;
+    QTableWidget *sdoTargetTable = nullptr;
+    QLineEdit    *sdoIndex = nullptr;
+    QLineEdit    *sdoSubIndex = nullptr;
+    QLineEdit    *sdoValue = nullptr;
+    QLineEdit    *sdoWriteValue = nullptr;
+    QPushButton  *useSdoValueButton = nullptr;
+    QComboBox    *sdoType = nullptr;
+};
+
+// ── Raw text panels (master, slave info, PDO, SDO, XML, log, notes) ───────
+struct RawTextWidgets {
+    QPlainTextEdit *masterText = nullptr;
+    QPlainTextEdit *infoText = nullptr;
+    QPlainTextEdit *pdoText = nullptr;
+    QPlainTextEdit *sdoText = nullptr;
+    QPlainTextEdit *xmlText = nullptr;
+    QPlainTextEdit *logText = nullptr;
+    QPlainTextEdit *projectNotes = nullptr;
 };

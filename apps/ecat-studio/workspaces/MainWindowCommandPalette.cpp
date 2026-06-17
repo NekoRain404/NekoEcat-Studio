@@ -268,9 +268,9 @@ void MainWindow::showCommandPalette() {
   };
   auto currentSdoLabel = [this] {
     const int position = selectedPosition();
-    const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+    const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
     const QString subIndex =
-        sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
+        sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
     const QString object = !index.isEmpty() && !subIndex.isEmpty()
                                ? QString("%1:%2").arg(index, subIndex)
                                : uiText("no object selected", "尚未选择对象");
@@ -279,10 +279,10 @@ void MainWindow::showCommandPalette() {
   auto currentSdoValueLabel = [this, currentSdoLabel] {
     QString line = currentSdoLabel();
     const QString type =
-        sdoType_ ? sdoType_->currentText().trimmed() : QString();
-    QString value = sdoValue_ ? sdoValue_->text().trimmed() : QString();
-    if (value.isEmpty() && sdoWriteValue_) {
-      value = sdoWriteValue_->text().trimmed();
+        sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+    QString value = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
+    if (value.isEmpty() && sdoInspector_->sdoWriteValue) {
+      value = sdoInspector_->sdoWriteValue->text().trimmed();
     }
     if (!type.isEmpty()) {
       line += " " + type;
@@ -293,21 +293,21 @@ void MainWindow::showCommandPalette() {
     return line;
   };
   auto hasCurrentSdo = [this] {
-    return selectedPosition() >= 0 && sdoIndex_ &&
-           !sdoIndex_->text().trimmed().isEmpty() && sdoSubIndex_ &&
-           !sdoSubIndex_->text().trimmed().isEmpty();
+    return selectedPosition() >= 0 && sdoInspector_->sdoIndex &&
+           !sdoInspector_->sdoIndex->text().trimmed().isEmpty() && sdoInspector_->sdoSubIndex &&
+           !sdoInspector_->sdoSubIndex->text().trimmed().isEmpty();
   };
   auto hasCurrentSdoValue = [this, hasCurrentSdo] {
     const bool hasReadValue =
-        sdoValue_ && !sdoValue_->text().trimmed().isEmpty();
+        sdoInspector_->sdoValue && !sdoInspector_->sdoValue->text().trimmed().isEmpty();
     const bool hasWriteValue =
-        sdoWriteValue_ && !sdoWriteValue_->text().trimmed().isEmpty();
+        sdoInspector_->sdoWriteValue && !sdoInspector_->sdoWriteValue->text().trimmed().isEmpty();
     return hasCurrentSdo() && (hasReadValue || hasWriteValue);
   };
   auto hasSelectedObjectPanelRow = [this] {
-    return sdoTargetTable_ && sdoTargetTable_->currentRow() >= 0 &&
+    return sdoInspector_->sdoTargetTable && sdoInspector_->sdoTargetTable->currentRow() >= 0 &&
 // ── Navigation Commands ───────────────────────────────────────────────
-           sdoTargetTable_->currentRow() < sdoTargetTable_->rowCount();
+           sdoInspector_->sdoTargetTable->currentRow() < sdoInspector_->sdoTargetTable->rowCount();
   };
   auto hasSdoTargetTrailRow = [this] {
     return sdoTargetTrailTable_ && sdoTargetTrailTable_->currentRow() >= 0;
@@ -532,8 +532,8 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_ArrowForward),
       [this] { useReadSdoValueForWrite(); },
       [this] {
-        return useSdoValueButton_ && useSdoValueButton_->isEnabled() &&
-               sdoValue_ && !sdoValue_->text().trimmed().isEmpty();
+        return sdoInspector_->useSdoValueButton && sdoInspector_->useSdoValueButton->isEnabled() &&
+               sdoInspector_->sdoValue && !sdoInspector_->sdoValue->text().trimmed().isEmpty();
       },
   });
   commands.append(CommandItem{
@@ -594,7 +594,7 @@ void MainWindow::showCommandPalette() {
              "执行与双击或 Alt+Enter 选中对象面板行相同的本地动作"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       [this] {
-        openSdoTargetPanelRow(sdoTargetTable_ ? sdoTargetTable_->currentRow()
+        openSdoTargetPanelRow(sdoInspector_->sdoTargetTable ? sdoInspector_->sdoTargetTable->currentRow()
                                               : -1);
       },
       hasSelectedObjectPanelRow,
@@ -607,7 +607,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this] {
         copySdoTargetPanelRowDigest(
-            sdoTargetTable_ ? sdoTargetTable_->currentRow() : -1);
+            sdoInspector_->sdoTargetTable ? sdoInspector_->sdoTargetTable->currentRow() : -1);
       },
       hasSelectedObjectPanelRow,
   });

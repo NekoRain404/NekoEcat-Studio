@@ -186,8 +186,8 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
   const QVector<SdoEvidenceItem> localEvidence =
       sdoLocalEvidenceItemsFromTables(
           position, normalizedIndex, normalizedSubIndex,
-          sdoValue_ ? sdoValue_->text() : QString(), cachedEvidence.value(0),
-          sdoValue_ &&
+          sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString(), cachedEvidence.value(0),
+          sdoInspector_->sdoValue &&
               isCurrentSdoTarget(position, normalizedIndex, normalizedSubIndex),
           sdo_->sdoTable && loadedSdoPosition_ == position,
           {.dictionaryTable = sdo_->sdoTable,
@@ -488,9 +488,9 @@ void MainWindow::restoreManualSdoWriteMode() {
     return;
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(uiText("Manual edit", "手动编辑"));
   updateActionAvailability();
@@ -500,11 +500,11 @@ void MainWindow::restoreManualSdoWriteMode() {
 // — Check whether is current sdo target
 bool MainWindow::isCurrentSdoTarget(int position, const QString &index,
                                     const QString &subIndex) const {
-  if (position < 0 || selectedPosition() < 0 || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || selectedPosition() < 0 || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return false;
   }
-  const QString currentIndex = sdoIndex_->text().trimmed();
-  const QString currentSubIndex = sdoSubIndex_->text().trimmed();
+  const QString currentIndex = sdoInspector_->sdoIndex->text().trimmed();
+  const QString currentSubIndex = sdoInspector_->sdoSubIndex->text().trimmed();
   if (currentIndex.isEmpty() || currentSubIndex.isEmpty()) {
     return false;
   }
@@ -516,14 +516,14 @@ bool MainWindow::isCurrentSdoTarget(int position, const QString &index,
 // — Return the current sdo dictionary row
 int MainWindow::currentSdoDictionaryRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !sdo_->sdoTable || !sdoIndex_ || !sdoSubIndex_ ||
+  if (position < 0 || !sdo_->sdoTable || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex ||
       loadedSdoPosition_ != position) {
     return -1;
   }
   return sdoEvidenceTableRowsForTarget({.dictionaryTable = sdo_->sdoTable},
                                        {.position = position,
-                                        .index = sdoIndex_->text(),
-                                        .subIndex = sdoSubIndex_->text(),
+                                        .index = sdoInspector_->sdoIndex->text(),
+                                        .subIndex = sdoInspector_->sdoSubIndex->text(),
                                         .dictionaryLoadedForPosition = true})
       .dictionaryRow;
 }
@@ -532,13 +532,13 @@ int MainWindow::currentSdoDictionaryRow() const {
 // — Return the current sdo watch row
 int MainWindow::currentSdoWatchRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !watch_->watchTable || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !watch_->watchTable || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return -1;
   }
   return sdoEvidenceTableRowsForTarget({.watchTable = watch_->watchTable},
                                        {.position = position,
-                                        .index = sdoIndex_->text(),
-                                        .subIndex = sdoSubIndex_->text()})
+                                        .index = sdoInspector_->sdoIndex->text(),
+                                        .subIndex = sdoInspector_->sdoSubIndex->text()})
       .watchRow;
 }
 
@@ -546,13 +546,13 @@ int MainWindow::currentSdoWatchRow() const {
 // — Return the current sdo startup row
 int MainWindow::currentSdoStartupRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !startupSdoTable_ || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !startupSdoTable_ || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return -1;
   }
   return sdoEvidenceTableRowsForTarget({.startupTable = startupSdoTable_},
                                        {.position = position,
-                                        .index = sdoIndex_->text(),
-                                        .subIndex = sdoSubIndex_->text()})
+                                        .index = sdoInspector_->sdoIndex->text(),
+                                        .subIndex = sdoInspector_->sdoSubIndex->text()})
       .startupRow;
 }
 
@@ -560,13 +560,13 @@ int MainWindow::currentSdoStartupRow() const {
 // — Return the current sdo bookmark row
 int MainWindow::currentSdoBookmarkRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !bookmark_->objectBookmarkTable || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !bookmark_->objectBookmarkTable || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return -1;
   }
   return sdoEvidenceTableRowsForTarget({.bookmarkTable = bookmark_->objectBookmarkTable},
                                        {.position = position,
-                                        .index = sdoIndex_->text(),
-                                        .subIndex = sdoSubIndex_->text()})
+                                        .index = sdoInspector_->sdoIndex->text(),
+                                        .subIndex = sdoInspector_->sdoSubIndex->text()})
       .bookmarkRow;
 }
 
@@ -574,14 +574,14 @@ int MainWindow::currentSdoBookmarkRow() const {
 // — Return the current sdo target trail row
 int MainWindow::currentSdoTargetTrailRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !sdoTargetTrailTable_ || !sdoIndex_ || !sdoSubIndex_) {
+  if (position < 0 || !sdoTargetTrailTable_ || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return -1;
   }
   return sdoEvidenceTableRowsForTarget(
              {.targetTrailTable = sdoTargetTrailTable_},
              {.position = position,
-              .index = sdoIndex_->text(),
-              .subIndex = sdoSubIndex_->text()})
+              .index = sdoInspector_->sdoIndex->text(),
+              .subIndex = sdoInspector_->sdoSubIndex->text()})
       .targetTrailRow;
 }
 
@@ -602,11 +602,11 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
        .bookmarkTable = bookmark_->objectBookmarkTable,
        .targetTrailTable = sdoTargetTrailTable_},
       {.position = position,
-       .index = sdoIndex_ ? sdoIndex_->text() : QString(),
-       .subIndex = sdoSubIndex_ ? sdoSubIndex_->text() : QString(),
+       .index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString(),
+       .subIndex = sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString(),
        .dictionaryLoadedForPosition = loadedSdoPosition_ == position});
   return sdoEvidenceCandidatesFromTables(
-      sdoValue_ ? sdoValue_->text() : QString(),
+      sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString(),
       {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
@@ -631,17 +631,17 @@ bool MainWindow::currentSdoEvidenceHasConflict() const {
 
 // — Check whether current sdo write delta review available
 bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
-  if (selectedPosition() < 0 || !sdoIndex_ || !sdoSubIndex_) {
+  if (selectedPosition() < 0 || !sdoInspector_->sdoIndex || !sdoInspector_->sdoSubIndex) {
     return false;
   }
   if (currentSdoEvidenceHasConflict()) {
     return true;
   }
-  if (!sdoWriteValue_ || sdoWriteValue_->text().trimmed().isEmpty()) {
+  if (!sdoInspector_->sdoWriteValue || sdoInspector_->sdoWriteValue->text().trimmed().isEmpty()) {
     return false;
   }
   return sdoWriteDeltaReviewEvidenceAvailable(
-      sdoValue_ ? sdoValue_->text() : QString(),
+      sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString(),
       {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
@@ -666,7 +666,7 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
   }
 
   const QString writeValue =
-      sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
   const QString normalizedWrite = normalizeComparableValue(writeValue);
   auto differsFromWrite = [&normalizedWrite](const QString &value) {
     const QString normalized = normalizeComparableValue(value);
@@ -756,10 +756,10 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
     return;
   }
 
-  if (sdoValue_ && shouldReviewValue(sdoValue_->text())) {
+  if (sdoInspector_->sdoValue && shouldReviewValue(sdoInspector_->sdoValue->text())) {
     activateWorkspaceTab(objectDictionaryTabIndex_);
-    sdoValue_->setFocus();
-    sdoValue_->selectAll();
+    sdoInspector_->sdoValue->setFocus();
+    sdoInspector_->sdoValue->selectAll();
     updateDiagnostics("Info", "Navigation",
                       writeValue.isEmpty()
                           ? uiText("Reviewing Evidence Set conflict in current "
@@ -788,9 +788,9 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
   }
 
   activateWorkspaceTab(objectDictionaryTabIndex_);
-  if (sdoValue_) {
-    sdoValue_->setFocus();
-    sdoValue_->selectAll();
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setFocus();
+    sdoInspector_->sdoValue->selectAll();
   }
   updateDiagnostics("Info", "Navigation",
                     uiText("Reviewing Write Delta in current read-back field",
@@ -800,11 +800,11 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
 
 // — Populate the SDO read/write controls from the selected target panel row
 bool MainWindow::openSdoTargetPanelRow(int row) {
-  if (!sdoTargetTable_ || row < 0 || row >= sdoTargetTable_->rowCount()) {
+  if (!sdoInspector_->sdoTargetTable || row < 0 || row >= sdoInspector_->sdoTargetTable->rowCount()) {
     return false;
   }
 
-  const QString key = tableText(sdoTargetTable_, row, 0);
+  const QString key = tableText(sdoInspector_->sdoTargetTable, row, 0);
   const SdoTargetPanelRouteDecision decision =
       sdoTargetPanelRouteDecision(key, currentSdoWriteDeltaReviewAvailable());
 
@@ -837,9 +837,9 @@ bool MainWindow::openSdoTargetPanelRow(int row) {
       }
       sdo_->sdoTable->clearSelection();
       selectAndFocusTableRow(sdo_->sdoTable, dictionaryRow, 1);
-    } else if (sdoIndex_) {
-      sdoIndex_->setFocus();
-      sdoIndex_->selectAll();
+    } else if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setFocus();
+      sdoInspector_->sdoIndex->selectAll();
     }
     updateDiagnostics("Info", "Navigation",
                       uiText("Opened Object Dictionary context for selected "
@@ -862,15 +862,15 @@ bool MainWindow::openSdoTargetPanelRow(int row) {
 
 // — Copy a summary of the SDO target panel row to clipboard
 bool MainWindow::copySdoTargetPanelRowDigest(int row) {
-  if (!sdoTargetTable_ || row < 0 || row >= sdoTargetTable_->rowCount()) {
+  if (!sdoInspector_->sdoTargetTable || row < 0 || row >= sdoInspector_->sdoTargetTable->rowCount()) {
     statusBar()->showMessage(uiText("Select a Selected Object row to copy.",
                                     "请选择一行选中对象复核内容再复制。"),
                              3000);
     return false;
   }
 
-  const QString key = tableText(sdoTargetTable_, row, 0);
-  const QString value = tableText(sdoTargetTable_, row, 1);
+  const QString key = tableText(sdoInspector_->sdoTargetTable, row, 0);
+  const QString value = tableText(sdoInspector_->sdoTargetTable, row, 1);
   const SdoTargetPanelRouteDecision decision =
       sdoTargetPanelRouteDecision(key, currentSdoWriteDeltaReviewAvailable());
 
@@ -912,9 +912,9 @@ bool MainWindow::copySdoTargetPanelRowDigest(int row) {
   }
 
   const int position = selectedPosition();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
   const QString target =
       position >= 0 && !index.isEmpty() && !subIndex.isEmpty()
           ? QString("#%1 %2:%3").arg(position).arg(index, subIndex)
@@ -945,9 +945,9 @@ bool MainWindow::copySdoTargetPanelRowDigest(int row) {
 // — Copy a summary of the current SDO evidence to clipboard
 void MainWindow::copyCurrentSdoEvidenceDigest() {
   const int position = selectedPosition();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
   if (position < 0 || index.isEmpty() || subIndex.isEmpty()) {
     updateDiagnostics(
         "Info", "SDO",
@@ -964,10 +964,10 @@ void MainWindow::copyCurrentSdoEvidenceDigest() {
                .arg(position)
                .arg(index, subIndex);
 
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString readValue = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString readValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   const QString writeValue =
-      sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
   if (!type.isEmpty()) {
     lines << QString("%1: %2").arg(uiText("Type", "类型"), type);
   }
@@ -978,12 +978,12 @@ void MainWindow::copyCurrentSdoEvidenceDigest() {
     lines << QString("%1: %2").arg(uiText("Write Value", "写入值"), writeValue);
   }
 
-  if (sdoTargetTable_ && sdoTargetTable_->rowCount() > 0) {
+  if (sdoInspector_->sdoTargetTable && sdoInspector_->sdoTargetTable->rowCount() > 0) {
     lines << QString();
     lines << uiText("Selected Object Review", "选中对象复核");
-    for (int row = 0; row < sdoTargetTable_->rowCount(); ++row) {
-      const QString key = tableText(sdoTargetTable_, row, 0);
-      const QString value = tableText(sdoTargetTable_, row, 1);
+    for (int row = 0; row < sdoInspector_->sdoTargetTable->rowCount(); ++row) {
+      const QString key = tableText(sdoInspector_->sdoTargetTable, row, 0);
+      const QString value = tableText(sdoInspector_->sdoTargetTable, row, 1);
       if (!key.isEmpty() && !value.isEmpty()) {
         lines << QString("- %1: %2").arg(key, value);
       }
@@ -1151,18 +1151,18 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
                                       const QString &detail,
                                       const QString &status,
                                       const QStringList &problems) {
-  if (!sdoTargetTable_) {
+  if (!sdoInspector_->sdoTargetTable) {
     return;
   }
 
   const int position = selectedPosition();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString readValue = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString readValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   const QString writeValue =
-      sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
   // Normalize hex address for consistent comparison
   const QString normalizedIndex = normalizeHexText(index, 4);
   // Normalize hex address for consistent comparison
@@ -1493,9 +1493,9 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
     rows.append({uiText("Check", "检查"), problems.join("; ")});
   }
 
-  const QSignalBlocker blocker(sdoTargetTable_); // prevent recursive signal updates
-  sdoTargetTable_->clearContents();
-  sdoTargetTable_->setRowCount(rows.size());
+  const QSignalBlocker blocker(sdoInspector_->sdoTargetTable); // prevent recursive signal updates
+  sdoInspector_->sdoTargetTable->clearContents();
+  sdoInspector_->sdoTargetTable->setRowCount(rows.size());
   auto rowActionText = [this, evidenceSetLabel, writeDeltaLabel, watchRow,
                         startupRows, bookmarkRows,
                         targetTrailRow](const QString &key) {
@@ -1616,11 +1616,11 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#1d4ed8")
                                                           : QColor("#93c5fd"));
     }
-    sdoTargetTable_->setItem(row, 0, keyItem);
-    sdoTargetTable_->setItem(row, 1, valueItem);
-    sdoTargetTable_->setItem(row, 2, actionItem);
+    sdoInspector_->sdoTargetTable->setItem(row, 0, keyItem);
+    sdoInspector_->sdoTargetTable->setItem(row, 1, valueItem);
+    sdoInspector_->sdoTargetTable->setItem(row, 2, actionItem);
   }
-  sdoTargetTable_->resizeRowsToContents();
+  sdoInspector_->sdoTargetTable->resizeRowsToContents();
   updateSdoTargetRowActionButton();
   updateSdoTargetRowCopyButton();
 }
@@ -1635,11 +1635,11 @@ void MainWindow::updateSdoTargetRowActionButton() {
 
   QString action;
   QString field;
-  if (sdoTargetTable_) {
-    const int row = sdoTargetTable_->currentRow();
-    if (row >= 0 && row < sdoTargetTable_->rowCount()) {
-      field = tableText(sdoTargetTable_, row, 0);
-      action = tableText(sdoTargetTable_, row, 2);
+  if (sdoInspector_->sdoTargetTable) {
+    const int row = sdoInspector_->sdoTargetTable->currentRow();
+    if (row >= 0 && row < sdoInspector_->sdoTargetTable->rowCount()) {
+      field = tableText(sdoInspector_->sdoTargetTable, row, 0);
+      action = tableText(sdoInspector_->sdoTargetTable, row, 2);
     }
   }
 
@@ -1675,10 +1675,10 @@ void MainWindow::updateSdoTargetRowCopyButton() {
   }
 
   QString field;
-  if (sdoTargetTable_) {
-    const int row = sdoTargetTable_->currentRow();
-    if (row >= 0 && row < sdoTargetTable_->rowCount()) {
-      field = tableText(sdoTargetTable_, row, 0);
+  if (sdoInspector_->sdoTargetTable) {
+    const int row = sdoInspector_->sdoTargetTable->currentRow();
+    if (row >= 0 && row < sdoInspector_->sdoTargetTable->rowCount()) {
+      field = tableText(sdoInspector_->sdoTargetTable, row, 0);
     }
   }
 
@@ -1705,18 +1705,18 @@ void MainWindow::updateSdoTargetRowCopyButton() {
 // — Update sdo inspector
 void MainWindow::updateSdoInspector(const QString &source,
                                     const QString &detail) {
-  if (!sdoInspectorLabel_) {
+  if (!sdoInspector_->sdoInspectorLabel) {
     return;
   }
 
   const int position = selectedPosition();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString readValue = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString readValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   const QString writeValue =
-      sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
 
   QString state = QStringLiteral("ready");
   QString status = uiText("Ready", "就绪");
@@ -1785,10 +1785,10 @@ void MainWindow::updateSdoInspector(const QString &source,
     parts << uiText("Check: %1", "检查：%1").arg(problems.join("; "));
   }
 
-  sdoInspectorLabel_->setText(parts.join("  -  "));
-  sdoInspectorLabel_->setToolTip(parts.join("\n"));
-  sdoInspectorLabel_->setProperty("state", state);
-  repolish(sdoInspectorLabel_); // force QSS re-evaluation after property change
+  sdoInspector_->sdoInspectorLabel->setText(parts.join("  -  "));
+  sdoInspector_->sdoInspectorLabel->setToolTip(parts.join("\n"));
+  sdoInspector_->sdoInspectorLabel->setProperty("state", state);
+  repolish(sdoInspector_->sdoInspectorLabel); // force QSS re-evaluation after property change
   updateSdoTargetPanel(source, detail, status, problems);
 }
 
@@ -1854,19 +1854,19 @@ void MainWindow::rememberCurrentSdoTarget(const QString &source,
   const int position = selectedPosition();
   const QString index =
       // Normalize hex address for consistent comparison
-      normalizeHexText(sdoIndex_ ? sdoIndex_->text().trimmed() : QString(), 4);
+      normalizeHexText(sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString(), 4);
   // Normalize hex address for consistent comparison
   const QString subIndex = normalizeHexText(
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString(), 2);
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString(), 2);
   if (position < 0 || index.isEmpty() || subIndex.isEmpty()) {
     return;
   }
   ensureSdoTargetTrailTable();
 
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString value = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString value = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   const QString writeValue =
-      sdoWriteValue_ ? sdoWriteValue_->text().trimmed() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text().trimmed() : QString();
   const QString sourceText = source.trimmed().isEmpty()
                                  ? uiText("Manual fields", "手动字段")
                                  : source.trimmed();
@@ -1941,26 +1941,26 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
-    const QSignalBlocker writeBlocker(sdoWriteValue_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText(trail.index);
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    const QSignalBlocker valueBlocker(sdoInspector_->sdoValue); // prevent recursive signal updates
+    const QSignalBlocker writeBlocker(sdoInspector_->sdoWriteValue); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText(trail.index);
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText(trail.subIndex);
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText(trail.subIndex);
     }
-    if (sdoType_ && !trail.type.isEmpty()) {
+    if (sdoInspector_->sdoType && !trail.type.isEmpty()) {
       const QString normalized = trail.type.toLower().replace(' ', "_");
       const int typeIndex =
-          sdoType_->findText(normalized, Qt::MatchFixedString);
-      sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+          sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+      sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
     }
-    if (sdoValue_) {
-      sdoValue_->setText(trail.value);
-      sdoValue_->setPlaceholderText(
+    if (sdoInspector_->sdoValue) {
+      sdoInspector_->sdoValue->setText(trail.value);
+      sdoInspector_->sdoValue->setPlaceholderText(
           trail.value.isEmpty()
               ? uiText("No trail value", "轨迹暂无值")
               : uiText("Value from target trail", "来自目标轨迹的值"));
@@ -1981,11 +1981,11 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
           uiText("只读", "只读"));
     }
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(selectedSdoWritable_);
-    sdoWriteValue_->setText(selectedSdoWritable_ ? trail.writeValue
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(selectedSdoWritable_);
+    sdoInspector_->sdoWriteValue->setText(selectedSdoWritable_ ? trail.writeValue
                                                  : QString());
-    sdoWriteValue_->setPlaceholderText(
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         selectedSdoWritable_ ? (trail.writeValue.isEmpty()
                                     ? uiText("Value to write", "写入值")
                                     : uiText("Write value from target trail",
@@ -2005,8 +2005,8 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
                "access",
                "已本地恢复 SDO 目标 #%1 %2:%3，未访问总线")
             .arg(trail.position)
-            .arg(sdoIndex_ ? sdoIndex_->text() : trail.index,
-                 sdoSubIndex_ ? sdoSubIndex_->text() : trail.subIndex));
+            .arg(sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : trail.index,
+                 sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : trail.subIndex));
   }
   updateActionAvailability();
   return true;
@@ -2071,11 +2071,11 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
   if (!prepareSdoTargetTrailRow(row, false)) {
     return;
   }
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString value = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString value = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   addCurrentSdoToWatch(false);
   if (watch_->watchTable && watch_->watchTable->currentRow() >= 0) {
     const int watchRow = watch_->watchTable->currentRow();
@@ -2115,11 +2115,11 @@ void MainWindow::bookmarkSdoTargetTrailRow() {
   if (!prepareSdoTargetTrailRow(row, false)) {
     return;
   }
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString value = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString value = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   const SdoTargetTrailRow trail =
       sdoTargetTrailRowFromTable(sdoTargetTrailTable_, row);
   addObjectBookmark(
@@ -2157,10 +2157,10 @@ void MainWindow::addSdoTargetTrailRowToStartup() {
                              "所选目标轨迹行被识别为只读对象"));
     return;
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setText(value);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setText(value);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         uiText("Value from target trail", "来自目标轨迹的值"));
   }
   addStartupSdo();
@@ -2293,21 +2293,21 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
 
 // — Use read sdo value for write
 void MainWindow::useReadSdoValueForWrite() {
-  if (!sdoValue_ || !sdoWriteValue_ || !selectedSdoWritable_) {
+  if (!sdoInspector_->sdoValue || !sdoInspector_->sdoWriteValue || !selectedSdoWritable_) {
     return;
   }
-  const QString value = sdoValue_->text().trimmed();
+  const QString value = sdoInspector_->sdoValue->text().trimmed();
   if (value.isEmpty()) {
     return;
   }
-  sdoWriteValue_->setEnabled(true);
-  sdoWriteValue_->setText(value);
-  sdoWriteValue_->setPlaceholderText(
+  sdoInspector_->sdoWriteValue->setEnabled(true);
+  sdoInspector_->sdoWriteValue->setText(value);
+  sdoInspector_->sdoWriteValue->setPlaceholderText(
       uiText("Value copied from read-back", "已从读回值复制"));
   updateDiagnostics("Info", "SDO",
                     QString("Copied read value into write field %1:%2 = %3")
-                        .arg(sdoIndex_ ? sdoIndex_->text() : QString(),
-                             sdoSubIndex_ ? sdoSubIndex_->text() : QString(),
+                        .arg(sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString(),
+                             sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString(),
                              value));
   updateSdoInspector(
       uiText("Read value", "读回值"),
@@ -2318,7 +2318,7 @@ void MainWindow::useReadSdoValueForWrite() {
 
 // — Use preferred sdo evidence for write
 void MainWindow::usePreferredSdoEvidenceForWrite() {
-  if (!sdoWriteValue_ || !selectedSdoWritable_) {
+  if (!sdoInspector_->sdoWriteValue || !selectedSdoWritable_) {
     return;
   }
   QString source;
@@ -2330,15 +2330,15 @@ void MainWindow::usePreferredSdoEvidenceForWrite() {
                              "当前目标没有可用的本地 SDO 证据值"));
     return;
   }
-  sdoWriteValue_->setEnabled(true);
-  sdoWriteValue_->setText(value);
-  sdoWriteValue_->setPlaceholderText(
+  sdoInspector_->sdoWriteValue->setEnabled(true);
+  sdoInspector_->sdoWriteValue->setText(value);
+  sdoInspector_->sdoWriteValue->setPlaceholderText(
       uiText("Value copied from %1", "已从 %1 复制数值").arg(source));
   updateDiagnostics("Info", "SDO",
                     uiText("Copied %1 evidence into write field %2:%3 = %4",
                            "已把 %1 证据复制到写入框 %2:%3 = %4")
-                        .arg(source, sdoIndex_ ? sdoIndex_->text() : QString(),
-                             sdoSubIndex_ ? sdoSubIndex_->text() : QString(),
+                        .arg(source, sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString(),
+                             sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString(),
                              value));
   updateSdoInspector(
       uiText("Local evidence", "本地证据"),
@@ -2349,7 +2349,7 @@ void MainWindow::usePreferredSdoEvidenceForWrite() {
 
 // — Pick sdo evidence for write
 void MainWindow::pickSdoEvidenceForWrite() {
-  if (!sdoWriteValue_ || !selectedSdoWritable_) {
+  if (!sdoInspector_->sdoWriteValue || !selectedSdoWritable_) {
     return;
   }
   const auto candidates = currentSdoEvidenceCandidates();
@@ -2406,15 +2406,15 @@ void MainWindow::pickSdoEvidenceForWrite() {
   if (value.trimmed().isEmpty()) {
     return;
   }
-  sdoWriteValue_->setEnabled(true);
-  sdoWriteValue_->setText(value.trimmed());
-  sdoWriteValue_->setPlaceholderText(
+  sdoInspector_->sdoWriteValue->setEnabled(true);
+  sdoInspector_->sdoWriteValue->setText(value.trimmed());
+  sdoInspector_->sdoWriteValue->setPlaceholderText(
       uiText("Value chosen from %1", "已从 %1 选择数值").arg(source));
   updateDiagnostics("Info", "SDO",
                     uiText("Selected %1 evidence for write field %2:%3 = %4",
                            "已选择 %1 证据作为写入值 %2:%3 = %4")
-                        .arg(source, sdoIndex_ ? sdoIndex_->text() : QString(),
-                             sdoSubIndex_ ? sdoSubIndex_->text() : QString(),
+                        .arg(source, sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString(),
+                             sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString(),
                              value.trimmed()));
   updateSdoInspector(
       uiText("Local evidence", "本地证据"),
@@ -2438,8 +2438,8 @@ void MainWindow::writeCurrentSdo() {
 
   QStringList validationErrors;
   QStringList validationWarnings;
-  validateSdoAddressAndValue(sdoIndex_->text(), sdoSubIndex_->text(),
-                             sdoWriteValue_->text(), sdoType_->currentText(),
+  validateSdoAddressAndValue(sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+                             sdoInspector_->sdoWriteValue->text(), sdoInspector_->sdoType->currentText(),
                              &validationErrors, &validationWarnings);
   if (!validationErrors.isEmpty()) {
     updateDiagnostics(
@@ -2455,17 +2455,17 @@ void MainWindow::writeCurrentSdo() {
       uiText("Master: %1", "主站：%1").arg(activeMasterName()),
       uiText("Slave: #%1", "从站：#%1").arg(selectedPosition()),
       uiText("Object: %1:%2", "对象：%1:%2")
-          .arg(sdoIndex_->text(), sdoSubIndex_->text()),
+          .arg(sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text()),
       uiText("Type: %1", "类型：%1")
-          .arg(sdoType_->currentText().isEmpty() ? uiText("default", "默认")
-                                                 : sdoType_->currentText()),
-      uiText("Value: %1", "值：%1").arg(sdoWriteValue_->text()),
+          .arg(sdoInspector_->sdoType->currentText().isEmpty() ? uiText("default", "默认")
+                                                 : sdoInspector_->sdoType->currentText()),
+      uiText("Value: %1", "值：%1").arg(sdoInspector_->sdoWriteValue->text()),
       uiText("SDO writes can change persistent parameters or output behavior.",
              "SDO 写入可能改变持久参数或输出行为。"),
   };
-  details << sdoWriteImpactDetails(selectedPosition(), sdoIndex_->text(),
-                                   sdoSubIndex_->text(), sdoWriteValue_->text(),
-                                   sdoType_->currentText());
+  details << sdoWriteImpactDetails(selectedPosition(), sdoInspector_->sdoIndex->text(),
+                                   sdoInspector_->sdoSubIndex->text(), sdoInspector_->sdoWriteValue->text(),
+                                   sdoInspector_->sdoType->currentText());
   if (!validationWarnings.isEmpty()) {
     details << uiText("Validation warning: %1", "校验警告：%1")
                    .arg(validationWarnings.join("; "));
@@ -2479,27 +2479,27 @@ void MainWindow::writeCurrentSdo() {
     return;
   }
 
-  const QString writeKey = sdoEvidenceKey(selectedPosition(), sdoIndex_->text(),
-                                          sdoSubIndex_->text());
+  const QString writeKey = sdoEvidenceKey(selectedPosition(), sdoInspector_->sdoIndex->text(),
+                                          sdoInspector_->sdoSubIndex->text());
   pendingSdoWrites_.insert(writeKey,
                            {QString::number(selectedPosition()),
-                            sdoIndex_->text(), sdoSubIndex_->text(),
-                            sdoType_->currentText(), sdoWriteValue_->text()});
+                            sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+                            sdoInspector_->sdoType->currentText(), sdoInspector_->sdoWriteValue->text()});
   updateSdoTableEvidence(
-      selectedPosition(), sdoIndex_->text(), sdoSubIndex_->text(),
-      sdoWriteValue_->text(), uiText("Write Pending", "写入待确认"),
+      selectedPosition(), sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+      sdoInspector_->sdoWriteValue->text(), uiText("Write Pending", "写入待确认"),
       uiText("Waiting for runtime download completion; read-back verification "
              "will run automatically.",
              "等待运行时写入完成；随后会自动读回校验。"));
   appendSdoHistory(uiText("Write", "写入"), selectedPosition(),
-                   sdoIndex_->text(), sdoSubIndex_->text(),
-                   sdoType_->currentText(), sdoWriteValue_->text(),
+                   sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+                   sdoInspector_->sdoType->currentText(), sdoInspector_->sdoWriteValue->text(),
                    uiText("Requested", "已请求"),
                    uiText("Manual SDO write; automatic read-back verification "
                           "will follow",
                           "手动 SDO 写入；随后自动读回校验"));
-  client_.download(selectedPosition(), sdoIndex_->text(), sdoSubIndex_->text(),
-                   sdoWriteValue_->text(), sdoType_->currentText());
+  client_.download(selectedPosition(), sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+                   sdoInspector_->sdoWriteValue->text(), sdoInspector_->sdoType->currentText());
   updateSdoInspector(
       uiText("SDO write requested", "SDO 写入已请求"),
       uiText("Automatic read-back verification will run after download "
@@ -2508,8 +2508,8 @@ void MainWindow::writeCurrentSdo() {
   updateDiagnostics("Info", "SDO",
                     QString("Download requested %1:%2 = %3; automatic "
                             "read-back verification will follow")
-                        .arg(sdoIndex_->text(), sdoSubIndex_->text(),
-                             sdoWriteValue_->text()));
+                        .arg(sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
+                             sdoInspector_->sdoWriteValue->text()));
 }
 
 
@@ -2521,24 +2521,24 @@ void MainWindow::prepareCia402Controlword(const QString &label,
   }
   activateObjectDictionaryPaneFor(sdo_->sdoTable);
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText("0x6040");
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText("0x6040");
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText("0x00");
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText("0x00");
     }
-    if (sdoType_) {
-      sdoType_->setCurrentText("uint16");
+    if (sdoInspector_->sdoType) {
+      sdoInspector_->sdoType->setCurrentText("uint16");
     }
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setText(value);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setText(value);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         uiText("CiA 402 controlword", "CiA 402 控制字"));
   }
   updateSdoInspector(
@@ -2836,7 +2836,7 @@ void MainWindow::requestSdoRead(int position, const QString &index,
   const QString readType =
       !type.trimmed().isEmpty()
           ? type.trimmed()
-          : (sdoType_ ? sdoType_->currentText().trimmed() : QString());
+          : (sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString());
   pendingSdoReads_.insert(key, source);
   pendingSdoReadTypes_.insert(key, readType);
   appendSdoHistory(uiText("Read", "读取"), position, trimmedIndex, trimmedSub,
@@ -2866,16 +2866,16 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   const QString access = dictionary.access.toLower();
   const bool writable = sdoDictionaryRowIsWritable(dictionary);
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  const QSignalBlocker valueBlocker(sdoInspector_->sdoValue); // prevent recursive signal updates
 
-  sdoIndex_->setText(dictionary.index);
-  sdoSubIndex_->setText(dictionary.subIndex);
-  if (sdoValue_) {
-    sdoValue_->setText(dictionary.value);
-    sdoValue_->setPlaceholderText(
+  sdoInspector_->sdoIndex->setText(dictionary.index);
+  sdoInspector_->sdoSubIndex->setText(dictionary.subIndex);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(dictionary.value);
+    sdoInspector_->sdoValue->setPlaceholderText(
         dictionary.value.isEmpty()
             ? uiText("No read-back for selected object", "选中对象暂无读回值")
             : uiText("Last value from Object Dictionary evidence",
@@ -2884,17 +2884,17 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
 
   if (!dictionary.type.isEmpty()) {
     const QString normalized = dictionary.type.toLower().replace(' ', "_");
-    const int typeIndex = sdoType_->findText(normalized, Qt::MatchFixedString);
-    sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+    const int typeIndex = sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+    sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
   }
 
   selectedSdoWritable_ = writable;
-  sdoWriteValue_->setEnabled(writable);
+  sdoInspector_->sdoWriteValue->setEnabled(writable);
   if (!writable) {
-    sdoWriteValue_->clear();
-    sdoWriteValue_->setPlaceholderText(uiText("Read-only object", "只读对象"));
+    sdoInspector_->sdoWriteValue->clear();
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Read-only object", "只读对象"));
   } else {
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(uiText("Object Dictionary", "对象字典"),
                      QString("%1 %2 %3 bit %4")
@@ -2912,13 +2912,13 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   updateDiagnostics(
       "Info", "SDO",
       QString("Selected object %1:%2 %3 %4 bit %5%6")
-          .arg(dictionary.index, sdoSubIndex_->text(), access.toUpper(),
+          .arg(dictionary.index, sdoInspector_->sdoSubIndex->text(), access.toUpper(),
                dictionary.bits, dictionary.name,
                writable ? QString()
                         : uiText(" (write disabled)", "（已禁用写入）")));
 
   if (readAfterFill && client_.isConnected() && selectedPosition() >= 0) {
-    requestSdoRead(selectedPosition(), sdoIndex_->text(), sdoSubIndex_->text(),
+    requestSdoRead(selectedPosition(), sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
                    uiText("Object Dictionary", "对象字典"));
   }
   updateActionAvailability();
@@ -3017,17 +3017,17 @@ bool MainWindow::selectObjectBookmarkSlave(int position) {
 // — Add current sdo bookmark
 void MainWindow::addCurrentSdoBookmark() {
   const int position = selectedPosition();
-  const QString index = sdoIndex_ ? sdoIndex_->text().trimmed() : QString();
+  const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text().trimmed() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text().trimmed() : QString();
   if (position < 0 || index.isEmpty() || subIndex.isEmpty()) {
     updateDiagnostics("Info", "Object Bookmarks",
                       uiText("Select a slave and SDO target before bookmarking",
                              "收藏前请先选择从站和 SDO 目标"));
     return;
   }
-  const QString type = sdoType_ ? sdoType_->currentText().trimmed() : QString();
-  const QString lastValue = sdoValue_ ? sdoValue_->text().trimmed() : QString();
+  const QString type = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText().trimmed() : QString();
+  const QString lastValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text().trimmed() : QString();
   addObjectBookmark(
       position, index, subIndex,
       selectedSdoWritable_ ? uiText("rw", "读写") : uiText("ro", "只读"), type,
@@ -3209,21 +3209,21 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
     return;
   }
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    const QSignalBlocker valueBlocker(sdoValue_); // prevent recursive signal updates
-    sdoIndex_->setText(bookmark.index);
-    sdoSubIndex_->setText(bookmark.subIndex);
-    if (sdoType_) {
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    const QSignalBlocker valueBlocker(sdoInspector_->sdoValue); // prevent recursive signal updates
+    sdoInspector_->sdoIndex->setText(bookmark.index);
+    sdoInspector_->sdoSubIndex->setText(bookmark.subIndex);
+    if (sdoInspector_->sdoType) {
       const QString normalized = bookmark.type.toLower().replace(' ', "_");
       const int typeIndex =
-          sdoType_->findText(normalized, Qt::MatchFixedString);
-      sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+          sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+      sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
     }
-    if (sdoValue_) {
-      sdoValue_->setText(bookmark.lastValue);
-      sdoValue_->setPlaceholderText(
+    if (sdoInspector_->sdoValue) {
+      sdoInspector_->sdoValue->setText(bookmark.lastValue);
+      sdoInspector_->sdoValue->setPlaceholderText(
           bookmark.lastValue.isEmpty()
               ? uiText("No bookmark value", "书签暂无值")
               : uiText("Value from object bookmark", "来自对象书签的值"));
@@ -3232,13 +3232,13 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
 
   selectedSdoWritable_ =
       !sdoObjectAccessIsReadOnly(bookmark.access, uiText("只读", "只读"));
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(selectedSdoWritable_);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(selectedSdoWritable_);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         selectedSdoWritable_ ? uiText("Value to write", "写入值")
                              : uiText("Read-only object", "只读对象"));
     if (!selectedSdoWritable_) {
-      sdoWriteValue_->clear();
+      sdoInspector_->sdoWriteValue->clear();
     }
   }
   updateSdoInspector(
@@ -3251,11 +3251,11 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
                     uiText("Filled SDO target from bookmark #%1 %2:%3",
                            "已从书签回填 SDO 目标 #%1 %2:%3")
                         .arg(bookmark.position)
-                        .arg(sdoIndex_->text(), sdoSubIndex_->text()));
+                        .arg(sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text()));
   if (readAfterFill && client_.isConnected()) {
-    requestSdoRead(bookmark.position, sdoIndex_->text(), sdoSubIndex_->text(),
+    requestSdoRead(bookmark.position, sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
                    uiText("Object Bookmark", "对象书签"),
-                   sdoType_ ? sdoType_->currentText() : QString());
+                   sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString());
   }
   updateActionAvailability();
 }
@@ -3808,13 +3808,13 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
     return;
   }
 
-  const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
+  const QString previousIndex = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text() : QString();
   const QString previousSubIndex =
-      sdoSubIndex_ ? sdoSubIndex_->text() : QString();
-  const QString previousType = sdoType_ ? sdoType_->currentText() : QString();
-  const QString previousReadValue = sdoValue_ ? sdoValue_->text() : QString();
+      sdoInspector_->sdoSubIndex ? sdoInspector_->sdoSubIndex->text() : QString();
+  const QString previousType = sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString();
+  const QString previousReadValue = sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString();
   const QString previousWriteValue =
-      sdoWriteValue_ ? sdoWriteValue_->text() : QString();
+      sdoInspector_->sdoWriteValue ? sdoInspector_->sdoWriteValue->text() : QString();
   const bool previousWritable = selectedSdoWritable_;
 
   int addedOrReused = 0;
@@ -3831,23 +3831,23 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
       continue;
     }
     {
-      const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-      const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-      const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-      if (sdoIndex_) {
-        sdoIndex_->setText(dictionary.index);
+      const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+      const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+      const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+      if (sdoInspector_->sdoIndex) {
+        sdoInspector_->sdoIndex->setText(dictionary.index);
       }
-      if (sdoSubIndex_) {
-        sdoSubIndex_->setText(dictionary.subIndex);
+      if (sdoInspector_->sdoSubIndex) {
+        sdoInspector_->sdoSubIndex->setText(dictionary.subIndex);
       }
-      if (sdoType_) {
+      if (sdoInspector_->sdoType) {
         const QString normalized = dictionary.type.toLower().replace(' ', "_");
         const int typeIndex =
-            sdoType_->findText(normalized, Qt::MatchFixedString);
-        sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+            sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+        sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
       }
-      if (sdoValue_) {
-        sdoValue_->clear();
+      if (sdoInspector_->sdoValue) {
+        sdoInspector_->sdoValue->clear();
       }
     }
     selectedSdoWritable_ = true;
@@ -3856,24 +3856,24 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
   }
 
   {
-    const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-    const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-    const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-    if (sdoIndex_) {
-      sdoIndex_->setText(previousIndex);
+    const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+    const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+    const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+    if (sdoInspector_->sdoIndex) {
+      sdoInspector_->sdoIndex->setText(previousIndex);
     }
-    if (sdoSubIndex_) {
-      sdoSubIndex_->setText(previousSubIndex);
+    if (sdoInspector_->sdoSubIndex) {
+      sdoInspector_->sdoSubIndex->setText(previousSubIndex);
     }
-    if (sdoType_) {
-      sdoType_->setCurrentText(previousType);
+    if (sdoInspector_->sdoType) {
+      sdoInspector_->sdoType->setCurrentText(previousType);
     }
   }
-  if (sdoValue_) {
-    sdoValue_->setText(previousReadValue);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(previousReadValue);
   }
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setText(previousWriteValue);
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setText(previousWriteValue);
   }
   selectedSdoWritable_ = previousWritable;
   updateSdoInspector(uiText("Restored selection", "已恢复选择"));
@@ -3910,14 +3910,14 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  sdoIndex_->setText(pdoRow.index);
-  sdoSubIndex_->setText(pdoRow.subIndex);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(pdoRow.index);
+  sdoInspector_->sdoSubIndex->setText(pdoRow.subIndex);
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(
       uiText("PDO Map", "PDO 映射"),
@@ -3932,10 +3932,10 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
                     QString("Selected PDO entry #%1 %2 %3 %4:%5 %6 bit %7")
                         .arg(position)
                         .arg(pdoRow.syncManager, pdoRow.pdo, pdoRow.index,
-                             sdoSubIndex_->text(), pdoRow.bits, pdoRow.name));
+                             sdoInspector_->sdoSubIndex->text(), pdoRow.bits, pdoRow.name));
 
   if (readAfterFill && client_.isConnected()) {
-    requestSdoRead(position, sdoIndex_->text(), sdoSubIndex_->text(),
+    requestSdoRead(position, sdoInspector_->sdoIndex->text(), sdoInspector_->sdoSubIndex->text(),
                    uiText("PDO Map", "PDO 映射"));
   }
   updateActionAvailability();
@@ -3961,15 +3961,15 @@ void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  sdoIndex_->setText(entry.index);
-  sdoSubIndex_->setText(entry.subIndex);
-  sdoValue_->setText(entry.raw);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(entry.index);
+  sdoInspector_->sdoSubIndex->setText(entry.subIndex);
+  sdoInspector_->sdoValue->setText(entry.raw);
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(uiText("Free Run", "自由运行"),
                      QString("%1 %2").arg(entry.direction, entry.name));
@@ -4007,28 +4007,28 @@ void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
   } else if (!selectSlaveForLocalEvidence(variable.position)) {
     return;
   }
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  if (sdoIndex_) {
-    sdoIndex_->setText(variable.index);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  if (sdoInspector_->sdoIndex) {
+    sdoInspector_->sdoIndex->setText(variable.index);
   }
-  if (sdoSubIndex_) {
-    sdoSubIndex_->setText(variable.subIndex);
+  if (sdoInspector_->sdoSubIndex) {
+    sdoInspector_->sdoSubIndex->setText(variable.subIndex);
   }
-  if (sdoType_) {
+  if (sdoInspector_->sdoType) {
     const QString type = ioVariableTableRowTypeFromBits(variable);
     if (!type.isEmpty()) {
-      sdoType_->setCurrentText(type);
+      sdoInspector_->sdoType->setCurrentText(type);
     }
   }
-  if (sdoValue_) {
-    sdoValue_->setText(ioVariableTableRowPreferredValue(variable));
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(ioVariableTableRowPreferredValue(variable));
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(
       uiText("I/O Variables", "I/O 变量"),
@@ -4047,7 +4047,7 @@ void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
   if (readAfterFill && client_.isConnected()) {
     requestSdoRead(variable.position, variable.index, variable.subIndex,
                    uiText("I/O Variables", "I/O 变量"),
-                   sdoType_ ? sdoType_->currentText() : QString());
+                   sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString());
   }
   updateActionAvailability();
 }
@@ -4516,19 +4516,19 @@ void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  sdoIndex_->setText(index);
-  sdoSubIndex_->setText(subIndex);
-  sdoValue_->setText(value);
-  if (!type.isEmpty() && sdoType_) {
-    sdoType_->setCurrentText(type);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(index);
+  sdoInspector_->sdoSubIndex->setText(subIndex);
+  sdoInspector_->sdoValue->setText(value);
+  if (!type.isEmpty() && sdoInspector_->sdoType) {
+    sdoInspector_->sdoType->setCurrentText(type);
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setPlaceholderText(uiText("Value to write", "写入值"));
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
   }
   updateSdoInspector(uiText("Watch", "监视"), textAt(5));
   rememberCurrentSdoTarget(uiText("Watch", "监视"), textAt(5));
@@ -4574,24 +4574,24 @@ void MainWindow::applySdoSelectionFromHistory(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  sdoIndex_->setText(index);
-  sdoSubIndex_->setText(subIndex);
-  if (sdoValue_) {
-    sdoValue_->setText(value);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(index);
+  sdoInspector_->sdoSubIndex->setText(subIndex);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(value);
   }
-  if (!type.isEmpty() && sdoType_) {
+  if (!type.isEmpty() && sdoInspector_->sdoType) {
     const QString normalized = type.toLower().replace(' ', "_");
-    const int typeIndex = sdoType_->findText(normalized, Qt::MatchFixedString);
-    sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+    const int typeIndex = sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+    sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setText(value);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setText(value);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         uiText("Value from SDO history", "来自 SDO 历史的值"));
   }
   updateSdoInspector(uiText("SDO History", "SDO 历史"),
@@ -4641,24 +4641,24 @@ void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
     return;
   }
 
-  const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
-  const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
-  const QSignalBlocker typeBlocker(sdoType_); // prevent recursive signal updates
-  sdoIndex_->setText(index);
-  sdoSubIndex_->setText(subIndex);
-  if (sdoValue_) {
-    sdoValue_->setText(value);
+  const QSignalBlocker indexBlocker(sdoInspector_->sdoIndex); // prevent recursive signal updates
+  const QSignalBlocker subIndexBlocker(sdoInspector_->sdoSubIndex); // prevent recursive signal updates
+  const QSignalBlocker typeBlocker(sdoInspector_->sdoType); // prevent recursive signal updates
+  sdoInspector_->sdoIndex->setText(index);
+  sdoInspector_->sdoSubIndex->setText(subIndex);
+  if (sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(value);
   }
-  if (!type.isEmpty() && sdoType_) {
+  if (!type.isEmpty() && sdoInspector_->sdoType) {
     const QString normalized = type.toLower().replace(' ', "_");
-    const int typeIndex = sdoType_->findText(normalized, Qt::MatchFixedString);
-    sdoType_->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
+    const int typeIndex = sdoInspector_->sdoType->findText(normalized, Qt::MatchFixedString);
+    sdoInspector_->sdoType->setCurrentIndex(typeIndex >= 0 ? typeIndex : 0);
   }
   selectedSdoWritable_ = true;
-  if (sdoWriteValue_) {
-    sdoWriteValue_->setEnabled(true);
-    sdoWriteValue_->setText(value);
-    sdoWriteValue_->setPlaceholderText(
+  if (sdoInspector_->sdoWriteValue) {
+    sdoInspector_->sdoWriteValue->setEnabled(true);
+    sdoInspector_->sdoWriteValue->setText(value);
+    sdoInspector_->sdoWriteValue->setPlaceholderText(
         uiText("Startup SDO value", "Startup SDO 的值"));
   }
   updateSdoInspector(
