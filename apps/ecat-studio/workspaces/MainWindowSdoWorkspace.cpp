@@ -154,10 +154,10 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
   QString accessText;
   QString nameText;
   QString bitsText;
-  if (sdoTable_ && selectedPosition() == position &&
+  if (sdo_->sdoTable && selectedPosition() == position &&
       loadedSdoPosition_ == position) {
     const SdoDictionaryRow dictionary = sdoDictionaryRowForTarget(
-        sdoTable_, normalizedIndex, normalizedSubIndex);
+        sdo_->sdoTable, normalizedIndex, normalizedSubIndex);
     objectText = dictionary.object;
     accessText = dictionary.access;
     bitsText = dictionary.bits;
@@ -190,8 +190,8 @@ QStringList MainWindow::sdoWriteImpactDetails(int position,
           sdoValue_ ? sdoValue_->text() : QString(), cachedEvidence.value(0),
           sdoValue_ &&
               isCurrentSdoTarget(position, normalizedIndex, normalizedSubIndex),
-          sdoTable_ && loadedSdoPosition_ == position,
-          {.dictionaryTable = sdoTable_,
+          sdo_->sdoTable && loadedSdoPosition_ == position,
+          {.dictionaryTable = sdo_->sdoTable,
            .watchTable = watch_->watchTable,
            .startupTable = startupSdoTable_,
            .bookmarkTable = objectBookmarkTable_},
@@ -517,11 +517,11 @@ bool MainWindow::isCurrentSdoTarget(int position, const QString &index,
 // — Return the current sdo dictionary row
 int MainWindow::currentSdoDictionaryRow() const {
   const int position = selectedPosition();
-  if (position < 0 || !sdoTable_ || !sdoIndex_ || !sdoSubIndex_ ||
+  if (position < 0 || !sdo_->sdoTable || !sdoIndex_ || !sdoSubIndex_ ||
       loadedSdoPosition_ != position) {
     return -1;
   }
-  return sdoEvidenceTableRowsForTarget({.dictionaryTable = sdoTable_},
+  return sdoEvidenceTableRowsForTarget({.dictionaryTable = sdo_->sdoTable},
                                        {.position = position,
                                         .index = sdoIndex_->text(),
                                         .subIndex = sdoSubIndex_->text(),
@@ -597,7 +597,7 @@ QString MainWindow::currentSdoPreferredEvidenceValue(QString *source) const {
 SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   const int position = selectedPosition();
   const SdoEvidenceTableRows rows = sdoEvidenceTableRowsForTarget(
-      {.dictionaryTable = sdoTable_,
+      {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
@@ -608,7 +608,7 @@ SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
        .dictionaryLoadedForPosition = loadedSdoPosition_ == position});
   return sdoEvidenceCandidatesFromTables(
       sdoValue_ ? sdoValue_->text() : QString(),
-      {.dictionaryTable = sdoTable_,
+      {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
@@ -643,7 +643,7 @@ bool MainWindow::currentSdoWriteDeltaReviewAvailable() const {
   }
   return sdoWriteDeltaReviewEvidenceAvailable(
       sdoValue_ ? sdoValue_->text() : QString(),
-      {.dictionaryTable = sdoTable_,
+      {.dictionaryTable = sdo_->sdoTable,
        .watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .bookmarkTable = objectBookmarkTable_,
@@ -774,13 +774,13 @@ void MainWindow::reviewCurrentSdoWriteDelta() {
 
   const int dictionaryRow = currentSdoDictionaryRow();
   if (dictionaryRow >= 0) {
-    activateObjectDictionaryPaneFor(sdoTable_);
-    if (sdoFilter_ && sdoTable_->isRowHidden(dictionaryRow)) {
-      sdoFilter_->clear();
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
+    if (sdo_->sdoFilter && sdo_->sdoTable->isRowHidden(dictionaryRow)) {
+      sdo_->sdoFilter->clear();
       filterSdoTable(QString());
     }
-    sdoTable_->clearSelection();
-    selectAndFocusTableRow(sdoTable_, dictionaryRow, 7);
+    sdo_->sdoTable->clearSelection();
+    selectAndFocusTableRow(sdo_->sdoTable, dictionaryRow, 7);
     updateDiagnostics("Info", "Navigation",
                       uiText("Reviewing Write Delta in Object Dictionary "
                              "evidence",
@@ -829,15 +829,15 @@ bool MainWindow::openSdoTargetPanelRow(int row) {
     copyCurrentSdoEvidenceDigest();
     break;
   case SdoTargetPanelRouteKind::ObjectDictionary: {
-    activateObjectDictionaryPaneFor(sdoTable_);
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
     const int dictionaryRow = currentSdoDictionaryRow();
-    if (dictionaryRow >= 0 && sdoTable_) {
-      if (sdoFilter_ && sdoTable_->isRowHidden(dictionaryRow)) {
-        sdoFilter_->clear();
+    if (dictionaryRow >= 0 && sdo_->sdoTable) {
+      if (sdo_->sdoFilter && sdo_->sdoTable->isRowHidden(dictionaryRow)) {
+        sdo_->sdoFilter->clear();
         filterSdoTable(QString());
       }
-      sdoTable_->clearSelection();
-      selectAndFocusTableRow(sdoTable_, dictionaryRow, 1);
+      sdo_->sdoTable->clearSelection();
+      selectAndFocusTableRow(sdo_->sdoTable, dictionaryRow, 1);
     } else if (sdoIndex_) {
       sdoIndex_->setFocus();
       sdoIndex_->selectAll();
@@ -1173,10 +1173,10 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
 
   int dictionaryRow = -1;
   SdoDictionaryRow dictionary;
-  if (hasCompleteTarget && sdoTable_ && loadedSdoPosition_ == position) {
-    dictionaryRow = tableRowForObjectIndex(sdoTable_, normalizedIndex,
+  if (hasCompleteTarget && sdo_->sdoTable && loadedSdoPosition_ == position) {
+    dictionaryRow = tableRowForObjectIndex(sdo_->sdoTable, normalizedIndex,
                                            normalizedSubIndex, 1, 2);
-    dictionary = sdoDictionaryRowFromTable(sdoTable_, dictionaryRow);
+    dictionary = sdoDictionaryRowFromTable(sdo_->sdoTable, dictionaryRow);
   }
 
   const QString object = dictionary.object;
@@ -1972,7 +1972,7 @@ bool MainWindow::prepareSdoTargetTrailRow(int row, bool reportRestoreSuccess) {
   const int dictionaryRow = currentSdoDictionaryRow();
   if (dictionaryRow >= 0) {
     selectedSdoWritable_ = sdoDictionaryRowIsWritable(
-        sdoDictionaryRowFromTable(sdoTable_, dictionaryRow));
+        sdoDictionaryRowFromTable(sdo_->sdoTable, dictionaryRow));
   } else {
     const int bookmarkRow = currentSdoBookmarkRow();
     if (bookmarkRow >= 0) {
@@ -2029,13 +2029,13 @@ bool MainWindow::sdoTargetTrailRowCanCreateStartup(int row) const {
     return false;
   }
 
-  if (sdoTable_ && loadedSdoPosition_ == trail.position) {
-    for (int dictionaryRow = 0; dictionaryRow < sdoTable_->rowCount();
+  if (sdo_->sdoTable && loadedSdoPosition_ == trail.position) {
+    for (int dictionaryRow = 0; dictionaryRow < sdo_->sdoTable->rowCount();
          ++dictionaryRow) {
-      if (tableObjectIndexMatches(sdoTable_, dictionaryRow, trail.index,
+      if (tableObjectIndexMatches(sdo_->sdoTable, dictionaryRow, trail.index,
                                   trail.subIndex, 1, 2)) {
         return sdoDictionaryRowIsWritable(
-            sdoDictionaryRowFromTable(sdoTable_, dictionaryRow));
+            sdoDictionaryRowFromTable(sdo_->sdoTable, dictionaryRow));
       }
     }
   }
@@ -2246,7 +2246,7 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
   const QString time = QDateTime::currentDateTime().toString("HH:mm:ss");
   sdoEvidence_.insert(key, {value, status, detail, time});
 
-  if (!sdoTable_ || selectedPosition() != position) {
+  if (!sdo_->sdoTable || selectedPosition() != position) {
     return;
   }
 
@@ -2259,17 +2259,17 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
   const QColor valueBackground =
       settings_.theme == "Light" ? QColor("#eef2ff") : QColor("#172036");
 
-  for (int row = 0; row < sdoTable_->rowCount(); ++row) {
-    if (!tableObjectIndexMatches(sdoTable_, row, normalizedIndex,
+  for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
+    if (!tableObjectIndexMatches(sdo_->sdoTable, row, normalizedIndex,
                                  normalizedSubIndex, 1, 2)) {
       continue;
     }
 
     auto ensureItem = [this, row](int column) {
-      auto *item = sdoTable_->item(row, column);
+      auto *item = sdo_->sdoTable->item(row, column);
       if (!item) {
         item = new QTableWidgetItem;
-        sdoTable_->setItem(row, column, item);
+        sdo_->sdoTable->setItem(row, column, item);
       }
       return item;
     };
@@ -2285,7 +2285,7 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
     break;
   }
 
-  if (sdoTable_->currentRow() >= 0) {
+  if (sdo_->sdoTable->currentRow() >= 0) {
     updateSdoInspector(uiText("OD evidence", "OD 证据"), detail);
   }
   updateActionAvailability();
@@ -2520,7 +2520,7 @@ void MainWindow::prepareCia402Controlword(const QString &label,
   if (selectedPosition() < 0) {
     return;
   }
-  activateObjectDictionaryPaneFor(sdoTable_);
+  activateObjectDictionaryPaneFor(sdo_->sdoTable);
   {
     const QSignalBlocker indexBlocker(sdoIndex_); // prevent recursive signal updates
     const QSignalBlocker subIndexBlocker(sdoSubIndex_); // prevent recursive signal updates
@@ -2848,7 +2848,7 @@ void MainWindow::requestSdoRead(int position, const QString &index,
 
 // — Fill the SDO target panel from the selected OD row
 void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
-  if (!sdoTable_ || row < 0 || row >= sdoTable_->rowCount()) {
+  if (!sdo_->sdoTable || row < 0 || row >= sdo_->sdoTable->rowCount()) {
     return;
   }
   if (selectedPosition() < 0 || loadedSdoPosition_ != selectedPosition()) {
@@ -2859,7 +2859,7 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
     return;
   }
 
-  const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(sdoTable_, row);
+  const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(sdo_->sdoTable, row);
   if (!sdoDictionaryRowHasTarget(dictionary)) {
     return;
   }
@@ -3039,7 +3039,7 @@ void MainWindow::addCurrentSdoBookmark() {
 
 // — Add selected dictionary rows to bookmarks
 void MainWindow::addSelectedDictionaryRowsToBookmarks() {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
@@ -3055,20 +3055,20 @@ void MainWindow::addSelectedDictionaryRowsToBookmarks() {
 // — Add dictionary rows to bookmarks
 void MainWindow::addDictionaryRowsToBookmarks(const QVector<int> &rows,
                                               const QString &sourceLabel) {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition() || rows.isEmpty()) {
     return;
   }
   int addedOrUpdated = 0;
   int skipped = 0;
   for (const int row : rows) {
-    if (row < 0 || row >= sdoTable_->rowCount() ||
-        sdoTable_->isRowHidden(row)) {
+    if (row < 0 || row >= sdo_->sdoTable->rowCount() ||
+        sdo_->sdoTable->isRowHidden(row)) {
       ++skipped;
       continue;
     }
     const SdoDictionaryRow dictionary =
-        sdoDictionaryRowFromTable(sdoTable_, row);
+        sdoDictionaryRowFromTable(sdo_->sdoTable, row);
     if (!sdoDictionaryRowHasTarget(dictionary)) {
       ++skipped;
       continue;
@@ -3649,7 +3649,7 @@ void MainWindow::removeSelectedObjectBookmarks() {
 
 // — Read selected dictionary rows
 void MainWindow::readSelectedDictionaryRows() {
-  if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
+  if (!client_.isConnected() || selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
@@ -3665,11 +3665,11 @@ void MainWindow::readSelectedDictionaryRows() {
 
 // — Read visible dictionary rows
 void MainWindow::readVisibleDictionaryRows() {
-  if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
+  if (!client_.isConnected() || selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
-  const QVector<int> rows = visibleSdoDictionaryRows(sdoTable_);
+  const QVector<int> rows = visibleSdoDictionaryRows(sdo_->sdoTable);
   if (rows.isEmpty()) {
     return;
   }
@@ -3680,12 +3680,12 @@ void MainWindow::readVisibleDictionaryRows() {
 
 // — Read failed dictionary rows
 void MainWindow::readFailedDictionaryRows() {
-  if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
+  if (!client_.isConnected() || selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
 
-  const QVector<int> rows = failedSdoDictionaryRows(sdoTable_);
+  const QVector<int> rows = failedSdoDictionaryRows(sdo_->sdoTable);
   if (rows.isEmpty()) {
     updateDiagnostics("Info", "SDO",
                       uiText("No failed Object Dictionary rows to retry",
@@ -3695,10 +3695,10 @@ void MainWindow::readFailedDictionaryRows() {
 
   setSdoFilterPreset("tag:failed");
   if (!rows.isEmpty()) {
-    sdoTable_->clearSelection();
-    sdoTable_->selectRow(rows.first());
-    if (auto *item = sdoTable_->item(rows.first(), 0)) {
-      sdoTable_->scrollToItem(item, QAbstractItemView::PositionAtCenter);
+    sdo_->sdoTable->clearSelection();
+    sdo_->sdoTable->selectRow(rows.first());
+    if (auto *item = sdo_->sdoTable->item(rows.first(), 0)) {
+      sdo_->sdoTable->scrollToItem(item, QAbstractItemView::PositionAtCenter);
     }
   }
   readDictionaryRows(
@@ -3710,14 +3710,14 @@ void MainWindow::readFailedDictionaryRows() {
 void MainWindow::readDictionaryRows(const QVector<int> &rows,
                                     const QString &sourceLabel,
                                     bool confirmLargeBatch) {
-  if (!client_.isConnected() || selectedPosition() < 0 || !sdoTable_ ||
+  if (!client_.isConnected() || selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition() || rows.isEmpty()) {
     return;
   }
 
   int skipped = 0;
   const QVector<SdoDictionaryReadObject> objects =
-      sdoDictionaryReadObjectsFromRows(sdoTable_, rows, &skipped);
+      sdoDictionaryReadObjectsFromRows(sdo_->sdoTable, rows, &skipped);
   if (objects.isEmpty()) {
     return;
   }
@@ -3773,7 +3773,7 @@ void MainWindow::readDictionaryRows(const QVector<int> &rows,
 
 // — Add selected dictionary rows to watch
 void MainWindow::addSelectedDictionaryRowsToWatch() {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
@@ -3788,11 +3788,11 @@ void MainWindow::addSelectedDictionaryRowsToWatch() {
 
 // — Add visible dictionary rows to watch
 void MainWindow::addVisibleDictionaryRowsToWatch() {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
-  const QVector<int> rows = visibleSdoDictionaryRows(sdoTable_);
+  const QVector<int> rows = visibleSdoDictionaryRows(sdo_->sdoTable);
   if (rows.isEmpty()) {
     return;
   }
@@ -3804,7 +3804,7 @@ void MainWindow::addVisibleDictionaryRowsToWatch() {
 // — Add dictionary rows to watch
 void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
                                           const QString &sourceLabel) {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition() || rows.isEmpty()) {
     return;
   }
@@ -3821,12 +3821,12 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
   int addedOrReused = 0;
   int skipped = 0;
   for (const int row : rows) {
-    if (row < 0 || row >= sdoTable_->rowCount() ||
-        sdoTable_->isRowHidden(row)) {
+    if (row < 0 || row >= sdo_->sdoTable->rowCount() ||
+        sdo_->sdoTable->isRowHidden(row)) {
       continue;
     }
     const SdoDictionaryRow dictionary =
-        sdoDictionaryRowFromTable(sdoTable_, row);
+        sdoDictionaryRowFromTable(sdo_->sdoTable, row);
     if (!sdoDictionaryRowHasTarget(dictionary)) {
       ++skipped;
       continue;
@@ -3894,7 +3894,7 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
 
 // — Fill the SDO target panel from the selected PDO map row
 void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
-  if (!pdoTable_ || row < 0 || row >= pdoTable_->rowCount()) {
+  if (!sdo_->pdoTable || row < 0 || row >= sdo_->pdoTable->rowCount()) {
     return;
   }
   if (selectedPosition() < 0 || loadedPdoPosition_ != selectedPosition()) {
@@ -3906,7 +3906,7 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
   }
 
   const int position = selectedPosition();
-  const PdoMapTableRow pdoRow = pdoMapTableRowFromTable(pdoTable_, row);
+  const PdoMapTableRow pdoRow = pdoMapTableRowFromTable(sdo_->pdoTable, row);
   if (position < 0 || !pdoMapTableRowHasTarget(pdoRow)) {
     return;
   }
@@ -4687,12 +4687,12 @@ void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
 
 // — Apply a preset filter string to the OD table and activate the pane
 void MainWindow::setSdoFilterPreset(const QString &query) {
-  if (!sdoFilter_) {
+  if (!sdo_->sdoFilter) {
     return;
   }
-  sdoFilter_->setText(query);
+  sdo_->sdoFilter->setText(query);
   filterSdoTable(query);
-  activateObjectDictionaryPaneFor(sdoTable_);
+  activateObjectDictionaryPaneFor(sdo_->sdoTable);
 }
 
 
@@ -4704,18 +4704,18 @@ bool MainWindow::hasFailedSdoEvidence() const {
 
 // — Return the first OD row with a Failed status, or -1
 int MainWindow::firstFailedSdoEvidenceRow() const {
-  if (!sdoTable_ || selectedPosition() < 0 ||
+  if (!sdo_->sdoTable || selectedPosition() < 0 ||
       loadedSdoPosition_ != selectedPosition()) {
     return -1;
   }
-  const QVector<int> rows = failedSdoDictionaryRows(sdoTable_);
+  const QVector<int> rows = failedSdoDictionaryRows(sdo_->sdoTable);
   return rows.isEmpty() ? -1 : rows.first();
 }
 
 
 // — Scroll to and select the first failed OD evidence row
 void MainWindow::focusFailedSdoEvidence() {
-  if (!sdoTable_) {
+  if (!sdo_->sdoTable) {
     return;
   }
   const int row = firstFailedSdoEvidenceRow();
@@ -4727,16 +4727,16 @@ void MainWindow::focusFailedSdoEvidence() {
   }
 
   setSdoFilterPreset("tag:failed");
-  activateObjectDictionaryPaneFor(sdoTable_);
-  sdoTable_->clearSelection();
-  sdoTable_->setCurrentCell(row, 0);
-  sdoTable_->selectRow(row);
-  if (auto *item = sdoTable_->item(row, 0)) {
-    sdoTable_->scrollToItem(item, QAbstractItemView::PositionAtCenter);
+  activateObjectDictionaryPaneFor(sdo_->sdoTable);
+  sdo_->sdoTable->clearSelection();
+  sdo_->sdoTable->setCurrentCell(row, 0);
+  sdo_->sdoTable->selectRow(row);
+  if (auto *item = sdo_->sdoTable->item(row, 0)) {
+    sdo_->sdoTable->scrollToItem(item, QAbstractItemView::PositionAtCenter);
   }
   applySdoSelectionFromDictionary(row, false);
 
-  const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(sdoTable_, row);
+  const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(sdo_->sdoTable, row);
   updateDiagnostics("Info", "SDO",
                     uiText("Focused failed Object Dictionary evidence %1:%2",
                            "已聚焦失败对象字典证据 %1:%2")
@@ -4753,7 +4753,7 @@ void MainWindow::filterSdoTable(const QString &text) {
   const QString tag = tagMode ? normalizedNeedle.mid(4).trimmed() : QString();
 
   auto textAt = [this](int row, int column) {
-    const auto *item = sdoTable_->item(row, column);
+    const auto *item = sdo_->sdoTable->item(row, column);
     return item ? item->text().trimmed() : QString();
   };
   auto rowHasIndexPrefix = [&textAt](int row, const QStringList &prefixes) {
@@ -4770,7 +4770,7 @@ void MainWindow::filterSdoTable(const QString &text) {
   int evidenceRows = 0;
   int failedRows = 0;
   int writableRows = 0;
-  for (int row = 0; row < sdoTable_->rowCount(); ++row) {
+  for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
     bool match = needle.isEmpty();
     const QString lastValue = textAt(row, 7);
     const QString lastStatus = textAt(row, 8);
@@ -4835,16 +4835,16 @@ void MainWindow::filterSdoTable(const QString &text) {
       }
     } else {
       // Free-text search: match against any column
-      for (int column = 0; column < sdoTable_->columnCount() && !match;
+      for (int column = 0; column < sdo_->sdoTable->columnCount() && !match;
            ++column) {
-        const auto *item = sdoTable_->item(row, column);
+        const auto *item = sdo_->sdoTable->item(row, column);
         match = item && item->text().contains(needle, Qt::CaseInsensitive);
       }
     }
     if (match) {
       ++visible;
     }
-    sdoTable_->setRowHidden(row, !match);
+    sdo_->sdoTable->setRowHidden(row, !match);
   }
   if (tagMode) {
     updateDiagnostics("Info", "SDO",
@@ -4852,23 +4852,23 @@ void MainWindow::filterSdoTable(const QString &text) {
                               "%4 with evidence, %5 failed")
                           .arg(needle)
                           .arg(visible)
-                          .arg(sdoTable_->rowCount())
+                          .arg(sdo_->sdoTable->rowCount())
                           .arg(evidenceRows)
                           .arg(failedRows));
   }
-  if (sdoSummaryLabel_) {
-    sdoSummaryLabel_->setText(uiText("%1/%2 | W %3 | E %4 | F %5",
+  if (sdo_->sdoSummaryLabel) {
+    sdo_->sdoSummaryLabel->setText(uiText("%1/%2 | W %3 | E %4 | F %5",
                                      "%1/%2 | 可写 %3 | 证据 %4 | 失败 %5")
                                   .arg(visible)
-                                  .arg(sdoTable_->rowCount())
+                                  .arg(sdo_->sdoTable->rowCount())
                                   .arg(writableRows)
                                   .arg(evidenceRows)
                                   .arg(failedRows));
-    sdoSummaryLabel_->setToolTip(
+    sdo_->sdoSummaryLabel->setToolTip(
         uiText("%1/%2 visible, %3 writable, %4 with evidence, %5 failed",
                "%1/%2 可见，%3 可写，%4 有证据，%5 失败")
             .arg(visible)
-            .arg(sdoTable_->rowCount())
+            .arg(sdo_->sdoTable->rowCount())
             .arg(writableRows)
             .arg(evidenceRows)
             .arg(failedRows));

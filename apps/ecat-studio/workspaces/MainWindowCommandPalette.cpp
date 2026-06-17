@@ -691,7 +691,7 @@ void MainWindow::showCommandPalette() {
       [this] { addSelectedDictionaryRowsToBookmarks(); },
       [this] {
         return selectedPosition() >= 0 &&
-               loadedSdoPosition_ == selectedPosition() && sdoTable_ &&
+               loadedSdoPosition_ == selectedPosition() && sdo_->sdoTable &&
                !selectedDictionaryRows().isEmpty();
       },
   });
@@ -708,10 +708,10 @@ void MainWindow::showCommandPalette() {
       [this] { addSelectedDictionaryEvidenceToStartupSdo(); },
       [this] {
         if (selectedPosition() < 0 ||
-            loadedSdoPosition_ != selectedPosition() || !sdoTable_) {
+            loadedSdoPosition_ != selectedPosition() || !sdo_->sdoTable) {
           return false;
         }
-        return sdoDictionaryRowsContainValue(sdoTable_,
+        return sdoDictionaryRowsContainValue(sdo_->sdoTable,
                                              selectedDictionaryRows());
       },
   });
@@ -747,11 +747,11 @@ void MainWindow::showCommandPalette() {
       [this] { addVisibleDictionaryRowsToWatch(); },
       [this] {
         if (selectedPosition() < 0 ||
-            loadedSdoPosition_ != selectedPosition() || !sdoTable_) {
+            loadedSdoPosition_ != selectedPosition() || !sdo_->sdoTable) {
           return false;
         }
-        for (int row = 0; row < sdoTable_->rowCount(); ++row) {
-          if (!sdoTable_->isRowHidden(row)) {
+        for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
+          if (!sdo_->sdoTable->isRowHidden(row)) {
             return true;
           }
         }
@@ -767,11 +767,11 @@ void MainWindow::showCommandPalette() {
       [this] { readVisibleDictionaryRows(); },
       [this] {
         if (!client_.isConnected() || selectedPosition() < 0 ||
-            loadedSdoPosition_ != selectedPosition() || !sdoTable_) {
+            loadedSdoPosition_ != selectedPosition() || !sdo_->sdoTable) {
           return false;
         }
-        for (int row = 0; row < sdoTable_->rowCount(); ++row) {
-          if (!sdoTable_->isRowHidden(row)) {
+        for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
+          if (!sdo_->sdoTable->isRowHidden(row)) {
             return true;
           }
         }
@@ -828,8 +828,8 @@ void MainWindow::showCommandPalette() {
         [this, query = filterCommand.second] { setSdoFilterPreset(query); },
         [this] {
           return selectedPosition() >= 0 &&
-                 loadedSdoPosition_ == selectedPosition() && sdoTable_ &&
-                 sdoTable_->rowCount() > 0;
+                 loadedSdoPosition_ == selectedPosition() && sdo_->sdoTable &&
+                 sdo_->sdoTable->rowCount() > 0;
         },
     });
   }

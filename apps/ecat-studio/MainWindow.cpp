@@ -416,16 +416,16 @@ void MainWindow::updateActionAvailability() {
       sdoSubIndex_ && !sdoSubIndex_->text().trimmed().isEmpty();
   const bool sdoLoadedForSelected = hasSlave &&
                                     loadedSdoPosition_ == selectedPosition() &&
-                                    sdoTable_ && sdoTable_->rowCount() > 0;
+                                    sdo_->sdoTable && sdo_->sdoTable->rowCount() > 0;
   const bool pdoLoadedForSelected = hasSlave &&
                                     loadedPdoPosition_ == selectedPosition() &&
-                                    pdoTable_ && pdoTable_->rowCount() > 0;
+                                    sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
   const bool hasDictionarySelection =
       sdoLoadedForSelected && !selectedDictionaryRows().isEmpty();
   bool hasDictionaryValueSelection = false;
   if (sdoLoadedForSelected) {
     hasDictionaryValueSelection =
-        sdoDictionaryRowsContainValue(sdoTable_, selectedDictionaryRows());
+        sdoDictionaryRowsContainValue(sdo_->sdoTable, selectedDictionaryRows());
   }
   const bool hasObjectBookmarks =
       objectBookmarkTable_ && objectBookmarkTable_->rowCount() > 0;
@@ -440,10 +440,10 @@ void MainWindow::updateActionAvailability() {
       sdoTargetTrailRowCanCreateStartup(sdoTargetTrailTable_->currentRow());
   bool hasVisibleDictionaryRows = false;
   if (sdoLoadedForSelected) {
-    hasVisibleDictionaryRows = !visibleTableRows(sdoTable_).isEmpty();
+    hasVisibleDictionaryRows = !visibleTableRows(sdo_->sdoTable).isEmpty();
   }
   const bool hasPdoSelection =
-      pdoLoadedForSelected && !selectedTableRows(pdoTable_).isEmpty();
+      pdoLoadedForSelected && !selectedTableRows(sdo_->pdoTable).isEmpty();
   bool hasIoVariableSelection = false;
   bool hasVisibleIoVariables = false;
   bool hasIoVariableValueSelection = false;
@@ -1091,8 +1091,8 @@ MainWindow::stateTransitionImpactDetails(int position,
   const bool pdoLoaded = loadedPdoPosition_ == position;
   const int identityRows =
       identityLoaded && identityTable_ ? identityTable_->rowCount() : 0;
-  const int odRows = odLoaded && sdoTable_ ? sdoTable_->rowCount() : 0;
-  const int pdoRows = pdoLoaded && pdoTable_ ? pdoTable_->rowCount() : 0;
+  const int odRows = odLoaded && sdo_->sdoTable ? sdo_->sdoTable->rowCount() : 0;
+  const int pdoRows = pdoLoaded && sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0;
 
   int watchRows = 0;
   int watchValueRows = 0;
@@ -1237,7 +1237,7 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   const int position = slave.position;
   const QString state = slave.state.trimmed().toUpper();
   const bool pdoLoaded =
-      loadedPdoPosition_ == position && pdoTable_ && pdoTable_->rowCount() > 0;
+      loadedPdoPosition_ == position && sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
 
   int watchValueRows = 0;
   if (watch_->watchTable) {
@@ -1347,9 +1347,9 @@ void MainWindow::updateStateMachineView() {
             ? identityTable_->rowCount()
             : 0;
     const int odRows =
-        loadedSdoPosition_ == position && sdoTable_ ? sdoTable_->rowCount() : 0;
+        loadedSdoPosition_ == position && sdo_->sdoTable ? sdo_->sdoTable->rowCount() : 0;
     const int pdoRows =
-        loadedPdoPosition_ == position && pdoTable_ ? pdoTable_->rowCount() : 0;
+        loadedPdoPosition_ == position && sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0;
 
     int watchRows = 0;
     int watchValueRows = 0;
@@ -1866,18 +1866,18 @@ void MainWindow::beginSelectedSlaveOnlineLoad(int position) {
                {{uiText("Loading", "加载中"), target}});
   setTableRows(portTable_, {"Port", "Type", "Link", "Loop", "Signal"}, {});
   setTableRows(mailboxTable_, {"Mailbox", "Value"}, {});
-  setTableRows(pdoTable_, {"SM", "PDO", "Index", "Sub", "Bits", "Name"}, {});
-  setTableRows(sdoTable_,
+  setTableRows(sdo_->pdoTable, {"SM", "PDO", "Index", "Sub", "Bits", "Name"}, {});
+  setTableRows(sdo_->sdoTable,
                {"Object", "Index", "Sub", "Access", "Type", "Bits", "Name",
                 "Last Value", "Last Status"},
                {});
-  if (pdoSummaryLabel_) {
-    pdoSummaryLabel_->setText(
+  if (sdo_->pdoSummaryLabel) {
+    sdo_->pdoSummaryLabel->setText(
         uiText("Loading PDO Map for %1", "正在加载 %1 的 PDO 映射")
             .arg(target));
   }
-  if (sdoSummaryLabel_) {
-    sdoSummaryLabel_->setText(
+  if (sdo_->sdoSummaryLabel) {
+    sdo_->sdoSummaryLabel->setText(
         uiText("Loading Object Dictionary for %1", "正在加载 %1 的对象字典")
             .arg(target));
   }
@@ -1924,8 +1924,8 @@ void MainWindow::clearOnlineViews() {
   }
   for (auto *table :
        {metricTable_, workflowTable_, stateMachine_->stateMachineTable, identityTable_,
-        slaveEvidenceMatrixTable_, portTable_, mailboxTable_, pdoTable_,
-        sdoTable_, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
+        slaveEvidenceMatrixTable_, portTable_, mailboxTable_, sdo_->pdoTable,
+        sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
         ioVar_->ioVariableTable, watch_->watchTable}) {
     if (table) {
       table->clear();
@@ -2097,7 +2097,7 @@ void MainWindow::wire() {
           this, &MainWindow::runNextCommissioningWorkflowStep);
   connect(findChild<QPushButton *>("contextObjectDictionary"),
           &QPushButton::clicked, this, [this] {
-            activateObjectDictionaryPaneFor(sdoTable_);
+            activateObjectDictionaryPaneFor(sdo_->sdoTable);
             if (client_.isConnected() && selectedPosition() >= 0) {
               client_.sdos(selectedPosition());
             }
@@ -2594,13 +2594,13 @@ void MainWindow::wire() {
   });
   connect(sdoValue_, &QLineEdit::textChanged, this,
           [this] { updateSdoInspector(uiText("Read-back", "读回值")); });
-  connect(pdoFilter_, &QLineEdit::textChanged, this,
+  connect(sdo_->pdoFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterPdoTable);
-  connect(pdoTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(sdo_->pdoTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
-  connect(pdoTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(sdo_->pdoTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updatePdoRowDetail);
-  connect(sdoFilter_, &QLineEdit::textChanged, this,
+  connect(sdo_->sdoFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterSdoTable);
   connect(freeRunFilter_, &QLineEdit::textChanged, this,
           &MainWindow::filterFreeRunEntryTable);
@@ -2662,11 +2662,11 @@ void MainWindow::wire() {
           &MainWindow::updateConsistencyRowDetail);
   connect(consistency_->consistencyTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { focusEvidenceFromConsistency(row); });
-  connect(sdoTable_, &QTableWidget::currentCellChanged, this,
+  connect(sdo_->sdoTable, &QTableWidget::currentCellChanged, this,
           [this](int row) { applySdoSelectionFromDictionary(row, false); });
-  connect(sdoTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(sdo_->sdoTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
-  connect(sdoTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(sdo_->sdoTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromDictionary(row, true); });
   connect(objectBookmarkTable_, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
@@ -2680,7 +2680,7 @@ void MainWindow::wire() {
           &MainWindow::updateSdoHistoryRowDetail);
   connect(sdoHistoryTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromHistory(row, true); });
-  connect(pdoTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(sdo_->pdoTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromPdoMap(row, true); });
   connect(ioVar_->ioVariableTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
@@ -2739,8 +2739,8 @@ void MainWindow::wire() {
                       identityTable_,
                       portTable_,
                       mailboxTable_,
-                      pdoTable_,
-                      sdoTable_,
+                      sdo_->pdoTable,
+                      sdo_->sdoTable,
                       sdoTargetTrailTable_,
                       objectBookmarkTable_,
                       sdoHistoryTable_,
@@ -3333,14 +3333,14 @@ QStringList MainWindow::freeRunImpactDetails() const {
   int rxBits = 0;
   int txBits = 0;
   QStringList rxPreview;
-  if (pdoTable_) {
-    pdoRows = pdoTable_->rowCount();
-    for (int row = 0; row < pdoTable_->rowCount(); ++row) {
-      const QString pdo = tableText(pdoTable_, row, 1);
-      const int bits = tableText(pdoTable_, row, 4).toInt();
-      const QString name = tableText(pdoTable_, row, 5);
+  if (sdo_->pdoTable) {
+    pdoRows = sdo_->pdoTable->rowCount();
+    for (int row = 0; row < sdo_->pdoTable->rowCount(); ++row) {
+      const QString pdo = tableText(sdo_->pdoTable, row, 1);
+      const int bits = tableText(sdo_->pdoTable, row, 4).toInt();
+      const QString name = tableText(sdo_->pdoTable, row, 5);
       const QString address = QString("%1:%2").arg(
-          tableText(pdoTable_, row, 2), tableText(pdoTable_, row, 3));
+          tableText(sdo_->pdoTable, row, 2), tableText(sdo_->pdoTable, row, 3));
       if (pdo.contains("RxPDO", Qt::CaseInsensitive)) {
         ++rxPdoRows;
         rxBits += bits;
@@ -3610,11 +3610,11 @@ int MainWindow::selectedPosition() const {
 
 // Return the currently selected Object Dictionary row indices
 QVector<int> MainWindow::selectedDictionaryRows() const {
-  if (!sdoTable_ || selectedPosition() < 0 ||
+  if (!sdo_->sdoTable || selectedPosition() < 0 ||
       loadedSdoPosition_ != selectedPosition()) {
     return {};
   }
-  return selectedTableRows(sdoTable_);
+  return selectedTableRows(sdo_->sdoTable);
 }
 
 // Return the currently selected SDO history row indices
@@ -3896,7 +3896,7 @@ void MainWindow::updatePdoTable(const QString &text) {
                    m.captured(4)});
     }
   }
-  setTableRows(pdoTable_, {"SM", "PDO", "Index", "Sub", "Bits", "Name"}, rows);
+  setTableRows(sdo_->pdoTable, {"SM", "PDO", "Index", "Sub", "Bits", "Name"}, rows);
   filterPdoTable();
   updateIoVariableTable();
   updateStateMachineView();
@@ -3904,26 +3904,26 @@ void MainWindow::updatePdoTable(const QString &text) {
 
 // Apply text filter to the PDO map table, hiding non-matching rows
 void MainWindow::filterPdoTable() {
-  if (!pdoTable_) {
+  if (!sdo_->pdoTable) {
     return;
   }
-  const QString needle = pdoFilter_ ? pdoFilter_->text().trimmed() : QString();
+  const QString needle = sdo_->pdoFilter ? sdo_->pdoFilter->text().trimmed() : QString();
   int visible = 0;
-  for (int row = 0; row < pdoTable_->rowCount(); ++row) {
+  for (int row = 0; row < sdo_->pdoTable->rowCount(); ++row) {
     bool match = needle.isEmpty();
-    for (int column = 0; column < pdoTable_->columnCount() && !match;
+    for (int column = 0; column < sdo_->pdoTable->columnCount() && !match;
          ++column) {
-      const auto *item = pdoTable_->item(row, column);
+      const auto *item = sdo_->pdoTable->item(row, column);
       match = item && item->text().contains(needle, Qt::CaseInsensitive);
     }
-    pdoTable_->setRowHidden(row, !match);
+    sdo_->pdoTable->setRowHidden(row, !match);
     if (match) {
       ++visible;
     }
   }
-  if (pdoSummaryLabel_) {
-    const int total = pdoTable_->rowCount();
-    pdoSummaryLabel_->setText(
+  if (sdo_->pdoSummaryLabel) {
+    const int total = sdo_->pdoTable->rowCount();
+    sdo_->pdoSummaryLabel->setText(
         total > 0 ? uiText("%1/%2 PDO entries", "%1/%2 个 PDO 条目")
                         .arg(visible)
                         .arg(total)
@@ -3936,7 +3936,7 @@ void MainWindow::filterPdoTable() {
 
 // Update the detail strip below the PDO map table for the current row
 void MainWindow::updatePdoRowDetail() {
-  if (!pdoDetailLabel_) {
+  if (!sdo_->pdoDetailLabel) {
     return;
   }
   const PdoMapDetailTexts texts = {
@@ -4006,24 +4006,24 @@ void MainWindow::updatePdoRowDetail() {
   };
 
   auto applyState = [this](const PdoMapDetailUiState &state) {
-    pdoDetailLabel_->setText(state.text);
-    pdoDetailLabel_->setProperty("severity", state.severityKey);
-    pdoDetailLabel_->setToolTip(state.tooltip);
-    repolish(pdoDetailLabel_);
+    sdo_->pdoDetailLabel->setText(state.text);
+    sdo_->pdoDetailLabel->setProperty("severity", state.severityKey);
+    sdo_->pdoDetailLabel->setToolTip(state.tooltip);
+    repolish(sdo_->pdoDetailLabel);
   };
 
-  if (!pdoTable_) {
+  if (!sdo_->pdoTable) {
     applyState(pdoMapDetailUnavailableState(texts));
     return;
   }
 
-  const int row = pdoTable_->currentRow();
-  if (row < 0 || row >= pdoTable_->rowCount() || pdoTable_->isRowHidden(row)) {
+  const int row = sdo_->pdoTable->currentRow();
+  if (row < 0 || row >= sdo_->pdoTable->rowCount() || sdo_->pdoTable->isRowHidden(row)) {
     applyState(pdoMapDetailNoSelectionState(texts));
     return;
   }
 
-  applyState(buildPdoMapDetailUiState(pdoMapTableRowFromTable(pdoTable_, row),
+  applyState(buildPdoMapDetailUiState(pdoMapTableRowFromTable(sdo_->pdoTable, row),
                                       selectedPosition(), texts));
 }
 
@@ -4075,13 +4075,13 @@ void MainWindow::updateSdoTable(const QString &text) {
                : QString("%1  %2").arg(evidence.value(1), evidence.value(3))});
     }
   }
-  setTableRows(sdoTable_,
+  setTableRows(sdo_->sdoTable,
                {"Object", "Index", "Sub", "Access", "Type", "Bits", "Name",
                 "Last Value", "Last Status"},
                rows);
-  for (int row = 0; row < sdoTable_->rowCount(); ++row) {
+  for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
     const QString lastStatus =
-        sdoTable_->item(row, 8) ? sdoTable_->item(row, 8)->text() : QString();
+        sdo_->sdoTable->item(row, 8) ? sdo_->sdoTable->item(row, 8)->text() : QString();
     if (lastStatus.isEmpty()) {
       continue;
     }
@@ -4093,15 +4093,15 @@ void MainWindow::updateSdoTable(const QString &text) {
             : (lastStatus.contains(uiText("Failed", "失败"))
                    ? QColor("#ef4444")
                    : QColor("#f59e0b"));
-    if (auto *statusItem = sdoTable_->item(row, 8)) {
+    if (auto *statusItem = sdo_->sdoTable->item(row, 8)) {
       statusItem->setForeground(color);
     }
-    if (auto *valueItem = sdoTable_->item(row, 7)) {
+    if (auto *valueItem = sdo_->sdoTable->item(row, 7)) {
       valueItem->setBackground(settings_.theme == "Light" ? QColor("#eef2ff")
                                                           : QColor("#172036"));
     }
   }
-  filterSdoTable(sdoFilter_ ? sdoFilter_->text() : QString());
+  filterSdoTable(sdo_->sdoFilter ? sdo_->sdoFilter->text() : QString());
   updateCommissioningWorkflow();
   updateStateMachineView();
 }
@@ -4153,7 +4153,7 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
     if (mappedDetail) {
       mappedDetail->clear();
     }
-    if (!pdoTable_ || pdoTable_->rowCount() <= 0) {
+    if (!sdo_->pdoTable || sdo_->pdoTable->rowCount() <= 0) {
       return uiText("No PDO map", "无 PDO 映射");
     }
     if (slave != selectedPosition()) {
@@ -4163,21 +4163,21 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
     const QString normalizedIndex = normalizeHexText(index, 4);
     const QString normalizedSubIndex = normalizeHexText(subIndex, 2);
     const QString runtimeDirection = directionClass(direction);
-    for (int row = 0; row < pdoTable_->rowCount(); ++row) {
+    for (int row = 0; row < sdo_->pdoTable->rowCount(); ++row) {
       const QString mapIndex =
-          normalizeHexText(tableText(pdoTable_, row, 2), 4);
+          normalizeHexText(tableText(sdo_->pdoTable, row, 2), 4);
       const QString mapSubIndex =
-          normalizeHexText(tableText(pdoTable_, row, 3), 2);
+          normalizeHexText(tableText(sdo_->pdoTable, row, 3), 2);
       if (mapIndex != normalizedIndex || mapSubIndex != normalizedSubIndex) {
         continue;
       }
 
-      const QString mapPdo = tableText(pdoTable_, row, 1);
-      const QString mapBitsText = tableText(pdoTable_, row, 4);
+      const QString mapPdo = tableText(sdo_->pdoTable, row, 1);
+      const QString mapBitsText = tableText(sdo_->pdoTable, row, 4);
       const int mapBits = mapBitsText.toInt();
       const QString mapDirection = directionClass(mapPdo);
       if (mappedName) {
-        *mappedName = tableText(pdoTable_, row, 5);
+        *mappedName = tableText(sdo_->pdoTable, row, 5);
       }
       if (mappedDetail) {
         *mappedDetail = QString("%1 %2 bit").arg(mapPdo, mapBitsText);

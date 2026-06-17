@@ -392,12 +392,12 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
 // — Add selected pdo entries to watch
 void MainWindow::addSelectedPdoEntriesToWatch() {
   const int position = selectedPosition();
-  if (position < 0 || !pdoTable_ || loadedPdoPosition_ != position) {
+  if (position < 0 || !sdo_->pdoTable || loadedPdoPosition_ != position) {
     return;
   }
   ensureWatchTable();
 
-  const QVector<int> rows = selectedTableRows(pdoTable_);
+  const QVector<int> rows = selectedTableRows(sdo_->pdoTable);
 
   const QString previousIndex = sdoIndex_ ? sdoIndex_->text() : QString();
   const QString previousSubIndex =
@@ -411,12 +411,12 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
   int addedOrReused = 0;
   int skipped = 0;
   for (const int row : rows) {
-    if (row < 0 || row >= pdoTable_->rowCount() ||
-        pdoTable_->isRowHidden(row)) {
+    if (row < 0 || row >= sdo_->pdoTable->rowCount() ||
+        sdo_->pdoTable->isRowHidden(row)) {
       continue;
     }
     auto textAt = [this, row](int column) {
-      const auto *item = pdoTable_->item(row, column);
+      const auto *item = sdo_->pdoTable->item(row, column);
       return item ? item->text().trimmed() : QString();
     };
     const QString index = textAt(2);
@@ -1104,7 +1104,7 @@ void MainWindow::addSelectedDictionaryEvidenceToStartupSdo() {
 // — Add dictionary evidence rows to startup sdo
 void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
     const QVector<int> &rows) {
-  if (selectedPosition() < 0 || !sdoTable_ ||
+  if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition() || rows.isEmpty()) {
     return;
   }
@@ -1147,13 +1147,13 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
   const int position = selectedPosition();
 
   for (const int dictionaryRow : uniqueRows) {
-    if (dictionaryRow < 0 || dictionaryRow >= sdoTable_->rowCount() ||
-        sdoTable_->isRowHidden(dictionaryRow)) {
+    if (dictionaryRow < 0 || dictionaryRow >= sdo_->sdoTable->rowCount() ||
+        sdo_->sdoTable->isRowHidden(dictionaryRow)) {
       ++skipped;
       continue;
     }
     const SdoDictionaryRow dictionary =
-        sdoDictionaryRowFromTable(sdoTable_, dictionaryRow);
+        sdoDictionaryRowFromTable(sdo_->sdoTable, dictionaryRow);
     if (position < 0 || !sdoDictionaryRowHasTarget(dictionary) ||
         !sdoDictionaryRowHasValue(dictionary)) {
       ++skipped;

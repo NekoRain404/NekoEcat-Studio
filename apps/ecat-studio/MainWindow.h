@@ -610,13 +610,12 @@ private:
   DiagnosticsWorkspaceWidgets *diagnostics_ = nullptr;
   IoVariableWorkspaceWidgets *ioVar_ = nullptr;
   WatchWorkspaceWidgets *watch_ = nullptr;
+  SdoWorkspaceWidgets *sdo_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
-  QTableWidget *pdoTable_ = nullptr;
-  QTableWidget *sdoTable_ = nullptr;
   QTableWidget *sdoTargetTrailTable_ = nullptr;
   QLabel *sdoTargetTrailDetailLabel_ = nullptr;
   QTableWidget *objectBookmarkTable_ = nullptr;
@@ -695,10 +694,6 @@ private:
   QComboBox *sdoType_ = nullptr;
   
   // ── PDO Panel Widgets ─────────────────────────────────────────
-  QLineEdit *pdoFilter_ = nullptr;
-  QLabel *sdoSummaryLabel_ = nullptr;
-  QLabel *pdoSummaryLabel_ = nullptr;
-  QLabel *pdoDetailLabel_ = nullptr;
   QLabel *workflowSummaryLabel_ = nullptr;
   QLabel *workflowStepDetailLabel_ = nullptr;
   QComboBox *workflowScopeFilter_ = nullptr;
@@ -715,7 +710,6 @@ private:
   QComboBox *slaveEvidenceMatrixScopeFilter_ = nullptr;
   
   // ── SDO Filter Widgets ────────────────────────────────────────
-  QLineEdit *sdoFilter_ = nullptr;
   
   // ── Watch Panel Widgets ───────────────────────────────────────
   

@@ -311,14 +311,14 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   ObjectClipboardPayload objectClipboard;
   const int currentRow = table->currentRow();
   if (currentRow >= 0) {
-    if (table == sdoTable_) {
+    if (table == sdo_->sdoTable) {
       objectClipboard.position = selectedPosition();
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 1), 4);
       objectClipboard.subIndex =
           normalizedHex(tableText(table, currentRow, 2), 2);
       objectClipboard.type = tableText(table, currentRow, 4);
       objectClipboard.value = tableText(table, currentRow, 7);
-    } else if (table == pdoTable_) {
+    } else if (table == sdo_->pdoTable) {
       objectClipboard.position = selectedPosition();
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 2), 4);
       objectClipboard.subIndex =
@@ -538,7 +538,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
             ? slaveEvidenceMatrixReviewNextButton_->isEnabled()
             : table->rowCount() > 0);
     menu.addSeparator();
-  } else if (table == sdoTable_) {
+  } else if (table == sdo_->sdoTable) {
     const bool hasDictionaryRow = table->currentRow() >= 0;
     const bool dictionaryReady =
         selectedPosition() >= 0 && loadedSdoPosition_ == selectedPosition();
@@ -619,7 +619,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         (!tableText(table, table->currentRow(), 7).isEmpty() ||
          !tableText(table, table->currentRow(), 8).isEmpty()));
     menu.addSeparator();
-  } else if (table == pdoTable_) {
+  } else if (table == sdo_->pdoTable) {
     const bool hasPdoRow = table->currentRow() >= 0;
     const bool pdoReady =
         selectedPosition() >= 0 && loadedPdoPosition_ == selectedPosition();
@@ -1258,9 +1258,9 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     focusEvidenceFromConsistency(row);
   } else if (table == sdoTargetTable_) {
     openSdoTargetPanelRow(row);
-  } else if (table == sdoTable_) {
+  } else if (table == sdo_->sdoTable) {
     applySdoSelectionFromDictionary(row, false);
-  } else if (table == pdoTable_) {
+  } else if (table == sdo_->pdoTable) {
     applySdoSelectionFromPdoMap(row, false);
   } else if (table == watch_->watchTable) {
     applySdoSelectionFromWatch(row, false);

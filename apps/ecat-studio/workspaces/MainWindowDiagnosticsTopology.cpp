@@ -187,10 +187,10 @@ void MainWindow::exportDiagnosticsReport() {
       }
     }
   }
-  if (sdoTable_) {
-    for (int row = 0; row < sdoTable_->rowCount(); ++row) {
+  if (sdo_->sdoTable) {
+    for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
       const SdoDictionaryRow dictionary =
-          sdoDictionaryRowFromTable(sdoTable_, row);
+          sdoDictionaryRowFromTable(sdo_->sdoTable, row);
       if (!dictionary.value.isEmpty() || !dictionary.status.isEmpty()) {
         ++odEvidenceRows;
       }
@@ -260,7 +260,7 @@ void MainWindow::exportDiagnosticsReport() {
   out << "## SDO History\n\n";
   writeMarkdownTable(out, sdoHistoryTable_);
   out << "## Object Dictionary Evidence\n\n";
-  if (!sdoTable_ || sdoTable_->rowCount() <= 0) {
+  if (!sdo_->sdoTable || sdo_->sdoTable->rowCount() <= 0) {
     out << "_No Object Dictionary table is loaded._\n\n";
   } else if (odEvidenceRows <= 0) {
     out << "_No Object Dictionary evidence recorded._\n\n";
@@ -268,7 +268,7 @@ void MainWindow::exportDiagnosticsReport() {
     const QList<int> columns = {0, 1, 2, 3, 4, 5, 6, 7, 8};
     out << "|";
     for (const int column : columns) {
-      const auto *header = sdoTable_->horizontalHeaderItem(column);
+      const auto *header = sdo_->sdoTable->horizontalHeaderItem(column);
       out << " "
           << markdownCell(header ? header->text()
                                  : QString("Column %1").arg(column + 1))
@@ -279,15 +279,15 @@ void MainWindow::exportDiagnosticsReport() {
       out << " --- |";
     }
     out << "\n";
-    for (int row = 0; row < sdoTable_->rowCount(); ++row) {
+    for (int row = 0; row < sdo_->sdoTable->rowCount(); ++row) {
       const SdoDictionaryRow dictionary =
-          sdoDictionaryRowFromTable(sdoTable_, row);
+          sdoDictionaryRowFromTable(sdo_->sdoTable, row);
       if (dictionary.value.isEmpty() && dictionary.status.isEmpty()) {
         continue;
       }
       out << "|";
       for (const int column : columns) {
-        const auto *item = sdoTable_->item(row, column);
+        const auto *item = sdo_->sdoTable->item(row, column);
         out << " " << markdownCell(item ? item->text() : QString()) << " |";
       }
       out << "\n";
@@ -464,9 +464,9 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
       {.identityPosition = loadedSlaveInfoPosition_,
        .identityRows = identityTable_ ? identityTable_->rowCount() : 0,
        .odPosition = loadedSdoPosition_,
-       .odRows = sdoTable_ ? sdoTable_->rowCount() : 0,
+       .odRows = sdo_->sdoTable ? sdo_->sdoTable->rowCount() : 0,
        .pdoPosition = loadedPdoPosition_,
-       .pdoRows = pdoTable_ ? pdoTable_->rowCount() : 0},
+       .pdoRows = sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0},
       {.watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
        .processTable = freeRunEntryTable_});

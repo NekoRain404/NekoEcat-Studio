@@ -1123,18 +1123,18 @@ void MainWindow::updateIoVariableTable() {
     }
   }
 
-  if (loadedPdoPosition_ == selectedPosition() && pdoTable_) {
-    for (int row = 0; row < pdoTable_->rowCount(); ++row) {
+  if (loadedPdoPosition_ == selectedPosition() && sdo_->pdoTable) {
+    for (int row = 0; row < sdo_->pdoTable->rowCount(); ++row) {
       const int position = selectedPosition();
       const QString key = ioVariableTableObjectKey(
-          position, tableText(pdoTable_, row, 2), tableText(pdoTable_, row, 3));
+          position, tableText(sdo_->pdoTable, row, 2), tableText(sdo_->pdoTable, row, 3));
       if (coveredObjects.contains(key)) {
         continue;
       }
-      appendRow(position, tableText(pdoTable_, row, 1),
-                tableText(pdoTable_, row, 5), tableText(pdoTable_, row, 2),
-                tableText(pdoTable_, row, 3), tableText(pdoTable_, row, 4),
-                tableText(pdoTable_, row, 1), uiText("PDO", "PDO"), QString(),
+      appendRow(position, tableText(sdo_->pdoTable, row, 1),
+                tableText(sdo_->pdoTable, row, 5), tableText(sdo_->pdoTable, row, 2),
+                tableText(sdo_->pdoTable, row, 3), tableText(sdo_->pdoTable, row, 4),
+                tableText(sdo_->pdoTable, row, 1), uiText("PDO", "PDO"), QString(),
                 QString(), QString(), uiText("PDO loaded", "PDO 已加载"),
                 false);
     }

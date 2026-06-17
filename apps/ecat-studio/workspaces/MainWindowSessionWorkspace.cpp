@@ -183,9 +183,9 @@ void MainWindow::updateSessionBrief() {
   const int selected = selectedPosition();
   const bool hasSelectedSlave = selected >= 0;
   const bool hasSdoRows = hasSelectedSlave && loadedSdoPosition_ == selected &&
-                          sdoTable_ && sdoTable_->rowCount() > 0;
+                          sdo_->sdoTable && sdo_->sdoTable->rowCount() > 0;
   const bool hasPdoRows = hasSelectedSlave && loadedPdoPosition_ == selected &&
-                          pdoTable_ && pdoTable_->rowCount() > 0;
+                          sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
   const bool hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   const bool hasFreeRunRows =
       freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
@@ -368,8 +368,8 @@ void MainWindow::updateSessionBrief() {
       briefRows.at(2), uiText("Map", "映射"),
       uiText("OD %1 row(s) | PDO %2 row(s) | failed OD %3",
              "OD %1 行 | PDO %2 行 | 失败 OD %3")
-          .arg(sdoTable_ ? sdoTable_->rowCount() : 0)
-          .arg(pdoTable_ ? pdoTable_->rowCount() : 0)
+          .arg(sdo_->sdoTable ? sdo_->sdoTable->rowCount() : 0)
+          .arg(sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0)
           .arg(hasFailedOdEvidence ? uiText("yes", "有") : uiText("no", "无")),
       !hasSelectedSlave
           ? uiText("Select slave", "选择从站")
@@ -684,25 +684,25 @@ void MainWindow::openSessionBriefRow(int row) {
       logNavigation(uiText("Failed OD evidence", "失败 OD 证据"));
       return;
     }
-    if (sdoTable_ && selectedPosition() >= 0 &&
-        loadedSdoPosition_ == selectedPosition() && sdoTable_->rowCount() > 0) {
-      activateObjectDictionaryPaneFor(sdoTable_);
-      if (sdoTable_->currentRow() >= 0) {
-        selectAndFocusTableRow(sdoTable_, sdoTable_->currentRow(), 1);
+    if (sdo_->sdoTable && selectedPosition() >= 0 &&
+        loadedSdoPosition_ == selectedPosition() && sdo_->sdoTable->rowCount() > 0) {
+      activateObjectDictionaryPaneFor(sdo_->sdoTable);
+      if (sdo_->sdoTable->currentRow() >= 0) {
+        selectAndFocusTableRow(sdo_->sdoTable, sdo_->sdoTable->currentRow(), 1);
       }
       logNavigation(uiText("Object Dictionary", "对象字典"));
       return;
     }
-    if (pdoTable_ && selectedPosition() >= 0 &&
-        loadedPdoPosition_ == selectedPosition() && pdoTable_->rowCount() > 0) {
+    if (sdo_->pdoTable && selectedPosition() >= 0 &&
+        loadedPdoPosition_ == selectedPosition() && sdo_->pdoTable->rowCount() > 0) {
       activateWorkspaceTab(pdoMapTabIndex_);
-      if (pdoTable_->currentRow() >= 0) {
-        selectAndFocusTableRow(pdoTable_, pdoTable_->currentRow(), 2);
+      if (sdo_->pdoTable->currentRow() >= 0) {
+        selectAndFocusTableRow(sdo_->pdoTable, sdo_->pdoTable->currentRow(), 2);
       }
       logNavigation(uiText("PDO Map", "PDO 映射"));
       return;
     }
-    activateObjectDictionaryPaneFor(sdoTable_);
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
     logNavigation(uiText("Object Dictionary", "对象字典"));
     return;
   }
@@ -714,9 +714,9 @@ void MainWindow::openSessionBriefRow(int row) {
       return;
     }
     const int dictionaryRow = currentSdoDictionaryRow();
-    activateObjectDictionaryPaneFor(sdoTable_);
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
     if (dictionaryRow >= 0) {
-      selectAndFocusTableRow(sdoTable_, dictionaryRow, 1);
+      selectAndFocusTableRow(sdo_->sdoTable, dictionaryRow, 1);
     }
     logNavigation(uiText("Current SDO target", "当前 SDO 目标"));
     return;
@@ -832,7 +832,7 @@ void MainWindow::runNextBestAction() {
       }
     }
   } else if (action == nextBestActionKey(NextBestActionKind::LoadOd)) {
-    activateObjectDictionaryPaneFor(sdoTable_);
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
     if (client_.isConnected() && selectedPosition() >= 0) {
       client_.sdos(selectedPosition());
     }
@@ -1151,7 +1151,7 @@ void MainWindow::runCommissioningWorkflowStep(int row) {
     }
     break;
   case CommissioningWorkflowStep::InspectObjectDictionary:
-    activateObjectDictionaryPaneFor(sdoTable_);
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
     if (client_.isConnected() && selectedPosition() >= 0) {
       client_.sdos(selectedPosition());
     }

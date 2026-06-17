@@ -143,7 +143,7 @@ void MainWindow::buildUi() {
   pdoRawPage_ = nullptr;
   sdoRawPage_ = nullptr;
   sdoModeTabs_ = nullptr;
-  pdoDetailLabel_ = nullptr;
+  sdo_->pdoDetailLabel = nullptr;
   sdoTargetTrailDetailLabel_ = nullptr;
   objectBookmarkDetailLabel_ = nullptr;
   sdoHistoryDetailLabel_ = nullptr;
@@ -165,6 +165,7 @@ void MainWindow::buildUi() {
   consistency_ = nullptr;
   ioVar_ = nullptr;
   watch_ = nullptr;
+  sdo_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
@@ -664,8 +665,9 @@ void MainWindow::buildUi() {
   identityTable_ = new QTableWidget;
   portTable_ = new QTableWidget;
   mailboxTable_ = new QTableWidget;
-  pdoTable_ = new QTableWidget;
-  sdoTable_ = new QTableWidget;
+  sdo_ = new SdoWorkspaceWidgets;
+  sdo_->pdoTable = new QTableWidget;
+  sdo_->sdoTable = new QTableWidget;
   sdoTargetTrailTable_ = new QTableWidget;
   sdoHistoryTable_ = new QTableWidget;
   freeRunTable_ = new QTableWidget;
@@ -689,8 +691,8 @@ void MainWindow::buildUi() {
                       identityTable_,
                       portTable_,
                       mailboxTable_,
-                      pdoTable_,
-                      sdoTable_,
+                      sdo_->pdoTable,
+                      sdo_->sdoTable,
                       sdoTargetTrailTable_,
                       sdoHistoryTable_,
                       freeRunTable_,
@@ -1033,10 +1035,10 @@ void MainWindow::buildUi() {
   sdoControls->setHorizontalSpacing(8);
   sdoControls->setVerticalSpacing(8);
   sdoControls->setColumnStretch(6, 1);
-  sdoFilter_ = new QLineEdit;
-  sdoFilter_->setPlaceholderText(
+  sdo_->sdoFilter = new QLineEdit;
+  sdo_->sdoFilter->setPlaceholderText(
       uiText("Filter object dictionary", "过滤对象字典"));
-  sdoFilter_->setToolTip(
+  sdo_->sdoFilter->setToolTip(
       uiText("Select an object row to fill the SDO command fields; "
              "double-click a row to read it.",
              "选中对象行会自动填充 SDO 指令字段；双击行会直接读取。"));
@@ -1378,7 +1380,7 @@ void MainWindow::buildUi() {
           "Startup 只复用本地表格证据。"));
   sdoTrailLayout->addWidget(sdoTargetTrailDetailLabel_);
   sdoTrailLayout->addWidget(sdoTargetTrailTable_, 1);
-  sdoDictionaryLayout->addWidget(sdoFilter_);
+  sdoDictionaryLayout->addWidget(sdo_->sdoFilter);
   auto *sdoFilterChips = new QHBoxLayout;
   sdoFilterChips->setSpacing(6);
   struct SdoFilterChip {
@@ -1424,9 +1426,9 @@ void MainWindow::buildUi() {
     sdoFilterChips->addWidget(button);
   }
   sdoFilterChips->addStretch(1);
-  sdoSummaryLabel_ = new QLabel(uiText("No OD entries", "暂无 OD 条目"));
-  sdoSummaryLabel_->setObjectName("diagnosticsSummary");
-  sdoSummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  sdo_->sdoSummaryLabel = new QLabel(uiText("No OD entries", "暂无 OD 条目"));
+  sdo_->sdoSummaryLabel->setObjectName("diagnosticsSummary");
+  sdo_->sdoSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *readVisibleDictionary = new QPushButton(uiText("Read", "读取"));
   readVisibleDictionary->setObjectName("readVisibleDictionary");
   readVisibleDictionary->setIcon(
@@ -1450,16 +1452,16 @@ void MainWindow::buildUi() {
       "Add currently visible Object Dictionary rows to Watch without issuing "
       "immediate reads.",
       "把当前过滤后可见的对象字典行加入 Watch，不立即批量读取。"));
-  sdoFilterChips->addWidget(sdoSummaryLabel_);
+  sdoFilterChips->addWidget(sdo_->sdoSummaryLabel);
   sdoFilterChips->addWidget(readVisibleDictionary);
   sdoFilterChips->addWidget(readFailedDictionary);
   sdoFilterChips->addWidget(watchVisibleDictionary);
   sdoDictionaryLayout->addLayout(sdoFilterChips);
-  sdoTable_->setToolTip(
+  sdo_->sdoTable->setToolTip(
       uiText("Selecting a row fills Index/Sub/Type. Double-click reads the "
              "selected object.",
              "选中行会填充 Index/Sub/Type；双击读取选中对象。"));
-  sdoDictionaryLayout->addWidget(sdoTable_, 1);
+  sdoDictionaryLayout->addWidget(sdo_->sdoTable, 1);
 
   auto *bookmarkHeader = new QHBoxLayout;
   bookmarkHeader->setSpacing(8);
@@ -1595,8 +1597,8 @@ void MainWindow::buildUi() {
   pdoLayout->setSpacing(10);
   auto *pdoControls = new QHBoxLayout;
   pdoControls->setSpacing(8);
-  pdoFilter_ = new QLineEdit;
-  pdoFilter_->setPlaceholderText(
+  sdo_->pdoFilter = new QLineEdit;
+  sdo_->pdoFilter->setPlaceholderText(
       uiText("Filter PDO map by SM, PDO, index, sub, bits, or name",
              "按 SM、PDO、索引、子项、位宽或名称过滤 PDO 映射"));
   auto *addSelectedPdoWatch =
@@ -1608,13 +1610,13 @@ void MainWindow::buildUi() {
       "Add the selected PDO map rows to Watch without duplicating existing "
       "items.",
       "把选中的 PDO 映射行加入 Watch，并自动复用已有监视项。"));
-  pdoSummaryLabel_ = new QLabel(uiText("No PDO entries", "暂无 PDO 条目"));
-  pdoSummaryLabel_->setObjectName("diagnosticsSummary");
-  pdoControls->addWidget(pdoFilter_, 1);
+  sdo_->pdoSummaryLabel = new QLabel(uiText("No PDO entries", "暂无 PDO 条目"));
+  sdo_->pdoSummaryLabel->setObjectName("diagnosticsSummary");
+  pdoControls->addWidget(sdo_->pdoFilter, 1);
   pdoControls->addWidget(addSelectedPdoWatch);
-  pdoControls->addWidget(pdoSummaryLabel_);
+  pdoControls->addWidget(sdo_->pdoSummaryLabel);
   pdoLayout->addLayout(pdoControls);
-  pdoDetailLabel_ = makeStatusSummaryLabel(
+  sdo_->pdoDetailLabel = makeStatusSummaryLabel(
       uiText("Select a PDO entry to review process-data evidence.",
              "选择 PDO 条目以复核过程数据证据。"),
       uiText("This preview is local after PDO data is loaded. It summarizes "
@@ -1623,8 +1625,8 @@ void MainWindow::buildUi() {
              "or writing SDOs.",
              "PDO 数据加载后，此预览仅在本地工作。它汇总选中映射行、方向、对象"
              "地址、位宽、名称、推断 SDO 类型和操作边界，不读写 SDO。"));
-  pdoLayout->addWidget(pdoDetailLabel_);
-  pdoLayout->addWidget(pdoTable_, 1);
+  pdoLayout->addWidget(sdo_->pdoDetailLabel);
+  pdoLayout->addWidget(sdo_->pdoTable, 1);
 
   auto *startupPage = new QWidget;
   startupSdoPage_ = startupPage;
@@ -2370,7 +2372,7 @@ void MainWindow::rebuildUi() {
   const QString workflowScope =
       workflowScopeFilter_ ? workflowScopeFilter_->currentData().toString()
                            : QStringLiteral("all");
-  const QString pdoFilter = pdoFilter_ ? pdoFilter_->text() : QString();
+  const QString pdoFilter = sdo_->pdoFilter ? sdo_->pdoFilter->text() : QString();
   const QString freeRunFilter =
       freeRunFilter_ ? freeRunFilter_->text() : QString();
   const bool freeRunChangedOnly =
@@ -2574,8 +2576,8 @@ void MainWindow::rebuildUi() {
     const int index = workflowScopeFilter_->findData(workflowScope);
     workflowScopeFilter_->setCurrentIndex(index >= 0 ? index : 0);
   }
-  if (pdoFilter_) {
-    pdoFilter_->setText(pdoFilter);
+  if (sdo_->pdoFilter) {
+    sdo_->pdoFilter->setText(pdoFilter);
   }
   if (freeRunFilter_) {
     freeRunFilter_->setText(freeRunFilter);

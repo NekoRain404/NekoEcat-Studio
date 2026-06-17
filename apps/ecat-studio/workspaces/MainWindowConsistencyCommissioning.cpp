@@ -716,9 +716,9 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
   const int selected = selectedPosition();
   input.hasSelectedSlave = selected >= 0;
   input.hasSdoRows = input.hasSelectedSlave && loadedSdoPosition_ == selected &&
-                     sdoTable_ && sdoTable_->rowCount() > 0;
+                     sdo_->sdoTable && sdo_->sdoTable->rowCount() > 0;
   input.hasPdoRows = input.hasSelectedSlave && loadedPdoPosition_ == selected &&
-                     pdoTable_ && pdoTable_->rowCount() > 0;
+                     sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
   input.hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   input.hasFreeRunRows =
       freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
@@ -817,7 +817,7 @@ void MainWindow::updateCommissioningWorkflow() {
                                : uiText("OD missing", "OD 缺失"),
       workflowInput.hasSdoRows
           ? uiText("%1 object row(s)", "%1 个对象条目")
-                .arg(sdoTable_->rowCount())
+                .arg(sdo_->sdoTable->rowCount())
           : uiText("Object data not loaded", "对象数据尚未加载"),
       workflowInput.hasSelectedSlave
           ? uiText("Open Object Dictionary", "打开对象字典")
@@ -846,7 +846,7 @@ void MainWindow::updateCommissioningWorkflow() {
       workflowInput.hasPdoRows ? uiText("None", "无")
                                : uiText("PDO missing", "PDO 缺失"),
       workflowInput.hasPdoRows
-          ? uiText("%1 PDO row(s)", "%1 个 PDO 条目").arg(pdoTable_->rowCount())
+          ? uiText("%1 PDO row(s)", "%1 个 PDO 条目").arg(sdo_->pdoTable->rowCount())
           : uiText("PDO data not loaded", "PDO 数据尚未加载"),
       workflowInput.hasSelectedSlave
           ? uiText("Open PDO Map", "打开 PDO 映射")
@@ -1189,8 +1189,8 @@ void MainWindow::updateSlaveEvidenceMatrix() {
   const QStringList topologyIssues = topologyBaselineIssues();
   const SlaveEvidenceLoadedPositions loadedPositions = {
       loadedSlaveInfoPosition_, identityTable_ ? identityTable_->rowCount() : 0,
-      loadedSdoPosition_,       sdoTable_ ? sdoTable_->rowCount() : 0,
-      loadedPdoPosition_,       pdoTable_ ? pdoTable_->rowCount() : 0,
+      loadedSdoPosition_,       sdo_->sdoTable ? sdo_->sdoTable->rowCount() : 0,
+      loadedPdoPosition_,       sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0,
   };
   const SlaveEvidenceLoadedTables loadedTables = {
       watch_->watchTable,
@@ -1632,11 +1632,11 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
       slaveEvidenceMatrixRouteTargetForRow(slaveEvidenceMatrixTable_, row)) {
   // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::ObjectDictionary:
-    activateObjectDictionaryPaneFor(sdoTable_);
-    if (loadedSdoPosition_ == position && sdoTable_ &&
-        sdoTable_->rowCount() > 0) {
+    activateObjectDictionaryPaneFor(sdo_->sdoTable);
+    if (loadedSdoPosition_ == position && sdo_->sdoTable &&
+        sdo_->sdoTable->rowCount() > 0) {
       selectAndFocusTableRow(
-          sdoTable_, sdoTable_->currentRow() >= 0 ? sdoTable_->currentRow() : 0,
+          sdo_->sdoTable, sdo_->sdoTable->currentRow() >= 0 ? sdo_->sdoTable->currentRow() : 0,
           0);
     }
     target = uiText("Object Dictionary evidence", "对象字典证据");
@@ -1645,10 +1645,10 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
   // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::PdoMap:
     activateWorkspaceTab(pdoMapTabIndex_);
-    if (loadedPdoPosition_ == position && pdoTable_ &&
-        pdoTable_->rowCount() > 0) {
+    if (loadedPdoPosition_ == position && sdo_->pdoTable &&
+        sdo_->pdoTable->rowCount() > 0) {
       selectAndFocusTableRow(
-          pdoTable_, pdoTable_->currentRow() >= 0 ? pdoTable_->currentRow() : 0,
+          sdo_->pdoTable, sdo_->pdoTable->currentRow() >= 0 ? sdo_->pdoTable->currentRow() : 0,
           0);
     }
     target = uiText("PDO Map evidence", "PDO 映射证据");
