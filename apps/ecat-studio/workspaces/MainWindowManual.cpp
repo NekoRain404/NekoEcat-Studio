@@ -113,6 +113,7 @@
 #include <QStyle>
 #include <QTabWidget>
 #include <QTableWidget>
+    // Display formatted documentation in browser widget
 #include <QTextBrowser>
 #include <QTextStream>
     // Schedule deferred or periodic execution
@@ -871,6 +872,7 @@ th { background: #f0f4f9; color: #475569; }
   const QString html = finalizeDocumentationHtml(
       uiText(english, chinese), QCoreApplication::applicationVersion(),
       activeMasterName(), ecatdPath(), settings_.theme == "Light");
+    // Display formatted documentation in browser widget
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
@@ -1046,6 +1048,7 @@ th { background: #f0f4f9; color: #475569; }
   const QString html = finalizeDocumentationHtml(
       uiText(english, chinese), QCoreApplication::applicationVersion(),
       activeMasterName(), ecatdPath(), settings_.theme == "Light");
+    // Display formatted documentation in browser widget
   browser->setHtml(html);
 
   auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
