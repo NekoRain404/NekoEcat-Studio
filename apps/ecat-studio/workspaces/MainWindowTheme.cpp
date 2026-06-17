@@ -1,3 +1,4 @@
+// Light/dark QSS theme application and settings integration.
 // Light/dark QSS theme application.
 #include "LanguageManager.h"
 
@@ -197,6 +198,7 @@ void MainWindow::applyTheme() {
                 background: #edf4ff;
                 border-color: #9bb9e8;
             }
+// ── Dark Theme QSS ───────────────────────────────────────────────────
             QToolButton:pressed, QPushButton:pressed {
                 background: #dbeafe;
                 border-color: #2563eb;
@@ -597,6 +599,7 @@ void MainWindow::applyTheme() {
                 border-radius: 6px;
             }
             QLabel#diagnosticsSummary {
+// ── Light Theme QSS ──────────────────────────────────────────────────
                 color: #475569;
                 padding: 2px 4px;
                 font-weight: 700;
@@ -997,6 +1000,7 @@ void MainWindow::applyTheme() {
             border: 1px solid #2a3546;
             border-radius: 8px;
             padding: 8px 10px;
+// ── Common Theme Elements (shared between dark and light) ────────────
             font-weight: 700;
         }
         QLabel#commandPreview {
@@ -1097,6 +1101,7 @@ void MainWindow::applyTheme() {
             border: 1px solid #166534;
             border-radius: 6px;
         }
+// ── Widget-Specific Overrides ────────────────────────────────────────
         QLabel#statusSummary[severity="action"] {
             color: #93c5fd;
             background: #10213d;
