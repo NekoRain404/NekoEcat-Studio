@@ -122,6 +122,7 @@
 
 // — Construct the entire main window layout, tabs, tables, and toolbars from scratch
 void MainWindow::buildUi() {
+// Reset all page pointers before constructing the layout.
   // Reset all page pointers before constructing the layout
 
   objectDictionaryPage_ = nullptr;
@@ -158,6 +159,7 @@ void MainWindow::buildUi() {
   diagnostics_ = nullptr;
 
   overviewPage_ = nullptr;
+// Allocate all workspace widget structs before any member access.
   // Allocate workspace widget structs before any member access.
   session_ = new SessionWorkspaceWidgets;
   workflow_ = new WorkflowWorkspaceWidgets;
@@ -437,8 +439,10 @@ void MainWindow::buildUi() {
       action->setCheckable(true);
     }
     if (objectName == "rescanAction" || objectName == "initAction") {
+// ── Menu Bar ──────────────────────────────────────────────────────────
       toolbar->addSeparator();
     }
+// ── Toolbar ───────────────────────────────────────────────────────────
   }
 
   toolbar->addWidget(makeToolbarLabel(uiText("Master", "主站")));
@@ -459,6 +463,7 @@ void MainWindow::buildUi() {
   toolbar->addSeparator();
   toolbar->addWidget(connectionLabel_);
 
+// ── Main Layout: left (topology + slave panel) | right (tabs + metrics) ─
   auto *root = new QSplitter;
   root->setChildrenCollapsible(false);
   setCentralWidget(root);
@@ -467,6 +472,7 @@ void MainWindow::buildUi() {
   auto *leftLayout = new QVBoxLayout(left);
   leftLayout->setContentsMargins(14, 14, 8, 14);
   leftLayout->setSpacing(10);
+// ── Topology Tree (left panel) ────────────────────────────────────────
   auto *topologyHeader = new QHBoxLayout;
   topologyHeader->setSpacing(6);
   auto *topologyTitle = new QLabel(uiText("I/O Tree", "I/O 树"));
@@ -505,6 +511,7 @@ void MainWindow::buildUi() {
   leftLayout->addWidget(diagnostics_->topologyBaselineLabel);
   leftLayout->addWidget(topologyTree_, 1);
 
+// ── Selected Slave Panel (left panel, below topology) ─────────────────
   auto *slavePanel = new QFrame;
   slavePanel->setObjectName("metricCard");
   auto *slavePanelLayout = new QVBoxLayout(slavePanel);
@@ -550,6 +557,7 @@ void MainWindow::buildUi() {
   slavePanelLayout->addWidget(selectedDriveSummaryLabel_);
   slavePanelLayout->addWidget(selectedSlaveHintLabel_);
 
+// ── Slave Quick-Action Buttons ────────────────────────────────────────
   auto *slaveActions = new QGridLayout;
   slaveActions->setHorizontalSpacing(6);
   slaveActions->setVerticalSpacing(6);
@@ -601,6 +609,7 @@ void MainWindow::buildUi() {
                         QStyle::SP_DialogApplyButton);
   driveNext->setToolTip(
       uiText("Use Watch statusword evidence to prepare the recommended CiA 402 "
+// ── Right Panel: metric cards + tab widget ────────────────────────────
              "controlword, then confirm the normal SDO write.",
              "根据 Watch 状态字证据准备推荐的 CiA 402 控制字，然后走普通 SDO "
              "写入确认。"));
@@ -637,6 +646,7 @@ void MainWindow::buildUi() {
   cards->addWidget(makeMetricCard(uiText("Slaves", "从站"),
                                   QString::number(slaves_.size()),
                                   &slaveCountLabel_),
+// ── Tab Widget: all workspace pages ───────────────────────────────────
                    0, 1);
   cards->addWidget(makeMetricCard(uiText("Link", "链路"),
                                   uiText("Unknown", "未知"), &linkStateLabel_),
@@ -657,6 +667,7 @@ void MainWindow::buildUi() {
   configureWorkspaceTabsForRelease(tabs_);
   metricTable_ = new QTableWidget;
   session_->sessionBriefTable = new QTableWidget;
+// ── Overview Page ─────────────────────────────────────────────────────
   workflow_->workflowTable = new QTableWidget;
   slaveEvidence_->slaveEvidenceMatrixTable = new QTableWidget;
   stateMachine_->stateMachineTable = new QTableWidget;
@@ -697,6 +708,7 @@ void MainWindow::buildUi() {
                       watch_->watchTable,
                       esiTable_,
                       startupSdoTable_}) {
+// ── Object Dictionary Page (SDO + PDO tabs) ───────────────────────────
     table->setAlternatingRowColors(true);
     table->verticalHeader()->setVisible(false);
     table->horizontalHeader()->setStretchLastSection(true);
@@ -797,6 +809,7 @@ void MainWindow::buildUi() {
   workflow_->workflowScopeFilter->addItem(uiText("All", "全部"), QStringLiteral("all"));
   workflow_->workflowScopeFilter->addItem(uiText("Open", "未完成"),
                                 QStringLiteral("open"));
+// ── Watch Page ────────────────────────────────────────────────────────
   workflow_->workflowScopeFilter->addItem(uiText("Blocked", "受阻"),
                                 QStringLiteral("blocked"));
   workflow_->workflowScopeFilter->addItem(uiText("Action", "待执行"),
@@ -897,6 +910,7 @@ void MainWindow::buildUi() {
       QString::fromLatin1(kSlaveEvidenceScopePriorityP2));
   slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("P3 Ready", "P3 就绪"),
+// ── Free Run Page ─────────────────────────────────────────────────────
       QString::fromLatin1(kSlaveEvidenceScopePriorityP3));
   slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Risk", "风险"), QString::fromLatin1(kSlaveEvidenceScopeRisk));
@@ -997,6 +1011,7 @@ void MainWindow::buildUi() {
   matrixLayout->addWidget(slaveEvidence_->slaveEvidenceMatrixTable, 1);
 
   auto *overviewGrid = new QGridLayout;
+// ── I/O Variable Page ─────────────────────────────────────────────────
   overviewGrid->setHorizontalSpacing(12);
   overviewGrid->setVerticalSpacing(10);
   overviewGrid->addWidget(
@@ -1097,6 +1112,7 @@ void MainWindow::buildUi() {
       "Create or update Startup SDO rows from selected Object Dictionary rows "
       "that already have Last Value evidence. This does not read or write the "
       "bus.",
+// ── Consistency Page ──────────────────────────────────────────────────
       "用选中且已有 Last Value 证据的对象字典行创建或更新 Startup SDO；不会读写"
       "总线。"));
   sdoControls->addWidget(new QLabel(uiText("Index", "索引")), 0, 0);
@@ -1197,6 +1213,7 @@ void MainWindow::buildUi() {
   auto *openStartupLinkSdo = new QPushButton(uiText("Startup", "Startup"));
   openStartupLinkSdo->setObjectName("openSdoStartupLink");
   openStartupLinkSdo->setIcon(
+// ── Commissioning Workflow Page ────────────────────────────────────────
       style()->standardIcon(QStyle::SP_FileDialogDetailedView));
   openStartupLinkSdo->setToolTip(
       uiText("Open the matching Startup SDO row for the current target without "
@@ -1297,6 +1314,7 @@ void MainWindow::buildUi() {
       "History, Bookmarks, and manual fields.",
       "来自对象字典、PDO、Watch、Free Run、I/O、Startup、历史、书签和手动字段"
       "的最近本地 SDO 目标。"));
+// ── Session Brief Page ────────────────────────────────────────────────
   sdoTargetTrailHint->setObjectName("diagnosticsSummary");
   sdoTargetTrailHint->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *restoreSdoTargetTrail =
@@ -1397,6 +1415,7 @@ void MainWindow::buildUi() {
               "显示设备身份和诊断身份对象")},
       {"PDO", "tag:pdo",
        uiText("Show PDO assignment and mapping objects",
+// ── Slave Evidence Matrix Page ────────────────────────────────────────
               "显示 PDO 分配和映射对象")},
       {uiText("Errors", "错误"), "tag:error",
        uiText("Show error, emergency, and diagnostic objects",
@@ -1497,6 +1516,7 @@ void MainWindow::buildUi() {
       makeSectionTitle(uiText("Object Bookmarks", "对象书签")));
   bookmarkHeader->addStretch(1);
   bookmarkHeader->addWidget(bookmarkSelectedDictionary);
+// ── Object Bookmark Page ──────────────────────────────────────────────
   bookmarkHeader->addWidget(fillBookmarkSdo);
   bookmarkHeader->addWidget(watchBookmarkSdo);
   bookmarkHeader->addWidget(startupBookmarkSdo);
@@ -1597,6 +1617,7 @@ void MainWindow::buildUi() {
       new QPushButton(uiText("Add Selected to Watch", "选中项加入监视"));
   addSelectedPdoWatch->setObjectName("addSelectedPdoWatch");
   addSelectedPdoWatch->setIcon(
+// ── State Machine Page ────────────────────────────────────────────────
       style()->standardIcon(QStyle::SP_FileDialogNewFolder));
   addSelectedPdoWatch->setToolTip(uiText(
       "Add the selected PDO map rows to Watch without duplicating existing "
@@ -1697,6 +1718,7 @@ void MainWindow::buildUi() {
   watch_->startupWatchSummaryLabel =
       new QLabel(uiText("No Startup SDO rows", "暂无 Startup SDO 行"));
   watch_->startupWatchSummaryLabel->setObjectName("diagnosticsSummary");
+// ── Diagnostics Page ──────────────────────────────────────────────────
   watch_->startupWatchSummaryLabel->setWordWrap(true);
   startupLayout->addWidget(watch_->startupWatchSummaryLabel);
   watch_->startupSdoDetailLabel =
@@ -1797,6 +1819,7 @@ void MainWindow::buildUi() {
   ioVar_->ioVariableScopeFilter->setObjectName("ioVariableScopeFilter");
   ioVar_->ioVariableScopeFilter->setToolTip(
       uiText("Limit I/O variables to the current engineering review scope.",
+// ── RT Test Page ──────────────────────────────────────────────────────
              "按当前工程复核范围筛选 I/O 变量。"));
   ioVar_->ioVariableScopeFilter->addItem(uiText("All", "全部"), "all");
   ioVar_->ioVariableScopeFilter->addItem(uiText("Selected Slave", "当前从站"),
@@ -1897,6 +1920,7 @@ void MainWindow::buildUi() {
   ioVariableControls->addWidget(exportIoVariables);
   ioVariableControls->addWidget(exportIoPlc);
   ioVariableControls->addWidget(ioVar_->ioVariableSummaryLabel);
+// ── Startup SDO Page ──────────────────────────────────────────────────
   ioVariableLayout->addLayout(ioVariableControls);
   ioVar_->ioVariableDetailLabel =
       new QLabel(uiText("Select an I/O variable to review signal evidence.",
@@ -1997,6 +2021,7 @@ void MainWindow::buildUi() {
   setTableRows(consistency_->consistencyTable,
                {uiText("Level", "级别"), uiText("Scope", "范围"),
                 uiText("Target", "目标"), uiText("Evidence", "证据"),
+// ── Status Bar ────────────────────────────────────────────────────────
                 uiText("Expected", "期望"), uiText("Actual", "实际"),
                 uiText("Action", "建议动作")},
                {});
@@ -2097,6 +2122,7 @@ void MainWindow::buildUi() {
   watchControls->addWidget(addCia402Watch);
   watchControls->addWidget(refreshWatch);
   watchControls->addWidget(captureWatchBaselineButton);
+// ── Next Best Action Button ───────────────────────────────────────────
   watchControls->addWidget(clearWatchBaselineButton);
   watchControls->addWidget(startupFromSelectedWatch);
   watchControls->addWidget(syncStartupFromWatch);
@@ -2197,6 +2223,7 @@ void MainWindow::buildUi() {
                 uiText("Startup", "启动"), uiText("PDO/Process", "PDO/过程"),
                 uiText("Risk", "风险"), uiText("Action", "动作")},
                {});
+// ── Log Dock ──────────────────────────────────────────────────────────
   stateMachineLayout->addWidget(stateMachine_->stateMachineTable, 1);
 
   auto *diagnosticsPage = new QWidget;
@@ -2297,6 +2324,7 @@ void MainWindow::buildUi() {
   statusBar()->addPermanentWidget(statusSummaryLabel_, 1);
   workspaceBoundaryLabel_ = new QLabel;
   workspaceBoundaryLabel_->setObjectName("statusSummary");
+// ── rebuildUi() — tear down and reconstruct UI on language change ─────
   workspaceBoundaryLabel_->setProperty("severity", "neutral");
   workspaceBoundaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
   statusBar()->addPermanentWidget(workspaceBoundaryLabel_);
