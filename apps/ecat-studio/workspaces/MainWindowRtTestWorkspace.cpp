@@ -6,7 +6,6 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QFont>
 #include <QPainter>
 #include <QtMath>
 #include <QPlainTextEdit>

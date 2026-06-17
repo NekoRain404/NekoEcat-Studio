@@ -3,7 +3,6 @@
 
 #include "MainWindow.h"
 
-#include "MainWindow.h"
 #include "models/Cia402DriveModel.h"
 #include "models/CommissioningWorkflowModel.h"
 #include "ui_state/CommissioningWorkflowStepDetailUiState.h"
