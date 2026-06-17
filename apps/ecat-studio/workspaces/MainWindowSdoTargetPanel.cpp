@@ -1,3 +1,4 @@
+// SDO Target Panel: inspector, evidence digest, and cross-workspace navigation.
 // SDO inspector, target panel, evidence trail, and history.
 
 #include "MainWindow.h"
@@ -122,6 +123,7 @@
 
 // — Build a human-readable impact summary for a proposed SDO write
 bool MainWindow::openSdoTargetPanelRow(int row) {
+// Open the SDO target panel for a specific dictionary row and populate all fields.
   if (!sdoInspector_->sdoTargetTable || row < 0 || row >= sdoInspector_->sdoTargetTable->rowCount()) {
     return false;
   }
@@ -197,6 +199,7 @@ bool MainWindow::copySdoTargetPanelRowDigest(int row) {
       sdoTargetPanelRouteDecision(key, currentSdoWriteDeltaReviewAvailable());
 
   QString action;
+// Copy the SDO target panel row digest (index, subindex, value, type) to clipboard.
   switch (decision.copyActionKind) {
   case SdoTargetPanelCopyActionKind::OpenWatch:
     action = uiText("Open the matching Watch evidence row locally",
@@ -297,6 +300,7 @@ void MainWindow::copyCurrentSdoEvidenceDigest() {
     lines << QString("%1: %2").arg(uiText("Read Value", "读回值"), readValue);
   }
   if (!writeValue.isEmpty()) {
+// Copy a comprehensive evidence digest for the current SDO target to clipboard.
     lines << QString("%1: %2").arg(uiText("Write Value", "写入值"), writeValue);
   }
 
@@ -397,6 +401,7 @@ void MainWindow::openCurrentSdoStartupLink() {
                            "已打开当前目标匹配的 Startup SDO 行"));
 }
 
+// Navigate from SDO target to the corresponding Watch row.
 
 // — Open current sdo bookmark link
 void MainWindow::openCurrentSdoBookmarkLink() {
@@ -417,6 +422,7 @@ void MainWindow::openCurrentSdoBookmarkLink() {
 
 // — Open current sdo target trail link
 void MainWindow::openCurrentSdoTargetTrailLink() {
+// Navigate from SDO target to the corresponding Startup SDO row.
   const int row = currentSdoTargetTrailRow();
   if (row < 0 || !sdoTargetTrailTable_) {
     updateDiagnostics(
@@ -437,6 +443,7 @@ void MainWindow::openCurrentSdoTargetTrailLink() {
 // — Return the sdo object category
 QString MainWindow::sdoObjectCategory(const QString &index, const QString &name,
                                       const QString &object,
+// Navigate from SDO target to the corresponding Object Bookmark row.
                                       const QString &detail) const {
   const QString key =
       QString("%1 %2 %3 %4").arg(index, name, object, detail).toLower();
@@ -457,6 +464,7 @@ QString MainWindow::sdoObjectCategory(const QString &index, const QString &name,
   if (key.contains("0x160") || key.contains("0x1a0") || key.contains("0x1c1") ||
       key.contains("0x1c2") || key.contains("pdo") || key.contains("mapping") ||
       key.contains("assignment")) {
+// Navigate from SDO target to the corresponding Target Trail row.
     return uiText("PDO mapping", "PDO 映射");
   }
   if (key.contains("0x1001") || key.contains("0x1002") ||
@@ -477,6 +485,7 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
     return;
   }
 
+// Categorize an SDO object by index range and name (CoE standard, CiA 402, vendor, etc.).
   const int position = selectedPosition();
   const QString index = sdoInspector_->sdoIndex ? sdoInspector_->sdoIndex->text().trimmed() : QString();
   const QString subIndex =
@@ -517,6 +526,7 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
   int watchRow = -1;
   QString watchValue;
   QString watchDecoded;
+// Rebuild the SDO target panel from the given source, position, index, subindex, and value.
   if (hasCompleteTarget && watch_->watchTable) {
     watchRow = currentSdoWatchRow();
     if (watchRow >= 0) {
@@ -897,6 +907,7 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
     }
     if (rows.at(row).first == evidenceSetLabel) {
       if (evidenceSetState == QStringLiteral("match")) {
+// Update the SDO target row action button based on current state.
         valueItem->setForeground(
             settings_.theme == "Light" ? QColor("#166534") : QColor("#86efac"));
       } else if (evidenceSetState == QStringLiteral("conflict")) {
@@ -937,6 +948,7 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
         targetTrailRow >= 0) {
       valueItem->setForeground(settings_.theme == "Light" ? QColor("#1d4ed8")
                                                           : QColor("#93c5fd"));
+// Update the SDO target row copy button based on available data.
     }
     sdoInspector_->sdoTargetTable->setItem(row, 0, keyItem);
     sdoInspector_->sdoTargetTable->setItem(row, 1, valueItem);
@@ -977,6 +989,7 @@ void MainWindow::updateSdoTargetRowActionButton() {
   }
 
   button->setText(uiText("Run: %1", "执行：%1").arg(action));
+// Update the SDO inspector with the given source and target data.
   button->setToolTip(
       uiText("Run the selected row action \"%1\" for \"%2\" using local "
              "evidence/navigation only. No bus read, no SDO write, no state "

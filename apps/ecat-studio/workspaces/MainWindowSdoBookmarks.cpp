@@ -1,3 +1,4 @@
+// Object Bookmarks: CRUD operations, cross-workspace export to Watch/Startup.
 // SDO inspector, target panel, evidence trail, and history.
 
 #include "MainWindow.h"
@@ -122,6 +123,7 @@
 
 // — Build a human-readable impact summary for a proposed SDO write
 void MainWindow::ensureObjectBookmarkTable() {
+// Ensure the object bookmark table exists (lazy initialization).
   if (!bookmark_->objectBookmarkTable) {
     return;
   }
@@ -147,6 +149,7 @@ void MainWindow::updateObjectBookmarkRowDetail() {
   const ObjectBookmarkDetailTexts texts = objectBookmarkDetailTexts();
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const ObjectBookmarkDetailUiState &state) {
+// Update the object bookmark row detail panel.
     objectBookmarkDetailLabel_->setText(state.text);
     objectBookmarkDetailLabel_->setProperty("severity", state.severityKey);
     objectBookmarkDetailLabel_->setToolTip(state.tooltip);
@@ -197,6 +200,7 @@ bool MainWindow::selectObjectBookmarkSlave(int position) {
         selectedLabel_->setText(slaveItem->text(0));
         filterWatchTable();
         updateSelectedSlavePanel();
+// Select the slave in the topology tree for a bookmark position.
         updateActionAvailability();
         updateCommissioningWorkflow();
         updateIoVariableTable();
@@ -237,6 +241,7 @@ void MainWindow::addSelectedDictionaryRowsToBookmarks() {
       loadedSdoPosition_ != selectedPosition()) {
     return;
   }
+// Add the current SDO target as a bookmark.
   const QVector<int> rows = selectedDictionaryRows();
   if (rows.isEmpty()) {
     return;
@@ -267,6 +272,7 @@ void MainWindow::addDictionaryRowsToBookmarks(const QVector<int> &rows,
       ++skipped;
       continue;
     }
+// Add selected dictionary rows to bookmarks.
     addObjectBookmark(selectedPosition(), dictionary.index, dictionary.subIndex,
                       dictionary.access, dictionary.type, dictionary.bits,
                       dictionary.name, dictionary.value,
@@ -297,6 +303,7 @@ bool MainWindow::selectSlaveForLocalEvidence(int position) {
     for (int child = 0; child < masterItem->childCount(); ++child) {
       auto *slaveItem = masterItem->child(child);
       if (!slaveItem || slaveItem->data(0, Qt::UserRole).toInt() != position) {
+// Add dictionary rows to bookmarks with source label.
         continue;
       }
       QSignalBlocker blocker(topologyTree_); // prevent recursive signal updates
@@ -357,6 +364,7 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
       normalizedIndex,
       normalizedSubIndex,
       access,
+// Select a slave for local evidence display.
       type,
       bits,
       name,
@@ -397,6 +405,7 @@ void MainWindow::applySdoSelectionFromBookmark(int row, bool readAfterFill) {
         "Warning", "Object Bookmarks",
         uiText(
             "Bookmark slave #%1 is not in the current topology; rescan or "
+// Add an object bookmark entry with full metadata.
             "open the matching project before filling SDO fields",
             "书签从站 #%1 不在当前拓扑中；请先重新扫描或打开匹配工程，再回填 "
             "SDO 字段")
@@ -517,6 +526,7 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
     watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(bookmark.type));
     watch_->watchTable->setItem(watchRow, 7,
                          new QTableWidgetItem(bookmark.name.isEmpty()
+// Add selected bookmarks to Watch list.
                                                   ? "Object Bookmark"
                                                   : bookmark.name));
     for (int column = 8; column < 12; ++column) {
@@ -537,6 +547,7 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
              "从书签加入 Watch：新增 %1，复用 %2，跳过 %3")
           .arg(added)
           .arg(reused)
+// Add bookmark rows to Watch list.
           .arg(skipped));
 }
 
@@ -597,6 +608,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
         sdoObjectBookmarkRowFromTable(bookmark_->objectBookmarkTable, bookmarkRow);
     if (!sdoObjectBookmarkRowHasTarget(bookmark) ||
         bookmark_->objectBookmarkTable->isRowHidden(bookmarkRow) ||
+// Add selected bookmarks to Startup SDO list.
         bookmark.lastValue.isEmpty()) {
       ++skipped;
       continue;
@@ -617,6 +629,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
     candidate.index = bookmark.index;
     candidate.subIndex = bookmark.subIndex;
     candidate.value = bookmark.lastValue;
+// Add bookmark rows to Startup SDO list.
     candidate.type = bookmark.type;
     candidate.name = bookmark.name;
     candidate.source = bookmark.source;
@@ -697,6 +710,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
     details << uiText("...and %1 more bookmark value(s)", "...另有 %1 个书签值")
                    .arg(candidates.size() - previewRows);
   }
+// Remove selected bookmarks.
   if (skipped > 0) {
     details << uiText("Skipped bookmarks without address or saved value: %1",
                       "已跳过缺少地址或保存值的书签：%1")
