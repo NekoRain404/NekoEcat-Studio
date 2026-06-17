@@ -1,3 +1,5 @@
+// Built-in user manual and about dialog.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

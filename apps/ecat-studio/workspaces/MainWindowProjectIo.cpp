@@ -1,3 +1,5 @@
+// Project file I/O, ESI repository, and master profiles.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

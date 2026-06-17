@@ -1,3 +1,5 @@
+// ecatd runtime daemon: TCP server, command dispatch, and master lifecycle.
+
 #pragma once
 #include "CommandDispatcher.h"
 

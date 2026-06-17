@@ -1,3 +1,5 @@
+// Localized UI text builders for detail panels.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

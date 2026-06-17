@@ -1,3 +1,5 @@
+// Topology baseline capture and diagnostics panel.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

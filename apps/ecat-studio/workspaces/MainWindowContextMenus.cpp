@@ -1,3 +1,5 @@
+// Context menus for topology tree, tables, and SDO target panel.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

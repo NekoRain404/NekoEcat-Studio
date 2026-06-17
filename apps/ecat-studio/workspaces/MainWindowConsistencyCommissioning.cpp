@@ -1,3 +1,5 @@
+// Consistency checks and commissioning workflow management.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

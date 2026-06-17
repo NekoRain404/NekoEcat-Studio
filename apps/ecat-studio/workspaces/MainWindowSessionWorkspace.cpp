@@ -1,3 +1,5 @@
+// Session brief, next-best-action, and workspace badges.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

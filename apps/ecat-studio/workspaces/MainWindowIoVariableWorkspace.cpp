@@ -1,3 +1,5 @@
+// I/O variable table, PLC handoff, and export functions.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

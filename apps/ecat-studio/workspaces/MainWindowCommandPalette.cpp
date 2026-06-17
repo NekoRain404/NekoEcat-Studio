@@ -1,3 +1,5 @@
+// Command palette: fuzzy search dialog for quick action access.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

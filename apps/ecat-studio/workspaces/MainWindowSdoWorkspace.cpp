@@ -1,3 +1,5 @@
+// SDO inspector, target panel, evidence trail, and history.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

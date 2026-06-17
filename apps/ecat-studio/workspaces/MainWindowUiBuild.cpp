@@ -1,3 +1,5 @@
+// Full UI construction: tabs, toolbars, panels, and metric cards.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

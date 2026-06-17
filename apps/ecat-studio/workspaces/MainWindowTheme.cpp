@@ -1,3 +1,5 @@
+// Light/dark QSS theme application.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

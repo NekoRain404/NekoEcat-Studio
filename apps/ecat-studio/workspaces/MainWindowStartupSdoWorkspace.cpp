@@ -1,3 +1,5 @@
+// Startup SDO management and delta comparison.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"

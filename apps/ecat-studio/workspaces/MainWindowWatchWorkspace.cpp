@@ -1,3 +1,5 @@
+// Watch list, add-to-watch, and baseline comparison.
+
 #include "MainWindow.h"
 
 #include "MainWindow.h"
