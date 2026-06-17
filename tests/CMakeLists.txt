@@ -1062,3 +1062,18 @@ target_link_libraries(connection_lifecycle_test PRIVATE Qt6::Core Qt6::Network)
 set_target_properties(connection_lifecycle_test PROPERTIES AUTOMOC ON)
 
 add_test(NAME connection_lifecycle_test COMMAND connection_lifecycle_test)
+
+add_executable(language_manager_test
+    language_manager_test.cpp
+    ../apps/ecat-studio/infra/LanguageManager.cpp
+    ../apps/ecat-studio/infra/LanguageManager.h
+)
+
+target_include_directories(language_manager_test PRIVATE
+    ../apps/ecat-studio/infra
+)
+target_link_libraries(language_manager_test PRIVATE Qt6::Core Qt6::Test)
+
+set_target_properties(language_manager_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME language_manager_test COMMAND language_manager_test)
