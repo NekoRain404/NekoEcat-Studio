@@ -1,9 +1,6 @@
-// TranslationRegistry — 8-language translation maps for NekoEcat Studio.
+// TranslationRegistry - 8-language translation maps for NekoEcat Studio.
 // Contains curated translations for UI strings across all workspaces.
 // Untranslated strings fall back to English at runtime.
-//
-// Languages: en, zh-CN, ja, de, ko, zh-TW, fr, es
-// To add translations: modify entries in the init() method.
 
 #include "TranslationRegistry.h"
 
@@ -609,7 +606,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("No offline baseline has been captured")] = {QStringLiteral("尚未捕获离线拓扑基线"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("No process image")] = {QStringLiteral("无过程映像"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("No process image entries")] = {QStringLiteral("暂无过程映像条目"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("No read-back for selected object")] = {QStringLiteral("选中对象暂无读回值"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("No read-back for selected object")] = {QStringLiteral("选中对象暂无读回值"), QStringLiteral("選択オブジェクトの読み戻し値なし"), QStringLiteral("Kein Rücklesen für ausgewähltes Objekt"), QStringLiteral("선택한 객체의 읽기 값 없음"), QStringLiteral("選定物件暫無讀回值"), QStringLiteral("Pas de relecture pour l'objet sélectionné"), QStringLiteral("Sin lectura para el objeto seleccionado")};
     map_[QStringLiteral("No risk")] = {QStringLiteral("无风险"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("No rows")] = {QStringLiteral("无行"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("No saved value; fill target only")] = {QStringLiteral("无保存值；仅回填目标"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -641,7 +638,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Notes")] = {QStringLiteral("备注"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("OD")] = {QStringLiteral("OD"), QStringLiteral("OD"), QStringLiteral("OD"), QStringLiteral("OD"), QStringLiteral("OD"), QStringLiteral("OD"), QStringLiteral("OD")};
     map_[QStringLiteral("OD %1")] = {QStringLiteral("OD %1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("OD Evidence")] = {QStringLiteral("OD 证据"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("OD Evidence")] = {QStringLiteral("OD 证据"), QStringLiteral("ODエビデンス"), QStringLiteral("OD-Nachweis"), QStringLiteral("OD 증거"), QStringLiteral("OD證據"), QStringLiteral("Preuve OD"), QStringLiteral("Evidencia OD")};
     map_[QStringLiteral("OD evidence")] = {QStringLiteral("OD 证据"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("OD missing")] = {QStringLiteral("OD 缺失"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("OK")] = {QStringLiteral("成功"), QStringLiteral("OK"), QStringLiteral("OK"), QStringLiteral("성공"), QStringLiteral("成功"), QStringLiteral("OK"), QStringLiteral("Aceptar")};
@@ -788,7 +785,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Read Selected")] = {QStringLiteral("读取所选"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Read Selected Objects")] = {QStringLiteral("读取所选对象"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Read Selected Slave")] = {QStringLiteral("读取选中从站"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("Read Value")] = {QStringLiteral("读回值"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("Read Value")] = {QStringLiteral("读回值"), QStringLiteral("読み取り値"), QStringLiteral("Gelesener Wert"), QStringLiteral("읽기 값"), QStringLiteral("讀取值"), QStringLiteral("Valeur lue"), QStringLiteral("Valor leído")};
     map_[QStringLiteral("Read Visible")] = {QStringLiteral("读取可见项"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Read Visible Object Dictionary Rows")] = {QStringLiteral("读取可见对象字典行"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Read Visible Objects")] = {QStringLiteral("读取可见对象"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -883,7 +880,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Review Startup SDO Watch Diffs")] = {QStringLiteral("审阅 Startup SDO Watch 偏差"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Review Startup diffs")] = {QStringLiteral("审阅 Startup 偏差"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Review Watch Diffs")] = {QStringLiteral("审阅 Watch 偏差"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("Review delta")] = {QStringLiteral("审阅差异"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("Review delta")] = {QStringLiteral("审阅差异"), QStringLiteral("差分を確認"), QStringLiteral("Differenz prüfen"), QStringLiteral("차이 검토"), QStringLiteral("審閱差異"), QStringLiteral("Examiner le delta"), QStringLiteral("Revisar delta")};
     map_[QStringLiteral("Review evidence")] = {QStringLiteral("复核证据"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Review evidence delta before writing")] = {QStringLiteral("写入前审阅证据差异"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Review failure before reuse")] = {QStringLiteral("复用前先复核失败原因"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -924,7 +921,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Rx Outputs")] = {QStringLiteral("Rx 输出"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Rx output")] = {QStringLiteral("Rx 输出"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("SDO")] = {QStringLiteral("SDO"), QStringLiteral("SDO"), QStringLiteral("SDO"), QStringLiteral("SDO"), QStringLiteral("SDO"), QStringLiteral("SDO"), QStringLiteral("SDO")};
-    map_[QStringLiteral("SDO History")] = {QStringLiteral("SDO 历史"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("SDO History")] = {QStringLiteral("SDO 历史"), QStringLiteral("SDO屫歴"), QStringLiteral("SDO-Verlauf"), QStringLiteral("SDO 기록"), QStringLiteral("SDO歷史"), QStringLiteral("Historique SDO"), QStringLiteral("Historial SDO")};
     map_[QStringLiteral("SDO Operation History")] = {QStringLiteral("SDO 操作历史"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("SDO Raw")] = {QStringLiteral("SDO 原始输出"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("SDO Target Trail")] = {QStringLiteral("SDO 目标轨迹"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -1048,7 +1045,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Startup diffs")] = {QStringLiteral("Startup 偏差"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Startup entries: %1")] = {QStringLiteral("启动项数量：%1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Startup mismatch")] = {QStringLiteral("Startup 不一致"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("Startup row %1")] = {QStringLiteral("启动行 %1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("Startup row %1")] = {QStringLiteral("启动行 %1"), QStringLiteral("スタートアップ行%1"), QStringLiteral("Start-Zeile %1"), QStringLiteral("시작 행 %1"), QStringLiteral("啟動項第%1行"), QStringLiteral("Ligne de démarrage %1"), QStringLiteral("Fila de inicio %1")};
     map_[QStringLiteral("Startup row has invalid address")] = {QStringLiteral("Startup 行地址无效"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Startup rows: %1, diffs: %2")] = {QStringLiteral("Startup 行：%1，偏差：%2"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Startup type: %1")] = {QStringLiteral("启动类型：%1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -1099,7 +1096,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Topology")] = {QStringLiteral("拓扑"), QStringLiteral("トポロジー"), QStringLiteral("Topologie"), QStringLiteral("토폴로지"), QStringLiteral("拓撲"), QStringLiteral("Topologie"), QStringLiteral("Topología")};
     map_[QStringLiteral("Topology baseline")] = {QStringLiteral("拓扑基线"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Topology baseline issue(s): %1")] = {QStringLiteral("拓扑基线问题：%1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("Topology baseline issue(s):\\\\\\\\n%1")] = {QStringLiteral("拓扑基线问题：\\\\\\\\n%1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("Topology baseline issue(s):\\\\\\\\\\\\\\\\n%1")] = {QStringLiteral("拓扑基线问题：\\\\\\\\\\\\\\\\n%1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Trail")] = {QStringLiteral("轨迹"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Tx Input")] = {QStringLiteral("Tx 输入"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("Tx Inputs")] = {QStringLiteral("Tx 输入"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
@@ -1204,7 +1201,7 @@ void TranslationRegistry::init()
     map_[QStringLiteral("Yes")] = {QStringLiteral("是"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("[Pinned] ")] = {QStringLiteral("[固定]"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("[Recent] ")] = {QStringLiteral("[最近]"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
-    map_[QStringLiteral("\\\\\\\\nRecently used command.")] = {QStringLiteral("\\\\\\\\n最近使用过的命令。"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
+    map_[QStringLiteral("\\\\\\\\\\\\\\\\nRecently used command.")] = {QStringLiteral("\\\\\\\\\\\\\\\\n最近使用过的命令。"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("access %1")] = {QStringLiteral("权限 %1"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("address fallback")] = {QStringLiteral("地址回退"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
     map_[QStringLiteral("all-slave state change")] = {QStringLiteral("全部从站状态切换"), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral(""), QStringLiteral("")};
