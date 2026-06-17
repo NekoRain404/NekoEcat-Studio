@@ -3946,12 +3946,12 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
 // — Fill the SDO target panel from the selected Free Run row
 void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
                                                    bool readAfterFill) {
-  if (!freeRunEntryTable_ || row < 0 || row >= freeRunEntryTable_->rowCount()) {
+  if (!freeRunWidgets_->freeRunEntryTable || row < 0 || row >= freeRunWidgets_->freeRunEntryTable->rowCount()) {
     return;
   }
 
   const FreeRunEntryTableRow entry =
-      freeRunEntryTableRowFromTable(freeRunEntryTable_, row);
+      freeRunEntryTableRowFromTable(freeRunWidgets_->freeRunEntryTable, row);
   if (!freeRunEntryTableRowHasTarget(entry)) {
     return;
   }

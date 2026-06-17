@@ -1100,25 +1100,25 @@ void MainWindow::updateIoVariableTable() {
     coveredObjects.insert(key);
   };
 
-  if (freeRunEntryTable_) {
-    for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
+  if (freeRunWidgets_->freeRunEntryTable) {
+    for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
       bool ok = false;
-      const int position = tableText(freeRunEntryTable_, row, 0).toInt(&ok);
+      const int position = tableText(freeRunWidgets_->freeRunEntryTable, row, 0).toInt(&ok);
       if (!ok) {
         continue;
       }
-      const auto *changedItem = freeRunEntryTable_->item(row, 0);
-      appendRow(position, tableText(freeRunEntryTable_, row, 2),
-                tableText(freeRunEntryTable_, row, 9),
-                tableText(freeRunEntryTable_, row, 4),
-                tableText(freeRunEntryTable_, row, 5),
-                tableText(freeRunEntryTable_, row, 6),
-                tableText(freeRunEntryTable_, row, 3),
+      const auto *changedItem = freeRunWidgets_->freeRunEntryTable->item(row, 0);
+      appendRow(position, tableText(freeRunWidgets_->freeRunEntryTable, row, 2),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 9),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 4),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 5),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 6),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 3),
                 uiText("Process", "过程"),
-                tableText(freeRunEntryTable_, row, 10),
-                tableText(freeRunEntryTable_, row, 11),
-                tableText(freeRunEntryTable_, row, 12),
-                tableText(freeRunEntryTable_, row, 13),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 10),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 11),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 12),
+                tableText(freeRunWidgets_->freeRunEntryTable, row, 13),
                 changedItem && changedItem->data(Qt::UserRole).toBool());
     }
   }

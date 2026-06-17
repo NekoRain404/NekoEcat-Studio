@@ -1138,13 +1138,13 @@ MainWindow::stateTransitionImpactDetails(int position,
 
   int freeRunRows = 0;
   int mapIssues = 0;
-  if (freeRunEntryTable_) {
-    for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
-      if (tableText(freeRunEntryTable_, row, 0).toInt() != position) {
+  if (freeRunWidgets_->freeRunEntryTable) {
+    for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
+      if (tableText(freeRunWidgets_->freeRunEntryTable, row, 0).toInt() != position) {
         continue;
       }
       ++freeRunRows;
-      if (hasPdoMapIssueEvidence(tableText(freeRunEntryTable_, row, 13))) {
+      if (hasPdoMapIssueEvidence(tableText(freeRunWidgets_->freeRunEntryTable, row, 13))) {
 // Aggregate detailed evidence for a slave's state transition target
         ++mapIssues;
       }
@@ -1265,13 +1265,13 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
 
   int freeRunRows = 0;
   int mapIssues = 0;
-  if (freeRunEntryTable_) {
-    for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
-      if (tableText(freeRunEntryTable_, row, 0).toInt() != position) {
+  if (freeRunWidgets_->freeRunEntryTable) {
+    for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
+      if (tableText(freeRunWidgets_->freeRunEntryTable, row, 0).toInt() != position) {
         continue;
       }
       ++freeRunRows;
-      if (hasPdoMapIssueEvidence(tableText(freeRunEntryTable_, row, 13))) {
+      if (hasPdoMapIssueEvidence(tableText(freeRunWidgets_->freeRunEntryTable, row, 13))) {
         ++mapIssues;
       }
     }
@@ -1396,13 +1396,13 @@ void MainWindow::updateStateMachineView() {
 
     int freeRunRows = 0;
     int mapIssues = 0;
-    if (freeRunEntryTable_) {
-      for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
-        if (tableText(freeRunEntryTable_, row, 0).toInt() != position) {
+    if (freeRunWidgets_->freeRunEntryTable) {
+      for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
+        if (tableText(freeRunWidgets_->freeRunEntryTable, row, 0).toInt() != position) {
           continue;
         }
         ++freeRunRows;
-        if (hasPdoMapIssueEvidence(tableText(freeRunEntryTable_, row, 13))) {
+        if (hasPdoMapIssueEvidence(tableText(freeRunWidgets_->freeRunEntryTable, row, 13))) {
           ++mapIssues;
         }
       }
@@ -1925,7 +1925,7 @@ void MainWindow::clearOnlineViews() {
   for (auto *table :
        {metricTable_, workflow_->workflowTable, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidence_->slaveEvidenceMatrixTable, portTable_, mailboxTable_, sdo_->pdoTable,
-        sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
+        sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunWidgets_->freeRunEntryTable,
         ioVar_->ioVariableTable, watch_->watchTable}) {
     if (table) {
       table->clear();
@@ -2602,11 +2602,11 @@ void MainWindow::wire() {
           &MainWindow::updatePdoRowDetail);
   connect(sdo_->sdoFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterSdoTable);
-  connect(freeRunFilter_, &QLineEdit::textChanged, this,
+  connect(freeRunWidgets_->freeRunFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterFreeRunEntryTable);
-  connect(freeRunChangedOnly_, &QCheckBox::toggled, this,
+  connect(freeRunWidgets_->freeRunChangedOnly, &QCheckBox::toggled, this,
           &MainWindow::filterFreeRunEntryTable);
-  connect(freeRunEntryTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(freeRunWidgets_->freeRunEntryTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateFreeRunEntryDetail);
   connect(ioVar_->ioVariableFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterIoVariableTable);
@@ -2745,7 +2745,7 @@ void MainWindow::wire() {
                       objectBookmarkTable_,
                       sdoHistoryTable_,
                       freeRunTable_,
-                      freeRunEntryTable_,
+                      freeRunWidgets_->freeRunEntryTable,
                       ioVar_->ioVariableTable,
                       hostHealthTable_,
                       diagnostics_->diagnosticsTable,
@@ -3376,18 +3376,18 @@ QStringList MainWindow::freeRunImpactDetails() const {
     }
   }
 
-  if (freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0) {
+  if (freeRunWidgets_->freeRunEntryTable && freeRunWidgets_->freeRunEntryTable->rowCount() > 0) {
     int outputEntries = 0;
     int inputEntries = 0;
     QStringList meaningPreview;
-    for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
-      const QString direction = tableText(freeRunEntryTable_, row, 2).toLower();
+    for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
+      const QString direction = tableText(freeRunWidgets_->freeRunEntryTable, row, 2).toLower();
       if (direction.contains("rx") || direction.contains("out")) {
         ++outputEntries;
       } else if (direction.contains("tx") || direction.contains("in")) {
         ++inputEntries;
       }
-      const QString meaning = tableText(freeRunEntryTable_, row, 12);
+      const QString meaning = tableText(freeRunWidgets_->freeRunEntryTable, row, 12);
       if (!meaning.isEmpty() && meaningPreview.size() < 3) {
         meaningPreview << meaning;
       }
@@ -3395,7 +3395,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
     details << uiText("Previous Free Run cache: %1 entries, output-like %2, "
                       "input-like %3",
                       "上次 Free Run 缓存：%1 项，输出类 %2，输入类 %3")
-                   .arg(freeRunEntryTable_->rowCount())
+                   .arg(freeRunWidgets_->freeRunEntryTable->rowCount())
                    .arg(outputEntries)
                    .arg(inputEntries);
     if (!meaningPreview.isEmpty()) {
@@ -3504,7 +3504,7 @@ void MainWindow::setFreeRun(bool enabled) {
 
 // Update the detail strip below the Free Run entry table
 void MainWindow::updateFreeRunEntryDetail() {
-  if (!freeRunEntryDetailLabel_) {
+  if (!freeRunWidgets_->freeRunEntryDetailLabel) {
     return;
   }
   const FreeRunEntryDetailTexts texts = {
@@ -3574,26 +3574,26 @@ void MainWindow::updateFreeRunEntryDetail() {
   };
 
   auto applyState = [this](const FreeRunEntryDetailUiState &state) {
-    freeRunEntryDetailLabel_->setText(state.text);
-    freeRunEntryDetailLabel_->setProperty("severity", state.severityKey);
-    freeRunEntryDetailLabel_->setToolTip(state.tooltip);
-    repolish(freeRunEntryDetailLabel_);
+    freeRunWidgets_->freeRunEntryDetailLabel->setText(state.text);
+    freeRunWidgets_->freeRunEntryDetailLabel->setProperty("severity", state.severityKey);
+    freeRunWidgets_->freeRunEntryDetailLabel->setToolTip(state.tooltip);
+    repolish(freeRunWidgets_->freeRunEntryDetailLabel);
   };
 
-  if (!freeRunEntryTable_) {
+  if (!freeRunWidgets_->freeRunEntryTable) {
     applyState(freeRunEntryDetailUnavailableState(texts));
     return;
   }
 
-  const int row = freeRunEntryTable_->currentRow();
-  if (row < 0 || row >= freeRunEntryTable_->rowCount() ||
-      freeRunEntryTable_->isRowHidden(row)) {
+  const int row = freeRunWidgets_->freeRunEntryTable->currentRow();
+  if (row < 0 || row >= freeRunWidgets_->freeRunEntryTable->rowCount() ||
+      freeRunWidgets_->freeRunEntryTable->isRowHidden(row)) {
     applyState(freeRunEntryDetailNoSelectionState(texts));
     return;
   }
 
   applyState(buildFreeRunEntryDetailUiState(
-      freeRunEntryTableRowFromTable(freeRunEntryTable_, row), texts));
+      freeRunEntryTableRowFromTable(freeRunWidgets_->freeRunEntryTable, row), texts));
 }
 
 // Append a timestamped message to the diagnostics log
@@ -4282,7 +4282,7 @@ void MainWindow::updateFreeRunTelemetry(const QJsonObject &telemetry) {
 
 // Rebuild the Free Run entry table from the processed rows
 void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
-  if (!freeRunEntryTable_) {
+  if (!freeRunWidgets_->freeRunEntryTable) {
     return;
   }
 
@@ -4290,22 +4290,22 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
                                "Index",   "Sub",        "Bits",      "Offset",
                                "Bit",     "Name",       "Raw",       "Decoded",
                                "Meaning", "Map Status", "Map Detail"};
-  const int selectedRow = freeRunEntryTable_->currentRow();
+  const int selectedRow = freeRunWidgets_->freeRunEntryTable->currentRow();
   const int verticalScroll =
-      freeRunEntryTable_->verticalScrollBar()
-          ? freeRunEntryTable_->verticalScrollBar()->value()
+      freeRunWidgets_->freeRunEntryTable->verticalScrollBar()
+          ? freeRunWidgets_->freeRunEntryTable->verticalScrollBar()->value()
           : 0;
   const int horizontalScroll =
-      freeRunEntryTable_->horizontalScrollBar()
-          ? freeRunEntryTable_->horizontalScrollBar()->value()
+      freeRunWidgets_->freeRunEntryTable->horizontalScrollBar()
+          ? freeRunWidgets_->freeRunEntryTable->horizontalScrollBar()->value()
           : 0;
 
-  if (freeRunEntryTable_->columnCount() != headers.size()) {
-    freeRunEntryTable_->setColumnCount(headers.size());
-    freeRunEntryTable_->setHorizontalHeaderLabels(headers);
+  if (freeRunWidgets_->freeRunEntryTable->columnCount() != headers.size()) {
+    freeRunWidgets_->freeRunEntryTable->setColumnCount(headers.size());
+    freeRunWidgets_->freeRunEntryTable->setHorizontalHeaderLabels(headers);
   }
-  if (freeRunEntryTable_->rowCount() != rows.size()) {
-    freeRunEntryTable_->setRowCount(rows.size());
+  if (freeRunWidgets_->freeRunEntryTable->rowCount() != rows.size()) {
+    freeRunWidgets_->freeRunEntryTable->setRowCount(rows.size());
   }
 
   const QColor changedBackground =
@@ -4324,10 +4324,10 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
     freeRunEntryValues_.insert(key, valueSignature);
 
     for (int column = 0; column < headers.size(); ++column) {
-      auto *item = freeRunEntryTable_->item(row, column);
+      auto *item = freeRunWidgets_->freeRunEntryTable->item(row, column);
       if (!item) {
         item = new QTableWidgetItem;
-        freeRunEntryTable_->setItem(row, column, item);
+        freeRunWidgets_->freeRunEntryTable->setItem(row, column, item);
       }
       item->setText(values.value(column));
       item->setData(Qt::UserRole, changed);
@@ -4352,15 +4352,15 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
       }
     }
   }
-  freeRunEntryTable_->resizeColumnsToContents();
-  if (selectedRow >= 0 && selectedRow < freeRunEntryTable_->rowCount()) {
-    freeRunEntryTable_->selectRow(selectedRow);
+  freeRunWidgets_->freeRunEntryTable->resizeColumnsToContents();
+  if (selectedRow >= 0 && selectedRow < freeRunWidgets_->freeRunEntryTable->rowCount()) {
+    freeRunWidgets_->freeRunEntryTable->selectRow(selectedRow);
   }
-  if (freeRunEntryTable_->verticalScrollBar()) {
-    freeRunEntryTable_->verticalScrollBar()->setValue(verticalScroll);
+  if (freeRunWidgets_->freeRunEntryTable->verticalScrollBar()) {
+    freeRunWidgets_->freeRunEntryTable->verticalScrollBar()->setValue(verticalScroll);
   }
-  if (freeRunEntryTable_->horizontalScrollBar()) {
-    freeRunEntryTable_->horizontalScrollBar()->setValue(horizontalScroll);
+  if (freeRunWidgets_->freeRunEntryTable->horizontalScrollBar()) {
+    freeRunWidgets_->freeRunEntryTable->horizontalScrollBar()->setValue(horizontalScroll);
   }
   filterFreeRunEntryTable();
   updateIoVariableTable();
@@ -4369,39 +4369,39 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
 
 // Apply text/scope filter to the Free Run entry table
 void MainWindow::filterFreeRunEntryTable() {
-  if (!freeRunEntryTable_) {
+  if (!freeRunWidgets_->freeRunEntryTable) {
     return;
   }
   const QString needle =
-      freeRunFilter_ ? freeRunFilter_->text().trimmed() : QString();
+      freeRunWidgets_->freeRunFilter ? freeRunWidgets_->freeRunFilter->text().trimmed() : QString();
   const bool changedOnly =
-      freeRunChangedOnly_ && freeRunChangedOnly_->isChecked();
+      freeRunWidgets_->freeRunChangedOnly && freeRunWidgets_->freeRunChangedOnly->isChecked();
   int visibleRows = 0;
   int changedRows = 0;
-  for (int row = 0; row < freeRunEntryTable_->rowCount(); ++row) {
-    const auto *firstItem = freeRunEntryTable_->item(row, 0);
+  for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
+    const auto *firstItem = freeRunWidgets_->freeRunEntryTable->item(row, 0);
     const bool changed = firstItem && firstItem->data(Qt::UserRole).toBool();
     if (changed) {
       ++changedRows;
     }
     bool match = needle.isEmpty();
-    for (int column = 0; column < freeRunEntryTable_->columnCount() && !match;
+    for (int column = 0; column < freeRunWidgets_->freeRunEntryTable->columnCount() && !match;
          ++column) {
-      const auto *item = freeRunEntryTable_->item(row, column);
+      const auto *item = freeRunWidgets_->freeRunEntryTable->item(row, column);
       match = item && item->text().contains(needle, Qt::CaseInsensitive);
     }
     match = match && (!changedOnly || changed);
-    freeRunEntryTable_->setRowHidden(row, !match);
+    freeRunWidgets_->freeRunEntryTable->setRowHidden(row, !match);
     if (match) {
       ++visibleRows;
     }
   }
-  if (freeRunEntrySummaryLabel_) {
-    freeRunEntrySummaryLabel_->setText(
+  if (freeRunWidgets_->freeRunEntrySummaryLabel) {
+    freeRunWidgets_->freeRunEntrySummaryLabel->setText(
         uiText("%1 visible / %2 entries, %3 changed",
                "%1 可见 / %2 条目，%3 变化")
             .arg(visibleRows)
-            .arg(freeRunEntryTable_->rowCount())
+            .arg(freeRunWidgets_->freeRunEntryTable->rowCount())
             .arg(changedRows));
   }
   updateFreeRunEntryDetail();

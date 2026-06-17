@@ -297,7 +297,7 @@ void MainWindow::exportDiagnosticsReport() {
   out << "## Free Run Summary\n\n";
   writeMarkdownTable(out, freeRunTable_);
   out << "## Free Run Entries\n\n";
-  writeMarkdownTable(out, freeRunEntryTable_);
+  writeMarkdownTable(out, freeRunWidgets_->freeRunEntryTable);
   out << "## Project Notes\n\n";
   out << "```text\n"
       << (projectNotes_ ? projectNotes_->toPlainText() : QString())
@@ -469,7 +469,7 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
        .pdoRows = sdo_->pdoTable ? sdo_->pdoTable->rowCount() : 0},
       {.watchTable = watch_->watchTable,
        .startupTable = startupSdoTable_,
-       .processTable = freeRunEntryTable_});
+       .processTable = freeRunWidgets_->freeRunEntryTable});
   const QStringList topologyIssues = topologyBaselineIssues();
   applyState(buildSelectedSlaveEvidenceSummaryUiState(
       input, topologyIssues.size(), texts));

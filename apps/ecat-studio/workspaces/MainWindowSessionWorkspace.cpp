@@ -188,7 +188,7 @@ void MainWindow::updateSessionBrief() {
                           sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
   const bool hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   const bool hasFreeRunRows =
-      freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
+      freeRunWidgets_->freeRunEntryTable && freeRunWidgets_->freeRunEntryTable->rowCount() > 0;
   const bool hasFailedOdEvidence = hasFailedSdoEvidence();
   const int startupDiffs = startupSdoRowsWithWatchDiffs().size();
 
@@ -392,7 +392,7 @@ void MainWindow::updateSessionBrief() {
           .arg(watch_->watchTable ? watch_->watchTable->rowCount() : 0)
           .arg(startupDiffs)
           .arg(freeRun_ ? uiText("on", "开启") : uiText("off", "关闭"))
-          .arg(freeRunEntryTable_ ? freeRunEntryTable_->rowCount() : 0),
+          .arg(freeRunWidgets_->freeRunEntryTable ? freeRunWidgets_->freeRunEntryTable->rowCount() : 0),
       startupDiffs > 0
           ? uiText("Review Startup diffs", "审阅 Startup 偏差")
           : (!hasWatchRows
@@ -740,9 +740,9 @@ void MainWindow::openSessionBriefRow(int row) {
       return;
     }
     activateWorkspaceTab(freeRunTabIndex_);
-    if (freeRunEntryTable_ && freeRunEntryTable_->currentRow() >= 0) {
-      selectAndFocusTableRow(freeRunEntryTable_,
-                             freeRunEntryTable_->currentRow(), 0);
+    if (freeRunWidgets_->freeRunEntryTable && freeRunWidgets_->freeRunEntryTable->currentRow() >= 0) {
+      selectAndFocusTableRow(freeRunWidgets_->freeRunEntryTable,
+                             freeRunWidgets_->freeRunEntryTable->currentRow(), 0);
     }
     logNavigation(uiText("Free Run evidence", "Free Run 证据"));
     return;
@@ -1308,7 +1308,7 @@ void MainWindow::updateTabBadges() {
   const WorkspaceTabBadgeCounts badgeCounts = workspaceTabBadgeCounts(
       {.watchTable = watch_->watchTable,
        .startupSdoTable = startupSdoTable_,
-       .freeRunEntryTable = freeRunEntryTable_,
+       .freeRunEntryTable = freeRunWidgets_->freeRunEntryTable,
        .ioVariableTable = ioVar_->ioVariableTable,
        .consistencyTable = consistency_->consistencyTable,
        .stateMachineTable = stateMachine_->stateMachineTable,

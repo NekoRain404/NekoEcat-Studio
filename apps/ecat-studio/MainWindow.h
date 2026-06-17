@@ -613,6 +613,7 @@ private:
   SdoWorkspaceWidgets *sdo_ = nullptr;
   WorkflowWorkspaceWidgets *workflow_ = nullptr;
   SlaveEvidenceWorkspaceWidgets *slaveEvidence_ = nullptr;
+  FreeRunWorkspaceWidgets *freeRunWidgets_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
@@ -623,7 +624,6 @@ private:
   QTableWidget *sdoHistoryTable_ = nullptr;
   QLabel *sdoHistoryDetailLabel_ = nullptr;
   QTableWidget *freeRunTable_ = nullptr;
-  QTableWidget *freeRunEntryTable_ = nullptr;
   QTableWidget *hostHealthTable_ = nullptr;
   QTableWidget *esiTable_ = nullptr;
   QTableWidget *startupSdoTable_ = nullptr;
@@ -704,16 +704,12 @@ private:
   bool rtTestRunning_ = false;
 
   // ── Free Run Panel Widgets ────────────────────────────────────
-  QLineEdit *freeRunFilter_ = nullptr;
-  QCheckBox *freeRunChangedOnly_ = nullptr;
   
   // ── I/O Variable Panel Widgets ────────────────────────────────
   
   // ── Consistency Panel Widgets ─────────────────────────────────
   
   // ── Diagnostics Panel Widgets ─────────────────────────────────
-  QLabel *freeRunEntrySummaryLabel_ = nullptr;
-  QLabel *freeRunEntryDetailLabel_ = nullptr;
   
   // ── Cached State ──────────────────────────────────────────────
   QString lastMasterText_;

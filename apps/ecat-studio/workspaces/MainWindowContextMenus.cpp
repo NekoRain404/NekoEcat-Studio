@@ -331,7 +331,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
           normalizedHex(tableText(table, currentRow, 3), 2);
       objectClipboard.value = tableText(table, currentRow, 4);
       objectClipboard.type = tableText(table, currentRow, 6);
-    } else if (table == freeRunEntryTable_) {
+    } else if (table == freeRunWidgets_->freeRunEntryTable) {
       objectClipboard.position =
           parsedPosition(tableText(table, currentRow, 0));
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 4), 4);
@@ -675,7 +675,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     removeWatch = menu.addAction(uiText("Remove Watch Item", "移除监视项"));
     removeWatch->setEnabled(hasWatchRow);
     menu.addSeparator();
-  } else if (table == freeRunEntryTable_) {
+  } else if (table == freeRunWidgets_->freeRunEntryTable) {
     const bool hasFreeRunRow = table->currentRow() >= 0;
     fillSdoFromFreeRun =
         menu.addAction(uiText("Fill SDO Fields", "填充 SDO 字段"));
@@ -1264,7 +1264,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     applySdoSelectionFromPdoMap(row, false);
   } else if (table == watch_->watchTable) {
     applySdoSelectionFromWatch(row, false);
-  } else if (table == freeRunEntryTable_) {
+  } else if (table == freeRunWidgets_->freeRunEntryTable) {
     applySdoSelectionFromFreeRunEntry(row, false);
   } else if (table == ioVar_->ioVariableTable) {
     applySdoSelectionFromIoVariable(row, false);

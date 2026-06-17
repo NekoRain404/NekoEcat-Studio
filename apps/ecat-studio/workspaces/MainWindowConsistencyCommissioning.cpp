@@ -721,7 +721,7 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
                      sdo_->pdoTable && sdo_->pdoTable->rowCount() > 0;
   input.hasWatchRows = watch_->watchTable && watch_->watchTable->rowCount() > 0;
   input.hasFreeRunRows =
-      freeRunEntryTable_ && freeRunEntryTable_->rowCount() > 0;
+      freeRunWidgets_->freeRunEntryTable && freeRunWidgets_->freeRunEntryTable->rowCount() > 0;
   input.hasFailedOdEvidence = hasFailedSdoEvidence();
   input.hasStartupWatchDiffs = !startupSdoRowsWithWatchDiffs().isEmpty();
 
@@ -920,7 +920,7 @@ void MainWindow::updateCommissioningWorkflow() {
           ? uiText("Free Run active", "自由运行中")
           : (workflowInput.hasFreeRunRows
                  ? uiText("%1 process entries", "%1 个过程项")
-                       .arg(freeRunEntryTable_->rowCount())
+                       .arg(freeRunWidgets_->freeRunEntryTable->rowCount())
                  : uiText("Free Run stopped", "自由运行已停止")),
       workflowInput.connected && workflowInput.hasSelectedSlave
           ? uiText("Open or toggle Free Run", "打开或切换自由运行")
@@ -1195,7 +1195,7 @@ void MainWindow::updateSlaveEvidenceMatrix() {
   const SlaveEvidenceLoadedTables loadedTables = {
       watch_->watchTable,
       startupSdoTable_,
-      freeRunEntryTable_,
+      freeRunWidgets_->freeRunEntryTable,
   };
 
   for (const auto &slave : slaves_) {
@@ -1705,17 +1705,17 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
   // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::Process: {
     const int processRow =
-        firstSlaveEvidenceProcessIssueRow(freeRunEntryTable_, position);
+        firstSlaveEvidenceProcessIssueRow(freeRunWidgets_->freeRunEntryTable, position);
     activateWorkspaceTab(freeRunTabIndex_);
     filterFreeRunEntryTable();
     if (processRow >= 0) {
-      selectAndFocusTableRow(freeRunEntryTable_, processRow,
+      selectAndFocusTableRow(freeRunWidgets_->freeRunEntryTable, processRow,
                              kSlaveEvidenceProcessPositionColumn);
     } else {
       const int anyProcessRow = firstSlaveEvidenceRowForPosition(
-          freeRunEntryTable_, position, kSlaveEvidenceProcessPositionColumn);
+          freeRunWidgets_->freeRunEntryTable, position, kSlaveEvidenceProcessPositionColumn);
       if (anyProcessRow >= 0) {
-        selectAndFocusTableRow(freeRunEntryTable_, anyProcessRow,
+        selectAndFocusTableRow(freeRunWidgets_->freeRunEntryTable, anyProcessRow,
                                kSlaveEvidenceProcessPositionColumn);
       }
     }

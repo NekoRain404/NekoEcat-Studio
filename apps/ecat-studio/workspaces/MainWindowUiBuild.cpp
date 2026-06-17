@@ -151,7 +151,6 @@ void MainWindow::buildUi() {
   slaveEvidence_->slaveEvidenceMatrixReviewNextButton = nullptr;
   slaveEvidence_->slaveEvidenceMatrixCopyButton = nullptr;
   stateMachine_ = nullptr;
-  freeRunEntryDetailLabel_ = nullptr;
   session_ = nullptr;
   workflow_->workflowScopeFilter = nullptr;
   workflow_->workflowFilter = nullptr;
@@ -168,6 +167,7 @@ void MainWindow::buildUi() {
   sdo_ = nullptr;
   workflow_ = nullptr;
   slaveEvidence_ = nullptr;
+  freeRunWidgets_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
   slaveEvidence_->slaveEvidenceMatrixFilter = nullptr;
@@ -675,7 +675,9 @@ void MainWindow::buildUi() {
   sdoTargetTrailTable_ = new QTableWidget;
   sdoHistoryTable_ = new QTableWidget;
   freeRunTable_ = new QTableWidget;
-  freeRunEntryTable_ = new QTableWidget;
+  freeRun_ = new FreeRunWorkspaceWidgets;
+  freeRunWidgets_ = new FreeRunWorkspaceWidgets;
+  freeRunWidgets_->freeRunEntryTable = new QTableWidget;
   ioVar_ = new IoVariableWorkspaceWidgets;
   ioVar_->ioVariableTable = new QTableWidget;
   consistency_ = new ConsistencyWorkspaceWidgets;
@@ -700,7 +702,7 @@ void MainWindow::buildUi() {
                       sdoTargetTrailTable_,
                       sdoHistoryTable_,
                       freeRunTable_,
-                      freeRunEntryTable_,
+                      freeRunWidgets_->freeRunEntryTable,
                       ioVar_->ioVariableTable,
                       consistency_->consistencyTable,
                       hostHealthTable_,
@@ -1763,36 +1765,36 @@ void MainWindow::buildUi() {
   freeRunLayout->addWidget(freeRunTable_, 1);
   freeRunLayout->addWidget(
       makeSectionTitle(uiText("Process Image", "过程映像")));
-  freeRunFilter_ = new QLineEdit;
-  freeRunFilter_->setPlaceholderText(
+  freeRunWidgets_->freeRunFilter = new QLineEdit;
+  freeRunWidgets_->freeRunFilter->setPlaceholderText(
       uiText("Filter process image by name, index, PDO, direction, or value",
              "按名称、索引、PDO、方向或值过滤过程映像"));
-  freeRunChangedOnly_ = new QCheckBox(uiText("Changed only", "仅变化项"));
-  freeRunEntrySummaryLabel_ =
+  freeRunWidgets_->freeRunChangedOnly = new QCheckBox(uiText("Changed only", "仅变化项"));
+  freeRunWidgets_->freeRunEntrySummaryLabel =
       new QLabel(uiText("No process image entries", "暂无过程映像条目"));
-  freeRunEntrySummaryLabel_->setObjectName("diagnosticsSummary");
+  freeRunWidgets_->freeRunEntrySummaryLabel->setObjectName("diagnosticsSummary");
   auto *freeRunFilterLayout = new QHBoxLayout;
   freeRunFilterLayout->setSpacing(8);
-  freeRunFilterLayout->addWidget(freeRunFilter_, 1);
-  freeRunFilterLayout->addWidget(freeRunChangedOnly_);
-  freeRunFilterLayout->addWidget(freeRunEntrySummaryLabel_);
+  freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunFilter, 1);
+  freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunChangedOnly);
+  freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunEntrySummaryLabel);
   freeRunLayout->addLayout(freeRunFilterLayout);
-  freeRunEntryDetailLabel_ =
+  freeRunWidgets_->freeRunEntryDetailLabel =
       new QLabel(uiText("Select a process image entry to review map and name "
                         "evidence.",
                         "选择过程映像条目以复核映射和名称证据。"));
-  freeRunEntryDetailLabel_->setObjectName("statusSummary");
-  freeRunEntryDetailLabel_->setProperty("severity", "neutral");
-  freeRunEntryDetailLabel_->setWordWrap(true);
-  freeRunEntryDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  freeRunEntryDetailLabel_->setToolTip(uiText(
+  freeRunWidgets_->freeRunEntryDetailLabel->setObjectName("statusSummary");
+  freeRunWidgets_->freeRunEntryDetailLabel->setProperty("severity", "neutral");
+  freeRunWidgets_->freeRunEntryDetailLabel->setWordWrap(true);
+  freeRunWidgets_->freeRunEntryDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  freeRunWidgets_->freeRunEntryDetailLabel->setToolTip(uiText(
       "This preview is local. It summarizes the selected Free Run row, name "
       "source, PDO map evidence, and output boundary without toggling Free "
       "Run.",
       "此预览仅在本地工作。它汇总选中的 Free Run 行、名称来源、PDO 映射证据"
       "和输出边界，不切换 Free Run。"));
-  freeRunLayout->addWidget(freeRunEntryDetailLabel_);
-  freeRunLayout->addWidget(freeRunEntryTable_, 3);
+  freeRunLayout->addWidget(freeRunWidgets_->freeRunEntryDetailLabel);
+  freeRunLayout->addWidget(freeRunWidgets_->freeRunEntryTable, 3);
 
   auto *ioVariablePage = new QWidget;
   ioVariablePage_ = ioVariablePage;
@@ -2378,9 +2380,9 @@ void MainWindow::rebuildUi() {
                            : QStringLiteral("all");
   const QString pdoFilter = sdo_->pdoFilter ? sdo_->pdoFilter->text() : QString();
   const QString freeRunFilter =
-      freeRunFilter_ ? freeRunFilter_->text() : QString();
+      freeRunWidgets_->freeRunFilter ? freeRunWidgets_->freeRunFilter->text() : QString();
   const bool freeRunChangedOnly =
-      freeRunChangedOnly_ ? freeRunChangedOnly_->isChecked() : false;
+      freeRunWidgets_->freeRunChangedOnly ? freeRunWidgets_->freeRunChangedOnly->isChecked() : false;
   const QString diagnosticsFilter =
       diagnostics_->diagnosticsFilter ? diagnostics_->diagnosticsFilter->text() : QString();
   const QString diagnosticsLevel =
@@ -2583,11 +2585,11 @@ void MainWindow::rebuildUi() {
   if (sdo_->pdoFilter) {
     sdo_->pdoFilter->setText(pdoFilter);
   }
-  if (freeRunFilter_) {
-    freeRunFilter_->setText(freeRunFilter);
+  if (freeRunWidgets_->freeRunFilter) {
+    freeRunWidgets_->freeRunFilter->setText(freeRunFilter);
   }
-  if (freeRunChangedOnly_) {
-    freeRunChangedOnly_->setChecked(freeRunChangedOnly);
+  if (freeRunWidgets_->freeRunChangedOnly) {
+    freeRunWidgets_->freeRunChangedOnly->setChecked(freeRunChangedOnly);
   }
   if (watch_->watchRefreshInterval) {
     const int index = watch_->watchRefreshInterval->findData(watchInterval);
