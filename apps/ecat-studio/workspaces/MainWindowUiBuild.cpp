@@ -124,7 +124,7 @@
 // — Construct the entire main window layout, tabs, tables, and toolbars from scratch
 void MainWindow::buildUi() {
   // Reset all page pointers before constructing the layout
-  overviewPage_ = nullptr;
+
   objectDictionaryPage_ = nullptr;
   pdoMapPage_ = nullptr;
   watchPage_ = nullptr;
@@ -143,24 +143,11 @@ void MainWindow::buildUi() {
   pdoRawPage_ = nullptr;
   sdoRawPage_ = nullptr;
   sdoModeTabs_ = nullptr;
-  sdo_->pdoDetailLabel = nullptr;
   sdoTargetTrailDetailLabel_ = nullptr;
   objectBookmarkDetailLabel_ = nullptr;
   sdoHistoryDetailLabel_ = nullptr;
-  slaveEvidence_->slaveEvidenceMatrixReviewButton = nullptr;
-  slaveEvidence_->slaveEvidenceMatrixReviewNextButton = nullptr;
-  slaveEvidence_->slaveEvidenceMatrixCopyButton = nullptr;
   stateMachine_ = nullptr;
   session_ = nullptr;
-  workflow_->workflowScopeFilter = nullptr;
-  workflow_->workflowFilter = nullptr;
-  workflow_->workflowStepDetailLabel = nullptr;
-  workflow_->workflowReviewButton = nullptr;
-  workflow_->workflowReviewNextButton = nullptr;
-  workflow_->workflowStepCopyButton = nullptr;
-  watch_->watchDetailLabel = nullptr;
-  watch_->startupSdoDetailLabel = nullptr;
-  ioVar_->ioVariableDetailLabel = nullptr;
   consistency_ = nullptr;
   ioVar_ = nullptr;
   watch_ = nullptr;
@@ -170,9 +157,20 @@ void MainWindow::buildUi() {
   freeRunWidgets_ = nullptr;
   bookmark_ = nullptr;
   diagnostics_ = nullptr;
-  slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
-  slaveEvidence_->slaveEvidenceMatrixFilter = nullptr;
-  slaveEvidence_->slaveEvidenceMatrixScopeFilter = nullptr;
+
+  overviewPage_ = nullptr;
+  // Allocate workspace widget structs before any member access.
+  session_ = new SessionWorkspaceWidgets;
+  workflow_ = new WorkflowWorkspaceWidgets;
+  slaveEvidence_ = new SlaveEvidenceWorkspaceWidgets;
+  stateMachine_ = new StateMachineWorkspaceWidgets;
+  sdo_ = new SdoWorkspaceWidgets;
+  freeRunWidgets_ = new FreeRunWorkspaceWidgets;
+  ioVar_ = new IoVariableWorkspaceWidgets;
+  consistency_ = new ConsistencyWorkspaceWidgets;
+  diagnostics_ = new DiagnosticsWorkspaceWidgets;
+  watch_ = new WatchWorkspaceWidgets;
+  bookmark_ = new BookmarkWorkspaceWidgets;
   workspaceBackStack_.clear();
   workspaceForwardStack_.clear();
   suppressWorkspaceHistory_ = false;
@@ -659,34 +657,23 @@ void MainWindow::buildUi() {
   tabs_ = new QTabWidget;
   configureWorkspaceTabsForRelease(tabs_);
   metricTable_ = new QTableWidget;
-  session_ = new SessionWorkspaceWidgets;
   session_->sessionBriefTable = new QTableWidget;
-  workflow_ = new WorkflowWorkspaceWidgets;
   workflow_->workflowTable = new QTableWidget;
-  slaveEvidence_ = new SlaveEvidenceWorkspaceWidgets;
   slaveEvidence_->slaveEvidenceMatrixTable = new QTableWidget;
-  stateMachine_ = new StateMachineWorkspaceWidgets;
   stateMachine_->stateMachineTable = new QTableWidget;
   identityTable_ = new QTableWidget;
   portTable_ = new QTableWidget;
   mailboxTable_ = new QTableWidget;
-  sdo_ = new SdoWorkspaceWidgets;
   sdo_->pdoTable = new QTableWidget;
   sdo_->sdoTable = new QTableWidget;
   sdoTargetTrailTable_ = new QTableWidget;
   sdoHistoryTable_ = new QTableWidget;
   freeRunTable_ = new QTableWidget;
-  freeRun_ = new FreeRunWorkspaceWidgets;
-  freeRunWidgets_ = new FreeRunWorkspaceWidgets;
   freeRunWidgets_->freeRunEntryTable = new QTableWidget;
-  ioVar_ = new IoVariableWorkspaceWidgets;
   ioVar_->ioVariableTable = new QTableWidget;
-  consistency_ = new ConsistencyWorkspaceWidgets;
   consistency_->consistencyTable = new QTableWidget;
   hostHealthTable_ = new QTableWidget;
-  diagnostics_ = new DiagnosticsWorkspaceWidgets;
   diagnostics_->diagnosticsTable = new QTableWidget;
-  watch_ = new WatchWorkspaceWidgets;
   watch_->watchTable = new QTableWidget;
   esiTable_ = new QTableWidget;
   startupSdoTable_ = new QTableWidget;
@@ -971,7 +958,6 @@ void MainWindow::buildUi() {
       "Copy the selected matrix row evidence summary to the clipboard. No bus "
       "request is sent.",
       "把当前矩阵行证据摘要复制到剪贴板；不会发送总线请求。"));
-  slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
   struct TriageScopeButton {
     QString label;
     QString scope;
@@ -1517,7 +1503,6 @@ void MainWindow::buildUi() {
   bookmarkHeader->addWidget(startupBookmarkSdo);
   bookmarkHeader->addWidget(removeBookmarkSdo);
   sdoBookmarkLayout->addLayout(bookmarkHeader);
-  bookmark_ = new BookmarkWorkspaceWidgets;
   bookmark_->objectBookmarkTable = new QTableWidget;
   bookmark_->objectBookmarkTable->setObjectName("objectBookmarkTable");
   bookmark_->objectBookmarkTable->setSelectionBehavior(QAbstractItemView::SelectRows);
