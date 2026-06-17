@@ -9,9 +9,9 @@ newline-delimited JSON on `127.0.0.1:5877`.
 |---------------|---------|
 | `models/`     | Pure data/logic types — no QWidget dependencies |
 | `adapters/`   | Bridge between models and `QTableWidget` |
-| `ui_state/`   | Detail-panel text builders for each workspace |
-| `helpers/`    | Reusable utilities (table, text, UI widgets, docs) |
-| `infra/`      | TCP client, shared POD types, settings dialog |
+| `detail/`     | Detail-panel text builders for each workspace |
+| `utils/`      | Reusable utilities (table, text, UI widgets, docs) |
+| `infra/`      | TCP client, shared POD types, settings, i18n |
 | `workspaces/` | `MainWindow` partial implementations per workspace |
 | (root)        | `MainWindow` core + `main.cpp` entry point |
 
@@ -21,7 +21,7 @@ newline-delimited JSON on `127.0.0.1:5877`.
 MainWindow  ──uses──►  workspaces/*.cpp   (UI construction, event wiring)
      │
      ├──reads──►  adapters/*              (populate QTableWidgets)
-     ├──reads──►  ui_state/*              (detail panel text)
+     ├──reads──►  detail/*                (detail panel text)
      ├──reads──►  models/*                (pure logic, filtering, scoring)
      │
      └──calls──►  infra/EcatClient        (JSON-over-TCP to ecatd)
@@ -29,7 +29,7 @@ MainWindow  ──uses──►  workspaces/*.cpp   (UI construction, event wiri
 
 - **Models** never include Qt widget headers.
 - **Adapters** depend on models and `QTableWidget` only.
-- **UI State** structs are plain data containers for detail panels.
+- **Detail** structs are plain data containers for detail panels.
 - **MainWindow partials** in `workspaces/` implement different methods
   of the same `MainWindow` class (Qt partial-class pattern).
 
