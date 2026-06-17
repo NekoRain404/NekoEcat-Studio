@@ -448,15 +448,15 @@ void MainWindow::updateActionAvailability() {
   bool hasVisibleIoVariables = false;
   bool hasIoVariableValueSelection = false;
   bool hasVisibleIoVariableValues = false;
-  if (ioVariableTable_) {
+  if (ioVar_->ioVariableTable) {
     const QVector<int> selectedIoRows = selectedIoVariableRows(true);
     hasIoVariableSelection = !selectedIoRows.isEmpty();
     hasIoVariableValueSelection =
-        ioVariableTableRowsContainValue(ioVariableTable_, selectedIoRows);
+        ioVariableTableRowsContainValue(ioVar_->ioVariableTable, selectedIoRows);
     const QVector<int> visibleIoRows = visibleIoVariableRows();
     hasVisibleIoVariables = !visibleIoRows.isEmpty();
     hasVisibleIoVariableValues =
-        ioVariableTableRowsContainValue(ioVariableTable_, visibleIoRows);
+        ioVariableTableRowsContainValue(ioVar_->ioVariableTable, visibleIoRows);
   }
   const bool hasHistorySelection = sdoHistoryTable_ &&
                                    sdoHistoryTable_->rowCount() > 0 &&
@@ -573,7 +573,7 @@ void MainWindow::updateActionAvailability() {
             .arg(hasObjectBookmarks ? objectBookmarkTable_->rowCount() : 0));
   }
   setEnabled("addSelectedPdoWatch", hasSlave && hasPdoSelection);
-  setEnabled("refreshIoVariables", ioVariableTable_ != nullptr);
+  setEnabled("refreshIoVariables", ioVar_->ioVariableTable != nullptr);
   setEnabled("fillIoVariableSdo", hasIoVariableSelection);
   setEnabled("readIoVariableSdo", connected && hasIoVariableSelection);
   setEnabled("watchSelectedIoVariables", hasIoVariableSelection);
@@ -588,13 +588,13 @@ void MainWindow::updateActionAvailability() {
   setEnabled("copySelectedPlcDeclarations", hasIoVariableSelection);
   setEnabled("copyVisiblePlcDeclarations", hasVisibleIoVariables);
   setEnabled("exportIoVariablesAction",
-             ioVariableTable_ && ioVariableTable_->rowCount() > 0);
+             ioVar_->ioVariableTable && ioVar_->ioVariableTable->rowCount() > 0);
   setEnabled("exportIoVariablesCsv",
-             ioVariableTable_ && ioVariableTable_->rowCount() > 0);
+             ioVar_->ioVariableTable && ioVar_->ioVariableTable->rowCount() > 0);
   setEnabled("exportIoPlcSymbolsAction",
-             ioVariableTable_ && ioVariableTable_->rowCount() > 0);
+             ioVar_->ioVariableTable && ioVar_->ioVariableTable->rowCount() > 0);
   setEnabled("exportIoPlcSymbolsCsv",
-             ioVariableTable_ && ioVariableTable_->rowCount() > 0);
+             ioVar_->ioVariableTable && ioVar_->ioVariableTable->rowCount() > 0);
   setEnabled("exportPlcDeclarationsAction", hasVisibleIoVariables);
   setEnabled("refreshConsistency", consistency_->consistencyTable != nullptr);
   setEnabled("openIoVariablesFromConsistency", ioVariableTabIndex_ >= 0);
@@ -1926,7 +1926,7 @@ void MainWindow::clearOnlineViews() {
        {metricTable_, workflowTable_, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidenceMatrixTable_, portTable_, mailboxTable_, pdoTable_,
         sdoTable_, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
-        ioVariableTable_, watchTable_}) {
+        ioVar_->ioVariableTable, watchTable_}) {
     if (table) {
       table->clear();
       table->setRowCount(0);
@@ -2608,9 +2608,9 @@ void MainWindow::wire() {
           &MainWindow::filterFreeRunEntryTable);
   connect(freeRunEntryTable_, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateFreeRunEntryDetail);
-  connect(ioVariableFilter_, &QLineEdit::textChanged, this,
+  connect(ioVar_->ioVariableFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterIoVariableTable);
-  connect(ioVariableScopeFilter_,
+  connect(ioVar_->ioVariableScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterIoVariableTable(); });
   connect(findChild<QPushButton *>("refreshIoVariables"), &QPushButton::clicked,
@@ -2618,12 +2618,12 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("fillIoVariableSdo"), &QPushButton::clicked,
           this, [this] {
             applySdoSelectionFromIoVariable(
-                ioVariableTable_ ? ioVariableTable_->currentRow() : -1, false);
+                ioVar_->ioVariableTable ? ioVar_->ioVariableTable->currentRow() : -1, false);
           });
   connect(findChild<QPushButton *>("readIoVariableSdo"), &QPushButton::clicked,
           this, [this] {
             applySdoSelectionFromIoVariable(
-                ioVariableTable_ ? ioVariableTable_->currentRow() : -1, true);
+                ioVar_->ioVariableTable ? ioVar_->ioVariableTable->currentRow() : -1, true);
           });
   connect(findChild<QPushButton *>("watchSelectedIoVariables"),
           &QPushButton::clicked, this,
@@ -2682,11 +2682,11 @@ void MainWindow::wire() {
           [this](int row) { applySdoSelectionFromHistory(row, true); });
   connect(pdoTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromPdoMap(row, true); });
-  connect(ioVariableTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(ioVar_->ioVariableTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateActionAvailability);
-  connect(ioVariableTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(ioVar_->ioVariableTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateIoVariableRowDetail);
-  connect(ioVariableTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(ioVar_->ioVariableTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromIoVariable(row, true); });
   connect(diagnostics_->diagnosticsFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterDiagnosticsTable);
@@ -2746,7 +2746,7 @@ void MainWindow::wire() {
                       sdoHistoryTable_,
                       freeRunTable_,
                       freeRunEntryTable_,
-                      ioVariableTable_,
+                      ioVar_->ioVariableTable,
                       hostHealthTable_,
                       diagnostics_->diagnosticsTable,
                       watchTable_,

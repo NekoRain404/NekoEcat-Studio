@@ -198,11 +198,11 @@ void MainWindow::updateConsistencyView() {
   }
 
   QSet<QString> onlineObjects;
-  if (ioVariableTable_) {
+  if (ioVar_->ioVariableTable) {
     // Iterate all rows and apply active filter predicates
-    for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
+    for (int row = 0; row < ioVar_->ioVariableTable->rowCount(); ++row) {
       const IoVariableTableRow variable =
-          ioVariableTableRowFromTable(ioVariableTable_, row);
+          ioVariableTableRowFromTable(ioVar_->ioVariableTable, row);
       if (!ioVariableTableRowHasTarget(variable)) {
         continue;
       }
@@ -571,7 +571,7 @@ void MainWindow::focusEvidenceFromConsistency(int row) {
 
 // — Route to the I/O variable tab filtered by the consistency issue
 void MainWindow::focusIoVariablesFromConsistency(int row) {
-  if (!ioVariableTable_ || !tabs_ || ioVariableTabIndex_ < 0 ||
+  if (!ioVar_->ioVariableTable || !tabs_ || ioVariableTabIndex_ < 0 ||
       ioVariableTabIndex_ >= tabs_->count()) {
     return;
   }
@@ -595,23 +595,23 @@ void MainWindow::focusIoVariablesFromConsistency(int row) {
                                         .actual = actual,
                                         .action = action});
 
-  if (ioVariableScopeFilter_) {
-    const int scopeIndex = ioVariableScopeFilter_->findData(route.ioScope);
+  if (ioVar_->ioVariableScopeFilter) {
+    const int scopeIndex = ioVar_->ioVariableScopeFilter->findData(route.ioScope);
     if (scopeIndex >= 0) {
-      ioVariableScopeFilter_->setCurrentIndex(scopeIndex);
+      ioVar_->ioVariableScopeFilter->setCurrentIndex(scopeIndex);
     }
   }
   updateIoVariableTable();
   activateWorkspaceTab(ioVariableTabIndex_);
 
   int selectedRow = tableRowForObjectAddress(
-      ioVariableTable_, route.address.position, route.address.index,
+      ioVar_->ioVariableTable, route.address.position, route.address.index,
       route.address.subIndex, 0, 3, 4);
   if (selectedRow < 0) {
-    selectedRow = firstVisibleTableRow(ioVariableTable_);
+    selectedRow = firstVisibleTableRow(ioVar_->ioVariableTable);
   }
   if (selectedRow >= 0) {
-    selectAndFocusTableRow(ioVariableTable_, selectedRow, 0);
+    selectAndFocusTableRow(ioVar_->ioVariableTable, selectedRow, 0);
   }
 
   updateDiagnostics("Info", "Consistency",

@@ -1043,12 +1043,12 @@ void MainWindow::showCommandPalette() {
         scopeCommand.description,
         style()->standardIcon(QStyle::SP_FileDialogDetailedView),
         [this, scope = scopeCommand.scope, label = scopeCommand.label] {
-          if (!ioVariableScopeFilter_) {
+          if (!ioVar_->ioVariableScopeFilter) {
             return;
           }
-          const int index = ioVariableScopeFilter_->findData(scope);
+          const int index = ioVar_->ioVariableScopeFilter->findData(scope);
           if (index >= 0) {
-            ioVariableScopeFilter_->setCurrentIndex(index);
+            ioVar_->ioVariableScopeFilter->setCurrentIndex(index);
           }
           updateIoVariableTable();
           activateWorkspaceTab(ioVariableTabIndex_);
@@ -1058,7 +1058,7 @@ void MainWindow::showCommandPalette() {
                   .arg(label));
         },
         [this, scope = scopeCommand.scope] {
-          if (!ioVariableTable_ || ioVariableTable_->rowCount() <= 0) {
+          if (!ioVar_->ioVariableTable || ioVar_->ioVariableTable->rowCount() <= 0) {
             return false;
           }
           return scope != "selected" || selectedPosition() >= 0;
@@ -1072,7 +1072,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogNewFolder),
       [this] { addSelectedIoVariablesToWatch(); },
       [this] {
-        return ioVariableTable_ && ioVariableTable_->currentRow() >= 0;
+        return ioVar_->ioVariableTable && ioVar_->ioVariableTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{
@@ -1083,12 +1083,12 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogNewFolder),
       [this] { addVisibleIoVariablesToWatch(); },
       [this] {
-        if (!ioVariableTable_) {
+        if (!ioVar_->ioVariableTable) {
           return false;
         }
         // Iterate all rows and apply active filter predicates
-        for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
-          if (!ioVariableTable_->isRowHidden(row)) {
+        for (int row = 0; row < ioVar_->ioVariableTable->rowCount(); ++row) {
+          if (!ioVar_->ioVariableTable->isRowHidden(row)) {
             return true;
           }
         }
@@ -1106,7 +1106,7 @@ void MainWindow::showCommandPalette() {
       [this] { addSelectedIoVariablesToStartupSdo(); },
       [this] {
         const QVector<int> rows = selectedIoVariableRows(true);
-        return ioVariableTableRowsContainValue(ioVariableTable_, rows);
+        return ioVariableTableRowsContainValue(ioVar_->ioVariableTable, rows);
       },
   });
   commands.append(CommandItem{
@@ -1120,7 +1120,7 @@ void MainWindow::showCommandPalette() {
       [this] { addVisibleIoVariablesToStartupSdo(); },
       [this] {
         const QVector<int> rows = visibleIoVariableRows();
-        return ioVariableTableRowsContainValue(ioVariableTable_, rows);
+        return ioVariableTableRowsContainValue(ioVar_->ioVariableTable, rows);
       },
   });
   commands.append(CommandItem{
@@ -1131,7 +1131,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogInfoView),
       [this] { editSelectedIoVariableMetadata(); },
       [this] {
-        return ioVariableTable_ && ioVariableTable_->currentRow() >= 0;
+        return ioVar_->ioVariableTable && ioVar_->ioVariableTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{
@@ -1141,7 +1141,7 @@ void MainWindow::showCommandPalette() {
              "为所选或可见信号批量生成工程别名和标签，不访问总线"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       [this] { bulkNameIoVariables(); },
-      [this] { return ioVariableTable_ && ioVariableTable_->rowCount() > 0; },
+      [this] { return ioVar_->ioVariableTable && ioVar_->ioVariableTable->rowCount() > 0; },
   });
   commands.append(CommandItem{
       uiText("Review PLC Handoff Issues", "审阅 PLC 交接问题"),
@@ -1151,7 +1151,7 @@ void MainWindow::showCommandPalette() {
              "符号重复的行"),
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       [this] { reviewPlcHandoffIssues(); },
-      [this] { return ioVariableTable_ && !visibleIoVariableRows().isEmpty(); },
+      [this] { return ioVar_->ioVariableTable && !visibleIoVariableRows().isEmpty(); },
   });
   commands.append(CommandItem{
       uiText("Copy Selected PLC Declarations", "复制所选 PLC 声明"),
@@ -1161,7 +1161,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this] { copyIoVariablePlcDeclarations(true); },
       [this] {
-        return ioVariableTable_ && !selectedIoVariableRows(true).isEmpty();
+        return ioVar_->ioVariableTable && !selectedIoVariableRows(true).isEmpty();
       },
   });
   commands.append(CommandItem{
@@ -1171,7 +1171,7 @@ void MainWindow::showCommandPalette() {
              "把所有可见 I/O 变量复制为 IEC VAR_GLOBAL 声明块"),
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this] { copyIoVariablePlcDeclarations(false); },
-      [this] { return ioVariableTable_ && !visibleIoVariableRows().isEmpty(); },
+      [this] { return ioVar_->ioVariableTable && !visibleIoVariableRows().isEmpty(); },
   });
   commands.append(CommandItem{
       uiText("Export PLC Declarations ST", "导出 PLC 声明 ST"),
@@ -1180,7 +1180,7 @@ void MainWindow::showCommandPalette() {
              "把可见 I/O 变量写成 IEC Structured Text VAR_GLOBAL 声明文件"),
       style()->standardIcon(QStyle::SP_DialogSaveButton),
       [this] { exportIoVariablesPlcDeclarationsSt(); },
-      [this] { return ioVariableTable_ && !visibleIoVariableRows().isEmpty(); },
+      [this] { return ioVar_->ioVariableTable && !visibleIoVariableRows().isEmpty(); },
   });
   commands.append(CommandItem{
       uiText("Open Consistency Check", "打开一致性检查"),

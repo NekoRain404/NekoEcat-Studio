@@ -341,7 +341,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       if (objectClipboard.value.isEmpty()) {
         objectClipboard.value = tableText(table, currentRow, 10);
       }
-    } else if (table == ioVariableTable_) {
+    } else if (table == ioVar_->ioVariableTable) {
       objectClipboard.position =
           parsedPosition(tableText(table, currentRow, 0));
       objectClipboard.index = normalizedHex(tableText(table, currentRow, 3), 4);
@@ -687,7 +687,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
     addWatchFromFreeRun->setEnabled(hasFreeRunRow);
     menu.addSeparator();
-  } else if (table == ioVariableTable_) {
+  } else if (table == ioVar_->ioVariableTable) {
     const bool hasIoRow = table->currentRow() >= 0;
     const QVector<int> selectedIoRows = selectedIoVariableRows(true);
     const QVector<int> visibleIoRows = visibleIoVariableRows();
@@ -1266,7 +1266,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     applySdoSelectionFromWatch(row, false);
   } else if (table == freeRunEntryTable_) {
     applySdoSelectionFromFreeRunEntry(row, false);
-  } else if (table == ioVariableTable_) {
+  } else if (table == ioVar_->ioVariableTable) {
     applySdoSelectionFromIoVariable(row, false);
   } else if (table == sdoHistoryTable_) {
     applySdoSelectionFromHistory(row, false);

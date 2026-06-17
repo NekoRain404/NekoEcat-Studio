@@ -1309,7 +1309,7 @@ void MainWindow::updateTabBadges() {
       {.watchTable = watchTable_,
        .startupSdoTable = startupSdoTable_,
        .freeRunEntryTable = freeRunEntryTable_,
-       .ioVariableTable = ioVariableTable_,
+       .ioVariableTable = ioVar_->ioVariableTable,
        .consistencyTable = consistency_->consistencyTable,
        .stateMachineTable = stateMachine_->stateMachineTable,
        .diagnosticsTable = diagnostics_->diagnosticsTable,

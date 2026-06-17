@@ -3993,12 +3993,12 @@ void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
 
 // — Fill the SDO target panel from the selected I/O variable row
 void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
-  if (!ioVariableTable_ || row < 0 || row >= ioVariableTable_->rowCount()) {
+  if (!ioVar_->ioVariableTable || row < 0 || row >= ioVar_->ioVariableTable->rowCount()) {
     return;
   }
 
   const IoVariableTableRow variable =
-      ioVariableTableRowFromTable(ioVariableTable_, row);
+      ioVariableTableRowFromTable(ioVar_->ioVariableTable, row);
   if (!ioVariableTableRowHasTarget(variable)) {
     return;
   }
@@ -4057,7 +4057,7 @@ void MainWindow::applySdoSelectionFromIoVariable(int row, bool readAfterFill) {
 // — Add io variable rows to watch
 void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
                                           const QString &sourceLabel) {
-  if (!ioVariableTable_ || rows.isEmpty()) {
+  if (!ioVar_->ioVariableTable || rows.isEmpty()) {
     return;
   }
   ensureWatchTable();
@@ -4066,13 +4066,13 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
   int reused = 0;
   int skipped = 0;
   for (const int row : rows) {
-    if (row < 0 || row >= ioVariableTable_->rowCount() ||
-        ioVariableTable_->isRowHidden(row)) {
+    if (row < 0 || row >= ioVar_->ioVariableTable->rowCount() ||
+        ioVar_->ioVariableTable->isRowHidden(row)) {
       ++skipped;
       continue;
     }
     const IoVariableTableRow variable =
-        ioVariableTableRowFromTable(ioVariableTable_, row);
+        ioVariableTableRowFromTable(ioVar_->ioVariableTable, row);
     if (!ioVariableTableRowHasTarget(variable)) {
       ++skipped;
       continue;
@@ -4152,7 +4152,7 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
 
 // — Add selected io variables to watch
 void MainWindow::addSelectedIoVariablesToWatch() {
-  if (!ioVariableTable_) {
+  if (!ioVar_->ioVariableTable) {
     return;
   }
   addIoVariableRowsToWatch(selectedIoVariableRows(false),
@@ -4163,12 +4163,12 @@ void MainWindow::addSelectedIoVariablesToWatch() {
 // — Add visible io variables to watch
 void MainWindow::addVisibleIoVariablesToWatch() {
   QVector<int> rows;
-  if (!ioVariableTable_) {
+  if (!ioVar_->ioVariableTable) {
     return;
   }
   // Iterate all rows and apply active filter predicates
-  for (int row = 0; row < ioVariableTable_->rowCount(); ++row) {
-    if (!ioVariableTable_->isRowHidden(row)) {
+  for (int row = 0; row < ioVar_->ioVariableTable->rowCount(); ++row) {
+    if (!ioVar_->ioVariableTable->isRowHidden(row)) {
       rows.append(row);
     }
   }
@@ -4202,7 +4202,7 @@ void MainWindow::addVisibleIoVariablesToStartupSdo() {
 // — Add io variable rows to startup sdo
 void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
                                                const QString &sourceLabel) {
-  if (!ioVariableTable_ || rows.isEmpty()) {
+  if (!ioVar_->ioVariableTable || rows.isEmpty()) {
     return;
   }
   ensureStartupSdoTable();
@@ -4243,14 +4243,14 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
   int duplicateSkipped = 0;
 
   for (const int ioRow : uniqueRows) {
-    if (ioRow < 0 || ioRow >= ioVariableTable_->rowCount() ||
-        ioVariableTable_->isRowHidden(ioRow)) {
+    if (ioRow < 0 || ioRow >= ioVar_->ioVariableTable->rowCount() ||
+        ioVar_->ioVariableTable->isRowHidden(ioRow)) {
       ++skipped;
       continue;
     }
 
     const IoVariableTableRow variable =
-        ioVariableTableRowFromTable(ioVariableTable_, ioRow);
+        ioVariableTableRowFromTable(ioVar_->ioVariableTable, ioRow);
     const QString value = ioVariableTableRowStartupValue(variable);
     const QString valueSource = !variable.watch.isEmpty()
                                     ? uiText("Watch", "Watch")

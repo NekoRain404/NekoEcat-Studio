@@ -161,8 +161,9 @@ void MainWindow::buildUi() {
   workflowStepCopyButton_ = nullptr;
   watchDetailLabel_ = nullptr;
   startupSdoDetailLabel_ = nullptr;
-  ioVariableDetailLabel_ = nullptr;
+  ioVar_->ioVariableDetailLabel = nullptr;
   consistency_ = nullptr;
+  ioVar_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
@@ -668,7 +669,8 @@ void MainWindow::buildUi() {
   sdoHistoryTable_ = new QTableWidget;
   freeRunTable_ = new QTableWidget;
   freeRunEntryTable_ = new QTableWidget;
-  ioVariableTable_ = new QTableWidget;
+  ioVar_ = new IoVariableWorkspaceWidgets;
+  ioVar_->ioVariableTable = new QTableWidget;
   consistency_ = new ConsistencyWorkspaceWidgets;
   consistency_->consistencyTable = new QTableWidget;
   hostHealthTable_ = new QTableWidget;
@@ -691,7 +693,7 @@ void MainWindow::buildUi() {
                       sdoHistoryTable_,
                       freeRunTable_,
                       freeRunEntryTable_,
-                      ioVariableTable_,
+                      ioVar_->ioVariableTable,
                       consistency_->consistencyTable,
                       hostHealthTable_,
                       diagnostics_->diagnosticsTable,
@@ -1791,32 +1793,32 @@ void MainWindow::buildUi() {
   ioVariableLayout->setSpacing(10);
   auto *ioVariableControls = new QHBoxLayout;
   ioVariableControls->setSpacing(8);
-  ioVariableFilter_ = new QLineEdit;
-  ioVariableFilter_->setPlaceholderText(uiText(
+  ioVar_->ioVariableFilter = new QLineEdit;
+  ioVar_->ioVariableFilter->setPlaceholderText(uiText(
       "Filter variables by slave, symbol, index, PDO, value, meaning, or risk",
       "按从站、符号、索引、PDO、值、含义或风险过滤变量"));
-  ioVariableScopeFilter_ = new QComboBox;
-  ioVariableScopeFilter_->setObjectName("ioVariableScopeFilter");
-  ioVariableScopeFilter_->setToolTip(
+  ioVar_->ioVariableScopeFilter = new QComboBox;
+  ioVar_->ioVariableScopeFilter->setObjectName("ioVariableScopeFilter");
+  ioVar_->ioVariableScopeFilter->setToolTip(
       uiText("Limit I/O variables to the current engineering review scope.",
              "按当前工程复核范围筛选 I/O 变量。"));
-  ioVariableScopeFilter_->addItem(uiText("All", "全部"), "all");
-  ioVariableScopeFilter_->addItem(uiText("Selected Slave", "当前从站"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("All", "全部"), "all");
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Selected Slave", "当前从站"),
                                   "selected");
-  ioVariableScopeFilter_->addItem(uiText("Process Image", "过程映像"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Process Image", "过程映像"),
                                   "process");
-  ioVariableScopeFilter_->addItem(uiText("PDO Only", "仅 PDO"), "pdo");
-  ioVariableScopeFilter_->addItem(uiText("Watch Evidence", "Watch 证据"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("PDO Only", "仅 PDO"), "pdo");
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Watch Evidence", "Watch 证据"),
                                   "watch");
-  ioVariableScopeFilter_->addItem(uiText("Startup Diff", "启动不一致"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Startup Diff", "启动不一致"),
                                   "startupDiff");
-  ioVariableScopeFilter_->addItem(uiText("Missing Value", "缺失值"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Missing Value", "缺失值"),
                                   "missingValue");
-  ioVariableScopeFilter_->addItem(uiText("Rx Outputs", "Rx 输出"), "rx");
-  ioVariableScopeFilter_->addItem(uiText("Tx Inputs", "Tx 输入"), "tx");
-  ioVariableScopeFilter_->addItem("CiA 402", "cia402");
-  ioVariableScopeFilter_->addItem(uiText("Changed", "变化项"), "changed");
-  ioVariableScopeFilter_->addItem(uiText("PLC Issues", "PLC 交接问题"),
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Rx Outputs", "Rx 输出"), "rx");
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Tx Inputs", "Tx 输入"), "tx");
+  ioVar_->ioVariableScopeFilter->addItem("CiA 402", "cia402");
+  ioVar_->ioVariableScopeFilter->addItem(uiText("Changed", "变化项"), "changed");
+  ioVar_->ioVariableScopeFilter->addItem(uiText("PLC Issues", "PLC 交接问题"),
                                   "plcIssues");
   auto *refreshIoVariables =
       new QPushButton(uiText("Refresh View", "刷新视图"));
@@ -1878,14 +1880,14 @@ void MainWindow::buildUi() {
   auto *exportIoPlc = new QPushButton(uiText("PLC CSV", "PLC CSV"));
   exportIoPlc->setObjectName("exportIoPlcSymbolsCsv");
   exportIoPlc->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-  ioVariableSummaryLabel_ =
+  ioVar_->ioVariableSummaryLabel =
       new QLabel(uiText("No I/O variables", "暂无 I/O 变量"));
-  ioVariableSummaryLabel_->setObjectName("diagnosticsSummary");
-  ioVariableSummaryLabel_->setWordWrap(true);
-  ioVariableSummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  ioVariableControls->addWidget(ioVariableFilter_, 1);
+  ioVar_->ioVariableSummaryLabel->setObjectName("diagnosticsSummary");
+  ioVar_->ioVariableSummaryLabel->setWordWrap(true);
+  ioVar_->ioVariableSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  ioVariableControls->addWidget(ioVar_->ioVariableFilter, 1);
   ioVariableControls->addWidget(new QLabel(uiText("Scope", "范围")));
-  ioVariableControls->addWidget(ioVariableScopeFilter_);
+  ioVariableControls->addWidget(ioVar_->ioVariableScopeFilter);
   ioVariableControls->addWidget(refreshIoVariables);
   ioVariableControls->addWidget(fillIoVariable);
   ioVariableControls->addWidget(readIoVariable);
@@ -1898,30 +1900,30 @@ void MainWindow::buildUi() {
   ioVariableControls->addWidget(reviewPlcHandoff);
   ioVariableControls->addWidget(exportIoVariables);
   ioVariableControls->addWidget(exportIoPlc);
-  ioVariableControls->addWidget(ioVariableSummaryLabel_);
+  ioVariableControls->addWidget(ioVar_->ioVariableSummaryLabel);
   ioVariableLayout->addLayout(ioVariableControls);
-  ioVariableDetailLabel_ =
+  ioVar_->ioVariableDetailLabel =
       new QLabel(uiText("Select an I/O variable to review signal evidence.",
                         "选择 I/O 变量以复核信号证据。"));
-  ioVariableDetailLabel_->setObjectName("statusSummary");
-  ioVariableDetailLabel_->setProperty("severity", "neutral");
-  ioVariableDetailLabel_->setWordWrap(true);
-  ioVariableDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  ioVariableDetailLabel_->setToolTip(uiText(
+  ioVar_->ioVariableDetailLabel->setObjectName("statusSummary");
+  ioVar_->ioVariableDetailLabel->setProperty("severity", "neutral");
+  ioVar_->ioVariableDetailLabel->setWordWrap(true);
+  ioVar_->ioVariableDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  ioVar_->ioVariableDetailLabel->setToolTip(uiText(
       "This preview is local. It summarizes the selected signal, address, "
       "value evidence, Startup comparison, PDO map status, PLC quality, and "
       "operation boundary without reading or writing the bus.",
       "此预览仅在本地工作。它汇总选中信号、对象地址、值证据、Startup 对照、"
       "PDO 映射状态、PLC 质量和操作边界，不读写总线。"));
-  ioVariableLayout->addWidget(ioVariableDetailLabel_);
-  ioVariableTable_->setToolTip(uiText(
+  ioVariableLayout->addWidget(ioVar_->ioVariableDetailLabel);
+  ioVar_->ioVariableTable->setToolTip(uiText(
       "Engineering signal table merged from PDO Map, Free Run process image, "
       "Watch evidence, and Startup SDO expectations. Double-click fills and "
       "reads the selected SDO through the normal path.",
       "由 PDO 映射、Free Run 过程映像、Watch 证据和 Startup SDO 期望合并而"
       "成的工程信号表。双击会通过常规路径填充并读取所选 SDO。"));
   setTableRows(
-      ioVariableTable_,
+      ioVar_->ioVariableTable,
       {uiText("Slave", "从站"), uiText("Dir", "方向"), uiText("Symbol", "符号"),
        uiText("Index", "索引"), uiText("Sub", "子项"), uiText("Bits", "位宽"),
        uiText("PDO", "PDO"), uiText("Source", "来源"), uiText("Raw", "原始值"),
@@ -1930,7 +1932,7 @@ void MainWindow::buildUi() {
        uiText("Map", "映射"), uiText("Changed", "变化"), uiText("PLC", "PLC"),
        uiText("Alias", "别名"), uiText("Tags", "标签"), uiText("Note", "备注")},
       {});
-  ioVariableLayout->addWidget(ioVariableTable_, 1);
+  ioVariableLayout->addWidget(ioVar_->ioVariableTable, 1);
 
   auto *consistencyPage = new QWidget;
   consistencyPage_ = consistencyPage;

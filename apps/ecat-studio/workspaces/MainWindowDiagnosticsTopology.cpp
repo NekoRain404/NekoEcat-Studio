@@ -218,7 +218,7 @@ void MainWindow::exportDiagnosticsReport() {
   out << "- Watch Items: " << (watchTable_ ? watchTable_->rowCount() : 0)
       << "\n";
   out << "- I/O Variables: "
-      << (ioVariableTable_ ? ioVariableTable_->rowCount() : 0) << "\n";
+      << (ioVar_->ioVariableTable ? ioVar_->ioVariableTable->rowCount() : 0) << "\n";
   out << "- Startup SDO Rows: "
       << (startupSdoTable_ ? startupSdoTable_->rowCount() : 0) << "\n";
   out << "- Object Dictionary Evidence: " << odEvidenceRows << " row(s), "
@@ -251,7 +251,7 @@ void MainWindow::exportDiagnosticsReport() {
   out << "## Watch\n\n";
   writeMarkdownTable(out, watchTable_);
   out << "## I/O Variables\n\n";
-  writeMarkdownTable(out, ioVariableTable_);
+  writeMarkdownTable(out, ioVar_->ioVariableTable);
   updateConsistencyView();
   out << "## Consistency Check\n\n";
   writeMarkdownTable(out, consistency_->consistencyTable);
