@@ -1241,13 +1241,13 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       [this] {
         activateWorkspaceTab(overviewTabIndex_);
-        openSlaveEvidenceMatrixRow(slaveEvidenceMatrixTable_
-                                       ? slaveEvidenceMatrixTable_->currentRow()
+        openSlaveEvidenceMatrixRow(slaveEvidence_->slaveEvidenceMatrixTable
+                                       ? slaveEvidence_->slaveEvidenceMatrixTable->currentRow()
                                        : -1);
       },
       [this] {
-        return slaveEvidenceMatrixTable_ &&
-               slaveEvidenceMatrixTable_->currentRow() >= 0;
+        return slaveEvidence_->slaveEvidenceMatrixTable &&
+               slaveEvidence_->slaveEvidenceMatrixTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{
@@ -1259,12 +1259,12 @@ void MainWindow::showCommandPalette() {
       [this] {
         activateWorkspaceTab(overviewTabIndex_);
         copySlaveEvidenceMatrixRowDigest(
-            slaveEvidenceMatrixTable_ ? slaveEvidenceMatrixTable_->currentRow()
+            slaveEvidence_->slaveEvidenceMatrixTable ? slaveEvidence_->slaveEvidenceMatrixTable->currentRow()
                                       : -1);
       },
       [this] {
-        return slaveEvidenceMatrixTable_ &&
-               slaveEvidenceMatrixTable_->currentRow() >= 0;
+        return slaveEvidence_->slaveEvidenceMatrixTable &&
+               slaveEvidence_->slaveEvidenceMatrixTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{
@@ -1278,10 +1278,10 @@ void MainWindow::showCommandPalette() {
         reviewFirstSlaveEvidenceMatrixIssue();
       },
       [this] {
-        return slaveEvidenceMatrixTable_ &&
-               slaveEvidenceMatrixTable_->rowCount() > 0 &&
-               (!slaveEvidenceMatrixReviewButton_ ||
-                slaveEvidenceMatrixReviewButton_->isEnabled());
+        return slaveEvidence_->slaveEvidenceMatrixTable &&
+               slaveEvidence_->slaveEvidenceMatrixTable->rowCount() > 0 &&
+               (!slaveEvidence_->slaveEvidenceMatrixReviewButton ||
+                slaveEvidence_->slaveEvidenceMatrixReviewButton->isEnabled());
       },
   });
   commands.append(CommandItem{
@@ -1296,10 +1296,10 @@ void MainWindow::showCommandPalette() {
         reviewNextSlaveEvidenceMatrixIssue();
       },
       [this] {
-        return slaveEvidenceMatrixTable_ &&
-               slaveEvidenceMatrixTable_->rowCount() > 0 &&
-               (!slaveEvidenceMatrixReviewNextButton_ ||
-                slaveEvidenceMatrixReviewNextButton_->isEnabled());
+        return slaveEvidence_->slaveEvidenceMatrixTable &&
+               slaveEvidence_->slaveEvidenceMatrixTable->rowCount() > 0 &&
+               (!slaveEvidence_->slaveEvidenceMatrixReviewNextButton ||
+                slaveEvidence_->slaveEvidenceMatrixReviewNextButton->isEnabled());
       },
   });
   commands.append(CommandItem{

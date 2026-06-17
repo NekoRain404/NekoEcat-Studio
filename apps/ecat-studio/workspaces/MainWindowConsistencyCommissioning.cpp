@@ -1166,15 +1166,15 @@ SelectedDriveSummaryTexts MainWindow::selectedDriveSummaryTexts() const {
 
 // — Rebuild the slave evidence overview matrix from all loaded evidence sources
 void MainWindow::updateSlaveEvidenceMatrix() {
-  if (!slaveEvidenceMatrixTable_) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable) {
     return;
   }
 
   int previousPosition = selectedPosition();
-  if (slaveEvidenceMatrixTable_->currentRow() >= 0) {
+  if (slaveEvidence_->slaveEvidenceMatrixTable->currentRow() >= 0) {
     bool ok = false;
-    const int rowPosition = tableText(slaveEvidenceMatrixTable_,
-                                      slaveEvidenceMatrixTable_->currentRow(),
+    const int rowPosition = tableText(slaveEvidence_->slaveEvidenceMatrixTable,
+                                      slaveEvidence_->slaveEvidenceMatrixTable->currentRow(),
                                       kSlaveEvidenceMatrixPositionColumn)
                                 .toInt(&ok);
     if (ok) {
@@ -1216,7 +1216,7 @@ void MainWindow::updateSlaveEvidenceMatrix() {
     rows.append(slaveEvidenceUiRow(row, uiTexts).cells);
   }
 
-  setTableRows(slaveEvidenceMatrixTable_, slaveEvidenceMatrixHeaders(uiTexts),
+  setTableRows(slaveEvidence_->slaveEvidenceMatrixTable, slaveEvidenceMatrixHeaders(uiTexts),
                rows);
 
   const QColor okColor("#22c55e");
@@ -1224,10 +1224,10 @@ void MainWindow::updateSlaveEvidenceMatrix() {
   const QColor warningColor("#ef4444");
   const QColor infoColor("#60a5fa");
   int restoreRow = -1;
-  for (int rowIndex = 0; rowIndex < slaveEvidenceMatrixTable_->rowCount();
+  for (int rowIndex = 0; rowIndex < slaveEvidence_->slaveEvidenceMatrixTable->rowCount();
        ++rowIndex) {
     bool ok = false;
-    const int rowPosition = tableText(slaveEvidenceMatrixTable_, rowIndex,
+    const int rowPosition = tableText(slaveEvidence_->slaveEvidenceMatrixTable, rowIndex,
                                       kSlaveEvidenceMatrixPositionColumn)
                                 .toInt(&ok);
     if (ok && rowPosition == previousPosition) {
@@ -1236,7 +1236,7 @@ void MainWindow::updateSlaveEvidenceMatrix() {
     const auto evidence = evidenceMatrix.rows.value(rowIndex);
     const SlaveEvidenceUiRow uiRow = slaveEvidenceUiRow(evidence, uiTexts);
     // Route to the appropriate evidence workspace
-    setSlaveEvidenceMatrixRouteTarget(slaveEvidenceMatrixTable_, rowIndex,
+    setSlaveEvidenceMatrixRouteTarget(slaveEvidence_->slaveEvidenceMatrixTable, rowIndex,
                                       // Route to the appropriate evidence workspace
                                       slaveEvidenceRouteTarget(evidence));
     const QColor readinessColor =
@@ -1244,20 +1244,20 @@ void MainWindow::updateSlaveEvidenceMatrix() {
             ? okColor
             : (!evidence.risks.isEmpty() ? warningColor : actionColor);
     const QString tooltip = uiRow.detailLines.join('\n');
-    for (int column = 0; column < slaveEvidenceMatrixTable_->columnCount();
+    for (int column = 0; column < slaveEvidence_->slaveEvidenceMatrixTable->columnCount();
          ++column) {
-      if (auto *item = slaveEvidenceMatrixTable_->item(rowIndex, column)) {
+      if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(rowIndex, column)) {
         item->setToolTip(tooltip);
       }
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixPriorityColumn)) {
       const int priorityRank = slaveEvidencePriorityRank(evidence.priority);
       item->setForeground(priorityRank <= 1   ? warningColor
                           : priorityRank == 2 ? actionColor
                                               : okColor);
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixStateColumn)) {
       const QString current = item->text().toUpper();
       item->setForeground(
@@ -1266,27 +1266,27 @@ void MainWindow::updateSlaveEvidenceMatrix() {
               ? actionColor
               : infoColor);
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixReadinessColumn)) {
       item->setForeground(readinessColor);
     }
     for (int column : {5, 6, 7, 9}) {
-      if (auto *item = slaveEvidenceMatrixTable_->item(rowIndex, column)) {
+      if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(rowIndex, column)) {
         const QString text = item->text().toLower();
         item->setForeground((text.contains("missing") || text.contains("缺失"))
                                 ? warningColor
                                 : okColor);
       }
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixStartupColumn)) {
       item->setForeground(evidence.startupDiffs > 0 ? warningColor : okColor);
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixRiskColumn)) {
       item->setForeground(evidence.risks.isEmpty() ? okColor : warningColor);
     }
-    if (auto *item = slaveEvidenceMatrixTable_->item(
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(
             rowIndex, kSlaveEvidenceMatrixNextColumn)) {
       item->setForeground(evidence.nextAction == SlaveEvidenceNextAction::Ready
                               ? okColor
@@ -1295,13 +1295,13 @@ void MainWindow::updateSlaveEvidenceMatrix() {
   }
 
   if (restoreRow >= 0) {
-    slaveEvidenceMatrixTable_->setCurrentCell(
+    slaveEvidence_->slaveEvidenceMatrixTable->setCurrentCell(
         restoreRow, kSlaveEvidenceMatrixPositionColumn);
   }
-  fitTableColumnsToViewport(slaveEvidenceMatrixTable_,
+  fitTableColumnsToViewport(slaveEvidence_->slaveEvidenceMatrixTable,
                             kSlaveEvidenceMatrixNextColumn);
 
-  if (slaveEvidenceMatrixSummaryLabel_) {
+  if (slaveEvidence_->slaveEvidenceMatrixSummaryLabel) {
     const QString summary =
         slaves_.isEmpty()
             ? uiText("No slaves in current scan", "当前扫描没有从站")
@@ -1314,19 +1314,19 @@ void MainWindow::updateSlaveEvidenceMatrix() {
                   .arg(evidenceMatrix.actionRows)
                   .arg(evidenceMatrix.riskRows)
                   .arg(evidenceMatrix.evidenceGaps);
-    slaveEvidenceMatrixSummaryLabel_->setText(summary);
-    slaveEvidenceMatrixSummaryLabel_->setToolTip(uiText(
+    slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setText(summary);
+    slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setToolTip(uiText(
         "This matrix is read-only and uses already loaded UI evidence only. "
         "Double-click or Alt+Enter selects the slave locally and routes to the "
         "best loaded evidence table without loading OD/PDO/ESI data from the "
         "bus.",
         "该矩阵只读且只使用已加载界面证据。双击或 Alt+Enter 会本地选择从站并"
         "路由到最相关的已加载证据表，不会从总线加载 OD/PDO/ESI 数据。"));
-    slaveEvidenceMatrixSummaryLabel_->setProperty(
+    slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setProperty(
         "severity", evidenceMatrix.riskRows > 0
                         ? "warning"
                         : (evidenceMatrix.actionRows > 0 ? "action" : "ok"));
-    repolish(slaveEvidenceMatrixSummaryLabel_); // force QSS re-evaluation after property change
+    repolish(slaveEvidence_->slaveEvidenceMatrixSummaryLabel); // force QSS re-evaluation after property change
   }
   filterSlaveEvidenceMatrix();
 }
@@ -1334,39 +1334,39 @@ void MainWindow::updateSlaveEvidenceMatrix() {
 
 // — Filter slave evidence matrix
 void MainWindow::filterSlaveEvidenceMatrix() {
-  if (!slaveEvidenceMatrixTable_) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable) {
     return;
   }
 
-  const QString needle = slaveEvidenceMatrixFilter_
-                             ? slaveEvidenceMatrixFilter_->text().trimmed()
+  const QString needle = slaveEvidence_->slaveEvidenceMatrixFilter
+                             ? slaveEvidence_->slaveEvidenceMatrixFilter->text().trimmed()
                              : QString();
   const QString scope =
-      slaveEvidenceMatrixScopeFilter_
-          ? slaveEvidenceMatrixScopeFilter_->currentData().toString()
+      slaveEvidence_->slaveEvidenceMatrixScopeFilter
+          ? slaveEvidence_->slaveEvidenceMatrixScopeFilter->currentData().toString()
           : QString::fromLatin1(kSlaveEvidenceScopeAll);
   const SlaveEvidenceMatrixFilterStats stats =
-      filterSlaveEvidenceMatrixTable(slaveEvidenceMatrixTable_, scope, needle);
+      filterSlaveEvidenceMatrixTable(slaveEvidence_->slaveEvidenceMatrixTable, scope, needle);
 
-  if (slaveEvidenceMatrixReviewButton_) {
-    slaveEvidenceMatrixReviewButton_->setEnabled(stats.hasVisibleIssue);
+  if (slaveEvidence_->slaveEvidenceMatrixReviewButton) {
+    slaveEvidence_->slaveEvidenceMatrixReviewButton->setEnabled(stats.hasVisibleIssue);
   }
-  if (slaveEvidenceMatrixReviewNextButton_) {
-    slaveEvidenceMatrixReviewNextButton_->setEnabled(stats.hasVisibleIssue);
+  if (slaveEvidence_->slaveEvidenceMatrixReviewNextButton) {
+    slaveEvidence_->slaveEvidenceMatrixReviewNextButton->setEnabled(stats.hasVisibleIssue);
   }
-  if (slaveEvidenceMatrixCopyButton_) {
-    const int current = slaveEvidenceMatrixTable_->currentRow();
-    slaveEvidenceMatrixCopyButton_->setEnabled(
-        current >= 0 && current < slaveEvidenceMatrixTable_->rowCount() &&
-        !slaveEvidenceMatrixTable_->isRowHidden(current));
+  if (slaveEvidence_->slaveEvidenceMatrixCopyButton) {
+    const int current = slaveEvidence_->slaveEvidenceMatrixTable->currentRow();
+    slaveEvidence_->slaveEvidenceMatrixCopyButton->setEnabled(
+        current >= 0 && current < slaveEvidence_->slaveEvidenceMatrixTable->rowCount() &&
+        !slaveEvidence_->slaveEvidenceMatrixTable->isRowHidden(current));
   }
 
-  if (slaveEvidenceMatrixSummaryLabel_) {
+  if (slaveEvidence_->slaveEvidenceMatrixSummaryLabel) {
     const QString scopeLabel =
-        slaveEvidenceMatrixScopeFilter_
-            ? slaveEvidenceMatrixScopeFilter_->currentText()
+        slaveEvidence_->slaveEvidenceMatrixScopeFilter
+            ? slaveEvidence_->slaveEvidenceMatrixScopeFilter->currentText()
             : uiText("All", "全部");
-    slaveEvidenceMatrixSummaryLabel_->setToolTip(
+    slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setToolTip(
         uiText("Visible matrix rows: %1/%2\nScope: %3\nPriority: P0 %4 | P1 "
                "%5 | P2 %6 | P3 %7\nRisk: %8 | Action: %9 | Ready: "
                "%10\nFiltering is local only and does not read the bus.",
@@ -1374,7 +1374,7 @@ void MainWindow::filterSlaveEvidenceMatrix() {
                "P3 %7\n风险：%8 | 待执行：%9 | 就绪：%10\n过滤仅在本地完成，不"
                "读取总线。")
             .arg(stats.visible)
-            .arg(slaveEvidenceMatrixTable_->rowCount())
+            .arg(slaveEvidence_->slaveEvidenceMatrixTable->rowCount())
             .arg(scopeLabel)
             .arg(stats.p0)
             .arg(stats.p1)
@@ -1392,11 +1392,11 @@ void MainWindow::filterSlaveEvidenceMatrix() {
 
 // — Update slave evidence matrix triage buttons
 void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
-  if (slaveEvidenceMatrixTriageButtons_.isEmpty()) {
+  if (slaveEvidence_->slaveEvidenceMatrixTriageButtons.isEmpty()) {
     return;
   }
   const SlaveEvidenceMatrixPriorityCounts priorityCounts =
-      slaveEvidenceMatrixPriorityCounts(slaveEvidenceMatrixTable_);
+      slaveEvidenceMatrixPriorityCounts(slaveEvidence_->slaveEvidenceMatrixTable);
   const QHash<QString, int> counts = {
       {QString::fromLatin1(kSlaveEvidenceScopePriorityP0), priorityCounts.p0},
       {QString::fromLatin1(kSlaveEvidenceScopePriorityP1), priorityCounts.p1},
@@ -1410,10 +1410,10 @@ void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
       {QString::fromLatin1(kSlaveEvidenceScopePriorityP3), uiText("P3", "P3")},
   };
   const QString currentScope =
-      slaveEvidenceMatrixScopeFilter_
-          ? slaveEvidenceMatrixScopeFilter_->currentData().toString()
+      slaveEvidence_->slaveEvidenceMatrixScopeFilter
+          ? slaveEvidence_->slaveEvidenceMatrixScopeFilter->currentData().toString()
           : QString();
-  for (auto *button : slaveEvidenceMatrixTriageButtons_) {
+  for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
     if (!button) {
       continue;
     }
@@ -1423,8 +1423,8 @@ void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
         QString("%1 %2").arg(labels.value(scope, scope)).arg(count));
     button->setCheckable(true);
     button->setChecked(scope == currentScope);
-    button->setEnabled(slaveEvidenceMatrixTable_ &&
-                       slaveEvidenceMatrixTable_->rowCount() > 0);
+    button->setEnabled(slaveEvidence_->slaveEvidenceMatrixTable &&
+                       slaveEvidence_->slaveEvidenceMatrixTable->rowCount() > 0);
     button->setToolTip(
         uiText("Show %1 matrix rows. Count: %2. This is local UI filtering "
                "only and does not read the bus.",
@@ -1437,17 +1437,17 @@ void MainWindow::updateSlaveEvidenceMatrixTriageButtons() {
 
 // — Review first slave evidence matrix issue
 void MainWindow::reviewFirstSlaveEvidenceMatrixIssue() {
-  if (!slaveEvidenceMatrixTable_) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable) {
     return;
   }
   filterSlaveEvidenceMatrix();
   int fallbackRow = -1;
-  for (int row = 0; row < slaveEvidenceMatrixTable_->rowCount(); ++row) {
-    if (slaveEvidenceMatrixTable_->isRowHidden(row)) {
+  for (int row = 0; row < slaveEvidence_->slaveEvidenceMatrixTable->rowCount(); ++row) {
+    if (slaveEvidence_->slaveEvidenceMatrixTable->isRowHidden(row)) {
       continue;
     }
     const SlaveEvidenceMatrixRowState state =
-        slaveEvidenceMatrixRowState(slaveEvidenceMatrixTable_, row);
+        slaveEvidenceMatrixRowState(slaveEvidence_->slaveEvidenceMatrixTable, row);
     if (!state.reviewIssue) {
       continue;
     }
@@ -1471,11 +1471,11 @@ void MainWindow::reviewFirstSlaveEvidenceMatrixIssue() {
 
 // — Review next slave evidence matrix issue
 void MainWindow::reviewNextSlaveEvidenceMatrixIssue() {
-  if (!slaveEvidenceMatrixTable_) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable) {
     return;
   }
   filterSlaveEvidenceMatrix();
-  const int rowCount = slaveEvidenceMatrixTable_->rowCount();
+  const int rowCount = slaveEvidence_->slaveEvidenceMatrixTable->rowCount();
   if (rowCount <= 0) {
     statusBar()->showMessage(
         uiText("No matrix issue to review.", "当前没有矩阵问题可审阅。"), 3000);
@@ -1483,15 +1483,15 @@ void MainWindow::reviewNextSlaveEvidenceMatrixIssue() {
   }
 
   auto isIssueRow = [this](int row) {
-    if (row < 0 || row >= slaveEvidenceMatrixTable_->rowCount() ||
-        slaveEvidenceMatrixTable_->isRowHidden(row)) {
+    if (row < 0 || row >= slaveEvidence_->slaveEvidenceMatrixTable->rowCount() ||
+        slaveEvidence_->slaveEvidenceMatrixTable->isRowHidden(row)) {
       return false;
     }
-    return slaveEvidenceMatrixRowState(slaveEvidenceMatrixTable_, row)
+    return slaveEvidenceMatrixRowState(slaveEvidence_->slaveEvidenceMatrixTable, row)
         .reviewIssue;
   };
 
-  const int current = slaveEvidenceMatrixTable_->currentRow();
+  const int current = slaveEvidence_->slaveEvidenceMatrixTable->currentRow();
   for (int offset = 1; offset <= rowCount; ++offset) {
     const int row = (qMax(0, current) + offset) % rowCount;
     if (isIssueRow(row)) {
@@ -1508,9 +1508,9 @@ void MainWindow::reviewNextSlaveEvidenceMatrixIssue() {
 
 // — Check whether copy slave evidence matrix row digest
 bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
-  if (!slaveEvidenceMatrixTable_ || row < 0 ||
-      row >= slaveEvidenceMatrixTable_->rowCount() ||
-      slaveEvidenceMatrixTable_->isRowHidden(row)) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable || row < 0 ||
+      row >= slaveEvidence_->slaveEvidenceMatrixTable->rowCount() ||
+      slaveEvidence_->slaveEvidenceMatrixTable->isRowHidden(row)) {
     statusBar()->showMessage(
         uiText("Select a visible slave evidence matrix row to copy.",
                "请选择一条可见的从站证据矩阵行再复制。"),
@@ -1522,40 +1522,40 @@ bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
   lines << uiText("NekoEcat Studio Slave Evidence Matrix Row",
                   "NekoEcat Studio 从站证据矩阵本行");
   lines << QString("%1: %2").arg(uiText("Master", "主站"), activeMasterName());
-  if (slaveEvidenceMatrixScopeFilter_) {
+  if (slaveEvidence_->slaveEvidenceMatrixScopeFilter) {
     lines << QString("%1: %2").arg(
         uiText("Matrix Scope", "矩阵范围"),
-        slaveEvidenceMatrixScopeFilter_->currentText());
+        slaveEvidence_->slaveEvidenceMatrixScopeFilter->currentText());
   }
-  if (slaveEvidenceMatrixFilter_ &&
-      !slaveEvidenceMatrixFilter_->text().trimmed().isEmpty()) {
+  if (slaveEvidence_->slaveEvidenceMatrixFilter &&
+      !slaveEvidence_->slaveEvidenceMatrixFilter->text().trimmed().isEmpty()) {
     lines << QString("%1: %2").arg(
-        uiText("Search", "搜索"), slaveEvidenceMatrixFilter_->text().trimmed());
+        uiText("Search", "搜索"), slaveEvidence_->slaveEvidenceMatrixFilter->text().trimmed());
   }
-  if (slaveEvidenceMatrixSummaryLabel_ &&
-      !slaveEvidenceMatrixSummaryLabel_->text().trimmed().isEmpty()) {
+  if (slaveEvidence_->slaveEvidenceMatrixSummaryLabel &&
+      !slaveEvidence_->slaveEvidenceMatrixSummaryLabel->text().trimmed().isEmpty()) {
     lines << QString("%1: %2").arg(
         uiText("Matrix Summary", "矩阵摘要"),
-        slaveEvidenceMatrixSummaryLabel_->text().trimmed());
+        slaveEvidence_->slaveEvidenceMatrixSummaryLabel->text().trimmed());
   }
 
   lines << QString();
   lines << uiText("Row Evidence", "本行证据");
-  for (int column = 0; column < slaveEvidenceMatrixTable_->columnCount();
+  for (int column = 0; column < slaveEvidence_->slaveEvidenceMatrixTable->columnCount();
        ++column) {
     const auto *header =
-        slaveEvidenceMatrixTable_->horizontalHeaderItem(column);
+        slaveEvidence_->slaveEvidenceMatrixTable->horizontalHeaderItem(column);
     const QString field =
         header ? header->text().trimmed() : QString::number(column + 1);
-    const QString value = tableText(slaveEvidenceMatrixTable_, row, column);
+    const QString value = tableText(slaveEvidence_->slaveEvidenceMatrixTable, row, column);
     lines << QString("- %1: %2")
                  .arg(field, value.isEmpty() ? uiText("Empty", "空") : value);
   }
 
   QString details;
-  for (int column = 0; column < slaveEvidenceMatrixTable_->columnCount();
+  for (int column = 0; column < slaveEvidence_->slaveEvidenceMatrixTable->columnCount();
        ++column) {
-    if (auto *item = slaveEvidenceMatrixTable_->item(row, column)) {
+    if (auto *item = slaveEvidence_->slaveEvidenceMatrixTable->item(row, column)) {
       details = item->toolTip().trimmed();
       if (!details.isEmpty()) {
         break;
@@ -1598,8 +1598,8 @@ bool MainWindow::copySlaveEvidenceMatrixRowDigest(int row) {
 
 // — Route to the detailed evidence workspace for the selected slave matrix row
 void MainWindow::openSlaveEvidenceMatrixRow(int row) {
-  if (!slaveEvidenceMatrixTable_ || row < 0 ||
-      row >= slaveEvidenceMatrixTable_->rowCount()) {
+  if (!slaveEvidence_->slaveEvidenceMatrixTable || row < 0 ||
+      row >= slaveEvidence_->slaveEvidenceMatrixTable->rowCount()) {
     statusBar()->showMessage(uiText("Select a slave evidence row first.",
                                     "请先选择一条从站证据矩阵行。"),
                              3000);
@@ -1607,7 +1607,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
   }
 
   bool ok = false;
-  const int position = tableText(slaveEvidenceMatrixTable_, row,
+  const int position = tableText(slaveEvidence_->slaveEvidenceMatrixTable, row,
                                  kSlaveEvidenceMatrixPositionColumn)
                            .toInt(&ok);
   if (!ok || position < 0) {
@@ -1622,14 +1622,14 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
     return;
   }
 
-  selectAndFocusTableRow(slaveEvidenceMatrixTable_, row,
+  selectAndFocusTableRow(slaveEvidence_->slaveEvidenceMatrixTable, row,
                          kSlaveEvidenceMatrixPositionColumn);
 
   QString target = uiText("Overview matrix row", "总览矩阵行");
   bool routed = false;
   switch (
       // Dispatch to the evidence workspace matching the route target
-      slaveEvidenceMatrixRouteTargetForRow(slaveEvidenceMatrixTable_, row)) {
+      slaveEvidenceMatrixRouteTargetForRow(slaveEvidence_->slaveEvidenceMatrixTable, row)) {
   // Route to the appropriate evidence workspace
   case SlaveEvidenceRouteTarget::ObjectDictionary:
     activateObjectDictionaryPaneFor(sdo_->sdoTable);
@@ -1760,7 +1760,7 @@ void MainWindow::openSlaveEvidenceMatrixRow(int row) {
 
 // — Return the matrix table row index matching the given slave position
 int MainWindow::slaveEvidenceMatrixRowForPosition(int position) const {
-  return firstSlaveEvidenceRowForPosition(slaveEvidenceMatrixTable_, position,
+  return firstSlaveEvidenceRowForPosition(slaveEvidence_->slaveEvidenceMatrixTable, position,
                                           kSlaveEvidenceMatrixPositionColumn);
 }
 

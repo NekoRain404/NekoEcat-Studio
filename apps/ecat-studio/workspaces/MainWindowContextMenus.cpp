@@ -517,7 +517,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         style()->standardIcon(QStyle::SP_FileDialogContentsView));
     copySessionBriefRow->setEnabled(hasBriefRow);
     menu.addSeparator();
-  } else if (table == slaveEvidenceMatrixTable_) {
+  } else if (table == slaveEvidence_->slaveEvidenceMatrixTable) {
     const bool hasMatrixRow = table->currentRow() >= 0;
     openSlaveMatrixEvidence =
         menu.addAction(uiText("Open Matrix Evidence", "打开矩阵证据"));
@@ -528,14 +528,14 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     reviewFirstMatrixIssue =
         menu.addAction(uiText("Review First Matrix Issue", "审阅首个矩阵问题"));
     reviewFirstMatrixIssue->setEnabled(
-        slaveEvidenceMatrixReviewButton_
-            ? slaveEvidenceMatrixReviewButton_->isEnabled()
+        slaveEvidence_->slaveEvidenceMatrixReviewButton
+            ? slaveEvidence_->slaveEvidenceMatrixReviewButton->isEnabled()
             : table->rowCount() > 0);
     reviewNextMatrixIssue =
         menu.addAction(uiText("Review Next Matrix Issue", "审阅下个矩阵问题"));
     reviewNextMatrixIssue->setEnabled(
-        slaveEvidenceMatrixReviewNextButton_
-            ? slaveEvidenceMatrixReviewNextButton_->isEnabled()
+        slaveEvidence_->slaveEvidenceMatrixReviewNextButton
+            ? slaveEvidence_->slaveEvidenceMatrixReviewNextButton->isEnabled()
             : table->rowCount() > 0);
     menu.addSeparator();
   } else if (table == sdo_->sdoTable) {
@@ -1252,7 +1252,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
   // Dispatch Alt+Enter to the correct evidence action for this table type
   } else if (table == session_->sessionBriefTable) {
     openSessionBriefRow(row);
-  } else if (table == slaveEvidenceMatrixTable_) {
+  } else if (table == slaveEvidence_->slaveEvidenceMatrixTable) {
     openSlaveEvidenceMatrixRow(row);
   } else if (table == consistency_->consistencyTable) {
     focusEvidenceFromConsistency(row);

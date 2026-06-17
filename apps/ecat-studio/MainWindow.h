@@ -612,7 +612,7 @@ private:
   WatchWorkspaceWidgets *watch_ = nullptr;
   SdoWorkspaceWidgets *sdo_ = nullptr;
   WorkflowWorkspaceWidgets *workflow_ = nullptr;
-  QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
+  SlaveEvidenceWorkspaceWidgets *slaveEvidence_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
@@ -694,13 +694,6 @@ private:
   QComboBox *sdoType_ = nullptr;
   
   // ── PDO Panel Widgets ─────────────────────────────────────────
-  QLabel *slaveEvidenceMatrixSummaryLabel_ = nullptr;
-  QPushButton *slaveEvidenceMatrixReviewButton_ = nullptr;
-  QPushButton *slaveEvidenceMatrixReviewNextButton_ = nullptr;
-  QPushButton *slaveEvidenceMatrixCopyButton_ = nullptr;
-  QVector<QPushButton *> slaveEvidenceMatrixTriageButtons_;
-  QLineEdit *slaveEvidenceMatrixFilter_ = nullptr;
-  QComboBox *slaveEvidenceMatrixScopeFilter_ = nullptr;
   
   // ── SDO Filter Widgets ────────────────────────────────────────
   

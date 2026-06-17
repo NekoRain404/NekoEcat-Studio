@@ -1924,7 +1924,7 @@ void MainWindow::clearOnlineViews() {
   }
   for (auto *table :
        {metricTable_, workflow_->workflowTable, stateMachine_->stateMachineTable, identityTable_,
-        slaveEvidenceMatrixTable_, portTable_, mailboxTable_, sdo_->pdoTable,
+        slaveEvidence_->slaveEvidenceMatrixTable, portTable_, mailboxTable_, sdo_->pdoTable,
         sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
         ioVar_->ioVariableTable, watch_->watchTable}) {
     if (table) {
@@ -2420,31 +2420,31 @@ void MainWindow::wire() {
   connect(workflow_->workflowScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterCommissioningWorkflow(); });
-  connect(slaveEvidenceMatrixFilter_, &QLineEdit::textChanged, this,
+  connect(slaveEvidence_->slaveEvidenceMatrixFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterSlaveEvidenceMatrix);
-  connect(slaveEvidenceMatrixScopeFilter_,
+  connect(slaveEvidence_->slaveEvidenceMatrixScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterSlaveEvidenceMatrix(); });
-  connect(slaveEvidenceMatrixTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(slaveEvidence_->slaveEvidenceMatrixTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::filterSlaveEvidenceMatrix);
-  connect(slaveEvidenceMatrixReviewButton_, &QPushButton::clicked, this,
+  connect(slaveEvidence_->slaveEvidenceMatrixReviewButton, &QPushButton::clicked, this,
           &MainWindow::reviewFirstSlaveEvidenceMatrixIssue);
-  connect(slaveEvidenceMatrixReviewNextButton_, &QPushButton::clicked, this,
+  connect(slaveEvidence_->slaveEvidenceMatrixReviewNextButton, &QPushButton::clicked, this,
           &MainWindow::reviewNextSlaveEvidenceMatrixIssue);
-  connect(slaveEvidenceMatrixCopyButton_, &QPushButton::clicked, this, [this] {
+  connect(slaveEvidence_->slaveEvidenceMatrixCopyButton, &QPushButton::clicked, this, [this] {
     copySlaveEvidenceMatrixRowDigest(
-        slaveEvidenceMatrixTable_ ? slaveEvidenceMatrixTable_->currentRow()
+        slaveEvidence_->slaveEvidenceMatrixTable ? slaveEvidence_->slaveEvidenceMatrixTable->currentRow()
                                   : -1);
   });
-  for (auto *button : slaveEvidenceMatrixTriageButtons_) {
+  for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
     connect(button, &QPushButton::clicked, this, [this, button] {
-      if (!slaveEvidenceMatrixScopeFilter_) {
+      if (!slaveEvidence_->slaveEvidenceMatrixScopeFilter) {
         return;
       }
       const QString scope = button->property("scope").toString();
-      const int scopeIndex = slaveEvidenceMatrixScopeFilter_->findData(scope);
+      const int scopeIndex = slaveEvidence_->slaveEvidenceMatrixScopeFilter->findData(scope);
       if (scopeIndex >= 0) {
-        slaveEvidenceMatrixScopeFilter_->setCurrentIndex(scopeIndex);
+        slaveEvidence_->slaveEvidenceMatrixScopeFilter->setCurrentIndex(scopeIndex);
       }
       filterSlaveEvidenceMatrix();
     });
@@ -2459,7 +2459,7 @@ void MainWindow::wire() {
           [this] { openSessionBriefRow(session_->sessionBriefTable->currentRow()); });
   connect(workflow_->workflowTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { runCommissioningWorkflowStep(row); });
-  connect(slaveEvidenceMatrixTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(slaveEvidence_->slaveEvidenceMatrixTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSlaveEvidenceMatrixRow(row); });
   auto stateMachinePositionForRow = [this](int row) -> int {
     if (stateMachine_->stateMachineTable && row >= 0 &&
@@ -2734,7 +2734,7 @@ void MainWindow::wire() {
   for (auto *table : {metricTable_,
                       session_->sessionBriefTable,
                       workflow_->workflowTable,
-                      slaveEvidenceMatrixTable_,
+                      slaveEvidence_->slaveEvidenceMatrixTable,
                       stateMachine_->stateMachineTable,
                       identityTable_,
                       portTable_,

@@ -776,7 +776,7 @@ void MainWindow::updateNextBestAction() {
   actionInput.workflow = commissioningWorkflowInput();
   actionInput.consistencyBlockingIssueRow = firstConsistencyBlockingIssueRow();
   const SlaveEvidenceMatrixPriorityCounts priorityCounts =
-      slaveEvidenceMatrixPriorityCounts(slaveEvidenceMatrixTable_);
+      slaveEvidenceMatrixPriorityCounts(slaveEvidence_->slaveEvidenceMatrixTable);
   actionInput.matrixP0 = priorityCounts.p0;
   actionInput.matrixP1 = priorityCounts.p1;
   actionInput.matrixP2 = priorityCounts.p2;
@@ -869,14 +869,14 @@ void MainWindow::runNextBestAction() {
     openConsistencyView();
   } else if (action == nextBestActionKey(NextBestActionKind::MatrixReview)) {
     activateWorkspaceTab(overviewTabIndex_);
-    if (slaveEvidenceMatrixScopeFilter_) {
-      const int allScope = slaveEvidenceMatrixScopeFilter_->findData("all");
+    if (slaveEvidence_->slaveEvidenceMatrixScopeFilter) {
+      const int allScope = slaveEvidence_->slaveEvidenceMatrixScopeFilter->findData("all");
       if (allScope >= 0) {
-        slaveEvidenceMatrixScopeFilter_->setCurrentIndex(allScope);
+        slaveEvidence_->slaveEvidenceMatrixScopeFilter->setCurrentIndex(allScope);
       }
     }
-    if (slaveEvidenceMatrixFilter_) {
-      slaveEvidenceMatrixFilter_->clear();
+    if (slaveEvidence_->slaveEvidenceMatrixFilter) {
+      slaveEvidence_->slaveEvidenceMatrixFilter->clear();
     }
     reviewFirstSlaveEvidenceMatrixIssue();
   } else {
@@ -1313,7 +1313,7 @@ void MainWindow::updateTabBadges() {
        .consistencyTable = consistency_->consistencyTable,
        .stateMachineTable = stateMachine_->stateMachineTable,
        .diagnosticsTable = diagnostics_->diagnosticsTable,
-       .slaveEvidenceMatrixTable = slaveEvidenceMatrixTable_});
+       .slaveEvidenceMatrixTable = slaveEvidence_->slaveEvidenceMatrixTable});
   const WorkspaceTabBadgeUiState badges =
       buildWorkspaceTabBadgeUiState(badgeCounts, workspaceTabBadgeTexts());
 
@@ -1359,7 +1359,7 @@ void MainWindow::updateWorkspaceBoundary() {
   }
 
   const SlaveEvidenceMatrixPriorityCounts priorityCounts =
-      slaveEvidenceMatrixPriorityCounts(slaveEvidenceMatrixTable_);
+      slaveEvidenceMatrixPriorityCounts(slaveEvidence_->slaveEvidenceMatrixTable);
 
   const QString workspaceName = tabs_->tabText(tabs_->currentIndex())
                                     .remove(QRegularExpression(R"( !?\d+$)"));

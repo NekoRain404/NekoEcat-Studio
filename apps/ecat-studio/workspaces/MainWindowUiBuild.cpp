@@ -147,9 +147,9 @@ void MainWindow::buildUi() {
   sdoTargetTrailDetailLabel_ = nullptr;
   objectBookmarkDetailLabel_ = nullptr;
   sdoHistoryDetailLabel_ = nullptr;
-  slaveEvidenceMatrixReviewButton_ = nullptr;
-  slaveEvidenceMatrixReviewNextButton_ = nullptr;
-  slaveEvidenceMatrixCopyButton_ = nullptr;
+  slaveEvidence_->slaveEvidenceMatrixReviewButton = nullptr;
+  slaveEvidence_->slaveEvidenceMatrixReviewNextButton = nullptr;
+  slaveEvidence_->slaveEvidenceMatrixCopyButton = nullptr;
   stateMachine_ = nullptr;
   freeRunEntryDetailLabel_ = nullptr;
   session_ = nullptr;
@@ -167,10 +167,11 @@ void MainWindow::buildUi() {
   watch_ = nullptr;
   sdo_ = nullptr;
   workflow_ = nullptr;
+  slaveEvidence_ = nullptr;
   diagnostics_ = nullptr;
-  slaveEvidenceMatrixTriageButtons_.clear();
-  slaveEvidenceMatrixFilter_ = nullptr;
-  slaveEvidenceMatrixScopeFilter_ = nullptr;
+  slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
+  slaveEvidence_->slaveEvidenceMatrixFilter = nullptr;
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter = nullptr;
   workspaceBackStack_.clear();
   workspaceForwardStack_.clear();
   suppressWorkspaceHistory_ = false;
@@ -661,7 +662,8 @@ void MainWindow::buildUi() {
   session_->sessionBriefTable = new QTableWidget;
   workflow_ = new WorkflowWorkspaceWidgets;
   workflow_->workflowTable = new QTableWidget;
-  slaveEvidenceMatrixTable_ = new QTableWidget;
+  slaveEvidence_ = new SlaveEvidenceWorkspaceWidgets;
+  slaveEvidence_->slaveEvidenceMatrixTable = new QTableWidget;
   stateMachine_ = new StateMachineWorkspaceWidgets;
   stateMachine_->stateMachineTable = new QTableWidget;
   identityTable_ = new QTableWidget;
@@ -688,7 +690,7 @@ void MainWindow::buildUi() {
   for (auto *table : {metricTable_,
                       session_->sessionBriefTable,
                       workflow_->workflowTable,
-                      slaveEvidenceMatrixTable_,
+                      slaveEvidence_->slaveEvidenceMatrixTable,
                       stateMachine_->stateMachineTable,
                       identityTable_,
                       portTable_,
@@ -886,87 +888,87 @@ void MainWindow::buildUi() {
   matrixHeader->setSpacing(8);
   matrixHeader->addWidget(
       makeSectionTitle(uiText("Slave Evidence Matrix", "从站证据矩阵")));
-  slaveEvidenceMatrixSummaryLabel_ =
+  slaveEvidence_->slaveEvidenceMatrixSummaryLabel =
       new QLabel(uiText("No slave evidence matrix yet", "暂无从站证据矩阵"));
-  slaveEvidenceMatrixSummaryLabel_->setObjectName("statusSummary");
-  slaveEvidenceMatrixSummaryLabel_->setProperty("severity", "neutral");
-  slaveEvidenceMatrixSummaryLabel_->setTextInteractionFlags(
+  slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setObjectName("statusSummary");
+  slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setProperty("severity", "neutral");
+  slaveEvidence_->slaveEvidenceMatrixSummaryLabel->setTextInteractionFlags(
       Qt::TextSelectableByMouse);
-  slaveEvidenceMatrixScopeFilter_ = new QComboBox;
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter = new QComboBox;
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("All", "全部"), QString::fromLatin1(kSlaveEvidenceScopeAll));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("P0 Fault", "P0 故障"),
       QString::fromLatin1(kSlaveEvidenceScopePriorityP0));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("P1 Risk", "P1 风险"),
       QString::fromLatin1(kSlaveEvidenceScopePriorityP1));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("P2 Action", "P2 待执行"),
       QString::fromLatin1(kSlaveEvidenceScopePriorityP2));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("P3 Ready", "P3 就绪"),
       QString::fromLatin1(kSlaveEvidenceScopePriorityP3));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Risk", "风险"), QString::fromLatin1(kSlaveEvidenceScopeRisk));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Action", "待执行"),
       QString::fromLatin1(kSlaveEvidenceScopeAction));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Ready", "就绪"), QString::fromLatin1(kSlaveEvidenceScopeReady));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Missing OD", "缺 OD"),
       QString::fromLatin1(kSlaveEvidenceScopeMissingOd));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Missing PDO", "缺 PDO"),
       QString::fromLatin1(kSlaveEvidenceScopeMissingPdo));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Missing Watch", "缺 Watch"),
       QString::fromLatin1(kSlaveEvidenceScopeMissingWatch));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Startup Diff", "启动偏差"),
       QString::fromLatin1(kSlaveEvidenceScopeStartupDiff));
-  slaveEvidenceMatrixScopeFilter_->addItem(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->addItem(
       uiText("Process Missing", "缺过程证据"),
       QString::fromLatin1(kSlaveEvidenceScopeProcessMissing));
-  slaveEvidenceMatrixScopeFilter_->setToolTip(uiText(
+  slaveEvidence_->slaveEvidenceMatrixScopeFilter->setToolTip(uiText(
       "Filter the matrix by local evidence state. Filtering does not read the "
       "bus.",
       "按本地证据状态过滤矩阵；过滤不会读取总线。"));
-  slaveEvidenceMatrixFilter_ = new QLineEdit;
-  slaveEvidenceMatrixFilter_->setPlaceholderText(
+  slaveEvidence_->slaveEvidenceMatrixFilter = new QLineEdit;
+  slaveEvidence_->slaveEvidenceMatrixFilter->setPlaceholderText(
       uiText("Search slave, state, risk, or next action",
              "搜索从站、状态、风险或下一步"));
-  slaveEvidenceMatrixFilter_->setToolTip(
+  slaveEvidence_->slaveEvidenceMatrixFilter->setToolTip(
       uiText("Search the loaded matrix rows only; no EtherCAT request is sent.",
              "仅搜索已加载矩阵行；不会发送 EtherCAT 请求。"));
-  slaveEvidenceMatrixReviewButton_ =
+  slaveEvidence_->slaveEvidenceMatrixReviewButton =
       new QPushButton(uiText("Review First", "审阅首个问题"));
-  slaveEvidenceMatrixReviewButton_->setIcon(
+  slaveEvidence_->slaveEvidenceMatrixReviewButton->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-  slaveEvidenceMatrixReviewButton_->setToolTip(uiText(
+  slaveEvidence_->slaveEvidenceMatrixReviewButton->setToolTip(uiText(
       "Open the first visible Risk or Action matrix row in local evidence. No "
       "bus request is sent.",
       "打开首个可见风险或待执行矩阵行的本地证据；不会发送总线请求。"));
-  slaveEvidenceMatrixReviewNextButton_ =
+  slaveEvidence_->slaveEvidenceMatrixReviewNextButton =
       new QPushButton(uiText("Review Next", "审阅下个问题"));
-  slaveEvidenceMatrixReviewNextButton_->setIcon(
+  slaveEvidence_->slaveEvidenceMatrixReviewNextButton->setIcon(
       style()->standardIcon(QStyle::SP_ArrowForward));
-  slaveEvidenceMatrixReviewNextButton_->setToolTip(uiText(
+  slaveEvidence_->slaveEvidenceMatrixReviewNextButton->setToolTip(uiText(
       "Open the next visible Risk or Action matrix row after the current row; "
       "wraps to the first issue. No bus request is sent.",
       "打开当前行之后的下一个可见风险或待执行矩阵行；到末尾后回到首个问题。"
       "不会发送总线请求。"));
-  slaveEvidenceMatrixCopyButton_ =
+  slaveEvidence_->slaveEvidenceMatrixCopyButton =
       new QPushButton(uiText("Copy Row", "复制本行"));
-  slaveEvidenceMatrixCopyButton_->setIcon(
+  slaveEvidence_->slaveEvidenceMatrixCopyButton->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogContentsView));
-  slaveEvidenceMatrixCopyButton_->setEnabled(false);
-  slaveEvidenceMatrixCopyButton_->setToolTip(uiText(
+  slaveEvidence_->slaveEvidenceMatrixCopyButton->setEnabled(false);
+  slaveEvidence_->slaveEvidenceMatrixCopyButton->setToolTip(uiText(
       "Copy the selected matrix row evidence summary to the clipboard. No bus "
       "request is sent.",
       "把当前矩阵行证据摘要复制到剪贴板；不会发送总线请求。"));
-  slaveEvidenceMatrixTriageButtons_.clear();
+  slaveEvidence_->slaveEvidenceMatrixTriageButtons.clear();
   struct TriageScopeButton {
     QString label;
     QString scope;
@@ -984,27 +986,27 @@ void MainWindow::buildUi() {
         "Filter the slave evidence matrix by this priority. This is local UI "
         "filtering only.",
         "按该优先级过滤从站证据矩阵；这只是本地界面过滤。"));
-    slaveEvidenceMatrixTriageButtons_.append(button);
+    slaveEvidence_->slaveEvidenceMatrixTriageButtons.append(button);
   }
-  matrixHeader->addWidget(slaveEvidenceMatrixSummaryLabel_, 1);
-  for (auto *button : slaveEvidenceMatrixTriageButtons_) {
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixSummaryLabel, 1);
+  for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
     matrixHeader->addWidget(button);
   }
-  matrixHeader->addWidget(slaveEvidenceMatrixReviewButton_);
-  matrixHeader->addWidget(slaveEvidenceMatrixReviewNextButton_);
-  matrixHeader->addWidget(slaveEvidenceMatrixCopyButton_);
-  matrixHeader->addWidget(slaveEvidenceMatrixScopeFilter_);
-  matrixHeader->addWidget(slaveEvidenceMatrixFilter_);
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixReviewButton);
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixReviewNextButton);
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixCopyButton);
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixScopeFilter);
+  matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixFilter);
   matrixLayout->addLayout(matrixHeader);
-  setTableRows(slaveEvidenceMatrixTable_,
+  setTableRows(slaveEvidence_->slaveEvidenceMatrixTable,
                slaveEvidenceMatrixHeaders(slaveEvidenceUiTexts()), {});
-  slaveEvidenceMatrixTable_->setMinimumHeight(420);
-  slaveEvidenceMatrixTable_->setToolTip(uiText(
+  slaveEvidence_->slaveEvidenceMatrixTable->setMinimumHeight(420);
+  slaveEvidence_->slaveEvidenceMatrixTable->setToolTip(uiText(
       "Read-only multi-slave evidence matrix built from loaded UI evidence. "
       "Double-click a row to open the most relevant local evidence table.",
       "基于已加载界面证据生成的只读多从站证据矩阵。双击行会打开最相关的本地证据"
       "表。"));
-  matrixLayout->addWidget(slaveEvidenceMatrixTable_, 1);
+  matrixLayout->addWidget(slaveEvidence_->slaveEvidenceMatrixTable, 1);
 
   auto *overviewGrid = new QGridLayout;
   overviewGrid->setHorizontalSpacing(12);
