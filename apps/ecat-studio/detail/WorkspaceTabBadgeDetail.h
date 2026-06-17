@@ -57,7 +57,7 @@ struct WorkspaceTabBadge {
 };
 
 // All 8 workspace tab badges ready for rendering.
-struct WorkspaceTabBadgeUiState {
+struct WorkspaceTabBadgeDetail {
   WorkspaceTabBadge overview;
   WorkspaceTabBadge watch;
   WorkspaceTabBadge startupSdo;
@@ -72,6 +72,6 @@ struct WorkspaceTabBadgeUiState {
 QString workspaceTabBadgeText(const QString &label, int count,
                               bool issue = false);
 // Builds all 8 workspace tab badges.
-WorkspaceTabBadgeUiState
-buildWorkspaceTabBadgeUiState(const WorkspaceTabBadgeCounts &counts,
+WorkspaceTabBadgeDetail
+buildWorkspaceTabBadgeDetail(const WorkspaceTabBadgeCounts &counts,
                               const WorkspaceTabBadgeTexts &texts);

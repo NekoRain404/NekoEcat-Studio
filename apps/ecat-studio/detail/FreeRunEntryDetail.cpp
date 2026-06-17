@@ -1,5 +1,5 @@
 // Detail panel text for a selected Free Run entry row.
-#include "FreeRunEntryDetailUiState.h"
+#include "detail/FreeRunEntryDetail.h"
 
 namespace {
 

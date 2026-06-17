@@ -4,7 +4,7 @@
 
 
 #include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "CommissioningWorkflowUiState.h"
+#include "detail/CommissioningWorkflowDetail.h"
 
 #include <QString>
 #include <QStringList>

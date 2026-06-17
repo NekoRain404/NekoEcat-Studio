@@ -1,5 +1,5 @@
 // CiA 402 drive summary card for the selected slave panel.
-#include "SelectedDriveSummaryUiState.h"
+#include "detail/SelectedDriveSummaryDetail.h"
 
 #include "models/EvidenceStatusModel.h"
 
@@ -73,7 +73,7 @@ QStringList displayParts(const SelectedDriveSummaryEvidence &evidence,
 } // namespace
 
 // Neutral state when no CiA 402 watch evidence is available.
-SelectedDriveSummaryUiState
+SelectedDriveSummaryDetail
 selectedDriveNoWatchEvidenceState(const SelectedDriveSummaryTexts &texts) {
   return {.text = texts.noWatchEvidence,
     // Set severityKey field
@@ -120,15 +120,15 @@ selectedDriveSummarySeverityKey(const SelectedDriveSummaryEvidence &evidence) {
 }
 
 // Assembles the full drive summary card with evidence, severity, and formatted text.
-SelectedDriveSummaryUiState
-buildSelectedDriveSummaryUiState(const QVector<WatchStartupWatchRow> &watchRows,
+SelectedDriveSummaryDetail
+buildSelectedDriveSummaryDetail(const QVector<WatchStartupWatchRow> &watchRows,
                                  int position,
                                  const SelectedDriveSummaryTexts &texts) {
   if (position < 0) {
     return selectedDriveNoWatchEvidenceState(texts);
   }
 
-  SelectedDriveSummaryUiState state;
+  SelectedDriveSummaryDetail state;
   state.evidence = selectedDriveSummaryEvidence(watchRows, position);
   state.parts = displayParts(state.evidence, texts);
   state.severityKey = selectedDriveSummarySeverityKey(state.evidence);

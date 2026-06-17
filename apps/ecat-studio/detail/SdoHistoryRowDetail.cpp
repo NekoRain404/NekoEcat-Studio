@@ -1,5 +1,5 @@
 // Detail panel text for a selected SDO history row.
-#include "SdoHistoryRowDetailUiState.h"
+#include "detail/SdoHistoryRowDetail.h"
 
 namespace {
 

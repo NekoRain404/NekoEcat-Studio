@@ -1,5 +1,5 @@
 // Host health check result rows for the diagnostics overview.
-#include "HostHealthUiState.h"
+#include "detail/HostHealthDetail.h"
 
 #include <QJsonObject>
 
@@ -15,9 +15,9 @@ QString hostHealthColorKey(const QString &level) {
 }
 
 // Parses host health check JSON into rows, counts, and a localized summary string.
-HostHealthUiState buildHostHealthUiState(const QJsonArray &checks,
+HostHealthDetail buildHostHealthDetail(const QJsonArray &checks,
                                          const HostHealthTexts &texts) {
-  HostHealthUiState state;
+  HostHealthDetail state;
   state.headers = {texts.levelHeader,  texts.checkHeader,   texts.resultHeader,
                    texts.actionHeader, texts.commandHeader, texts.detailHeader};
 

@@ -54,7 +54,7 @@ struct NextBestActionTexts {
 };
 
 // Rendered card state: action key, severity, display text, tooltip, and icon.
-struct NextBestActionUiState {
+struct NextBestActionDetail {
   QString actionKey;
   QString severityKey;
   QString text;
@@ -64,7 +64,7 @@ struct NextBestActionUiState {
 };
 
 // Maps a decision to the rendered card state.
-NextBestActionUiState
-buildNextBestActionUiState(const NextBestActionDecision &decision,
+NextBestActionDetail
+buildNextBestActionDetail(const NextBestActionDecision &decision,
                            const NextBestActionInput &input,
                            const NextBestActionTexts &texts);

@@ -1,5 +1,5 @@
 // Detail panel text for a selected Startup SDO row.
-#include "StartupSdoRowDetailUiState.h"
+#include "detail/StartupSdoRowDetail.h"
 
 #include <initializer_list>
 

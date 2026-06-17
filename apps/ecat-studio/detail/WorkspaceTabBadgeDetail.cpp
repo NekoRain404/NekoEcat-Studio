@@ -1,5 +1,5 @@
 // Workspace tab badge text templates and severity color keys.
-#include "WorkspaceTabBadgeUiState.h"
+#include "detail/WorkspaceTabBadgeDetail.h"
 
 // Formats badge text as "Label !Count" for issues or "Label Count" for normal counts.
 QString workspaceTabBadgeText(const QString &label, int count, bool issue) {
@@ -11,10 +11,10 @@ QString workspaceTabBadgeText(const QString &label, int count, bool issue) {
 }
 
 // Builds all 8 workspace tab badges with formatted text and detailed tooltips.
-WorkspaceTabBadgeUiState
-buildWorkspaceTabBadgeUiState(const WorkspaceTabBadgeCounts &counts,
+WorkspaceTabBadgeDetail
+buildWorkspaceTabBadgeDetail(const WorkspaceTabBadgeCounts &counts,
                               const WorkspaceTabBadgeTexts &texts) {
-  WorkspaceTabBadgeUiState state;
+  WorkspaceTabBadgeDetail state;
   const int matrixIssues = counts.matrixP0 + counts.matrixP1 + counts.matrixP2;
   const int consistencyIssues =
       counts.consistencyErrors + counts.consistencyWarnings;

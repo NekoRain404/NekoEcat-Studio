@@ -1,5 +1,5 @@
 // Diagnostics event row model with level, source, message, and timestamp.
-#include "DiagnosticsEventUiState.h"
+#include "detail/DiagnosticsEventDetail.h"
 
 // Maps a diagnostic level string to its color/semantic key.
 QString diagnosticsEventColorKey(const QString &level) {

@@ -2,7 +2,7 @@
 #include "WorkspaceTabBadgeTableAdapter.h"
 
 #include "ConsistencyTableAdapter.h"
-#include "ui_state/DiagnosticsEventUiState.h"
+#include "detail/DiagnosticsEventDetail.h"
 #include "models/ProcessDataRowModel.h"
 #include "ProcessDataTableAdapter.h"
 #include "SlaveEvidenceTableAdapter.h"

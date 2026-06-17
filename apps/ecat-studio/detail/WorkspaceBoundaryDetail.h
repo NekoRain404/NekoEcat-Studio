@@ -79,7 +79,7 @@ struct WorkspaceBoundaryTexts {
 };
 
 // Resolved boundary banner state with label, severity, detail lines, and tooltip.
-struct WorkspaceBoundaryUiState {
+struct WorkspaceBoundaryDetail {
   QString label;
   QString severityKey;
   QStringList details;
@@ -87,6 +87,6 @@ struct WorkspaceBoundaryUiState {
 };
 
 // Maps a workspace kind to its boundary banner state.
-WorkspaceBoundaryUiState buildWorkspaceBoundaryUiState(
+WorkspaceBoundaryDetail buildWorkspaceBoundaryDetail(
     WorkspaceBoundaryKind kind, const QString &workspaceName,
     const WorkspaceBoundaryCounts &counts, const WorkspaceBoundaryTexts &texts);

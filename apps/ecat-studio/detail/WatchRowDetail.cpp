@@ -1,5 +1,5 @@
 // Detail panel text for a selected Watch row.
-#include "WatchRowDetailUiState.h"
+#include "detail/WatchRowDetail.h"
 
 #include "helpers/StudioTextHelpers.h"
 

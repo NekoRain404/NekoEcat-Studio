@@ -1,5 +1,5 @@
 // Detail panel text for a selected object bookmark row.
-#include "ObjectBookmarkDetailUiState.h"
+#include "detail/ObjectBookmarkDetail.h"
 
 // Neutral state when the bookmark table is not available.
 ObjectBookmarkDetailUiState

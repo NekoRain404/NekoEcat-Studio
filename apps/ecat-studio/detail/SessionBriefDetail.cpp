@@ -1,5 +1,5 @@
 // Detail panel text for a selected session brief row.
-#include "SessionBriefUiState.h"
+#include "detail/SessionBriefDetail.h"
 
 // Maps a session brief status enum to its localized display string.
 QString sessionBriefStatusText(SessionBriefStatus status,

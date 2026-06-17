@@ -3,7 +3,7 @@
 // Navigation route from a consistency issue to its source evidence table.
 
 
-#include "ui_state/ConsistencyDetailUiState.h"
+#include "detail/ConsistencyDetail.h"
 
 #include <QString>
 

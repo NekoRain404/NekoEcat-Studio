@@ -25,7 +25,7 @@ struct HostHealthTexts {
 };
 
 // Resolved host health state with rows, counts, color keys, and summary.
-struct HostHealthUiState {
+struct HostHealthDetail {
   QStringList headers;
   QList<QStringList> rows;
   QStringList colorKeys;
@@ -36,5 +36,5 @@ struct HostHealthUiState {
 };
 
 QString hostHealthColorKey(const QString &level);
-HostHealthUiState buildHostHealthUiState(const QJsonArray &checks,
+HostHealthDetail buildHostHealthDetail(const QJsonArray &checks,
                                          const HostHealthTexts &texts);

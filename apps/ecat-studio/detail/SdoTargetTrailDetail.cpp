@@ -1,5 +1,5 @@
 // Detail panel text for a selected SDO target trail row.
-#include "SdoTargetTrailDetailUiState.h"
+#include "detail/SdoTargetTrailDetail.h"
 
 // Neutral state when the target trail table is not available.
 SdoTargetTrailDetailUiState

@@ -1,5 +1,5 @@
 // Detail panel text for a selected I/O variable row.
-#include "IoVariableDetailUiState.h"
+#include "detail/IoVariableDetail.h"
 
 #include "models/ProcessDataRowModel.h"
 

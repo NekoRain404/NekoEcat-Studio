@@ -1,5 +1,5 @@
 // Detail panel text for a selected PDO map row.
-#include "PdoMapDetailUiState.h"
+#include "detail/PdoMapDetail.h"
 
 #include "models/ProcessDataRowModel.h"
 

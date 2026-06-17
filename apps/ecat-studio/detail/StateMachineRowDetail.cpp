@@ -1,5 +1,5 @@
 // Detail panel text for a selected state machine recommendation row.
-#include "StateMachineRowDetailUiState.h"
+#include "detail/StateMachineRowDetail.h"
 
 namespace {
 

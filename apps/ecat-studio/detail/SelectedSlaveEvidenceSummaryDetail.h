@@ -26,7 +26,7 @@ struct SelectedSlaveEvidenceSummaryTexts {
 };
 
 // Resolved summary card state with evidence group count, severity, and tooltips.
-struct SelectedSlaveEvidenceSummaryUiState {
+struct SelectedSlaveEvidenceSummaryDetail {
   QString text;
   QString severityKey;
   int evidenceGroups = 0;
@@ -34,7 +34,7 @@ struct SelectedSlaveEvidenceSummaryUiState {
   QString tooltip;
 };
 
-SelectedSlaveEvidenceSummaryUiState selectedSlaveEvidenceNoSelectionState(
+SelectedSlaveEvidenceSummaryDetail selectedSlaveEvidenceNoSelectionState(
     const SelectedSlaveEvidenceSummaryTexts &texts);
 // Counts evidence categories with at least one row.
 int selectedSlaveEvidenceSummaryGroupCount(const SlaveEvidenceInput &input);
@@ -42,6 +42,6 @@ int selectedSlaveEvidenceSummaryGroupCount(const SlaveEvidenceInput &input);
 QString selectedSlaveEvidenceSummarySeverityKey(const SlaveEvidenceInput &input,
                                                 int topologyIssueCount);
 // Assembles the evidence summary card state.
-SelectedSlaveEvidenceSummaryUiState buildSelectedSlaveEvidenceSummaryUiState(
+SelectedSlaveEvidenceSummaryDetail buildSelectedSlaveEvidenceSummaryDetail(
     const SlaveEvidenceInput &input, int topologyIssueCount,
     const SelectedSlaveEvidenceSummaryTexts &texts);

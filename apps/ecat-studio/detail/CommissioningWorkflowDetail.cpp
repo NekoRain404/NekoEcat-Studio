@@ -1,5 +1,5 @@
 // Summary and scope-filter state for the commissioning workflow panel.
-#include "CommissioningWorkflowUiState.h"
+#include "detail/CommissioningWorkflowDetail.h"
 
 // Maps a status enum to its localized display string.
 QString

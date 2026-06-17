@@ -1,8 +1,8 @@
 // Evidence summary card for the selected slave panel.
-#include "SelectedSlaveEvidenceSummaryUiState.h"
+#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
 
 // Neutral state prompting the user to select a slave.
-SelectedSlaveEvidenceSummaryUiState selectedSlaveEvidenceNoSelectionState(
+SelectedSlaveEvidenceSummaryDetail selectedSlaveEvidenceNoSelectionState(
     const SelectedSlaveEvidenceSummaryTexts &texts) {
   return {.text = texts.selectSlaveText,
     // Set severityKey field
@@ -37,10 +37,10 @@ QString selectedSlaveEvidenceSummarySeverityKey(const SlaveEvidenceInput &input,
 }
 
 // Assembles the evidence summary card with group counts, severity, and missing-evidence tooltips.
-SelectedSlaveEvidenceSummaryUiState buildSelectedSlaveEvidenceSummaryUiState(
+SelectedSlaveEvidenceSummaryDetail buildSelectedSlaveEvidenceSummaryDetail(
     const SlaveEvidenceInput &input, int topologyIssueCount,
     const SelectedSlaveEvidenceSummaryTexts &texts) {
-  SelectedSlaveEvidenceSummaryUiState state;
+  SelectedSlaveEvidenceSummaryDetail state;
   state.evidenceGroups = selectedSlaveEvidenceSummaryGroupCount(input);
   state.severityKey =
       selectedSlaveEvidenceSummarySeverityKey(input, topologyIssueCount);

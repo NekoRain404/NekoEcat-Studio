@@ -1,5 +1,5 @@
 // Detail panel text for a selected consistency issue row.
-#include "ConsistencyDetailUiState.h"
+#include "detail/ConsistencyDetail.h"
 
 // Returns a neutral state when the consistency table is not available.
 ConsistencyDetailUiState

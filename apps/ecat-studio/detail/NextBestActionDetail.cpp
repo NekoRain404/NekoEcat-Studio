@@ -1,12 +1,12 @@
 // Rendered next-best-action card: title, body, icon, and safety level.
-#include "NextBestActionUiState.h"
+#include "detail/NextBestActionDetail.h"
 
 // Maps a next-best-action decision to the rendered card state with text, tip, icon, and severity.
-NextBestActionUiState
-buildNextBestActionUiState(const NextBestActionDecision &decision,
+NextBestActionDetail
+buildNextBestActionDetail(const NextBestActionDecision &decision,
                            const NextBestActionInput &input,
                            const NextBestActionTexts &texts) {
-  NextBestActionUiState state;
+  NextBestActionDetail state;
   state.actionKey = nextBestActionKey(decision.kind);
   state.severityKey = nextBestActionSeverityKey(decision.severity);
   state.text = texts.commands;

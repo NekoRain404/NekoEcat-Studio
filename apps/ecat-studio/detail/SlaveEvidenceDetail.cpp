@@ -1,5 +1,5 @@
 // Detail panel text for a selected slave evidence matrix row.
-#include "SlaveEvidenceUiState.h"
+#include "detail/SlaveEvidenceDetail.h"
 
 // Maps a priority tier enum to its localized display string.
 QString slaveEvidencePriorityText(SlaveEvidencePriority priority,

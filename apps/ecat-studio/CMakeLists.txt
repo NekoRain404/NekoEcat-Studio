@@ -3,7 +3,7 @@
 # Directory layout:
 #   models/      Pure data/logic types (no widget dependencies)
 #   adapters/    Bridge between models and QTableWidget
-#   ui_state/    Detail panel text builders for each workspace
+#   detail/    Detail panel text builders for each workspace
 #   helpers/     Reusable utilities (table, text, UI, docs)
 #   infra/       Client, settings, shared types
 #   workspaces/  MainWindow partial implementations per workspace
@@ -44,28 +44,28 @@ add_executable(ecat-studio
     adapters/WorkspaceTabBadgeTableAdapter.cpp         adapters/WorkspaceTabBadgeTableAdapter.h
 
     # ── UI State (detail panel text builders) ───────────────────────────
-    ui_state/CommissioningWorkflowStepDetailUiState.cpp  ui_state/CommissioningWorkflowStepDetailUiState.h
-    ui_state/CommissioningWorkflowUiState.cpp            ui_state/CommissioningWorkflowUiState.h
-    ui_state/ConsistencyDetailUiState.cpp                ui_state/ConsistencyDetailUiState.h
-    ui_state/DiagnosticsEventUiState.cpp                 ui_state/DiagnosticsEventUiState.h
-    ui_state/FreeRunEntryDetailUiState.cpp               ui_state/FreeRunEntryDetailUiState.h
-    ui_state/HostHealthUiState.cpp                       ui_state/HostHealthUiState.h
-    ui_state/IoVariableDetailUiState.cpp                 ui_state/IoVariableDetailUiState.h
-    ui_state/NextBestActionUiState.cpp                   ui_state/NextBestActionUiState.h
-    ui_state/ObjectBookmarkDetailUiState.cpp             ui_state/ObjectBookmarkDetailUiState.h
-    ui_state/PdoMapDetailUiState.cpp                     ui_state/PdoMapDetailUiState.h
-    ui_state/SdoHistoryRowDetailUiState.cpp              ui_state/SdoHistoryRowDetailUiState.h
-    ui_state/SdoTargetTrailDetailUiState.cpp             ui_state/SdoTargetTrailDetailUiState.h
-    ui_state/SelectedDriveSummaryUiState.cpp             ui_state/SelectedDriveSummaryUiState.h
-    ui_state/SelectedSlaveEvidenceSummaryUiState.cpp     ui_state/SelectedSlaveEvidenceSummaryUiState.h
-    ui_state/SessionBriefUiState.cpp                     ui_state/SessionBriefUiState.h
-    ui_state/SlaveEvidenceUiState.cpp                    ui_state/SlaveEvidenceUiState.h
-    ui_state/StartupSdoRowDetailUiState.cpp              ui_state/StartupSdoRowDetailUiState.h
-    ui_state/StateMachineRowDetailUiState.cpp            ui_state/StateMachineRowDetailUiState.h
-    ui_state/WatchRowDetailUiState.cpp                   ui_state/WatchRowDetailUiState.h
-    ui_state/WatchStartupUiState.cpp                     ui_state/WatchStartupUiState.h
-    ui_state/WorkspaceBoundaryUiState.cpp                ui_state/WorkspaceBoundaryUiState.h
-    ui_state/WorkspaceTabBadgeUiState.cpp                ui_state/WorkspaceTabBadgeUiState.h
+    detail/CommissioningWorkflowStepDetail.cpp  detail/CommissioningWorkflowStepDetail.h
+    detail/CommissioningWorkflowDetail.cpp            detail/CommissioningWorkflowDetail.h
+    detail/ConsistencyDetail.cpp                detail/ConsistencyDetail.h
+    detail/DiagnosticsEventDetail.cpp                 detail/DiagnosticsEventDetail.h
+    detail/FreeRunEntryDetail.cpp               detail/FreeRunEntryDetail.h
+    detail/HostHealthDetail.cpp                       detail/HostHealthDetail.h
+    detail/IoVariableDetail.cpp                 detail/IoVariableDetail.h
+    detail/NextBestActionDetail.cpp                   detail/NextBestActionDetail.h
+    detail/ObjectBookmarkDetail.cpp             detail/ObjectBookmarkDetail.h
+    detail/PdoMapDetail.cpp                     detail/PdoMapDetail.h
+    detail/SdoHistoryRowDetail.cpp              detail/SdoHistoryRowDetail.h
+    detail/SdoTargetTrailDetail.cpp             detail/SdoTargetTrailDetail.h
+    detail/SelectedDriveSummaryDetail.cpp             detail/SelectedDriveSummaryDetail.h
+    detail/SelectedSlaveEvidenceSummaryDetail.cpp     detail/SelectedSlaveEvidenceSummaryDetail.h
+    detail/SessionBriefDetail.cpp                     detail/SessionBriefDetail.h
+    detail/SlaveEvidenceDetail.cpp                    detail/SlaveEvidenceDetail.h
+    detail/StartupSdoRowDetail.cpp              detail/StartupSdoRowDetail.h
+    detail/StateMachineRowDetail.cpp            detail/StateMachineRowDetail.h
+    detail/WatchRowDetail.cpp                   detail/WatchRowDetail.h
+    detail/WatchStartupDetail.cpp                     detail/WatchStartupDetail.h
+    detail/WorkspaceBoundaryDetail.cpp                detail/WorkspaceBoundaryDetail.h
+    detail/WorkspaceTabBadgeDetail.cpp                detail/WorkspaceTabBadgeDetail.h
 
     # ── Helpers ─────────────────────────────────────────────────────────
     helpers/StudioDocumentation.cpp                    helpers/StudioDocumentation.h

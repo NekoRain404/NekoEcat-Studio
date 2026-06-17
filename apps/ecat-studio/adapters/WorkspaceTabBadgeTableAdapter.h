@@ -3,7 +3,7 @@
 // Updates workspace tab badge text and severity indicators.
 
 
-#include "ui_state/WorkspaceTabBadgeUiState.h"
+#include "detail/WorkspaceTabBadgeDetail.h"
 
 #include <QString>
 

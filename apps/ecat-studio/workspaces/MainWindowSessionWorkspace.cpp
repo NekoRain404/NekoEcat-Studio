@@ -4,43 +4,43 @@
 
 #include "models/Cia402DriveModel.h"
 #include "models/CommissioningWorkflowModel.h"
-#include "ui_state/CommissioningWorkflowStepDetailUiState.h"
+#include "detail/CommissioningWorkflowStepDetail.h"
 #include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "ui_state/CommissioningWorkflowUiState.h"
-#include "ui_state/ConsistencyDetailUiState.h"
+#include "detail/CommissioningWorkflowDetail.h"
+#include "detail/ConsistencyDetail.h"
 #include "models/ConsistencyEvidenceRouteModel.h"
 #include "models/ConsistencyGateModel.h"
 #include "adapters/ConsistencyTableAdapter.h"
-#include "ui_state/DiagnosticsEventUiState.h"
+#include "detail/DiagnosticsEventDetail.h"
 #include "models/EvidenceStatusModel.h"
-#include "ui_state/FreeRunEntryDetailUiState.h"
-#include "ui_state/HostHealthUiState.h"
+#include "detail/FreeRunEntryDetail.h"
+#include "detail/HostHealthDetail.h"
 #include "models/IoVariableBulkNamingModel.h"
-#include "ui_state/IoVariableDetailUiState.h"
+#include "detail/IoVariableDetail.h"
 #include "models/IoVariableFilterModel.h"
 #include "models/IoVariableHandoffModel.h"
 #include "models/NextBestActionModel.h"
-#include "ui_state/NextBestActionUiState.h"
-#include "ui_state/ObjectBookmarkDetailUiState.h"
-#include "ui_state/PdoMapDetailUiState.h"
+#include "detail/NextBestActionDetail.h"
+#include "detail/ObjectBookmarkDetail.h"
+#include "detail/PdoMapDetail.h"
 #include "models/ProcessDataRowModel.h"
 #include "adapters/ProcessDataTableAdapter.h"
 #include "adapters/SdoDictionaryTableAdapter.h"
 #include "models/SdoEvidenceModel.h"
 #include "adapters/SdoEvidenceTableAdapter.h"
-#include "ui_state/SdoHistoryRowDetailUiState.h"
+#include "detail/SdoHistoryRowDetail.h"
 #include "models/SdoTargetPanelRouteModel.h"
-#include "ui_state/SdoTargetTrailDetailUiState.h"
-#include "ui_state/SelectedDriveSummaryUiState.h"
-#include "ui_state/SelectedSlaveEvidenceSummaryUiState.h"
+#include "detail/SdoTargetTrailDetail.h"
+#include "detail/SelectedDriveSummaryDetail.h"
+#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
 #include "models/SessionBriefModel.h"
 #include "adapters/SessionBriefTableAdapter.h"
-#include "ui_state/SessionBriefUiState.h"
+#include "detail/SessionBriefDetail.h"
 #include "models/SlaveEvidenceModel.h"
 #include "adapters/SlaveEvidenceTableAdapter.h"
-#include "ui_state/SlaveEvidenceUiState.h"
-#include "ui_state/StartupSdoRowDetailUiState.h"
-#include "ui_state/StateMachineRowDetailUiState.h"
+#include "detail/SlaveEvidenceDetail.h"
+#include "detail/StartupSdoRowDetail.h"
+#include "detail/StateMachineRowDetail.h"
 #include "adapters/StateMachineTableAdapter.h"
 #include "models/StateRecommendationModel.h"
 #include "helpers/StudioDocumentation.h"
@@ -49,13 +49,13 @@
 #include "helpers/StudioUiHelpers.h"
 #include "models/TopologyBaselineModel.h"
 #include "models/TopologyChangeModel.h"
-#include "ui_state/WatchRowDetailUiState.h"
+#include "detail/WatchRowDetail.h"
 #include "models/WatchStartupModel.h"
 #include "adapters/WatchStartupTableAdapter.h"
-#include "ui_state/WatchStartupUiState.h"
-#include "ui_state/WorkspaceBoundaryUiState.h"
+#include "detail/WatchStartupDetail.h"
+#include "detail/WorkspaceBoundaryDetail.h"
 #include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "ui_state/WorkspaceTabBadgeUiState.h"
+#include "detail/WorkspaceTabBadgeDetail.h"
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -803,8 +803,8 @@ void MainWindow::updateNextBestAction() {
   }
 
   const NextBestActionDecision decision = chooseNextBestAction(actionInput);
-  const NextBestActionUiState uiState =
-      buildNextBestActionUiState(decision, actionInput, nextBestActionTexts());
+  const NextBestActionDetail uiState =
+      buildNextBestActionDetail(decision, actionInput, nextBestActionTexts());
 
   nextBestActionButton_->setText(uiState.text);
   nextBestActionButton_->setToolTip(uiState.tip);
@@ -1222,8 +1222,8 @@ void MainWindow::updateHostHealth(const QJsonArray &checks) {
     return;
   }
 
-  const HostHealthUiState uiState =
-      buildHostHealthUiState(checks, hostHealthTexts());
+  const HostHealthDetail uiState =
+      buildHostHealthDetail(checks, hostHealthTexts());
   setTableRows(hostHealthTable_, uiState.headers, uiState.rows);
 
   for (int row = 0; row < hostHealthTable_->rowCount(); ++row) {
@@ -1330,8 +1330,8 @@ void MainWindow::updateTabBadges() {
        .stateMachineTable = stateMachine_->stateMachineTable,
        .diagnosticsTable = diagnostics_->diagnosticsTable,
        .slaveEvidenceMatrixTable = slaveEvidence_->slaveEvidenceMatrixTable});
-  const WorkspaceTabBadgeUiState badges =
-      buildWorkspaceTabBadgeUiState(badgeCounts, workspaceTabBadgeTexts());
+  const WorkspaceTabBadgeDetail badges =
+      buildWorkspaceTabBadgeDetail(badgeCounts, workspaceTabBadgeTexts());
 
   setTab(overviewTabIndex_, badges.overview.text, badges.overview.tip);
   setTab(watchTabIndex_, badges.watch.text, badges.watch.tip);
@@ -1379,7 +1379,7 @@ void MainWindow::updateWorkspaceBoundary() {
 
   const QString workspaceName = tabs_->tabText(tabs_->currentIndex())
                                     .remove(QRegularExpression(R"( !?\d+$)"));
-  const WorkspaceBoundaryUiState state = buildWorkspaceBoundaryUiState(
+  const WorkspaceBoundaryDetail state = buildWorkspaceBoundaryDetail(
       workspaceBoundaryKindForPage(tabs_->currentWidget()), workspaceName,
       {.matrixP0 = priorityCounts.p0,
        .matrixP1 = priorityCounts.p1,

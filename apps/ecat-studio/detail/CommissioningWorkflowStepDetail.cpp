@@ -1,5 +1,5 @@
 // Detail panel text for a selected commissioning workflow step.
-#include "CommissioningWorkflowStepDetailUiState.h"
+#include "detail/CommissioningWorkflowStepDetail.h"
 
 namespace {
 

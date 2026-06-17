@@ -1,5 +1,5 @@
 // Summary text for the Watch and Startup SDO workspace panels.
-#include "WatchStartupUiState.h"
+#include "detail/WatchStartupDetail.h"
 
 #include <QBrush>
 #include <QColor>
