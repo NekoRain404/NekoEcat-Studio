@@ -320,10 +320,10 @@ void MainWindow::updateSessionBrief() {
   QString nextAction = uiText("Open command palette", "打开命令面板");
   const int nextStep = nextCommissioningWorkflowStep();
   briefInput.nextWorkflowStep = nextStep;
-  if (nextStep >= 0 && workflowTable_ &&
-      nextStep < workflowTable_->rowCount()) {
+  if (nextStep >= 0 && workflow_->workflowTable &&
+      nextStep < workflow_->workflowTable->rowCount()) {
     nextAction =
-        commissioningWorkflowTableRowFromTable(workflowTable_, nextStep)
+        commissioningWorkflowTableRowFromTable(workflow_->workflowTable, nextStep)
             .nextAction;
   } else if (nextBestActionButton_) {
     nextAction = nextBestActionButton_->text();
@@ -542,16 +542,16 @@ bool MainWindow::copySessionBriefRowDigest(int row) {
 // — Update workflow step copy button
 void MainWindow::updateWorkflowStepCopyButton() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowStepCopyButton_ || !workflowTable_) {
+  if (!workflow_->workflowStepCopyButton || !workflow_->workflowTable) {
     return;
   }
-  const int row = workflowTable_->currentRow();
-  const bool hasRow = row >= 0 && row < workflowTable_->rowCount() &&
-                      !workflowTable_->isRowHidden(row);
-  workflowStepCopyButton_->setEnabled(hasRow);
+  const int row = workflow_->workflowTable->currentRow();
+  const bool hasRow = row >= 0 && row < workflow_->workflowTable->rowCount() &&
+                      !workflow_->workflowTable->isRowHidden(row);
+  workflow_->workflowStepCopyButton->setEnabled(hasRow);
   if (!hasRow) {
-    workflowStepCopyButton_->setText(uiText("Copy Step", "复制步骤"));
-    workflowStepCopyButton_->setToolTip(uiText(
+    workflow_->workflowStepCopyButton->setText(uiText("Copy Step", "复制步骤"));
+    workflow_->workflowStepCopyButton->setToolTip(uiText(
         "Select a commissioning workflow step to copy its local evidence "
         "summary. No bus request is sent.",
         "选择一条调试工作流步骤以复制本地证据摘要；不会发送总线请求。"));
@@ -559,12 +559,12 @@ void MainWindow::updateWorkflowStepCopyButton() {
   }
 
   const QString step =
-      commissioningWorkflowTableRowFromTable(workflowTable_, row)
+      commissioningWorkflowTableRowFromTable(workflow_->workflowTable, row)
           .step.trimmed();
-  workflowStepCopyButton_->setText(
+  workflow_->workflowStepCopyButton->setText(
       step.isEmpty() ? uiText("Copy Step", "复制步骤")
                      : uiText("Copy: %1", "复制：%1").arg(step));
-  workflowStepCopyButton_->setToolTip(
+  workflow_->workflowStepCopyButton->setToolTip(
       uiText("Copy workflow step \"%1\" with phase, status, risk, evidence, "
              "next action, tooltip detail, and local boundary. Clipboard "
              "only; no bus access.",
@@ -576,34 +576,34 @@ void MainWindow::updateWorkflowStepCopyButton() {
 
 // — Update workflow step detail
 void MainWindow::updateWorkflowStepDetail() {
-  if (!workflowStepDetailLabel_) {
+  if (!workflow_->workflowStepDetailLabel) {
     return;
   }
   const CommissioningWorkflowStepDetailTexts texts =
       commissioningWorkflowStepDetailTexts();
   auto applyState =
       [this](const CommissioningWorkflowStepDetailUiState &state) {
-        workflowStepDetailLabel_->setText(state.text);
-        workflowStepDetailLabel_->setProperty("severity", state.severityKey);
-        workflowStepDetailLabel_->setToolTip(state.tooltip);
-        repolish(workflowStepDetailLabel_); // force QSS re-evaluation after property change
+        workflow_->workflowStepDetailLabel->setText(state.text);
+        workflow_->workflowStepDetailLabel->setProperty("severity", state.severityKey);
+        workflow_->workflowStepDetailLabel->setToolTip(state.tooltip);
+        repolish(workflow_->workflowStepDetailLabel); // force QSS re-evaluation after property change
       };
 
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowTable_) {
+  if (!workflow_->workflowTable) {
     applyState(commissioningWorkflowStepDetailUnavailableState(texts));
     return;
   }
 
-  const int row = workflowTable_->currentRow();
-  if (row < 0 || row >= workflowTable_->rowCount() ||
-      workflowTable_->isRowHidden(row)) {
+  const int row = workflow_->workflowTable->currentRow();
+  if (row < 0 || row >= workflow_->workflowTable->rowCount() ||
+      workflow_->workflowTable->isRowHidden(row)) {
     applyState(commissioningWorkflowStepDetailNoSelectionState(texts));
     return;
   }
 
   applyState(buildCommissioningWorkflowStepDetailUiState(
-      commissioningWorkflowTableRowFromTable(workflowTable_, row),
+      commissioningWorkflowTableRowFromTable(workflow_->workflowTable, row),
       commissioningWorkflowTexts(), texts));
 }
 
@@ -752,8 +752,8 @@ void MainWindow::openSessionBriefRow(int row) {
     const int nextStep = nextCommissioningWorkflowStep();
     activateWorkspaceTab(overviewTabIndex_);
     // Dispatch Alt+Enter to the correct evidence action for this table type
-    if (nextStep >= 0 && workflowTable_) {
-      selectAndFocusTableRow(workflowTable_, nextStep, 2);
+    if (nextStep >= 0 && workflow_->workflowTable) {
+      selectAndFocusTableRow(workflow_->workflowTable, nextStep, 2);
     }
     logNavigation(uiText("Workflow next row", "工作流下一行"));
     return;
@@ -894,38 +894,38 @@ void MainWindow::runNextBestAction() {
 // — Filter commissioning workflow
 void MainWindow::filterCommissioningWorkflow() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowTable_) {
+  if (!workflow_->workflowTable) {
     return;
   }
 
   const QString needle =
-      workflowFilter_ ? workflowFilter_->text().trimmed() : QString();
+      workflow_->workflowFilter ? workflow_->workflowFilter->text().trimmed() : QString();
   const QString scope =
-      workflowScopeFilter_
-          ? workflowScopeFilter_->currentData().toString()
+      workflow_->workflowScopeFilter
+          ? workflow_->workflowScopeFilter->currentData().toString()
           : QString::fromLatin1(kCommissioningWorkflowScopeAll);
   const CommissioningWorkflowFilterStats stats =
-      filterCommissioningWorkflowTable(workflowTable_, scope, needle,
+      filterCommissioningWorkflowTable(workflow_->workflowTable, scope, needle,
                                        uiText("None", "无"));
 
-  const int current = workflowTable_->currentRow();
-  if (current < 0 || current >= workflowTable_->rowCount() ||
-      workflowTable_->isRowHidden(current)) {
+  const int current = workflow_->workflowTable->currentRow();
+  if (current < 0 || current >= workflow_->workflowTable->rowCount() ||
+      workflow_->workflowTable->isRowHidden(current)) {
     if (stats.firstVisible >= 0) {
-      workflowTable_->setCurrentCell(stats.firstVisible,
+      workflow_->workflowTable->setCurrentCell(stats.firstVisible,
                                      kCommissioningWorkflowStepColumn);
-      workflowTable_->selectRow(stats.firstVisible);
+      workflow_->workflowTable->selectRow(stats.firstVisible);
     } else {
-      workflowTable_->clearSelection();
+      workflow_->workflowTable->clearSelection();
     }
   }
 
-  if (workflowSummaryLabel_) {
-    const QString scopeLabel = workflowScopeFilter_
-                                   ? workflowScopeFilter_->currentText()
+  if (workflow_->workflowSummaryLabel) {
+    const QString scopeLabel = workflow_->workflowScopeFilter
+                                   ? workflow_->workflowScopeFilter->currentText()
                                    : uiText("All", "全部");
-    const QString currentDetail = workflowSummaryLabel_->toolTip().trimmed();
-    workflowSummaryLabel_->setToolTip(
+    const QString currentDetail = workflow_->workflowSummaryLabel->toolTip().trimmed();
+    workflow_->workflowSummaryLabel->setToolTip(
         uiText("%1\n\nVisible workflow rows: %2/%3\nScope: %4\nOpen: %5 | "
                "Blocked: %6 | Action: %7 | Ready: %8 | Risk: %9 | Evidence "
                "gaps: %10\nFiltering is local only and does not read the bus.",
@@ -936,7 +936,7 @@ void MainWindow::filterCommissioningWorkflow() {
                      ? uiText("Commissioning Workflow", "调试工作流")
                      : currentDetail)
             .arg(stats.visible)
-            .arg(workflowTable_->rowCount())
+            .arg(workflow_->workflowTable->rowCount())
             .arg(scopeLabel)
             .arg(stats.open)
             .arg(stats.blocked)
@@ -945,11 +945,11 @@ void MainWindow::filterCommissioningWorkflow() {
             .arg(stats.risk)
             .arg(stats.gaps));
   }
-  if (workflowReviewButton_) {
-    workflowReviewButton_->setEnabled(stats.hasVisibleIssue);
+  if (workflow_->workflowReviewButton) {
+    workflow_->workflowReviewButton->setEnabled(stats.hasVisibleIssue);
   }
-  if (workflowReviewNextButton_) {
-    workflowReviewNextButton_->setEnabled(stats.hasVisibleIssue);
+  if (workflow_->workflowReviewNextButton) {
+    workflow_->workflowReviewNextButton->setEnabled(stats.hasVisibleIssue);
   }
   updateWorkflowStepCopyButton();
   updateWorkflowStepDetail();
@@ -959,14 +959,14 @@ void MainWindow::filterCommissioningWorkflow() {
 // — Review first commissioning workflow issue
 void MainWindow::reviewFirstCommissioningWorkflowIssue() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowTable_) {
+  if (!workflow_->workflowTable) {
     return;
   }
   filterCommissioningWorkflow();
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  const int row = firstCommissioningWorkflowIssueRow(workflowTable_);
+  const int row = firstCommissioningWorkflowIssueRow(workflow_->workflowTable);
   if (row >= 0) {
-    selectAndFocusTableRow(workflowTable_, row, 2);
+    selectAndFocusTableRow(workflow_->workflowTable, row, 2);
     updateDiagnostics(
         "Info", "Commissioning Workflow",
         uiText("Selected first visible workflow issue #%1 without running it",
@@ -987,11 +987,11 @@ void MainWindow::reviewFirstCommissioningWorkflowIssue() {
 // — Review next commissioning workflow issue
 void MainWindow::reviewNextCommissioningWorkflowIssue() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowTable_) {
+  if (!workflow_->workflowTable) {
     return;
   }
   filterCommissioningWorkflow();
-  const int rowCount = workflowTable_->rowCount();
+  const int rowCount = workflow_->workflowTable->rowCount();
   if (rowCount <= 0) {
     statusBar()->showMessage(
         uiText("No workflow issue to review.", "当前没有工作流问题可审阅。"),
@@ -1000,9 +1000,9 @@ void MainWindow::reviewNextCommissioningWorkflowIssue() {
   }
 
   const int row = nextCommissioningWorkflowIssueRow(
-      workflowTable_, workflowTable_->currentRow());
+      workflow_->workflowTable, workflow_->workflowTable->currentRow());
   if (row >= 0) {
-    selectAndFocusTableRow(workflowTable_, row, 2);
+    selectAndFocusTableRow(workflow_->workflowTable, row, 2);
     updateDiagnostics(
         "Info", "Commissioning Workflow",
         uiText("Selected next visible workflow issue #%1 without running it",
@@ -1023,8 +1023,8 @@ void MainWindow::reviewNextCommissioningWorkflowIssue() {
 
 // — Copy a human-readable summary of the workflow step to clipboard
 bool MainWindow::copyWorkflowStepDigest(int row) {
-  if (!workflowTable_ || row < 0 || row >= workflowTable_->rowCount() ||
-      workflowTable_->isRowHidden(row)) {
+  if (!workflow_->workflowTable || row < 0 || row >= workflow_->workflowTable->rowCount() ||
+      workflow_->workflowTable->isRowHidden(row)) {
     statusBar()->showMessage(uiText("Select a visible workflow step to copy.",
                                     "请选择一条可见的工作流步骤再复制。"),
                              3000);
@@ -1032,8 +1032,8 @@ bool MainWindow::copyWorkflowStepDigest(int row) {
   }
 
   QString details;
-  for (int column = 0; column < workflowTable_->columnCount(); ++column) {
-    if (auto *item = workflowTable_->item(row, column)) {
+  for (int column = 0; column < workflow_->workflowTable->columnCount(); ++column) {
+    if (auto *item = workflow_->workflowTable->item(row, column)) {
       details = item->toolTip().trimmed();
       if (!details.isEmpty()) {
         break;
@@ -1043,7 +1043,7 @@ bool MainWindow::copyWorkflowStepDigest(int row) {
 
   QStringList lines;
   const CommissioningWorkflowTableRow workflowRow =
-      commissioningWorkflowTableRowFromTable(workflowTable_, row);
+      commissioningWorkflowTableRowFromTable(workflow_->workflowTable, row);
   lines << uiText("NekoEcat Studio Commissioning Workflow Step",
                   "NekoEcat Studio 调试工作流步骤");
   lines << QString("%1: %2").arg(uiText("Master", "主站"), activeMasterName());
@@ -1066,10 +1066,10 @@ bool MainWindow::copyWorkflowStepDigest(int row) {
         uiText("Current Next Best Action", "当前下一最佳动作"),
         nextBestActionButton_->text().trimmed());
   }
-  if (workflowSummaryLabel_ &&
-      !workflowSummaryLabel_->text().trimmed().isEmpty()) {
+  if (workflow_->workflowSummaryLabel &&
+      !workflow_->workflowSummaryLabel->text().trimmed().isEmpty()) {
     lines << QString("%1: %2").arg(uiText("Workflow Summary", "工作流摘要"),
-                                   workflowSummaryLabel_->text().trimmed());
+                                   workflow_->workflowSummaryLabel->text().trimmed());
   }
   if (!details.isEmpty()) {
     lines << QString();

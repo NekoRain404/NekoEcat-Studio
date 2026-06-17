@@ -1923,7 +1923,7 @@ void MainWindow::clearOnlineViews() {
     topologyTree_->clear();
   }
   for (auto *table :
-       {metricTable_, workflowTable_, stateMachine_->stateMachineTable, identityTable_,
+       {metricTable_, workflow_->workflowTable, stateMachine_->stateMachineTable, identityTable_,
         slaveEvidenceMatrixTable_, portTable_, mailboxTable_, sdo_->pdoTable,
         sdo_->sdoTable, sdoHistoryTable_, freeRunTable_, freeRunEntryTable_,
         ioVar_->ioVariableTable, watch_->watchTable}) {
@@ -2404,20 +2404,20 @@ void MainWindow::wire() {
   });
   connect(session_->sessionBriefTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSessionBriefRow(row); });
-  connect(workflowTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(workflow_->workflowTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateWorkflowStepCopyButton);
-  connect(workflowTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(workflow_->workflowTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateWorkflowStepDetail);
-  connect(workflowStepCopyButton_, &QPushButton::clicked, this, [this] {
-    copyWorkflowStepDigest(workflowTable_ ? workflowTable_->currentRow() : -1);
+  connect(workflow_->workflowStepCopyButton, &QPushButton::clicked, this, [this] {
+    copyWorkflowStepDigest(workflow_->workflowTable ? workflow_->workflowTable->currentRow() : -1);
   });
-  connect(workflowReviewButton_, &QPushButton::clicked, this,
+  connect(workflow_->workflowReviewButton, &QPushButton::clicked, this,
           &MainWindow::reviewFirstCommissioningWorkflowIssue);
-  connect(workflowReviewNextButton_, &QPushButton::clicked, this,
+  connect(workflow_->workflowReviewNextButton, &QPushButton::clicked, this,
           &MainWindow::reviewNextCommissioningWorkflowIssue);
-  connect(workflowFilter_, &QLineEdit::textChanged, this,
+  connect(workflow_->workflowFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterCommissioningWorkflow);
-  connect(workflowScopeFilter_,
+  connect(workflow_->workflowScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterCommissioningWorkflow(); });
   connect(slaveEvidenceMatrixFilter_, &QLineEdit::textChanged, this,
@@ -2457,7 +2457,7 @@ void MainWindow::wire() {
       new QShortcut(QKeySequence(Qt::Key_Enter), session_->sessionBriefTable);
   connect(sessionBriefKeypadEnter, &QShortcut::activated, this,
           [this] { openSessionBriefRow(session_->sessionBriefTable->currentRow()); });
-  connect(workflowTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(workflow_->workflowTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { runCommissioningWorkflowStep(row); });
   connect(slaveEvidenceMatrixTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSlaveEvidenceMatrixRow(row); });
@@ -2733,7 +2733,7 @@ void MainWindow::wire() {
           });
   for (auto *table : {metricTable_,
                       session_->sessionBriefTable,
-                      workflowTable_,
+                      workflow_->workflowTable,
                       slaveEvidenceMatrixTable_,
                       stateMachine_->stateMachineTable,
                       identityTable_,

@@ -480,7 +480,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   QAction *copyObjectAddress = nullptr;
   QAction *copyObjectValue = nullptr;
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (table == workflowTable_) {
+  if (table == workflow_->workflowTable) {
     const int workflowRow = table->currentRow();
     const bool hasWorkflowRow = workflowRow >= 0 &&
                                 workflowRow < table->rowCount() &&
@@ -490,14 +490,14 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     reviewFirstWorkflowIssue->setIcon(
         style()->standardIcon(QStyle::SP_FileDialogDetailedView));
     reviewFirstWorkflowIssue->setEnabled(
-        workflowReviewButton_ ? workflowReviewButton_->isEnabled()
+        workflow_->workflowReviewButton ? workflow_->workflowReviewButton->isEnabled()
                               : table->rowCount() > 0);
     reviewNextWorkflowIssue = menu.addAction(
         uiText("Review Next Workflow Issue", "审阅下个工作流问题"));
     reviewNextWorkflowIssue->setIcon(
         style()->standardIcon(QStyle::SP_ArrowForward));
     reviewNextWorkflowIssue->setEnabled(
-        workflowReviewNextButton_ ? workflowReviewNextButton_->isEnabled()
+        workflow_->workflowReviewNextButton ? workflow_->workflowReviewNextButton->isEnabled()
                                   : table->rowCount() > 0);
     copyWorkflowStep =
         menu.addAction(uiText("Copy Step Evidence", "复制步骤证据"));
@@ -1247,7 +1247,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
   }
 
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (table == workflowTable_) {
+  if (table == workflow_->workflowTable) {
     copyWorkflowStepDigest(row);
   // Dispatch Alt+Enter to the correct evidence action for this table type
   } else if (table == session_->sessionBriefTable) {

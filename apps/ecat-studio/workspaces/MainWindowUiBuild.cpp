@@ -153,12 +153,12 @@ void MainWindow::buildUi() {
   stateMachine_ = nullptr;
   freeRunEntryDetailLabel_ = nullptr;
   session_ = nullptr;
-  workflowScopeFilter_ = nullptr;
-  workflowFilter_ = nullptr;
-  workflowStepDetailLabel_ = nullptr;
-  workflowReviewButton_ = nullptr;
-  workflowReviewNextButton_ = nullptr;
-  workflowStepCopyButton_ = nullptr;
+  workflow_->workflowScopeFilter = nullptr;
+  workflow_->workflowFilter = nullptr;
+  workflow_->workflowStepDetailLabel = nullptr;
+  workflow_->workflowReviewButton = nullptr;
+  workflow_->workflowReviewNextButton = nullptr;
+  workflow_->workflowStepCopyButton = nullptr;
   watch_->watchDetailLabel = nullptr;
   watch_->startupSdoDetailLabel = nullptr;
   ioVar_->ioVariableDetailLabel = nullptr;
@@ -166,6 +166,7 @@ void MainWindow::buildUi() {
   ioVar_ = nullptr;
   watch_ = nullptr;
   sdo_ = nullptr;
+  workflow_ = nullptr;
   diagnostics_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
@@ -658,7 +659,8 @@ void MainWindow::buildUi() {
   metricTable_ = new QTableWidget;
   session_ = new SessionWorkspaceWidgets;
   session_->sessionBriefTable = new QTableWidget;
-  workflowTable_ = new QTableWidget;
+  workflow_ = new WorkflowWorkspaceWidgets;
+  workflow_->workflowTable = new QTableWidget;
   slaveEvidenceMatrixTable_ = new QTableWidget;
   stateMachine_ = new StateMachineWorkspaceWidgets;
   stateMachine_->stateMachineTable = new QTableWidget;
@@ -685,7 +687,7 @@ void MainWindow::buildUi() {
   startupSdoTable_ = new QTableWidget;
   for (auto *table : {metricTable_,
                       session_->sessionBriefTable,
-                      workflowTable_,
+                      workflow_->workflowTable,
                       slaveEvidenceMatrixTable_,
                       stateMachine_->stateMachineTable,
                       identityTable_,
@@ -781,12 +783,12 @@ void MainWindow::buildUi() {
   briefLayout->addWidget(session_->sessionBriefTable, 1);
   auto *workflowHeader = new QHBoxLayout;
   workflowHeader->setSpacing(8);
-  workflowSummaryLabel_ =
+  workflow_->workflowSummaryLabel =
       new QLabel(uiText("Follow the commissioning workflow from left to right.",
                         "按调试流程从上到下推进。"));
-  workflowSummaryLabel_->setObjectName("statusSummary");
-  workflowSummaryLabel_->setProperty("severity", "neutral");
-  workflowSummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  workflow_->workflowSummaryLabel->setObjectName("statusSummary");
+  workflow_->workflowSummaryLabel->setProperty("severity", "neutral");
+  workflow_->workflowSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *overviewConnect = new QPushButton(uiText("Connect", "连接"));
   overviewConnect->setObjectName("overviewConnect");
   overviewConnect->setIcon(style()->standardIcon(QStyle::SP_DriveNetIcon));
@@ -799,86 +801,86 @@ void MainWindow::buildUi() {
   overviewRunNext->setToolTip(
       uiText("Run the first actionable commissioning workflow step.",
              "执行调试工作流中第一条可执行步骤。"));
-  workflowScopeFilter_ = new QComboBox;
-  workflowScopeFilter_->setObjectName("workflowScopeFilter");
-  workflowScopeFilter_->addItem(uiText("All", "全部"), QStringLiteral("all"));
-  workflowScopeFilter_->addItem(uiText("Open", "未完成"),
+  workflow_->workflowScopeFilter = new QComboBox;
+  workflow_->workflowScopeFilter->setObjectName("workflowScopeFilter");
+  workflow_->workflowScopeFilter->addItem(uiText("All", "全部"), QStringLiteral("all"));
+  workflow_->workflowScopeFilter->addItem(uiText("Open", "未完成"),
                                 QStringLiteral("open"));
-  workflowScopeFilter_->addItem(uiText("Blocked", "受阻"),
+  workflow_->workflowScopeFilter->addItem(uiText("Blocked", "受阻"),
                                 QStringLiteral("blocked"));
-  workflowScopeFilter_->addItem(uiText("Action", "待执行"),
+  workflow_->workflowScopeFilter->addItem(uiText("Action", "待执行"),
                                 QStringLiteral("action"));
-  workflowScopeFilter_->addItem(uiText("Ready", "就绪"),
+  workflow_->workflowScopeFilter->addItem(uiText("Ready", "就绪"),
                                 QStringLiteral("ready"));
-  workflowScopeFilter_->addItem(uiText("Risk", "风险"), QStringLiteral("risk"));
-  workflowScopeFilter_->addItem(uiText("Evidence Gap", "证据缺口"),
+  workflow_->workflowScopeFilter->addItem(uiText("Risk", "风险"), QStringLiteral("risk"));
+  workflow_->workflowScopeFilter->addItem(uiText("Evidence Gap", "证据缺口"),
                                 QStringLiteral("gap"));
-  workflowScopeFilter_->setToolTip(uiText(
+  workflow_->workflowScopeFilter->setToolTip(uiText(
       "Filter workflow steps by local status or evidence state. Filtering "
       "does not read the bus.",
       "按本地状态或证据状态过滤工作流步骤；过滤不会读取总线。"));
-  workflowFilter_ = new QLineEdit;
-  workflowFilter_->setPlaceholderText(
+  workflow_->workflowFilter = new QLineEdit;
+  workflow_->workflowFilter->setPlaceholderText(
       uiText("Search phase, step, risk, evidence, or next action",
              "搜索阶段、步骤、风险、依据或下一步"));
-  workflowFilter_->setToolTip(
+  workflow_->workflowFilter->setToolTip(
       uiText("Search the current workflow table locally without bus access.",
              "只在当前工作流表格内本地搜索，不访问总线。"));
-  workflowReviewButton_ = new QPushButton(uiText("Review First", "审阅首个"));
-  workflowReviewButton_->setIcon(
+  workflow_->workflowReviewButton = new QPushButton(uiText("Review First", "审阅首个"));
+  workflow_->workflowReviewButton->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogDetailedView));
-  workflowReviewButton_->setEnabled(false);
-  workflowReviewButton_->setToolTip(uiText(
+  workflow_->workflowReviewButton->setEnabled(false);
+  workflow_->workflowReviewButton->setToolTip(uiText(
       "Select the first visible workflow issue without running the step.",
       "选择当前可见的首个工作流问题；不会执行该步骤。"));
-  workflowReviewNextButton_ =
+  workflow_->workflowReviewNextButton =
       new QPushButton(uiText("Review Next", "审阅下个"));
-  workflowReviewNextButton_->setIcon(
+  workflow_->workflowReviewNextButton->setIcon(
       style()->standardIcon(QStyle::SP_ArrowForward));
-  workflowReviewNextButton_->setEnabled(false);
-  workflowReviewNextButton_->setToolTip(uiText(
+  workflow_->workflowReviewNextButton->setEnabled(false);
+  workflow_->workflowReviewNextButton->setToolTip(uiText(
       "Select the next visible workflow issue with wraparound. No bus request "
       "is sent.",
       "选择下一个可见工作流问题并在末尾回绕；不会发送总线请求。"));
-  workflowStepCopyButton_ = new QPushButton(uiText("Copy Step", "复制步骤"));
-  workflowStepCopyButton_->setIcon(
+  workflow_->workflowStepCopyButton = new QPushButton(uiText("Copy Step", "复制步骤"));
+  workflow_->workflowStepCopyButton->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogContentsView));
-  workflowStepCopyButton_->setEnabled(false);
-  workflowStepCopyButton_->setToolTip(uiText(
+  workflow_->workflowStepCopyButton->setEnabled(false);
+  workflow_->workflowStepCopyButton->setToolTip(uiText(
       "Copy the selected workflow step evidence summary to the clipboard. No "
       "bus request is sent.",
       "把当前工作流步骤证据摘要复制到剪贴板；不会发送总线请求。"));
   workflowHeader->addWidget(
       makeSectionTitle(uiText("Commissioning Workflow", "调试工作流")));
-  workflowHeader->addWidget(workflowSummaryLabel_, 1);
+  workflowHeader->addWidget(workflow_->workflowSummaryLabel, 1);
   workflowHeader->addWidget(new QLabel(uiText("Scope", "范围")));
-  workflowHeader->addWidget(workflowScopeFilter_);
-  workflowHeader->addWidget(workflowFilter_);
-  workflowHeader->addWidget(workflowReviewButton_);
-  workflowHeader->addWidget(workflowReviewNextButton_);
-  workflowHeader->addWidget(workflowStepCopyButton_);
+  workflowHeader->addWidget(workflow_->workflowScopeFilter);
+  workflowHeader->addWidget(workflow_->workflowFilter);
+  workflowHeader->addWidget(workflow_->workflowReviewButton);
+  workflowHeader->addWidget(workflow_->workflowReviewNextButton);
+  workflowHeader->addWidget(workflow_->workflowStepCopyButton);
   workflowHeader->addWidget(overviewRunNext);
   workflowHeader->addWidget(overviewConnect);
   workflowHeader->addWidget(overviewRefresh);
   workflowLayout->addLayout(workflowHeader);
-  workflowStepDetailLabel_ = makeStatusSummaryLabel(
+  workflow_->workflowStepDetailLabel = makeStatusSummaryLabel(
       uiText("Select a workflow row to review its evidence boundary.",
              "选择工作流行以复核它的证据边界。"),
       uiText("This detail strip is local only. It summarizes the selected "
              "workflow row and explains what Run Next or double-click may do.",
              "此详情条仅使用本地界面数据。它汇总当前工作流行，并说明执行下一步"
              "或双击可能触发的动作。"));
-  workflowLayout->addWidget(workflowStepDetailLabel_);
-  setTableRows(workflowTable_,
+  workflowLayout->addWidget(workflow_->workflowStepDetailLabel);
+  setTableRows(workflow_->workflowTable,
                commissioningWorkflowHeaders(commissioningWorkflowTexts()), {});
-  workflowTable_->setMinimumHeight(420);
-  workflowTable_->setToolTip(uiText(
+  workflow_->workflowTable->setMinimumHeight(420);
+  workflow_->workflowTable->setToolTip(uiText(
       "Select a workflow row to review its local evidence boundary. "
       "Double-click a row only when you intend to run or open the suggested "
       "action.",
       "选择工作流行可先复核本地证据边界；只有明确要执行或打开建议动作时，"
       "才双击该行。"));
-  workflowLayout->addWidget(workflowTable_, 1);
+  workflowLayout->addWidget(workflow_->workflowTable, 1);
 
   auto *matrixHeader = new QHBoxLayout;
   matrixHeader->setSpacing(8);
@@ -2368,9 +2370,9 @@ void MainWindow::rebuildUi() {
   const QList<QStringList> startupRows = copyTableRows(startupSdoTable_);
   const QList<QStringList> diagnosticsRows = copyTableRows(diagnostics_->diagnosticsTable);
   const QString workflowFilter =
-      workflowFilter_ ? workflowFilter_->text() : QString();
+      workflow_->workflowFilter ? workflow_->workflowFilter->text() : QString();
   const QString workflowScope =
-      workflowScopeFilter_ ? workflowScopeFilter_->currentData().toString()
+      workflow_->workflowScopeFilter ? workflow_->workflowScopeFilter->currentData().toString()
                            : QStringLiteral("all");
   const QString pdoFilter = sdo_->pdoFilter ? sdo_->pdoFilter->text() : QString();
   const QString freeRunFilter =
@@ -2569,12 +2571,12 @@ void MainWindow::rebuildUi() {
   if (diagnostics_->diagnosticsFilter) {
     diagnostics_->diagnosticsFilter->setText(diagnosticsFilter);
   }
-  if (workflowFilter_) {
-    workflowFilter_->setText(workflowFilter);
+  if (workflow_->workflowFilter) {
+    workflow_->workflowFilter->setText(workflowFilter);
   }
-  if (workflowScopeFilter_) {
-    const int index = workflowScopeFilter_->findData(workflowScope);
-    workflowScopeFilter_->setCurrentIndex(index >= 0 ? index : 0);
+  if (workflow_->workflowScopeFilter) {
+    const int index = workflow_->workflowScopeFilter->findData(workflowScope);
+    workflow_->workflowScopeFilter->setCurrentIndex(index >= 0 ? index : 0);
   }
   if (sdo_->pdoFilter) {
     sdo_->pdoFilter->setText(pdoFilter);

@@ -349,12 +349,12 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogContentsView),
       [this] {
         activateWorkspaceTab(overviewTabIndex_);
-        copyWorkflowStepDigest(workflowTable_ ? workflowTable_->currentRow()
+        copyWorkflowStepDigest(workflow_->workflowTable ? workflow_->workflowTable->currentRow()
                                               : -1);
       },
       [this] {
-        const int row = workflowTable_ ? workflowTable_->currentRow() : -1;
-        return workflowTable_ && row >= 0 && !workflowTable_->isRowHidden(row);
+        const int row = workflow_->workflowTable ? workflow_->workflowTable->currentRow() : -1;
+        return workflow_->workflowTable && row >= 0 && !workflow_->workflowTable->isRowHidden(row);
       },
   });
   struct WorkflowScopeCommand {
@@ -390,17 +390,17 @@ void MainWindow::showCommandPalette() {
             uiText(" without bus access", "；不访问总线"),
         style()->standardIcon(QStyle::SP_FileDialogDetailedView),
         [this, scope] {
-          if (!workflowScopeFilter_) {
+          if (!workflow_->workflowScopeFilter) {
             return;
           }
           activateWorkspaceTab(overviewTabIndex_);
-          const int index = workflowScopeFilter_->findData(scope);
+          const int index = workflow_->workflowScopeFilter->findData(scope);
           if (index >= 0) {
-            workflowScopeFilter_->setCurrentIndex(index);
+            workflow_->workflowScopeFilter->setCurrentIndex(index);
           }
           filterCommissioningWorkflow();
         },
-        [this] { return workflowTable_ && workflowTable_->rowCount() > 0; },
+        [this] { return workflow_->workflowTable && workflow_->workflowTable->rowCount() > 0; },
     });
   }
   commands.append(CommandItem{
@@ -414,7 +414,7 @@ void MainWindow::showCommandPalette() {
         reviewFirstCommissioningWorkflowIssue();
       },
       [this] {
-        return workflowReviewButton_ && workflowReviewButton_->isEnabled();
+        return workflow_->workflowReviewButton && workflow_->workflowReviewButton->isEnabled();
       },
   });
   commands.append(CommandItem{
@@ -428,8 +428,8 @@ void MainWindow::showCommandPalette() {
         reviewNextCommissioningWorkflowIssue();
       },
       [this] {
-        return workflowReviewNextButton_ &&
-               workflowReviewNextButton_->isEnabled();
+        return workflow_->workflowReviewNextButton &&
+               workflow_->workflowReviewNextButton->isEnabled();
       },
   });
   commands.append(CommandItem{

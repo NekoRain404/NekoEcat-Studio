@@ -611,7 +611,7 @@ private:
   IoVariableWorkspaceWidgets *ioVar_ = nullptr;
   WatchWorkspaceWidgets *watch_ = nullptr;
   SdoWorkspaceWidgets *sdo_ = nullptr;
-  QTableWidget *workflowTable_ = nullptr;
+  WorkflowWorkspaceWidgets *workflow_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
@@ -694,13 +694,6 @@ private:
   QComboBox *sdoType_ = nullptr;
   
   // ── PDO Panel Widgets ─────────────────────────────────────────
-  QLabel *workflowSummaryLabel_ = nullptr;
-  QLabel *workflowStepDetailLabel_ = nullptr;
-  QComboBox *workflowScopeFilter_ = nullptr;
-  QLineEdit *workflowFilter_ = nullptr;
-  QPushButton *workflowReviewButton_ = nullptr;
-  QPushButton *workflowReviewNextButton_ = nullptr;
-  QPushButton *workflowStepCopyButton_ = nullptr;
   QLabel *slaveEvidenceMatrixSummaryLabel_ = nullptr;
   QPushButton *slaveEvidenceMatrixReviewButton_ = nullptr;
   QPushButton *slaveEvidenceMatrixReviewNextButton_ = nullptr;

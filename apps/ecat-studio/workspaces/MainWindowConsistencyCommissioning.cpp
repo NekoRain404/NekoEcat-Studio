@@ -740,7 +740,7 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
 // — Rebuild the commissioning workflow step table from current evidence
 void MainWindow::updateCommissioningWorkflow() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
-  if (!workflowTable_) {
+  if (!workflow_->workflowTable) {
     return;
   }
 
@@ -932,50 +932,50 @@ void MainWindow::updateCommissioningWorkflow() {
     uiRows.append(commissioningWorkflowUiRow(row, uiTexts));
   }
 
-  setTableRows(workflowTable_, commissioningWorkflowHeaders(uiTexts),
+  setTableRows(workflow_->workflowTable, commissioningWorkflowHeaders(uiTexts),
                commissioningWorkflowTableRows(uiRows));
 
   const CommissioningWorkflowStats stats = commissioningWorkflowStats(uiRows);
   const QColor readyColor("#22c55e");
   const QColor actionColor("#f59e0b");
   const QColor blockedColor("#ef4444");
-  for (int row = 0; row < workflowTable_->rowCount(); ++row) {
+  for (int row = 0; row < workflow_->workflowTable->rowCount(); ++row) {
     const CommissioningWorkflowUiRow uiRow = uiRows.value(row);
     const QColor color =
         uiRow.colorKey == QStringLiteral("ready")
             ? readyColor
             : (uiRow.colorKey == QStringLiteral("action") ? actionColor
                                                           : blockedColor);
-    for (int column = 0; column < workflowTable_->columnCount(); ++column) {
-      if (auto *item = workflowTable_->item(row, column)) {
+    for (int column = 0; column < workflow_->workflowTable->columnCount(); ++column) {
+      if (auto *item = workflow_->workflowTable->item(row, column)) {
         item->setForeground(color);
         item->setToolTip(uiRow.tooltip);
       }
     }
-    setCommissioningWorkflowStatusKey(workflowTable_, row, uiRow.colorKey);
+    setCommissioningWorkflowStatusKey(workflow_->workflowTable, row, uiRow.colorKey);
   }
-  fitTableColumnsToViewport(workflowTable_,
+  fitTableColumnsToViewport(workflow_->workflowTable,
                             kCommissioningWorkflowEvidenceColumn);
 
   const int nextStep = nextCommissioningWorkflowStep();
   QString nextAction;
-  if (nextStep >= 0 && nextStep < workflowTable_->rowCount() &&
-      workflowTable_->item(nextStep, 5)) {
-    nextAction = workflowTable_->item(nextStep, 5)->text().trimmed();
+  if (nextStep >= 0 && nextStep < workflow_->workflowTable->rowCount() &&
+      workflow_->workflowTable->item(nextStep, 5)) {
+    nextAction = workflow_->workflowTable->item(nextStep, 5)->text().trimmed();
   }
-  if (workflowSummaryLabel_) {
-    const int total = std::max(1, workflowTable_->rowCount());
+  if (workflow_->workflowSummaryLabel) {
+    const int total = std::max(1, workflow_->workflowTable->rowCount());
     const int readiness = std::clamp((stats.ready * 100) / total, 0, 100);
     const QString percent = QString("%1%").arg(readiness);
     const QString nextText = nextStep >= 0 && !nextAction.isEmpty()
                                  ? nextAction
                                  : uiText("Ready", "已就绪");
     const int openItems = stats.action + stats.blocked;
-    workflowSummaryLabel_->setText(uiText("Readiness %1 | Next: %2 | Open %3",
+    workflow_->workflowSummaryLabel->setText(uiText("Readiness %1 | Next: %2 | Open %3",
                                           "就绪度 %1 | 下一步：%2 | 未完成 %3")
                                        .arg(percent, nextText)
                                        .arg(openItems));
-    workflowSummaryLabel_->setProperty(
+    workflow_->workflowSummaryLabel->setProperty(
         "severity",
         stats.blocked > 0 ? "warning" : (stats.action > 0 ? "action" : "ok"));
 
@@ -991,40 +991,40 @@ void MainWindow::updateCommissioningWorkflow() {
     if (nextStep >= 0 && !nextAction.isEmpty()) {
       tip << uiText("Next action: %1", "下一步动作：%1").arg(nextAction);
     }
-    for (int row = 0; row < workflowTable_->rowCount(); ++row) {
+    for (int row = 0; row < workflow_->workflowTable->rowCount(); ++row) {
       const QString statusKey =
-          commissioningWorkflowStatusKeyForRow(workflowTable_, row);
+          commissioningWorkflowStatusKeyForRow(workflow_->workflowTable, row);
       const QString status =
-          workflowTable_->item(row, 1)
-              ? workflowTable_->item(row, 1)->text().trimmed()
+          workflow_->workflowTable->item(row, 1)
+              ? workflow_->workflowTable->item(row, 1)->text().trimmed()
               : QString();
       if (statusKey == QStringLiteral("ready") ||
           (statusKey.isEmpty() && status == uiText("Ready", "就绪"))) {
         continue;
       }
-      const QString phase = workflowTable_->item(row, 0)
-                                ? workflowTable_->item(row, 0)->text().trimmed()
+      const QString phase = workflow_->workflowTable->item(row, 0)
+                                ? workflow_->workflowTable->item(row, 0)->text().trimmed()
                                 : QString();
-      const QString step = workflowTable_->item(row, 2)
-                               ? workflowTable_->item(row, 2)->text().trimmed()
+      const QString step = workflow_->workflowTable->item(row, 2)
+                               ? workflow_->workflowTable->item(row, 2)->text().trimmed()
                                : QString();
-      const QString risk = workflowTable_->item(row, 3)
-                               ? workflowTable_->item(row, 3)->text().trimmed()
+      const QString risk = workflow_->workflowTable->item(row, 3)
+                               ? workflow_->workflowTable->item(row, 3)->text().trimmed()
                                : QString();
       const QString evidence =
-          workflowTable_->item(row, 4)
-              ? workflowTable_->item(row, 4)->text().trimmed()
+          workflow_->workflowTable->item(row, 4)
+              ? workflow_->workflowTable->item(row, 4)->text().trimmed()
               : QString();
       const QString actionText =
-          workflowTable_->item(row, 5)
-              ? workflowTable_->item(row, 5)->text().trimmed()
+          workflow_->workflowTable->item(row, 5)
+              ? workflow_->workflowTable->item(row, 5)->text().trimmed()
               : QString();
       tip << QString("#%1 [%2/%3] %4 | %5: %6 -> %7")
                  .arg(row + 1)
                  .arg(phase, status, step, risk, evidence, actionText);
     }
-    workflowSummaryLabel_->setToolTip(tip.join('\n'));
-    repolish(workflowSummaryLabel_); // force QSS re-evaluation after property change
+    workflow_->workflowSummaryLabel->setToolTip(tip.join('\n'));
+    repolish(workflow_->workflowSummaryLabel); // force QSS re-evaluation after property change
   }
 
   if (auto *runNextButton = findChild<QPushButton *>("overviewRunNext")) {
