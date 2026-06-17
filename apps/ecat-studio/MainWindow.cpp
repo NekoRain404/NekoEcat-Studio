@@ -266,6 +266,7 @@ bool MainWindow::activateWorkspaceTab(int index) {
   return index < tabs_->count() && activateWorkspacePage(tabs_->widget(index));
 }
 
+// Activate the workspace tab that contains the given page widget.
 bool MainWindow::activateWorkspacePage(QWidget *page) {
 // Activate a workspace page by its widget pointer
   if (!tabs_ || !page) {

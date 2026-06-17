@@ -114,6 +114,7 @@ QStringList matchingBlacklistLines() {
 
 } // namespace
 
+// Backend constructor — no state to initialize; all methods are synchronous CLI calls.
 EthercatCliBackend::EthercatCliBackend(QObject *parent) : QObject(parent) {}
 
 // Return raw `ethercat master` output (timing, DC info, topology).

@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+// Client constructor: initialize timeout sweep timer (2s interval, 10s request timeout).
 EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   // Wire Qt socket signals for connection lifecycle and incoming data.
   connect(&socket_, &QTcpSocket::connected, this, [this] {
@@ -43,10 +44,12 @@ void EcatClient::connectToDaemon() {
   socket_.connectToHost(QHostAddress::LocalHost, 5877);
 }
 
+// Current connection state (Disconnected → Connecting → Connected → Reconnecting).
 ConnectionState EcatClient::connectionState() const {
   return connectionState_;
 }
 
+// Update connection state and emit signal if changed.
 void EcatClient::setConnectionState(ConnectionState state) {
   if (connectionState_ != state) {
     connectionState_ = state;
@@ -54,6 +57,7 @@ void EcatClient::setConnectionState(ConnectionState state) {
   }
 }
 
+// Connect to a specific host address and port (for remote daemon access).
 void EcatClient::connectToHost(const QHostAddress &address, quint16 port) {
   if (connectionState_ == ConnectionState::Connected ||
       connectionState_ == ConnectionState::Connecting) {
@@ -63,6 +67,7 @@ void EcatClient::connectToHost(const QHostAddress &address, quint16 port) {
   socket_.connectToHost(address, port);
 }
 
+// True if the TCP socket is in ConnectedState.
 bool EcatClient::isConnected() const {
   return connectionState_ == ConnectionState::Connected;
 }

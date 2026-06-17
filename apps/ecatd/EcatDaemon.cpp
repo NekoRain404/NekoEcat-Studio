@@ -89,10 +89,12 @@ void EcatDaemon::readClient()
     buffers_[socket] = buffer;
 }
 
+// Dispatch a parsed JSON request through the CommandDispatcher and send the response.
 void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request) {
     send(socket, dispatcher_.dispatch(request));
 }
 
+// Register all 20+ command handlers as lambdas.  Each handler receives (id, params) and returns a JSON response.
 void EcatDaemon::setupHandlers() {
     dispatcher_.registerHandler("ping", [this](const QString &id, const QJsonObject &) {
         return CommandDispatcher::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}});
@@ -279,6 +281,7 @@ void EcatDaemon::setupHandlers() {
     });
 }
 
+// Serialize a JSON response object and write it as a newline-delimited frame to the client socket.
 void EcatDaemon::send(QTcpSocket *socket, const QJsonObject &response)
 {
     // Encode as newline-delimited JSON and flush immediately for low-latency reply.
