@@ -1,4 +1,5 @@
 // Light/dark QSS theme application.
+#include "LanguageManager.h"
 
 #include "MainWindow.h"
 
@@ -1164,6 +1165,7 @@ void MainWindow::applyTheme() {
 
 // — Apply all user settings: theme, font scale, and refresh the status bar
 void MainWindow::applySettings() {
+  LanguageManager::instance().setCurrentLanguage(settings_.language);
   applyTheme();
   QFont font = qApp->font();
   font.setPointSizeF(10.0 * settings_.scale);

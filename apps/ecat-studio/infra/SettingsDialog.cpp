@@ -1,4 +1,5 @@
 // Application settings dialog: theme, master target, refresh interval.
+#include "LanguageManager.h"
 #include "SettingsDialog.h"
 
 #include <QAbstractItemView>
@@ -58,7 +59,7 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     themeCombo_->setCurrentText(settings.theme);
 
     languageCombo_ = new QComboBox;
-    languageCombo_->addItems({"English", "简体中文"});
+    for (const auto &lang : LanguageManager::instance().languages()) { languageCombo_->addItem(lang.displayName); }
     languageCombo_->setCurrentText(settings.language);
 
     scaleSpin_ = new QDoubleSpinBox;
