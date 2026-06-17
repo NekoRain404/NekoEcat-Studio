@@ -278,6 +278,7 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
   auto ensureStartupCell = [this](int row, int column) {
     auto *item = startupSdoTable_->item(row, column);
     if (!item) {
+    // Create table cell
       item = new QTableWidgetItem;
       startupSdoTable_->setItem(row, column, item);
     }
@@ -452,19 +453,26 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
       startupSdoTable_->insertRow(startupRow);
       startupSdoTable_->setItem(
           startupRow, 0,
+    // Create table cell
           new QTableWidgetItem(QString::number(candidate.position)));
       startupSdoTable_->setItem(startupRow, 1,
+    // Create table cell
                                 new QTableWidgetItem(candidate.index));
       startupSdoTable_->setItem(startupRow, 2,
+    // Create table cell
                                 new QTableWidgetItem(candidate.subIndex));
       startupSdoTable_->setItem(startupRow, 3,
+    // Create table cell
                                 new QTableWidgetItem(candidate.value));
       startupSdoTable_->setItem(startupRow, 4,
+    // Create table cell
                                 new QTableWidgetItem(candidate.type));
       startupSdoTable_->setItem(
+    // Create table cell
           startupRow, 5, new QTableWidgetItem(uiText("Synced", "已同步")));
       startupSdoTable_->setItem(
           startupRow, 6,
+    // Create table cell
           new QTableWidgetItem(uiText("Created from Watch row %1 at %2",
                                       "由 Watch 第 %1 行在 %2 创建")
                                    .arg(candidate.watchRow + 1)
@@ -581,15 +589,22 @@ void MainWindow::addSelectedHistoryRowsToStartupSdo() {
     const int startupRow = startupSdoTable_->rowCount();
     startupSdoTable_->insertRow(startupRow);
     startupSdoTable_->setItem(startupRow, 0,
+    // Create table cell
                               new QTableWidgetItem(QString::number(position)));
+    // Create table cell
     startupSdoTable_->setItem(startupRow, 1, new QTableWidgetItem(index));
+    // Create table cell
     startupSdoTable_->setItem(startupRow, 2, new QTableWidgetItem(subIndex));
+    // Create table cell
     startupSdoTable_->setItem(startupRow, 3, new QTableWidgetItem(value));
+    // Create table cell
     startupSdoTable_->setItem(startupRow, 4, new QTableWidgetItem(type));
     startupSdoTable_->setItem(
+    // Create table cell
         startupRow, 5, new QTableWidgetItem(uiText("Pending", "待应用")));
     startupSdoTable_->setItem(
         startupRow, 6,
+    // Create table cell
         new QTableWidgetItem(
             QString("%1 %2%3")
                 .arg(uiText("From SDO history row", "来自 SDO 历史行"))
@@ -640,6 +655,7 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
   auto ensureStartupCell = [this](int row, int column) {
     auto *item = startupSdoTable_->item(row, column);
     if (!item) {
+    // Create table cell
       item = new QTableWidgetItem;
       startupSdoTable_->setItem(row, column, item);
     }
@@ -829,19 +845,26 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
       startupSdoTable_->insertRow(startupRow);
       startupSdoTable_->setItem(
           startupRow, 0,
+    // Create table cell
           new QTableWidgetItem(QString::number(candidate.position)));
       startupSdoTable_->setItem(startupRow, 1,
+    // Create table cell
                                 new QTableWidgetItem(candidate.index));
       startupSdoTable_->setItem(startupRow, 2,
+    // Create table cell
                                 new QTableWidgetItem(candidate.subIndex));
       startupSdoTable_->setItem(startupRow, 3,
+    // Create table cell
                                 new QTableWidgetItem(candidate.value));
       startupSdoTable_->setItem(startupRow, 4,
+    // Create table cell
                                 new QTableWidgetItem(candidate.type));
       startupSdoTable_->setItem(
+    // Create table cell
           startupRow, 5, new QTableWidgetItem(uiText("From OD", "来自 OD")));
       startupSdoTable_->setItem(
           startupRow, 6,
+    // Create table cell
           new QTableWidgetItem(
               uiText("Created from Object Dictionary row %1 at %2%3",
                      "由对象字典第 %1 行在 %2 创建%3")
@@ -851,6 +874,7 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
                            ? QString()
                            : QString(" (%1)").arg(candidate.access))));
       for (int column = 7; column < startupSdoTable_->columnCount(); ++column) {
+    // Create table cell
         startupSdoTable_->setItem(startupRow, column, new QTableWidgetItem);
       }
       ++created;

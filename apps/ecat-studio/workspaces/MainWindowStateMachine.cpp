@@ -121,6 +121,7 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+// Recommended ethercat state
 QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   const int position = slave.position;
   const QString state = slave.state.trimmed().toUpper();

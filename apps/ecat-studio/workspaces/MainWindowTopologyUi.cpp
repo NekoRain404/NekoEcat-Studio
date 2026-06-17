@@ -124,6 +124,7 @@
 // Check if a Watch table row has a non-empty value.
 #include <QXmlStreamReader>
 
+// Log
 void MainWindow::log(const QString &message) {
   rawText_->logText->appendPlainText(QString("[%1] %2").arg(
       QDateTime::currentDateTime().toString("HH:mm:ss"), message));
@@ -864,6 +865,7 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
     for (int column = 0; column < headers.size(); ++column) {
       auto *item = freeRunWidgets_->freeRunEntryTable->item(row, column);
       if (!item) {
+    // Create table cell
         item = new QTableWidgetItem;
         freeRunWidgets_->freeRunEntryTable->setItem(row, column, item);
       }
@@ -1196,6 +1198,7 @@ void MainWindow::setTableRows(QTableWidget *table, const QStringList &headers,
   for (int row = 0; row < rows.size(); ++row) {
     for (int column = 0; column < headers.size(); ++column) {
       table->setItem(row, column,
+    // Create table cell
                      new QTableWidgetItem(rows[row].value(column)));
 // Helper: update a metric card label's title and value.
     }

@@ -121,6 +121,7 @@
 
 
 // — Return localized text constants for the Startup SDO detail panel
+// ── SDO Evidence Texts ──────────────────────────────────────────────
 StartupSdoRowDetailTexts MainWindow::startupSdoRowDetailTexts() const {
   return {
       .unavailableText = uiText("Startup SDO evidence is not available.",
@@ -297,6 +298,7 @@ ObjectBookmarkDetailTexts MainWindow::objectBookmarkDetailTexts() const {
       .reuseLabel = uiText("Reuse", "复用"),
       .localBoundary = uiText(
           "Local bookmark boundary: selecting this bookmark, reading this "
+// ── Watch Row Texts ─────────────────────────────────────────────────
 // Generate localized text constants for the Watch row detail panel
           "detail strip, filling SDO fields, adding selected bookmarks to "
           "Watch, removing bookmarks, and creating Startup SDO candidates from "
@@ -497,6 +499,7 @@ MainWindow::commissioningWorkflowStepDetailTexts() const {
 }
 
 
+// ── Startup SDO Texts ───────────────────────────────────────────────
 // — Commissioning workflow texts
 CommissioningWorkflowTexts MainWindow::commissioningWorkflowTexts() const {
   return {
@@ -697,6 +700,7 @@ ConsistencyDetailTexts MainWindow::consistencyDetailTexts() const {
                  "据、建议动作和本地路由。"),
       .selectVisibleRowTip =
           uiText("Filtering, selecting, reading this detail strip, and Open "
+// ── I/O Variable Texts ──────────────────────────────────────────────
                  "Evidence are local review/navigation actions. Refresh Check "
 // Generate localized text constants for the I/O variable detail panel
                  "rebuilds the gate from already loaded UI and project "

@@ -197,6 +197,7 @@ void MainWindow::updateIoVariableTable() {
       const QString key = ioVariableTableObjectKey(position, index, subIndex);
       const bool changed = watchChangedKeys_.contains(key);
       watchByObject.insert(
+// ── Table Rebuild ──────────────────────────────────────────────────
           key, {tableText(watch_->watchTable, row, 4), tableText(watch_->watchTable, row, 5),
                 tableText(watch_->watchTable, row, 6), tableText(watch_->watchTable, row, 7),
                 changed ? uiText("Yes", "是") : QString()});
@@ -397,6 +398,7 @@ void MainWindow::updateIoVariableTable() {
   if (previousRow >= 0 && previousRow < ioVar_->ioVariableTable->rowCount()) {
     ioVar_->ioVariableTable->setCurrentCell(previousRow, 0);
   }
+// ── Filtering ──────────────────────────────────────────────────────
   if (ioVar_->ioVariableTable->verticalScrollBar()) {
     ioVar_->ioVariableTable->verticalScrollBar()->setValue(verticalScroll);
   }

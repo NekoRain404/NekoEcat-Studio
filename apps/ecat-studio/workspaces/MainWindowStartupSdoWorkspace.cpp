@@ -136,6 +136,7 @@ void MainWindow::ensureStartupSdoTable() {
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
     for (int column = 0; column < startupSdoTable_->columnCount(); ++column) {
       if (!startupSdoTable_->item(row, column)) {
+    // Create table cell
         startupSdoTable_->setItem(row, column, new QTableWidgetItem);
       }
     }
@@ -163,6 +164,7 @@ void MainWindow::updateStartupSdoWatchEvidence() {
     auto *watchValueItem =
         startupSdoTable_->item(row, kWatchStartupStartupWatchValueColumn);
     if (!watchValueItem) {
+    // Create table cell
       watchValueItem = new QTableWidgetItem;
       startupSdoTable_->setItem(row, kWatchStartupStartupWatchValueColumn,
                                 watchValueItem);
@@ -170,6 +172,7 @@ void MainWindow::updateStartupSdoWatchEvidence() {
     auto *deltaItem =
         startupSdoTable_->item(row, kWatchStartupStartupWatchDeltaColumn);
     if (!deltaItem) {
+    // Create table cell
       deltaItem = new QTableWidgetItem;
       startupSdoTable_->setItem(row, kWatchStartupStartupWatchDeltaColumn,
                                 deltaItem);
@@ -313,19 +316,26 @@ void MainWindow::addStartupSdo() {
   startupSdoTable_->insertRow(row);
   startupSdoTable_->setItem(
       row, 0,
+    // Create table cell
       new QTableWidgetItem(
           QString::number(selectedPosition() >= 0 ? selectedPosition() : 0)));
+    // Create table cell
   startupSdoTable_->setItem(row, 1, new QTableWidgetItem(sdoInspector_->sdoIndex->text()));
+    // Create table cell
   startupSdoTable_->setItem(row, 2, new QTableWidgetItem(sdoInspector_->sdoSubIndex->text()));
   startupSdoTable_->setItem(row, 3,
+    // Create table cell
                             new QTableWidgetItem(sdoInspector_->sdoWriteValue
                                                      ? sdoInspector_->sdoWriteValue->text()
                                                      : QString()));
   startupSdoTable_->setItem(
       row, 4,
+    // Create table cell
       new QTableWidgetItem(sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString()));
   startupSdoTable_->setItem(row, 5,
+    // Create table cell
                             new QTableWidgetItem(uiText("Pending", "待应用")));
+    // Create table cell
   startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
   startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths
   startupSdoTable_->selectRow(row);
@@ -386,8 +396,10 @@ void MainWindow::moveStartupSdoRow(int delta) {
   }
   for (int column = 0; column < startupSdoTable_->columnCount(); ++column) {
     startupSdoTable_->setItem(row, column,
+    // Create table cell
                               new QTableWidgetItem(next.value(column)));
     startupSdoTable_->setItem(target, column,
+    // Create table cell
                               new QTableWidgetItem(current.value(column)));
   }
   startupSdoTable_->selectRow(target);
@@ -428,11 +440,13 @@ void MainWindow::verifyStartupSdoList() {
                              : QString();
     auto *status = startupSdoTable_->item(row, 5);
     if (!status) {
+    // Create table cell
       status = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 5, status);
     }
     auto *detail = startupSdoTable_->item(row, 6);
     if (!detail) {
+    // Create table cell
       detail = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 6, detail);
     }
@@ -485,11 +499,13 @@ void MainWindow::verifyStartupSdoRow(int row) {
   }
   auto *status = startupSdoTable_->item(row, 5);
   if (!status) {
+    // Create table cell
     status = new QTableWidgetItem;
     startupSdoTable_->setItem(row, 5, status);
   }
   auto *detail = startupSdoTable_->item(row, 6);
   if (!detail) {
+    // Create table cell
     detail = new QTableWidgetItem;
     startupSdoTable_->setItem(row, 6, detail);
   }
@@ -648,11 +664,13 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
             firstConflictRows.insert(firstRowIndex);
             auto *firstStatus = startupSdoTable_->item(firstRowIndex, 5);
             if (!firstStatus) {
+    // Create table cell
               firstStatus = new QTableWidgetItem;
               startupSdoTable_->setItem(firstRowIndex, 5, firstStatus);
             }
             auto *firstDetail = startupSdoTable_->item(firstRowIndex, 6);
             if (!firstDetail) {
+    // Create table cell
               firstDetail = new QTableWidgetItem;
               startupSdoTable_->setItem(firstRowIndex, 6, firstDetail);
             }
@@ -684,11 +702,13 @@ bool MainWindow::preflightStartupSdoList(bool showSuccess) {
 
     auto *status = startupSdoTable_->item(row, 5);
     if (!status) {
+    // Create table cell
       status = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 5, status);
     }
     auto *detail = startupSdoTable_->item(row, 6);
     if (!detail) {
+    // Create table cell
       detail = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 6, detail);
     }
@@ -808,11 +828,13 @@ void MainWindow::applyStartupSdoRow(int row) {
   if (!validationErrors.isEmpty()) {
     auto *status = startupSdoTable_->item(row, 5);
     if (!status) {
+    // Create table cell
       status = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 5, status);
     }
     auto *detail = startupSdoTable_->item(row, 6);
     if (!detail) {
+    // Create table cell
       detail = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 6, detail);
     }
@@ -852,11 +874,13 @@ void MainWindow::applyStartupSdoRow(int row) {
 
   auto *status = startupSdoTable_->item(row, 5);
   if (!status) {
+    // Create table cell
     status = new QTableWidgetItem;
     startupSdoTable_->setItem(row, 5, status);
   }
   auto *detail = startupSdoTable_->item(row, 6);
   if (!detail) {
+    // Create table cell
     detail = new QTableWidgetItem;
     startupSdoTable_->setItem(row, 6, detail);
   }
@@ -941,11 +965,13 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
     if (!rowErrors.isEmpty()) {
       auto *status = startupSdoTable_->item(row, 5);
       if (!status) {
+    // Create table cell
         status = new QTableWidgetItem;
         startupSdoTable_->setItem(row, 5, status);
       }
       auto *detail = startupSdoTable_->item(row, 6);
       if (!detail) {
+    // Create table cell
         detail = new QTableWidgetItem;
         startupSdoTable_->setItem(row, 6, detail);
       }
@@ -1020,11 +1046,13 @@ void MainWindow::applyStartupSdoRows(const QVector<int> &rows,
     }
     auto *status = startupSdoTable_->item(row, 5);
     if (!status) {
+    // Create table cell
       status = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 5, status);
     }
     auto *detail = startupSdoTable_->item(row, 6);
     if (!detail) {
+    // Create table cell
       detail = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 6, detail);
     }
@@ -1114,6 +1142,7 @@ void MainWindow::applyStartupSdoList() {
   for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
     auto *status = startupSdoTable_->item(row, 5);
     if (!status) {
+    // Create table cell
       status = new QTableWidgetItem;
       startupSdoTable_->setItem(row, 5, status);
     }
@@ -1121,6 +1150,7 @@ void MainWindow::applyStartupSdoList() {
     status->setForeground(QBrush());
     status->setBackground(QBrush());
     if (!startupSdoTable_->item(row, 6)) {
+    // Create table cell
       startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
     } else {
       startupSdoTable_->item(row, 6)->setText(QString());

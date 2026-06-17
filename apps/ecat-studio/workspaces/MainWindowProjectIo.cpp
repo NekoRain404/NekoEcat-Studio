@@ -578,6 +578,7 @@ bool MainWindow::readProjectFile(const QString &path) {
       };
       for (int column = 0; column < values.size(); ++column) {
         sdoTargetTrailTable_->setItem(targetRow, column,
+    // Create table cell
                                       new QTableWidgetItem(values.at(column)));
       }
       rememberedSdoTargetTrailKeys_.insert(
@@ -640,6 +641,7 @@ bool MainWindow::readProjectFile(const QString &path) {
       }
       for (int column = 0; column < 12; ++column) {
         watch_->watchTable->setItem(row, column,
+    // Create table cell
                              new QTableWidgetItem(migrated.value(column)));
       }
     }
@@ -655,18 +657,25 @@ bool MainWindow::readProjectFile(const QString &path) {
     for (int row = 0; row < startupArray.size(); ++row) {
       const auto item = startupArray.at(row).toObject();
       startupSdoTable_->setItem(row, 0,
+    // Create table cell
                                 new QTableWidgetItem(QString::number(
                                     item.value("position").toInt())));
       startupSdoTable_->setItem(
+    // Create table cell
           row, 1, new QTableWidgetItem(item.value("index").toString()));
       startupSdoTable_->setItem(
+    // Create table cell
           row, 2, new QTableWidgetItem(item.value("subIndex").toString()));
       startupSdoTable_->setItem(
+    // Create table cell
           row, 3, new QTableWidgetItem(item.value("value").toString()));
       startupSdoTable_->setItem(
+    // Create table cell
           row, 4, new QTableWidgetItem(item.value("type").toString()));
       startupSdoTable_->setItem(
+    // Create table cell
           row, 5, new QTableWidgetItem(uiText("Pending", "待应用")));
+    // Create table cell
       startupSdoTable_->setItem(row, 6, new QTableWidgetItem);
     }
     startupSdoTable_->resizeColumnsToContents(); // auto-fit column widths

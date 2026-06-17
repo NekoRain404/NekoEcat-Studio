@@ -391,6 +391,7 @@ auto *page = new QWidget;
             : rtTest_->cycleCombo->currentData().toInt();
         if (usec > 0) client_.rtTestStart(usec);
     });
+    // Wire stopButton signal
     connect(rtTest_->stopButton, &QPushButton::clicked, this, [this] {
         client_.rtTestStop();
     });
@@ -486,6 +487,7 @@ void MainWindow::updateRtTestTelemetry(const QJsonObject &telemetry)
     }
 }
 
+// Refresh rt test action availability
 void MainWindow::updateRtTestActionAvailability()
 {
     if (!rtTest_->startButton) return;
@@ -493,6 +495,7 @@ void MainWindow::updateRtTestActionAvailability()
     rtTest_->stopButton->setEnabled(rtTestRunning_);
 }
 
+// Format duration
 QString MainWindow::formatDuration(double seconds) const
 {
     if (seconds < 60) return QString::number(seconds, 'f', 1) + "s";

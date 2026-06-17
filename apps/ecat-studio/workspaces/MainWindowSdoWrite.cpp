@@ -119,6 +119,7 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+// Current sdo evidence candidates
 SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   const int position = selectedPosition();
   const SdoEvidenceTableRows rows = sdoEvidenceTableRowsForTarget(
@@ -427,6 +428,7 @@ void MainWindow::rememberCurrentSdoTarget(const QString &source,
       detailText,
   };
   for (int column = 0; column < values.size(); ++column) {
+    // Create table cell
     auto *item = new QTableWidgetItem(values.at(column));
     item->setToolTip(values.at(column));
     if (column == 5) {
@@ -611,6 +613,7 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
   if (watch_->watchTable && watch_->watchTable->currentRow() >= 0) {
     const int watchRow = watch_->watchTable->currentRow();
     if (!value.isEmpty()) {
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(value));
       watchValues_
           [QString("%1|%2|%3").arg(selectedPosition()).arg(index, subIndex)] =
@@ -618,12 +621,15 @@ void MainWindow::addSdoTargetTrailRowToWatch() {
     }
     watch_->watchTable->setItem(
         watchRow, 5,
+    // Create table cell
         new QTableWidgetItem(decodeWatchValue(
             index, subIndex, type,
             value.isEmpty() ? tableText(watch_->watchTable, watchRow, 4) : value,
             uiText("Target Trail", "目标轨迹"))));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
     watch_->watchTable->setItem(
+    // Create table cell
         watchRow, 7, new QTableWidgetItem(uiText("Target Trail", "目标轨迹")));
     updateWatchBaselineDelta(watchRow);
     updateWatchStartupDelta(watchRow);
@@ -700,11 +706,13 @@ void MainWindow::addSdoTargetTrailRowToStartup() {
     if (startupSdoTable_->columnCount() > 5) {
       startupSdoTable_->setItem(
           startupRow, 5,
+    // Create table cell
           new QTableWidgetItem(uiText("From Target Trail", "来自目标轨迹")));
     }
     if (startupSdoTable_->columnCount() > 6) {
       startupSdoTable_->setItem(
           startupRow, 6,
+    // Create table cell
           new QTableWidgetItem(uiText("Created from SDO Target Trail row %1",
                                       "由 SDO 目标轨迹第 %1 行创建")
                                    .arg(row + 1)));
@@ -798,6 +806,7 @@ void MainWindow::updateSdoTableEvidence(int position, const QString &index,
     auto ensureItem = [this, row](int column) {
       auto *item = sdo_->sdoTable->item(row, column);
       if (!item) {
+    // Create table cell
         item = new QTableWidgetItem;
         sdo_->sdoTable->setItem(row, column, item);
       }
@@ -1309,6 +1318,7 @@ void MainWindow::appendSdoHistory(const QString &action, int position,
                                   ? QColor("#22c55e")
                                   : QColor("#f59e0b"));
   for (int column = 0; column < values.size(); ++column) {
+    // Create table cell
     auto *item = new QTableWidgetItem(values.at(column));
     if (column == 7) {
       item->setForeground(color);

@@ -200,6 +200,7 @@ void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
 
 
 
+// Add selected dictionary rows to watch
 void MainWindow::addSelectedDictionaryRowsToWatch() {
   if (selectedPosition() < 0 || !sdo_->sdoTable ||
       loadedSdoPosition_ != selectedPosition()) {
@@ -523,6 +524,7 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
 
     if (existing >= 0) {
       if (!type.isEmpty() && tableText(watch_->watchTable, existing, 6).isEmpty()) {
+    // Create table cell
         watch_->watchTable->setItem(existing, 6, new QTableWidgetItem(type));
       }
       watch_->watchTable->selectRow(existing);
@@ -534,28 +536,40 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
     watch_->watchTable->insertRow(watchRow);
     watch_->watchTable->setItem(
         watchRow, 0,
+    // Create table cell
         new QTableWidgetItem(
             QDateTime::currentDateTime().toString("HH:mm:ss")));
     watch_->watchTable->setItem(
+    // Create table cell
         watchRow, 1, new QTableWidgetItem(QString::number(variable.position)));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(variable.index));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 3, new QTableWidgetItem(variable.subIndex));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(variable.raw));
     watch_->watchTable->setItem(
         watchRow, 5,
+    // Create table cell
         new QTableWidgetItem(
             variable.decoded.isEmpty()
                 ? decodeWatchValue(variable.index, variable.subIndex, type,
                                    variable.raw, "I/O Variables")
                 : variable.decoded));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
     watch_->watchTable->setItem(watchRow, 7,
+    // Create table cell
                          new QTableWidgetItem(variable.meaning.isEmpty()
                                                   ? "I/O Variables"
                                                   : variable.meaning));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 8, new QTableWidgetItem);
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 9, new QTableWidgetItem);
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 10, new QTableWidgetItem);
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 11, new QTableWidgetItem);
     updateWatchStartupDelta(watchRow);
     watch_->watchTable->selectRow(watchRow);
@@ -641,6 +655,7 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
   auto ensureStartupCell = [this](int row, int column) {
     auto *item = startupSdoTable_->item(row, column);
     if (!item) {
+    // Create table cell
       item = new QTableWidgetItem;
       startupSdoTable_->setItem(row, column, item);
     }
@@ -834,25 +849,33 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
       startupSdoTable_->insertRow(startupRow);
       startupSdoTable_->setItem(
           startupRow, 0,
+    // Create table cell
           new QTableWidgetItem(QString::number(candidate.position)));
       startupSdoTable_->setItem(startupRow, 1,
+    // Create table cell
                                 new QTableWidgetItem(candidate.index));
       startupSdoTable_->setItem(startupRow, 2,
+    // Create table cell
                                 new QTableWidgetItem(candidate.subIndex));
       startupSdoTable_->setItem(startupRow, 3,
+    // Create table cell
                                 new QTableWidgetItem(candidate.value));
       startupSdoTable_->setItem(startupRow, 4,
+    // Create table cell
                                 new QTableWidgetItem(candidate.type));
       startupSdoTable_->setItem(
+    // Create table cell
           startupRow, 5, new QTableWidgetItem(uiText("From I/O", "来自 I/O")));
       startupSdoTable_->setItem(
           startupRow, 6,
+    // Create table cell
           new QTableWidgetItem(
               uiText("Created from I/O Variable row %1 at %2 (%3)",
                      "由 I/O 变量第 %1 行在 %2 创建（%3）")
                   .arg(candidate.ioRow + 1)
                   .arg(timestamp, detailSource)));
       for (int column = 7; column < startupSdoTable_->columnCount(); ++column) {
+    // Create table cell
         startupSdoTable_->setItem(startupRow, column, new QTableWidgetItem);
       }
       ++created;

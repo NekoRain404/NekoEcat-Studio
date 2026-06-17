@@ -374,6 +374,7 @@ void MainWindow::addObjectBookmark(int position, const QString &index,
   for (int column = 0; column < values.size(); ++column) {
     auto *item = bookmark_->objectBookmarkTable->item(row, column);
     if (!item) {
+    // Create table cell
       item = new QTableWidgetItem;
       bookmark_->objectBookmarkTable->setItem(row, column, item);
     }
@@ -506,31 +507,40 @@ void MainWindow::addObjectBookmarkRowsToWatch(const QVector<int> &rows) {
       watch_->watchTable->insertRow(watchRow);
       watch_->watchTable->setItem(
           watchRow, 0,
+    // Create table cell
           new QTableWidgetItem(
               QDateTime::currentDateTime().toString("HH:mm:ss")));
       watch_->watchTable->setItem(
           watchRow, 1,
+    // Create table cell
           new QTableWidgetItem(QString::number(bookmark.position)));
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(bookmark.index));
       watch_->watchTable->setItem(watchRow, 3,
+    // Create table cell
                            new QTableWidgetItem(bookmark.subIndex));
       ++added;
     } else {
       ++reused;
     }
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(bookmark.lastValue));
     watch_->watchTable->setItem(watchRow, 5,
+    // Create table cell
                          new QTableWidgetItem(decodeWatchValue(
                              bookmark.index, bookmark.subIndex, bookmark.type,
                              bookmark.lastValue, "Object Bookmark")));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(bookmark.type));
     watch_->watchTable->setItem(watchRow, 7,
+    // Create table cell
                          new QTableWidgetItem(bookmark.name.isEmpty()
 // Add selected bookmarks to Watch list.
                                                   ? "Object Bookmark"
                                                   : bookmark.name));
     for (int column = 8; column < 12; ++column) {
       if (!watch_->watchTable->item(watchRow, column)) {
+    // Create table cell
         watch_->watchTable->setItem(watchRow, column, new QTableWidgetItem);
       }
     }
@@ -575,6 +585,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
   auto ensureStartupCell = [this](int row, int column) {
     auto *item = startupSdoTable_->item(row, column);
     if (!item) {
+    // Create table cell
       item = new QTableWidgetItem;
       startupSdoTable_->setItem(row, column, item);
     }
@@ -745,20 +756,27 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
       startupSdoTable_->insertRow(startupRow);
       startupSdoTable_->setItem(
           startupRow, 0,
+    // Create table cell
           new QTableWidgetItem(QString::number(candidate.position)));
       startupSdoTable_->setItem(startupRow, 1,
+    // Create table cell
                                 new QTableWidgetItem(candidate.index));
       startupSdoTable_->setItem(startupRow, 2,
+    // Create table cell
                                 new QTableWidgetItem(candidate.subIndex));
       startupSdoTable_->setItem(startupRow, 3,
+    // Create table cell
                                 new QTableWidgetItem(candidate.value));
       startupSdoTable_->setItem(startupRow, 4,
+    // Create table cell
                                 new QTableWidgetItem(candidate.type));
       startupSdoTable_->setItem(
           startupRow, 5,
+    // Create table cell
           new QTableWidgetItem(uiText("From Bookmark", "来自书签")));
       startupSdoTable_->setItem(
           startupRow, 6,
+    // Create table cell
           new QTableWidgetItem(
               uiText("Created from Object Bookmark row %1 at %2%3",
                      "由对象书签第 %1 行在 %2 创建%3")
@@ -768,6 +786,7 @@ void MainWindow::addObjectBookmarkRowsToStartupSdo(const QVector<int> &rows) {
                            ? QString()
                            : QString(" (%1)").arg(candidate.source))));
       for (int column = 7; column < startupSdoTable_->columnCount(); ++column) {
+    // Create table cell
         startupSdoTable_->setItem(startupRow, column, new QTableWidgetItem);
       }
       ++created;

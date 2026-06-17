@@ -121,6 +121,7 @@
 
 
 namespace {
+// ── User Manual Dialog ──────────────────────────────────────────────
 // Display the user manual dialog with searchable documentation
 
 
@@ -297,6 +298,7 @@ th { background: #f0f4f9; color: #475569; }
 <tr><td>SAFEOP</td><td>Validate PDO mapping and input process data before OP.</td><td>Outputs may remain constrained by device rules.</td></tr>
 <tr><td>OP</td><td>Operational process data exchange.</td><td>Outputs and drive behavior can become active; confirm machine safety first.</td></tr>
 </table>
+// ── About Dialog ────────────────────────────────────────────────────
 
 <h2 id="od">8. Object Dictionary and SDO</h2>
 <p>The <b>Selected Object</b> table now includes an <b>Action</b> column. It makes each row's local intent visible before interaction: open Watch, open Startup, open Bookmark, open Trail, review evidence, review delta, focus OD, copy row, or copy the full digest. <b>Run Row Action</b> changes its label to the selected row action, such as <b>Run: Open Watch</b>, then executes that local action without requiring users to remember double-click, <code>Alt+Enter</code>, or the row menu. <b>Copy Row</b> also follows the selected field, such as <b>Copy: Target</b>, and copies only that row's evidence bundle to the clipboard. These row actions are local evidence/navigation actions and do not read the bus, write SDOs, change state, toggle Free Run, or run Host Health.</p>
@@ -497,6 +499,7 @@ th { background: #f0f4f9; color: #475569; }
 <div class="toc" id="contents">
 <b>目录</b>
 <ol>
+// ── Documentation Browser ────────────────────────────────────────────
 <li><a href="#concept">软件定位与运行架构</a></li>
 <li><a href="#first-run">第一次启动与运行时连接</a></li>
 <li><a href="#prerequisites">主机前置条件</a></li>

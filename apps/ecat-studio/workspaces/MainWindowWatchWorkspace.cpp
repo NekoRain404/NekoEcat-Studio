@@ -202,6 +202,7 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
       if (!type.isEmpty() &&
           (!watch_->watchTable->item(row, 6) ||
            watch_->watchTable->item(row, 6)->text().trimmed().isEmpty())) {
+    // Create table cell
         watch_->watchTable->setItem(row, 6, new QTableWidgetItem(type));
       }
       if (requestRead && client_.isConnected()) {
@@ -221,24 +222,36 @@ void MainWindow::addCurrentSdoToWatch(bool requestRead) {
   watch_->watchTable->insertRow(row);
   watch_->watchTable->setItem(
       row, 0,
+    // Create table cell
       new QTableWidgetItem(QDateTime::currentDateTime().toString("HH:mm:ss")));
+    // Create table cell
   watch_->watchTable->setItem(row, 1, new QTableWidgetItem(QString::number(position)));
+    // Create table cell
   watch_->watchTable->setItem(row, 2, new QTableWidgetItem(index));
+    // Create table cell
   watch_->watchTable->setItem(row, 3, new QTableWidgetItem(subIndex));
   watch_->watchTable->setItem(
+    // Create table cell
       row, 4, new QTableWidgetItem(sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString()));
   watch_->watchTable->setItem(
       row, 5,
+    // Create table cell
       new QTableWidgetItem(decodeWatchValue(
           index, subIndex, sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString(),
           sdoInspector_->sdoValue ? sdoInspector_->sdoValue->text() : QString(), "Watch")));
   watch_->watchTable->setItem(
       row, 6,
+    // Create table cell
       new QTableWidgetItem(sdoInspector_->sdoType ? sdoInspector_->sdoType->currentText() : QString()));
+    // Create table cell
   watch_->watchTable->setItem(row, 7, new QTableWidgetItem("Watch"));
+    // Create table cell
   watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+    // Create table cell
   watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
+    // Create table cell
   watch_->watchTable->setItem(row, 10, new QTableWidgetItem);
+    // Create table cell
   watch_->watchTable->setItem(row, 11, new QTableWidgetItem);
   updateWatchStartupDelta(row);
   watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
@@ -321,19 +334,28 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
       watch_->watchTable->insertRow(watchRow);
       watch_->watchTable->setItem(
           watchRow, 0,
+    // Create table cell
           new QTableWidgetItem(
               QDateTime::currentDateTime().toString("HH:mm:ss")));
       watch_->watchTable->setItem(watchRow, 1,
+    // Create table cell
                            new QTableWidgetItem(QString::number(position)));
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 2, new QTableWidgetItem(index));
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 3, new QTableWidgetItem(subIndex));
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 8, new QTableWidgetItem);
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 9, new QTableWidgetItem);
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 10, new QTableWidgetItem);
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 11, new QTableWidgetItem);
     } else {
       auto *timeItem = watch_->watchTable->item(watchRow, 0);
       if (!timeItem) {
+    // Create table cell
         timeItem = new QTableWidgetItem;
         watch_->watchTable->setItem(watchRow, 0, timeItem);
       }
@@ -341,11 +363,13 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
     }
 
     if (!value.isEmpty()) {
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem(value));
       const QString key =
           QString("%1|%2|%3").arg(position).arg(index, subIndex);
       watchValues_[key] = value;
     } else if (!watch_->watchTable->item(watchRow, 4)) {
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 4, new QTableWidgetItem);
     }
 
@@ -356,9 +380,12 @@ void MainWindow::addSelectedHistoryRowsToWatch() {
     const QString decoded =
         decodeWatchValue(index, subIndex, type, effectiveValue,
                          uiText("SDO History", "SDO 历史"));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 5, new QTableWidgetItem(decoded));
+    // Create table cell
     watch_->watchTable->setItem(watchRow, 6, new QTableWidgetItem(type));
     watch_->watchTable->setItem(watchRow, 7,
+    // Create table cell
                          new QTableWidgetItem(uiText("History", "历史")));
     if (!status.isEmpty() && watch_->watchTable->item(watchRow, 7)) {
       watch_->watchTable->item(watchRow, 7)
@@ -455,6 +482,7 @@ void MainWindow::addSelectedPdoEntriesToWatch() {
                          textAt(1).contains("TxPDO", Qt::CaseInsensitive)
                      ? "TxPDO"
                      : "PDO");
+    // Create table cell
       watch_->watchTable->setItem(watchRow, 7, new QTableWidgetItem(mode));
     }
     ++addedOrReused;
@@ -559,7 +587,9 @@ void MainWindow::addCia402WatchPreset() {
     addCurrentSdoToWatch();
     const int row = watch_->watchTable ? watch_->watchTable->currentRow() : -1;
     if (row >= 0) {
+    // Create table cell
       watch_->watchTable->setItem(row, 5, new QTableWidgetItem(object.note));
+    // Create table cell
       watch_->watchTable->setItem(row, 7, new QTableWidgetItem("CiA 402"));
     }
   }
@@ -651,6 +681,7 @@ void MainWindow::captureWatchBaseline() {
     if (value.isEmpty()) {
       continue;
     }
+    // Create table cell
     watch_->watchTable->setItem(row, 8, new QTableWidgetItem(value));
     ++captured;
     updateWatchBaselineDelta(row);
@@ -676,7 +707,9 @@ void MainWindow::clearWatchBaseline() {
         !watch_->watchTable->item(row, 8)->text().trimmed().isEmpty()) {
       ++cleared;
     }
+    // Create table cell
     watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+    // Create table cell
     watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
   }
   watch_->watchTable->resizeColumnsToContents(); // auto-fit column widths
@@ -702,6 +735,7 @@ void MainWindow::updateWatchBaselineDelta(int row) {
                                : QString();
   auto *deltaItem = watch_->watchTable->item(row, 9);
   if (!deltaItem) {
+    // Create table cell
     deltaItem = new QTableWidgetItem;
     watch_->watchTable->setItem(row, 9, deltaItem);
   }

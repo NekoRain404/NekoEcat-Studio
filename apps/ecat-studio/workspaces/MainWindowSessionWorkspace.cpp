@@ -1279,9 +1279,13 @@ void MainWindow::updateDiagnostics(const QString &level, const QString &source,
   diagnostics_->diagnosticsTable->insertRow(row);
   diagnostics_->diagnosticsTable->setItem(
       row, 0,
+    // Create table cell
       new QTableWidgetItem(QDateTime::currentDateTime().toString("HH:mm:ss")));
+    // Create table cell
   diagnostics_->diagnosticsTable->setItem(row, 1, new QTableWidgetItem(level));
+    // Create table cell
   diagnostics_->diagnosticsTable->setItem(row, 2, new QTableWidgetItem(source));
+    // Create table cell
   diagnostics_->diagnosticsTable->setItem(row, 3, new QTableWidgetItem(message));
   styleDiagnosticsRow(row, level);
   filterDiagnosticsTable();

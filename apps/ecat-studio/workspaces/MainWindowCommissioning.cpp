@@ -197,6 +197,7 @@ void MainWindow::updateCommissioningWorkflow() {
       uiText("Scan bus topology", "扫描总线拓扑"),
       workflowInput.hasSlaves
           ? uiText("None", "无")
+// ── Commissioning Workflow Input ────────────────────────────────────
           : (workflowInput.connected ? uiText("No topology", "无拓扑")
                                      : uiText("Runtime offline", "运行时离线")),
       workflowInput.hasSlaves
@@ -397,6 +398,7 @@ void MainWindow::updateCommissioningWorkflow() {
     tip << QString("%1: %2   %3: %4   %5: %6")
                .arg(uiText("Ready", "就绪"))
                .arg(stats.ready)
+// ── Commissioning Workflow Update ───────────────────────────────────
                .arg(uiText("Action", "待执行"))
                .arg(stats.action)
                .arg(uiText("Blocked", "受阻"))

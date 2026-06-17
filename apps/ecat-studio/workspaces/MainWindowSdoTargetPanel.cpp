@@ -870,9 +870,12 @@ void MainWindow::updateSdoTargetPanel(const QString &source,
     return uiText("Copy row", "复制本行");
   };
   for (int row = 0; row < rows.size(); ++row) {
+    // Create table cell
     auto *keyItem = new QTableWidgetItem(rows.at(row).first);
+    // Create table cell
     auto *valueItem = new QTableWidgetItem(rows.at(row).second);
     const QString actionText = rowActionText(rows.at(row).first);
+    // Create table cell
     auto *actionItem = new QTableWidgetItem(actionText);
     keyItem->setToolTip(rows.at(row).first);
     valueItem->setToolTip(rows.at(row).second);

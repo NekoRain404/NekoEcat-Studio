@@ -197,6 +197,7 @@ void MainWindow::showTopologyContextMenu(const QPoint &position) {
     setSelectedSlave(slave);
   } else if (chosen == addStartup && hasSlave) {
     addStartupSdo();
+// ── Topology Context Menu ───────────────────────────────────────────
   } else if (chosen == init && hasSlave) {
     requestSlaveStateWithConfirmation(slave, "INIT");
   } else if (chosen == preop && hasSlave) {
@@ -497,6 +498,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     reviewFirstWorkflowIssue->setEnabled(
         workflow_->workflowReviewButton ? workflow_->workflowReviewButton->isEnabled()
                               : table->rowCount() > 0);
+// ── Table Context Menu ──────────────────────────────────────────────
     reviewNextWorkflowIssue = menu.addAction(
         uiText("Review Next Workflow Issue", "审阅下个工作流问题"));
     reviewNextWorkflowIssue->setIcon(
@@ -897,6 +899,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     menu.addSeparator();
   }
   if (objectClipboard.hasAddress()) {
+// ── SDO Target Panel Context Menu ───────────────────────────────────
     copyObjectAddress =
         menu.addAction(uiText("Copy Object Address", "复制对象地址"));
     copyObjectValue =
@@ -1097,6 +1100,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   } else if (chosen == copyVisiblePlcDeclarationsAction) {
     copyIoVariablePlcDeclarations(false);
   } else if (chosen == exportPlcDeclarationsAction) {
+// ── Local Evidence Actions ──────────────────────────────────────────
     exportIoVariablesPlcDeclarationsSt();
   } else if (chosen == clearIoVariableMetadataAction) {
     clearSelectedIoVariableMetadata();

@@ -121,6 +121,7 @@
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
+// ── Dark Theme ─────────────────────────────────────────────────────
 // Apply the dark theme QSS to all widgets
 
 // — Set the application stylesheet for the current theme (Light or Dark)
@@ -498,6 +499,7 @@ void MainWindow::applyTheme() {
             }
             QLabel#commandPreview[safety="online"] {
                 color: #9a3412;
+// ── Light Theme ────────────────────────────────────────────────────
 // Apply the light theme QSS to all widgets
                 background: #fff7ed;
                 border-color: #fed7aa;
@@ -899,6 +901,7 @@ void MainWindow::applyTheme() {
             border-radius: 8px;
             padding: 9px 12px;
             font-weight: 600;
+// ── Common Theme Elements ───────────────────────────────────────────
 // Update theme-aware widget properties after theme change
         }
         QLabel#sdoInspector[state="ready"] {

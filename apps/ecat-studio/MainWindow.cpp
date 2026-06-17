@@ -162,10 +162,12 @@ nextBestActionStandardPixmap(NextBestActionIconKey icon) {
 }
 
 QColor hostHealthColorForKey(const QString &colorKey) {
+    // Multi-branch condition check
   if (colorKey == QStringLiteral("error")) {
 // Semantic color for diagnostics-event severity badges
     return QColor("#ef4444");
   }
+    // Multi-branch condition check
   if (colorKey == QStringLiteral("warning")) {
     return QColor("#f59e0b");
   }
@@ -195,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setMinimumSize(1120, 720);
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
   const QByteArray geometry = settings.value("geometry").toByteArray();
+    // Multi-branch condition check
   if (geometry.isEmpty() || !restoreGeometry(geometry)) {
     resize(1440, 900);
   }
@@ -207,8 +210,10 @@ MainWindow::~MainWindow() {
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
   settings.setValue("geometry", saveGeometry());
   settings.setValue("windowState", saveState());
+    // Multi-branch condition check
   if (daemon_.state() != QProcess::NotRunning) {
     daemon_.terminate();
+    // Multi-branch condition check
     if (!daemon_.waitForFinished(1200)) {
       daemon_.kill();
     }
@@ -217,14 +222,18 @@ MainWindow::~MainWindow() {
 
 // Global key handler: Alt+Return triggers evidence action on focused table
 bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
+    // Multi-branch condition check
   if (event && event->type() == QEvent::KeyPress) {
     auto *keyEvent = static_cast<QKeyEvent *>(event);
     const bool isReturnKey =
         keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter;
+    // Multi-branch condition check
     if (isReturnKey && (keyEvent->modifiers() & Qt::AltModifier)) {
+    // Multi-branch condition check
       if (auto *table = qobject_cast<QTableWidget *>(watched)) {
         return runLocalEvidenceAction(table);
       }
+    // Multi-branch condition check
       if (auto *viewport = qobject_cast<QWidget *>(watched)) {
         if (auto *table = qobject_cast<QTableWidget *>(viewport->parent())) {
           return runLocalEvidenceAction(table);
@@ -261,6 +270,7 @@ bool MainWindow::activateWorkspaceTab(int index) {
       {sdoRawTabIndex_, sdoRawPage_},
   };
   for (const auto &page : pages) {
+    // Multi-branch condition check
     if (page.first == index && page.second) {
       return activateWorkspacePage(page.second);
     }
@@ -275,6 +285,7 @@ bool MainWindow::activateWorkspacePage(QWidget *page) {
     return false;
   }
   const int index = tabs_->indexOf(page);
+    // Multi-branch condition check
   if (index < 0) {
     return false;
   }
@@ -291,42 +302,55 @@ bool MainWindow::activateObjectDictionaryPaneFor(QWidget *widget) {
 
 WorkspaceBoundaryKind
 MainWindow::workspaceBoundaryKindForPage(const QWidget *page) const {
+    // Multi-branch condition check
   if (page == overviewPage_) {
     return WorkspaceBoundaryKind::Overview;
   }
+    // Multi-branch condition check
   if (page == objectDictionaryPage_) {
     return WorkspaceBoundaryKind::ObjectDictionary;
   }
+    // Multi-branch condition check
   if (page == pdoMapPage_) {
     return WorkspaceBoundaryKind::PdoMap;
   }
+    // Multi-branch condition check
   if (page == watchPage_) {
     return WorkspaceBoundaryKind::Watch;
   }
+    // Multi-branch condition check
   if (page == startupSdoPage_) {
     return WorkspaceBoundaryKind::StartupSdo;
   }
+    // Multi-branch condition check
   if (page == freeRunPage_) {
     return WorkspaceBoundaryKind::FreeRun;
   }
+    // Multi-branch condition check
   if (page == ioVariablePage_) {
     return WorkspaceBoundaryKind::IoVariables;
   }
+    // Multi-branch condition check
   if (page == consistencyPage_) {
     return WorkspaceBoundaryKind::Consistency;
   }
+    // Multi-branch condition check
   if (page == stateMachinePage_) {
     return WorkspaceBoundaryKind::StateMachine;
   }
+    // Multi-branch condition check
   if (page == diagnosticsPage_) {
     return WorkspaceBoundaryKind::Diagnostics;
   }
+    // Multi-branch condition check
   if (page == esiRepositoryPage_ || page == esiXmlPage_) {
     return WorkspaceBoundaryKind::Esi;
   }
+    // Multi-branch condition check
   if (page == rtTestPage_) {
     return WorkspaceBoundaryKind::RtTest;
   }
+    // Multi-branch condition check
   if (page == notesPage_) {
     return WorkspaceBoundaryKind::Notes;
   }
@@ -335,14 +359,17 @@ MainWindow::workspaceBoundaryKindForPage(const QWidget *page) const {
 
 // Record a tab visit for back/forward navigation (capped at 80 entries)
 void MainWindow::recordWorkspaceHistory(int index) {
+    // Multi-branch condition check
   if (!tabs_ || suppressWorkspaceHistory_ || index < 0 ||
       index >= tabs_->count()) {
     return;
   }
   auto *page = tabs_->widget(index);
+    // Multi-branch condition check
   if (!page) {
     return;
   }
+    // Multi-branch condition check
   if (workspaceBackStack_.isEmpty() || workspaceBackStack_.last() != page) {
     workspaceBackStack_.append(page);
   }
@@ -355,6 +382,7 @@ void MainWindow::recordWorkspaceHistory(int index) {
 
 // Navigate to the previously visited workspace tab
 void MainWindow::goWorkspaceBack() {
+    // Multi-branch condition check
   if (!tabs_ || workspaceBackStack_.size() < 2) {
     updateWorkspaceNavigationActions();
     return;
@@ -373,6 +401,7 @@ void MainWindow::goWorkspaceBack() {
 
 // Re-visit the next workspace tab from the forward stack
 void MainWindow::goWorkspaceForward() {
+    // Multi-branch condition check
   if (!tabs_ || workspaceForwardStack_.isEmpty()) {
     updateWorkspaceNavigationActions();
     return;
@@ -382,6 +411,7 @@ void MainWindow::goWorkspaceForward() {
   suppressWorkspaceHistory_ = true;
   activateWorkspacePage(target);
   suppressWorkspaceHistory_ = false;
+    // Multi-branch condition check
   if (target &&
       (workspaceBackStack_.isEmpty() || workspaceBackStack_.last() != target)) {
     workspaceBackStack_.append(target);
@@ -391,9 +421,11 @@ void MainWindow::goWorkspaceForward() {
 
 // Enable/disable back/forward actions based on stack depth
 void MainWindow::updateWorkspaceNavigationActions() {
+    // Multi-branch condition check
   if (auto *action = findChild<QAction *>("workspaceBackAction")) {
     action->setEnabled(workspaceBackStack_.size() >= 2);
   }
+    // Multi-branch condition check
   if (auto *action = findChild<QAction *>("workspaceForwardAction")) {
     action->setEnabled(!workspaceForwardStack_.isEmpty());
   }
@@ -450,6 +482,7 @@ void MainWindow::updateActionAvailability() {
   bool hasVisibleIoVariables = false;
   bool hasIoVariableValueSelection = false;
   bool hasVisibleIoVariableValues = false;
+    // Multi-branch condition check
   if (ioVar_->ioVariableTable) {
     const QVector<int> selectedIoRows = selectedIoVariableRows(true);
     hasIoVariableSelection = !selectedIoRows.isEmpty();
@@ -464,6 +497,7 @@ void MainWindow::updateActionAvailability() {
                                    sdoHistoryTable_->rowCount() > 0 &&
                                    !selectedSdoHistoryRows().isEmpty();
   bool hasHistoryValueSelection = false;
+    // Multi-branch condition check
   if (sdoHistoryTable_) {
     const QVector<int> rows = selectedSdoHistoryRows();
     for (const int row : rows) {
@@ -648,11 +682,13 @@ void MainWindow::loadSettings() {
         settings.value("name", QString("Master %1").arg(i)).toString();
     profile.target =
         settings.value("target", QString::number(i)).toString().trimmed();
+    // Multi-branch condition check
     if (!profile.target.isEmpty()) {
       settings_.masters.append(profile);
     }
   }
   settings.endArray();
+    // Multi-branch condition check
   if (settings_.masters.isEmpty()) {
     settings_.masters.append(MasterProfile{});
   }
@@ -661,6 +697,7 @@ void MainWindow::loadSettings() {
           .value("preferences/activeMaster", settings_.masters.first().target)
           .toString()
           .trimmed();
+    // Multi-branch condition check
   if (settings_.activeMaster.isEmpty()) {
     settings_.activeMaster = settings_.masters.first().target;
   }
@@ -699,6 +736,7 @@ void MainWindow::openSettings() {
   const QString previousLanguage = settings_.language;
   const QString previousMaster = settings_.activeMaster;
   SettingsDialog dialog(settings_, this);
+    // Multi-branch condition check
   if (dialog.exec() != QDialog::Accepted) {
     return;
   }
@@ -708,6 +746,7 @@ void MainWindow::openSettings() {
   }
   client_.setMasterTarget(settings_.activeMaster);
   saveSettings();
+    // Multi-branch condition check
   if (settings_.language != previousLanguage) {
     rebuildUi();
     applySettings();
@@ -726,7 +765,9 @@ void MainWindow::openSettings() {
 // Falls back to English if no translation is found.
 QString MainWindow::uiText(const QString &english, const QString &zh) const {
   const Language lang = LanguageManager::instance().fromDisplayName(settings_.language);
+    // Multi-branch condition check
   if (lang == Language::English) return english;
+    // Multi-branch condition check
   if (lang == Language::ChineseSimplified) return zh;
   const QString translated = TranslationRegistry::instance().translate(english, lang);
   return translated.isEmpty() ? english : translated;
@@ -757,6 +798,7 @@ void MainWindow::refreshMasterSelector() {
     const QString label =
         QString("%1  [%2]").arg(masters[i].name, masters[i].target);
     masterCombo_->addItem(label, masters[i].target);
+    // Multi-branch condition check
     if (masters[i].target == settings_.activeMaster) {
       activeIndex = i;
     }
@@ -767,15 +809,18 @@ void MainWindow::refreshMasterSelector() {
 // Switch the active EtherCAT master — clears views if the target changed
 void MainWindow::setActiveMaster(const QString &target) {
   const QString next = target.trimmed().isEmpty() ? "0" : target.trimmed();
+    // Multi-branch condition check
   if (next == settings_.activeMaster) {
     return;
   }
+    // Multi-branch condition check
   if (freeRun_ && client_.isConnected()) {
     client_.freeRunStop();
   }
   settings_.activeMaster = next;
   bool known = false;
   for (const auto &profile : settings_.masters) {
+    // Multi-branch condition check
     if (profile.target == next) {
       known = true;
       break;
@@ -832,6 +877,7 @@ bool MainWindow::confirmDangerousOperation(const QString &title,
                         std::initializer_list<const char *> words) {
     const QString lower = text.toLower();
     for (const char *word : words) {
+    // Multi-branch condition check
       if (lower.contains(QString::fromUtf8(word).toLower())) {
         return true;
       }
@@ -842,6 +888,7 @@ bool MainWindow::confirmDangerousOperation(const QString &title,
                           std::initializer_list<const char *> words) {
     const QString lower = text.trimmed().toLower();
     for (const char *word : words) {
+    // Multi-branch condition check
       if (lower.startsWith(QString::fromUtf8(word).toLower())) {
         return true;
       }
@@ -851,6 +898,7 @@ bool MainWindow::confirmDangerousOperation(const QString &title,
 
   for (const QString &detail : details) {
     const QString trimmed = detail.trimmed();
+    // Multi-branch condition check
     if (trimmed.isEmpty()) {
       continue;
     }
@@ -1108,18 +1156,22 @@ MainWindow::stateTransitionImpactDetails(int position,
   QString statusword;
   QString modeDisplay;
   QString errorCode;
+    // Multi-branch condition check
   if (watch_->watchTable) {
     for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
+    // Multi-branch condition check
       if (tableText(watch_->watchTable, row, 1).toInt() != position) {
         continue;
       }
       ++watchRows;
       const QString value = tableText(watch_->watchTable, row, 4);
       const QString decoded = tableText(watch_->watchTable, row, 5);
+    // Multi-branch condition check
       if (!value.isEmpty()) {
         ++watchValueRows;
       }
       const QString index = normalizeHexText(tableText(watch_->watchTable, row, 2), 4);
+    // Multi-branch condition check
       if (index == "0x6041" && !decoded.isEmpty()) {
         statusword = decoded;
       } else if (index == "0x6061" && !decoded.isEmpty()) {
@@ -1133,12 +1185,15 @@ MainWindow::stateTransitionImpactDetails(int position,
 
   int startupRows = 0;
   int startupDiffs = 0;
+    // Multi-branch condition check
   if (startupSdoTable_) {
     for (int row = 0; row < startupSdoTable_->rowCount(); ++row) {
+    // Multi-branch condition check
       if (tableText(startupSdoTable_, row, 0).toInt() != position) {
         continue;
       }
       ++startupRows;
+    // Multi-branch condition check
       if (hasStartupDiffEvidence(tableText(startupSdoTable_, row, 8))) {
         ++startupDiffs;
       }
@@ -1147,6 +1202,7 @@ MainWindow::stateTransitionImpactDetails(int position,
 
   int freeRunRows = 0;
   int mapIssues = 0;
+    // Multi-branch condition check
   if (freeRunWidgets_->freeRunEntryTable) {
     for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
       if (tableText(freeRunWidgets_->freeRunEntryTable, row, 0).toInt() != position) {
@@ -1180,14 +1236,18 @@ MainWindow::stateTransitionImpactDetails(int position,
                  .arg(watchRows)
                  .arg(freeRunRows);
 
+    // Multi-branch condition check
   if (!statusword.isEmpty() || !modeDisplay.isEmpty() || !errorCode.isEmpty()) {
     QStringList driveFacts;
+    // Multi-branch condition check
     if (!statusword.isEmpty()) {
       driveFacts << uiText("statusword %1", "状态字 %1").arg(statusword);
     }
+    // Multi-branch condition check
     if (!modeDisplay.isEmpty()) {
       driveFacts << uiText("mode %1", "模式 %1").arg(modeDisplay);
     }
+    // Multi-branch condition check
     if (!errorCode.isEmpty()) {
       driveFacts << uiText("error %1", "错误 %1").arg(errorCode);
     }
@@ -1198,12 +1258,14 @@ MainWindow::stateTransitionImpactDetails(int position,
                       "驱动证据：没有 CiA 402 Watch 值");
   }
 
+    // Multi-branch condition check
   if (startupRows > 0 || startupDiffs > 0) {
     details << uiText("Startup evidence: %1 row(s), %2 Watch mismatch(es)",
                       "Startup 证据：%1 行，%2 条 Watch 不一致")
                    .arg(startupRows)
                    .arg(startupDiffs);
   }
+    // Multi-branch condition check
   if (mapIssues > 0) {
     details << uiText("PDO map evidence: %1 Free Run map issue(s)",
                       "PDO 映射证据：Free Run 有 %1 个映射问题")
@@ -1211,6 +1273,7 @@ MainWindow::stateTransitionImpactDetails(int position,
   }
 
   const QStringList topologyIssues = topologyBaselineIssues();
+    // Multi-branch condition check
   if (!topologyIssues.isEmpty()) {
     details << uiText("Topology baseline: %1 issue(s); review before state "
                       "transition",
@@ -1219,11 +1282,14 @@ MainWindow::stateTransitionImpactDetails(int position,
   }
   details << consistencyGateDetails(uiText("state transition", "状态切换"));
 
+    // Multi-branch condition check
   if (target == "OP" || target == "SAFEOP") {
+    // Multi-branch condition check
     if (pdoRows <= 0) {
       details << uiText("Risk: PDO Map is not loaded for this slave",
                         "风险：当前从站尚未加载 PDO 映射");
     }
+    // Multi-branch condition check
     if (watchValueRows <= 0) {
       details << uiText("Risk: no live Watch values for this slave",
                         "风险：当前从站没有实时 Watch 值");
@@ -1267,6 +1333,7 @@ void MainWindow::clearOnlineViews() {
   pendingStartupSdoChecks_.clear();
   topologyBaseline_.clear();
   selectedSdoWritable_ = true;
+    // Multi-branch condition check
   if (sdoInspector_->sdoWriteValue) {
     sdoInspector_->sdoWriteValue->setEnabled(true);
     sdoInspector_->sdoWriteValue->setPlaceholderText(uiText("Value to write", "写入值"));
@@ -1279,6 +1346,7 @@ void MainWindow::clearOnlineViews() {
         slaveEvidence_->slaveEvidenceMatrixTable, portTable_, mailboxTable_, sdo_->pdoTable,
         sdo_->sdoTable, sdoHistoryTable_, freeRunWidgets_->freeRunTable, freeRunWidgets_->freeRunEntryTable,
         ioVar_->ioVariableTable, watch_->watchTable}) {
+    // Multi-branch condition check
     if (table) {
       table->clear();
       table->setRowCount(0);
@@ -1318,12 +1386,14 @@ void MainWindow::clearOnlineViews() {
 // Connect all Qt signals/slots for the entire UI — called once after buildUi()
 void MainWindow::wire() {
   disconnect(&client_, nullptr, this, nullptr);
+    // Multi-branch condition check
   if (connectRetryTimer_) {
     connectRetryTimer_->stop();
     disconnect(connectRetryTimer_, nullptr, this, nullptr);
     connectRetryTimer_->deleteLater();
     connectRetryTimer_ = nullptr;
   }
+    // Multi-branch condition check
   if (refreshTimer_) {
     refreshTimer_->stop();
     disconnect(refreshTimer_, nullptr, this, nullptr);
@@ -1450,6 +1520,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("contextObjectDictionary"),
           &QPushButton::clicked, this, [this] {
             activateObjectDictionaryPaneFor(sdo_->sdoTable);
+    // Multi-branch condition check
             if (client_.isConnected() && selectedPosition() >= 0) {
               client_.sdos(selectedPosition());
             }
@@ -1457,6 +1528,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("contextPdoMap"), &QPushButton::clicked,
           this, [this] {
             activateWorkspaceTab(pdoMapTabIndex_);
+    // Multi-branch condition check
             if (client_.isConnected() && selectedPosition() >= 0) {
               client_.pdos(selectedPosition());
             }
@@ -1464,6 +1536,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("contextWatch"), &QPushButton::clicked, this,
           [this] {
             activateWorkspaceTab(watchTabIndex_);
+    // Multi-branch condition check
             if (selectedPosition() >= 0) {
               addCurrentSdoToWatch();
             }
@@ -1538,6 +1611,7 @@ void MainWindow::wire() {
           });
   connect(masterCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, [this](int index) {
+    // Multi-branch condition check
             if (index >= 0) {
               setActiveMaster(masterCombo_->itemData(index).toString());
             }
@@ -1545,6 +1619,7 @@ void MainWindow::wire() {
 
   connect(topologyTree_, &QTreeWidget::currentItemChanged, this,
           [this](QTreeWidgetItem *item) {
+    // Multi-branch condition check
             if (item) {
               setSelectedSlave(item->data(0, Qt::UserRole).toInt());
             }
@@ -1639,6 +1714,7 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("verifySelectedStartupSdo"),
           &QPushButton::clicked, this,
           &MainWindow::verifySelectedStartupSdoRows);
+    // Connect startupWatchDiffsOnly signal to handler
   connect(watch_->startupWatchDiffsOnly, &QCheckBox::toggled, this, [this] {
     filterStartupSdoTable();
     updateStartupSdoControls();
@@ -1750,6 +1826,7 @@ void MainWindow::wire() {
           [this](int row) { applySdoSelectionFromWatch(row, true); });
   connect(session_->sessionBriefTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateSessionBriefCopyButton);
+    // Connect sessionBriefCopyButton signal to handler
   connect(session_->sessionBriefCopyButton, &QPushButton::clicked, this, [this] {
     copySessionBriefRowDigest(
         session_->sessionBriefTable ? session_->sessionBriefTable->currentRow() : -1);
@@ -1760,6 +1837,7 @@ void MainWindow::wire() {
           &MainWindow::updateWorkflowStepCopyButton);
   connect(workflow_->workflowTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateWorkflowStepDetail);
+    // Connect workflowStepCopyButton signal to handler
   connect(workflow_->workflowStepCopyButton, &QPushButton::clicked, this, [this] {
     copyWorkflowStepDigest(workflow_->workflowTable ? workflow_->workflowTable->currentRow() : -1);
   });
@@ -1783,12 +1861,14 @@ void MainWindow::wire() {
           &MainWindow::reviewFirstSlaveEvidenceMatrixIssue);
   connect(slaveEvidence_->slaveEvidenceMatrixReviewNextButton, &QPushButton::clicked, this,
           &MainWindow::reviewNextSlaveEvidenceMatrixIssue);
+    // Connect slaveEvidenceMatrixCopyButton signal to handler
   connect(slaveEvidence_->slaveEvidenceMatrixCopyButton, &QPushButton::clicked, this, [this] {
     copySlaveEvidenceMatrixRowDigest(
         slaveEvidence_->slaveEvidenceMatrixTable ? slaveEvidence_->slaveEvidenceMatrixTable->currentRow()
                                   : -1);
   });
   for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
+    // Connect button signal to handler
     connect(button, &QPushButton::clicked, this, [this, button] {
       if (!slaveEvidence_->slaveEvidenceMatrixScopeFilter) {
         return;
@@ -1814,10 +1894,12 @@ void MainWindow::wire() {
   connect(slaveEvidence_->slaveEvidenceMatrixTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { openSlaveEvidenceMatrixRow(row); });
   auto stateMachinePositionForRow = [this](int row) -> int {
+    // Multi-branch condition check
     if (stateMachine_->stateMachineTable && row >= 0 &&
         row < stateMachine_->stateMachineTable->rowCount()) {
       const int position =
           stateMachinePositionFromTable(stateMachine_->stateMachineTable, row);
+    // Multi-branch condition check
       if (position >= 0) {
         return position;
       }
@@ -1825,6 +1907,7 @@ void MainWindow::wire() {
     return selectedPosition();
   };
   auto requestRecommendedState = [this, stateMachinePositionForRow](int row) {
+    // Multi-branch condition check
     if (!client_.isConnected()) {
       updateDiagnostics(
           "Warning", "State",
@@ -1832,13 +1915,16 @@ void MainWindow::wire() {
                  "状态请求已跳过：运行时尚未连接"));
       return;
     }
+    // Multi-branch condition check
     if (!stateMachine_->stateMachineTable) {
       return;
     }
     int targetRow = row;
+    // Multi-branch condition check
     if (targetRow < 0) {
       targetRow = stateMachine_->stateMachineTable->currentRow();
     }
+    // Multi-branch condition check
     if (targetRow < 0 && selectedPosition() >= 0) {
       for (int candidate = 0; candidate < stateMachine_->stateMachineTable->rowCount();
            ++candidate) {
@@ -1890,6 +1976,7 @@ void MainWindow::wire() {
           this, [this] { requestAllSlaveState("PREOP"); });
   connect(findChild<QPushButton *>("stateAllSafeOp"), &QPushButton::clicked,
           this, [this] { requestAllSlaveState("SAFEOP"); });
+    // Connect stateMachineTable signal to handler
   connect(stateMachine_->stateMachineTable, &QTableWidget::currentCellChanged, this, [this] {
     updateActionAvailability();
     updateStateMachineRowDetail();
@@ -1923,16 +2010,19 @@ void MainWindow::wire() {
               copySelectedHostCommand();
             }
           });
+    // Connect sdoIndex signal to handler
   connect(sdoInspector_->sdoIndex, &QLineEdit::editingFinished, this, [this] {
     restoreManualSdoWriteMode();
     rememberCurrentSdoTarget(uiText("Manual fields", "手动字段"),
                              uiText("Index edited", "已编辑索引"));
   });
+    // Connect sdoSubIndex signal to handler
   connect(sdoInspector_->sdoSubIndex, &QLineEdit::editingFinished, this, [this] {
     restoreManualSdoWriteMode();
     rememberCurrentSdoTarget(uiText("Manual fields", "手动字段"),
                              uiText("SubIndex edited", "已编辑子项"));
   });
+    // Connect sdoType signal to handler
   connect(sdoInspector_->sdoType, &QComboBox::currentTextChanged, this, [this] {
     restoreManualSdoWriteMode();
     rememberCurrentSdoTarget(uiText("Manual fields", "手动字段"),
@@ -1940,6 +2030,7 @@ void MainWindow::wire() {
   });
   connect(sdoInspector_->sdoWriteValue, &QLineEdit::textChanged, this,
           [this] { updateSdoInspector(uiText("Manual write", "手动写入")); });
+    // Connect sdoWriteValue signal to handler
   connect(sdoInspector_->sdoWriteValue, &QLineEdit::editingFinished, this, [this] {
     rememberCurrentSdoTarget(uiText("Manual write", "手动写入"),
                              uiText("Write value edited", "已编辑写入值"));
@@ -2045,6 +2136,7 @@ void MainWindow::wire() {
   connect(diagnostics_->diagnosticsLevelFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterDiagnosticsTable(); });
+    // Connect startupSdoTable_ signal to handler
   connect(startupSdoTable_, &QTableWidget::currentCellChanged, this, [this] {
     updateStartupSdoControls();
     updateStartupSdoRowDetail();
@@ -2053,6 +2145,7 @@ void MainWindow::wire() {
           &MainWindow::updateStartupSdoControls);
   connect(startupSdoTable_, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateStartupSdoRowDetail);
+    // Connect startupSdoTable_ signal to handler
   connect(startupSdoTable_, &QTableWidget::itemChanged, this, [this] {
     QTimer::singleShot(0, this, [this] {
       updateWatchStartupDeltas();
@@ -2114,6 +2207,7 @@ void MainWindow::wire() {
     }
   }
 
+    // Connect client_ signal to handler
   connect(&client_, &EcatClient::connected, this, [this] {
     connectionLabel_->setText(uiText("Runtime connected", "运行时已连接"));
     connectionLabel_->setProperty("state", "connected");
@@ -2125,6 +2219,7 @@ void MainWindow::wire() {
     updateStatusBar();
     requestRefresh();
   });
+    // Connect client_ signal to handler
   connect(&client_, &EcatClient::disconnected, this, [this] {
     connectionLabel_->setText(uiText("Runtime disconnected", "运行时已断开"));
     connectionLabel_->setProperty("state", "disconnected");
@@ -2194,6 +2289,7 @@ void MainWindow::wire() {
           pendingSdoVerifications_.clear();
         }
       });
+    // Connect client_ signal to handler
   connect(&client_, &EcatClient::daemonInfo, this, [this](const QString &text) {
     log("Runtime: " + text);
     updateStatusBar();
@@ -2205,6 +2301,7 @@ void MainWindow::wire() {
               const auto check = value.toObject();
               QString message = check.value("message").toString();
               const QString hint = check.value("hint").toString();
+    // Multi-branch condition check
               if (!hint.isEmpty()) {
                 message += " | " + hint;
               }
@@ -2222,6 +2319,7 @@ void MainWindow::wire() {
             }
             log(QString("Host check complete: %1 item(s)").arg(checks.size()));
           });
+    // Connect client_ signal to handler
   connect(&client_, &EcatClient::masterText, this, [this](const QString &text) {
     lastMasterText_ = text;
     rawText_->masterText->setPlainText(text);
@@ -2232,12 +2330,14 @@ void MainWindow::wire() {
           &MainWindow::updateSlaves);
   connect(&client_, &EcatClient::slaveTextResult, this,
           [this](const QString &title, int position, const QString &text) {
+    // Multi-branch condition check
             if (position != selectedPosition()) {
               log(QString("Ignored stale %1 response for slave #%2")
                       .arg(title)
                       .arg(position));
               return;
             }
+    // Multi-branch condition check
             if (title == "Info") {
               loadedSlaveInfoPosition_ = position;
               lastSlaveInfoText_ = text;
@@ -2318,11 +2418,13 @@ void MainWindow::wire() {
                                         .arg(position)
                                         .arg(index, subIndex, expected, value));
         }
+    // Multi-branch condition check
         if (hasStartupCheck) {
           auto normalize = [](QString text) {
             return text.trimmed().remove(' ').toLower();
           };
           for (const int startupCheckRow : startupCheckRows) {
+    // Multi-branch condition check
             if (startupCheckRow < 0 ||
                 startupCheckRow >= startupSdoTable_->rowCount()) {
               continue;
@@ -2430,11 +2532,13 @@ void MainWindow::wire() {
         const QString currentMode = watch_->watchTable->item(row, 7)
                                         ? watch_->watchTable->item(row, 7)->text()
                                         : QString();
+    // Multi-branch condition check
         if (!watch_->watchTable->item(row, 6) ||
             watch_->watchTable->item(row, 6)->text().trimmed().isEmpty()) {
           const bool watchRefreshSource =
               source.contains("Watch", Qt::CaseInsensitive) ||
               source.contains("监视", Qt::CaseInsensitive);
+    // Multi-branch condition check
           if (!watchRefreshSource && !readType.isEmpty()) {
             setCell(6, readType);
           } else if (!watchRefreshSource && currentTarget && sdoInspector_->sdoType) {
@@ -2525,10 +2629,12 @@ void MainWindow::wire() {
             for (const auto &value : results) {
               const auto object = value.toObject();
               const int row = object.value("row").toInt(-1);
+    // Multi-branch condition check
               if (row < 0 || row >= startupSdoTable_->rowCount()) {
                 continue;
               }
               auto *status = startupSdoTable_->item(row, 5);
+    // Multi-branch condition check
               if (!status) {
                 status = new QTableWidgetItem;
                 startupSdoTable_->setItem(row, 5, status);
@@ -2596,6 +2702,7 @@ void MainWindow::wire() {
 
 // Launch the embedded ecatd process and start the connection-retry timer
 void MainWindow::startEmbeddedDaemon() {
+    // Connect daemon_ signal to handler
   connect(&daemon_, &QProcess::readyReadStandardError, this, [this] {
     const QString text =
         QString::fromLocal8Bit(daemon_.readAllStandardError()).trimmed();
@@ -2603,6 +2710,7 @@ void MainWindow::startEmbeddedDaemon() {
       log("ecatd: " + text);
     }
   });
+    // Connect daemon_ signal to handler
   connect(&daemon_, &QProcess::readyReadStandardOutput, this, [this] {
     const QString text =
         QString::fromLocal8Bit(daemon_.readAllStandardOutput()).trimmed();
@@ -2623,6 +2731,7 @@ void MainWindow::startEmbeddedDaemon() {
 
 // Periodic refresh: ping daemon, poll master state, scan slaves
 void MainWindow::requestRefresh() {
+    // Multi-branch condition check
   if (!client_.isConnected()) {
     return;
   }
@@ -2651,6 +2760,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
   int initSlaves = 0;
   for (const auto &slave : slaves_) {
     const QString state = slave.state.trimmed().toUpper();
+    // Multi-branch condition check
     if (state == "OP") {
       ++opSlaves;
     } else if (state == "SAFEOP") {
@@ -2685,6 +2795,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
   int rxBits = 0;
   int txBits = 0;
   QStringList rxPreview;
+    // Multi-branch condition check
   if (sdo_->pdoTable) {
     pdoRows = sdo_->pdoTable->rowCount();
     for (int row = 0; row < sdo_->pdoTable->rowCount(); ++row) {
@@ -2693,9 +2804,11 @@ QStringList MainWindow::freeRunImpactDetails() const {
       const QString name = tableText(sdo_->pdoTable, row, 5);
       const QString address = QString("%1:%2").arg(
           tableText(sdo_->pdoTable, row, 2), tableText(sdo_->pdoTable, row, 3));
+    // Multi-branch condition check
       if (pdo.contains("RxPDO", Qt::CaseInsensitive)) {
         ++rxPdoRows;
         rxBits += bits;
+    // Multi-branch condition check
         if (rxPreview.size() < 4) {
           rxPreview << QString("%1 %2").arg(address, name);
         }
@@ -2714,6 +2827,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
                  .arg(rxBits)
                  .arg(txPdoRows)
                  .arg(txBits);
+    // Multi-branch condition check
   if (pdoRows <= 0) {
     details << uiText("PDO map warning: no PDO rows are loaded for review",
                       "PDO 映射警告：当前没有可复核的 PDO 行");
@@ -2722,24 +2836,28 @@ QStringList MainWindow::freeRunImpactDetails() const {
                       "entry row(s)",
                       "输出风险：Free Run 可能交换 %1 条 RxPDO/输出条目")
                    .arg(rxPdoRows);
+    // Multi-branch condition check
     if (!rxPreview.isEmpty()) {
       details << uiText("Output preview: %1", "输出预览：%1")
                      .arg(rxPreview.join(" | "));
     }
   }
 
+    // Multi-branch condition check
   if (freeRunWidgets_->freeRunEntryTable && freeRunWidgets_->freeRunEntryTable->rowCount() > 0) {
     int outputEntries = 0;
     int inputEntries = 0;
     QStringList meaningPreview;
     for (int row = 0; row < freeRunWidgets_->freeRunEntryTable->rowCount(); ++row) {
       const QString direction = tableText(freeRunWidgets_->freeRunEntryTable, row, 2).toLower();
+    // Multi-branch condition check
       if (direction.contains("rx") || direction.contains("out")) {
         ++outputEntries;
       } else if (direction.contains("tx") || direction.contains("in")) {
         ++inputEntries;
       }
       const QString meaning = tableText(freeRunWidgets_->freeRunEntryTable, row, 12);
+    // Multi-branch condition check
       if (!meaning.isEmpty() && meaningPreview.size() < 3) {
         meaningPreview << meaning;
       }
@@ -2750,6 +2868,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
                    .arg(freeRunWidgets_->freeRunEntryTable->rowCount())
                    .arg(outputEntries)
                    .arg(inputEntries);
+    // Multi-branch condition check
     if (!meaningPreview.isEmpty()) {
       details << uiText("Decoded evidence: %1", "解析证据：%1")
                      .arg(meaningPreview.join(" | "));
@@ -2758,15 +2877,18 @@ QStringList MainWindow::freeRunImpactDetails() const {
 
   QString statusword;
   QString errorCode;
+    // Multi-branch condition check
   if (watch_->watchTable && selected >= 0) {
     for (int row = 0; row < watch_->watchTable->rowCount(); ++row) {
       const int rowPosition = tableText(watch_->watchTable, row, 1).toInt();
+    // Multi-branch condition check
       if (rowPosition != selected) {
         continue;
       }
       const QString index = normalizeHexText(tableText(watch_->watchTable, row, 2), 4);
       const QString value = tableText(watch_->watchTable, row, 4);
       const QString decoded = tableText(watch_->watchTable, row, 5);
+    // Multi-branch condition check
       if (index == "0x6041" && !decoded.isEmpty()) {
         statusword = decoded;
       } else if (index == "0x603f" && !decoded.isEmpty() && !value.isEmpty() &&
@@ -2775,8 +2897,10 @@ QStringList MainWindow::freeRunImpactDetails() const {
       }
     }
   }
+    // Multi-branch condition check
   if (!statusword.isEmpty() || !errorCode.isEmpty()) {
     QStringList driveFacts;
+    // Multi-branch condition check
     if (!statusword.isEmpty()) {
       driveFacts << uiText("statusword %1", "状态字 %1").arg(statusword);
     }
@@ -2806,6 +2930,7 @@ QStringList MainWindow::freeRunImpactDetails() const {
 
 // Start or stop Free Run — includes a safety confirmation dialog
 void MainWindow::setFreeRun(bool enabled) {
+    // Multi-branch condition check
   if (enabled && client_.isConnected()) {
     QStringList details = {
         uiText("Master: %1", "主站：%1").arg(activeMasterName()),
@@ -2838,6 +2963,7 @@ void MainWindow::setFreeRun(bool enabled) {
   refreshTimer_->setInterval(enabled ? 500 : 3000);
   setMetricCard(freeRunLabel_, uiText("Free Run", "自由运行"),
                 enabled ? uiText("On", "开启") : uiText("Off", "关闭"));
+    // Multi-branch condition check
   if (!client_.isConnected()) {
     log(enabled ? "Free Run armed; waiting for runtime" : "Free Run disabled");
     return;

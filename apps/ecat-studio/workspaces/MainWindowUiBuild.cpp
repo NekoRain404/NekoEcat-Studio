@@ -197,6 +197,7 @@ void MainWindow::buildUi() {
   slaveRawTabIndex_ = -1;
   pdoRawTabIndex_ = -1;
   sdoRawTabIndex_ = -1;
+// ── SDO Workspace Page ──────────────────────────────────────────────
 // Build the SDO workspace page with inspector, target panel, and evidence trail
   setWindowTitle(
       projectName_ == "Untitled"
@@ -497,6 +498,7 @@ void MainWindow::buildUi() {
   topologyHeader->addStretch(1);
   topologyHeader->addWidget(captureTopology);
   topologyHeader->addWidget(clearTopology);
+// ── Watch Workspace Page ────────────────────────────────────────────
   topologyTree_ = new QTreeWidget;
 // Build the Watch workspace page with table, baseline controls, and auto-refresh
   topologyTree_->setHeaderLabels(
@@ -797,6 +799,7 @@ void MainWindow::buildUi() {
                         "按调试流程从上到下推进。"));
   workflow_->workflowSummaryLabel->setObjectName("statusSummary");
   workflow_->workflowSummaryLabel->setProperty("severity", "neutral");
+// ── Startup SDO Page ────────────────────────────────────────────────
   workflow_->workflowSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *overviewConnect = new QPushButton(uiText("Connect", "连接"));
 // Build the Startup SDO workspace page with batch operations
@@ -997,6 +1000,7 @@ void MainWindow::buildUi() {
         "按该优先级过滤从站证据矩阵；这只是本地界面过滤。"));
     slaveEvidence_->slaveEvidenceMatrixTriageButtons.append(button);
   }
+// ── I/O Variables Page ──────────────────────────────────────────────
   matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixSummaryLabel, 1);
   for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
     matrixHeader->addWidget(button);
@@ -1197,6 +1201,7 @@ void MainWindow::buildUi() {
       "选择一行选中对象后，执行其 Action/动作列中的本地动作。"));
   auto *copySelectedObjectRow = new QPushButton(uiText("Copy Row", "复制行"));
   copySelectedObjectRow->setObjectName("copySdoTargetRowEvidence");
+// ── Free Run Page ───────────────────────────────────────────────────
   copySelectedObjectRow->setIcon(
       style()->standardIcon(QStyle::SP_FileDialogContentsView));
   copySelectedObjectRow->setToolTip(uiText(
@@ -1397,6 +1402,7 @@ void MainWindow::buildUi() {
           "local table evidence only.",
           "选择目标轨迹行和查看此详情条都是本地复核动作；恢复、Watch、书签和 "
           "Startup 只复用本地表格证据。"));
+// ── Topology Page ───────────────────────────────────────────────────
   sdoTrailLayout->addWidget(sdoTargetTrailDetailLabel_);
   sdoTrailLayout->addWidget(sdoTargetTrailTable_, 1);
   sdoDictionaryLayout->addWidget(sdo_->sdoFilter);
@@ -1597,6 +1603,7 @@ void MainWindow::buildUi() {
   sdoHistoryDetailLabel_ = makeStatusSummaryLabel(
       uiText("Select an SDO history row to review audit evidence.",
              "选择 SDO 历史行以复核审计证据。"),
+// ── Diagnostics Page ────────────────────────────────────────────────
       uiText("This preview is local. It summarizes the selected SDO operation, "
              "target, value, status, detail, reuse options, and operation "
              "boundary without reading or writing the bus.",
@@ -1797,6 +1804,7 @@ void MainWindow::buildUi() {
   freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunFilter, 1);
   freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunChangedOnly);
   freeRunFilterLayout->addWidget(freeRunWidgets_->freeRunEntrySummaryLabel);
+// ── Consistency Page ────────────────────────────────────────────────
   freeRunLayout->addLayout(freeRunFilterLayout);
   freeRunWidgets_->freeRunEntryDetailLabel =
       new QLabel(uiText("Select a process image entry to review map and name "
@@ -1997,6 +2005,7 @@ void MainWindow::buildUi() {
       style()->standardIcon(QStyle::SP_FileDialogDetailedView));
   openIoFromConsistency->setToolTip(uiText(
       "Open the best local evidence table for the selected Consistency row. "
+// ── Session Page ────────────────────────────────────────────────────
       "This only navigates loaded tables and does not access the bus.",
       "打开当前一致性行最相关的本地证据表；只导航已加载表格，不访问总线。"));
   consistency_->consistencySummaryLabel =
@@ -2197,6 +2206,7 @@ void MainWindow::buildUi() {
   stateSelectedOp->setObjectName("stateSelectedOp");
   auto *stateAllPreOp = new QPushButton(uiText("All PREOP", "全部 PREOP"));
   stateAllPreOp->setObjectName("stateAllPreOp");
+// ── Manual Page ─────────────────────────────────────────────────────
   auto *stateAllSafeOp = new QPushButton(uiText("All SAFEOP", "全部 SAFEOP"));
   stateAllSafeOp->setObjectName("stateAllSafeOp");
   stateMachineHeader->addWidget(
@@ -2465,6 +2475,7 @@ void MainWindow::rebuildUi() {
       for (int column = 0; column < sdoTargetTrailTable_->columnCount();
            ++column) {
         sdoTargetTrailTable_->setItem(
+    // Create table cell
             row, column, new QTableWidgetItem(values.value(column)));
       }
       rememberedSdoTargetTrailKeys_.insert(
@@ -2539,6 +2550,7 @@ void MainWindow::rebuildUi() {
       for (int column = 0; column < bookmark_->objectBookmarkTable->columnCount();
            ++column) {
         bookmark_->objectBookmarkTable->setItem(
+    // Create table cell
             row, column, new QTableWidgetItem(values.value(column)));
       }
     }
@@ -2571,6 +2583,7 @@ void MainWindow::rebuildUi() {
       }
       for (int column = 0; column < 12; ++column) {
         watch_->watchTable->setItem(row, column,
+    // Create table cell
                              new QTableWidgetItem(migrated.value(column)));
       }
     }
