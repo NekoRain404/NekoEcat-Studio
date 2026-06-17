@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
         QObject::connect(&client, &EcatClient::connectionStateChanged,
             [&](ConnectionState s) { stateChanged = true; lastState = s; });
 
-        client.connectToDaemon();
+        client.connectToHost(QHostAddress::LocalHost, 15878);
         // Should be Connecting immediately.
         expectEqual(client.connectionState(), ConnectionState::Connecting, "T2: connecting state");
 
