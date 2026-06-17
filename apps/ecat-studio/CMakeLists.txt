@@ -85,6 +85,8 @@ add_executable(ecat-studio
     workspaces/MainWindowStateMachine.cpp                workspaces/MainWindowTopologyUi.cpp
     workspaces/MainWindowCommandPalette.cpp
     workspaces/MainWindowConsistencyCommissioning.cpp
+    workspaces/MainWindowCommissioning.cpp
+    workspaces/MainWindowSlaveEvidence.cpp
     workspaces/MainWindowContextMenus.cpp
     workspaces/MainWindowDiagnosticsTopology.cpp
     workspaces/MainWindowIoVariableWorkspace.cpp
@@ -102,6 +104,7 @@ add_executable(ecat-studio
     workspaces/MainWindowTheme.cpp
     workspaces/MainWindowUiBuild.cpp
     workspaces/MainWindowWatchWorkspace.cpp
+    workspaces/MainWindowWatchSync.cpp
 
     main.cpp
 )
