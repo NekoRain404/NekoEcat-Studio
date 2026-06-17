@@ -596,7 +596,7 @@ void MainWindow::updateActionAvailability() {
   setEnabled("exportIoPlcSymbolsCsv",
              ioVariableTable_ && ioVariableTable_->rowCount() > 0);
   setEnabled("exportPlcDeclarationsAction", hasVisibleIoVariables);
-  setEnabled("refreshConsistency", consistencyTable_ != nullptr);
+  setEnabled("refreshConsistency", consistency_->consistencyTable != nullptr);
   setEnabled("openIoVariablesFromConsistency", ioVariableTabIndex_ >= 0);
   setEnabled("watchSelectedHistory", hasHistorySelection);
   setEnabled("startupFromSelectedHistory", hasHistoryValueSelection);
@@ -2648,9 +2648,9 @@ void MainWindow::wire() {
           &QPushButton::clicked, this, &MainWindow::exportIoVariablesCsv);
   connect(findChild<QPushButton *>("exportIoPlcSymbolsCsv"),
           &QPushButton::clicked, this, &MainWindow::exportIoVariablesPlcCsv);
-  connect(consistencyFilter_, &QLineEdit::textChanged, this,
+  connect(consistency_->consistencyFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterConsistencyTable);
-  connect(consistencyScopeFilter_,
+  connect(consistency_->consistencyScopeFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterConsistencyTable(); });
   connect(findChild<QPushButton *>("refreshConsistency"), &QPushButton::clicked,
@@ -2658,9 +2658,9 @@ void MainWindow::wire() {
   connect(findChild<QPushButton *>("openIoVariablesFromConsistency"),
           &QPushButton::clicked, this,
           [this] { focusEvidenceFromConsistency(); });
-  connect(consistencyTable_, &QTableWidget::itemSelectionChanged, this,
+  connect(consistency_->consistencyTable, &QTableWidget::itemSelectionChanged, this,
           &MainWindow::updateConsistencyRowDetail);
-  connect(consistencyTable_, &QTableWidget::cellDoubleClicked, this,
+  connect(consistency_->consistencyTable, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { focusEvidenceFromConsistency(row); });
   connect(sdoTable_, &QTableWidget::currentCellChanged, this,
           [this](int row) { applySdoSelectionFromDictionary(row, false); });

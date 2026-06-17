@@ -162,7 +162,7 @@ void MainWindow::buildUi() {
   watchDetailLabel_ = nullptr;
   startupSdoDetailLabel_ = nullptr;
   ioVariableDetailLabel_ = nullptr;
-  consistencyDetailLabel_ = nullptr;
+  consistency_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
   slaveEvidenceMatrixScopeFilter_ = nullptr;
@@ -668,7 +668,8 @@ void MainWindow::buildUi() {
   freeRunTable_ = new QTableWidget;
   freeRunEntryTable_ = new QTableWidget;
   ioVariableTable_ = new QTableWidget;
-  consistencyTable_ = new QTableWidget;
+  consistency_ = new ConsistencyWorkspaceWidgets;
+  consistency_->consistencyTable = new QTableWidget;
   hostHealthTable_ = new QTableWidget;
   diagnosticsTable_ = new QTableWidget;
   watchTable_ = new QTableWidget;
@@ -689,7 +690,7 @@ void MainWindow::buildUi() {
                       freeRunTable_,
                       freeRunEntryTable_,
                       ioVariableTable_,
-                      consistencyTable_,
+                      consistency_->consistencyTable,
                       hostHealthTable_,
                       diagnosticsTable_,
                       watchTable_,
@@ -1936,19 +1937,19 @@ void MainWindow::buildUi() {
   consistencyLayout->setSpacing(10);
   auto *consistencyControls = new QHBoxLayout;
   consistencyControls->setSpacing(8);
-  consistencyFilter_ = new QLineEdit;
-  consistencyFilter_->setPlaceholderText(uiText(
+  consistency_->consistencyFilter = new QLineEdit;
+  consistency_->consistencyFilter->setPlaceholderText(uiText(
       "Filter consistency by scope, object, variable, severity, or evidence",
       "按范围、对象、变量、级别或证据过滤一致性检查"));
-  consistencyScopeFilter_ = new QComboBox;
-  consistencyScopeFilter_->setObjectName("consistencyScopeFilter");
-  consistencyScopeFilter_->addItem(uiText("All", "全部"), "all");
-  consistencyScopeFilter_->addItem(uiText("Errors", "错误"), "error");
-  consistencyScopeFilter_->addItem(uiText("Warnings", "警告"), "warning");
-  consistencyScopeFilter_->addItem(uiText("Topology", "拓扑"), "topology");
-  consistencyScopeFilter_->addItem(uiText("Startup", "启动"), "startup");
-  consistencyScopeFilter_->addItem(uiText("I/O Variables", "I/O 变量"), "io");
-  consistencyScopeFilter_->addItem(uiText("Ready", "就绪"), "ready");
+  consistency_->consistencyScopeFilter = new QComboBox;
+  consistency_->consistencyScopeFilter->setObjectName("consistencyScopeFilter");
+  consistency_->consistencyScopeFilter->addItem(uiText("All", "全部"), "all");
+  consistency_->consistencyScopeFilter->addItem(uiText("Errors", "错误"), "error");
+  consistency_->consistencyScopeFilter->addItem(uiText("Warnings", "警告"), "warning");
+  consistency_->consistencyScopeFilter->addItem(uiText("Topology", "拓扑"), "topology");
+  consistency_->consistencyScopeFilter->addItem(uiText("Startup", "启动"), "startup");
+  consistency_->consistencyScopeFilter->addItem(uiText("I/O Variables", "I/O 变量"), "io");
+  consistency_->consistencyScopeFilter->addItem(uiText("Ready", "就绪"), "ready");
   auto *refreshConsistency =
       new QPushButton(uiText("Refresh Check", "刷新检查"));
   refreshConsistency->setObjectName("refreshConsistency");
@@ -1962,44 +1963,44 @@ void MainWindow::buildUi() {
       "Open the best local evidence table for the selected Consistency row. "
       "This only navigates loaded tables and does not access the bus.",
       "打开当前一致性行最相关的本地证据表；只导航已加载表格，不访问总线。"));
-  consistencySummaryLabel_ =
+  consistency_->consistencySummaryLabel =
       new QLabel(uiText("No consistency check yet", "尚未运行一致性检查"));
-  consistencySummaryLabel_->setObjectName("diagnosticsSummary");
-  consistencySummaryLabel_->setWordWrap(true);
-  consistencySummaryLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  consistencyControls->addWidget(consistencyFilter_, 1);
+  consistency_->consistencySummaryLabel->setObjectName("diagnosticsSummary");
+  consistency_->consistencySummaryLabel->setWordWrap(true);
+  consistency_->consistencySummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  consistencyControls->addWidget(consistency_->consistencyFilter, 1);
   consistencyControls->addWidget(new QLabel(uiText("Scope", "范围")));
-  consistencyControls->addWidget(consistencyScopeFilter_);
+  consistencyControls->addWidget(consistency_->consistencyScopeFilter);
   consistencyControls->addWidget(refreshConsistency);
   consistencyControls->addWidget(openIoFromConsistency);
-  consistencyControls->addWidget(consistencySummaryLabel_);
+  consistencyControls->addWidget(consistency_->consistencySummaryLabel);
   consistencyLayout->addLayout(consistencyControls);
-  consistencyDetailLabel_ =
+  consistency_->consistencyDetailLabel =
       new QLabel(uiText("Select a Consistency row to review gate evidence.",
                         "选择一致性行以复核门禁证据。"));
-  consistencyDetailLabel_->setObjectName("statusSummary");
-  consistencyDetailLabel_->setProperty("severity", "neutral");
-  consistencyDetailLabel_->setWordWrap(true);
-  consistencyDetailLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  consistencyDetailLabel_->setToolTip(uiText(
+  consistency_->consistencyDetailLabel->setObjectName("statusSummary");
+  consistency_->consistencyDetailLabel->setProperty("severity", "neutral");
+  consistency_->consistencyDetailLabel->setWordWrap(true);
+  consistency_->consistencyDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  consistency_->consistencyDetailLabel->setToolTip(uiText(
       "This preview is local. It summarizes the selected consistency issue, "
       "expected/actual evidence, recommended action, evidence route, and "
       "read-only boundary without accessing the bus.",
       "此预览仅在本地工作。它汇总选中一致性问题、期望/实际证据、建议动作、"
       "证据路由和只读边界，不访问总线。"));
-  consistencyLayout->addWidget(consistencyDetailLabel_);
-  consistencyTable_->setToolTip(uiText(
+  consistencyLayout->addWidget(consistency_->consistencyDetailLabel);
+  consistency_->consistencyTable->setToolTip(uiText(
       "Read-only online/offline consistency review. Double-click a row to "
       "open the best local evidence table without bus access.",
       "只读 Online/Offline 一致性审阅。双击行会打开最相关的本地证据表，不访"
       "问总线。"));
-  setTableRows(consistencyTable_,
+  setTableRows(consistency_->consistencyTable,
                {uiText("Level", "级别"), uiText("Scope", "范围"),
                 uiText("Target", "目标"), uiText("Evidence", "证据"),
                 uiText("Expected", "期望"), uiText("Actual", "实际"),
                 uiText("Action", "建议动作")},
                {});
-  consistencyLayout->addWidget(consistencyTable_, 1);
+  consistencyLayout->addWidget(consistency_->consistencyTable, 1);
 
   auto *watchPage = new QWidget;
   watchPage_ = watchPage;

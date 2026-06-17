@@ -254,7 +254,7 @@ void MainWindow::exportDiagnosticsReport() {
   writeMarkdownTable(out, ioVariableTable_);
   updateConsistencyView();
   out << "## Consistency Check\n\n";
-  writeMarkdownTable(out, consistencyTable_);
+  writeMarkdownTable(out, consistency_->consistencyTable);
   out << "## Startup SDO\n\n";
   writeMarkdownTable(out, startupSdoTable_);
   out << "## SDO History\n\n";

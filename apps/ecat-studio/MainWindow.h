@@ -606,6 +606,7 @@ private:
   QTableWidget *metricTable_ = nullptr;
   SessionWorkspaceWidgets *session_ = nullptr;
   StateMachineWorkspaceWidgets *stateMachine_ = nullptr;
+  ConsistencyWorkspaceWidgets *consistency_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
@@ -622,7 +623,6 @@ private:
   QTableWidget *freeRunTable_ = nullptr;
   QTableWidget *freeRunEntryTable_ = nullptr;
   QTableWidget *ioVariableTable_ = nullptr;
-  QTableWidget *consistencyTable_ = nullptr;
   QTableWidget *hostHealthTable_ = nullptr;
   QTableWidget *diagnosticsTable_ = nullptr;
   QTableWidget *watchTable_ = nullptr;
@@ -744,10 +744,6 @@ private:
   QLabel *ioVariableDetailLabel_ = nullptr;
   
   // ── Consistency Panel Widgets ─────────────────────────────────
-  QLineEdit *consistencyFilter_ = nullptr;
-  QComboBox *consistencyScopeFilter_ = nullptr;
-  QLabel *consistencySummaryLabel_ = nullptr;
-  QLabel *consistencyDetailLabel_ = nullptr;
   
   // ── Diagnostics Panel Widgets ─────────────────────────────────
   QLineEdit *diagnosticsFilter_ = nullptr;

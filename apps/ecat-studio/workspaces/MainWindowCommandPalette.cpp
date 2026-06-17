@@ -1200,7 +1200,7 @@ void MainWindow::showCommandPalette() {
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       [this] { focusEvidenceFromConsistency(); },
       [this] {
-        return consistencyTable_ && consistencyTable_->currentRow() >= 0;
+        return consistency_->consistencyTable && consistency_->consistencyTable->currentRow() >= 0;
       },
   });
   commands.append(CommandItem{

@@ -130,7 +130,7 @@ void MainWindow::openConsistencyView() {
 
 // — Rebuild the consistency matrix from current project and online evidence
 void MainWindow::updateConsistencyView() {
-  if (!consistencyTable_) {
+  if (!consistency_->consistencyTable) {
     return;
   }
   updateIoVariableTable();
@@ -348,7 +348,7 @@ void MainWindow::updateConsistencyView() {
            uiText("Continue commissioning", "继续调试"));
   }
 
-  setTableRows(consistencyTable_,
+  setTableRows(consistency_->consistencyTable,
                {uiText("Level", "级别"), uiText("Scope", "范围"),
                 uiText("Target", "目标"), uiText("Evidence", "证据"),
                 uiText("Expected", "期望"), uiText("Actual", "实际"),
@@ -361,8 +361,8 @@ void MainWindow::updateConsistencyView() {
       settings_.theme == "Light" ? QColor("#fff7cc") : QColor("#3a2f16");
   const QColor infoBackground =
       settings_.theme == "Light" ? QColor("#eef6ff") : QColor("#122033");
-  for (int row = 0; row < consistencyTable_->rowCount(); ++row) {
-    const QString level = tableText(consistencyTable_, row, 0);
+  for (int row = 0; row < consistency_->consistencyTable->rowCount(); ++row) {
+    const QString level = tableText(consistency_->consistencyTable, row, 0);
     QColor background;
     QColor foreground;
     if (level == uiText("Error", "错误")) {
@@ -377,8 +377,8 @@ void MainWindow::updateConsistencyView() {
       background = infoBackground;
       foreground = QColor("#60a5fa");
     }
-    for (int column = 0; column < consistencyTable_->columnCount(); ++column) {
-      if (auto *item = consistencyTable_->item(row, column)) {
+    for (int column = 0; column < consistency_->consistencyTable->columnCount(); ++column) {
+      if (auto *item = consistency_->consistencyTable->item(row, column)) {
         if (background.isValid()) {
           item->setBackground(background);
         }
@@ -388,14 +388,14 @@ void MainWindow::updateConsistencyView() {
       }
     }
   }
-  consistencyTable_->resizeColumnsToContents(); // auto-fit column widths
-  if (consistencySummaryLabel_) {
+  consistency_->consistencyTable->resizeColumnsToContents(); // auto-fit column widths
+  if (consistency_->consistencySummaryLabel) {
     const ConsistencyIssueCounts counts =
-        consistencyTableIssueCounts(consistencyTable_);
-    consistencySummaryLabel_->setText(
+        consistencyTableIssueCounts(consistency_->consistencyTable);
+    consistency_->consistencySummaryLabel->setText(
         uiText("%1 rows | errors %2 | warnings %3 | info %4 | ready %5",
                "%1 行 | 错误 %2 | 警告 %3 | 信息 %4 | 就绪 %5")
-            .arg(consistencyTable_->rowCount())
+            .arg(consistency_->consistencyTable->rowCount())
             .arg(counts.errors)
             .arg(counts.warnings)
             .arg(counts.infos)
@@ -410,21 +410,21 @@ void MainWindow::updateConsistencyView() {
 
 // — Filter consistency table
 void MainWindow::filterConsistencyTable() {
-  if (!consistencyTable_) {
+  if (!consistency_->consistencyTable) {
     return;
   }
   const QString needle =
-      consistencyFilter_ ? consistencyFilter_->text().trimmed() : QString();
-  const QString scope = consistencyScopeFilter_
-                            ? consistencyScopeFilter_->currentData().toString()
+      consistency_->consistencyFilter ? consistency_->consistencyFilter->text().trimmed() : QString();
+  const QString scope = consistency_->consistencyScopeFilter
+                            ? consistency_->consistencyScopeFilter->currentData().toString()
                             : QStringLiteral("all");
   const ConsistencyTableFilterStats stats =
-      filterConsistencyTableRows(consistencyTable_, scope, needle);
-  if (consistencySummaryLabel_) {
-    const QString label = consistencyScopeFilter_
-                              ? consistencyScopeFilter_->currentText()
+      filterConsistencyTableRows(consistency_->consistencyTable, scope, needle);
+  if (consistency_->consistencySummaryLabel) {
+    const QString label = consistency_->consistencyScopeFilter
+                              ? consistency_->consistencyScopeFilter->currentText()
                               : uiText("All", "全部");
-    consistencySummaryLabel_->setToolTip(
+    consistency_->consistencySummaryLabel->setToolTip(
         uiText("Visible consistency rows: %1/%2\nScope: %3",
                "可见一致性行：%1/%2\n范围：%3")
             .arg(stats.visible)
@@ -438,31 +438,31 @@ void MainWindow::filterConsistencyTable() {
 
 // — Refresh the consistency detail strip for the focused row
 void MainWindow::updateConsistencyRowDetail() {
-  if (!consistencyDetailLabel_) {
+  if (!consistency_->consistencyDetailLabel) {
     return;
   }
   // Lambda to push UI state changes to the label widget
   auto applyState = [this](const ConsistencyDetailUiState &state) {
-    consistencyDetailLabel_->setText(state.text);
-    consistencyDetailLabel_->setProperty("severity", state.severityKey);
-    consistencyDetailLabel_->setToolTip(state.tooltip);
-    repolish(consistencyDetailLabel_); // force QSS re-evaluation after property change
+    consistency_->consistencyDetailLabel->setText(state.text);
+    consistency_->consistencyDetailLabel->setProperty("severity", state.severityKey);
+    consistency_->consistencyDetailLabel->setToolTip(state.tooltip);
+    repolish(consistency_->consistencyDetailLabel); // force QSS re-evaluation after property change
   };
 
-  if (!consistencyTable_) {
+  if (!consistency_->consistencyTable) {
     applyState(consistencyDetailUnavailableState(consistencyDetailTexts()));
     return;
   }
 
-  const int row = consistencyTable_->currentRow();
-  if (row < 0 || row >= consistencyTable_->rowCount() ||
-      consistencyTable_->isRowHidden(row)) {
+  const int row = consistency_->consistencyTable->currentRow();
+  if (row < 0 || row >= consistency_->consistencyTable->rowCount() ||
+      consistency_->consistencyTable->isRowHidden(row)) {
     applyState(consistencyDetailNoSelectionState(consistencyDetailTexts()));
     return;
   }
 
   auto textAt = [this, row](int column) {
-    const auto *item = consistencyTable_->item(row, column);
+    const auto *item = consistency_->consistencyTable->item(row, column);
     return item ? item->text().trimmed() : QString();
   };
 
@@ -480,24 +480,24 @@ void MainWindow::updateConsistencyRowDetail() {
 
 // — Route to the evidence workspace referenced by the consistency row
 void MainWindow::focusEvidenceFromConsistency(int row) {
-  if (!consistencyTable_) {
+  if (!consistency_->consistencyTable) {
     return;
   }
-  if (row < 0 || row >= consistencyTable_->rowCount()) {
-    row = consistencyTable_->currentRow();
+  if (row < 0 || row >= consistency_->consistencyTable->rowCount()) {
+    row = consistency_->consistencyTable->currentRow();
   }
-  if (row < 0 || row >= consistencyTable_->rowCount()) {
+  if (row < 0 || row >= consistency_->consistencyTable->rowCount()) {
     return;
   }
 
   const ConsistencyDetailRow consistencyRow = {
-      .level = tableText(consistencyTable_, row, kConsistencyLevelColumn),
-      .scope = tableText(consistencyTable_, row, kConsistencyScopeColumn),
-      .target = tableText(consistencyTable_, row, kConsistencyTargetColumn),
-      .evidence = tableText(consistencyTable_, row, kConsistencyEvidenceColumn),
-      .expected = tableText(consistencyTable_, row, kConsistencyExpectedColumn),
-      .actual = tableText(consistencyTable_, row, kConsistencyActualColumn),
-      .action = tableText(consistencyTable_, row, kConsistencyActionColumn),
+      .level = tableText(consistency_->consistencyTable, row, kConsistencyLevelColumn),
+      .scope = tableText(consistency_->consistencyTable, row, kConsistencyScopeColumn),
+      .target = tableText(consistency_->consistencyTable, row, kConsistencyTargetColumn),
+      .evidence = tableText(consistency_->consistencyTable, row, kConsistencyEvidenceColumn),
+      .expected = tableText(consistency_->consistencyTable, row, kConsistencyExpectedColumn),
+      .actual = tableText(consistency_->consistencyTable, row, kConsistencyActualColumn),
+      .action = tableText(consistency_->consistencyTable, row, kConsistencyActionColumn),
   };
   const ConsistencyEvidenceRouteDecision route =
       consistencyEvidenceRouteDecision(consistencyRow);
@@ -575,19 +575,19 @@ void MainWindow::focusIoVariablesFromConsistency(int row) {
       ioVariableTabIndex_ >= tabs_->count()) {
     return;
   }
-  if (!consistencyTable_ || row < 0 || row >= consistencyTable_->rowCount()) {
-    row = consistencyTable_ ? consistencyTable_->currentRow() : -1;
+  if (!consistency_->consistencyTable || row < 0 || row >= consistency_->consistencyTable->rowCount()) {
+    row = consistency_->consistencyTable ? consistency_->consistencyTable->currentRow() : -1;
   }
 
   QString target;
   QString evidence;
   QString actual;
   QString action;
-  if (consistencyTable_ && row >= 0 && row < consistencyTable_->rowCount()) {
-    target = tableText(consistencyTable_, row, kConsistencyTargetColumn);
-    evidence = tableText(consistencyTable_, row, kConsistencyEvidenceColumn);
-    actual = tableText(consistencyTable_, row, kConsistencyActualColumn);
-    action = tableText(consistencyTable_, row, kConsistencyActionColumn);
+  if (consistency_->consistencyTable && row >= 0 && row < consistency_->consistencyTable->rowCount()) {
+    target = tableText(consistency_->consistencyTable, row, kConsistencyTargetColumn);
+    evidence = tableText(consistency_->consistencyTable, row, kConsistencyEvidenceColumn);
+    actual = tableText(consistency_->consistencyTable, row, kConsistencyActualColumn);
+    action = tableText(consistency_->consistencyTable, row, kConsistencyActionColumn);
   }
   const ConsistencyEvidenceRouteDecision route =
       consistencyEvidenceRouteDecision({.target = target,
@@ -622,19 +622,19 @@ void MainWindow::focusIoVariablesFromConsistency(int row) {
 
 // — Return the first consistency io issue row
 int MainWindow::firstConsistencyIoIssueRow() const {
-  return firstConsistencyTableIoIssueRow(consistencyTable_);
+  return firstConsistencyTableIoIssueRow(consistency_->consistencyTable);
 }
 
 
 // — Return the first consistency blocking issue row
 int MainWindow::firstConsistencyBlockingIssueRow() const {
-  return firstConsistencyTableBlockingIssueRow(consistencyTable_);
+  return firstConsistencyTableBlockingIssueRow(consistency_->consistencyTable);
 }
 
 
 // — Check whether consistency check available
 bool MainWindow::consistencyCheckAvailable() const {
-  return consistencyTableAvailable(consistencyTable_);
+  return consistencyTableAvailable(consistency_->consistencyTable);
 }
 
 
@@ -642,7 +642,7 @@ bool MainWindow::consistencyCheckAvailable() const {
 void MainWindow::consistencyIssueCounts(int *errors, int *warnings, int *infos,
                                         int *ready) const {
   const ConsistencyIssueCounts counts =
-      consistencyTableIssueCounts(consistencyTable_);
+      consistencyTableIssueCounts(consistency_->consistencyTable);
   if (errors) {
     *errors = counts.errors;
   }

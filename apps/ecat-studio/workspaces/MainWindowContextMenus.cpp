@@ -880,7 +880,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         menu.addAction(uiText("Clear Target Trail", "清空目标轨迹"));
     clearSdoTargetTrailAction->setEnabled(table->rowCount() > 0);
     menu.addSeparator();
-  } else if (table == consistencyTable_) {
+  } else if (table == consistency_->consistencyTable) {
     const bool hasConsistencyRow = table->currentRow() >= 0;
     openConsistencyEvidence =
         menu.addAction(uiText("Open Evidence", "打开证据"));
@@ -1254,7 +1254,7 @@ bool MainWindow::runLocalEvidenceAction(QTableWidget *table) {
     openSessionBriefRow(row);
   } else if (table == slaveEvidenceMatrixTable_) {
     openSlaveEvidenceMatrixRow(row);
-  } else if (table == consistencyTable_) {
+  } else if (table == consistency_->consistencyTable) {
     focusEvidenceFromConsistency(row);
   } else if (table == sdoTargetTable_) {
     openSdoTargetPanelRow(row);

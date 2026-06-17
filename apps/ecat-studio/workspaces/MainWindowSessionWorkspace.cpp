@@ -670,8 +670,8 @@ void MainWindow::openSessionBriefRow(int row) {
     const int blockingRow = firstConsistencyBlockingIssueRow();
     activateWorkspaceTab(consistencyTabIndex_);
     if (blockingRow >= 0) {
-      selectAndFocusTableRow(consistencyTable_, blockingRow, 0);
-    } else if (!consistencyTable_ || consistencyTable_->rowCount() <= 0) {
+      selectAndFocusTableRow(consistency_->consistencyTable, blockingRow, 0);
+    } else if (!consistency_->consistencyTable || consistency_->consistencyTable->rowCount() <= 0) {
       openConsistencyView();
     }
     logNavigation(uiText("Consistency gate", "一致性门禁"));
@@ -1310,7 +1310,7 @@ void MainWindow::updateTabBadges() {
        .startupSdoTable = startupSdoTable_,
        .freeRunEntryTable = freeRunEntryTable_,
        .ioVariableTable = ioVariableTable_,
-       .consistencyTable = consistencyTable_,
+       .consistencyTable = consistency_->consistencyTable,
        .stateMachineTable = stateMachine_->stateMachineTable,
        .diagnosticsTable = diagnosticsTable_,
        .slaveEvidenceMatrixTable = slaveEvidenceMatrixTable_});
