@@ -1091,3 +1091,23 @@ target_link_libraries(workspace_widgets_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(workspace_widgets_test PROPERTIES AUTOMOC ON)
 
 add_test(NAME workspace_widgets_test COMMAND workspace_widgets_test)
+
+add_executable(settings_persistence_test
+    settings_persistence_test.cpp
+    ../apps/ecat-studio/infra/SettingsDialog.cpp
+    ../apps/ecat-studio/infra/LanguageManager.cpp
+    ../apps/ecat-studio/infra/LanguageManager.h
+    ../apps/ecat-studio/infra/SettingsDialog.h
+)
+
+target_include_directories(settings_persistence_test PRIVATE
+    ../apps/ecat-studio/infra
+)
+target_link_libraries(settings_persistence_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
+
+set_target_properties(settings_persistence_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME settings_persistence_test COMMAND settings_persistence_test)
+set_tests_properties(settings_persistence_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
