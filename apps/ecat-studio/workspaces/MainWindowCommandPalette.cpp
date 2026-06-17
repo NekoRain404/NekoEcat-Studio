@@ -497,6 +497,7 @@ void MainWindow::showCommandPalette() {
                     uiText("Set All Slaves: SAFEOP", "全部从站切换到 SAFEOP"),
                     uiText("Request SAFEOP on every detected slave",
                            "请求全部已检测从站进入 SAFEOP")));
+// Filter commands by search text and update the results list
   commands.append(actionCommand(
       "allOpAction", uiText("Set All Slaves: OP", "全部从站切换到 OP"),
       uiText("Request OP on every detected slave",
@@ -797,6 +798,7 @@ void MainWindow::showCommandPalette() {
       uiText("Review Failed Object Evidence", "审阅失败对象证据"),
       uiText("Open Object Dictionary, filter failed SDO evidence, and select "
              "the first failed object",
+// Execute the selected command and close the palette
              "打开对象字典，过滤失败 SDO 证据，并选中第一条失败对象"),
       style()->standardIcon(QStyle::SP_MessageBoxWarning),
       [this] { focusFailedSdoEvidence(); },

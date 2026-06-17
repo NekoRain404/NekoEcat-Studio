@@ -197,6 +197,7 @@ void MainWindow::buildUi() {
   slaveRawTabIndex_ = -1;
   pdoRawTabIndex_ = -1;
   sdoRawTabIndex_ = -1;
+// Build the SDO workspace page with inspector, target panel, and evidence trail
   setWindowTitle(
       projectName_ == "Untitled"
           ? uiText("NekoEcat Studio - Untitled", "NekoEcat Studio - 未命名")
@@ -497,6 +498,7 @@ void MainWindow::buildUi() {
   topologyHeader->addWidget(captureTopology);
   topologyHeader->addWidget(clearTopology);
   topologyTree_ = new QTreeWidget;
+// Build the Watch workspace page with table, baseline controls, and auto-refresh
   topologyTree_->setHeaderLabels(
       {uiText("Device", "设备"), uiText("State", "状态")});
   topologyTree_->header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -797,6 +799,7 @@ void MainWindow::buildUi() {
   workflow_->workflowSummaryLabel->setProperty("severity", "neutral");
   workflow_->workflowSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   auto *overviewConnect = new QPushButton(uiText("Connect", "连接"));
+// Build the Startup SDO workspace page with batch operations
   overviewConnect->setObjectName("overviewConnect");
   overviewConnect->setIcon(style()->standardIcon(QStyle::SP_DriveNetIcon));
   auto *overviewRefresh = new QPushButton(uiText("Refresh", "刷新"));
@@ -997,6 +1000,7 @@ void MainWindow::buildUi() {
   matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixSummaryLabel, 1);
   for (auto *button : slaveEvidence_->slaveEvidenceMatrixTriageButtons) {
     matrixHeader->addWidget(button);
+// Build the I/O Variables workspace page with PLC handoff and export
   }
   matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixReviewButton);
   matrixHeader->addWidget(slaveEvidence_->slaveEvidenceMatrixReviewNextButton);
@@ -1197,6 +1201,7 @@ void MainWindow::buildUi() {
       style()->standardIcon(QStyle::SP_FileDialogContentsView));
   copySelectedObjectRow->setToolTip(uiText(
       "Copy the selected Selected Object row evidence without bus access.",
+// Build the Free Run workspace page with cycle time controls
       "复制所选选中对象行证据，不访问总线。"));
   auto *copyEvidenceDigestSdo = new QPushButton(uiText("Digest", "摘要"));
   copyEvidenceDigestSdo->setObjectName("copySdoEvidenceDigest");
@@ -1397,6 +1402,7 @@ void MainWindow::buildUi() {
   sdoDictionaryLayout->addWidget(sdo_->sdoFilter);
   auto *sdoFilterChips = new QHBoxLayout;
   sdoFilterChips->setSpacing(6);
+// Build the Topology workspace page with tree and baseline comparison
   struct SdoFilterChip {
     QString label;
     QString query;
@@ -1597,6 +1603,7 @@ void MainWindow::buildUi() {
              "此预览仅在本地工作。它汇总选中的 SDO 操作、目标、值、状态、详情、"
              "复用选项和操作边界，不读写总线。"));
   sdoHistoryLayout->addWidget(sdoHistoryDetailLabel_);
+// Build the Diagnostics workspace page with event log and health panel
   sdoHistoryLayout->addWidget(sdoHistoryTable_, 1);
 
   sdoModeTabs_->addTab(sdoDictionaryPage, uiText("Dictionary", "字典"));
@@ -1797,6 +1804,7 @@ void MainWindow::buildUi() {
                         "选择过程映像条目以复核映射和名称证据。"));
   freeRunWidgets_->freeRunEntryDetailLabel->setObjectName("statusSummary");
   freeRunWidgets_->freeRunEntryDetailLabel->setProperty("severity", "neutral");
+// Build the Consistency workspace page with commissioning workflow
   freeRunWidgets_->freeRunEntryDetailLabel->setWordWrap(true);
   freeRunWidgets_->freeRunEntryDetailLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   freeRunWidgets_->freeRunEntryDetailLabel->setToolTip(uiText(
@@ -1997,6 +2005,7 @@ void MainWindow::buildUi() {
   consistency_->consistencySummaryLabel->setWordWrap(true);
   consistency_->consistencySummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   consistencyControls->addWidget(consistency_->consistencyFilter, 1);
+// Build the Session workspace page with brief and next-best-action
   consistencyControls->addWidget(new QLabel(uiText("Scope", "范围")));
   consistencyControls->addWidget(consistency_->consistencyScopeFilter);
   consistencyControls->addWidget(refreshConsistency);
@@ -2197,6 +2206,7 @@ void MainWindow::buildUi() {
   stateMachineHeader->addWidget(stateSelectedPreOp);
   stateMachineHeader->addWidget(stateSelectedSafeOp);
   stateMachineHeader->addWidget(stateSelectedOp);
+// Build the Manual workspace page with documentation browser
   stateMachineHeader->addWidget(stateAllPreOp);
   stateMachineHeader->addWidget(stateAllSafeOp);
   stateMachineLayout->addLayout(stateMachineHeader);

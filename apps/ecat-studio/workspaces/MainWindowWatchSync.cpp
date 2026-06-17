@@ -197,6 +197,7 @@ void MainWindow::addStartupSdoFromSelectedWatchRows() {
 
   int created = 0;
   int skipped = 0;
+// Add all selected Watch rows as Startup SDO entries
   for (const int row : rows) {
     if (row < 0 || row >= watch_->watchTable->rowCount() ||
         watch_->watchTable->isRowHidden(row)) {
@@ -397,6 +398,7 @@ void MainWindow::syncWatchRowsToStartupSdo(const QVector<int> &rows) {
 
   const int previewRows = std::min(static_cast<int>(candidates.size()), 6);
   for (int i = 0; i < previewRows; ++i) {
+// Synchronize Watch rows to Startup SDO with conflict resolution
     const auto &candidate = candidates.at(i);
     QString target =
         candidate.startupRows.isEmpty()
@@ -697,6 +699,7 @@ void MainWindow::addDictionaryEvidenceRowsToStartupSdo(
     candidate.index = dictionary.index;
     candidate.subIndex = dictionary.subIndex;
     candidate.value = dictionary.value;
+// Add selected history rows as Startup SDO entries
     candidate.type = dictionary.type;
     candidate.access = dictionary.access;
     candidate.bits = dictionary.bits;

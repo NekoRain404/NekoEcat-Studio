@@ -121,6 +121,7 @@
 
 
 namespace {
+// Display the user manual dialog with searchable documentation
 
 
 // — Locate the ecatd binary path relative to the application
@@ -177,6 +178,7 @@ void MainWindow::showManual() {
 <!doctype html>
 <html>
 <head>
+// Display the about dialog with version and license information
 <style>
 body { font-family: "Inter", "Segoe UI", "Noto Sans", sans-serif; font-size: 14px; line-height: 1.62; color: #172033; }
 h1 { font-size: 26px; margin: 0 0 8px 0; color: #0f172a; }

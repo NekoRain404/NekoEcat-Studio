@@ -297,6 +297,7 @@ ObjectBookmarkDetailTexts MainWindow::objectBookmarkDetailTexts() const {
       .reuseLabel = uiText("Reuse", "复用"),
       .localBoundary = uiText(
           "Local bookmark boundary: selecting this bookmark, reading this "
+// Generate localized text constants for the Watch row detail panel
           "detail strip, filling SDO fields, adding selected bookmarks to "
           "Watch, removing bookmarks, and creating Startup SDO candidates from "
           "saved values do not read SDOs, write SDOs, change state, toggle "
@@ -697,6 +698,7 @@ ConsistencyDetailTexts MainWindow::consistencyDetailTexts() const {
       .selectVisibleRowTip =
           uiText("Filtering, selecting, reading this detail strip, and Open "
                  "Evidence are local review/navigation actions. Refresh Check "
+// Generate localized text constants for the I/O variable detail panel
                  "rebuilds the gate from already loaded UI and project "
                  "evidence; it does not read SDOs, write SDOs, change state, "
                  "toggle Free Run, or run Host Health.",
