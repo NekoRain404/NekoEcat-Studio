@@ -163,6 +163,7 @@ void MainWindow::buildUi() {
   startupSdoDetailLabel_ = nullptr;
   ioVariableDetailLabel_ = nullptr;
   consistency_ = nullptr;
+  diagnostics_ = nullptr;
   slaveEvidenceMatrixTriageButtons_.clear();
   slaveEvidenceMatrixFilter_ = nullptr;
   slaveEvidenceMatrixScopeFilter_ = nullptr;
@@ -493,12 +494,12 @@ void MainWindow::buildUi() {
   topologyTree_->setUniformRowHeights(true);
   topologyTree_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
   topologyTree_->setContextMenuPolicy(Qt::CustomContextMenu);
-  topologyBaselineLabel_ =
+  diagnostics_->topologyBaselineLabel =
       new QLabel(uiText("No topology baseline", "未设置拓扑基线"));
-  topologyBaselineLabel_->setObjectName("diagnosticsSummary");
-  topologyBaselineLabel_->setWordWrap(true);
+  diagnostics_->topologyBaselineLabel->setObjectName("diagnosticsSummary");
+  diagnostics_->topologyBaselineLabel->setWordWrap(true);
   leftLayout->addLayout(topologyHeader);
-  leftLayout->addWidget(topologyBaselineLabel_);
+  leftLayout->addWidget(diagnostics_->topologyBaselineLabel);
   leftLayout->addWidget(topologyTree_, 1);
 
   auto *slavePanel = new QFrame;
@@ -671,7 +672,8 @@ void MainWindow::buildUi() {
   consistency_ = new ConsistencyWorkspaceWidgets;
   consistency_->consistencyTable = new QTableWidget;
   hostHealthTable_ = new QTableWidget;
-  diagnosticsTable_ = new QTableWidget;
+  diagnostics_ = new DiagnosticsWorkspaceWidgets;
+  diagnostics_->diagnosticsTable = new QTableWidget;
   watchTable_ = new QTableWidget;
   esiTable_ = new QTableWidget;
   startupSdoTable_ = new QTableWidget;
@@ -692,7 +694,7 @@ void MainWindow::buildUi() {
                       ioVariableTable_,
                       consistency_->consistencyTable,
                       hostHealthTable_,
-                      diagnosticsTable_,
+                      diagnostics_->diagnosticsTable,
                       watchTable_,
                       esiTable_,
                       startupSdoTable_}) {
@@ -2206,14 +2208,14 @@ void MainWindow::buildUi() {
   diagnosticsLayout->setSpacing(10);
   auto *diagnosticsControls = new QHBoxLayout;
   diagnosticsControls->setSpacing(8);
-  diagnosticsFilter_ = new QLineEdit;
-  diagnosticsFilter_->setPlaceholderText(uiText(
+  diagnostics_->diagnosticsFilter = new QLineEdit;
+  diagnostics_->diagnosticsFilter->setPlaceholderText(uiText(
       "Filter diagnostics by source or message", "按来源或消息过滤诊断"));
-  diagnosticsLevelFilter_ = new QComboBox;
-  diagnosticsLevelFilter_->addItem(uiText("All levels", "全部级别"), QString());
-  diagnosticsLevelFilter_->addItem("Error", "Error");
-  diagnosticsLevelFilter_->addItem("Warning", "Warning");
-  diagnosticsLevelFilter_->addItem("Info", "Info");
+  diagnostics_->diagnosticsLevelFilter = new QComboBox;
+  diagnostics_->diagnosticsLevelFilter->addItem(uiText("All levels", "全部级别"), QString());
+  diagnostics_->diagnosticsLevelFilter->addItem("Error", "Error");
+  diagnostics_->diagnosticsLevelFilter->addItem("Warning", "Warning");
+  diagnostics_->diagnosticsLevelFilter->addItem("Info", "Info");
   auto *hostCheck = new QPushButton(uiText("Run Host Check", "运行主机检查"));
   hostCheck->setObjectName("runHostCheck");
   hostCheck->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
@@ -2224,20 +2226,20 @@ void MainWindow::buildUi() {
   auto *clearDiagnostics = new QPushButton(uiText("Clear", "清空"));
   clearDiagnostics->setObjectName("clearDiagnostics");
   clearDiagnostics->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
-  hostHealthSummaryLabel_ = new QLabel(
+  diagnostics_->hostHealthSummaryLabel = new QLabel(
       uiText("Host health has not been checked", "尚未运行主机健康检查"));
-  hostHealthSummaryLabel_->setObjectName("diagnosticsSummary");
-  diagnosticsSummaryLabel_ = new QLabel(uiText("No diagnostics", "暂无诊断"));
-  diagnosticsSummaryLabel_->setObjectName("diagnosticsSummary");
-  diagnosticsControls->addWidget(diagnosticsFilter_, 1);
-  diagnosticsControls->addWidget(diagnosticsLevelFilter_);
+  diagnostics_->hostHealthSummaryLabel->setObjectName("diagnosticsSummary");
+  diagnostics_->diagnosticsSummaryLabel = new QLabel(uiText("No diagnostics", "暂无诊断"));
+  diagnostics_->diagnosticsSummaryLabel->setObjectName("diagnosticsSummary");
+  diagnosticsControls->addWidget(diagnostics_->diagnosticsFilter, 1);
+  diagnosticsControls->addWidget(diagnostics_->diagnosticsLevelFilter);
   diagnosticsControls->addWidget(hostCheck);
   diagnosticsControls->addWidget(copyHostCommand);
   diagnosticsControls->addWidget(clearDiagnostics);
   diagnosticsLayout->addLayout(diagnosticsControls);
   diagnosticsLayout->addWidget(
       makeSectionTitle(uiText("Host Health", "主机健康")));
-  diagnosticsLayout->addWidget(hostHealthSummaryLabel_);
+  diagnosticsLayout->addWidget(diagnostics_->hostHealthSummaryLabel);
   setTableRows(hostHealthTable_,
                {uiText("Level", "级别"), uiText("Check", "检查项"),
                 uiText("Result", "结果"), uiText("Action", "建议动作"),
@@ -2246,8 +2248,8 @@ void MainWindow::buildUi() {
   diagnosticsLayout->addWidget(hostHealthTable_, 1);
   diagnosticsLayout->addWidget(
       makeSectionTitle(uiText("Event Stream", "事件流")));
-  diagnosticsLayout->addWidget(diagnosticsSummaryLabel_);
-  diagnosticsLayout->addWidget(diagnosticsTable_, 1);
+  diagnosticsLayout->addWidget(diagnostics_->diagnosticsSummaryLabel);
+  diagnosticsLayout->addWidget(diagnostics_->diagnosticsTable, 1);
   esiRepositoryPage_ = esiTable_;
 
   overviewTabIndex_ = tabs_->addTab(overview, uiText("Overview", "总览"));
@@ -2358,7 +2360,7 @@ void MainWindow::rebuildUi() {
   const bool watchChangedOnly =
       watchChangedOnly_ ? watchChangedOnly_->isChecked() : false;
   const QList<QStringList> startupRows = copyTableRows(startupSdoTable_);
-  const QList<QStringList> diagnosticsRows = copyTableRows(diagnosticsTable_);
+  const QList<QStringList> diagnosticsRows = copyTableRows(diagnostics_->diagnosticsTable);
   const QString workflowFilter =
       workflowFilter_ ? workflowFilter_->text() : QString();
   const QString workflowScope =
@@ -2370,10 +2372,10 @@ void MainWindow::rebuildUi() {
   const bool freeRunChangedOnly =
       freeRunChangedOnly_ ? freeRunChangedOnly_->isChecked() : false;
   const QString diagnosticsFilter =
-      diagnosticsFilter_ ? diagnosticsFilter_->text() : QString();
+      diagnostics_->diagnosticsFilter ? diagnostics_->diagnosticsFilter->text() : QString();
   const QString diagnosticsLevel =
-      diagnosticsLevelFilter_
-          ? diagnosticsLevelFilter_->currentData().toString()
+      diagnostics_->diagnosticsLevelFilter
+          ? diagnostics_->diagnosticsLevelFilter->currentData().toString()
           : QString();
   const QVector<SlaveInfo> currentSlaves = slaves_;
 
@@ -2548,18 +2550,18 @@ void MainWindow::rebuildUi() {
     updateStartupSdoWatchEvidence();
   }
   if (!diagnosticsRows.isEmpty()) {
-    setTableRows(diagnosticsTable_,
+    setTableRows(diagnostics_->diagnosticsTable,
                  {uiText("Time", "时间"), uiText("Level", "级别"),
                   uiText("Source", "来源"), uiText("Message", "消息")},
                  diagnosticsRows);
-    for (int row = 0; row < diagnosticsTable_->rowCount(); ++row) {
-      styleDiagnosticsRow(row, diagnosticsTable_->item(row, 1)
-                                   ? diagnosticsTable_->item(row, 1)->text()
+    for (int row = 0; row < diagnostics_->diagnosticsTable->rowCount(); ++row) {
+      styleDiagnosticsRow(row, diagnostics_->diagnosticsTable->item(row, 1)
+                                   ? diagnostics_->diagnosticsTable->item(row, 1)->text()
                                    : QString());
     }
   }
-  if (diagnosticsFilter_) {
-    diagnosticsFilter_->setText(diagnosticsFilter);
+  if (diagnostics_->diagnosticsFilter) {
+    diagnostics_->diagnosticsFilter->setText(diagnosticsFilter);
   }
   if (workflowFilter_) {
     workflowFilter_->setText(workflowFilter);
@@ -2594,9 +2596,9 @@ void MainWindow::rebuildUi() {
   if (watchChangedOnly_) {
     watchChangedOnly_->setChecked(watchChangedOnly);
   }
-  if (diagnosticsLevelFilter_) {
-    const int index = diagnosticsLevelFilter_->findData(diagnosticsLevel);
-    diagnosticsLevelFilter_->setCurrentIndex(index >= 0 ? index : 0);
+  if (diagnostics_->diagnosticsLevelFilter) {
+    const int index = diagnostics_->diagnosticsLevelFilter->findData(diagnosticsLevel);
+    diagnostics_->diagnosticsLevelFilter->setCurrentIndex(index >= 0 ? index : 0);
   }
   filterPdoTable();
   filterFreeRunEntryTable();

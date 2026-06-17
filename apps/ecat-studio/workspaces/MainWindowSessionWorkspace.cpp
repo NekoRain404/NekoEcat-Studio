@@ -781,10 +781,10 @@ void MainWindow::updateNextBestAction() {
   actionInput.matrixP1 = priorityCounts.p1;
   actionInput.matrixP2 = priorityCounts.p2;
 
-  if (diagnosticsTable_) {
-    for (int row = diagnosticsTable_->rowCount() - 1; row >= 0; --row) {
-      const QString level = diagnosticsTable_->item(row, 1)
-                                ? diagnosticsTable_->item(row, 1)->text()
+  if (diagnostics_->diagnosticsTable) {
+    for (int row = diagnostics_->diagnosticsTable->rowCount() - 1; row >= 0; --row) {
+      const QString level = diagnostics_->diagnosticsTable->item(row, 1)
+                                ? diagnostics_->diagnosticsTable->item(row, 1)->text()
                                 : QString();
       if (level == "Error") {
         actionInput.hasDiagnosticError = true;
@@ -1225,8 +1225,8 @@ void MainWindow::updateHostHealth(const QJsonArray &checks) {
   }
   hostHealthTable_->resizeColumnsToContents(); // auto-fit column widths
 
-  if (hostHealthSummaryLabel_) {
-    hostHealthSummaryLabel_->setText(uiState.summary);
+  if (diagnostics_->hostHealthSummaryLabel) {
+    diagnostics_->hostHealthSummaryLabel->setText(uiState.summary);
   }
   updateActionAvailability();
   updateCommissioningWorkflow();
@@ -1235,19 +1235,19 @@ void MainWindow::updateHostHealth(const QJsonArray &checks) {
 
 // — Recount diagnostics events by level and update the summary label
 void MainWindow::updateDiagnosticsSummary() {
-  if (!diagnosticsSummaryLabel_ || !diagnosticsTable_) {
+  if (!diagnostics_->diagnosticsSummaryLabel || !diagnostics_->diagnosticsTable) {
     return;
   }
 
   QList<DiagnosticsEventRowState> rows;
-  rows.reserve(diagnosticsTable_->rowCount());
-  for (int row = 0; row < diagnosticsTable_->rowCount(); ++row) {
-    const QString level = diagnosticsTable_->item(row, 1)
-                              ? diagnosticsTable_->item(row, 1)->text()
+  rows.reserve(diagnostics_->diagnosticsTable->rowCount());
+  for (int row = 0; row < diagnostics_->diagnosticsTable->rowCount(); ++row) {
+    const QString level = diagnostics_->diagnosticsTable->item(row, 1)
+                              ? diagnostics_->diagnosticsTable->item(row, 1)->text()
                               : QString();
-    rows.append({level, !diagnosticsTable_->isRowHidden(row)});
+    rows.append({level, !diagnostics_->diagnosticsTable->isRowHidden(row)});
   }
-  diagnosticsSummaryLabel_->setText(
+  diagnostics_->diagnosticsSummaryLabel->setText(
       diagnosticsEventSummary(rows, diagnosticsEventTexts()).text);
   updateTabBadges();
 }
@@ -1255,13 +1255,13 @@ void MainWindow::updateDiagnosticsSummary() {
 
 // — Apply foreground color to a diagnostics table row based on severity level
 void MainWindow::styleDiagnosticsRow(int row, const QString &level) {
-  if (!diagnosticsTable_ || row < 0 || row >= diagnosticsTable_->rowCount()) {
+  if (!diagnostics_->diagnosticsTable || row < 0 || row >= diagnostics_->diagnosticsTable->rowCount()) {
     return;
   }
   const QColor color =
       diagnosticsEventColorForKey(diagnosticsEventColorKey(level));
-  for (int column = 0; column < diagnosticsTable_->columnCount(); ++column) {
-    if (auto *item = diagnosticsTable_->item(row, column)) {
+  for (int column = 0; column < diagnostics_->diagnosticsTable->columnCount(); ++column) {
+    if (auto *item = diagnostics_->diagnosticsTable->item(row, column)) {
       item->setForeground(color);
     }
   }
@@ -1271,22 +1271,22 @@ void MainWindow::styleDiagnosticsRow(int row, const QString &level) {
 // — Append a timestamped entry to the diagnostics log table
 void MainWindow::updateDiagnostics(const QString &level, const QString &source,
                                    const QString &message) {
-  if (!diagnosticsTable_->columnCount()) {
-    diagnosticsTable_->setColumnCount(4);
-    diagnosticsTable_->setHorizontalHeaderLabels(
+  if (!diagnostics_->diagnosticsTable->columnCount()) {
+    diagnostics_->diagnosticsTable->setColumnCount(4);
+    diagnostics_->diagnosticsTable->setHorizontalHeaderLabels(
         diagnosticsEventHeaders(diagnosticsEventTexts()));
   }
-  const int row = diagnosticsTable_->rowCount();
-  diagnosticsTable_->insertRow(row);
-  diagnosticsTable_->setItem(
+  const int row = diagnostics_->diagnosticsTable->rowCount();
+  diagnostics_->diagnosticsTable->insertRow(row);
+  diagnostics_->diagnosticsTable->setItem(
       row, 0,
       new QTableWidgetItem(QDateTime::currentDateTime().toString("HH:mm:ss")));
-  diagnosticsTable_->setItem(row, 1, new QTableWidgetItem(level));
-  diagnosticsTable_->setItem(row, 2, new QTableWidgetItem(source));
-  diagnosticsTable_->setItem(row, 3, new QTableWidgetItem(message));
+  diagnostics_->diagnosticsTable->setItem(row, 1, new QTableWidgetItem(level));
+  diagnostics_->diagnosticsTable->setItem(row, 2, new QTableWidgetItem(source));
+  diagnostics_->diagnosticsTable->setItem(row, 3, new QTableWidgetItem(message));
   styleDiagnosticsRow(row, level);
   filterDiagnosticsTable();
-  diagnosticsTable_->resizeColumnsToContents(); // auto-fit column widths
+  diagnostics_->diagnosticsTable->resizeColumnsToContents(); // auto-fit column widths
   updateNextBestAction();
 }
 
@@ -1312,7 +1312,7 @@ void MainWindow::updateTabBadges() {
        .ioVariableTable = ioVariableTable_,
        .consistencyTable = consistency_->consistencyTable,
        .stateMachineTable = stateMachine_->stateMachineTable,
-       .diagnosticsTable = diagnosticsTable_,
+       .diagnosticsTable = diagnostics_->diagnosticsTable,
        .slaveEvidenceMatrixTable = slaveEvidenceMatrixTable_});
   const WorkspaceTabBadgeUiState badges =
       buildWorkspaceTabBadgeUiState(badgeCounts, workspaceTabBadgeTexts());

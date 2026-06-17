@@ -2688,9 +2688,9 @@ void MainWindow::wire() {
           &MainWindow::updateIoVariableRowDetail);
   connect(ioVariableTable_, &QTableWidget::cellDoubleClicked, this,
           [this](int row) { applySdoSelectionFromIoVariable(row, true); });
-  connect(diagnosticsFilter_, &QLineEdit::textChanged, this,
+  connect(diagnostics_->diagnosticsFilter, &QLineEdit::textChanged, this,
           &MainWindow::filterDiagnosticsTable);
-  connect(diagnosticsLevelFilter_,
+  connect(diagnostics_->diagnosticsLevelFilter,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this] { filterDiagnosticsTable(); });
   connect(startupSdoTable_, &QTableWidget::currentCellChanged, this, [this] {
@@ -2711,8 +2711,8 @@ void MainWindow::wire() {
           [this](int row) { applySdoSelectionFromStartup(row, true); });
   connect(findChild<QPushButton *>("clearDiagnostics"), &QPushButton::clicked,
           this, [this] {
-            diagnosticsTable_->clearContents();
-            diagnosticsTable_->setRowCount(0);
+            diagnostics_->diagnosticsTable->clearContents();
+            diagnostics_->diagnosticsTable->setRowCount(0);
             updateDiagnosticsSummary();
             updateNextBestAction();
           });
@@ -2748,7 +2748,7 @@ void MainWindow::wire() {
                       freeRunEntryTable_,
                       ioVariableTable_,
                       hostHealthTable_,
-                      diagnosticsTable_,
+                      diagnostics_->diagnosticsTable,
                       watchTable_,
                       esiTable_,
                       startupSdoTable_}) {

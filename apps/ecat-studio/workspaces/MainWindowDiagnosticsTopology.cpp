@@ -229,7 +229,7 @@ void MainWindow::exportDiagnosticsReport() {
   out << "## Host Health\n\n";
   writeMarkdownTable(out, hostHealthTable_);
   out << "## Diagnostics Events\n\n";
-  writeMarkdownTable(out, diagnosticsTable_);
+  writeMarkdownTable(out, diagnostics_->diagnosticsTable);
   out << "## Slaves\n\n";
   for (const auto &slave : slaves_) {
     out << "- #" << slave.position << " " << slave.state << " " << slave.flags
@@ -313,29 +313,29 @@ void MainWindow::exportDiagnosticsReport() {
 
 // — Apply level filter and text search to the diagnostics table
 void MainWindow::filterDiagnosticsTable() {
-  if (!diagnosticsTable_) {
+  if (!diagnostics_->diagnosticsTable) {
     return;
   }
   const QString needle =
-      diagnosticsFilter_ ? diagnosticsFilter_->text().trimmed() : QString();
-  const QString level = diagnosticsLevelFilter_
-                            ? diagnosticsLevelFilter_->currentData().toString()
+      diagnostics_->diagnosticsFilter ? diagnostics_->diagnosticsFilter->text().trimmed() : QString();
+  const QString level = diagnostics_->diagnosticsLevelFilter
+                            ? diagnostics_->diagnosticsLevelFilter->currentData().toString()
                             : QString();
 
-  for (int row = 0; row < diagnosticsTable_->rowCount(); ++row) {
-    const QString rowLevel = diagnosticsTable_->item(row, 1)
-                                 ? diagnosticsTable_->item(row, 1)->text()
+  for (int row = 0; row < diagnostics_->diagnosticsTable->rowCount(); ++row) {
+    const QString rowLevel = diagnostics_->diagnosticsTable->item(row, 1)
+                                 ? diagnostics_->diagnosticsTable->item(row, 1)->text()
                                  : QString();
     bool match = level.isEmpty() || rowLevel == level;
     if (match && !needle.isEmpty()) {
       match = false;
-      for (int column = 0; column < diagnosticsTable_->columnCount() && !match;
+      for (int column = 0; column < diagnostics_->diagnosticsTable->columnCount() && !match;
            ++column) {
-        const auto *item = diagnosticsTable_->item(row, column);
+        const auto *item = diagnostics_->diagnosticsTable->item(row, column);
         match = item && item->text().contains(needle, Qt::CaseInsensitive);
       }
     }
-    diagnosticsTable_->setRowHidden(row, !match); // show/hide based on filter match
+    diagnostics_->diagnosticsTable->setRowHidden(row, !match); // show/hide based on filter match
   }
   updateDiagnosticsSummary();
 }
@@ -575,16 +575,16 @@ QStringList MainWindow::topologyBaselineIssues() const {
 
 // — Update the baseline label with current issue count and slave count
 void MainWindow::updateTopologyBaselineSummary() {
-  if (!topologyBaselineLabel_) {
+  if (!diagnostics_->topologyBaselineLabel) {
     return;
   }
   if (topologyBaseline_.isEmpty()) {
-    topologyBaselineLabel_->setText(
+    diagnostics_->topologyBaselineLabel->setText(
         uiText("No topology baseline", "未设置拓扑基线"));
     return;
   }
   const QStringList issues = topologyBaselineIssues();
-  topologyBaselineLabel_->setText(
+  diagnostics_->topologyBaselineLabel->setText(
       issues.isEmpty()
           ? uiText("Baseline: %1 slave(s), current topology matches",
                    "基线：%1 个从站，当前拓扑匹配")

@@ -607,6 +607,7 @@ private:
   SessionWorkspaceWidgets *session_ = nullptr;
   StateMachineWorkspaceWidgets *stateMachine_ = nullptr;
   ConsistencyWorkspaceWidgets *consistency_ = nullptr;
+  DiagnosticsWorkspaceWidgets *diagnostics_ = nullptr;
   QTableWidget *workflowTable_ = nullptr;
   QTableWidget *slaveEvidenceMatrixTable_ = nullptr;
   QTableWidget *identityTable_ = nullptr;
@@ -624,7 +625,6 @@ private:
   QTableWidget *freeRunEntryTable_ = nullptr;
   QTableWidget *ioVariableTable_ = nullptr;
   QTableWidget *hostHealthTable_ = nullptr;
-  QTableWidget *diagnosticsTable_ = nullptr;
   QTableWidget *watchTable_ = nullptr;
   QTableWidget *esiTable_ = nullptr;
   QTableWidget *startupSdoTable_ = nullptr;
@@ -746,13 +746,8 @@ private:
   // ── Consistency Panel Widgets ─────────────────────────────────
   
   // ── Diagnostics Panel Widgets ─────────────────────────────────
-  QLineEdit *diagnosticsFilter_ = nullptr;
-  QComboBox *diagnosticsLevelFilter_ = nullptr;
-  QLabel *hostHealthSummaryLabel_ = nullptr;
-  QLabel *diagnosticsSummaryLabel_ = nullptr;
   QLabel *freeRunEntrySummaryLabel_ = nullptr;
   QLabel *freeRunEntryDetailLabel_ = nullptr;
-  QLabel *topologyBaselineLabel_ = nullptr;
   
   // ── Cached State ──────────────────────────────────────────────
   QString lastMasterText_;
