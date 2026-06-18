@@ -1,5 +1,4 @@
 #include "EventBus.h"
-#include "EthercatTypes.h"
 
 EventBus::EventBus(QObject *parent) : QObject(parent) {}
 

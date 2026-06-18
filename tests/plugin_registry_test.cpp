@@ -93,6 +93,14 @@ private slots:
     reg.registerPlugin(nullptr);
     QCOMPARE(reg.count(), 0);
   }
+
+  void testOutOfRangePluginAt() {
+    PluginRegistry reg;
+    MockPlugin a("a", 10);
+    reg.registerPlugin(&a);
+    QCOMPARE(reg.pluginAt(-1), nullptr);
+    QCOMPARE(reg.pluginAt(999), nullptr);
+  }
 };
 
 QTEST_MAIN(PluginRegistryTest)

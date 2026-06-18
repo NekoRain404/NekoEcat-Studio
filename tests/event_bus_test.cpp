@@ -10,9 +10,16 @@ private slots:
   void testSlaveChanged() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);
-    QVector<SlaveInfo> slaves;
+    SlaveInfo info;
+    info.position = 1;
+    info.name = "TestSlave";
+    QVector<SlaveInfo> slaves{info};
     bus.emitSlaveChanged(slaves);
     QCOMPARE(spy.count(), 1);
+    QVector<SlaveInfo> received = spy.at(0).at(0).value<QVector<SlaveInfo>>();
+    QCOMPARE(received.size(), 1);
+    QCOMPARE(received.at(0).position, 1);
+    QCOMPARE(received.at(0).name, QString("TestSlave"));
   }
   void testSdoValueReceived() {
     EventBus bus;
@@ -38,12 +45,21 @@ private slots:
     QJsonObject tel{{"running", true}};
     bus.emitFreeRunTelemetry(tel);
     QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.at(0).at(0).toJsonObject().contains("running"));
   }
   void testTopologyChanged() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::topologyChanged);
-    bus.emitTopologyChanged({});
+    SlaveInfo info;
+    info.position = 1;
+    info.name = "TestSlave";
+    QVector<SlaveInfo> slaves{info};
+    bus.emitTopologyChanged(slaves);
     QCOMPARE(spy.count(), 1);
+    QVector<SlaveInfo> received = spy.at(0).at(0).value<QVector<SlaveInfo>>();
+    QCOMPARE(received.size(), 1);
+    QCOMPARE(received.at(0).position, 1);
+    QCOMPARE(received.at(0).name, QString("TestSlave"));
   }
   void testDcSyncUpdate() {
     EventBus bus;
@@ -51,6 +67,7 @@ private slots:
     QJsonObject data{{"refClock", 0}};
     bus.emitDcSyncUpdate(data);
     QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.at(0).at(0).toJsonObject().contains("refClock"));
   }
   void testAlEvent() {
     EventBus bus;
@@ -58,6 +75,9 @@ private slots:
     QJsonObject evt{{"slave", 1}, {"code", 0x001A}};
     bus.emitAlEvent(evt);
     QCOMPARE(spy.count(), 1);
+    QJsonObject received = spy.at(0).at(0).toJsonObject();
+    QVERIFY(received.contains("slave"));
+    QVERIFY(received.contains("code"));
   }
   void testSignalData() {
     EventBus bus;

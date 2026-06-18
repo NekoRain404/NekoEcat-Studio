@@ -19,6 +19,8 @@ struct SlaveInfo {
 
     bool operator==(const SlaveInfo &other) const = default;
 };
+Q_DECLARE_METATYPE(SlaveInfo)
+Q_DECLARE_METATYPE(QVector<SlaveInfo>)
 
 struct MasterInfo {
     // Raw `ethercat master` output (timing, DC info, topology) for text-mode display.
