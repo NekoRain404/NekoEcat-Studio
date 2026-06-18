@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="/themes">
+    <file alias="catppuccin.qss">catppuccin.qss</file>
+    <file alias="cyberpunk.qss">cyberpunk.qss</file>
+    <file alias="dark.qss">dark.qss</file>
+    <file alias="dracula.qss">dracula.qss</file>
+    <file alias="gruvbox.qss">gruvbox.qss</file>
+    <file alias="light.qss">light.qss</file>
+    <file alias="monokai.qss">monokai.qss</file>
+    <file alias="nord.qss">nord.qss</file>
+    <file alias="onedark.qss">onedark.qss</file>
+    <file alias="solarized.qss">solarized.qss</file>
+    <file alias="tokyonight.qss">tokyonight.qss</file>
+  </qresource>
+</RCC>

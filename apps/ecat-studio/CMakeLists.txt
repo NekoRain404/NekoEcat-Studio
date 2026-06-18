@@ -103,9 +103,11 @@ add_executable(ecat-studio
     workspaces/MainWindowStartupSdoWorkspace.cpp
     workspaces/MainWindowTexts.cpp
     workspaces/MainWindowTheme.cpp
+    themes/ThemeManager.h             themes/ThemeManager.cpp
     workspaces/MainWindowUiBuild.cpp
     workspaces/MainWindowWatchWorkspace.cpp
     workspaces/MainWindowWatchSync.cpp
+    themes/themes.qrc
     main.cpp
 )
 target_include_directories(ecat-studio PRIVATE
@@ -117,3 +119,15 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/infra
 )
 target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core)
+
+# ── Qt Translation Files ─────────────────────────────────────────────
+qt_add_translations(ecat-studio
+    TS_FILES
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_zh.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_ja.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_de.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_ko.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_zh_TW.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_fr.ts
+        ${CMAKE_SOURCE_DIR}/translations/nekoecat_es.ts
+)
