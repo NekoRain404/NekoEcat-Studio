@@ -1502,3 +1502,18 @@ target_include_directories(concurrent_access_test PRIVATE
 set_target_properties(concurrent_access_test PROPERTIES AUTOMOC ON)
 add_test(NAME concurrent_access_test COMMAND concurrent_access_test)
 set_tests_properties(concurrent_access_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── Error Recovery Test ─────────────────────────────────────────
+add_executable(error_recovery_test
+    error_recovery_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(error_recovery_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(error_recovery_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(error_recovery_test PROPERTIES AUTOMOC ON)
+add_test(NAME error_recovery_test COMMAND error_recovery_test)
+set_tests_properties(error_recovery_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
