@@ -348,7 +348,21 @@ QString qssDark()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #0e1117;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #121722;
+            border: 1px solid #263242;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #0e1117;
+        }
+)QSS");
 }
 
 /* ── Light Theme ─────────────────────────────────────────────────────
@@ -677,7 +691,21 @@ QString qssLight()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #ffffff;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #f4f7fb;
+            border: 1px solid #d9e1ec;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #ffffff;
+        }
+)QSS");
 }
 
 /* ── Nord Theme ──────────────────────────────────────────────────────
@@ -1003,7 +1031,21 @@ QString qssNord()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #2e3440;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #3b4252;
+            border: 1px solid #434c5e;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #2e3440;
+        }
+)QSS");
 }
 
 /* ── Catppuccin Mocha Theme ──────────────────────────────────────────
@@ -1330,7 +1372,21 @@ QString qssCatppuccin()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #1e1e2e;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #181825;
+            border: 1px solid #313244;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #1e1e2e;
+        }
+)QSS");
 }
 
 /* ── Dracula Theme ───────────────────────────────────────────────────
@@ -1657,7 +1713,21 @@ QString qssDracula()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #282a36;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #21222c;
+            border: 1px solid #44475a;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #282a36;
+        }
+)QSS");
 }
 
 /* ── Solarized Dark Theme ────────────────────────────────────────────
@@ -1985,7 +2055,21 @@ QString qssSolarized()
             border-radius: 4px;
             padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #002b36;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #073642;
+            border: 1px solid #586e75;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #002b36;
+        }
+)QSS");
 }
 
 
@@ -2248,7 +2332,21 @@ QString qssGruvbox()
             background: #3c3836; color: #ebdbb2;
             border: 1px solid #d65d0e; border-radius: 4px; padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #282828;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #1d2021;
+            border: 1px solid #3c3836;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #282828;
+        }
+)QSS");
 }
 
 /* ── Tokyo Night Theme ───────────────────────────────────────────────
@@ -2409,7 +2507,21 @@ QString qssTokyoNight()
             background: #292e42; color: #c0caf5;
             border: 1px solid #7aa2f7; border-radius: 4px; padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #1a1b26;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #16161e;
+            border: 1px solid #292e42;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #1a1b26;
+        }
+)QSS");
 }
 
 /* ── One Dark Theme ──────────────────────────────────────────────────
@@ -2570,7 +2682,21 @@ QString qssOneDark()
             background: #3e4451; color: #abb2bf;
             border: 1px solid #528bff; border-radius: 4px; padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #282c34;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #21252b;
+            border: 1px solid #3e4451;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #282c34;
+        }
+)QSS");
 }
 
 /* ── Monokai Pro Theme ───────────────────────────────────────────────
@@ -2731,7 +2857,21 @@ QString qssMonokai()
             background: #3e3d32; color: #f8f8f2;
             border: 1px solid #f92672; border-radius: 4px; padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #272822;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #1e1f1c;
+            border: 1px solid #49483e;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #272822;
+        }
+)QSS");
 }
 
 /* ── Cyberpunk Theme ─────────────────────────────────────────────────
@@ -2898,7 +3038,21 @@ QString qssCyberpunk()
             background: #1a0a3e; color: #05d9e8;
             border: 1px solid #ff2a6d; border-radius: 4px; padding: 4px 8px;
         }
-    )QSS");
+    
+        QFrame {
+            background: #0d0221;
+            border: none;
+            border-radius: 0px;
+        }
+        QFrame#metricCard {
+            background: #0a0118;
+            border: 1px solid #1a0a3e;
+            border-radius: 8px;
+        }
+        QWidget {
+            background: #0d0221;
+        }
+)QSS");
 }
 
 
