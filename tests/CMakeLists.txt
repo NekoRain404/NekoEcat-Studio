@@ -1155,6 +1155,21 @@ target_include_directories(event_bus_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-
 add_test(NAME event_bus_test COMMAND event_bus_test)
 set_tests_properties(event_bus_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# ── EventBus Integration Test ─────────────────────────────────────────
+add_executable(event_bus_integration_test
+    event_bus_integration_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(event_bus_integration_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(event_bus_integration_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(event_bus_integration_test PROPERTIES AUTOMOC ON)
+add_test(NAME event_bus_integration_test COMMAND event_bus_integration_test)
+set_tests_properties(event_bus_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 # ── PluginRegistry ─────────────────────────────────────────────────────
 add_executable(plugin_registry_test
     plugin_registry_test.cpp
