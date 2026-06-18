@@ -1483,3 +1483,18 @@ target_include_directories(large_data_boundary_test PRIVATE
 set_target_properties(large_data_boundary_test PROPERTIES AUTOMOC ON)
 add_test(NAME large_data_boundary_test COMMAND large_data_boundary_test)
 set_tests_properties(large_data_boundary_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── Concurrent Access Test ─────────────────────────────────────────
+add_executable(concurrent_access_test
+    concurrent_access_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(concurrent_access_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(concurrent_access_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(concurrent_access_test PROPERTIES AUTOMOC ON)
+add_test(NAME concurrent_access_test COMMAND concurrent_access_test)
+set_tests_properties(concurrent_access_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
