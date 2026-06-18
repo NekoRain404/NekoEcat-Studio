@@ -114,6 +114,10 @@ QWidget *SettingsDialog::buildAppearanceTab(const AppSettings &s, bool zh)
     themeCombo_->setCurrentText(s.theme);
     addFormRow(form, zh ? QStringLiteral("主题") : QStringLiteral("Theme"), themeCombo_);
 
+    /* Emit live preview signal when user selects a different theme. */
+    connect(themeCombo_, &QComboBox::currentTextChanged,
+            this, &SettingsDialog::themePreviewRequested);
+
     languageCombo_ = new QComboBox;
     for (const auto &lang : LanguageManager::instance().languages()) {
         languageCombo_->addItem(lang.displayName);

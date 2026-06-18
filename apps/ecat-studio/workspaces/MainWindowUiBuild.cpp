@@ -940,10 +940,10 @@ void MainWindow::buildUi() {
   overviewGrid->setRowStretch(1, 1);
   overviewGrid->setRowStretch(3, 1);
   detailsLayout->addLayout(overviewGrid, 1);
+  overviewTabs->addTab(detailsPage, uiText("Details", "细节"));
   overviewTabs->addTab(briefPage, uiText("Brief", "简报"));
   overviewTabs->addTab(workflowPage, uiText("Workflow", "工作流"));
   overviewTabs->addTab(matrixPage, uiText("Matrix", "矩阵"));
-  overviewTabs->addTab(detailsPage, uiText("Details", "细节"));
   overviewLayout->addWidget(overviewTabs, 1);
 
   auto *sdoPage = new QWidget;

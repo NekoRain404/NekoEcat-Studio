@@ -784,21 +784,38 @@ void MainWindow::saveSettings() {
 }
 
 // Open settings dialog; apply changes and rebuild UI if language changed
+// Open settings dialog with live theme preview.
+// When the user selects a theme in the combo, it is applied immediately
+// as a temporary preview. On OK the new settings are persisted; on Cancel
+// the original theme (and all other settings) are restored.
 void MainWindow::openSettings() {
   const QString previousLanguage = settings_.language;
   const QString previousMaster = settings_.activeMaster;
+  const QString previousTheme = settings_.theme;
+
   SettingsDialog dialog(settings_, this);
-    // Multi-branch condition check
+
+  /* Live theme preview: temporarily apply each theme as the user selects it. */
+  connect(&dialog, &SettingsDialog::themePreviewRequested,
+          this, [this](const QString &theme) {
+    settings_.theme = theme;
+    applyTheme();
+  });
+
   if (dialog.exec() != QDialog::Accepted) {
+    /* Revert to the original theme on cancel. */
+    settings_.theme = previousTheme;
+    applyTheme();
     return;
   }
+
   settings_ = dialog.settings();
   if (settings_.activeMaster != previousMaster) {
     clearOnlineViews();
   }
   client_.setMasterTarget(settings_.activeMaster);
   saveSettings();
-    // Multi-branch condition check
+
   if (settings_.language != previousLanguage) {
     rebuildUi();
     applySettings();

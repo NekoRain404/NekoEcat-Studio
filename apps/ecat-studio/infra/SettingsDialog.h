@@ -85,6 +85,11 @@ public:
     explicit SettingsDialog(const AppSettings &settings, QWidget *parent = nullptr);
     AppSettings settings() const;
 
+signals:
+    // Emitted when the user selects a different theme in the combo box.
+    // MainWindow connects to this for live preview before confirmation.
+    void themePreviewRequested(const QString &themeName);
+
 private:
     // ── Tab builders ──────────────────────────────────────────────
     QWidget *buildAppearanceTab(const AppSettings &s, bool zh);
