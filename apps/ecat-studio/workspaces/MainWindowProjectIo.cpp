@@ -37,6 +37,8 @@ void MainWindow::openProject() {
   if (!readProjectFile(path)) {
     QMessageBox::warning(this, uiText("Open Project", "打开工程"),
                          uiText("Failed to open project.", "工程打开失败。"));
+  } else {
+    addToRecentProjects(path);
   }
 }
 
@@ -50,6 +52,8 @@ void MainWindow::saveProject() {
   if (!writeProjectFile(projectPath_)) {
     QMessageBox::warning(this, uiText("Save Project", "保存工程"),
                          uiText("Failed to save project.", "工程保存失败。"));
+  } else {
+    addToRecentProjects(projectPath_);
   }
 }
 
@@ -66,6 +70,8 @@ void MainWindow::saveProjectAs() {
   if (!writeProjectFile(path)) {
     QMessageBox::warning(this, uiText("Save Project As", "工程另存为"),
                          uiText("Failed to save project.", "工程保存失败。"));
+  } else {
+    addToRecentProjects(path);
   }
 }
 

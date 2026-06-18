@@ -316,6 +316,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   QAction *copyDictionaryEvidence = nullptr;
   QAction *bookmarkDictionaryObject = nullptr;
   QAction *bookmarkSelectedDictionaryObjects = nullptr;
+  QAction *odMonitorChart = nullptr;
   QAction *fillSdoFromPdo = nullptr;
   QAction *readSdoFromPdo = nullptr;
   QAction *addWatchFromPdo = nullptr;
@@ -323,6 +324,8 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   QAction *fillSdoFromWatch = nullptr;
   QAction *readSdoFromWatch = nullptr;
   QAction *readWatch = nullptr;
+  QAction *readSelectedWatch = nullptr;
+  QAction *readVisibleWatch = nullptr;
   QAction *captureWatchBaselineAction = nullptr;
   QAction *clearWatchBaselineAction = nullptr;
   QAction *addStartupFromWatch = nullptr;
@@ -565,6 +568,11 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     // Enable/disable based on action availability
     bookmarkSelectedDictionaryObjects->setEnabled(dictionaryReady &&
                                                   hasDictionarySelection);
+    odMonitorChart =
+    // Add menu action with icon and handler
+        menu.addAction(uiText("Real-time Monitor", "实时监视"));
+    // Enable/disable based on action availability
+    odMonitorChart->setEnabled(dictionaryReady && hasDictionaryRow);
     // Add visual separator between menu groups
     menu.addSeparator();
     filterDictionaryEvidence =
@@ -631,6 +639,22 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
     readWatch = menu.addAction(uiText("Read Watch Item", "读取监视项"));
     // Enable/disable based on action availability
     readWatch->setEnabled(hasWatchRow && client_.isConnected());
+    readSelectedWatch = menu.addAction(uiText("Read Selected Watch Items", "读取选中监视项"));
+    {
+        bool hasSel = false;
+        for (const int r : selectedTableRows(table)) {
+            if (r >= 0 && r < table->rowCount()) { hasSel = true; break; }
+        }
+        readSelectedWatch->setEnabled(hasSel && client_.isConnected());
+    }
+    readVisibleWatch = menu.addAction(uiText("Read Visible Watch Items", "读取可见监视项"));
+    {
+        bool hasVis = false;
+        for (int r = 0; r < table->rowCount(); ++r) {
+            if (!table->isRowHidden(r)) { hasVis = true; break; }
+        }
+        readVisibleWatch->setEnabled(hasVis && client_.isConnected());
+    }
     captureWatchBaselineAction =
     // Add menu action with icon and handler
         menu.addAction(uiText("Capture Watch Baseline", "捕获 Watch 基线"));
@@ -1094,6 +1118,8 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
                                  uiText("context row", "右键行"));
   } else if (chosen == bookmarkSelectedDictionaryObjects) {
     addSelectedDictionaryRowsToBookmarks();
+  } else if (chosen == odMonitorChart) {
+    addSelectedOdToFreeRunChart();
   } else if (chosen == filterDictionaryEvidence) {
     setSdoFilterPreset("tag:evidence");
   } else if (chosen == filterDictionaryFailed) {
@@ -1158,6 +1184,33 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
       requestSdoRead(position, index, subIndex,
                      uiText("Watch context menu", "监视右键菜单"), type);
     }
+  } else if (chosen == readSelectedWatch) {
+    int count = 0;
+    for (const int r : selectedTableRows(table)) {
+        const int pos = table->item(r, 1) ? table->item(r, 1)->text().toInt() : -1;
+        const QString idx = table->item(r, 2) ? table->item(r, 2)->text().trimmed() : QString();
+        const QString sub = table->item(r, 3) ? table->item(r, 3)->text().trimmed() : QString();
+        if (pos >= 0 && !idx.isEmpty() && !sub.isEmpty()) {
+            const QString type = table->item(r, 6) ? table->item(r, 6)->text().trimmed() : QString();
+            requestSdoRead(pos, idx, sub, uiText("Bulk Watch read", "批量监视读取"), type);
+            ++count;
+        }
+    }
+    updateDiagnostics("Info", "Watch", QString("Bulk read requested for %1 selected item(s)").arg(count));
+  } else if (chosen == readVisibleWatch) {
+    int count = 0;
+    for (int r = 0; r < table->rowCount(); ++r) {
+        if (table->isRowHidden(r)) continue;
+        const int pos = table->item(r, 1) ? table->item(r, 1)->text().toInt() : -1;
+        const QString idx = table->item(r, 2) ? table->item(r, 2)->text().trimmed() : QString();
+        const QString sub = table->item(r, 3) ? table->item(r, 3)->text().trimmed() : QString();
+        if (pos >= 0 && !idx.isEmpty() && !sub.isEmpty()) {
+            const QString type = table->item(r, 6) ? table->item(r, 6)->text().trimmed() : QString();
+            requestSdoRead(pos, idx, sub, uiText("Bulk Watch read", "批量监视读取"), type);
+            ++count;
+        }
+    }
+    updateDiagnostics("Info", "Watch", QString("Bulk read requested for %1 visible item(s)").arg(count));
   } else if (chosen == captureWatchBaselineAction) {
     captureWatchBaseline();
   } else if (chosen == clearWatchBaselineAction) {

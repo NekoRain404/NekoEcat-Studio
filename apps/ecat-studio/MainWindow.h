@@ -8,6 +8,8 @@
 #include "SettingsDialog.h"
 #include "workspaces/WorkspaceWidgets.h"
 
+class QMenu;
+
 #include <QHash>
 #include <QMainWindow>
 #include <QProcess>
@@ -329,6 +331,7 @@ private:
 
   // ── Free Run Real-time Chart ─────────────────────────────────
   void openFreeRunChart();
+  void addSelectedOdToFreeRunChart();
   
   // Load a project file (.ecat.json) and restore all tables
   // ── SDO Inspector & Target Panel ──────────────────────────────
@@ -746,6 +749,11 @@ private:
   QVector<SlaveInfo> topologyBaseline_;
   QString projectPath_;
   QString projectName_ = "Untitled";
+  QStringList recentProjectPaths_;
+  QMenu *recentProjectsMenu_ = nullptr;
+  static constexpr int kMaxRecentProjects = 10;
+  void updateRecentProjectsMenu();
+  void addToRecentProjects(const QString &path);
   AppSettings settings_;
   bool freeRun_ = false;
   bool consistencyFresh_ = false;

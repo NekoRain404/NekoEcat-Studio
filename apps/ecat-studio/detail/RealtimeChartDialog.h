@@ -68,6 +68,7 @@ public:
     void setFreeRunRow(int row) { freeRunRow_ = row; }
     int freeRunRow() const { return freeRunRow_; }
     int totalPoints() const { return chart_ ? totalPoints_ : 0; }
+    const QString &entryKey() const { return entryKey_; }
 
 signals:
     void pollingIntervalChanged(int intervalMs);

@@ -1,5 +1,7 @@
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
+#include "detail/RealtimeChartDialog.h"
 #include "MainWindow.h"
+#include "detail/RealtimeChartDialog.h"
 #include "infra/TranslationRegistry.h"
 #include "infra/LanguageManager.h"
 #include "Cia402DriveModel.h"
@@ -666,6 +668,51 @@ void MainWindow::updateActionAvailability() {
 // Restore all persisted preferences from QSettings.
 // Covers appearance, master profiles, timing, Free Run, display,
 // notifications, and export settings.
+
+// ── Recent Projects Management ────────────────────────────────────────
+void MainWindow::addToRecentProjects(const QString &path)
+{
+    if (path.isEmpty()) return;
+    recentProjectPaths_.removeAll(path);
+    recentProjectPaths_.prepend(path);
+    while (recentProjectPaths_.size() > kMaxRecentProjects)
+        recentProjectPaths_.removeLast();
+    updateRecentProjectsMenu();
+    saveSettings();
+}
+
+void MainWindow::updateRecentProjectsMenu()
+{
+    if (!recentProjectsMenu_) return;
+    recentProjectsMenu_->clear();
+    recentProjectsMenu_->setEnabled(!recentProjectPaths_.isEmpty());
+    for (int i = 0; i < recentProjectPaths_.size(); ++i) {
+        const QString &p = recentProjectPaths_[i];
+        const QString label = QString("&%1 %2").arg(i + 1).arg(QFileInfo(p).fileName());
+        auto *action = recentProjectsMenu_->addAction(label);
+        action->setToolTip(p);
+        action->setData(p);
+        connect(action, &QAction::triggered, this, [this, p]() {
+            if (!readProjectFile(p)) {
+                QMessageBox::warning(this, uiText("Open Project", "打开工程"),
+                                     uiText("Failed to open project.", "工程打开失败。"));
+            } else {
+                addToRecentProjects(p);
+            }
+        });
+    }
+    if (!recentProjectPaths_.isEmpty()) {
+        recentProjectsMenu_->addSeparator();
+        auto *clearAction = recentProjectsMenu_->addAction(
+            uiText("Clear Recent Projects", "清除最近工程"));
+        connect(clearAction, &QAction::triggered, this, [this]() {
+            recentProjectPaths_.clear();
+            updateRecentProjectsMenu();
+            saveSettings();
+        });
+    }
+}
+
 void MainWindow::loadSettings() {
   QSettings s("NekoEcatStudio", "NekoEcatStudio");
 
@@ -728,6 +775,9 @@ void MainWindow::loadSettings() {
   settings_.exportIncludeTimestamp = s.value("export/includeTimestamp", true).toBool();
   settings_.exportIncludeMetadata = s.value("export/includeMetadata", true).toBool();
   settings_.csvDelimiter = s.value("export/csvDelimiter", ",").toString();
+
+  // ── Recent Projects ──────────────────────────────────────────
+  recentProjectPaths_ = s.value("recentProjects/paths").toStringList();
 }
 
 // Persist all current preferences to QSettings.
@@ -781,6 +831,9 @@ void MainWindow::saveSettings() {
   s.setValue("export/includeTimestamp", settings_.exportIncludeTimestamp);
   s.setValue("export/includeMetadata", settings_.exportIncludeMetadata);
   s.setValue("export/csvDelimiter", settings_.csvDelimiter);
+
+  // ── Recent Projects ──────────────────────────────────────────
+  s.setValue("recentProjects/paths", recentProjectPaths_);
 }
 
 // Open settings dialog; apply changes and rebuild UI if language changed
@@ -2648,6 +2701,20 @@ void MainWindow::wire() {
         if (currentMode.trimmed().isEmpty()) {
           setCell(7, "Watch");
         }
+        /* Feed OD-monitor charts that track this position:index:subIndex. */
+        {
+            const QString odPrefix = QString("od_%1_%2").arg(index, subIndex);
+            for (auto *chart : openCharts_) {
+                if (!chart) continue;
+                if (chart->entryKey().startsWith(odPrefix)) {
+                    bool numOk = false;
+                    double v = value.toDouble(&numOk);
+                    if (!numOk) v = value.toULongLong(&numOk, 16);
+                    if (numOk) chart->feedValue(v);
+                }
+            }
+        }
+
         updateWatchBaselineDelta(row);
         updateWatchStartupDelta(row);
         if (changed) {

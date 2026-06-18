@@ -66,3 +66,48 @@ void MainWindow::openFreeRunChart()
 
     dialog->show();
 }
+
+// Adds the selected Object Dictionary entry to a real-time chart.
+// Creates a Watch entry for the OD item, then opens a RealtimeChartDialog.
+// The chart will be fed by the Watch polling cycle.
+void MainWindow::addSelectedOdToFreeRunChart()
+{
+    if (!sdo_ || !sdo_->sdoTable) return;
+
+    auto *table = sdo_->sdoTable;
+    const int row = table->currentRow();
+    if (row < 0) return;
+
+    /* Read OD entry info from the table. */
+    const QString index = tableText(table, row, 1);
+    const QString subIndex = tableText(table, row, 2);
+    const QString name = tableText(table, row, 6);
+    if (index.isEmpty()) return;
+
+    /* Try to read current value. */
+    double currentValue = 0.0;
+    const QString valStr = tableText(table, row, 7);
+    bool ok = false;
+    currentValue = valStr.toDouble(&ok);
+    if (!ok) currentValue = valStr.toULongLong(&ok, 16);
+
+    /* Build a display label and key. */
+    const QString label = name.isEmpty()
+        ? QString("%1:%2").arg(index, subIndex)
+        : QString("%1:%2 %3").arg(index, subIndex, name);
+    const QString key = QString("od_%1_%2_%3").arg(index, subIndex)
+        .arg(QDateTime::currentMSecsSinceEpoch());
+
+    /* Create chart dialog. */
+    auto *dialog = new RealtimeChartDialog(label, key, currentValue, this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &QObject::destroyed, this, [this, dialog]() {
+        openCharts_.removeOne(dialog);
+    });
+    openCharts_.append(dialog);
+
+    /* Also add to Watch for periodic polling. */
+    addSelectedDictionaryRowsToWatch();
+
+    dialog->show();
+}

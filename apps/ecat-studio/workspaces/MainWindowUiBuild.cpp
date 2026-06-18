@@ -106,6 +106,14 @@ void MainWindow::buildUi() {
   saveProjectAsAction->setObjectName("saveProjectAsAction");
   saveProjectAsAction->setShortcut(QKeySequence::SaveAs);
   fileMenu->addSeparator();
+
+  /* ── Recent Projects submenu ───────────────────────────────────── */
+  recentProjectsMenu_ = fileMenu->addMenu(
+      style()->standardIcon(QStyle::SP_FileDialogListView),
+      uiText("Recent Projects", "最近使用的工程"));
+  recentProjectsMenu_->setObjectName("recentProjectsMenu");
+  updateRecentProjectsMenu();
+  fileMenu->addSeparator();
   auto *exportAction = fileMenu->addAction(
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       uiText("Export Diagnostics Report", "导出诊断报告"));
@@ -2320,6 +2328,24 @@ void MainWindow::buildUi() {
   pdoRawTabIndex_ = tabs_->addTab(rawText_->pdoText, uiText("PDO Raw", "PDO 原始输出"));
   sdoRawTabIndex_ = tabs_->addTab(rawText_->sdoText, uiText("SDO Raw", "SDO 原始输出"));
   tabs_->setCurrentIndex(0);
+
+  /* ── Tab-switching shortcuts (Ctrl+1~9) ─────────────────────────── */
+  for (int i = 0; i < qMin(9, tabs_->count()); ++i) {
+      auto *shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(i + 1)), this);
+      connect(shortcut, &QShortcut::activated, this, [this, i]() {
+          if (i < tabs_->count()) tabs_->setCurrentIndex(i);
+      });
+  }
+  /* Ctrl+Tab / Ctrl+Shift+Tab cycle tabs forward/backward. */
+  auto *nextTabShortcut = new QShortcut(QKeySequence("Ctrl+Tab"), this);
+  connect(nextTabShortcut, &QShortcut::activated, this, [this]() {
+      tabs_->setCurrentIndex((tabs_->currentIndex() + 1) % tabs_->count());
+  });
+  auto *prevTabShortcut = new QShortcut(QKeySequence("Ctrl+Shift+Tab"), this);
+  connect(prevTabShortcut, &QShortcut::activated, this, [this]() {
+      tabs_->setCurrentIndex((tabs_->currentIndex() - 1 + tabs_->count()) % tabs_->count());
+  });
+
   rightLayout->addWidget(tabs_);
     // Add widget to layout
   root->addWidget(right);
