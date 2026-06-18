@@ -1120,3 +1120,24 @@ add_test(NAME settings_persistence_test COMMAND settings_persistence_test)
 set_tests_properties(settings_persistence_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+# ── Workspace plugin interface ──────────────────────────────────────────
+add_executable(workspace_plugin_interface_test
+    workspace_plugin_interface_test.cpp
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+)
+
+target_include_directories(workspace_plugin_interface_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+)
+target_link_libraries(workspace_plugin_interface_test PRIVATE
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::Test
+)
+
+set_target_properties(workspace_plugin_interface_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME workspace_plugin_interface_test
+    COMMAND workspace_plugin_interface_test
+)

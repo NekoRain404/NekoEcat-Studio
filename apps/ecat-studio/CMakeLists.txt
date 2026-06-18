@@ -10,6 +10,9 @@
 #   (root)       MainWindow core, main entry point
 
 add_executable(ecat-studio
+    # ── Plugins ───────────────────────────────────────────────────────
+    plugins/WorkspacePlugin.h
+
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h
     models/CommissioningWorkflowModel.cpp              models/CommissioningWorkflowModel.h
