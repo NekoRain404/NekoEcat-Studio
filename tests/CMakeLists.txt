@@ -1405,3 +1405,36 @@ target_include_directories(plugin_integration_test PRIVATE
 set_target_properties(plugin_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME plugin_integration_test COMMAND plugin_integration_test)
 set_tests_properties(plugin_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── Service Integration Test ─────────────────────────────────────────
+add_executable(service_integration_test
+    service_integration_test.cpp
+    ../apps/ecat-studio/services/ServiceContainer.cpp
+    ../apps/ecat-studio/services/ServiceContainer.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/services/SdoService.cpp
+    ../apps/ecat-studio/services/SdoService.h
+    ../apps/ecat-studio/services/WatchService.cpp
+    ../apps/ecat-studio/services/WatchService.h
+    ../apps/ecat-studio/services/TopologyService.cpp
+    ../apps/ecat-studio/services/TopologyService.h
+    ../apps/ecat-studio/services/DcSyncService.cpp
+    ../apps/ecat-studio/services/DcSyncService.h
+    ../apps/ecat-studio/services/AlEventService.cpp
+    ../apps/ecat-studio/services/AlEventService.h
+    ../apps/ecat-studio/services/SignalService.cpp
+    ../apps/ecat-studio/services/SignalService.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+target_link_libraries(service_integration_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(service_integration_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(service_integration_test PROPERTIES AUTOMOC ON)
+add_test(NAME service_integration_test COMMAND service_integration_test)
+set_tests_properties(service_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
