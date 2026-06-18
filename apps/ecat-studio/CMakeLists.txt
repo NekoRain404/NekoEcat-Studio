@@ -15,6 +15,8 @@ add_executable(ecat-studio
     plugins/notes/NotesPlugin.h              plugins/notes/NotesPlugin.cpp
     plugins/dcsync/DcSyncPlugin.h                plugins/dcsync/DcSyncPlugin.cpp
     plugins/alevent/AlEventPlugin.h            plugins/alevent/AlEventPlugin.cpp
+    plugins/signal/SignalPlugin.h              plugins/signal/SignalPlugin.cpp
+    plugins/signal/SignalChartWidget.h         plugins/signal/SignalChartWidget.cpp
     plugins/WorkspacePlugin.h
 
     # ── Services ──────────────────────────────────────────────────────
@@ -24,6 +26,7 @@ add_executable(ecat-studio
     services/TopologyService.h                 services/TopologyService.cpp
     services/DcSyncService.h                      services/DcSyncService.cpp
     services/AlEventService.h                  services/AlEventService.cpp
+    services/SignalService.h                   services/SignalService.cpp
 
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h

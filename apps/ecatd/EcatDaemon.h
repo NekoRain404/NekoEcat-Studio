@@ -12,6 +12,7 @@
 #include "handlers/AlEventHandler.h"
 #include "handlers/DcSyncHandler.h"
 #include "handlers/AdapterHandler.h"
+#include "handlers/SignalHandler.h"
 
 #include <QHash>
 #include <QObject>
@@ -52,6 +53,8 @@ private:
     DcSyncHandler dcSyncHandler_;
     // Discovers and configures host NICs for IgH master binding.
     AdapterHandler adapterHandler_;
+    // Multi-channel signal acquisition handler for real-time monitoring.
+    SignalHandler signalHandler_;
     // Periodic timer that polls slave AL status every second.
     QTimer *alPollTimer_ = nullptr;
     void setupHandlers();

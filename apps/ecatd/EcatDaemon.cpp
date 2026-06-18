@@ -306,6 +306,21 @@ void EcatDaemon::setupHandlers() {
     dispatcher_.registerHandler("setAdapter", [this](const QString &id, const QJsonObject &params) {
         return adapterHandler_.handleSet(id, params);
     });
+
+    dispatcher_.registerHandler("signalPoll", [this](const QString &id, const QJsonObject &p) {
+        return signalHandler_.handlePoll(id, p);
+    });
+    dispatcher_.registerHandler("signalSubscribe", [this](const QString &id, const QJsonObject &p) {
+        int ch = signalHandler_.subscribe(p.value("name").toString(),
+                                           p.value("slave").toInt(),
+                                           p.value("index").toString(),
+                                           p.value("subIndex").toString());
+        return CommandDispatcher::success(id, {{"channelId", ch}});
+    });
+    dispatcher_.registerHandler("signalUnsubscribe", [this](const QString &id, const QJsonObject &p) {
+        signalHandler_.unsubscribe(p.value("channelId").toInt());
+        return CommandDispatcher::success(id);
+    });
 }
 
 // Serialize a JSON response object and write it as a newline-delimited frame to the client socket.

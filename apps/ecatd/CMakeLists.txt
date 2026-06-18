@@ -12,6 +12,8 @@ add_executable(ecatd
     handlers/AlEventHandler.h
     handlers/AlEventHandler.cpp
     handlers/DcSyncHandler.h
+    handlers/SignalHandler.h
+    handlers/SignalHandler.cpp
     handlers/DcSyncHandler.cpp
     main.cpp
 )

@@ -1310,3 +1310,58 @@ add_test(NAME al_event_service_test COMMAND al_event_service_test)
 set_tests_properties(al_event_service_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+# ── SignalHandler (daemon) ─────────────────────────────────────────
+add_executable(signal_handler_test
+    signal_handler_test.cpp
+    ../apps/ecatd/handlers/SignalHandler.cpp
+    ../apps/ecatd/handlers/SignalHandler.h
+    ../apps/ecatd/CommandDispatcher.cpp
+    ../apps/ecatd/CommandDispatcher.h
+)
+target_include_directories(signal_handler_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecatd
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(signal_handler_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(signal_handler_test PROPERTIES AUTOMOC ON)
+add_test(NAME signal_handler_test COMMAND signal_handler_test)
+
+# ── SignalPlugin + SignalService (GUI) ────────────────────────────────
+add_executable(signal_service_test
+    signal_service_test.cpp
+    ../apps/ecat-studio/plugins/signal/SignalPlugin.cpp
+    ../apps/ecat-studio/plugins/signal/SignalPlugin.h
+    ../apps/ecat-studio/plugins/signal/SignalChartWidget.cpp
+    ../apps/ecat-studio/plugins/signal/SignalChartWidget.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/services/SignalService.cpp
+    ../apps/ecat-studio/services/SignalService.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+
+target_include_directories(signal_service_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+target_link_libraries(signal_service_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+
+set_target_properties(signal_service_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME signal_service_test COMMAND signal_service_test)
+set_tests_properties(signal_service_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
