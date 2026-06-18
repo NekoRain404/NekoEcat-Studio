@@ -1180,3 +1180,17 @@ add_test(NAME plugin_registry_test
 set_tests_properties(plugin_registry_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+
+# ── NotesPlugin ─────────────────────────────────────────────────────
+add_executable(notes_plugin_test
+    notes_plugin_test.cpp
+    ../apps/ecat-studio/plugins/notes/NotesPlugin.cpp
+    ../apps/ecat-studio/plugins/notes/NotesPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+)
+target_link_libraries(notes_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
+target_include_directories(notes_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
+set_target_properties(notes_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME notes_plugin_test COMMAND notes_plugin_test)
+set_tests_properties(notes_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

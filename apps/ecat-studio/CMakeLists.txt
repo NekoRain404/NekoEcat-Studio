@@ -12,6 +12,7 @@
 add_executable(ecat-studio
     # ── Plugins ───────────────────────────────────────────────────────
     plugins/PluginRegistry.h                 plugins/PluginRegistry.cpp
+    plugins/notes/NotesPlugin.h              plugins/notes/NotesPlugin.cpp
     plugins/WorkspacePlugin.h
 
     # ── Services ──────────────────────────────────────────────────────
