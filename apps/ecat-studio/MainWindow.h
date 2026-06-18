@@ -321,6 +321,10 @@ private:
   void exportStartupSdoCsv();
   void exportTopologyCsv();
   void exportHostHealthCsv();
+  void exportPdoRawText();
+  void exportSdoRawText();
+  void exportMasterRawText();
+  void exportSlaveRawText();
   
   // Load a project file (.ecat.json) and restore all tables
   // ── SDO Inspector & Target Panel ──────────────────────────────

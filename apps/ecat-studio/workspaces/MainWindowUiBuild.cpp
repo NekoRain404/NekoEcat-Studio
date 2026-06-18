@@ -173,6 +173,24 @@ void MainWindow::buildUi() {
       uiText("Host Health CSV", "主机健康 CSV"));
   exportHealthAction->setObjectName("exportHostHealthAction");
 
+  /* ── Raw text exports ─────────────────────────────────────── */
+  dataExportMenu->addSeparator();
+  auto *exportPdoRawAction = dataExportMenu->addAction(
+      uiText("PDO Raw Text", "PDO 原始输出"));
+  exportPdoRawAction->setObjectName("exportPdoRawAction");
+
+  auto *exportSdoRawAction = dataExportMenu->addAction(
+      uiText("SDO Raw Text", "SDO 原始输出"));
+  exportSdoRawAction->setObjectName("exportSdoRawAction");
+
+  auto *exportMasterRawAction = dataExportMenu->addAction(
+      uiText("Master Raw Text", "主站原始输出"));
+  exportMasterRawAction->setObjectName("exportMasterRawAction");
+
+  auto *exportSlaveRawAction = dataExportMenu->addAction(
+      uiText("Slave Raw Text", "从站原始输出"));
+  exportSlaveRawAction->setObjectName("exportSlaveRawAction");
+
   fileMenu->addSeparator();
   fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogCloseButton),
                       uiText("Exit", "退出"), this, &QWidget::close);

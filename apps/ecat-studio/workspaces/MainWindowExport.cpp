@@ -343,3 +343,120 @@ void MainWindow::exportHostHealthCsv()
     updateDiagnostics("Info", "Host Health",
         uiText("Exported %1 host health row(s): %2", "已导出 %1 条主机健康项：%2").arg(n).arg(path));
 }
+
+// ── Export PDO Raw ──────────────────────────────────────────────────
+// Exports the PDO raw text panel content (ethercat pdo output) to a text file.
+void MainWindow::exportPdoRawText()
+{
+    if (!rawText_ || !rawText_->pdoText || rawText_->pdoText->toPlainText().isEmpty()) {
+        QMessageBox::information(this,
+            uiText("Export PDO Raw", "导出 PDO 原始输出"),
+            uiText("No PDO raw data is available to export.",
+                   "当前没有可导出的 PDO 原始数据。"));
+        return;
+    }
+    const QString path = promptSavePath(this,
+        uiText("Export PDO Raw Text", "导出 PDO 原始输出"),
+        QString("ethercat-pdo-raw-%1.txt")
+            .arg(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss")),
+        "Text (*.txt);;All (*)");
+    if (path.isEmpty()) return;
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, uiText("Export failed", "导出失败"), file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << rawText_->pdoText->toPlainText();
+    updateDiagnostics("Info", "PDO Raw",
+        uiText("Exported PDO raw text: %1", "已导出 PDO 原始输出：%1").arg(path));
+}
+
+// ── Export SDO Raw ──────────────────────────────────────────────────
+// Exports the SDO raw text panel content (ethercat sdo output) to a text file.
+void MainWindow::exportSdoRawText()
+{
+    if (!rawText_ || !rawText_->sdoText || rawText_->sdoText->toPlainText().isEmpty()) {
+        QMessageBox::information(this,
+            uiText("Export SDO Raw", "导出 SDO 原始输出"),
+            uiText("No SDO raw data is available to export.",
+                   "当前没有可导出的 SDO 原始数据。"));
+        return;
+    }
+    const QString path = promptSavePath(this,
+        uiText("Export SDO Raw Text", "导出 SDO 原始输出"),
+        QString("ethercat-sdo-raw-%1.txt")
+            .arg(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss")),
+        "Text (*.txt);;All (*)");
+    if (path.isEmpty()) return;
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, uiText("Export failed", "导出失败"), file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << rawText_->sdoText->toPlainText();
+    updateDiagnostics("Info", "SDO Raw",
+        uiText("Exported SDO raw text: %1", "已导出 SDO 原始输出：%1").arg(path));
+}
+
+// ── Export Master Raw ───────────────────────────────────────────────
+// Exports the master raw text panel content to a text file.
+void MainWindow::exportMasterRawText()
+{
+    if (!rawText_ || !rawText_->masterText || rawText_->masterText->toPlainText().isEmpty()) {
+        QMessageBox::information(this,
+            uiText("Export Master Raw", "导出主站原始输出"),
+            uiText("No master raw data is available to export.",
+                   "当前没有可导出的主站原始数据。"));
+        return;
+    }
+    const QString path = promptSavePath(this,
+        uiText("Export Master Raw Text", "导出主站原始输出"),
+        QString("ethercat-master-raw-%1.txt")
+            .arg(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss")),
+        "Text (*.txt);;All (*)");
+    if (path.isEmpty()) return;
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, uiText("Export failed", "导出失败"), file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << rawText_->masterText->toPlainText();
+    updateDiagnostics("Info", "Master Raw",
+        uiText("Exported master raw text: %1", "已导出主站原始输出：%1").arg(path));
+}
+
+// ── Export Slave Raw ────────────────────────────────────────────────
+// Exports the slave raw text panel content to a text file.
+void MainWindow::exportSlaveRawText()
+{
+    if (!rawText_ || !rawText_->infoText || rawText_->infoText->toPlainText().isEmpty()) {
+        QMessageBox::information(this,
+            uiText("Export Slave Raw", "导出从站原始输出"),
+            uiText("No slave raw data is available to export.",
+                   "当前没有可导出的从站原始数据。"));
+        return;
+    }
+    const QString path = promptSavePath(this,
+        uiText("Export Slave Raw Text", "导出从站原始输出"),
+        QString("ethercat-slave-raw-%1.txt")
+            .arg(QDateTime::currentDateTime().toString("yyyyMMdd-HHmmss")),
+        "Text (*.txt);;All (*)");
+    if (path.isEmpty()) return;
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, uiText("Export failed", "导出失败"), file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << rawText_->infoText->toPlainText();
+    updateDiagnostics("Info", "Slave Raw",
+        uiText("Exported slave raw text: %1", "已导出从站原始输出：%1").arg(path));
+}
+

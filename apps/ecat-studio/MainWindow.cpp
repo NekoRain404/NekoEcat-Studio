@@ -1533,6 +1533,14 @@ void MainWindow::wire() {
           &MainWindow::exportTopologyCsv);
   connect(findAction("exportHostHealthAction"), &QAction::triggered, this,
           &MainWindow::exportHostHealthCsv);
+  connect(findAction("exportPdoRawAction"), &QAction::triggered, this,
+          &MainWindow::exportPdoRawText);
+  connect(findAction("exportSdoRawAction"), &QAction::triggered, this,
+          &MainWindow::exportSdoRawText);
+  connect(findAction("exportMasterRawAction"), &QAction::triggered, this,
+          &MainWindow::exportMasterRawText);
+  connect(findAction("exportSlaveRawAction"), &QAction::triggered, this,
+          &MainWindow::exportSlaveRawText);
   connect(findAction("importEsiAction"), &QAction::triggered, this,
           &MainWindow::importEsiFiles);
   connect(findAction("settingsAction"), &QAction::triggered, this,
