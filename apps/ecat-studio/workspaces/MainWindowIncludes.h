@@ -60,6 +60,7 @@
 #include "detail/WorkspaceBoundaryDetail.h"
 #include "detail/WorkspaceTabBadgeDetail.h"
 #include "detail/WorkflowStepDetail.h"
+#include "detail/RealtimeChartDialog.h"
 
 
 // ── Infrastructure ───────────────────────────────────────────────────

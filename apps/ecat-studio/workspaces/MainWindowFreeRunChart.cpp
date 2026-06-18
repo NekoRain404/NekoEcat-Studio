@@ -46,8 +46,9 @@ void MainWindow::openFreeRunChart()
     const QString key = QString("freerun_%1_%2").arg(row).arg(
         QDateTime::currentMSecsSinceEpoch());
 
-    /* Create the chart dialog. */
+    /* Create the chart dialog with proper name and row tracking. */
     auto *dialog = new RealtimeChartDialog(name, key, currentValue, this);
+    dialog->setFreeRunRow(row);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
 
     /* Clean up when closed. */

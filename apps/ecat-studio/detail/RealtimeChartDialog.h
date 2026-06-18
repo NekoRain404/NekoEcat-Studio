@@ -57,6 +57,8 @@ public:
 
     // Call this from the Free Run poll cycle to feed new values.
     void feedValue(double value);
+    void setFreeRunRow(int row) { freeRunRow_ = row; }
+    int freeRunRow() const { return freeRunRow_; }
 
 signals:
     // Emitted when the user starts or stops recording.
@@ -75,6 +77,7 @@ private:
     QTimer *pollTimer_ = nullptr;
 
     QString entryKey_;
+    int freeRunRow_ = -1;
     bool recording_ = false;
     int maxPoints_ = 300;
     double lastValue_ = 0.0;

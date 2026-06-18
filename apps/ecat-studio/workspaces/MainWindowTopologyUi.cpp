@@ -796,8 +796,25 @@ void MainWindow::updateFreeRunEntryTable(const QList<QStringList> &rows) {
   filterFreeRunEntryTable();
   updateIoVariableTable();
   updateStateMachineView();
-// Filter the Free Run entry table by text query.
+
+  /* Feed updated values to any open real-time chart dialogs. */
+  for (auto *chart : openCharts_) {
+    if (!chart) continue;
+    const int r = chart->freeRunRow();
+    if (r < 0 || r >= rows.size()) continue;
+    /* Try Decoded column (index 11), fallback to Raw (index 10). */
+    const QString decoded = rows[r].value(11);
+    const QString raw = rows[r].value(10);
+    double val = 0;
+    bool ok = false;
+    val = decoded.toDouble(&ok);
+    if (!ok) val = raw.toDouble(&ok);
+    if (!ok) { val = raw.toULongLong(&ok, 16); }
+    if (ok) chart->feedValue(val);
+  }
 }
+
+// Apply text/scope filter to the Free Run entry table
 
 // Apply text/scope filter to the Free Run entry table
 void MainWindow::filterFreeRunEntryTable() {
@@ -837,6 +854,7 @@ void MainWindow::filterFreeRunEntryTable() {
             .arg(changedRows));
   }
   updateFreeRunEntryDetail();
+
 // Filter the Watch table by text query.
   updateCommissioningWorkflow();
 }
