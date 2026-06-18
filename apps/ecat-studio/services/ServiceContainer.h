@@ -13,6 +13,7 @@ class TopologyService;
 class DcSyncService;
 class AlEventService;
 class SignalService;
+class PerformanceMonitorService;
 
 class ServiceContainer : public QObject {
   Q_OBJECT
@@ -27,6 +28,7 @@ public:
   DcSyncService *dcSync() const { return dcSync_; }
   AlEventService *alEvent() const { return alEvent_; }
   SignalService *signal() const { return signal_; }
+  PerformanceMonitorService *perfMonitor() const { return perfMonitor_; }
 
 private:
   EcatClient *client_ = nullptr;
@@ -37,4 +39,5 @@ private:
   DcSyncService *dcSync_ = nullptr;
   AlEventService *alEvent_ = nullptr;
   SignalService *signal_ = nullptr;
+  PerformanceMonitorService *perfMonitor_ = nullptr;
 };

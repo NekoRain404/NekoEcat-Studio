@@ -1407,6 +1407,8 @@ add_executable(plugin_integration_test
     ../apps/ecat-studio/services/AlEventService.h
     ../apps/ecat-studio/services/SignalService.cpp
     ../apps/ecat-studio/services/SignalService.h
+    ../apps/ecat-studio/services/PerformanceMonitorService.cpp
+    ../apps/ecat-studio/services/PerformanceMonitorService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -1440,6 +1442,8 @@ add_executable(service_integration_test
     ../apps/ecat-studio/services/AlEventService.h
     ../apps/ecat-studio/services/SignalService.cpp
     ../apps/ecat-studio/services/SignalService.h
+    ../apps/ecat-studio/services/PerformanceMonitorService.cpp
+    ../apps/ecat-studio/services/PerformanceMonitorService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
