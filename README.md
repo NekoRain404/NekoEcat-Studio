@@ -18,7 +18,8 @@
 
 <p align="center">
   <b>Topology</b> · <b>Object Dictionary</b> · <b>PDO Map</b> · <b>SDO Evidence</b> ·
-  <b>Startup SDO</b> · <b>Watch</b> · <b>Free Run</b> · <b>Diagnostics</b>
+  <b>Startup SDO</b> · <b>Watch</b> · <b>Free Run</b> · <b>Diagnostics</b><br>
+  <b>DC Sync</b> · <b>AL Events</b> · <b>Signal Analyzer</b> · <b>Adapter Selection</b> · <b>Plugin Architecture</b>
 </p>
 
 ---
@@ -40,6 +41,9 @@ The product direction is straightforward: high information density, explicit saf
 - **危险边界清晰 / Clear safety boundaries**: 本地查看、复制、跳转不会偷偷读写总线；读 SDO、写 SDO、切状态、Free Run、Host Diagnostics 都是显式动作。
 - **面向现场效率 / Built for field speed**: 高频 tab 靠前，命令面板、下一最佳动作、语义过滤、批量 Watch、批量 Startup 候选都减少重复点击。
 - **可持续架构 / Sustainable architecture**: GUI、daemon、IgH 适配层、共享协议层分离，后续可以逐步替换 CLI 解析、扩展原生 runtime 能力。
+- **插件系统 / Plugin Architecture**: WorkspacePlugin 接口 + EventBus 事件总线 + Service 服务层，每个工作区独立为插件，便于扩展和维护。
+- **硬件诊断 / Hardware Diagnostics**: DC Sync 分布式时钟监控、AL Event 应用层事件跟踪、网络适配器管理，对标 TwinCAT 级别的硬件调试能力。
+- **实时信号分析 / Real-time Signal Analysis**: 多通道信号采集、QPainter 反锯齿滚动图表、10,000 点环形缓冲、统计分析。
 - **比传统调试面板更完整 / More than a debug panel**: 它已经具备工程文件、项目备注、ESI 仓库、诊断报告、I/O 变量规划和状态机辅助。
 
 ## 系统架构 / Architecture
@@ -82,6 +86,10 @@ English:
 | I/O Variables / I/O 变量 | 工程信号表 | 合并 PDO、Watch、Startup、Free Run、别名、标签、PLC 交接 |
 | Consistency / 一致性 | 只读门禁 | 对比拓扑、Startup、Watch、I/O 变量和工程元数据 |
 | Diagnostics / 诊断 | 运行时和主机证据 | 事件、Host Health、修复建议、诊断导出 |
+| DC Sync / DC 同步 | 分布式时钟同步诊断 | 参考时钟、漂移、抖动统计、每从站同步状态 |
+| AL Events / AL 事件 | 应用层事件日志 | 时间戳、错误码、严重级别过滤、自动滚动 |
+| Signal Analyzer / 信号分析 | 实时多通道波形 | 添加通道、滚动图表、统计信息、窗口大小调节 |
+| Network Adapter / 网络适配器 | IgH 网卡选择 | 检测可用网卡、选择适配器、查看驱动和链路状态 |
 
 ## 产品能力地图 / Product Map
 

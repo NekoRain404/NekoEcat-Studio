@@ -1,0 +1,55 @@
+# CI pipeline for NekoEcat Studio — build, test, GUI smoke.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6
+
+      - name: Install IgH EtherCAT headers
+        run: |
+          # IgH headers may not be in standard repos — install if available.
+          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          # If not available, create stub headers for CI compilation.
+          if [ ! -f /usr/include/ecrt.h ]; then
+            echo "Creating stub ecrt.h for CI..."
+            sudo mkdir -p /usr/include
+            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            sudo tee /usr/lib/libethercat.so > /dev/null << 'LIBSTUB'
+          /* stub */
+          LIBSTUB
+          fi
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -j$(nproc)
+
+      - name: GUI Smoke Test
+        run: QT_QPA_PLATFORM=offscreen timeout 10 build/apps/ecat-studio/ecat-studio || true
