@@ -39,6 +39,7 @@ struct AppSettings {
     // ── EtherCAT Masters ──────────────────────────────────────────
     QVector<MasterProfile> masters = {MasterProfile{}};
     QString activeMaster = "0";
+    QString networkAdapter;               // selected NIC for IgH (e.g. "eth0")
 
     // ── Refresh & Timing ──────────────────────────────────────────
     int watchAutoRefreshMs = 0;        // 0=off, 250, 500, 1000, 2000
@@ -89,6 +90,10 @@ public:
     explicit SettingsDialog(const AppSettings &settings, QWidget *parent = nullptr);
     AppSettings settings() const;
 
+    // Populate the network adapter dropdown with detected NICs.
+    // Each entry: "name|mac|driver|linkStatus" (e.g. "eth0|AA:BB:CC:DD:EE:FF|r8169|Up").
+    void setAvailableAdapters(const QStringList &adapters);
+
 signals:
     // Emitted when the user selects a different theme in the combo box.
     // MainWindow connects to this for live preview before confirmation.
@@ -109,6 +114,9 @@ private:
     QComboBox *themeCombo_ = nullptr;
     QComboBox *languageCombo_ = nullptr;
     QDoubleSpinBox *scaleSpin_ = nullptr;
+
+    // ── Adapter widgets ─────────────────────────────────────────────
+    QComboBox *adapterCombo_ = nullptr;
 
     // ── EtherCAT widgets ──────────────────────────────────────────
     QTableWidget *masterTable_ = nullptr;

@@ -1236,3 +1236,77 @@ target_include_directories(dc_sync_handler_test PRIVATE
 target_link_libraries(dc_sync_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
 set_target_properties(dc_sync_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME dc_sync_handler_test COMMAND dc_sync_handler_test)
+
+# ── DcSyncPlugin + DcSyncService (GUI) ──────────────────────────────
+add_executable(dc_sync_service_test
+    dc_sync_service_test.cpp
+    ../apps/ecat-studio/plugins/dcsync/DcSyncPlugin.cpp
+    ../apps/ecat-studio/plugins/dcsync/DcSyncPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/services/DcSyncService.cpp
+    ../apps/ecat-studio/services/DcSyncService.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+
+target_include_directories(dc_sync_service_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+target_link_libraries(dc_sync_service_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+
+set_target_properties(dc_sync_service_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME dc_sync_service_test COMMAND dc_sync_service_test)
+set_tests_properties(dc_sync_service_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── AlEventPlugin + AlEventService (GUI) ──────────────────────────────
+add_executable(al_event_service_test
+    al_event_service_test.cpp
+    ../apps/ecat-studio/plugins/alevent/AlEventPlugin.cpp
+    ../apps/ecat-studio/plugins/alevent/AlEventPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/services/AlEventService.cpp
+    ../apps/ecat-studio/services/AlEventService.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+
+target_include_directories(al_event_service_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+target_link_libraries(al_event_service_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+
+set_target_properties(al_event_service_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME al_event_service_test COMMAND al_event_service_test)
+set_tests_properties(al_event_service_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)

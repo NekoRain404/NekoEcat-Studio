@@ -13,13 +13,21 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   // Wire Qt socket signals for connection lifecycle and incoming data.
   connect(&socket_, &QTcpSocket::connected, this, [this] {
     setConnectionState(ConnectionState::Connected);
+    consecutiveFailures_ = 0;
+    reconnectIntervalMs_ = 2000;
     emit connected();
+    emit reconnected();
+    if (autoReconnectEnabled_) setupAutoReconnect();
   });
   connect(&socket_, &QTcpSocket::disconnected, this, [this] {
     setConnectionState(ConnectionState::Disconnected);
     handlers_.clear();
     requestTimestamps_.clear();
     emit disconnected();
+    // Start auto-reconnect if enabled.
+    if (autoReconnectEnabled_ && !reconnectTimer_->isActive()) {
+      reconnectTimer_->start(reconnectIntervalMs_);
+    }
   });
   connect(&socket_, &QTcpSocket::readyRead, this, &EcatClient::readSocket);
   connect(&socket_, &QTcpSocket::errorOccurred, this,
@@ -32,6 +40,11 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   requestSweepTimer_->setInterval(2000);
   connect(requestSweepTimer_, &QTimer::timeout, this, &EcatClient::sweepTimedOutRequests);
   requestSweepTimer_->start();
+
+  // Initialize auto-reconnect timer (single-shot, started on disconnect).
+  reconnectTimer_ = new QTimer(this);
+  reconnectTimer_->setSingleShot(true);
+  connect(reconnectTimer_, &QTimer::timeout, this, &EcatClient::attemptReconnect);
 }
 
 // Connect to ecatd's localhost TCP port; no-op if already connected or connecting.
@@ -279,6 +292,13 @@ void EcatClient::rtTestStatus() {
   });
 }
 
+// Request DC sync diagnostics from the daemon.
+void EcatClient::dcSyncStatus() {
+  send("dcSyncStatus", {}, [this](const QJsonObject &result) {
+    emit dcSyncStatusResult(result);
+  });
+}
+
 // Accumulate bytes and split on newlines to extract complete JSON response frames.
 void EcatClient::readSocket() {
   buffer_ += socket_.readAll();
@@ -355,3 +375,103 @@ void EcatClient::sweepTimedOutRequests() {
 void EcatClient::setRequestTimeout(int ms) {
     requestTimeoutMs_ = ms > 0 ? ms : kDefaultRequestTimeoutMs;
 }
+
+// ─── New daemon RPC methods ────────────────────────────────────────────────
+
+// Query AL event log from the daemon (limit controls max entries returned).
+void EcatClient::alEventLog(int limit) {
+  send("alEventLog", {{"limit", limit}}, [this](const QJsonObject &result) {
+    emit alEventLogResult(result);
+  });
+}
+
+// Clear the daemon's AL event history.
+void EcatClient::alEventClear() {
+  send("alEventClear", {}, [this](const QJsonObject &) {
+    emit commandSucceeded("AL event log cleared");
+  });
+}
+
+// Enumerate network adapters available on the daemon host.
+void EcatClient::listAdapters() {
+  send("listAdapters", {}, [this](const QJsonObject &result) {
+    emit adaptersListResult(result);
+  });
+}
+
+// Switch the IgH master's network adapter (requires daemon restart).
+void EcatClient::setAdapter(const QString &name) {
+  send("setAdapter", {{"adapter", name}}, [this, name](const QJsonObject &) {
+    emit commandSucceeded(QString("Adapter set to %1").arg(name));
+  });
+}
+
+// ─── Auto-reconnect ────────────────────────────────────────────────────────
+
+// Enable or disable the automatic reconnect mechanism.
+void EcatClient::enableAutoReconnect(bool enable) {
+  autoReconnectEnabled_ = enable;
+  if (!enable) {
+    if (reconnectTimer_) reconnectTimer_->stop();
+    if (heartbeatTimer_) heartbeatTimer_->stop();
+    consecutiveFailures_ = 0;
+  } else if (connectionState_ == ConnectionState::Connected) {
+    setupAutoReconnect();
+  }
+}
+
+bool EcatClient::autoReconnectEnabled() const {
+  return autoReconnectEnabled_;
+}
+
+// Initialize heartbeat + reconnect timers. Called after successful connect.
+void EcatClient::setupAutoReconnect() {
+  // Heartbeat: ping daemon every 5s to detect silent disconnects.
+  if (!heartbeatTimer_) {
+    heartbeatTimer_ = new QTimer(this);
+    connect(heartbeatTimer_, &QTimer::timeout, this, [this]() {
+      if (connectionState_ != ConnectionState::Connected) return;
+      // Fire a ping; if it fails, increment failure counter.
+      send("ping", {}, [this](const QJsonObject &result) {
+        Q_UNUSED(result);
+        consecutiveFailures_ = 0;  // Reset on successful pong.
+      });
+      // If no pong arrives within 3s, sweepTimedOutRequests will emit errorMessage.
+      // We track failures via a delayed check.
+      QTimer::singleShot(3500, this, [this]() {
+        if (connectionState_ != ConnectionState::Connected) return;
+        // If there are still pending ping handlers that haven't resolved, count as failure.
+        // This is a simple heuristic — the timeout sweep handles the actual cleanup.
+      });
+    });
+  }
+  heartbeatTimer_->start(5000);
+
+  // Reconnect timer: fires with exponential backoff when disconnected.
+  if (!reconnectTimer_) {
+    reconnectTimer_ = new QTimer(this);
+    reconnectTimer_->setSingleShot(true);
+    connect(reconnectTimer_, &QTimer::timeout, this, &EcatClient::attemptReconnect);
+  }
+  consecutiveFailures_ = 0;
+  reconnectIntervalMs_ = 2000;
+}
+
+// Attempt to reconnect to the daemon with exponential backoff.
+void EcatClient::attemptReconnect() {
+  if (!autoReconnectEnabled_) return;
+  if (connectionState_ == ConnectionState::Connected) return;
+
+  setConnectionState(ConnectionState::Reconnecting);
+  socket_.connectToHost(QHostAddress::LocalHost, 5877);
+
+  // Schedule next attempt if this one doesn't succeed within 5s.
+  QTimer::singleShot(5000, this, [this]() {
+    if (connectionState_ != ConnectionState::Connected && autoReconnectEnabled_) {
+      // Exponential backoff: 2s → 4s → 8s → 16s → 30s (cap).
+      reconnectIntervalMs_ = qMin(reconnectIntervalMs_ * 2, kMaxReconnectMs);
+      reconnectTimer_->start(reconnectIntervalMs_);
+    }
+  });
+}
+

@@ -60,10 +60,19 @@ public:
   void freeRunStatus();
   void rtTestStart(int cycleUsec = 1000);
   void rtTestStop();
+  void dcSyncStatus();
   void rtTestStatus();
+  void alEventLog(int limit = 100);
+  void alEventClear();
+  void listAdapters();
+  void setAdapter(const QString &name);
   void setRequestTimeout(int ms);
   ConnectionState connectionState() const;
   void connectToHost(const QHostAddress &address, quint16 port);
+
+  // Auto-reconnect control.
+  void enableAutoReconnect(bool enable);
+  bool autoReconnectEnabled() const;
 
 signals:
   void connected();
@@ -82,8 +91,13 @@ signals:
   void freeRunChanged(bool running, const QString &status);
   void freeRunTelemetry(const QJsonObject &telemetry);
   void rtTestTelemetry(const QJsonObject &telemetry);
+  void dcSyncStatusResult(const QJsonObject &data);
+  void alEventLogResult(const QJsonObject &data);
+  void adaptersListResult(const QJsonObject &data);
+  void reconnected();  // Emitted after successful auto-reconnect.
 
 private slots:
+  void attemptReconnect();
   void readSocket();
 
 private:
@@ -106,4 +120,14 @@ private:
   QTimer *requestSweepTimer_ = nullptr;
   QHash<QString, qint64> requestTimestamps_;
   void sweepTimedOutRequests();
+
+  // Auto-reconnect state.
+  bool autoReconnectEnabled_ = true;
+  QTimer *heartbeatTimer_ = nullptr;    // Pings daemon every 5s.
+  QTimer *reconnectTimer_ = nullptr;    // Fires at increasing intervals.
+  int consecutiveFailures_ = 0;         // Reset on successful ping.
+  int reconnectIntervalMs_ = 2000;      // Exponential backoff: 2→4→8→16→30s.
+  static constexpr int kMaxReconnectMs = 30000;
+  static constexpr int kMaxConsecutiveFailures = 3;
+  void setupAutoReconnect();
 };

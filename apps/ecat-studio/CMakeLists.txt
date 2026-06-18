@@ -13,6 +13,8 @@ add_executable(ecat-studio
     # ── Plugins ───────────────────────────────────────────────────────
     plugins/PluginRegistry.h                 plugins/PluginRegistry.cpp
     plugins/notes/NotesPlugin.h              plugins/notes/NotesPlugin.cpp
+    plugins/dcsync/DcSyncPlugin.h                plugins/dcsync/DcSyncPlugin.cpp
+    plugins/alevent/AlEventPlugin.h            plugins/alevent/AlEventPlugin.cpp
     plugins/WorkspacePlugin.h
 
     # ── Services ──────────────────────────────────────────────────────
@@ -20,6 +22,8 @@ add_executable(ecat-studio
     services/SdoService.h                      services/SdoService.cpp
     services/WatchService.h                    services/WatchService.cpp
     services/TopologyService.h                 services/TopologyService.cpp
+    services/DcSyncService.h                      services/DcSyncService.cpp
+    services/AlEventService.h                  services/AlEventService.cpp
 
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h
@@ -120,6 +124,8 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/detail
     ${CMAKE_CURRENT_SOURCE_DIR}/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/infra
+    ${CMAKE_CURRENT_SOURCE_DIR}/services
+    ${CMAKE_CURRENT_SOURCE_DIR}/plugins
 )
 target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core)
 

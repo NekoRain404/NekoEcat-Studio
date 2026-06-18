@@ -201,6 +201,33 @@ QWidget *SettingsDialog::buildEthercatTab(const AppSettings &s, bool zh)
         if (row >= 0) masterTable_->removeRow(row);
     });
 
+    // ── Network Adapter section ──────────────────────────────────────
+    layout->addSpacing(8);
+    layout->addWidget(makeSection(zh ? QStringLiteral("网络适配器") : QStringLiteral("Network Adapter")));
+
+    auto *adapterRow = new QHBoxLayout;
+    adapterRow->setSpacing(8);
+    adapterCombo_ = new QComboBox;
+    adapterCombo_->setMinimumWidth(280);
+    adapterCombo_->addItem(zh ? QStringLiteral("(自动检测中...)") : QStringLiteral("(Detecting...)"), QString());
+    adapterRow->addWidget(adapterCombo_);
+
+    auto *refreshAdapterBtn = new QPushButton(zh ? QStringLiteral("刷新") : QStringLiteral("Refresh"));
+    refreshAdapterBtn->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
+    adapterRow->addWidget(refreshAdapterBtn);
+    adapterRow->addStretch(1);
+    layout->addLayout(adapterRow);
+
+    // Pre-select the current adapter if set.
+    if (!s.networkAdapter.isEmpty()) {
+        const int idx = adapterCombo_->findData(s.networkAdapter);
+        if (idx >= 0) adapterCombo_->setCurrentIndex(idx);
+    }
+
+    connect(refreshAdapterBtn, &QPushButton::clicked, this, [this]() {
+        emit themePreviewRequested(QStringLiteral("__refresh_adapters__"));
+    });
+
     return tab;
 }
 
@@ -537,6 +564,10 @@ AppSettings SettingsDialog::settings() const
         if (p.target == prev) { r.activeMaster = p.target; break; }
     }
 
+    // Adapter
+    if (adapterCombo_)
+        r.networkAdapter = adapterCombo_->currentData().toString();
+
     // Timing
     r.watchAutoRefreshMs = watchRefreshCombo_->currentData().toInt();
     r.overviewAutoRefreshMs = overviewRefreshCombo_->currentData().toInt();
@@ -740,3 +771,25 @@ QWidget *SettingsDialog::buildShortcutsTab(const AppSettings &s, bool zh)
 
 // Include MOC for KeySequenceEdit (Q_OBJECT in .cpp requires this)
 #include "SettingsDialog.moc"
+
+
+// ── Adapter list population ──────────────────────────────────────────
+// Called by MainWindow after querying the daemon for available NICs.
+void SettingsDialog::setAvailableAdapters(const QStringList &adapters)
+{
+    if (!adapterCombo_) return;
+    adapterCombo_->clear();
+    adapterCombo_->addItem(tr("(None)"), QString());
+    for (const QString &entry : adapters) {
+        // Format: "name|mac|driver|linkStatus"
+        const QStringList parts = entry.split(QLatin1Char('|'));
+        if (parts.isEmpty()) continue;
+        const QString name = parts.value(0);
+        const QString mac = parts.value(1);
+        const QString driver = parts.value(2);
+        const QString link = parts.value(3);
+        const QString label = QStringLiteral("%1  [%2]  %3  %4")
+            .arg(name, mac, driver, link == QStringLiteral("Up") ? tr("Up") : tr("Down"));
+        adapterCombo_->addItem(label, name);
+    }
+}
