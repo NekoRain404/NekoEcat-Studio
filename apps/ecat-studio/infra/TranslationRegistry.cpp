@@ -1314,4 +1314,5 @@ void TranslationRegistry::init()
     map_[QStringLiteral("ESI XML")] = {QStringLiteral("ESI XML"), QStringLiteral("ESI XML"), QStringLiteral("ESI XML"), QStringLiteral("ESI XML"), QStringLiteral("ESI XML"), QStringLiteral("ESI XML"), QStringLiteral("ESI XML")};
     map_[QStringLiteral("Topology CSV")] = {QStringLiteral("拓扑 CSV"), QStringLiteral("トポロジCSV"), QStringLiteral("Topologie CSV"), QStringLiteral("토폴로지 CSV"), QStringLiteral("拓撲 CSV"), QStringLiteral("CSV de topologie"), QStringLiteral("CSV de topología")};
     map_[QStringLiteral("Host Health CSV")] = {QStringLiteral("主机健康 CSV"), QStringLiteral("ホストヘルスCSV"), QStringLiteral("Host-Health CSV"), QStringLiteral("호스트 상태 CSV"), QStringLiteral("主機健康 CSV"), QStringLiteral("CSV de santé hôte"), QStringLiteral("CSV de salud del host")};
+    map_[QStringLiteral("Real-time Monitor")] = {QStringLiteral("实时监视"), QStringLiteral("リアルタイムモニタ"), QStringLiteral("Echtzeitüberwachung"), QStringLiteral("실시간 모니터"), QStringLiteral("即時監視"), QStringLiteral("Moniteur en temps réel"), QStringLiteral("Monitor en tiempo real")};
 }
