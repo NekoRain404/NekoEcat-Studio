@@ -12,28 +12,28 @@
 struct AppSettings;
 
 class WorkspacePlugin : public QObject {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    virtual ~WorkspacePlugin() = default;
+  virtual ~WorkspacePlugin() = default;
 
-    // Identity
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-    virtual QString displayNameZh() const = 0;
-    virtual QIcon icon() const { return QIcon(); }
+  // Identity
+  virtual QString id() const = 0;
+  virtual QString displayName() const = 0;
+  virtual QString displayNameZh() const = 0;
+  virtual QIcon icon() const { return QIcon(); }
 
-    // UI
-    virtual QWidget *widget() = 0;
-    virtual int defaultOrder() const = 0;
-    virtual bool visible() const = 0;
+  // UI
+  virtual QWidget *widget() = 0;
+  virtual int defaultOrder() const = 0;
+  virtual bool visible() const = 0;
 
-    // Lifecycle
-    virtual void activate() {}
-    virtual void deactivate() {}
-    virtual void onSettingsChanged(const AppSettings &) {}
-    virtual void onConnectionChanged(bool connected) {}
+  // Lifecycle
+  virtual void activate() {}
+  virtual void deactivate() {}
+  virtual void onSettingsChanged(const AppSettings &) {}
+  virtual void onConnectionChanged(bool connected) {}
 
 signals:
-    void requestNavigate(const QString &pluginId);
-    void updateDiagnostics(const QString &level, const QString &source, const QString &msg);
+  void requestNavigate(const QString &pluginId);
+  void updateDiagnostics(const QString &level, const QString &source, const QString &msg);
 };

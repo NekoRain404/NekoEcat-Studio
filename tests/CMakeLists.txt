@@ -1141,3 +1141,6 @@ set_target_properties(workspace_plugin_interface_test PROPERTIES AUTOMOC ON)
 add_test(NAME workspace_plugin_interface_test
     COMMAND workspace_plugin_interface_test
 )
+set_tests_properties(workspace_plugin_interface_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
