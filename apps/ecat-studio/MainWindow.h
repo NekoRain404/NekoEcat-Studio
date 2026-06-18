@@ -6,6 +6,10 @@
 #include "EcatClient.h"
 #include "SdoEvidenceModel.h"
 #include "SettingsDialog.h"
+#include "services/EventBus.h"
+#include "services/SdoService.h"
+#include "services/WatchService.h"
+#include "services/TopologyService.h"
 #include "workspaces/WorkspaceWidgets.h"
 
 class QMenu;
@@ -757,6 +761,10 @@ private:
   static constexpr int kMaxRecentProjects = 10;
   void updateRecentProjectsMenu();
   void addToRecentProjects(const QString &path);
+  EventBus *eventBus_ = nullptr;
+  SdoService *sdoService_ = nullptr;
+  WatchService *watchService_ = nullptr;
+  TopologyService *topologyService_ = nullptr;
   AppSettings settings_;
   bool freeRun_ = false;
   bool consistencyFresh_ = false;

@@ -17,6 +17,9 @@ add_executable(ecat-studio
 
     # ── Services ──────────────────────────────────────────────────────
     services/EventBus.h                      services/EventBus.cpp
+    services/SdoService.h                      services/SdoService.cpp
+    services/WatchService.h                    services/WatchService.cpp
+    services/TopologyService.h                 services/TopologyService.cpp
 
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h

@@ -187,6 +187,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   loadSettings();
   client_.setMasterTarget(settings_.activeMaster);
   eventBus_ = new EventBus(this);
+  sdoService_ = new SdoService(&client_, this);
+  watchService_ = new WatchService(&client_, this);
+  topologyService_ = new TopologyService(&client_, this);
   buildUi();
   applySettings();
   applyCustomShortcuts();
@@ -1598,6 +1601,16 @@ void MainWindow::wire() {
     watchRefreshTimer_->deleteLater();
     watchRefreshTimer_ = nullptr;
   }
+
+  // Wire service signals to EventBus
+  connect(sdoService_, &SdoService::sdoValueReceived, eventBus_,
+          [this](int p, const QString &i, const QString &si, const QString &v) {
+            eventBus_->emitSdoValue(p, i, si, v);
+          });
+  connect(topologyService_, &TopologyService::scanComplete, eventBus_,
+          [this](const QVector<SlaveInfo> &s) {
+            eventBus_->emitSlaveChanged(s);
+          });
 
   auto findAction = [this](const char *name) {
     for (auto *action : findChildren<QAction *>()) {
