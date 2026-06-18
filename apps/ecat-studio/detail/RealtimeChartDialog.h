@@ -1,8 +1,8 @@
 #pragma once
 
-// RealtimeChartDialog — modal dialog for live value plotting.
-// Records numeric values from Free Run entries over time and renders
-// them as a scrolling line chart using QPainter (no QtCharts dependency).
+// RealtimeChartDialog — independent window for live value plotting.
+// Scrolls up to 10,000 data points with switchable X-axis units
+// (Seconds / Samples). Uses QPainter — no QtCharts dependency.
 
 #include <QDialog>
 #include <QTimer>
@@ -11,6 +11,7 @@
 class QLabel;
 class QPushButton;
 class QComboBox;
+class QSpinBox;
 
 // A single data point in the time series.
 struct ChartPoint {
@@ -18,7 +19,13 @@ struct ChartPoint {
     qint64 timestampMs = 0;  // milliseconds since dialog open
 };
 
-// Custom widget that renders the line chart.
+// X-axis display modes.
+enum class ChartXAxisMode {
+    Seconds,   // time in seconds since start
+    Samples    // sample index (1, 2, 3, ...)
+};
+
+// Custom widget that renders the scrolling line chart.
 class ChartWidget : public QWidget {
     Q_OBJECT
 
@@ -27,7 +34,9 @@ public:
 
     void addPoint(double value);
     void clear();
-    void setLabel(const QString &name, const QString &unit);
+    void setLabel(const QString &name);
+    void setXAxisMode(ChartXAxisMode mode);
+    void setVisibleWindow(int points);  // how many points to show
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -35,38 +44,39 @@ protected:
 private:
     QVector<ChartPoint> points_;
     QString seriesName_;
-    QString unit_;
     double yMin_ = 0.0;
     double yMax_ = 1.0;
     double yRange_ = 1.0;
     qint64 startTimeMs_ = 0;
+    ChartXAxisMode xAxisMode_ = ChartXAxisMode::Seconds;
+    int visibleWindow_ = 200;  // points visible at once
 
-    void recalcRange();
+    void recalcVisibleRange(double &visYMin, double &visYMax);
 };
 
-// Modal dialog that combines a chart widget with controls.
+// Non-modal dialog that combines chart + controls + stats.
 class RealtimeChartDialog : public QDialog {
     Q_OBJECT
 
 public:
-    // entryName: display label, entryKey: for lookup, initialValue: first sample.
     explicit RealtimeChartDialog(const QString &entryName,
                                  const QString &entryKey,
                                  double initialValue,
                                  QWidget *parent = nullptr);
 
-    // Call this from the Free Run poll cycle to feed new values.
     void feedValue(double value);
     void setFreeRunRow(int row) { freeRunRow_ = row; }
     int freeRunRow() const { return freeRunRow_; }
+    int totalPoints() const { return chart_ ? totalPoints_ : 0; }
 
 signals:
-    // Emitted when the user starts or stops recording.
-    void recordingChanged(bool active);
+    void pollingIntervalChanged(int intervalMs);
 
 private slots:
     void toggleRecording();
-    void onPollTick();
+    void onXAxisModeChanged(int idx);
+    void updateAxisUi();
+    void updatePollingInterval(int idx);
 
 private:
     ChartWidget *chart_ = nullptr;
@@ -74,18 +84,22 @@ private:
     QLabel *statsLabel_ = nullptr;
     QPushButton *recordBtn_ = nullptr;
     QComboBox *intervalCombo_ = nullptr;
-    QTimer *pollTimer_ = nullptr;
+    QComboBox *xAxisCombo_ = nullptr;
+    QSpinBox *windowSpin_ = nullptr;
 
     QString entryKey_;
     int freeRunRow_ = -1;
     bool recording_ = false;
-    int maxPoints_ = 300;
+    int totalPoints_ = 0;
     double lastValue_ = 0.0;
     double sum_ = 0.0;
     int count_ = 0;
     double peak_ = 0.0;
     double trough_ = 0.0;
-    qint64 startTimeMs_ = 0;
+
+    int pollingIntervalMs_ = 100;   // estimated polling period (ms)
+    int equivalentPoints_ = 200;    // window in points (Samples mode)
+    int equivalentSeconds_ = 2;     // window in seconds  (Seconds mode)
 
     void updateStats(double value);
 };

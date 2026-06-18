@@ -1,29 +1,28 @@
-// RealtimeChartDialog — live value chart for Free Run entries.
-// Renders a scrolling line chart using QPainter, no QtCharts dependency.
+// RealtimeChartDialog — scrolling live chart for Free Run entries.
+// Up to 10,000 points, switchable X-axis (Seconds / Samples).
 
 #include "RealtimeChartDialog.h"
 
 #include <QBrush>
+#include <QPushButton>
 #include <QComboBox>
-#include <QDialogButtonBox>
+#include <QDateTime>
 #include <QFont>
 #include <QFormLayout>
-#include <QGridLayout>
-#include <QDateTime>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLinearGradient>
 #include <QPainter>
 #include <QPainterPath>
-#include <QPushButton>
+#include <QSpinBox>
 #include <QSizePolicy>
-#include <QTimer>
 #include <QVBoxLayout>
 #include <QtMath>
 
+static const int kMaxPoints = 10000;
+
 // ════════════════════════════════════════════════════════════════════
-//  ChartWidget — custom QWidget that paints the line chart
+//  ChartWidget — custom QPainter line chart with scrolling
 // ════════════════════════════════════════════════════════════════════
 
 ChartWidget::ChartWidget(QWidget *parent)
@@ -31,7 +30,6 @@ ChartWidget::ChartWidget(QWidget *parent)
 {
     setMinimumHeight(200);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    setAutoFillBackground(false);
 }
 
 void ChartWidget::addPoint(double value)
@@ -39,13 +37,15 @@ void ChartWidget::addPoint(double value)
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     if (points_.isEmpty()) startTimeMs_ = now;
 
-    ChartPoint pt; pt.value = value; pt.timestampMs = now - startTimeMs_; points_.append(pt);
+    ChartPoint pt;
+    pt.value = value;
+    pt.timestampMs = now - startTimeMs_;
+    points_.append(pt);
 
-    /* Keep a rolling window of maxPoints. */
-    if (points_.size() > 300) {
+    /* Hard cap at kMaxPoints. */
+    if (points_.size() > kMaxPoints) {
         points_.removeFirst();
     }
-    recalcRange();
     update();
 }
 
@@ -57,27 +57,36 @@ void ChartWidget::clear()
     update();
 }
 
-void ChartWidget::setLabel(const QString &name, const QString &unit)
+void ChartWidget::setLabel(const QString &name) { seriesName_ = name; }
+
+void ChartWidget::setXAxisMode(ChartXAxisMode mode)
 {
-    seriesName_ = name;
-    unit_ = unit;
+    xAxisMode_ = mode;
+    update();
 }
 
-void ChartWidget::recalcRange()
+void ChartWidget::setVisibleWindow(int points)
 {
-    if (points_.isEmpty()) { yMin_ = 0; yMax_ = 1; yRange_ = 1; return; }
-    yMin_ = points_.first().value;
-    yMax_ = points_.first().value;
-    for (const auto &p : points_) {
-        if (p.value < yMin_) yMin_ = p.value;
-        if (p.value > yMax_) yMax_ = p.value;
+    visibleWindow_ = qMax(points, 10);
+    update();
+}
+
+// Recalculate Y range over the visible window only.
+void ChartWidget::recalcVisibleRange(double &visYMin, double &visYMax)
+{
+    if (points_.isEmpty()) { visYMin = 0; visYMax = 1; return; }
+
+    /* Only consider the last visibleWindow_ points for Y scaling. */
+    const int start = qMax(0, points_.size() - visibleWindow_);
+    visYMin = points_[start].value;
+    visYMax = points_[start].value;
+    for (int i = start; i < points_.size(); ++i) {
+        if (points_[i].value < visYMin) visYMin = points_[i].value;
+        if (points_[i].value > visYMax) visYMax = points_[i].value;
     }
-    /* Add 10% padding. */
-    const double pad = qMax(qAbs(yMax_ - yMin_) * 0.1, 0.5);
-    yMin_ -= pad;
-    yMax_ += pad;
-    yRange_ = yMax_ - yMin_;
-    if (yRange_ < 1e-9) yRange_ = 1.0;
+    const double pad = qMax(qAbs(visYMax - visYMin) * 0.15, 0.5);
+    visYMin -= pad;
+    visYMax += pad;
 }
 
 void ChartWidget::paintEvent(QPaintEvent *)
@@ -87,96 +96,118 @@ void ChartWidget::paintEvent(QPaintEvent *)
 
     const int W = width();
     const int H = height();
-    const int marginL = 60, marginR = 16, marginT = 30, marginB = 40;
-    const int chartW = W - marginL - marginR;
-    const int chartH = H - marginT - marginB;
+    const int mL = 64, mR = 16, mT = 28, mB = 36;
+    const int cW = W - mL - mR;
+    const int cH = H - mT - mB;
 
     /* Background */
     p.fillRect(rect(), palette().window());
 
-    if (points_.size() < 2 || chartW < 10 || chartH < 10) {
+    if (points_.size() < 2 || cW < 10 || cH < 10) {
         p.setPen(palette().color(QPalette::PlaceholderText));
+        QFont f = p.font();
+        f.setPointSizeF(10);
+        p.setFont(f);
         p.drawText(rect(), Qt::AlignCenter,
-                   seriesName_.isEmpty() ? "Waiting for data..." : seriesName_);
+                   points_.isEmpty() ? "Waiting for data..." : "Plotting...");
         return;
     }
 
-    /* ── Grid lines and Y-axis labels ─────────────────────────── */
-    p.setPen(QPen(palette().color(QPalette::Mid), 1, Qt::DashLine));
+    /* Visible window: the last N points. */
+    const int visCount = qMin(visibleWindow_, points_.size());
+    const int visStart = points_.size() - visCount;
+
+    /* Y range over visible window. */
+    double visYMin, visYMax;
+    recalcVisibleRange(visYMin, visYMax);
+    const double visYRange = (visYMax - visYMin) < 1e-9 ? 1.0 : (visYMax - visYMin);
+
+    /* X range: either time or sample index. */
+    const qint64 xMin = points_[visStart].timestampMs;
+    const qint64 xMax = points_.last().timestampMs;
+    const qint64 xRange = qMax(xMax - xMin, 1LL);
+
+    /* ── Grid lines + Y labels ────────────────────────────────── */
     QFont smallFont = p.font();
     smallFont.setPointSizeF(8);
     p.setFont(smallFont);
-    p.setPen(palette().color(QPalette::PlaceholderText));
 
     const int gridLines = 5;
     for (int i = 0; i <= gridLines; ++i) {
         const double ratio = static_cast<double>(i) / gridLines;
-        const int y = marginT + static_cast<int>(chartH * (1.0 - ratio));
-        const double val = yMin_ + yRange_ * ratio;
+        const int y = mT + static_cast<int>(cH * (1.0 - ratio));
+        const double val = visYMin + visYRange * ratio;
 
-        /* Grid line */
         p.setPen(QPen(palette().color(QPalette::Mid), 0.5, Qt::DotLine));
-        p.drawLine(marginL, y, W - marginR, y);
+        p.drawLine(mL, y, W - mR, y);
 
-        /* Y label */
         p.setPen(palette().color(QPalette::Text));
         QString label;
-        if (qAbs(val) >= 1000)
-            label = QString::number(val, 'f', 0);
-        else if (qAbs(val) >= 1)
-            label = QString::number(val, 'f', 2);
-        else
-            label = QString::number(val, 'f', 4);
-        p.drawText(QRect(0, y - 8, marginL - 4, 16),
-                   Qt::AlignRight | Qt::AlignVCenter, label);
+        if (qAbs(val) >= 10000) label = QString::number(val, 'f', 0);
+        else if (qAbs(val) >= 1) label = QString::number(val, 'f', 2);
+        else label = QString::number(val, 'f', 4);
+        p.drawText(QRect(0, y - 8, mL - 4, 16), Qt::AlignRight | Qt::AlignVCenter, label);
     }
 
-    /* ── X-axis time labels ───────────────────────────────────── */
+    /* ── X-axis labels ────────────────────────────────────────── */
     p.setPen(palette().color(QPalette::PlaceholderText));
-    const qint64 tMin = points_.first().timestampMs;
-    const qint64 tMax = points_.last().timestampMs;
-    const qint64 tRange = qMax(tMax - tMin, 1LL);
     for (int i = 0; i <= 4; ++i) {
         const double ratio = static_cast<double>(i) / 4.0;
-        const int x = marginL + static_cast<int>(chartW * ratio);
-        const qint64 t = tMin + static_cast<qint64>(tRange * ratio);
-        const double sec = t / 1000.0;
-        p.drawText(QRect(x - 30, H - marginB + 4, 60, 20),
-                   Qt::AlignCenter, QString::number(sec, 'f', 1) + "s");
+        const int x = mL + static_cast<int>(cW * ratio);
+        QString label;
+        if (xAxisMode_ == ChartXAxisMode::Samples) {
+            const int sampleIdx = visStart + static_cast<int>(visCount * ratio);
+            label = QString::number(sampleIdx);
+        } else {
+            const double sec = (xMin + static_cast<qint64>(xRange * ratio)) / 1000.0;
+            label = QString::number(sec, 'f', 1) + "s";
+        }
+        p.drawText(QRect(x - 30, H - mB + 4, 60, 20), Qt::AlignCenter, label);
     }
 
-    /* ── Line path ────────────────────────────────────────────── */
+    /* ── Scrolling line ───────────────────────────────────────── */
     QPainterPath path;
-    for (int i = 0; i < points_.size(); ++i) {
-        const double xRatio = static_cast<double>(points_[i].timestampMs - tMin) / tRange;
-        const double yRatio = (points_[i].value - yMin_) / yRange_;
-        const int x = marginL + static_cast<int>(chartW * xRatio);
-        const int y = marginT + static_cast<int>(chartH * (1.0 - yRatio));
+    for (int i = 0; i < visCount; ++i) {
+        const int idx = visStart + i;
+        double xRatio;
+        if (xAxisMode_ == ChartXAxisMode::Samples) {
+            xRatio = static_cast<double>(i) / qMax(visCount - 1, 1);
+        } else {
+            xRatio = static_cast<double>(points_[idx].timestampMs - xMin) / xRange;
+        }
+        const double yRatio = (points_[idx].value - visYMin) / visYRange;
+        const int x = mL + static_cast<int>(cW * xRatio);
+        const int y = mT + static_cast<int>(cH * (1.0 - yRatio));
         if (i == 0) path.moveTo(x, y);
         else path.lineTo(x, y);
     }
 
-    /* Fill under the curve */
+    /* Fill under curve */
     QPainterPath fillPath = path;
-    fillPath.lineTo(marginL + chartW, marginT + chartH);
-    fillPath.lineTo(marginL, marginT + chartH);
+    fillPath.lineTo(mL + cW, mT + cH);
+    fillPath.lineTo(mL, mT + cH);
     fillPath.closeSubpath();
-    QLinearGradient grad(0, marginT, 0, marginT + chartH);
-    grad.setColorAt(0.0, QColor(59, 130, 246, 40));
-    grad.setColorAt(1.0, QColor(59, 130, 246, 5));
+    QLinearGradient grad(0, mT, 0, mT + cH);
+    grad.setColorAt(0.0, QColor(59, 130, 246, 35));
+    grad.setColorAt(1.0, QColor(59, 130, 246, 3));
     p.fillPath(fillPath, grad);
 
-    /* Stroke the line */
+    /* Stroke line */
     p.setPen(QPen(QColor(59, 130, 246), 2));
     p.drawPath(path);
 
     /* Current value dot */
     if (!points_.isEmpty()) {
         const auto &last = points_.last();
-        const double xRatio = static_cast<double>(last.timestampMs - tMin) / tRange;
-        const double yRatio = (last.value - yMin_) / yRange_;
-        const int x = marginL + static_cast<int>(chartW * xRatio);
-        const int y = marginT + static_cast<int>(chartH * (1.0 - yRatio));
+        double xRatio;
+        if (xAxisMode_ == ChartXAxisMode::Samples) {
+            xRatio = 1.0;
+        } else {
+            xRatio = static_cast<double>(last.timestampMs - xMin) / xRange;
+        }
+        const double yRatio = (last.value - visYMin) / visYRange;
+        const int x = mL + static_cast<int>(cW * xRatio);
+        const int y = mT + static_cast<int>(cH * (1.0 - yRatio));
         p.setPen(Qt::NoPen);
         p.setBrush(QColor(59, 130, 246));
         p.drawEllipse(QPoint(x, y), 5, 5);
@@ -190,12 +221,12 @@ void ChartWidget::paintEvent(QPaintEvent *)
     titleFont.setPointSizeF(10);
     titleFont.setBold(true);
     p.setFont(titleFont);
-    p.drawText(QRect(marginL, 4, chartW, 22), Qt::AlignLeft,
+    p.drawText(QRect(mL, 2, cW, 20), Qt::AlignLeft,
                seriesName_.isEmpty() ? "Value" : seriesName_);
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  RealtimeChartDialog — wraps ChartWidget with controls
+//  RealtimeChartDialog — controls + chart + stats
 // ════════════════════════════════════════════════════════════════════
 
 RealtimeChartDialog::RealtimeChartDialog(const QString &entryName,
@@ -207,20 +238,50 @@ RealtimeChartDialog::RealtimeChartDialog(const QString &entryName,
     setObjectName("realtimeChartDialog");
     setWindowTitle(tr("Real-time Monitor — %1").arg(entryName));
     setModal(false);
-    resize(720, 440);
+    resize(800, 480);
 
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(12, 12, 12, 10);
     layout->setSpacing(8);
 
-    /* ── Info row ─────────────────────────────────────────────── */
-    auto *infoRow = new QHBoxLayout;
+    /* ── Controls row ─────────────────────────────────────────── */
+    auto *ctrlRow = new QHBoxLayout;
+
     auto *nameLbl = new QLabel(entryName);
     nameLbl->setStyleSheet("font-weight: bold; font-size: 13px;");
-    infoRow->addWidget(nameLbl);
-    infoRow->addStretch(1);
+    ctrlRow->addWidget(nameLbl);
+    ctrlRow->addStretch(1);
 
-    auto *intervalLbl = new QLabel(tr("Poll:"));
+    /* X-axis unit selector */
+    ctrlRow->addWidget(new QLabel(tr("X-axis:")));
+    xAxisCombo_ = new QComboBox;
+    xAxisCombo_->addItem(tr("Seconds"), 0);
+    xAxisCombo_->addItem(tr("Samples"), 1);
+    ctrlRow->addWidget(xAxisCombo_);
+    connect(xAxisCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &RealtimeChartDialog::onXAxisModeChanged);
+
+    /* Visible window size (unit depends on X-axis mode) */
+    ctrlRow->addWidget(new QLabel(tr("Window:")));
+    windowSpin_ = new QSpinBox;
+    windowSpin_->setValue(200);
+    ctrlRow->addWidget(windowSpin_);
+    connect(windowSpin_, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, [this](int val) {
+        if (xAxisCombo_->currentIndex() == 0) {
+            /* Seconds mode: store seconds, convert to points. */
+            equivalentSeconds_ = val;
+            const int pts = qMax(1, val * 1000 / pollingIntervalMs_);
+            chart_->setVisibleWindow(pts);
+        } else {
+            /* Samples mode: store points directly. */
+            equivalentPoints_ = val;
+            chart_->setVisibleWindow(val);
+        }
+    });
+
+    /* Poll interval */
+    ctrlRow->addWidget(new QLabel(tr("Poll:")));
     intervalCombo_ = new QComboBox;
     intervalCombo_->addItem(tr("50 ms"), 50);
     intervalCombo_->addItem(tr("100 ms"), 100);
@@ -228,17 +289,20 @@ RealtimeChartDialog::RealtimeChartDialog(const QString &entryName,
     intervalCombo_->addItem(tr("500 ms"), 500);
     intervalCombo_->addItem(tr("1 s"), 1000);
     intervalCombo_->setCurrentIndex(1);
-    infoRow->addWidget(intervalLbl);
-    infoRow->addWidget(intervalCombo_);
+    ctrlRow->addWidget(intervalCombo_);
+    connect(intervalCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &RealtimeChartDialog::updatePollingInterval);
 
-    recordBtn_ = new QPushButton(tr("▶ Start"));
+    /* Start / Stop */
+    recordBtn_ = new QPushButton(QString("▶ ") + tr("Start"));
     recordBtn_->setCheckable(true);
-    infoRow->addWidget(recordBtn_);
-    layout->addLayout(infoRow);
+    ctrlRow->addWidget(recordBtn_);
+
+    layout->addLayout(ctrlRow);
 
     /* ── Chart ────────────────────────────────────────────────── */
     chart_ = new ChartWidget;
-    chart_->setLabel(entryName, "");
+    chart_->setLabel(entryName);
     layout->addWidget(chart_, 1);
 
     /* ── Stats row ────────────────────────────────────────────── */
@@ -250,18 +314,10 @@ RealtimeChartDialog::RealtimeChartDialog(const QString &entryName,
     statsRow->addWidget(statsLabel_);
     layout->addLayout(statsRow);
 
-    /* ── Timer ────────────────────────────────────────────────── */
-    pollTimer_ = new QTimer(this);
-    pollTimer_->setSingleShot(false);
-    connect(pollTimer_, &QTimer::timeout, this, &RealtimeChartDialog::onPollTick);
-
     connect(recordBtn_, &QPushButton::clicked, this, &RealtimeChartDialog::toggleRecording);
-    connect(intervalCombo_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int) {
-        if (pollTimer_->isActive()) {
-            pollTimer_->setInterval(intervalCombo_->currentData().toInt());
-        }
-    });
+
+    /* Configure window spin for initial X-axis mode (Seconds). */
+    updateAxisUi();
 
     /* Seed first point. */
     feedValue(initialValue);
@@ -272,29 +328,18 @@ void RealtimeChartDialog::feedValue(double value)
     lastValue_ = value;
     valueLabel_->setText(tr("Current: %1").arg(value, 0, 'f', 4));
     updateStats(value);
-    /* Always plot incoming data — Start/Stop only controls stats reset. */
     chart_->addPoint(value);
+    totalPoints_++;
 }
 
 void RealtimeChartDialog::toggleRecording()
 {
     recording_ = recordBtn_->isChecked();
     if (recording_) {
-        recordBtn_->setText(tr("■ Stop"));
-        pollTimer_->start(intervalCombo_->currentData().toInt());
-        emit recordingChanged(true);
+        recordBtn_->setText(QString("■ ") + tr("Stop"));
     } else {
-        recordBtn_->setText(tr("▶ Start"));
-        pollTimer_->stop();
-        emit recordingChanged(false);
+        recordBtn_->setText(QString("▶ ") + tr("Start"));
     }
-}
-
-void RealtimeChartDialog::onPollTick()
-{
-    /* The MainWindow poll cycle feeds values via feedValue(). */
-    /* This timer just triggers a visual refresh of the current value. */
-    /* Actual data comes from the Free Run polling mechanism. */
 }
 
 void RealtimeChartDialog::updateStats(double value)
@@ -306,9 +351,57 @@ void RealtimeChartDialog::updateStats(double value)
     if (value < trough_) trough_ = value;
     const double avg = sum_ / count_;
     statsLabel_->setText(
-        tr("Avg: %1  |  Peak: %2  |  Low: %3  |  Samples: %4")
+        tr("Avg: %1  |  Peak: %2  |  Low: %3  |  Samples: %4  |  Total: %5")
             .arg(avg, 0, 'f', 4)
             .arg(peak_, 0, 'f', 4)
             .arg(trough_, 0, 'f', 4)
-            .arg(count_));
+            .arg(count_)
+            .arg(totalPoints_));
+}
+
+// Reconfigure the window spin box's range, suffix, and value
+// based on the current X-axis mode.
+void RealtimeChartDialog::updateAxisUi()
+{
+    const bool isSeconds = (xAxisCombo_->currentIndex() == 0);
+
+    /* Block signals so setValue() doesn't trigger the lambda in the
+       connection, which would overwrite the equivalent* fields. */
+    windowSpin_->blockSignals(true);
+
+    if (isSeconds) {
+        windowSpin_->setRange(1, 300);
+        windowSpin_->setSingleStep(1);
+        windowSpin_->setSuffix(tr(" s"));
+        windowSpin_->setValue(equivalentSeconds_);
+        chart_->setVisibleWindow(qMax(1, equivalentSeconds_ * 1000 / pollingIntervalMs_));
+    } else {
+        windowSpin_->setRange(10, 10000);
+        windowSpin_->setSingleStep(50);
+        windowSpin_->setSuffix(tr(" pts"));
+        windowSpin_->setValue(equivalentPoints_);
+        chart_->setVisibleWindow(equivalentPoints_);
+    }
+
+    windowSpin_->blockSignals(false);
+}
+
+// X-axis mode changed: switch chart mode, then reconfigure window spin.
+void RealtimeChartDialog::onXAxisModeChanged(int idx)
+{
+    chart_->setXAxisMode(idx == 0 ? ChartXAxisMode::Seconds
+                                  : ChartXAxisMode::Samples);
+    updateAxisUi();
+}
+
+// Polling interval changed: recalculate seconds↔points conversion.
+void RealtimeChartDialog::updatePollingInterval(int idx)
+{
+    const int newMs = intervalCombo_->itemData(idx).toInt();
+    if (newMs <= 0) return;
+    pollingIntervalMs_ = newMs;
+    emit pollingIntervalChanged(pollingIntervalMs_);
+
+    /* Recalculate the current visible window with the new interval. */
+    updateAxisUi();
 }

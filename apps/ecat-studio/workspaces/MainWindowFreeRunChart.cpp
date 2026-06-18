@@ -57,5 +57,12 @@ void MainWindow::openFreeRunChart()
     });
     openCharts_.append(dialog);
 
+    /* Sync chart's polling interval back to the main refresh timer
+       so the Free Run table updates at the same rate the chart expects. */
+    connect(dialog, &RealtimeChartDialog::pollingIntervalChanged,
+            this, [this](int ms) {
+        if (refreshTimer_) refreshTimer_->setInterval(ms);
+    });
+
     dialog->show();
 }
