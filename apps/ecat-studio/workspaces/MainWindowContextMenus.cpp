@@ -333,6 +333,7 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   QAction *fillSdoFromFreeRun = nullptr;
   QAction *readSdoFromFreeRun = nullptr;
   QAction *addWatchFromFreeRun = nullptr;
+  QAction *realtimeMonitorFromFreeRun = nullptr;
   QAction *fillSdoFromIoVariable = nullptr;
   QAction *readSdoFromIoVariable = nullptr;
   QAction *addWatchFromIoVariable = nullptr;
@@ -691,6 +692,10 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
         menu.addAction(uiText("Add SDO Watch", "加入 SDO 监视"));
     // Enable/disable based on action availability
     addWatchFromFreeRun->setEnabled(hasFreeRunRow);
+    menu.addSeparator();
+    realtimeMonitorFromFreeRun =
+        menu.addAction(uiText("Real-time Monitor", "实时监视"));
+    realtimeMonitorFromFreeRun->setEnabled(hasFreeRunRow);
     // Add visual separator between menu groups
     menu.addSeparator();
   } else if (table == ioVar_->ioVariableTable) {
@@ -1186,6 +1191,8 @@ void MainWindow::showTableContextMenu(QTableWidget *table,
   } else if (chosen == addWatchFromFreeRun) {
     applySdoSelectionFromFreeRunEntry(table->currentRow(), false);
     addCurrentSdoToWatch();
+  } else if (chosen == realtimeMonitorFromFreeRun) {
+    openFreeRunChart();
   } else if (chosen == fillSdoFromIoVariable) {
     applySdoSelectionFromIoVariable(table->currentRow(), false);
   } else if (chosen == readSdoFromIoVariable) {

@@ -33,6 +33,7 @@ class QWidget;
 class RtTestLatencyChart;
 class RtTestJitterSpark;
 struct RtTestWidgets;
+class RealtimeChartDialog;
 struct CommissioningWorkflowInput;
 struct WorkflowStepDetailTexts;
 struct CommissioningWorkflowTexts;
@@ -325,6 +326,9 @@ private:
   void exportSdoRawText();
   void exportMasterRawText();
   void exportSlaveRawText();
+
+  // ── Free Run Real-time Chart ─────────────────────────────────
+  void openFreeRunChart();
   
   // Load a project file (.ecat.json) and restore all tables
   // ── SDO Inspector & Target Panel ──────────────────────────────
@@ -701,6 +705,7 @@ private:
   // ── RT Test Panel Widgets (aggregated in workspace file) ─────
   RtTestWidgets *rtTest_ = nullptr;
   bool rtTestRunning_ = false;
+  QVector<RealtimeChartDialog *> openCharts_;
 
   // ── Free Run Panel Widgets ────────────────────────────────────
   

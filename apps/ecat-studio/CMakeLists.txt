@@ -56,6 +56,7 @@ add_executable(ecat-studio
     detail/WatchStartupDetail.cpp                     detail/WatchStartupDetail.h
     detail/WorkspaceBoundaryDetail.cpp                detail/WorkspaceBoundaryDetail.h
     detail/WorkspaceTabBadgeDetail.cpp                detail/WorkspaceTabBadgeDetail.h
+    detail/RealtimeChartDialog.cpp              detail/RealtimeChartDialog.h
     # ── Helpers ─────────────────────────────────────────────────────────
     utils/Documentation.cpp                    utils/Documentation.h
     utils/TableHelpers.cpp                     utils/TableHelpers.h
@@ -78,6 +79,7 @@ add_executable(ecat-studio
     workspaces/MainWindowSlaveEvidence.cpp
     workspaces/MainWindowContextMenus.cpp
     workspaces/MainWindowExport.cpp
+    workspaces/MainWindowFreeRunChart.cpp
     workspaces/MainWindowDiagnosticsTopology.cpp
     workspaces/MainWindowIoVariableWorkspace.cpp
     workspaces/MainWindowIoVariableTable.cpp
