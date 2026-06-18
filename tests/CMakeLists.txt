@@ -1453,3 +1453,18 @@ target_include_directories(service_integration_test PRIVATE
 set_target_properties(service_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME service_integration_test COMMAND service_integration_test)
 set_tests_properties(service_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── Empty Data Boundary Test ─────────────────────────────────────────
+add_executable(empty_data_boundary_test
+    empty_data_boundary_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(empty_data_boundary_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(empty_data_boundary_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(empty_data_boundary_test PROPERTIES AUTOMOC ON)
+add_test(NAME empty_data_boundary_test COMMAND empty_data_boundary_test)
+set_tests_properties(empty_data_boundary_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
