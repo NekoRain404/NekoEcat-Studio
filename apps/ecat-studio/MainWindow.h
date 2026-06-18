@@ -9,6 +9,7 @@
 #include "workspaces/WorkspaceWidgets.h"
 
 class QMenu;
+class QShortcut;
 
 #include <QHash>
 #include <QMainWindow>
@@ -709,6 +710,8 @@ private:
   RtTestWidgets *rtTest_ = nullptr;
   bool rtTestRunning_ = false;
   QVector<RealtimeChartDialog *> openCharts_;
+  QVector<QShortcut *> tabSwitchShortcuts_;  /* Ctrl+1~9, Ctrl+Tab, Ctrl+Shift+Tab */
+  void applyCustomShortcuts();
 
   // ── Free Run Panel Widgets ────────────────────────────────────
   

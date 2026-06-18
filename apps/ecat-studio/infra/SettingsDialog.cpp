@@ -13,7 +13,9 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QFocusEvent>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -87,6 +89,8 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
                        zh ? QStringLiteral("通知") : QStringLiteral("Notifications"));
     tabWidget_->addTab(buildExportTab(settings, zh),
                        zh ? QStringLiteral("导出") : QStringLiteral("Export"));
+    tabWidget_->addTab(buildShortcutsTab(settings, zh),
+                       zh ? QStringLiteral("快捷键") : QStringLiteral("Shortcuts"));
     layout->addWidget(tabWidget_, 1);
 
     // ── Dialog buttons ────────────────────────────────────────────
@@ -430,6 +434,81 @@ QWidget *SettingsDialog::buildExportTab(const AppSettings &s, bool zh)
 
 // ── Collect settings ─────────────────────────────────────────────────
 // Reads all widget states into a new AppSettings struct.
+// ── KeySequenceEdit — a line edit that captures key presses as a shortcut.
+// When focused, any key combination is recorded and displayed as text.
+// Pressing Escape clears the shortcut; Backspace resets to default.
+class KeySequenceEdit : public QLineEdit {
+    Q_OBJECT
+public:
+    explicit KeySequenceEdit(const QString &defaultKey, QWidget *parent = nullptr)
+        : QLineEdit(parent), defaultKey_(defaultKey)
+    {
+        setReadOnly(true);
+        setPlaceholderText(defaultKey);
+        setMinimumWidth(140);
+        setMaximumWidth(180);
+        setStyleSheet("QLineEdit { padding: 2px 6px; }");
+    }
+
+    void setKeySequence(const QKeySequence &seq)
+    {
+        seq_ = seq;
+        setText(seq.isEmpty() ? QString() : seq.toString(QKeySequence::NativeText));
+    }
+
+    QKeySequence keySequence() const { return seq_; }
+    QString defaultKey() const { return defaultKey_; }
+
+signals:
+    void keySequenceChanged(const QKeySequence &seq);
+
+protected:
+    void keyPressEvent(QKeyEvent *e) override
+    {
+        int key = e->key();
+        if (key == Qt::Key_Escape) {
+            /* Escape clears the custom shortcut. */
+            setKeySequence(QKeySequence());
+            emit keySequenceChanged(QKeySequence());
+            return;
+        }
+        if (key == Qt::Key_Backspace || key == Qt::Key_Delete) {
+            /* Backspace/Delete resets to default. */
+            setKeySequence(QKeySequence(defaultKey_));
+            emit keySequenceChanged(QKeySequence(defaultKey_));
+            return;
+        }
+        /* Ignore bare modifier key presses — wait for a real key. */
+        if (key == Qt::Key_Control || key == Qt::Key_Shift ||
+            key == Qt::Key_Alt || key == Qt::Key_Meta) {
+            return;
+        }
+        /* Build the key sequence including held modifiers. */
+        int mods = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier |
+                                      Qt::AltModifier | Qt::Key_Meta);
+        QKeySequence seq(mods | key);
+        setKeySequence(seq);
+        emit keySequenceChanged(seq);
+    }
+
+    void focusInEvent(QFocusEvent *e) override
+    {
+        QLineEdit::focusInEvent(e);
+        setStyleSheet("QLineEdit { padding: 2px 6px; border: 2px solid #3b82f6; }");
+    }
+
+    void focusOutEvent(QFocusEvent *e) override
+    {
+        QLineEdit::focusOutEvent(e);
+        setStyleSheet("QLineEdit { padding: 2px 6px; }");
+    }
+
+private:
+    QKeySequence seq_;
+    QString defaultKey_;
+};
+
+
 AppSettings SettingsDialog::settings() const
 {
     AppSettings r;
@@ -493,5 +572,171 @@ AppSettings SettingsDialog::settings() const
     r.exportIncludeMetadata = exportMetadataCheck_->isChecked();
     r.csvDelimiter = csvDelimiterCombo_->currentData().toString();
 
+    // Custom Shortcuts
+    if (shortcutsTable_) {
+        for (int row = 0; row < shortcutsTable_->rowCount(); ++row) {
+            const QString id = shortcutsTable_->item(row, 0)
+                ? shortcutsTable_->item(row, 0)->data(Qt::UserRole).toString()
+                : QString();
+            if (id.isEmpty()) continue;
+            auto *edit = qobject_cast<KeySequenceEdit *>(shortcutsTable_->cellWidget(row, 2));
+            if (!edit) continue;
+            const QKeySequence custom = edit->keySequence();
+            const QKeySequence def(edit->defaultKey());
+            if (custom != def && !custom.isEmpty()) {
+                r.customShortcuts[id] = custom.toString();
+            } else {
+                r.customShortcuts.remove(id);
+            }
+        }
+    }
+
     return r;
 }
+
+// ── Shortcut entry definition ──────────────────────────────────────────
+// Each entry defines a configurable action with its default key binding.
+struct ShortcutDef {
+    QString id;           // unique key for QSettings persistence
+    QString displayName;  // label shown in the settings table
+    QString defaultKey;   // platform default key sequence string
+};
+
+// Master list of all configurable shortcuts.
+static const QVector<ShortcutDef> &shortcutDefinitions()
+{
+    static const QVector<ShortcutDef> defs = {
+        {"newProject",       "New Project",              "Ctrl+N"},
+        {"openProject",      "Open Project",             "Ctrl+O"},
+        {"saveProject",      "Save Project",             "Ctrl+S"},
+        {"saveProjectAs",    "Save Project As",          "Ctrl+Shift+S"},
+        {"connect",          "Connect to Daemon",        "Ctrl+K"},
+        {"refresh",          "Refresh Online Data",      "F5"},
+        {"rescan",           "Rescan Bus",               "Ctrl+Shift+R"},
+        {"commandPalette",   "Command Palette",          "Ctrl+P"},
+        {"settings",         "Open Settings",            "Ctrl+,"},
+        {"manual",           "User Manual",              "F1"},
+        {"showLog",          "Toggle Runtime Log",       "Ctrl+`"},
+        {"workspaceBack",    "Workspace Back",           "Alt+Left"},
+        {"workspaceForward", "Workspace Forward",        "Alt+Right"},
+        {"filterFocus",      "Focus Filter",             "Ctrl+F"},
+        {"tab1",             "Switch to Tab 1",          "Ctrl+1"},
+        {"tab2",             "Switch to Tab 2",          "Ctrl+2"},
+        {"tab3",             "Switch to Tab 3",          "Ctrl+3"},
+        {"tab4",             "Switch to Tab 4",          "Ctrl+4"},
+        {"tab5",             "Switch to Tab 5",          "Ctrl+5"},
+        {"tab6",             "Switch to Tab 6",          "Ctrl+6"},
+        {"tab7",             "Switch to Tab 7",          "Ctrl+7"},
+        {"tab8",             "Switch to Tab 8",          "Ctrl+8"},
+        {"tab9",             "Switch to Tab 9",          "Ctrl+9"},
+        {"nextTab",          "Next Tab",                 "Ctrl+Tab"},
+        {"prevTab",          "Previous Tab",             "Ctrl+Shift+Tab"},
+    };
+    return defs;
+}
+
+// ── Build the Shortcuts configuration tab ──────────────────────────────
+QWidget *SettingsDialog::buildShortcutsTab(const AppSettings &s, bool zh)
+{
+    auto *page = new QWidget;
+    auto *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(12, 12, 12, 12);
+
+    auto *hint = new QLabel(zh
+        ? QStringLiteral("点击快捷键列，按下新的按键组合。Esc 清除，Backspace 恢复默认。")
+        : QStringLiteral("Click the shortcut column and press a new key combination. Esc clears, Backspace resets to default."));
+    hint->setWordWrap(true);
+    hint->setStyleSheet("color: palette(placeholder-text); font-size: 11px; margin-bottom: 6px;");
+    layout->addWidget(hint);
+
+    const auto &defs = shortcutDefinitions();
+    shortcutsTable_ = new QTableWidget(defs.size(), 3);
+    shortcutsTable_->setHorizontalHeaderLabels({
+        zh ? QStringLiteral("操作") : QStringLiteral("Action"),
+        zh ? QStringLiteral("默认") : QStringLiteral("Default"),
+        zh ? QStringLiteral("自定义") : QStringLiteral("Custom"),
+    });
+    shortcutsTable_->horizontalHeader()->setStretchLastSection(true);
+    shortcutsTable_->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    shortcutsTable_->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    shortcutsTable_->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    shortcutsTable_->verticalHeader()->setVisible(false);
+    shortcutsTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
+    shortcutsTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    shortcutsTable_->setAlternatingRowColors(true);
+
+    for (int i = 0; i < defs.size(); ++i) {
+        const auto &def = defs[i];
+
+        /* Column 0: action name */
+        auto *nameItem = new QTableWidgetItem(def.displayName);
+        nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
+        nameItem->setData(Qt::UserRole, def.id);
+        shortcutsTable_->setItem(i, 0, nameItem);
+
+        /* Column 1: default shortcut (read-only) */
+        auto *defaultItem = new QTableWidgetItem(
+            QKeySequence(def.defaultKey).toString(QKeySequence::NativeText));
+        defaultItem->setFlags(defaultItem->flags() & ~Qt::ItemIsEditable);
+        defaultItem->setForeground(palette().color(QPalette::PlaceholderText));
+        shortcutsTable_->setItem(i, 1, defaultItem);
+
+        /* Column 2: custom shortcut (editable via KeySequenceEdit) */
+        auto *edit = new KeySequenceEdit(def.defaultKey);
+
+        /* Load custom value if present, otherwise show default. */
+        const QString customStr = s.customShortcuts.value(def.id);
+        if (!customStr.isEmpty()) {
+            edit->setKeySequence(QKeySequence(customStr));
+        } else {
+            edit->setKeySequence(QKeySequence(def.defaultKey));
+        }
+
+        shortcutsTable_->setCellWidget(i, 2, edit);
+        shortcutsTable_->setRowHeight(i, 32);
+    }
+
+    /* Filter row */
+    auto *filterRow = new QHBoxLayout;
+    auto *filterEdit = new QLineEdit;
+    filterEdit->setPlaceholderText(zh ? QStringLiteral("搜索快捷键...") : QStringLiteral("Search shortcuts..."));
+    filterRow->addWidget(filterEdit);
+    layout->addLayout(filterRow);
+    layout->addWidget(shortcutsTable_, 1);
+
+    connect(filterEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
+        for (int r = 0; r < shortcutsTable_->rowCount(); ++r) {
+            bool match = text.isEmpty();
+            if (!match) {
+                for (int c = 0; c < shortcutsTable_->columnCount(); ++c) {
+                    auto *item = shortcutsTable_->item(r, c);
+                    if (item && item->text().contains(text, Qt::CaseInsensitive)) {
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            shortcutsTable_->setRowHidden(r, !match);
+        }
+    });
+
+    /* Reset all button */
+    auto *resetRow = new QHBoxLayout;
+    resetRow->addStretch(1);
+    auto *resetAllBtn = new QPushButton(zh ? QStringLiteral("全部恢复默认") : QStringLiteral("Reset All to Defaults"));
+    connect(resetAllBtn, &QPushButton::clicked, this, [this]() {
+        for (int r = 0; r < shortcutsTable_->rowCount(); ++r) {
+            auto *edit = qobject_cast<KeySequenceEdit *>(shortcutsTable_->cellWidget(r, 2));
+            if (edit) {
+                edit->setKeySequence(QKeySequence(edit->defaultKey()));
+            }
+        }
+    });
+    resetRow->addWidget(resetAllBtn);
+    layout->addLayout(resetRow);
+
+    return page;
+}
+
+// Include MOC for KeySequenceEdit (Q_OBJECT in .cpp requires this)
+#include "SettingsDialog.moc"

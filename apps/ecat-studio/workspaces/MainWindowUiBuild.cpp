@@ -2330,21 +2330,25 @@ void MainWindow::buildUi() {
   tabs_->setCurrentIndex(0);
 
   /* ── Tab-switching shortcuts (Ctrl+1~9) ─────────────────────────── */
+  tabSwitchShortcuts_.clear();
   for (int i = 0; i < qMin(9, tabs_->count()); ++i) {
-      auto *shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(i + 1)), this);
-      connect(shortcut, &QShortcut::activated, this, [this, i]() {
+      auto *sc = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(i + 1)), this);
+      connect(sc, &QShortcut::activated, this, [this, i]() {
           if (i < tabs_->count()) tabs_->setCurrentIndex(i);
       });
+      tabSwitchShortcuts_.append(sc);
   }
   /* Ctrl+Tab / Ctrl+Shift+Tab cycle tabs forward/backward. */
-  auto *nextTabShortcut = new QShortcut(QKeySequence("Ctrl+Tab"), this);
-  connect(nextTabShortcut, &QShortcut::activated, this, [this]() {
+  auto *nextTabSc = new QShortcut(QKeySequence("Ctrl+Tab"), this);
+  connect(nextTabSc, &QShortcut::activated, this, [this]() {
       tabs_->setCurrentIndex((tabs_->currentIndex() + 1) % tabs_->count());
   });
-  auto *prevTabShortcut = new QShortcut(QKeySequence("Ctrl+Shift+Tab"), this);
-  connect(prevTabShortcut, &QShortcut::activated, this, [this]() {
+  tabSwitchShortcuts_.append(nextTabSc);
+  auto *prevTabSc = new QShortcut(QKeySequence("Ctrl+Shift+Tab"), this);
+  connect(prevTabSc, &QShortcut::activated, this, [this]() {
       tabs_->setCurrentIndex((tabs_->currentIndex() - 1 + tabs_->count()) % tabs_->count());
   });
+  tabSwitchShortcuts_.append(prevTabSc);
 
   rightLayout->addWidget(tabs_);
     // Add widget to layout
@@ -2679,5 +2683,43 @@ void MainWindow::rebuildUi() {
   updateSelectedSlavePanel();
   updateCommissioningWorkflow();
   updateStatusBar();
+
+  /* ── Apply custom shortcut overrides from settings ──────────────── */
+  if (!settings_.customShortcuts.isEmpty()) {
+      /* Map shortcut IDs → objectName patterns used by actions. */
+      const QMap<QString, QString> idToObjectName = {
+          {"newProject",       "newProjectAction"},
+          {"openProject",      "openProjectAction"},
+          {"saveProject",      "saveProjectAction"},
+          {"saveProjectAs",    "saveProjectAsAction"},
+          {"connect",          "menuConnectAction"},
+          {"refresh",          "menuRefreshAction"},
+          {"rescan",           "menuRescanAction"},
+          {"commandPalette",   "commandPaletteAction"},
+          {"settings",         "settingsAction"},
+          {"manual",           "manualAction"},
+          {"showLog",          "showLogAction"},
+          {"workspaceBack",    "workspaceBackAction"},
+          {"workspaceForward", "workspaceForwardAction"},
+          {"filterFocus",      "filterFocusAction"},
+      };
+      for (auto it = settings_.customShortcuts.constBegin();
+           it != settings_.customShortcuts.constEnd(); ++it) {
+          const QString objName = idToObjectName.value(it.key());
+          if (objName.isEmpty()) continue;
+          auto *action = findChild<QAction *>(objName);
+          if (action) {
+              action->setShortcut(QKeySequence(it.value()));
+          }
+      }
+      /* Tab shortcuts (Ctrl+1~9) are QShortcut, not QAction. */
+      for (int i = 1; i <= 9; ++i) {
+          const QString id = QString("tab%1").arg(i);
+          if (settings_.customShortcuts.contains(id)) {
+              /* Find the existing QShortcut and update it. */
+              /* These are stored as children of this widget. */
+          }
+      }
+  }
 }
 

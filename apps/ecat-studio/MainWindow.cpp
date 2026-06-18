@@ -188,6 +188,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   client_.setMasterTarget(settings_.activeMaster);
   buildUi();
   applySettings();
+  applyCustomShortcuts();
 // Persist window geometry and gracefully shut down embedded daemon
   wire();
   setMinimumSize(1120, 720);
@@ -713,6 +714,52 @@ void MainWindow::updateRecentProjectsMenu()
     }
 }
 
+void MainWindow::applyCustomShortcuts()
+{
+    if (settings_.customShortcuts.isEmpty()) return;
+
+    /* Map shortcut IDs → QAction objectName. */
+    const QMap<QString, QString> idToObj = {
+        {"newProject",       "newProjectAction"},
+        {"openProject",      "openProjectAction"},
+        {"saveProject",      "saveProjectAction"},
+        {"saveProjectAs",    "saveProjectAsAction"},
+        {"connect",          "menuConnectAction"},
+        {"refresh",          "menuRefreshAction"},
+        {"rescan",           "menuRescanAction"},
+        {"commandPalette",   "commandPaletteAction"},
+        {"settings",         "settingsAction"},
+        {"manual",           "manualAction"},
+        {"showLog",          "showLogAction"},
+        {"workspaceBack",    "workspaceBackAction"},
+        {"workspaceForward", "workspaceForwardAction"},
+        {"filterFocus",      "filterFocusAction"},
+    };
+    for (auto it = settings_.customShortcuts.constBegin();
+         it != settings_.customShortcuts.constEnd(); ++it) {
+        const QString objName = idToObj.value(it.key());
+        if (!objName.isEmpty()) {
+            auto *action = findChild<QAction *>(objName);
+            if (action) action->setShortcut(QKeySequence(it.value()));
+            continue;
+        }
+        /* Tab shortcuts: tab1..tab9, nextTab, prevTab */
+        if (it.key().startsWith("tab") || it.key() == "nextTab" || it.key() == "prevTab") {
+            int idx = -1;
+            if (it.key() == "nextTab") idx = tabSwitchShortcuts_.size() - 2;
+            else if (it.key() == "prevTab") idx = tabSwitchShortcuts_.size() - 1;
+            else {
+                bool ok = false;
+                int num = it.key().mid(3).toInt(&ok);
+                if (ok && num >= 1 && num <= 9) idx = num - 1;
+            }
+            if (idx >= 0 && idx < tabSwitchShortcuts_.size()) {
+                tabSwitchShortcuts_[idx]->setKey(QKeySequence(it.value()));
+            }
+        }
+    }
+}
+
 void MainWindow::loadSettings() {
   QSettings s("NekoEcatStudio", "NekoEcatStudio");
 
@@ -778,6 +825,18 @@ void MainWindow::loadSettings() {
 
   // ── Recent Projects ──────────────────────────────────────────
   recentProjectPaths_ = s.value("recentProjects/paths").toStringList();
+
+  // ── Custom Shortcuts ──────────────────────────────────────────
+  settings_.customShortcuts.clear();
+  const int scCount = s.beginReadArray("shortcuts/custom");
+  for (int i = 0; i < scCount; ++i) {
+      s.setArrayIndex(i);
+      const QString id = s.value("id").toString();
+      const QString seq = s.value("sequence").toString();
+      if (!id.isEmpty() && !seq.isEmpty())
+          settings_.customShortcuts[id] = seq;
+  }
+  s.endArray();
 }
 
 // Persist all current preferences to QSettings.
@@ -834,6 +893,18 @@ void MainWindow::saveSettings() {
 
   // ── Recent Projects ──────────────────────────────────────────
   s.setValue("recentProjects/paths", recentProjectPaths_);
+
+  // ── Custom Shortcuts ──────────────────────────────────────────
+  s.remove("shortcuts/custom");
+  s.beginWriteArray("shortcuts/custom");
+  int scIdx = 0;
+  for (auto it = settings_.customShortcuts.constBegin();
+       it != settings_.customShortcuts.constEnd(); ++it, ++scIdx) {
+      s.setArrayIndex(scIdx);
+      s.setValue("id", it.key());
+      s.setValue("sequence", it.value());
+  }
+  s.endArray();
 }
 
 // Open settings dialog; apply changes and rebuild UI if language changed
@@ -872,11 +943,13 @@ void MainWindow::openSettings() {
   if (settings_.language != previousLanguage) {
     rebuildUi();
     applySettings();
+    applyCustomShortcuts();
     QMessageBox::information(this, uiText("Settings", "设置"),
                              uiText("Language was applied.", "语言已应用。"));
     return;
   }
   applySettings();
+  applyCustomShortcuts();
   QMessageBox::information(this, uiText("Settings", "设置"),
                            uiText("Settings were applied.", "设置已应用。"));
 }

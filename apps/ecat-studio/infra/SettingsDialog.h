@@ -7,6 +7,7 @@
 // via QSettings.
 
 #include <QDialog>
+#include <QMap>
 #include <QString>
 #include <QVector>
 
@@ -73,6 +74,9 @@ struct AppSettings {
     bool exportIncludeTimestamp = true; // include timestamp in exports
     bool exportIncludeMetadata = true; // include metadata in exports
     QString csvDelimiter = ",";        // CSV delimiter: "," or ";"
+
+    // ── Custom Shortcuts ────────────────────────────────────────
+    QMap<QString, QString> customShortcuts;  // actionId → key sequence string
 };
 
 // ── Settings Dialog ──────────────────────────────────────────────────
@@ -99,6 +103,7 @@ private:
     QWidget *buildDisplayTab(const AppSettings &s, bool zh);
     QWidget *buildNotificationTab(const AppSettings &s, bool zh);
     QWidget *buildExportTab(const AppSettings &s, bool zh);
+    QWidget *buildShortcutsTab(const AppSettings &s, bool zh);
 
     // ── Appearance widgets ────────────────────────────────────────
     QComboBox *themeCombo_ = nullptr;
@@ -143,5 +148,6 @@ private:
     QCheckBox *exportMetadataCheck_ = nullptr;
     QComboBox *csvDelimiterCombo_ = nullptr;
 
+    QTableWidget *shortcutsTable_ = nullptr;
     QTabWidget *tabWidget_ = nullptr;
 };
