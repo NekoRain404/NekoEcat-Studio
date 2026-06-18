@@ -272,9 +272,8 @@ void RealtimeChartDialog::feedValue(double value)
     lastValue_ = value;
     valueLabel_->setText(tr("Current: %1").arg(value, 0, 'f', 4));
     updateStats(value);
-    if (recording_) {
-        chart_->addPoint(value);
-    }
+    /* Always plot incoming data — Start/Stop only controls stats reset. */
+    chart_->addPoint(value);
 }
 
 void RealtimeChartDialog::toggleRecording()
