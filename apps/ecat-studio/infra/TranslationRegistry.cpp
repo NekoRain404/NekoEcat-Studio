@@ -1,4 +1,5 @@
 // TranslationRegistry - 8-language translation maps for NekoEcat Studio.
+// DEPRECATED: migrating to .ts/.qm system — kept as fallback during transition.
 // Contains curated translations for UI strings across all workspaces.
 // Untranslated strings fall back to English at runtime.
 

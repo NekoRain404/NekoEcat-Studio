@@ -186,6 +186,7 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   loadSettings();
   client_.setMasterTarget(settings_.activeMaster);
+  eventBus_ = new EventBus(this);
   buildUi();
   applySettings();
   applyCustomShortcuts();
@@ -958,14 +959,10 @@ void MainWindow::openSettings() {
 // For Chinese Simplified, uses the inline zh parameter (preserving existing behavior).
 // For other languages, delegates to TranslationRegistry for lookup by English key.
 // Falls back to English if no translation is found.
-QString MainWindow::uiText(const QString &english, const QString &zh) const {
-  const Language lang = LanguageManager::instance().fromDisplayName(settings_.language);
-    // Multi-branch condition check
-  if (lang == Language::English) return english;
-    // Multi-branch condition check
-  if (lang == Language::ChineseSimplified) return zh;
-  const QString translated = TranslationRegistry::instance().translate(english, lang);
-  return translated.isEmpty() ? english : translated;
+// Translation now handled by Qt .ts/.qm system (QTranslator loaded in main.cpp).
+// This function is a passthrough kept for incremental migration compatibility.
+QString MainWindow::uiText(const QString &english, const QString & /*zh*/) const {
+  return english;
 }
 
 // Display label for the active master (name + target)
@@ -2919,6 +2916,20 @@ void MainWindow::wire() {
             updateActionAvailability();
           });
 
+
+  // ── EventBus wiring ──────────────────────────────────────────────
+  connect(&client_, &EcatClient::slavesChanged, eventBus_, [this](const QVector<SlaveInfo> &s) {
+    eventBus_->emitSlaveChanged(s);
+  });
+  connect(&client_, &EcatClient::sdoValue, eventBus_, [this](int p, const QString &i, const QString &si, const QString &v) {
+    eventBus_->emitSdoValue(p, i, si, v);
+  });
+  connect(&client_, &EcatClient::connectionStateChanged, eventBus_, [this](ConnectionState state) {
+    eventBus_->emitConnectionStateChanged(state == ConnectionState::Connected);
+  });
+  connect(&client_, &EcatClient::freeRunTelemetry, eventBus_, [this](const QJsonObject &tel) {
+    eventBus_->emitFreeRunTelemetry(tel);
+  });
   connectRetryTimer_ = new QTimer(this);
   connectRetryTimer_->setInterval(600);
   connect(connectRetryTimer_, &QTimer::timeout, &client_,
