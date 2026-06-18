@@ -47,7 +47,7 @@ struct FreeRunEntryDetailTexts {
 };
 
 // Resolved detail panel state with severity, boundary, name source, and tooltip.
-struct FreeRunEntryDetailUiState {
+struct FreeRunEntryDetailState {
   QString text;
   QString severityKey;
   QString nameSource;
@@ -56,9 +56,9 @@ struct FreeRunEntryDetailUiState {
   QString tooltip;
 };
 
-FreeRunEntryDetailUiState
+FreeRunEntryDetailState
 freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts);
-FreeRunEntryDetailUiState
+FreeRunEntryDetailState
 freeRunEntryDetailNoSelectionState(const FreeRunEntryDetailTexts &texts);
 // Whether the entry direction is RX/output.
 bool freeRunEntryDetailIsOutputLike(const FreeRunEntryTableRow &row);
@@ -69,6 +69,6 @@ QString freeRunEntryDetailNameSource(const FreeRunEntryTableRow &row,
 QString freeRunEntryDetailSeverityKey(const FreeRunEntryTableRow &row,
                                       const FreeRunEntryDetailTexts &texts);
 // Assembles the full detail panel state.
-FreeRunEntryDetailUiState
-buildFreeRunEntryDetailUiState(const FreeRunEntryTableRow &row,
+FreeRunEntryDetailState
+buildFreeRunEntryDetailState(const FreeRunEntryTableRow &row,
                                const FreeRunEntryDetailTexts &texts);

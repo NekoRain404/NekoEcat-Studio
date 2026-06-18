@@ -5,12 +5,14 @@
 
 #include <QVector>
 
+// Workflow step status: Ready (can proceed), Action (needs work), Blocked (prerequisites missing)
 enum class CommissioningWorkflowStatus {
   Ready,
   Action,
   Blocked,
 };
 
+// Ordered steps in the EtherCAT commissioning workflow
 enum class CommissioningWorkflowStep {
   ConnectRuntime = 0,
   ScanTopology = 1,
@@ -24,6 +26,7 @@ enum class CommissioningWorkflowStep {
   ValidateProcessImage = 9,
 };
 
+// Snapshot of current system state used to evaluate workflow progress
 struct CommissioningWorkflowInput {
   bool connected = false;
   bool hasSlaves = false;
@@ -39,6 +42,7 @@ struct CommissioningWorkflowInput {
   bool hasFreeRunRows = false;
 };
 
+// Result of evaluating a single workflow step
 struct CommissioningWorkflowStepState {
   CommissioningWorkflowStep step = CommissioningWorkflowStep::ConnectRuntime;
   CommissioningWorkflowStatus status = CommissioningWorkflowStatus::Blocked;

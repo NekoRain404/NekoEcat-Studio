@@ -35,6 +35,25 @@ MainWindow  ──uses──►  workspaces/*.cpp   (UI construction, event wiri
 
 ## Include Convention
 
-All headers are included by bare name (e.g. `#include "SdoEvidenceModel.h"`).
+All workspace `.cpp` files include `MainWindowIncludes.h` (the shared
+precompiled header in `workspaces/`) which provides all model, adapter,
+detail, utility, infra, and Qt headers. This eliminates 50+ repeated
+include blocks across 25 workspace files.
+
+Other headers are included by bare name (e.g. `#include "SdoEvidenceModel.h"`).
 CMake adds each subdirectory to the include path, so cross-directory
 includes resolve without path prefixes.
+
+## Settings System
+
+`AppSettings` (defined in `infra/SettingsDialog.h`) contains all
+persisted preferences. `MainWindow::loadSettings()` and
+`MainWindow::saveSettings()` serialize via QSettings. The settings
+dialog (`infra/SettingsDialog.cpp`) presents 7 tabbed sections:
+Appearance, EtherCAT, Timing, Free Run, Display, Notifications, Export.
+
+## Internationalization
+
+8 languages supported via `TranslationRegistry` (1264 entries, 100%
+coverage). The `uiText(english, zh)` method selects the active language.
+User manual is bilingual (EN/ZH) with sidebar TOC and 22 sections.

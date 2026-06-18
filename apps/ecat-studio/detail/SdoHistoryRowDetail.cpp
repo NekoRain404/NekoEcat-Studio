@@ -45,7 +45,7 @@ bool historyReadAction(const QString &action) {
 } // namespace
 
 // Neutral state when the SDO history table is not available.
-SdoHistoryRowDetailUiState
+SdoHistoryRowDetailState
 sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -55,7 +55,7 @@ sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a history row.
-SdoHistoryRowDetailUiState
+SdoHistoryRowDetailState
 sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -92,10 +92,10 @@ QString sdoHistoryRowDetailSeverityKey(const SdoHistoryRow &row,
 }
 
 // Assembles the full history detail state: severity, reuse guidance, summary, and tooltip.
-SdoHistoryRowDetailUiState
-buildSdoHistoryRowDetailUiState(const SdoHistoryRow &row,
+SdoHistoryRowDetailState
+buildSdoHistoryRowDetailState(const SdoHistoryRow &row,
                                 const SdoHistoryRowDetailTexts &texts) {
-  SdoHistoryRowDetailUiState state;
+  SdoHistoryRowDetailState state;
   state.failed = historyFailed(row.status);
   state.requested = historyRequested(row.status);
   state.complete = historyComplete(row.status);

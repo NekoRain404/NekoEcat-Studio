@@ -39,7 +39,7 @@ struct SdoHistoryRowDetailTexts {
 };
 
 // Resolved history detail state with status flags, reuse guidance, and tooltip.
-struct SdoHistoryRowDetailUiState {
+struct SdoHistoryRowDetailState {
   QString text;
   QString severityKey;
   QString reuse;
@@ -55,14 +55,14 @@ struct SdoHistoryRowDetailUiState {
   QString tooltip;
 };
 
-SdoHistoryRowDetailUiState
+SdoHistoryRowDetailState
 sdoHistoryRowDetailUnavailableState(const SdoHistoryRowDetailTexts &texts);
-SdoHistoryRowDetailUiState
+SdoHistoryRowDetailState
 sdoHistoryRowDetailNoSelectionState(const SdoHistoryRowDetailTexts &texts);
 // Maps status and action to a severity key.
 QString sdoHistoryRowDetailSeverityKey(const SdoHistoryRow &row,
                                        const SdoHistoryRowDetailTexts &texts);
 // Assembles the full history detail state.
-SdoHistoryRowDetailUiState
-buildSdoHistoryRowDetailUiState(const SdoHistoryRow &row,
+SdoHistoryRowDetailState
+buildSdoHistoryRowDetailState(const SdoHistoryRow &row,
                                 const SdoHistoryRowDetailTexts &texts);

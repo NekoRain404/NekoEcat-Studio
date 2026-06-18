@@ -2,7 +2,7 @@
 #include "detail/ObjectBookmarkDetail.h"
 
 // Neutral state when the bookmark table is not available.
-ObjectBookmarkDetailUiState
+ObjectBookmarkDetailState
 objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -12,7 +12,7 @@ objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a bookmark.
-ObjectBookmarkDetailUiState
+ObjectBookmarkDetailState
 objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -43,10 +43,10 @@ objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
 }
 
 // Assembles the full bookmark detail state: summary, reuse guidance, severity, and tooltip.
-ObjectBookmarkDetailUiState
-buildObjectBookmarkDetailUiState(const SdoObjectBookmarkRow &row,
+ObjectBookmarkDetailState
+buildObjectBookmarkDetailState(const SdoObjectBookmarkRow &row,
                                  const ObjectBookmarkDetailTexts &texts) {
-  ObjectBookmarkDetailUiState state;
+  ObjectBookmarkDetailState state;
   state.readOnly = sdoObjectAccessIsReadOnly(row.access, texts.readOnlyText);
   state.hasTarget = sdoObjectBookmarkRowHasTarget(row);
   state.hasValue = !row.lastValue.isEmpty();

@@ -32,7 +32,7 @@ QString ioVariableDetailDisplayValue(const IoVariableTableRow &row,
 } // namespace
 
 // Neutral state when the I/O variable table is not available.
-IoVariableDetailUiState
+IoVariableDetailState
 ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -42,7 +42,7 @@ ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a row.
-IoVariableDetailUiState
+IoVariableDetailState
 ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -94,10 +94,10 @@ QString ioVariableDetailSignalState(const IoVariableTableRow &row,
 }
 
 // Assembles the full detail panel state: summary text, severity, signal state, and tooltip.
-IoVariableDetailUiState
-buildIoVariableDetailUiState(const IoVariableTableRow &row,
+IoVariableDetailState
+buildIoVariableDetailState(const IoVariableTableRow &row,
                              const IoVariableDetailTexts &texts) {
-  IoVariableDetailUiState state;
+  IoVariableDetailState state;
   const QString slave = ioVariableDetailSlaveText(row);
   state.severityKey = ioVariableDetailSeverityKey(row, texts.readyText);
   state.signalState = ioVariableDetailSignalState(row, texts);

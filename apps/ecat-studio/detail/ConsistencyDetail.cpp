@@ -2,7 +2,7 @@
 #include "detail/ConsistencyDetail.h"
 
 // Returns a neutral state when the consistency table is not available.
-ConsistencyDetailUiState
+ConsistencyDetailState
 consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -12,7 +12,7 @@ consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts) {
 }
 
 // Returns a neutral state prompting the user to select a visible row.
-ConsistencyDetailUiState
+ConsistencyDetailState
 consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts) {
   return {.text = texts.selectVisibleRowText,
     // Set severityKey field
@@ -63,10 +63,10 @@ QString consistencyDetailRoute(const ConsistencyDetailRow &row,
 }
 
 // Assembles the full detail panel state: summary text, severity, route, and tooltip.
-ConsistencyDetailUiState
-buildConsistencyDetailUiState(const ConsistencyDetailRow &row,
+ConsistencyDetailState
+buildConsistencyDetailState(const ConsistencyDetailRow &row,
                               const ConsistencyDetailTexts &texts) {
-  ConsistencyDetailUiState state;
+  ConsistencyDetailState state;
   state.severityKey = consistencyDetailSeverityKey(row.level);
   state.route = consistencyDetailRoute(row, texts);
   state.text =

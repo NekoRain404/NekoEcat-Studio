@@ -1,129 +1,6 @@
 // Topology baseline capture and diagnostics panel.
 
-#include "MainWindow.h"
-
-#include "models/Cia402DriveModel.h"
-#include "models/CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "models/ConsistencyModel.h"
-#include "models/ConsistencyModel.h"
-#include "adapters/ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "models/EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "models/IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "models/IoVariableFilterModel.h"
-#include "models/IoVariableHandoffModel.h"
-#include "models/NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "models/ProcessDataRowModel.h"
-#include "adapters/ProcessDataTableAdapter.h"
-#include "adapters/SdoDictionaryTableAdapter.h"
-#include "models/SdoEvidenceModel.h"
-#include "adapters/SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "models/SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "models/SessionBriefModel.h"
-#include "adapters/SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "models/SlaveEvidenceModel.h"
-#include "adapters/SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "adapters/StateMachineTableAdapter.h"
-#include "models/EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "models/TopologyModel.h"
-#include "models/TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "models/WatchStartupModel.h"
-#include "adapters/WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-
-// — Snapshot the current slave list as the offline topology baseline
+#include "MainWindowIncludes.h"
 void MainWindow::captureTopologyBaseline() {
   if (slaves_.isEmpty()) {
     updateDiagnostics("Warning", "Topology",
@@ -151,6 +28,7 @@ void MainWindow::clearTopologyBaseline() {
 }
 
 
+// ── Diagnostics Report Export ────────────────────────────────────────
 // — Write a Markdown diagnostics report combining all evidence to a user-chosen file
 void MainWindow::exportDiagnosticsReport() {
   const QString path = QFileDialog::getSaveFileName(
@@ -312,6 +190,7 @@ void MainWindow::exportDiagnosticsReport() {
   log("Diagnostics report exported: " + path);
 }
 
+// ── Diagnostics Table Filter ────────────────────────────────────────
 
 // — Apply level filter and text search to the diagnostics table
 void MainWindow::filterDiagnosticsTable() {
@@ -341,6 +220,7 @@ void MainWindow::filterDiagnosticsTable() {
   }
   updateDiagnosticsSummary();
 }
+// ── Selected Slave Panel ─────────────────────────────────────────────
 
 
 // — Refresh the selected-slave summary label from identity, OD, and PDO evidence
@@ -363,7 +243,7 @@ void MainWindow::updateSelectedSlavePanel() {
       selectedDriveSummaryLabel_->setProperty("severity", "neutral");
       repolish(selectedDriveSummaryLabel_); // force QSS re-evaluation after property change
     }
-    updateSelectedSlaveEvidenceSummary();
+    updateSlaveEvidenceSummary();
     updateDriveNextButton();
     selectedSlaveHintLabel_->setText(
         uiText("Select a slave in the I/O tree to enable contextual actions.",
@@ -385,7 +265,7 @@ void MainWindow::updateSelectedSlavePanel() {
     selectedSlaveStateLabel_->setText(uiText("State: unknown", "状态：未知"));
     selectedSlaveFlagsLabel_->setText(uiText("Flags: unknown", "标志：未知"));
     updateSelectedDriveSummary();
-    updateSelectedSlaveEvidenceSummary();
+    updateSlaveEvidenceSummary();
     selectedSlaveHintLabel_->setText(
         uiText("Refresh online data to recover the selected slave context.",
                "刷新在线数据以恢复选中从站上下文。"));
@@ -435,19 +315,20 @@ void MainWindow::updateSelectedSlavePanel() {
   }
   selectedSlaveHintLabel_->setText(hint);
   updateSelectedDriveSummary();
-  updateSelectedSlaveEvidenceSummary();
+  updateSlaveEvidenceSummary();
+// ── Slave Evidence Summary ───────────────────────────────────────────
 }
 
 
 // — Refresh the slave evidence summary label from all loaded evidence tables
-void MainWindow::updateSelectedSlaveEvidenceSummary() {
+void MainWindow::updateSlaveEvidenceSummary() {
   if (!selectedSlaveEvidenceLabel_) {
     return;
   }
-  const SelectedSlaveEvidenceSummaryTexts texts =
-      selectedSlaveEvidenceSummaryTexts();
+  const SlaveEvidenceSummaryTexts texts =
+      slaveEvidenceSummaryTexts();
   // Lambda to push UI state changes to the label widget
-  auto applyState = [this](const SelectedSlaveEvidenceSummaryDetail &state) {
+  auto applyState = [this](const SlaveEvidenceSummaryDetail &state) {
     selectedSlaveEvidenceLabel_->setText(state.text);
     selectedSlaveEvidenceLabel_->setToolTip(state.tooltip);
     // Set severity property for styling/theming
@@ -457,7 +338,7 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
 
   const int position = selectedPosition();
   if (position < 0) {
-    applyState(selectedSlaveEvidenceNoSelectionState(texts));
+    applyState(slaveEvidenceNoSelectionState(texts));
     return;
   }
 
@@ -475,7 +356,8 @@ void MainWindow::updateSelectedSlaveEvidenceSummary() {
        .startupTable = startupSdoTable_,
        .processTable = freeRunWidgets_->freeRunEntryTable});
   const QStringList topologyIssues = topologyBaselineIssues();
-  applyState(buildSelectedSlaveEvidenceSummaryDetail(
+  applyState(buildSlaveEvidenceSummaryDetail(
+// ── Drive Summary ────────────────────────────────────────────────────
       input, topologyIssues.size(), texts));
 }
 
@@ -536,6 +418,7 @@ void MainWindow::updateDriveNextButton() {
   button->setToolTip(
       uiText("Add or refresh the CiA 402 Watch preset for the selected slave "
              "to derive "
+// ── Topology Baseline Issues ─────────────────────────────────────────
              "a recommended controlword.",
              "为选中从站添加或刷新 CiA 402 监视预设后，才能推导推荐控制字。"));
 }

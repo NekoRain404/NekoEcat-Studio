@@ -7,6 +7,7 @@
 
 #include <QString>
 
+// Type of recommended action for the user
 enum class NextBestActionKind {
   Connect,
   Diagnostics,
@@ -24,6 +25,7 @@ enum class NextBestActionKind {
   CommandPalette,
 };
 
+// Visual severity level for the action card
 enum class NextBestActionSeverity {
   Ok,
   Action,
@@ -32,6 +34,7 @@ enum class NextBestActionSeverity {
   Neutral,
 };
 
+// Aggregated state from all workspaces for action selection
 struct NextBestActionInput {
   CommissioningWorkflowInput workflow;
   bool hasDiagnosticError = false;
@@ -41,6 +44,7 @@ struct NextBestActionInput {
   int matrixP2 = 0;
 };
 
+// Selected action and its severity for display
 struct NextBestActionDecision {
   NextBestActionKind kind = NextBestActionKind::CommandPalette;
   NextBestActionSeverity severity = NextBestActionSeverity::Neutral;

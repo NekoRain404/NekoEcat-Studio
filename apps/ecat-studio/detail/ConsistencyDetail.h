@@ -48,7 +48,7 @@ struct ConsistencyDetailRow {
 };
 
 // Resolved detail panel state with severity, route, and tooltip.
-struct ConsistencyDetailUiState {
+struct ConsistencyDetailState {
   QString text;
   QString severityKey;
   QString route;
@@ -57,10 +57,10 @@ struct ConsistencyDetailUiState {
 };
 
 // Neutral state when the consistency table is unavailable.
-ConsistencyDetailUiState
+ConsistencyDetailState
 consistencyDetailUnavailableState(const ConsistencyDetailTexts &texts);
 // Neutral state prompting user to select a row.
-ConsistencyDetailUiState
+ConsistencyDetailState
 consistencyDetailNoSelectionState(const ConsistencyDetailTexts &texts);
 // Maps level text to a canonical severity key.
 QString consistencyDetailSeverityKey(const QString &level);
@@ -68,6 +68,6 @@ QString consistencyDetailSeverityKey(const QString &level);
 QString consistencyDetailRoute(const ConsistencyDetailRow &row,
                                const ConsistencyDetailTexts &texts);
 // Assembles the full detail panel state.
-ConsistencyDetailUiState
-buildConsistencyDetailUiState(const ConsistencyDetailRow &row,
+ConsistencyDetailState
+buildConsistencyDetailState(const ConsistencyDetailRow &row,
                               const ConsistencyDetailTexts &texts);

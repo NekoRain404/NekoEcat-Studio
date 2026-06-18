@@ -41,7 +41,7 @@ struct SdoTargetTrailDetailTexts {
 };
 
 // Resolved trail detail state with startup value, reuse guidance, and tooltip.
-struct SdoTargetTrailDetailUiState {
+struct SdoTargetTrailDetailState {
   QString text;
   QString severityKey;
   QString reuse;
@@ -53,15 +53,15 @@ struct SdoTargetTrailDetailUiState {
   QString tooltip;
 };
 
-SdoTargetTrailDetailUiState
+SdoTargetTrailDetailState
 sdoTargetTrailDetailUnavailableState(const SdoTargetTrailDetailTexts &texts);
-SdoTargetTrailDetailUiState
+SdoTargetTrailDetailState
 sdoTargetTrailDetailNoSelectionState(const SdoTargetTrailDetailTexts &texts);
 // Maps row attributes and startup eligibility to a severity key.
 QString sdoTargetTrailDetailSeverityKey(const SdoTargetTrailRow &row,
                                         bool canStartup,
                                         const SdoTargetTrailDetailTexts &texts);
 // Assembles the full trail detail state.
-SdoTargetTrailDetailUiState
-buildSdoTargetTrailDetailUiState(const SdoTargetTrailRow &row, bool canStartup,
+SdoTargetTrailDetailState
+buildSdoTargetTrailDetailState(const SdoTargetTrailRow &row, bool canStartup,
                                  const SdoTargetTrailDetailTexts &texts);

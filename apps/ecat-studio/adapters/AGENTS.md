@@ -7,7 +7,7 @@ row-lookup helpers. Adapters depend on models and Qt Widgets only.
 
 | File | Purpose |
 |------|---------|
-| `CommissioningWorkflowTableAdapter` | Commissioning workflow table |
+| `WorkflowTableAdapter` | Commissioning workflow table |
 | `ConsistencyTableAdapter` | Consistency issue table |
 | `ProcessDataTableAdapter` | PDO map / process data table |
 | `SdoDictionaryTableAdapter` | Object Dictionary (SDO) table |

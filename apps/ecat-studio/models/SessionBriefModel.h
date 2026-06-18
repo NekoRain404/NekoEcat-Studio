@@ -6,6 +6,7 @@
 #include <QString>
 #include <QVector>
 
+// Type of summary row in the session brief panel
 enum class SessionBriefRowKind {
   Target,
   Gate,
@@ -15,6 +16,7 @@ enum class SessionBriefRowKind {
   Next,
 };
 
+// Visual status for a summary row
 enum class SessionBriefStatus {
   Ready,
   Action,
@@ -23,6 +25,7 @@ enum class SessionBriefStatus {
   Info,
 };
 
+// Aggregated state from all workspaces for summary generation
 struct SessionBriefInput {
   bool connected = false;
   bool hasSlaves = false;
@@ -45,6 +48,7 @@ struct SessionBriefInput {
   int nextWorkflowStep = -1;
 };
 
+// A single row in the session brief summary
 struct SessionBriefRow {
   SessionBriefRowKind kind = SessionBriefRowKind::Target;
   QString actionKey;

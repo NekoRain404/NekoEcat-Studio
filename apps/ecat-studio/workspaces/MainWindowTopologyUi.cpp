@@ -1,132 +1,6 @@
 // Topology updates, SDO/PDO/Watch/FreeRun UI update handlers.
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
-#include "MainWindow.h"
-#include "Cia402DriveModel.h"
-#include "CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "ConsistencyModel.h"
-#include "ConsistencyModel.h"
-#include "ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "IoVariableFilterModel.h"
-#include "IoVariableHandoffModel.h"
-#include "NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "ProcessDataRowModel.h"
-#include "ProcessDataTableAdapter.h"
-#include "SdoDictionaryTableAdapter.h"
-#include "SdoEvidenceModel.h"
-#include "SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "SessionBriefModel.h"
-#include "SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "SlaveEvidenceModel.h"
-#include "SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "StateMachineTableAdapter.h"
-#include "EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "TopologyModel.h"
-#include "TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "WatchStartupModel.h"
-#include "WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-// Append a timestamped message to the log panel.
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-// Return the EtherCAT position of the currently selected slave.
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-// Return row indices of selected SDO dictionary/history/startup rows.
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-// Check if a Watch table row has a non-empty value.
-#include <QXmlStreamReader>
-
-// Log
+#include "MainWindowIncludes.h"
 void MainWindow::log(const QString &message) {
   rawText_->logText->appendPlainText(QString("[%1] %2").arg(
       QDateTime::currentDateTime().toString("HH:mm:ss"), message));
@@ -545,7 +419,7 @@ void MainWindow::updatePdoRowDetail() {
           "读取路径；选中项加入 Watch 只创建 Watch 行，不立即读取。"),
   };
 
-  auto applyState = [this](const PdoMapDetailUiState &state) {
+  auto applyState = [this](const PdoMapDetailState &state) {
     sdo_->pdoDetailLabel->setText(state.text);
     // Set severity property for styling/theming
     sdo_->pdoDetailLabel->setProperty("severity", state.severityKey);
@@ -565,7 +439,7 @@ void MainWindow::updatePdoRowDetail() {
     return;
   }
 
-  applyState(buildPdoMapDetailUiState(pdoMapTableRowFromTable(sdo_->pdoTable, row),
+  applyState(buildPdoMapDetailState(pdoMapTableRowFromTable(sdo_->pdoTable, row),
                                       selectedPosition(), texts));
 }
 
@@ -1180,7 +1054,7 @@ void MainWindow::updateWatchRowDetail() {
           "和同步 Startup 只编辑 Startup 表，直到使用应用动作。"),
   };
 
-  auto applyState = [this](const WatchRowDetailUiState &state) {
+  auto applyState = [this](const WatchRowDetailState &state) {
     watch_->watchDetailLabel->setText(state.text);
     // Set severity property for styling/theming
     watch_->watchDetailLabel->setProperty("severity", state.severityKey);
@@ -1201,7 +1075,7 @@ void MainWindow::updateWatchRowDetail() {
     return;
   }
 
-  applyState(buildWatchRowDetailUiState(
+  applyState(buildWatchRowDetailState(
       watchStartupWatchRow(watch_->watchTable, row, watchChangedKeys_), texts));
 }
 

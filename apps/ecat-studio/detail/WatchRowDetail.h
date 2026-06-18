@@ -48,7 +48,7 @@ struct WatchRowDetailTexts {
 };
 
 // Resolved watch detail state with drift flags, CiA 402 detection, and tooltip.
-struct WatchRowDetailUiState {
+struct WatchRowDetailState {
   QString text;
   QString severityKey;
   QString displayValue;
@@ -61,9 +61,9 @@ struct WatchRowDetailUiState {
   QString tooltip;
 };
 
-WatchRowDetailUiState
+WatchRowDetailState
 watchRowDetailUnavailableState(const WatchRowDetailTexts &texts);
-WatchRowDetailUiState
+WatchRowDetailState
 watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts);
 // Whether delta text represents a non-issue (match/empty/pending).
 bool watchRowDetailIsMatchText(const QString &text,
@@ -74,6 +74,6 @@ bool watchRowDetailIsCia402(const WatchStartupWatchRow &row);
 QString watchRowDetailSeverityKey(const WatchStartupWatchRow &row,
                                   const WatchRowDetailTexts &texts);
 // Assembles the full watch detail state.
-WatchRowDetailUiState
-buildWatchRowDetailUiState(const WatchStartupWatchRow &row,
+WatchRowDetailState
+buildWatchRowDetailState(const WatchStartupWatchRow &row,
                            const WatchRowDetailTexts &texts);

@@ -34,9 +34,7 @@ class RtTestLatencyChart;
 class RtTestJitterSpark;
 struct RtTestWidgets;
 struct CommissioningWorkflowInput;
-struct 
-  // ── UI Text Builders ──────────────────────────────────────────
-  CommissioningWorkflowStepDetailTexts;
+struct WorkflowStepDetailTexts;
 struct CommissioningWorkflowTexts;
 struct ConsistencyDetailTexts;
 struct DiagnosticsEventTexts;
@@ -44,7 +42,7 @@ struct HostHealthTexts;
 struct NextBestActionTexts;
 struct ObjectBookmarkDetailTexts;
 struct SelectedDriveSummaryTexts;
-struct SelectedSlaveEvidenceSummaryTexts;
+struct SlaveEvidenceSummaryTexts;
 struct SlaveEvidenceUiTexts;
 struct SdoHistoryRowDetailTexts;
 struct SdoTargetTrailDetailTexts;
@@ -230,8 +228,8 @@ private:
   void clearWatchList();
   // Process Free Run telemetry JSON — update signals table and entry detail
   void ensureStartupSdoTable();
-  CommissioningWorkflowStepDetailTexts
-  commissioningWorkflowStepDetailTexts() const;
+  WorkflowStepDetailTexts
+  workflowStepDetailTexts() const;
   // Append a timestamped line to the diagnostics log panel
   CommissioningWorkflowTexts commissioningWorkflowTexts() const;
   // Return the position of the currently selected slave, or -1
@@ -255,7 +253,7 @@ private:
   SessionBriefUiTexts sessionBriefUiTexts() const;
   SelectedDriveSummaryTexts selectedDriveSummaryTexts() const;
   // Initiate an SDO write with optional read-back verification
-  SelectedSlaveEvidenceSummaryTexts selectedSlaveEvidenceSummaryTexts() const;
+  SlaveEvidenceSummaryTexts slaveEvidenceSummaryTexts() const;
   // Process a completed SDO read result — update evidence, history, and tables
   SlaveEvidenceUiTexts slaveEvidenceUiTexts() const;
   WorkspaceBoundaryTexts workspaceBoundaryTexts() const;
@@ -502,7 +500,7 @@ private:
   // ── Diagnostics Workspace ─────────────────────────────────────
   void filterDiagnosticsTable();
   void updateSelectedSlavePanel();
-  void updateSelectedSlaveEvidenceSummary();
+  void updateSlaveEvidenceSummary();
   void updateSelectedDriveSummary();
   void updateDriveNextButton();
   

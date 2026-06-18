@@ -76,6 +76,7 @@ bool EcatClient::isConnected() const {
 // Defaults to "0" for single-master installations.
 QString EcatClient::masterTarget() const { return masterTarget_; }
 
+// Switches the target EtherCAT master for daemon communication
 void EcatClient::setMasterTarget(const QString &target) {
   // Normalize master target — empty string falls back to "0".
   const QString trimmed = target.trimmed();
@@ -289,6 +290,7 @@ void EcatClient::readSocket() {
   }
 }
 
+// Sends a JSON command to the daemon and returns a pending request ID
 void EcatClient::send(const QString &method, const QJsonObject &params,
                       Handler handler) {
   // Stamp master target into params, assign a unique request ID, register
@@ -331,6 +333,7 @@ void EcatClient::handleLine(const QByteArray &line) {
   }
 }
 
+// Cleans up requests that exceeded the timeout threshold
 void EcatClient::sweepTimedOutRequests() {
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
     QStringList timedOut;
@@ -348,6 +351,7 @@ void EcatClient::sweepTimedOutRequests() {
     }
 }
 
+// Sets the timeout duration for daemon requests in milliseconds
 void EcatClient::setRequestTimeout(int ms) {
     requestTimeoutMs_ = ms > 0 ? ms : kDefaultRequestTimeoutMs;
 }

@@ -9,19 +9,13 @@ without a QApplication.
 |------|---------|
 | `Cia402DriveModel` | CiA 402 controlword/statusword recommendation |
 | `CommissioningWorkflowModel` | Workflow step status, scope, severity |
-| `ConsistencyEvidenceRouteModel` | Route from consistency issue to evidence |
-| `ConsistencyGateModel` | Issue classification, severity, blocking rules |
-| `EvidenceStatusModel` | Drive evidence severity classification |
-| `IoVariableBulkNamingModel` | Bulk PLC symbol naming & collision detection |
-| `IoVariableFilterModel` | I/O variable table filter predicates |
-| `IoVariableHandoffModel` | PLC handoff issue detection |
+| `ConsistencyModel` | Consistency issue classification and routing |
+| `EvidenceModel` | Evidence severity classification and state recommendations |
+| `IoVariableModel` | I/O variable: bulk naming, filtering, and PLC handoff |
 | `NextBestActionModel` | Next-best-action recommendation engine |
 | `ProcessDataRowModel` | PDO row formatting and evidence lookup |
-| `SdoEvidenceModel` | SDO read evidence tracking and comparison |
-| `SdoTargetPanelRouteModel` | SDO target panel source classification |
+| `SdoEvidenceModel` | SDO evidence tracking, comparison, and target panel routing |
 | `SessionBriefModel` | Session summary rows |
 | `SlaveEvidenceModel` | Per-slave evidence row model |
-| `StateRecommendationModel` | EtherCAT state transition recommendations |
-| `TopologyBaselineModel` | Topology baseline capture and drift |
-| `TopologyChangeModel` | Topology change event classification |
+| `TopologyModel` | Topology baseline capture and change detection |
 | `WatchStartupModel` | Watch/Startup SDO delta comparison |

@@ -1,130 +1,6 @@
 // State machine recommendations, host diagnostics, and slave operations.
 // Main application window: workspace tabs, toolbars, wiring, and all workspace methods.
-#include "MainWindow.h"
-#include "Cia402DriveModel.h"
-#include "CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "ConsistencyModel.h"
-#include "ConsistencyModel.h"
-#include "ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "IoVariableFilterModel.h"
-#include "IoVariableHandoffModel.h"
-#include "NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "ProcessDataRowModel.h"
-#include "ProcessDataTableAdapter.h"
-#include "SdoDictionaryTableAdapter.h"
-#include "SdoEvidenceModel.h"
-#include "SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "SessionBriefModel.h"
-#include "SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "SlaveEvidenceModel.h"
-#include "SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "StateMachineTableAdapter.h"
-#include "EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "TopologyModel.h"
-#include "TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "WatchStartupModel.h"
-#include "WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-// Recommend the next EtherCAT state for a slave based on current state and diagnostics.
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-// Determine the recommended EtherCAT state machine transition based on current evidence
+#include "MainWindowIncludes.h"
 QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   const int position = slave.position;
   const QString state = slave.state.trimmed().toUpper();
@@ -191,6 +67,7 @@ QString MainWindow::recommendedEthercatState(const SlaveInfo &slave) const {
   evidence.consistencyOk = consistencyOk;
   return ::recommendedEthercatState(evidence);
 }
+// ── State Machine View ───────────────────────────────────────────────
 
 // Rebuild the state-machine table with per-slave state, evidence score, and recommendations
 void MainWindow::updateStateMachineView() {
@@ -490,6 +367,7 @@ void MainWindow::updateStateMachineView() {
     }
   }
   updateStateMachineRowDetail();
+// ── State Machine Row Detail ─────────────────────────────────────────
 }
 
 // Update the detail strip below the state-machine table for the current row
@@ -498,7 +376,7 @@ void MainWindow::updateStateMachineRowDetail() {
     return;
   }
   const StateMachineRowDetailTexts texts = stateMachineRowDetailTexts();
-  auto applyState = [this](const StateMachineRowDetailUiState &state) {
+  auto applyState = [this](const StateMachineRowDetailState &state) {
     stateMachine_->stateMachineDetailLabel->setText(state.text);
     // Set severity property for styling/theming
     stateMachine_->stateMachineDetailLabel->setProperty("severity", state.severityKey);
@@ -518,7 +396,8 @@ void MainWindow::updateStateMachineRowDetail() {
     return;
   }
 
-  applyState(buildStateMachineRowDetailUiState(
+  applyState(buildStateMachineRowDetailState(
+// ── State Transition Requests ────────────────────────────────────────
       stateMachineTableRowFromTable(stateMachine_->stateMachineTable, row), texts));
 }
 
@@ -635,6 +514,7 @@ void MainWindow::requestAllSlaveState(const QString &state) {
 
   updateDiagnostics("Warning", "State",
                     QString("All-slave state request: %1 on %2")
+// ── Host Diagnostics ─────────────────────────────────────────────────
                         .arg(state, activeMasterName()));
   client_.setAllStates(state);
 }
@@ -667,6 +547,7 @@ void MainWindow::copySelectedHostCommand() {
     return;
   }
 
+// ── Slave Snapshot ───────────────────────────────────────────────────
   QApplication::clipboard()->setText(command);
   updateDiagnostics("Info", "Host", "Copied health fix command: " + command);
   updateActionAvailability();
@@ -788,7 +669,7 @@ void MainWindow::beginSelectedSlaveOnlineLoad(int position) {
                      uiText("Waiting for OD/PDO/identity evidence for %1",
                             "等待 %1 的 OD/PDO/身份信息证据")
                          .arg(target));
-  updateSelectedSlaveEvidenceSummary();
+  updateSlaveEvidenceSummary();
   updateActionAvailability();
 }
 

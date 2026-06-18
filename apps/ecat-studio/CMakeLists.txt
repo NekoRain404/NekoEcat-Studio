@@ -14,23 +14,16 @@ add_executable(ecat-studio
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h
     models/CommissioningWorkflowModel.cpp              models/CommissioningWorkflowModel.h
     models/EvidenceModel.cpp                     models/EvidenceModel.h
-    models/IoVariableBulkNamingModel.cpp               models/IoVariableBulkNamingModel.h
-    models/IoVariableFilterModel.cpp                   models/IoVariableFilterModel.h
-    models/IoVariableHandoffModel.cpp                  models/IoVariableHandoffModel.h
     models/NextBestActionModel.cpp                     models/NextBestActionModel.h
     models/ProcessDataRowModel.cpp                     models/ProcessDataRowModel.h
     models/SdoEvidenceModel.cpp                        models/SdoEvidenceModel.h
-    models/SdoTargetPanelRouteModel.cpp                models/SdoTargetPanelRouteModel.h
     models/SessionBriefModel.cpp                       models/SessionBriefModel.h
     models/SlaveEvidenceModel.cpp                      models/SlaveEvidenceModel.h
-    models/EvidenceModel.cpp                models/EvidenceModel.h
     models/TopologyModel.cpp                   models/TopologyModel.h
     models/ConsistencyModel.cpp                  models/ConsistencyModel.h
-    models/TopologyModel.cpp                     models/TopologyModel.h
-    models/ConsistencyModel.cpp                  models/ConsistencyModel.h
-    models/WatchStartupModel.cpp                       models/WatchStartupModel.h
-    # ── Table Adapters (model <-> QTableWidget) ─────────────────────────
-    adapters/CommissioningWorkflowTableAdapter.cpp     adapters/CommissioningWorkflowTableAdapter.h
+    models/IoVariableModel.cpp                         models/IoVariableModel.h
+    models/WatchStartupModel.cpp                    models/WatchStartupModel.h
+    adapters/WorkflowTableAdapter.cpp     adapters/WorkflowTableAdapter.h
     adapters/ConsistencyTableAdapter.cpp               adapters/ConsistencyTableAdapter.h
     adapters/ProcessDataTableAdapter.cpp               adapters/ProcessDataTableAdapter.h
     adapters/SdoDictionaryTableAdapter.cpp             adapters/SdoDictionaryTableAdapter.h
@@ -41,7 +34,7 @@ add_executable(ecat-studio
     adapters/WatchStartupTableAdapter.cpp              adapters/WatchStartupTableAdapter.h
     adapters/WorkspaceTabBadgeTableAdapter.cpp         adapters/WorkspaceTabBadgeTableAdapter.h
     # ── UI State (detail panel text builders) ───────────────────────────
-    detail/CommissioningWorkflowStepDetail.cpp  detail/CommissioningWorkflowStepDetail.h
+    detail/WorkflowStepDetail.cpp  detail/WorkflowStepDetail.h
     detail/CommissioningWorkflowDetail.cpp            detail/CommissioningWorkflowDetail.h
     detail/ConsistencyDetail.cpp                detail/ConsistencyDetail.h
     detail/DiagnosticsEventDetail.cpp                 detail/DiagnosticsEventDetail.h
@@ -54,7 +47,7 @@ add_executable(ecat-studio
     detail/SdoHistoryRowDetail.cpp              detail/SdoHistoryRowDetail.h
     detail/SdoTargetTrailDetail.cpp             detail/SdoTargetTrailDetail.h
     detail/SelectedDriveSummaryDetail.cpp             detail/SelectedDriveSummaryDetail.h
-    detail/SelectedSlaveEvidenceSummaryDetail.cpp     detail/SelectedSlaveEvidenceSummaryDetail.h
+    detail/SlaveEvidenceSummaryDetail.cpp     detail/SlaveEvidenceSummaryDetail.h
     detail/SessionBriefDetail.cpp                     detail/SessionBriefDetail.h
     detail/SlaveEvidenceDetail.cpp                    detail/SlaveEvidenceDetail.h
     detail/StartupSdoRowDetail.cpp              detail/StartupSdoRowDetail.h
@@ -76,10 +69,11 @@ add_executable(ecat-studio
     infra/SettingsDialog.cpp                           infra/SettingsDialog.h
     # ── MainWindow (core + partial per workspace) ───────────────────────
     MainWindow.h
+    workspaces/MainWindowIncludes.h
     MainWindow.cpp
     workspaces/MainWindowStateMachine.cpp                workspaces/MainWindowTopologyUi.cpp
     workspaces/MainWindowCommandPalette.cpp
-    workspaces/MainWindowConsistencyCommissioning.cpp
+    workspaces/MainWindowConsistency.cpp
     workspaces/MainWindowCommissioning.cpp
     workspaces/MainWindowSlaveEvidence.cpp
     workspaces/MainWindowContextMenus.cpp

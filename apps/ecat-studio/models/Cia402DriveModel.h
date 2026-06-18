@@ -5,6 +5,7 @@
 
 #include <QString>
 
+// Recommended controlword action based on current statusword
 struct Cia402ControlwordRecommendation {
   QString label;
   QString value;

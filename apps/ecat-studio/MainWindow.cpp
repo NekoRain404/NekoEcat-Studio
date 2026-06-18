@@ -4,21 +4,18 @@
 #include "infra/LanguageManager.h"
 #include "Cia402DriveModel.h"
 #include "CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "CommissioningWorkflowTableAdapter.h"
+#include "detail/WorkflowStepDetail.h"
+#include "WorkflowTableAdapter.h"
 #include "detail/CommissioningWorkflowDetail.h"
 #include "detail/ConsistencyDetail.h"
-#include "ConsistencyModel.h"
 #include "ConsistencyModel.h"
 #include "ConsistencyTableAdapter.h"
 #include "detail/DiagnosticsEventDetail.h"
 #include "EvidenceModel.h"
 #include "detail/FreeRunEntryDetail.h"
 #include "detail/HostHealthDetail.h"
-#include "IoVariableBulkNamingModel.h"
 #include "detail/IoVariableDetail.h"
-#include "IoVariableFilterModel.h"
-#include "IoVariableHandoffModel.h"
+#include "IoVariableModel.h"
 #include "NextBestActionModel.h"
 #include "detail/NextBestActionDetail.h"
 #include "detail/ObjectBookmarkDetail.h"
@@ -29,10 +26,9 @@
 #include "SdoEvidenceModel.h"
 #include "SdoEvidenceTableAdapter.h"
 #include "detail/SdoHistoryRowDetail.h"
-#include "SdoTargetPanelRouteModel.h"
 #include "detail/SdoTargetTrailDetail.h"
 #include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
+#include "detail/SlaveEvidenceSummaryDetail.h"
 #include "SessionBriefModel.h"
 #include "SessionBriefTableAdapter.h"
 #include "detail/SessionBriefDetail.h"
@@ -42,12 +38,10 @@
 #include "detail/StartupSdoRowDetail.h"
 #include "detail/StateMachineRowDetail.h"
 #include "StateMachineTableAdapter.h"
-#include "EvidenceModel.h"
 #include "utils/Documentation.h"
 #include "utils/TableHelpers.h"
 #include "utils/TextHelpers.h"
 #include "utils/UiHelpers.h"
-#include "TopologyModel.h"
 #include "TopologyModel.h"
 #include "detail/WatchRowDetail.h"
 #include "WatchStartupModel.h"
@@ -205,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   startEmbeddedDaemon();
 }
 
+// Destructor: saves settings and cleans up resources
 MainWindow::~MainWindow() {
   saveSettings();
   QSettings settings("NekoEcatStudio", "NekoEcatStudio");
@@ -241,6 +236,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event) {
       }
     }
   }
+// Global event filter for keyboard shortcuts and focus management
   return QMainWindow::eventFilter(watched, event);
 }
 
@@ -667,68 +663,124 @@ void MainWindow::updateActionAvailability() {
 }
 
 // Restore application preferences from QSettings (theme, language, scale, masters)
+// Restore all persisted preferences from QSettings.
+// Covers appearance, master profiles, timing, Free Run, display,
+// notifications, and export settings.
 void MainWindow::loadSettings() {
-  QSettings settings("NekoEcatStudio", "NekoEcatStudio");
-  settings_.theme = settings.value("preferences/theme", "Dark").toString();
-  settings_.language =
-      settings.value("preferences/language", "English").toString();
-  settings_.scale = settings.value("preferences/scale", 1.0).toDouble();
+  QSettings s("NekoEcatStudio", "NekoEcatStudio");
+
+  // ── Appearance ────────────────────────────────────────────────
+  settings_.theme = s.value("preferences/theme", "Dark").toString();
+  settings_.language = s.value("preferences/language", "English").toString();
+  settings_.scale = s.value("preferences/scale", 1.0).toDouble();
+
+  // ── Masters ───────────────────────────────────────────────────
   settings_.masters.clear();
-  const int count = settings.beginReadArray("preferences/masters");
+  const int count = s.beginReadArray("preferences/masters");
   for (int i = 0; i < count; ++i) {
-    settings.setArrayIndex(i);
+    s.setArrayIndex(i);
     MasterProfile profile;
-    profile.name =
-        settings.value("name", QString("Master %1").arg(i)).toString();
-    profile.target =
-        settings.value("target", QString::number(i)).toString().trimmed();
-    // Multi-branch condition check
-    if (!profile.target.isEmpty()) {
-      settings_.masters.append(profile);
-    }
+    profile.name = s.value("name", QString("Master %1").arg(i)).toString();
+    profile.target = s.value("target", QString::number(i)).toString().trimmed();
+    if (!profile.target.isEmpty()) settings_.masters.append(profile);
   }
-  settings.endArray();
-    // Multi-branch condition check
-  if (settings_.masters.isEmpty()) {
-    settings_.masters.append(MasterProfile{});
-  }
-  settings_.activeMaster =
-      settings
-          .value("preferences/activeMaster", settings_.masters.first().target)
-          .toString()
-          .trimmed();
-    // Multi-branch condition check
-  if (settings_.activeMaster.isEmpty()) {
-    settings_.activeMaster = settings_.masters.first().target;
-  }
+  s.endArray();
+  if (settings_.masters.isEmpty()) settings_.masters.append(MasterProfile{});
+  settings_.activeMaster = s.value("preferences/activeMaster", settings_.masters.first().target).toString().trimmed();
+  if (settings_.activeMaster.isEmpty()) settings_.activeMaster = settings_.masters.first().target;
   bool known = false;
-  for (const auto &profile : settings_.masters) {
-    if (profile.target == settings_.activeMaster) {
-      known = true;
-      break;
-    }
+  for (const auto &p : settings_.masters) {
+    if (p.target == settings_.activeMaster) { known = true; break; }
   }
-  if (!known) {
-    settings_.masters.prepend(
-        MasterProfile{QString("Master %1").arg(settings_.activeMaster),
-                      settings_.activeMaster});
-  }
+  if (!known) settings_.masters.prepend(MasterProfile{QString("Master %1").arg(settings_.activeMaster), settings_.activeMaster});
+
+  // ── Timing ────────────────────────────────────────────────────
+  settings_.watchAutoRefreshMs = s.value("timing/watchAutoRefreshMs", 0).toInt();
+  settings_.overviewAutoRefreshMs = s.value("timing/overviewAutoRefreshMs", 0).toInt();
+  settings_.sdoReadTimeoutMs = s.value("timing/sdoReadTimeoutMs", 3000).toInt();
+  settings_.sdoWriteTimeoutMs = s.value("timing/sdoWriteTimeoutMs", 5000).toInt();
+  settings_.topologyPollIntervalMs = s.value("timing/topologyPollIntervalMs", 0).toInt();
+
+  // ── Free Run ──────────────────────────────────────────────────
+  settings_.freeRunCycleUs = s.value("freerun/cycleUs", 1000).toInt();
+  settings_.freeRunAutoName = s.value("freerun/autoName", true).toBool();
+  settings_.freeRunHighlightChanges = s.value("freerun/highlightChanges", true).toBool();
+
+  // ── Display ───────────────────────────────────────────────────
+  settings_.showRawTabs = s.value("display/showRawTabs", false).toBool();
+  settings_.showColumnGrid = s.value("display/showColumnGrid", false).toBool();
+  settings_.detailPanelWidth = s.value("display/detailPanelWidth", 360).toInt();
+  settings_.tableRowHeight = s.value("display/tableRowHeight", 28).toInt();
+  settings_.alternatingRowColors = s.value("display/alternatingRowColors", true).toBool();
+  settings_.compactMode = s.value("display/compactMode", false).toBool();
+  settings_.maxHistoryEntries = s.value("display/maxHistoryEntries", 200).toInt();
+
+  // ── Notifications ─────────────────────────────────────────────
+  settings_.notifyOnStateChange = s.value("notifications/onStateChange", true).toBool();
+  settings_.notifyOnError = s.value("notifications/onError", true).toBool();
+  settings_.notifyOnWatchDrift = s.value("notifications/onWatchDrift", false).toBool();
+  settings_.soundEnabled = s.value("notifications/soundEnabled", false).toBool();
+  settings_.toastDurationMs = s.value("notifications/toastDurationMs", 3000).toInt();
+
+  // ── Export ────────────────────────────────────────────────────
+  settings_.defaultExportDir = s.value("export/defaultDir", "").toString();
+  settings_.esiRepositoryPath = s.value("export/esiPath", "").toString();
+  settings_.exportIncludeTimestamp = s.value("export/includeTimestamp", true).toBool();
+  settings_.exportIncludeMetadata = s.value("export/includeMetadata", true).toBool();
+  settings_.csvDelimiter = s.value("export/csvDelimiter", ",").toString();
 }
 
-// Persist current preferences to QSettings
+// Persist all current preferences to QSettings.
 void MainWindow::saveSettings() {
-  QSettings settings("NekoEcatStudio", "NekoEcatStudio");
-  settings.setValue("preferences/theme", settings_.theme);
-  settings.setValue("preferences/language", settings_.language);
-  settings.setValue("preferences/scale", settings_.scale);
-  settings.setValue("preferences/activeMaster", settings_.activeMaster);
-  settings.beginWriteArray("preferences/masters");
+  QSettings s("NekoEcatStudio", "NekoEcatStudio");
+
+  // ── Appearance ────────────────────────────────────────────────
+  s.setValue("preferences/theme", settings_.theme);
+  s.setValue("preferences/language", settings_.language);
+  s.setValue("preferences/scale", settings_.scale);
+  s.setValue("preferences/activeMaster", settings_.activeMaster);
+  s.beginWriteArray("preferences/masters");
   for (int i = 0; i < settings_.masters.size(); ++i) {
-    settings.setArrayIndex(i);
-    settings.setValue("name", settings_.masters[i].name);
-    settings.setValue("target", settings_.masters[i].target);
+    s.setArrayIndex(i);
+    s.setValue("name", settings_.masters[i].name);
+    s.setValue("target", settings_.masters[i].target);
   }
-  settings.endArray();
+  s.endArray();
+
+  // ── Timing ────────────────────────────────────────────────────
+  s.setValue("timing/watchAutoRefreshMs", settings_.watchAutoRefreshMs);
+  s.setValue("timing/overviewAutoRefreshMs", settings_.overviewAutoRefreshMs);
+  s.setValue("timing/sdoReadTimeoutMs", settings_.sdoReadTimeoutMs);
+  s.setValue("timing/sdoWriteTimeoutMs", settings_.sdoWriteTimeoutMs);
+  s.setValue("timing/topologyPollIntervalMs", settings_.topologyPollIntervalMs);
+
+  // ── Free Run ──────────────────────────────────────────────────
+  s.setValue("freerun/cycleUs", settings_.freeRunCycleUs);
+  s.setValue("freerun/autoName", settings_.freeRunAutoName);
+  s.setValue("freerun/highlightChanges", settings_.freeRunHighlightChanges);
+
+  // ── Display ───────────────────────────────────────────────────
+  s.setValue("display/showRawTabs", settings_.showRawTabs);
+  s.setValue("display/showColumnGrid", settings_.showColumnGrid);
+  s.setValue("display/detailPanelWidth", settings_.detailPanelWidth);
+  s.setValue("display/tableRowHeight", settings_.tableRowHeight);
+  s.setValue("display/alternatingRowColors", settings_.alternatingRowColors);
+  s.setValue("display/compactMode", settings_.compactMode);
+  s.setValue("display/maxHistoryEntries", settings_.maxHistoryEntries);
+
+  // ── Notifications ─────────────────────────────────────────────
+  s.setValue("notifications/onStateChange", settings_.notifyOnStateChange);
+  s.setValue("notifications/onError", settings_.notifyOnError);
+  s.setValue("notifications/onWatchDrift", settings_.notifyOnWatchDrift);
+  s.setValue("notifications/soundEnabled", settings_.soundEnabled);
+  s.setValue("notifications/toastDurationMs", settings_.toastDurationMs);
+
+  // ── Export ────────────────────────────────────────────────────
+  s.setValue("export/defaultDir", settings_.defaultExportDir);
+  s.setValue("export/esiPath", settings_.esiRepositoryPath);
+  s.setValue("export/includeTimestamp", settings_.exportIncludeTimestamp);
+  s.setValue("export/includeMetadata", settings_.exportIncludeMetadata);
+  s.setValue("export/csvDelimiter", settings_.csvDelimiter);
 }
 
 // Open settings dialog; apply changes and rebuild UI if language changed
@@ -2358,7 +2410,7 @@ void MainWindow::wire() {
               lastXmlText_ = text;
               rawText_->xmlText->setPlainText(text);
             }
-            updateSelectedSlaveEvidenceSummary();
+            updateSlaveEvidenceSummary();
           });
   connect(
       &client_, &EcatClient::sdoValue, this,
@@ -3051,7 +3103,7 @@ void MainWindow::updateFreeRunEntryDetail() {
           "只会本地回填 SDO 目标，除非明确选择填充并读取。"),
   };
 
-  auto applyState = [this](const FreeRunEntryDetailUiState &state) {
+  auto applyState = [this](const FreeRunEntryDetailState &state) {
     freeRunWidgets_->freeRunEntryDetailLabel->setText(state.text);
     freeRunWidgets_->freeRunEntryDetailLabel->setProperty("severity", state.severityKey);
     freeRunWidgets_->freeRunEntryDetailLabel->setToolTip(state.tooltip);
@@ -3070,7 +3122,7 @@ void MainWindow::updateFreeRunEntryDetail() {
     return;
   }
 
-  applyState(buildFreeRunEntryDetailUiState(
+  applyState(buildFreeRunEntryDetailState(
       freeRunEntryTableRowFromTable(freeRunWidgets_->freeRunEntryTable, row), texts));
 }
 

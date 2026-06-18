@@ -45,7 +45,7 @@ QString freeRunEntryBoundaryText(const FreeRunEntryTableRow &row,
 } // namespace
 
 // Neutral state when the free-run table is not available.
-FreeRunEntryDetailUiState
+FreeRunEntryDetailState
 freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -55,7 +55,7 @@ freeRunEntryDetailUnavailableState(const FreeRunEntryDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a row.
-FreeRunEntryDetailUiState
+FreeRunEntryDetailState
 freeRunEntryDetailNoSelectionState(const FreeRunEntryDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -114,10 +114,10 @@ QString freeRunEntryDetailSeverityKey(const FreeRunEntryTableRow &row,
 }
 
 // Assembles the full detail panel state: summary text, severity, boundary, name source, and tooltip.
-FreeRunEntryDetailUiState
-buildFreeRunEntryDetailUiState(const FreeRunEntryTableRow &row,
+FreeRunEntryDetailState
+buildFreeRunEntryDetailState(const FreeRunEntryTableRow &row,
                                const FreeRunEntryDetailTexts &texts) {
-  FreeRunEntryDetailUiState state;
+  FreeRunEntryDetailState state;
   const QString slave =
       row.positionValid ? QString::number(row.position) : QString();
   state.nameSource = freeRunEntryDetailNameSource(row, texts);

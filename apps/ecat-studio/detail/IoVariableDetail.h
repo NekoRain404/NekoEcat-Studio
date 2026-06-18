@@ -53,7 +53,7 @@ struct IoVariableDetailTexts {
 };
 
 // Resolved detail panel state with severity, signal state, and tooltip.
-struct IoVariableDetailUiState {
+struct IoVariableDetailState {
   QString text;
   QString severityKey;
   QString signalState;
@@ -61,9 +61,9 @@ struct IoVariableDetailUiState {
   QString tooltip;
 };
 
-IoVariableDetailUiState
+IoVariableDetailState
 ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts);
-IoVariableDetailUiState
+IoVariableDetailState
 ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts);
 // Maps row issues to a severity key for styling.
 QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
@@ -72,6 +72,6 @@ QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
 QString ioVariableDetailSignalState(const IoVariableTableRow &row,
                                     const IoVariableDetailTexts &texts);
 // Assembles the full detail panel state.
-IoVariableDetailUiState
-buildIoVariableDetailUiState(const IoVariableTableRow &row,
+IoVariableDetailState
+buildIoVariableDetailState(const IoVariableTableRow &row,
                              const IoVariableDetailTexts &texts);

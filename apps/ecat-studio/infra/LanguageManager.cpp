@@ -26,6 +26,7 @@ const QVector<LanguageInfo> &LanguageManager::languages() const
     return languages_;
 }
 
+// Looks up a language enum by its localized display name
 Language LanguageManager::fromDisplayName(const QString &name) const
 {
     // Iterate over collection
@@ -37,6 +38,7 @@ Language LanguageManager::fromDisplayName(const QString &name) const
     return Language::English;
 }
 
+// Looks up a language enum by its locale code (e.g., "zh-CN")
 Language LanguageManager::fromLocaleCode(const QString &code) const
 {
     // Iterate over collection
@@ -48,6 +50,7 @@ Language LanguageManager::fromLocaleCode(const QString &code) const
     return Language::English;
 }
 
+// Returns the localized display name for a language
 QString LanguageManager::displayName(Language lang) const
 {
     // Iterate over collection
@@ -59,21 +62,25 @@ QString LanguageManager::displayName(Language lang) const
     return QStringLiteral("English");
 }
 
+// Checks if the given language is the currently active one
 bool LanguageManager::isCurrentLanguage(Language lang) const
 {
     return current_ == lang;
 }
 
+// Returns the currently active language enum
 Language LanguageManager::currentLanguage() const
 {
     return current_;
 }
 
+// Switches the active language and emits a change signal
 void LanguageManager::setCurrentLanguage(Language lang)
 {
     current_ = lang;
 }
 
+// Switches the active language and emits a change signal
 void LanguageManager::setCurrentLanguage(const QString &displayName)
 {
     current_ = fromDisplayName(displayName);

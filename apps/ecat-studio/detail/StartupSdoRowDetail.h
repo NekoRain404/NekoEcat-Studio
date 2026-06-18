@@ -39,7 +39,7 @@ struct StartupSdoRowDetailTexts {
 };
 
 // Resolved startup detail state with status flags, evidence, and tooltip.
-struct StartupSdoRowDetailUiState {
+struct StartupSdoRowDetailState {
   QString text;
   QString severityKey;
   QString evidence;
@@ -54,14 +54,14 @@ struct StartupSdoRowDetailUiState {
   QString tooltip;
 };
 
-StartupSdoRowDetailUiState
+StartupSdoRowDetailState
 startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts);
-StartupSdoRowDetailUiState
+StartupSdoRowDetailState
 startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts);
 // Maps status and delta to a severity key.
 QString startupSdoRowDetailSeverityKey(const WatchStartupStartupRow &row,
                                        const StartupSdoRowDetailTexts &texts);
 // Assembles the full startup detail state.
-StartupSdoRowDetailUiState
-buildStartupSdoRowDetailUiState(const WatchStartupStartupRow &row,
+StartupSdoRowDetailState
+buildStartupSdoRowDetailState(const WatchStartupStartupRow &row,
                                 const StartupSdoRowDetailTexts &texts);

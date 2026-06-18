@@ -2,7 +2,7 @@
 #include "detail/SdoTargetTrailDetail.h"
 
 // Neutral state when the target trail table is not available.
-SdoTargetTrailDetailUiState
+SdoTargetTrailDetailState
 sdoTargetTrailDetailUnavailableState(const SdoTargetTrailDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -12,7 +12,7 @@ sdoTargetTrailDetailUnavailableState(const SdoTargetTrailDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a trail row.
-SdoTargetTrailDetailUiState
+SdoTargetTrailDetailState
 sdoTargetTrailDetailNoSelectionState(const SdoTargetTrailDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -41,10 +41,10 @@ QString sdoTargetTrailDetailSeverityKey(const SdoTargetTrailRow &row,
 }
 
 // Assembles the full trail detail state: startup value, reuse guidance, severity, and tooltip.
-SdoTargetTrailDetailUiState
-buildSdoTargetTrailDetailUiState(const SdoTargetTrailRow &row, bool canStartup,
+SdoTargetTrailDetailState
+buildSdoTargetTrailDetailState(const SdoTargetTrailRow &row, bool canStartup,
                                  const SdoTargetTrailDetailTexts &texts) {
-  SdoTargetTrailDetailUiState state;
+  SdoTargetTrailDetailState state;
   state.startupValue = sdoTargetTrailRowStartupValue(row);
   state.hasTarget = sdoTargetTrailRowHasTarget(row);
   state.canStartup = canStartup;

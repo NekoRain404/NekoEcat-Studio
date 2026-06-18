@@ -9,7 +9,7 @@ return localized strings and severity keys, never touch widgets directly.
 | File | Purpose |
 |------|---------|
 | `CommissioningWorkflowDetail` | Commissioning workflow step detail texts |
-| `CommissioningWorkflowStepDetail` | Workflow step detail panel state |
+| `WorkflowStepDetail` | Workflow step detail panel state |
 | `ConsistencyDetail` | Consistency check row detail texts |
 | `DiagnosticsEventDetail` | Diagnostics event severity mapping |
 | `FreeRunEntryDetail` | Free Run entry detail texts |
@@ -21,7 +21,7 @@ return localized strings and severity keys, never touch widgets directly.
 | `SdoHistoryRowDetail` | SDO history row detail texts |
 | `SdoTargetTrailDetail` | SDO target trail row detail texts |
 | `SelectedDriveSummaryDetail` | Selected drive summary label texts |
-| `SelectedSlaveEvidenceSummaryDetail` | Slave evidence summary texts |
+| `SlaveEvidenceSummaryDetail` | Slave evidence summary texts |
 | `SessionBriefDetail` | Session brief row detail texts |
 | `SlaveEvidenceDetail` | Slave evidence matrix cell texts |
 | `StartupSdoRowDetail` | Startup SDO row detail texts |

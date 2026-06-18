@@ -40,7 +40,7 @@ struct StateMachineRowDetailTexts {
 };
 
 // Resolved state machine detail with boundary, display fields, and tooltip.
-struct StateMachineRowDetailUiState {
+struct StateMachineRowDetailState {
   QString text;
   QString severityKey;
   QString boundary;
@@ -57,15 +57,15 @@ struct StateMachineRowDetailUiState {
   QString tooltip;
 };
 
-StateMachineRowDetailUiState
+StateMachineRowDetailState
 stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts);
-StateMachineRowDetailUiState
+StateMachineRowDetailState
 stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts);
 // Maps risk and recommendation to a severity key.
 QString
 stateMachineRowDetailSeverityKey(const StateMachineTableRow &row,
                                  const StateMachineRowDetailTexts &texts);
 // Assembles the full state machine detail state.
-StateMachineRowDetailUiState
-buildStateMachineRowDetailUiState(const StateMachineTableRow &row,
+StateMachineRowDetailState
+buildStateMachineRowDetailState(const StateMachineTableRow &row,
                                   const StateMachineRowDetailTexts &texts);

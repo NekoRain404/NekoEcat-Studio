@@ -1,19 +1,5 @@
 // Real-time stability test workspace: controls, live statistics, and latency chart.
-#include "MainWindow.h"
-
-#include <QComboBox>
-#include <QLineEdit>
-#include <QFont>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPainter>
-#include <QtMath>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QSplitter>
-#include <QVBoxLayout>
-
-// Aggregated RT test widget pointers — keeps MainWindow.h lean.
+#include "MainWindowIncludes.h"
 struct RtTestWidgets {
     QPushButton *startButton = nullptr;
     QPushButton *stopButton = nullptr;

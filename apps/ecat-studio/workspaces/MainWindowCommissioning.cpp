@@ -1,130 +1,6 @@
 // Consistency checks and commissioning workflow management.
 
-#include "MainWindow.h"
-
-#include "models/Cia402DriveModel.h"
-#include "models/CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "models/ConsistencyModel.h"
-#include "models/ConsistencyModel.h"
-#include "adapters/ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "models/EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "models/IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "models/IoVariableFilterModel.h"
-#include "models/IoVariableHandoffModel.h"
-#include "models/NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "models/ProcessDataRowModel.h"
-#include "adapters/ProcessDataTableAdapter.h"
-#include "adapters/SdoDictionaryTableAdapter.h"
-#include "models/SdoEvidenceModel.h"
-#include "adapters/SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "models/SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "models/SessionBriefModel.h"
-#include "adapters/SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "models/SlaveEvidenceModel.h"
-#include "adapters/SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "adapters/StateMachineTableAdapter.h"
-#include "models/EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "models/TopologyModel.h"
-#include "models/TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "models/WatchStartupModel.h"
-#include "adapters/WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-
-
-// — Commissioning workflow input
+#include "MainWindowIncludes.h"
 CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
   CommissioningWorkflowInput input;
   input.connected = client_.isConnected();
@@ -153,6 +29,7 @@ CommissioningWorkflowInput MainWindow::commissioningWorkflowInput() const {
 }
 
 
+// ── Commissioning Workflow Update ───────────────────────────────────
 // — Rebuild the commissioning workflow step table from current evidence
 void MainWindow::updateCommissioningWorkflow() {
   // Dispatch Alt+Enter to the correct evidence action for this table type
@@ -463,11 +340,12 @@ void MainWindow::updateCommissioningWorkflow() {
                      "调试工作流已就绪或当前没有可执行步骤。"));
   }
   filterCommissioningWorkflow();
-  updateSelectedSlaveEvidenceSummary();
+  updateSlaveEvidenceSummary();
   updateSlaveEvidenceMatrix();
   updateSessionBrief();
 }
 
+// ── Slave Evidence UI Texts ──────────────────────────────────────────
 
 // — Slave evidence ui texts
 SlaveEvidenceUiTexts MainWindow::slaveEvidenceUiTexts() const {
@@ -531,11 +409,12 @@ SlaveEvidenceUiTexts MainWindow::slaveEvidenceUiTexts() const {
       .processHeader = uiText("Process", "过程"),
       .riskHeader = uiText("Risk", "风险"),
       .nextHeader = uiText("Next", "下一步"),
+// ── Slave Evidence Summary Texts ─────────────────────────────────────
   };
 }
 
-SelectedSlaveEvidenceSummaryTexts
-MainWindow::selectedSlaveEvidenceSummaryTexts() const {
+SlaveEvidenceSummaryTexts
+MainWindow::slaveEvidenceSummaryTexts() const {
   return {
       .selectSlaveText = uiText("Evidence: select a slave", "证据：请选择从站"),
       .ready = uiText("ready", "就绪"),
@@ -568,6 +447,7 @@ MainWindow::selectedSlaveEvidenceSummaryTexts() const {
       .topologyIssuePattern = uiText("Topology baseline has %1 issue(s).",
                                      "拓扑基线有 %1 个问题。"),
   };
+// ── Selected Drive Summary Texts ─────────────────────────────────────
 }
 
 

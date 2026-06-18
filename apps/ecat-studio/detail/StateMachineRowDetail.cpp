@@ -22,7 +22,7 @@ QString stateMachineRecommendedUpper(const StateMachineTableRow &row) {
 } // namespace
 
 // Neutral state when the state machine table is not available.
-StateMachineRowDetailUiState
+StateMachineRowDetailState
 stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -32,7 +32,7 @@ stateMachineRowDetailUnavailableState(const StateMachineRowDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a row.
-StateMachineRowDetailUiState
+StateMachineRowDetailState
 stateMachineRowDetailNoSelectionState(const StateMachineRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -66,10 +66,10 @@ QString stateMachineRowDetailSeverityKey(const StateMachineTableRow &row,
 }
 
 // Assembles the full state machine detail: boundary classification, display fields, and tooltip.
-StateMachineRowDetailUiState
-buildStateMachineRowDetailUiState(const StateMachineTableRow &row,
+StateMachineRowDetailState
+buildStateMachineRowDetailState(const StateMachineTableRow &row,
                                   const StateMachineRowDetailTexts &texts) {
-  StateMachineRowDetailUiState state;
+  StateMachineRowDetailState state;
   state.hasRecommendation = !row.recommended.isEmpty();
   state.hasRisk = !row.risk.isEmpty();
   state.severeRisk = state.hasRisk && stateMachineSevereRiskText(row.risk);

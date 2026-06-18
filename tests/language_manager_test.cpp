@@ -13,7 +13,7 @@ private slots:
     void fromLocaleCodeFindsChinese();
     void setCurrentLanguageByEnum();
     void setCurrentLanguageByName();
-    void languagesReturnsTwoEntries();
+    void languagesReturnsEightEntries();
     void displayNameReturnsCorrectString();
 };
 
@@ -35,7 +35,7 @@ void LanguageManagerTest::fromDisplayNameFindsChinese()
 void LanguageManagerTest::fromDisplayNameReturnsEnglishForUnknown()
 {
     const auto &mgr = LanguageManager::instance();
-    QCOMPARE(mgr.fromDisplayName("Français"), Language::English);
+    QCOMPARE(mgr.fromDisplayName("Klingon"), Language::English);
 }
 
 void LanguageManagerTest::fromLocaleCodeFindsChinese()
@@ -60,10 +60,10 @@ void LanguageManagerTest::setCurrentLanguageByName()
     mgr.setCurrentLanguage("English"); // reset
 }
 
-void LanguageManagerTest::languagesReturnsTwoEntries()
+void LanguageManagerTest::languagesReturnsEightEntries()
 {
     const auto &mgr = LanguageManager::instance();
-    QCOMPARE(mgr.languages().size(), 2);
+    QCOMPARE(mgr.languages().size(), 8);
 }
 
 void LanguageManagerTest::displayNameReturnsCorrectString()

@@ -4,7 +4,7 @@
 #include "utils/TextHelpers.h"
 
 // Neutral state when the watch table is not available.
-WatchRowDetailUiState
+WatchRowDetailState
 watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -14,7 +14,7 @@ watchRowDetailUnavailableState(const WatchRowDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a watch row.
-WatchRowDetailUiState
+WatchRowDetailState
 watchRowDetailNoSelectionState(const WatchRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -64,10 +64,10 @@ QString watchRowDetailSeverityKey(const WatchStartupWatchRow &row,
 }
 
 // Assembles the full watch detail state: drift flags, CiA 402 detection, evidence, and tooltip.
-WatchRowDetailUiState
-buildWatchRowDetailUiState(const WatchStartupWatchRow &row,
+WatchRowDetailState
+buildWatchRowDetailState(const WatchStartupWatchRow &row,
                            const WatchRowDetailTexts &texts) {
-  WatchRowDetailUiState state;
+  WatchRowDetailState state;
   state.missingValue = row.value.isEmpty();
   state.baselineDrift = !watchRowDetailIsMatchText(row.baselineDelta, texts);
   state.startupDrift = !watchRowDetailIsMatchText(row.startupDelta, texts);

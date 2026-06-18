@@ -67,7 +67,7 @@ QString startupPositionText(const WatchStartupStartupRow &row) {
 } // namespace
 
 // Neutral state when the startup SDO table is not available.
-StartupSdoRowDetailUiState
+StartupSdoRowDetailState
 startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -77,7 +77,7 @@ startupSdoRowDetailUnavailableState(const StartupSdoRowDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a startup row.
-StartupSdoRowDetailUiState
+StartupSdoRowDetailState
 startupSdoRowDetailNoSelectionState(const StartupSdoRowDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -115,10 +115,10 @@ QString startupSdoRowDetailSeverityKey(const WatchStartupStartupRow &row,
 }
 
 // Assembles the full startup detail state: status flags, evidence text, summary, and tooltip.
-StartupSdoRowDetailUiState
-buildStartupSdoRowDetailUiState(const WatchStartupStartupRow &row,
+StartupSdoRowDetailState
+buildStartupSdoRowDetailState(const WatchStartupStartupRow &row,
                                 const StartupSdoRowDetailTexts &texts) {
-  StartupSdoRowDetailUiState state;
+  StartupSdoRowDetailState state;
   state.validationIssue = statusHasValidationIssue(row.status);
   state.applying = statusIsApplying(row.status);
   state.watchDiff = deltaIsWatchDiff(row.watchDelta);

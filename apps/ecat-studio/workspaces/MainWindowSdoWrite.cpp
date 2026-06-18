@@ -1,128 +1,6 @@
 // SDO inspector, target panel, evidence trail, and history.
 
-#include "MainWindow.h"
-
-#include "models/Cia402DriveModel.h"
-#include "models/CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "models/ConsistencyModel.h"
-#include "models/ConsistencyModel.h"
-#include "adapters/ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "models/EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "models/IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "models/IoVariableFilterModel.h"
-#include "models/IoVariableHandoffModel.h"
-#include "models/NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "models/ProcessDataRowModel.h"
-#include "adapters/ProcessDataTableAdapter.h"
-#include "adapters/SdoDictionaryTableAdapter.h"
-#include "models/SdoEvidenceModel.h"
-#include "adapters/SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "models/SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "models/SessionBriefModel.h"
-#include "adapters/SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "models/SlaveEvidenceModel.h"
-#include "adapters/SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "adapters/StateMachineTableAdapter.h"
-#include "models/EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "models/TopologyModel.h"
-#include "models/TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "models/WatchStartupModel.h"
-#include "adapters/WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-// Current sdo evidence candidates
+#include "MainWindowIncludes.h"
 SdoEvidenceCandidates MainWindow::currentSdoEvidenceCandidates() const {
   const int position = selectedPosition();
   const SdoEvidenceTableRows rows = sdoEvidenceTableRowsForTarget(
@@ -355,7 +233,7 @@ void MainWindow::updateSdoTargetTrailRowDetail() {
   }
   const SdoTargetTrailDetailTexts texts = sdoTargetTrailDetailTexts();
   // Lambda to push UI state changes to the label widget
-  auto applyState = [this](const SdoTargetTrailDetailUiState &state) {
+  auto applyState = [this](const SdoTargetTrailDetailState &state) {
     sdoTargetTrailDetailLabel_->setText(state.text);
     // Set severity property for styling/theming
     sdoTargetTrailDetailLabel_->setProperty("severity", state.severityKey);
@@ -377,7 +255,7 @@ void MainWindow::updateSdoTargetTrailRowDetail() {
 
   const SdoTargetTrailRow trail =
       sdoTargetTrailRowFromTable(sdoTargetTrailTable_, row);
-  applyState(buildSdoTargetTrailDetailUiState(
+  applyState(buildSdoTargetTrailDetailState(
       trail, sdoTargetTrailRowCanCreateStartup(row), texts));
 }
 
@@ -1358,7 +1236,7 @@ void MainWindow::updateSdoHistoryRowDetail() {
   }
   const SdoHistoryRowDetailTexts texts = sdoHistoryRowDetailTexts();
   // Lambda to push UI state changes to the label widget
-  auto applyState = [this](const SdoHistoryRowDetailUiState &state) {
+  auto applyState = [this](const SdoHistoryRowDetailState &state) {
     sdoHistoryDetailLabel_->setText(state.text);
     // Set severity property for styling/theming
     sdoHistoryDetailLabel_->setProperty("severity", state.severityKey);
@@ -1378,7 +1256,7 @@ void MainWindow::updateSdoHistoryRowDetail() {
     return;
   }
 
-  applyState(buildSdoHistoryRowDetailUiState(
+  applyState(buildSdoHistoryRowDetailState(
       sdoHistoryRowFromTable(sdoHistoryTable_, row), texts));
 }
 

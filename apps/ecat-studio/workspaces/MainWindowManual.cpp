@@ -1,134 +1,12 @@
 // Built-in user manual and about dialog.
 
-#include "MainWindow.h"
-
-#include "models/Cia402DriveModel.h"
-#include "models/CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "models/ConsistencyModel.h"
-#include "models/ConsistencyModel.h"
-#include "adapters/ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "models/EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "models/IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "models/IoVariableFilterModel.h"
-#include "models/IoVariableHandoffModel.h"
-#include "models/NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "models/ProcessDataRowModel.h"
-#include "adapters/ProcessDataTableAdapter.h"
-#include "adapters/SdoDictionaryTableAdapter.h"
-#include "models/SdoEvidenceModel.h"
-#include "adapters/SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "models/SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "models/SessionBriefModel.h"
-#include "adapters/SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "models/SlaveEvidenceModel.h"
-#include "adapters/SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "adapters/StateMachineTableAdapter.h"
-#include "models/EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "models/TopologyModel.h"
-#include "models/TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "models/WatchStartupModel.h"
-#include "adapters/WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-    // Display formatted documentation in browser widget
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-
+#include "MainWindowIncludes.h"
 namespace {
 // ── User Manual Dialog ──────────────────────────────────────────────
 // Display the user manual dialog with searchable documentation
 
 
+// ── ecatd Path Helper ────────────────────────────────────────────────
 // — Locate the ecatd binary path relative to the application
 QString ecatdPath() {
   const QFileInfo app(QCoreApplication::applicationFilePath());
@@ -147,6 +25,7 @@ QString ecatdPath() {
 } // namespace
 
 
+// ── Manual Dialog ───────────────────────────────────────────────────
 // — Open the built-in user manual dialog with full HTML documentation
 void MainWindow::showManual() {
   QDialog dialog(this);
@@ -202,9 +81,43 @@ code { font-family: "JetBrains Mono", "Cascadia Mono", "Consolas", monospace; ba
 table { border-collapse: collapse; width: 100%; margin: 10px 0 16px 0; }
 th, td { border: 1px solid #d9e1ec; padding: 7px 9px; vertical-align: top; }
 th { background: #f0f4f9; color: #475569; }
+
+.toc { position: fixed; left: 0; top: 0; width: 180px; height: 100vh; overflow-y: auto;
+  background: #f8fafc; border-right: 1px solid #d9e1ec; padding: 16px 10px; font-size: 12px;
+  z-index: 10; box-sizing: border-box; }
+.toc b { display: block; margin-bottom: 8px; font-size: 13px; color: #1e3a5f; }
+.toc a { display: block; padding: 3px 0; color: #475569; text-decoration: none; line-height: 1.4; }
+.toc a:hover { color: #2563eb; }
+body { margin-left: 192px !important; }
+.warn { margin-left: -192px; padding-left: calc(192px + 12px); }
 </style>
 </head>
 <body>
+<div class="toc">
+<b>Contents</b>
+<a href="#concept">1. Concept</a>
+<a href="#first-run">2. First Start</a>
+<a href="#prerequisites">3. Prerequisites</a>
+<a href="#masters">4. Multi-Master</a>
+<a href="#topology">5. Topology</a>
+<a href="#overview">6. Overview</a>
+<a href="#state-machine">7. State Model</a>
+<a href="#od">8. Object Dictionary</a>
+<a href="#sdo-history">9. SDO History</a>
+<a href="#pdo">10. PDO Map</a>
+<a href="#watch">11. Watch</a>
+<a href="#startup">12. Startup SDO</a>
+<a href="#freerun">13. Free Run</a>
+<a href="#io-variables">14. I/O Variables</a>
+<a href="#consistency">15. Consistency</a>
+<a href="#diagnostics">16. Diagnostics</a>
+<a href="#esi">17. ESI Repository</a>
+<a href="#project">18. Projects</a>
+<a href="#settings-ref">19. Settings</a>
+<a href="#shortcuts">20. Shortcuts</a>
+<a href="#trouble">21. Troubleshooting</a>
+<a href="#safety">22. Safety</a>
+</div>
 <h1>NekoEcat Studio User Manual</h1>
 <p>NekoEcat Studio is a modern EtherCAT engineering workstation for Linux systems using IgH EtherCAT Master. It combines project management, online bus inspection, Object Dictionary SDO workflows, PDO map analysis, cyclic Free Run telemetry, I/O variable engineering, host diagnostics, ESI repository management, and runtime logging in one application. Overview is reserved for bus and selected-slave context; host checks and diagnostic evidence are handled in the Diagnostics tab.</p>
 <div class="toc" id="contents">
@@ -410,7 +323,75 @@ th { background: #f0f4f9; color: #475569; }
 <p>Project files preserve the working context: notes, Watch rows, Startup SDO rows, Object Bookmarks, I/O variable aliases/tags/notes, selected master/slave context, raw online snapshots, and Object Dictionary evidence snapshots including Last Value, Last Status, detail, and time. Host Health remains a Diagnostics workspace concern and is not moved into Overview. Use <b>New Project</b>, <b>Open Project</b>, <b>Save Project</b>, <b>Save Project As</b>, <b>Export I/O Variables CSV</b>, <b>Export PLC Symbols CSV</b>, <b>Export PLC Declarations ST</b>, and <b>Export Diagnostics Report</b> from the Project menu.</p>
 <p>The Notes tab is intended for commissioning records: device serials, cabling notes, parameter decisions, observed faults, and test procedures. Exported diagnostics reports are useful before driver changes, kernel updates, or field troubleshooting.</p>
 
-<h2 id="shortcuts">19. Shortcuts and Fast Operations</h2>
+
+<h2 id="settings-ref">19. Settings Reference</h2>
+<p>NekoEcat Studio provides comprehensive settings accessible via <b>File &gt; Settings</b> or <kbd>Ctrl+,</kbd>. Settings are organized into seven tabs:</p>
+
+<h3>Appearance</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>Theme</td><td>Visual theme: Dark or Light</td><td>Dark</td></tr>
+<tr><td>Language</td><td>UI language (8 languages supported: English, 简体中文, 日本語, Deutsch, 한국어, 繁體中文, Français, Español)</td><td>English</td></tr>
+<tr><td>UI Scale</td><td>Interface scaling factor (0.75 – 1.75)</td><td>1.0</td></tr>
+</table>
+
+<h3>EtherCAT</h3>
+<table>
+<tr><th>Setting</th><th>Description</th></tr>
+<tr><td>Master Profiles</td><td>Named IgH master selectors. Add/remove masters for multi-NIC setups. Each profile has a display name and numeric IgH selector.</td></tr>
+</table>
+
+<h3>Timing</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>Watch Auto-Refresh</td><td>Automatic Watch value polling interval (Off / 250 ms / 500 ms / 1 s / 2 s)</td><td>Off</td></tr>
+<tr><td>Overview Auto-Refresh</td><td>Automatic overview data polling (Off / 1 s / 2 s / 5 s)</td><td>Off</td></tr>
+<tr><td>SDO Read Timeout</td><td>Timeout for SDO read operations (500 – 30000 ms)</td><td>3000 ms</td></tr>
+<tr><td>SDO Write Timeout</td><td>Timeout for SDO write operations (500 – 60000 ms)</td><td>5000 ms</td></tr>
+<tr><td>Topology Poll Interval</td><td>Automatic topology re-scan interval (Off / 5 s / 10 s / 30 s)</td><td>Off</td></tr>
+</table>
+
+<h3>Free Run</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>Cycle Time</td><td>Free Run process image cycle time in microseconds (100 – 100000 µs)</td><td>1000 µs</td></tr>
+<tr><td>Auto-name from OD</td><td>Automatically name Free Run entries from Object Dictionary</td><td>On</td></tr>
+<tr><td>Highlight Changes</td><td>Highlight values that change between cycles</td><td>On</td></tr>
+</table>
+
+<h3>Display</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>Show Raw Tabs</td><td>Show Master/Slave/PDO/SDO raw output tabs</td><td>Off</td></tr>
+<tr><td>Table Grid Lines</td><td>Show grid lines in all tables</td><td>Off</td></tr>
+<tr><td>Alternating Rows</td><td>Alternate row background colors for readability</td><td>On</td></tr>
+<tr><td>Compact Mode</td><td>Tighter spacing for small screens</td><td>Off</td></tr>
+<tr><td>Detail Panel Width</td><td>Width of the detail/preview panel in pixels (200 – 600)</td><td>360 px</td></tr>
+<tr><td>Table Row Height</td><td>Height of table rows in pixels (20 – 48)</td><td>28 px</td></tr>
+<tr><td>Max History Entries</td><td>Maximum SDO history entries to retain (50 – 2000)</td><td>200</td></tr>
+</table>
+
+<h3>Notifications</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>State Change</td><td>Show notification when a slave changes state</td><td>On</td></tr>
+<tr><td>Errors</td><td>Show notification on errors</td><td>On</td></tr>
+<tr><td>Watch Drift</td><td>Show notification when Watch values drift from baseline</td><td>Off</td></tr>
+<tr><td>Sound</td><td>Play sound on critical events</td><td>Off</td></tr>
+<tr><td>Toast Duration</td><td>How long toast notifications remain visible (1 – 10 s)</td><td>3 s</td></tr>
+</table>
+
+<h3>Export</h3>
+<table>
+<tr><th>Setting</th><th>Description</th><th>Default</th></tr>
+<tr><td>Default Export Directory</td><td>Default directory for CSV, PLC, and diagnostic exports</td><td>Project directory</td></tr>
+<tr><td>ESI Repository Path</td><td>Directory containing ESI (XML) files for slave identification</td><td>(empty)</td></tr>
+<tr><td>Include Timestamp</td><td>Add timestamp to exported file names</td><td>On</td></tr>
+<tr><td>Include Metadata</td><td>Include master/slave metadata in exports</td><td>On</td></tr>
+<tr><td>CSV Delimiter</td><td>Delimiter character for CSV exports (comma, semicolon, or tab)</td><td>,</td></tr>
+</table>
+
+<h2 id="shortcuts">20. Shortcuts and Fast Operations</h2>
 <table>
 <tr><th>Action</th><th>Shortcut / Entry</th></tr>
 <tr><td>Command Palette</td><td><code>Ctrl+P</code>; inside palette: <code>Alt+A/L/O/D/H/F</code> filters All, Local, Online, Danger, Host, File; <code>Alt+P</code> pins or unpins the selected command</td></tr>
@@ -435,7 +416,7 @@ th { background: #f0f4f9; color: #475569; }
 <p><b>Next Best Action</b> changes with the current session: Connect, Rescan, Select Slave, Load OD, Load PDO, Add Watch, Review Startup Diffs, Run Consistency, open blocking Consistency evidence, Free Run, Review Diagnostics, or Commands. Its status-bar button uses semantic color: blue for normal next actions, amber for evidence review, red for diagnostics errors, green when ready, and neutral gray for the command palette. High-frequency tab titles also carry local badges: row counts for active evidence and <b>!</b> counts for Watch/Startup/Consistency/I/O/State/Diagnostics risks, with tooltips explaining the counts. These badges are computed from loaded tables only and do not read the bus. Next Best Action does not display host checks in Overview; when diagnostics need attention it navigates to the Diagnostics workspace. When Consistency already has blocking rows, it opens the first row's best evidence target instead of leaving you on a summary-only table.</p>
 <p>The Command Palette includes stable <b>Go to Workspace</b> entries, plus contextual current-SDO actions: run the next commissioning workflow step, switch workflow scopes, review first/next workflow issues, copy the selected workflow step evidence, open or copy the selected Session Brief evidence row, open or copy the selected Slave Evidence Matrix row, filter the Object Dictionary by semantic groups, add visible Object Dictionary results to Watch, capture or clear Watch baselines, read, write, use read value, use best evidence, pick a specific evidence value, review Write Delta evidence, copy the current SDO evidence digest, open or copy the selected <b>Selected Object</b> row evidence, open matching Watch/Startup/Bookmark/Target Trail evidence, restore/reuse Target Trail rows, add to Watch, add the CiA 402 Watch preset, write common or recommended CiA 402 controlwords, add to Startup SDO, sync selected Watch values to Startup SDO, review only Startup SDO rows that differ from Watch values, apply only those Watch-diff rows, open I/O Variables, switch I/O Variables scopes, edit or bulk-name I/O variable aliases, review PLC handoff issues, copy selected or visible PLC declarations, export I/O Variables CSV, export PLC Symbols CSV, export PLC Declarations ST, add selected or visible I/O Variables to Watch, open Consistency Check, open selected Consistency evidence, copy address, and copy object/value. The palette marks each command as <b>Local</b>, <b>Online</b>, <b>Danger</b>, <b>Host</b>, or <b>File</b> and can filter by that action type, so navigation and project-table commands are visually separated from runtime reads, host checks, SDO writes, and state changes. Use <code>Alt+A</code>, <code>Alt+L</code>, <code>Alt+O</code>, <code>Alt+D</code>, <code>Alt+H</code>, and <code>Alt+F</code> inside the palette to switch All, Local, Online, Danger, Host, and File filters without leaving the keyboard. Use <code>Alt+P</code> or the row context menu to pin high-frequency commands above recent commands; pinned commands are stored in local settings and never auto-run. Commands explicitly activated from the palette are remembered and shown with a <b>Recent</b> marker on later palette opens; this only changes ordering and never auto-runs a command. The result summary shows how many matching commands are executable, pinned, recent, and visible by Local/Online/Danger/Host/File type. The selected command also shows a fixed preview panel with the action type, boundary, command description, pinned/recent markers, and disabled state when applicable. Each explicit palette activation writes a <b>Command Palette</b> Event Stream row with the action type; dangerous activations are logged as warnings and still use the existing confirmation paths before any write or state change can proceed. Most online object tables also support <code>Alt+Enter</code> for the local fill/open-evidence path, plus right-click actions for copying rows, copying an object address such as <code>#3 0x6040:0x00</code>, copying an object value such as <code>#3 0x6040:0x00 uint16 = 0x0006</code>, filling SDO fields, reading objects, bookmarking objects, or adding items to Watch. The Selected Object panel has its own right-click menu for row evidence, row copy, full digest copy, delta review, and autosizing, all without bus access.</p>
 
-<h2 id="trouble">20. Troubleshooting</h2>
+<h2 id="trouble">21. Troubleshooting</h2>
 <h3>Runtime cannot connect</h3>
 <ul>
 <li>Open Diagnostics and run Host Check.</li>
@@ -462,7 +443,7 @@ th { background: #f0f4f9; color: #475569; }
 <li>Try PREOP to SAFEOP first, then SAFEOP to OP after resolving reported errors.</li>
 </ul>
 
-<h2 id="safety">21. Safety Checklist</h2>
+<h2 id="safety">22. Safety Checklist</h2>
 <ul>
 <li>Always confirm the selected master and slave before state changes or writes.</li>
 <li>Use read-back after SDO writes.</li>
@@ -495,9 +476,43 @@ code { font-family: "JetBrains Mono", "Cascadia Mono", "Consolas", monospace; ba
 table { border-collapse: collapse; width: 100%; margin: 10px 0 16px 0; }
 th, td { border: 1px solid #d9e1ec; padding: 7px 9px; vertical-align: top; }
 th { background: #f0f4f9; color: #475569; }
+
+.toc { position: fixed; left: 0; top: 0; width: 180px; height: 100vh; overflow-y: auto;
+  background: #f8fafc; border-right: 1px solid #d9e1ec; padding: 16px 10px; font-size: 12px;
+  z-index: 10; box-sizing: border-box; }
+.toc b { display: block; margin-bottom: 8px; font-size: 13px; color: #1e3a5f; }
+.toc a { display: block; padding: 3px 0; color: #475569; text-decoration: none; line-height: 1.4; }
+.toc a:hover { color: #2563eb; }
+body { margin-left: 192px !important; }
+.warn { margin-left: -192px; padding-left: calc(192px + 12px); }
 </style>
 </head>
 <body>
+<div class="toc">
+<b>目录</b>
+<a href="#concept">1. 定位与架构</a>
+<a href="#first-run">2. 首次启动</a>
+<a href="#prerequisites">3. 前置条件</a>
+<a href="#masters">4. 多主站</a>
+<a href="#topology">5. 拓扑</a>
+<a href="#overview">6. 总览</a>
+<a href="#state-machine">7. 状态模型</a>
+<a href="#od">8. 对象字典</a>
+<a href="#sdo-history">9. SDO 历史</a>
+<a href="#pdo">10. PDO 映射</a>
+<a href="#watch">11. 监视</a>
+<a href="#startup">12. 启动 SDO</a>
+<a href="#freerun">13. 自由运行</a>
+<a href="#io-variables">14. I/O 变量</a>
+<a href="#consistency">15. 一致性</a>
+<a href="#diagnostics">16. 诊断</a>
+<a href="#esi">17. ESI 仓库</a>
+<a href="#project">18. 工程</a>
+<a href="#settings-ref">19. 设置参考</a>
+<a href="#shortcuts">20. 快捷操作</a>
+<a href="#trouble">21. 疑难排解</a>
+<a href="#safety">22. 安全清单</a>
+</div>
 <h1>NekoEcat Studio 使用说明书</h1>
 <p>NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代 EtherCAT 工程工作站。它把工程文件、主站选择、拓扑扫描、对象字典、SDO 读写、PDO 映射、Watch 监视、Startup SDO、Free Run 周期遥测、I/O 变量工程表、主机健康检查、ESI 仓库和运行日志组织在一个界面内，目标是在调试效率和现场排障能力上对齐并逐步超越传统工程软件。总览页只负责总线和当前从站上下文；主机环境检查、修复建议和诊断证据统一放在诊断页。</p>
 <div class="toc" id="contents">
@@ -888,6 +903,7 @@ th { background: #f0f4f9; color: #475569; }
   dialog.exec();
 }
 
+// ── About Dialog ────────────────────────────────────────────────────
 
 // — Open the About dialog with version and build information
 void MainWindow::showAbout() {

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QVector>
 
+// A single watch entry with baseline, startup, and live value comparisons
 struct WatchStartupWatchRow {
   int row = -1;
   int position = -1;
@@ -23,6 +24,7 @@ struct WatchStartupWatchRow {
   bool changed = false;
 };
 
+// A single startup SDO entry with watch comparison fields
 struct WatchStartupStartupRow {
   int row = -1;
   int position = -1;
@@ -37,6 +39,7 @@ struct WatchStartupStartupRow {
   QString watchDelta;
 };
 
+// State of comparison between watch and startup values
 enum class WatchStartupDeltaState {
   NoTarget,
   NoStartup,
@@ -46,6 +49,7 @@ enum class WatchStartupDeltaState {
   Diff,
 };
 
+// Result of matching a watch row against startup rows
 struct WatchStartupWatchMatch {
   int matchingStartupRows = 0;
   QString expectedValue;
@@ -53,12 +57,14 @@ struct WatchStartupWatchMatch {
   WatchStartupDeltaState state = WatchStartupDeltaState::NoStartup;
 };
 
+// Delta state for a startup row compared to watch data
 struct WatchStartupStartupDelta {
   int startupRow = -1;
   QString watchValue;
   WatchStartupDeltaState state = WatchStartupDeltaState::NoTarget;
 };
 
+// Aggregate counts of delta states across all startup rows
 struct WatchStartupSummary {
   int matched = 0;
   int diff = 0;

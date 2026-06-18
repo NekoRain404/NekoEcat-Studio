@@ -7,6 +7,10 @@
 #include <QVector>
 
 enum class SlaveEvidencePriority {
+  // Fault: critical issue blocking commissioning
+  // Risk: potential issue requiring attention
+  // Action: needs user action to proceed
+  // Ready: all checks passed
   Fault,
   Risk,
   Action,
@@ -14,6 +18,7 @@ enum class SlaveEvidencePriority {
 };
 
 enum class SlaveEvidenceRiskKind {
+  // Each kind represents a specific evidence gap or issue
   IdentityMissing,
   OdMissing,
   PdoMissing,
@@ -26,6 +31,7 @@ enum class SlaveEvidenceRiskKind {
 };
 
 enum class SlaveEvidenceNextAction {
+  // Recommended next action for the user
   ReviewOd,
   LoadPdo,
   AddWatch,
@@ -36,6 +42,7 @@ enum class SlaveEvidenceNextAction {
 };
 
 enum class SlaveEvidenceRouteTarget {
+  // Navigation target when user clicks the row
   Overview,
   ObjectDictionary,
   PdoMap,

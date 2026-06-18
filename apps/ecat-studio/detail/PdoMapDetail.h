@@ -41,7 +41,7 @@ struct PdoMapDetailTexts {
 };
 
 // Resolved PDO map detail state with direction, role, type, and CiA 402 flag.
-struct PdoMapDetailUiState {
+struct PdoMapDetailState {
   QString text;
   QString severityKey;
   QString direction;
@@ -52,9 +52,9 @@ struct PdoMapDetailUiState {
   QString tooltip;
 };
 
-PdoMapDetailUiState
+PdoMapDetailState
 pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts);
-PdoMapDetailUiState
+PdoMapDetailState
 pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts);
 // Whether the PDO indicates RxPDO/output direction.
 bool pdoMapDetailIsRxOutput(const PdoMapTableRow &row);
@@ -65,6 +65,6 @@ bool pdoMapDetailIsCia402(const PdoMapTableRow &row);
 // Maps row attributes to a severity key.
 QString pdoMapDetailSeverityKey(const PdoMapTableRow &row);
 // Assembles the full PDO map detail state.
-PdoMapDetailUiState buildPdoMapDetailUiState(const PdoMapTableRow &row,
+PdoMapDetailState buildPdoMapDetailState(const PdoMapTableRow &row,
                                              int selectedPosition,
                                              const PdoMapDetailTexts &texts);

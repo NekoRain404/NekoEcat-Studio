@@ -41,7 +41,7 @@ struct ObjectBookmarkDetailTexts {
 };
 
 // Resolved bookmark detail state with severity, reuse guidance, and tooltip.
-struct ObjectBookmarkDetailUiState {
+struct ObjectBookmarkDetailState {
   QString text;
   QString severityKey;
   QString reuse;
@@ -52,14 +52,14 @@ struct ObjectBookmarkDetailUiState {
   QString tooltip;
 };
 
-ObjectBookmarkDetailUiState
+ObjectBookmarkDetailState
 objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts);
-ObjectBookmarkDetailUiState
+ObjectBookmarkDetailState
 objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts);
 // Maps row attributes to a severity key.
 QString objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
                                         const ObjectBookmarkDetailTexts &texts);
 // Assembles the full bookmark detail state.
-ObjectBookmarkDetailUiState
-buildObjectBookmarkDetailUiState(const SdoObjectBookmarkRow &row,
+ObjectBookmarkDetailState
+buildObjectBookmarkDetailState(const SdoObjectBookmarkRow &row,
                                  const ObjectBookmarkDetailTexts &texts);

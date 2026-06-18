@@ -1,128 +1,6 @@
 // SDO inspector, target panel, evidence trail, and history.
 
-#include "MainWindow.h"
-
-#include "models/Cia402DriveModel.h"
-#include "models/CommissioningWorkflowModel.h"
-#include "detail/CommissioningWorkflowStepDetail.h"
-#include "adapters/CommissioningWorkflowTableAdapter.h"
-#include "detail/CommissioningWorkflowDetail.h"
-#include "detail/ConsistencyDetail.h"
-#include "models/ConsistencyModel.h"
-#include "models/ConsistencyModel.h"
-#include "adapters/ConsistencyTableAdapter.h"
-#include "detail/DiagnosticsEventDetail.h"
-#include "models/EvidenceModel.h"
-#include "detail/FreeRunEntryDetail.h"
-#include "detail/HostHealthDetail.h"
-#include "models/IoVariableBulkNamingModel.h"
-#include "detail/IoVariableDetail.h"
-#include "models/IoVariableFilterModel.h"
-#include "models/IoVariableHandoffModel.h"
-#include "models/NextBestActionModel.h"
-#include "detail/NextBestActionDetail.h"
-#include "detail/ObjectBookmarkDetail.h"
-#include "detail/PdoMapDetail.h"
-#include "models/ProcessDataRowModel.h"
-#include "adapters/ProcessDataTableAdapter.h"
-#include "adapters/SdoDictionaryTableAdapter.h"
-#include "models/SdoEvidenceModel.h"
-#include "adapters/SdoEvidenceTableAdapter.h"
-#include "detail/SdoHistoryRowDetail.h"
-#include "models/SdoTargetPanelRouteModel.h"
-#include "detail/SdoTargetTrailDetail.h"
-#include "detail/SelectedDriveSummaryDetail.h"
-#include "detail/SelectedSlaveEvidenceSummaryDetail.h"
-#include "models/SessionBriefModel.h"
-#include "adapters/SessionBriefTableAdapter.h"
-#include "detail/SessionBriefDetail.h"
-#include "models/SlaveEvidenceModel.h"
-#include "adapters/SlaveEvidenceTableAdapter.h"
-#include "detail/SlaveEvidenceDetail.h"
-#include "detail/StartupSdoRowDetail.h"
-#include "detail/StateMachineRowDetail.h"
-#include "adapters/StateMachineTableAdapter.h"
-#include "models/EvidenceModel.h"
-#include "utils/Documentation.h"
-#include "utils/TableHelpers.h"
-#include "utils/TextHelpers.h"
-#include "utils/UiHelpers.h"
-#include "models/TopologyModel.h"
-#include "models/TopologyModel.h"
-#include "detail/WatchRowDetail.h"
-#include "models/WatchStartupModel.h"
-#include "adapters/WatchStartupTableAdapter.h"
-#include "detail/WatchStartupDetail.h"
-#include "detail/WorkspaceBoundaryDetail.h"
-#include "adapters/WorkspaceTabBadgeTableAdapter.h"
-#include "detail/WorkspaceTabBadgeDetail.h"
-#include <algorithm>
-#include <cmath>
-#include <functional>
-#include <limits>
-#include <QAbstractItemView>
-#include <QAction>
-#include <QApplication>
-#include <QBrush>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QColor>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QDockWidget>
-#include <QEvent>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QHash>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-    // Serialize/deserialize JSON data
-#include <QJsonArray>
-#include <QJsonDocument>
-    // Serialize/deserialize JSON data
-#include <QJsonObject>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QListWidgetItem>
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QRegularExpression>
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QSignalBlocker>
-#include <QSize>
-#include <QSizePolicy>
-#include <QSplitter>
-#include <QStatusBar>
-#include <QStyle>
-#include <QTabWidget>
-#include <QTableWidget>
-#include <QTextBrowser>
-#include <QTextStream>
-    // Schedule deferred or periodic execution
-#include <QTimer>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QXmlStreamReader>
-
-// — Fill the SDO target panel from the selected OD row
+#include "MainWindowIncludes.h"
 void MainWindow::applySdoSelectionFromDictionary(int row, bool readAfterFill) {
   if (!sdo_->sdoTable || row < 0 || row >= sdo_->sdoTable->rowCount()) {
     return;
@@ -217,6 +95,7 @@ void MainWindow::addSelectedDictionaryRowsToWatch() {
       rows, uiText("selected object dictionary row(s)", "选中对象字典行"));
 }
 
+// ── Add to Watch ────────────────────────────────────────────────────
 
 // — Add visible dictionary rows to watch
 void MainWindow::addVisibleDictionaryRowsToWatch() {
@@ -322,6 +201,7 @@ void MainWindow::addDictionaryRowsToWatch(const QVector<int> &rows,
     activateWorkspaceTab(watchTabIndex_);
   }
 }
+// ── SDO Selection from PDO Map ───────────────────────────────────────
 
 
 // — Fill the SDO target panel from the selected PDO map row
@@ -372,6 +252,7 @@ void MainWindow::applySdoSelectionFromPdoMap(int row, bool readAfterFill) {
                    uiText("PDO Map", "PDO 映射"));
   }
   updateActionAvailability();
+// ── SDO Selection from FreeRun Entry ─────────────────────────────────
 }
 
 
@@ -419,6 +300,7 @@ void MainWindow::applySdoSelectionFromFreeRunEntry(int row,
     requestSdoRead(entry.position, entry.index, entry.subIndex,
                    uiText("Free Run", "自由运行"));
   }
+// ── SDO Selection from I/O Variable ──────────────────────────────────
   updateActionAvailability();
 }
 
@@ -590,6 +472,7 @@ void MainWindow::addIoVariableRowsToWatch(const QVector<int> &rows,
                         .arg(reused)
                         .arg(skipped));
   if (added > 0 || reused > 0) {
+// ── Add I/O Variables to Watch ───────────────────────────────────────
     activateWorkspaceTab(watchTabIndex_);
   }
 }
@@ -616,6 +499,7 @@ void MainWindow::addVisibleIoVariablesToWatch() {
     if (!ioVar_->ioVariableTable->isRowHidden(row)) {
       rows.append(row);
     }
+// ── Add I/O Variables to Startup SDO ────────────────────────────────
   }
   addIoVariableRowsToWatch(rows,
                            uiText("visible I/O variables", "可见 I/O 变量"));
@@ -938,6 +822,7 @@ void MainWindow::addIoVariableRowsToStartupSdo(const QVector<int> &rows,
           .arg(duplicateSkipped > 0
                    ? uiText(", duplicate selections %1", "，重复选择 %1")
                          .arg(duplicateSkipped)
+// ── SDO Selection from Watch ─────────────────────────────────────────
                    : QString()));
   if (created > 0 || updated > 0 || unchanged > 0) {
     activateWorkspaceTab(startupSdoTabIndex_);
@@ -992,6 +877,7 @@ void MainWindow::applySdoSelectionFromWatch(int row, bool readAfterFill) {
                     QString("Selected watch item #%1 %2:%3")
                         .arg(position)
                         .arg(index, subIndex));
+// ── SDO Selection from History ───────────────────────────────────────
 
   if (readAfterFill && client_.isConnected()) {
     requestSdoRead(position, index, subIndex, uiText("Watch", "监视"), type);
@@ -1058,6 +944,7 @@ void MainWindow::applySdoSelectionFromHistory(int row, bool readAfterFill) {
                     QString("Selected history row #%1 %2:%3 %4 %5")
                         .arg(position)
                         .arg(index, subIndex, action, status));
+// ── SDO Selection from Startup ──────────────────────────────────────
 
   if (readAfterFill && client_.isConnected()) {
     requestSdoRead(position, index, subIndex, uiText("SDO History", "SDO 历史"),
@@ -1129,6 +1016,7 @@ void MainWindow::applySdoSelectionFromStartup(int row, bool readAfterFill) {
                     QString("Selected startup row %1 #%2 %3:%4 %5")
                         .arg(row + 1)
                         .arg(position)
+// ── Read Dictionary Rows ─────────────────────────────────────────────
                         .arg(index, subIndex, status));
 
   if (readAfterFill && client_.isConnected()) {

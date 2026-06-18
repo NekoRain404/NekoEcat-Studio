@@ -43,7 +43,7 @@ QString pdoMapDetailRoleText(const PdoMapTableRow &row,
 } // namespace
 
 // Neutral state when the PDO map table is not available.
-PdoMapDetailUiState
+PdoMapDetailState
 pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
   return {.text = texts.unavailableText,
     // Set severityKey field
@@ -53,7 +53,7 @@ pdoMapDetailUnavailableState(const PdoMapDetailTexts &texts) {
 }
 
 // Neutral state prompting the user to select a PDO map row.
-PdoMapDetailUiState
+PdoMapDetailState
 pdoMapDetailNoSelectionState(const PdoMapDetailTexts &texts) {
   return {.text = texts.noSelectionText,
     // Set severityKey field
@@ -113,10 +113,10 @@ QString pdoMapDetailSeverityKey(const PdoMapTableRow &row) {
 }
 
 // Assembles the full PDO map detail state: direction, role, inferred type, CiA 402 flag, and tooltip.
-PdoMapDetailUiState buildPdoMapDetailUiState(const PdoMapTableRow &row,
+PdoMapDetailState buildPdoMapDetailState(const PdoMapTableRow &row,
                                              int selectedPosition,
                                              const PdoMapDetailTexts &texts) {
-  PdoMapDetailUiState state;
+  PdoMapDetailState state;
   state.severityKey = pdoMapDetailSeverityKey(row);
   state.direction = pdoMapDetailDirectionText(row, texts);
   state.role = pdoMapDetailRoleText(row, texts);
