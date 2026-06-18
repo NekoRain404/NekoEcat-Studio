@@ -1517,3 +1517,130 @@ target_include_directories(error_recovery_test PRIVATE
 set_target_properties(error_recovery_test PROPERTIES AUTOMOC ON)
 add_test(NAME error_recovery_test COMMAND error_recovery_test)
 set_tests_properties(error_recovery_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── UI Creation Test ─────────────────────────────────────────
+add_executable(ui_creation_test
+    ui_creation_test.cpp
+    ../apps/ecat-studio/plugins/notes/NotesPlugin.cpp
+    ../apps/ecat-studio/plugins/notes/NotesPlugin.h
+    ../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
+    ../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
+    ../apps/ecat-studio/plugins/session/SessionPlugin.cpp
+    ../apps/ecat-studio/plugins/session/SessionPlugin.h
+    ../apps/ecat-studio/plugins/overview/OverviewPlugin.cpp
+    ../apps/ecat-studio/plugins/overview/OverviewPlugin.h
+    ../apps/ecat-studio/plugins/iovariable/IoVariablePlugin.cpp
+    ../apps/ecat-studio/plugins/iovariable/IoVariablePlugin.h
+    ../apps/ecat-studio/plugins/rttest/RtTestPlugin.cpp
+    ../apps/ecat-studio/plugins/rttest/RtTestPlugin.h
+    ../apps/ecat-studio/plugins/watch/WatchPlugin.cpp
+    ../apps/ecat-studio/plugins/watch/WatchPlugin.h
+    ../apps/ecat-studio/plugins/export/ExportPlugin.cpp
+    ../apps/ecat-studio/plugins/export/ExportPlugin.h
+    ../apps/ecat-studio/plugins/od/OdPlugin.cpp
+    ../apps/ecat-studio/plugins/od/OdPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/utils/TableHelpers.cpp
+    ../apps/ecat-studio/utils/TableHelpers.h
+    ../apps/ecat-studio/utils/TextHelpers.cpp
+    ../apps/ecat-studio/utils/TextHelpers.h
+    ../apps/ecat-studio/services/ServiceContainer.cpp
+    ../apps/ecat-studio/services/ServiceContainer.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/services/SdoService.cpp
+    ../apps/ecat-studio/services/SdoService.h
+    ../apps/ecat-studio/services/WatchService.cpp
+    ../apps/ecat-studio/services/WatchService.h
+    ../apps/ecat-studio/services/TopologyService.cpp
+    ../apps/ecat-studio/services/TopologyService.h
+    ../apps/ecat-studio/services/DcSyncService.cpp
+    ../apps/ecat-studio/services/DcSyncService.h
+    ../apps/ecat-studio/services/AlEventService.cpp
+    ../apps/ecat-studio/services/AlEventService.h
+    ../apps/ecat-studio/services/SignalService.cpp
+    ../apps/ecat-studio/services/SignalService.h
+    ../apps/ecat-studio/services/PerformanceMonitorService.cpp
+    ../apps/ecat-studio/services/PerformanceMonitorService.h
+    ../apps/ecat-studio/services/EsiService.cpp
+    ../apps/ecat-studio/services/EsiService.h
+    ../apps/ecat-studio/services/BusStatsService.cpp
+    ../apps/ecat-studio/services/BusStatsService.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+target_link_libraries(ui_creation_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(ui_creation_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(ui_creation_test PROPERTIES AUTOMOC ON)
+add_test(NAME ui_creation_test COMMAND ui_creation_test)
+set_tests_properties(ui_creation_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── EsiPlugin + EsiService (GUI) ────────────────────────────────────
+add_executable(esi_plugin_test
+    esi_plugin_test.cpp
+    ../apps/ecat-studio/plugins/esi/EsiPlugin.cpp
+    ../apps/ecat-studio/plugins/esi/EsiPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/services/EsiService.cpp
+    ../apps/ecat-studio/services/EsiService.h
+)
+
+target_include_directories(esi_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+)
+
+target_link_libraries(esi_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::Test
+)
+
+set_target_properties(esi_plugin_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME esi_plugin_test COMMAND esi_plugin_test)
+set_tests_properties(esi_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── BusStatsPlugin + BusStatsService (GUI) ──────────────────────────
+add_executable(busstats_plugin_test
+    busstats_plugin_test.cpp
+    ../apps/ecat-studio/plugins/busstats/BusStatsPlugin.cpp
+    ../apps/ecat-studio/plugins/busstats/BusStatsPlugin.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../apps/ecat-studio/services/BusStatsService.cpp
+    ../apps/ecat-studio/services/BusStatsService.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
+)
+
+target_include_directories(busstats_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+
+target_link_libraries(busstats_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+
+set_target_properties(busstats_plugin_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME busstats_plugin_test COMMAND busstats_plugin_test)
+set_tests_properties(busstats_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
