@@ -7,8 +7,12 @@ add_executable(ecatd
     RtTestController.cpp
     RtTestController.h
     FreeRunController.h
+    handlers/AdapterHandler.h
+    handlers/AdapterHandler.cpp
     handlers/AlEventHandler.h
     handlers/AlEventHandler.cpp
+    handlers/DcSyncHandler.h
+    handlers/DcSyncHandler.cpp
     main.cpp
 )
 

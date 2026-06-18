@@ -1,11 +1,12 @@
 // DcSyncHandler — DC sync status via CLI + optional ecrt enrichment.
 #include "DcSyncHandler.h"
 
-#include "../CommandDispatcher.h"
+#include "CommandDispatcher.h"
 #include "EcatService.h"
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QProcess>
 #include <QRegularExpression>
 
 #include <ecrt.h>
@@ -17,30 +18,66 @@ DcSyncHandler::DcSyncHandler(EcatService *backend)
 {
 }
 
+void DcSyncHandler::setBackend(EcatService *backend)
+{
+    backend_ = backend;
+}
+
+// ─── CLI helper ────────────────────────────────────────────────────────────
+
+QString DcSyncHandler::runCliCommand(const QString &master,
+                                     const QStringList &args) const
+{
+    // Prefer EcatService backend when available (consistent with other handlers).
+    if (backend_ && args.size() == 1 && args.first() == "master") {
+        return backend_->masterText(master);
+    }
+
+    // Fallback: direct CLI invocation for commands the backend doesn't cover.
+    QProcess proc;
+    QStringList fullArgs;
+    const QString trimmed = master.trimmed();
+    if (!trimmed.isEmpty()) {
+        fullArgs << "-m" << trimmed;
+    }
+    fullArgs << args;
+    proc.setProgram("ethercat");
+    proc.setArguments(fullArgs);
+    proc.start();
+    proc.waitForFinished(5000);
+    return QString::fromUtf8(proc.readAllStandardOutput());
+}
+
 // ─── JSON-RPC entry point ──────────────────────────────────────────────────
 
 QJsonObject DcSyncHandler::handle(const QString &id, const QJsonObject &params)
 {
-    if (!backend_) {
-        return CommandDispatcher::failure(id, "No CLI backend available for DC sync query.");
-    }
-
     const QString master = params.value("master").toString("0").trimmed();
-    QString error;
-    const QString text = backend_->masterText(master, &error);
 
-    if (!error.isEmpty()) {
-        return CommandDispatcher::failure(id, error);
+    const QString slaveOutput = runCliCommand(
+        master, {"slaves", "-v"});
+    const QString masterOutput = runCliCommand(
+        master, {"master"});
+
+    if (slaveOutput.isEmpty() && masterOutput.isEmpty()) {
+        return CommandDispatcher::failure(id,
+            "Failed to query DC status. Is the EtherCAT master running?");
     }
 
-    if (text.isEmpty()) {
-        return CommandDispatcher::failure(id, "Empty response from ethercat master.");
+    const int refClock = detectRefClock(masterOutput);
+    const auto slaves = queryDcStatus(slaveOutput);
+
+    QJsonArray slaveArr;
+    for (const auto &info : slaves) {
+        slaveArr.append(slaveInfoToJson(info));
     }
 
-    rawMasterText_ = text;
-    parseDcFromMasterText(text);
+    QJsonObject result;
+    result["refClock"] = refClock;
+    result["hasRefClock"] = (refClock >= 0);
+    result["slaves"] = slaveArr;
 
-    return buildResponse(id);
+    return CommandDispatcher::success(id, result);
 }
 
 // ─── Optional ecrt enrichment ──────────────────────────────────────────────
@@ -51,145 +88,171 @@ void DcSyncHandler::update(ec_master_t *master, int slaveCount)
         return;
     }
 
-    slaveInfo_.clear();
-    slaveInfo_.reserve(slaveCount);
-
-    for (int i = 0; i < slaveCount; ++i) {
-        DcSlaveInfo info;
-        info.position = i;
-
-        ec_slave_info_t si;
-        if (ecrt_master_get_slave(master, static_cast<uint16_t>(i), &si) == 0) {
-            // A slave is DC-capable if any port reports a non-zero delay to the next DC slave.
-            bool hasDcPort = false;
-            for (int p = 0; p < EC_MAX_PORTS; ++p) {
-                if (si.ports[p].delay_to_next_dc > 0 || si.ports[p].receive_time > 0) {
-                    hasDcPort = true;
-                    break;
-                }
-            }
-            info.dcCapable = hasDcPort;
-            info.syncing = (si.al_state == 0x08); // OP state implies active sync
-        }
-
-        slaveInfo_.append(info);
-    }
-
-    // Query reference clock time.
+    // Query reference clock time for sync quality assessment.
     uint32_t refTime = 0;
-    int rc = ecrt_master_reference_clock_time(master, &refTime);
-    hasReferenceClock_ = (rc == 0);
-    if (hasReferenceClock_) {
-        refClockPosition_ = 0; // ecrt doesn't expose ref clock position directly
-    }
+    ecrt_master_reference_clock_time(master, &refTime);
 
-    // Query sync monitor for jitter estimate.
+    // Queue and process the sync monitor datagram for jitter measurement.
     ecrt_master_sync_monitor_queue(master);
     uint32_t maxDiff = ecrt_master_sync_monitor_process(master);
-    if (maxDiff != static_cast<uint32_t>(-1) && !slaveInfo_.isEmpty()) {
-        // Distribute the max diff as a jitter estimate on the first slave.
-        slaveInfo_[0].jitterNs = static_cast<int64_t>(maxDiff);
-    }
+    (void)refTime;
+    (void)maxDiff;
 }
 
-// ─── Parse DC info from `ethercat master` text ─────────────────────────────
+// ─── Parse DC info from `ethercat slaves -v` output ────────────────────────
 
-bool DcSyncHandler::parseDcFromMasterText(const QString &text)
+QVector<DcSyncSlaveInfo>
+DcSyncHandler::queryDcStatus(const QString &slaveVerboseOutput) const
 {
-    resetCache();
+    QVector<DcSyncSlaveInfo> result;
+    if (slaveVerboseOutput.isEmpty())
+        return result;
 
-    // Patterns found in typical `ethercat master` output:
-    //   "DC reference clock:    Slave 0"
-    //   "Application time:      1234567890"
-    //   "DC system time diff:   ..."
-    //   "  DC: yes"  or  "  Distributed clocks: yes"
-    // Exact wording varies by IgH version; we try several patterns.
+    const QStringList lines = slaveVerboseOutput.split('\n', Qt::SkipEmptyParts);
 
-    static const QRegularExpression refClockRe(
-        R"(DC\s+reference\s+clock:\s*(?:Slave\s+)?(\d+))",
-        QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression appTimeRe(
-        R"(Application\s+time:\s*(.+))",
-        QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression sysDiffRe(
-        R"(system\s+time\s+diff(?:erence)?:\s*(.+))",
-        QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression dcAvailRe(
-        R"(D(?:istributed\s+)?C(?:locks)?:\s*(yes|no|true|false|\d+))",
-        QRegularExpression::CaseInsensitiveOption);
+    DcSyncSlaveInfo current;
+    bool inDcBlock = false;
 
-    const auto refMatch = refClockRe.match(text);
-    if (refMatch.hasMatch()) {
-        refClockPosition_ = refMatch.captured(1).toInt();
-        hasReferenceClock_ = true;
+    // Long-form header: "Alias 0x0000, Position 0x0000, ..."
+    static const QRegularExpression headerRe(
+        QStringLiteral("Alias\\s+0x[0-9a-fA-F]+,\\s+Position\\s+0x([0-9a-fA-F]+)"));
+
+    // Short-form header: "0  0:0   OP  +  EL1008"
+    static const QRegularExpression shortHeaderRe(
+        QStringLiteral("^(\\d+)\\s+\\d+:\\d+\\s+"));
+
+    // DC capability marker.
+    static const QRegularExpression dcCapableRe(
+        QStringLiteral("Distributed Clocks:"));
+
+    // Jitter line.
+    static const QRegularExpression jitterRe(
+        QStringLiteral("Jitter:\\s+(-?\\d+)\\s+ns"));
+
+    // Drift / offset line.
+    static const QRegularExpression driftRe(
+        QStringLiteral("(?:Drift|Offset):\\s+(-?\\d+)\\s+ns"));
+
+    // Reference clock designation.
+    static const QRegularExpression refClkRe(
+        QStringLiteral("Reference Clock"));
+
+    // System time line (non-zero implies syncing).
+    static const QRegularExpression sysTimeRe(
+        QStringLiteral("System Time:\\s+(-?\\d+)\\s+ns"));
+
+    // Slave name from short-form lines: "+  EL1008"
+    static const QRegularExpression nameRe(
+        QStringLiteral("\\+\\s+(\\S+)$"));
+
+    for (const QString &line : lines) {
+        // Detect new slave block via the long-form header.
+        auto headerMatch = headerRe.match(line);
+        if (headerMatch.hasMatch()) {
+            if (current.position >= 0)
+                result.append(current);
+            current = DcSyncSlaveInfo();
+            current.position = headerMatch.captured(1).toInt(nullptr, 16);
+            inDcBlock = false;
+            continue;
+        }
+
+        // Detect new slave block via the short-form header.
+        auto shortMatch = shortHeaderRe.match(line);
+        if (shortMatch.hasMatch()) {
+            if (current.position >= 0)
+                result.append(current);
+            current = DcSyncSlaveInfo();
+            current.position = shortMatch.captured(1).toInt();
+            auto nameMatch = nameRe.match(line);
+            if (nameMatch.hasMatch())
+                current.refClockName = nameMatch.captured(1);
+            inDcBlock = false;
+            continue;
+        }
+
+        // DC capability marker starts a DC detail block.
+        if (dcCapableRe.match(line).hasMatch()) {
+            current.dcCapable = true;
+            inDcBlock = true;
+            continue;
+        }
+
+        // Within a DC block, parse timing and sync lines.
+        if (inDcBlock) {
+            auto jitterMatch = jitterRe.match(line);
+            if (jitterMatch.hasMatch()) {
+                const int64_t val = jitterMatch.captured(1).toLongLong();
+                if (current.jitterMinNs == 0 && current.jitterMaxNs == 0) {
+                    current.jitterMinNs = val;
+                    current.jitterMaxNs = val;
+                } else {
+                    current.jitterMinNs = qMin(current.jitterMinNs, val);
+                    current.jitterMaxNs = qMax(current.jitterMaxNs, val);
+                }
+                current.jitterAvgNs = (current.jitterMinNs + current.jitterMaxNs) / 2;
+            }
+
+            auto driftMatch = driftRe.match(line);
+            if (driftMatch.hasMatch())
+                current.driftNs = driftMatch.captured(1).toLongLong();
+
+            if (refClkRe.match(line).hasMatch())
+                current.syncing = true;
+
+            auto sysTimeMatch = sysTimeRe.match(line);
+            if (sysTimeMatch.hasMatch() && sysTimeMatch.captured(1).toLongLong() != 0)
+                current.syncing = true;
+        }
     }
 
-    const auto appMatch = appTimeRe.match(text);
-    if (appMatch.hasMatch()) {
-        applicationTime_ = appMatch.captured(1).trimmed();
-    }
+    // Append the final block.
+    if (current.position >= 0)
+        result.append(current);
 
-    const auto diffMatch = sysDiffRe.match(text);
-    if (diffMatch.hasMatch()) {
-        systemTimeDiff_ = diffMatch.captured(1).trimmed();
-    }
-
-    const auto dcMatch = dcAvailRe.match(text);
-    if (dcMatch.hasMatch()) {
-        const QString val = dcMatch.captured(1).toLower();
-        dcAvailable_ = (val == "yes" || val == "true" || val == "1");
-    } else {
-        // If we found a reference clock, DC is at least partially available.
-        dcAvailable_ = hasReferenceClock_;
-    }
-
-    return dcAvailable_;
+    return result;
 }
 
-// ─── Build the JSON response ───────────────────────────────────────────────
+// ─── Detect reference clock from `ethercat master` output ──────────────────
 
-QJsonObject DcSyncHandler::buildResponse(const QString &id) const
+int DcSyncHandler::detectRefClock(const QString &masterOutput) const
 {
-    QJsonObject result;
-    result["dcAvailable"] = dcAvailable_;
-    result["hasRefClock"] = hasReferenceClock_;
-    result["refClock"] = refClockPosition_;
+    if (masterOutput.isEmpty())
+        return -1;
 
-    if (!applicationTime_.isEmpty()) {
-        result["applicationTime"] = applicationTime_;
-    }
-    if (!systemTimeDiff_.isEmpty()) {
-        result["systemTimeDiff"] = systemTimeDiff_;
-    }
+    // Pattern 1: "DC reference clock: Slave N"
+    static const QRegularExpression dcRefRe(
+        QStringLiteral("DC reference clock:\\s*Slave\\s+(\\d+)"));
 
-    QJsonArray slaves;
-    for (const auto &info : slaveInfo_) {
-        QJsonObject obj;
-        obj["position"] = info.position;
-        obj["dcCapable"] = info.dcCapable;
-        obj["syncing"] = info.syncing;
-        obj["driftNs"] = static_cast<qint64>(info.driftNs);
-        obj["jitterNs"] = static_cast<qint64>(info.jitterNs);
-        slaves.append(obj);
-    }
-    result["slaves"] = slaves;
+    // Pattern 2: "Slave N: ... reference clock" (inline designation)
+    static const QRegularExpression slaveRefRe(
+        QStringLiteral("Slave\\s+(\\d+)\\b.*reference clock"));
 
-    // Include raw CLI output for debugging / forward compatibility.
-    if (!rawMasterText_.isEmpty()) {
-        result["raw"] = rawMasterText_;
-    }
+    auto m1 = dcRefRe.match(masterOutput);
+    if (m1.hasMatch())
+        return m1.captured(1).toInt();
 
-    return CommandDispatcher::success(id, result);
+    auto m2 = slaveRefRe.match(masterOutput);
+    if (m2.hasMatch())
+        return m2.captured(1).toInt();
+
+    return -1;
 }
 
-// ─── Reset cached state ────────────────────────────────────────────────────
+// ─── Convert slave info to JSON ────────────────────────────────────────────
 
-void DcSyncHandler::resetCache()
+QJsonObject DcSyncHandler::slaveInfoToJson(const DcSyncSlaveInfo &info) const
 {
-    dcAvailable_ = false;
-    refClockPosition_ = -1;
-    hasReferenceClock_ = false;
-    applicationTime_.clear();
-    systemTimeDiff_.clear();
-    slaveInfo_.clear();
+    QJsonObject obj;
+    obj["pos"] = info.position;
+    obj["dcCapable"] = info.dcCapable;
+    obj["syncing"] = info.syncing;
+    obj["driftNs"] = static_cast<qint64>(info.driftNs);
+    obj["jitterMinNs"] = static_cast<qint64>(info.jitterMinNs);
+    obj["jitterMaxNs"] = static_cast<qint64>(info.jitterMaxNs);
+    obj["jitterAvgNs"] = static_cast<qint64>(info.jitterAvgNs);
+    if (!info.refClockName.isEmpty()) {
+        obj["refClockName"] = info.refClockName;
+    }
+    return obj;
 }

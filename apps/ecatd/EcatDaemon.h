@@ -10,6 +10,8 @@
 #include "FreeRunController.h"
 #include "RtTestController.h"
 #include "handlers/AlEventHandler.h"
+#include "handlers/DcSyncHandler.h"
+#include "handlers/AdapterHandler.h"
 
 #include <QHash>
 #include <QObject>
@@ -46,6 +48,10 @@ private:
     CommandDispatcher dispatcher_;
     // Tracks AL status changes across all slaves.
     AlEventHandler alEventHandler_;
+    // DC sync status handler.
+    DcSyncHandler dcSyncHandler_;
+    // Discovers and configures host NICs for IgH master binding.
+    AdapterHandler adapterHandler_;
     // Periodic timer that polls slave AL status every second.
     QTimer *alPollTimer_ = nullptr;
     void setupHandlers();

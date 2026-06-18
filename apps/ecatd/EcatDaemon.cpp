@@ -287,12 +287,24 @@ void EcatDaemon::setupHandlers() {
         return CommandDispatcher::success(id, rtTest_.telemetry());
     });
 
+    dispatcher_.registerHandler("dcSyncStatus", [this](const QString &id, const QJsonObject &params) {
+        return dcSyncHandler_.handle(id, params);
+    });
+
     dispatcher_.registerHandler("alEventLog", [this](const QString &id, const QJsonObject &p) {
         return alEventHandler_.handle(id, p);
     });
     dispatcher_.registerHandler("alEventClear", [this](const QString &id, const QJsonObject &) {
         alEventHandler_.clear();
         return CommandDispatcher::success(id);
+    });
+
+    // Adapter discovery and configuration.
+    dispatcher_.registerHandler("listAdapters", [this](const QString &id, const QJsonObject &params) {
+        return adapterHandler_.handleList(id, params);
+    });
+    dispatcher_.registerHandler("setAdapter", [this](const QString &id, const QJsonObject &params) {
+        return adapterHandler_.handleSet(id, params);
     });
 }
 

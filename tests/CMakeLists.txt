@@ -1207,3 +1207,32 @@ target_include_directories(al_event_handler_test PRIVATE
 target_link_libraries(al_event_handler_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(al_event_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME al_event_handler_test COMMAND al_event_handler_test)
+
+# ── AdapterHandler (daemon) ───────────────────────────────────────────
+add_executable(adapter_handler_test
+    adapter_handler_test.cpp
+    ../apps/ecatd/handlers/AdapterHandler.cpp
+    ../apps/ecatd/handlers/AdapterHandler.h
+)
+target_include_directories(adapter_handler_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecatd
+)
+target_link_libraries(adapter_handler_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(adapter_handler_test PROPERTIES AUTOMOC ON)
+add_test(NAME adapter_handler_test COMMAND adapter_handler_test)
+
+# ── DcSyncHandler (daemon) ─────────────────────────────────────────
+add_executable(dc_sync_handler_test
+    dc_sync_handler_test.cpp
+    ../apps/ecatd/handlers/DcSyncHandler.cpp
+    ../apps/ecatd/handlers/DcSyncHandler.h
+    ../apps/ecatd/CommandDispatcher.cpp
+    ../apps/ecatd/CommandDispatcher.h
+)
+target_include_directories(dc_sync_handler_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecatd
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(dc_sync_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
+set_target_properties(dc_sync_handler_test PROPERTIES AUTOMOC ON)
+add_test(NAME dc_sync_handler_test COMMAND dc_sync_handler_test)
