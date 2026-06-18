@@ -1194,3 +1194,16 @@ target_include_directories(notes_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ec
 set_target_properties(notes_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME notes_plugin_test COMMAND notes_plugin_test)
 set_tests_properties(notes_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── AlEventHandler (daemon) ─────────────────────────────────────────
+add_executable(al_event_handler_test
+    al_event_handler_test.cpp
+    ../apps/ecatd/handlers/AlEventHandler.cpp
+    ../apps/ecatd/handlers/AlEventHandler.h
+)
+target_include_directories(al_event_handler_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecatd
+)
+target_link_libraries(al_event_handler_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(al_event_handler_test PROPERTIES AUTOMOC ON)
+add_test(NAME al_event_handler_test COMMAND al_event_handler_test)

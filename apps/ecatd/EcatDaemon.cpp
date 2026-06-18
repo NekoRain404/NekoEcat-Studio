@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QTcpSocket>
 
+#include <QTimer>
 namespace {
 
 // Extract the master identifier from request params; defaults to "0" for single-master setups.
@@ -40,7 +41,13 @@ EcatDaemon::EcatDaemon(QObject *parent)
     backend_ = new EthercatCliBackend(this);
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
     setupHandlers();
+
+    // Poll AL status every second for event tracking.
+    alPollTimer_ = new QTimer(this);
+    connect(alPollTimer_, &QTimer::timeout, this, [this]() { alEventHandler_.poll(); });
+    alPollTimer_->start(1000);
 }
+
 
 // Bind to localhost only — the daemon is a local IPC service, not network-exposed.
 bool EcatDaemon::listen(quint16 port)
@@ -278,6 +285,14 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("rtTestStatus", [this](const QString &id, const QJsonObject &) {
         return CommandDispatcher::success(id, rtTest_.telemetry());
+    });
+
+    dispatcher_.registerHandler("alEventLog", [this](const QString &id, const QJsonObject &p) {
+        return alEventHandler_.handle(id, p);
+    });
+    dispatcher_.registerHandler("alEventClear", [this](const QString &id, const QJsonObject &) {
+        alEventHandler_.clear();
+        return CommandDispatcher::success(id);
     });
 }
 

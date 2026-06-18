@@ -9,11 +9,13 @@
 #include "EthercatCliBackend.h"
 #include "FreeRunController.h"
 #include "RtTestController.h"
+#include "handlers/AlEventHandler.h"
 
 #include <QHash>
 #include <QObject>
 #include <QTcpServer>
 
+class QTimer;
 class QTcpSocket;
 
 class EcatDaemon : public QObject {
@@ -42,5 +44,9 @@ private:
     // Per-socket read buffers for reassembling fragmented TCP into complete JSON lines.
     QHash<QTcpSocket *, QByteArray> buffers_;
     CommandDispatcher dispatcher_;
+    // Tracks AL status changes across all slaves.
+    AlEventHandler alEventHandler_;
+    // Periodic timer that polls slave AL status every second.
+    QTimer *alPollTimer_ = nullptr;
     void setupHandlers();
 };
