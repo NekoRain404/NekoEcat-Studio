@@ -61,6 +61,9 @@
 #include "detail/WorkspaceTabBadgeDetail.h"
 #include "detail/WorkflowStepDetail.h"
 
+
+// ── Infrastructure ───────────────────────────────────────────────────
+#include "infra/LanguageManager.h"
 // ── Utilities ────────────────────────────────────────────────────────
 #include "utils/Documentation.h"
 #include "utils/TableHelpers.h"

@@ -110,7 +110,7 @@ QWidget *SettingsDialog::buildAppearanceTab(const AppSettings &s, bool zh)
     form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     themeCombo_ = new QComboBox;
-    themeCombo_->addItems({QStringLiteral("Dark"), QStringLiteral("Light")});
+    themeCombo_->addItems({QStringLiteral("Dark"), QStringLiteral("Light"), QStringLiteral("Nord"), QStringLiteral("Catppuccin"), QStringLiteral("Dracula"), QStringLiteral("Solarized"), QStringLiteral("Gruvbox"), QStringLiteral("Tokyo Night"), QStringLiteral("One Dark"), QStringLiteral("Monokai"), QStringLiteral("Cyberpunk")});
     themeCombo_->setCurrentText(s.theme);
     addFormRow(form, zh ? QStringLiteral("主题") : QStringLiteral("Theme"), themeCombo_);
 
