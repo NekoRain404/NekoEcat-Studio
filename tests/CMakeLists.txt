@@ -1468,3 +1468,18 @@ target_include_directories(empty_data_boundary_test PRIVATE
 set_target_properties(empty_data_boundary_test PROPERTIES AUTOMOC ON)
 add_test(NAME empty_data_boundary_test COMMAND empty_data_boundary_test)
 set_tests_properties(empty_data_boundary_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── Large Data Boundary Test ─────────────────────────────────────────
+add_executable(large_data_boundary_test
+    large_data_boundary_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(large_data_boundary_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(large_data_boundary_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+set_target_properties(large_data_boundary_test PROPERTIES AUTOMOC ON)
+add_test(NAME large_data_boundary_test COMMAND large_data_boundary_test)
+set_tests_properties(large_data_boundary_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
