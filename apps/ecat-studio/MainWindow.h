@@ -310,6 +310,17 @@ private:
   
   // ── Diagnostics Export ────────────────────────────────────────
   void exportDiagnosticsReport();
+
+  // ── Data Exports (MainWindowExport.cpp) ─────────────────────────
+  void exportPdoMapCsv();
+  void exportSdoDictionaryCsv();
+  void exportSdoHistoryCsv();
+  void exportEsiRepositoryCsv();
+  void exportEsiXml();
+  void exportWatchCsv();
+  void exportStartupSdoCsv();
+  void exportTopologyCsv();
+  void exportHostHealthCsv();
   
   // Load a project file (.ecat.json) and restore all tables
   // ── SDO Inspector & Target Panel ──────────────────────────────

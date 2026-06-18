@@ -126,6 +126,53 @@ void MainWindow::buildUi() {
       style()->standardIcon(QStyle::SP_FileDialogDetailedView),
       uiText("Review PLC Handoff Issues", "审阅 PLC 交接问题"));
   reviewPlcHandoffAction->setObjectName("reviewPlcHandoffAction");
+
+  /* ── Data export submenu ──────────────────────────────────────── */
+  fileMenu->addSeparator();
+  auto *dataExportMenu = fileMenu->addMenu(
+      style()->standardIcon(QStyle::SP_DialogSaveButton),
+      uiText("Export Data...", "导出数据..."));
+
+  auto *exportPdoAction = dataExportMenu->addAction(
+      uiText("PDO Map CSV", "PDO 映射 CSV"));
+  exportPdoAction->setObjectName("exportPdoMapAction");
+
+  auto *exportSdoDictAction = dataExportMenu->addAction(
+      uiText("SDO Dictionary CSV", "SDO 字典 CSV"));
+  exportSdoDictAction->setObjectName("exportSdoDictionaryAction");
+
+  auto *exportSdoHistAction = dataExportMenu->addAction(
+      uiText("SDO History CSV", "SDO 历史 CSV"));
+  exportSdoHistAction->setObjectName("exportSdoHistoryAction");
+
+  auto *exportWatchAction = dataExportMenu->addAction(
+      uiText("Watch CSV", "监视 CSV"));
+  exportWatchAction->setObjectName("exportWatchAction");
+
+  auto *exportStartupAction = dataExportMenu->addAction(
+      uiText("Startup SDO CSV", "启动 SDO CSV"));
+  exportStartupAction->setObjectName("exportStartupSdoAction");
+
+  dataExportMenu->addSeparator();
+
+  auto *exportEsiAction = dataExportMenu->addAction(
+      uiText("ESI Repository CSV", "ESI 仓库 CSV"));
+  exportEsiAction->setObjectName("exportEsiRepositoryAction");
+
+  auto *exportEsiXmlAction = dataExportMenu->addAction(
+      uiText("ESI XML", "ESI XML"));
+  exportEsiXmlAction->setObjectName("exportEsiXmlAction");
+
+  dataExportMenu->addSeparator();
+
+  auto *exportTopoAction = dataExportMenu->addAction(
+      uiText("Topology CSV", "拓扑 CSV"));
+  exportTopoAction->setObjectName("exportTopologyAction");
+
+  auto *exportHealthAction = dataExportMenu->addAction(
+      uiText("Host Health CSV", "主机健康 CSV"));
+  exportHealthAction->setObjectName("exportHostHealthAction");
+
   fileMenu->addSeparator();
   fileMenu->addAction(style()->standardIcon(QStyle::SP_DialogCloseButton),
                       uiText("Exit", "退出"), this, &QWidget::close);

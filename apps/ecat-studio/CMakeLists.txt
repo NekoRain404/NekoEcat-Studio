@@ -77,6 +77,7 @@ add_executable(ecat-studio
     workspaces/MainWindowCommissioning.cpp
     workspaces/MainWindowSlaveEvidence.cpp
     workspaces/MainWindowContextMenus.cpp
+    workspaces/MainWindowExport.cpp
     workspaces/MainWindowDiagnosticsTopology.cpp
     workspaces/MainWindowIoVariableWorkspace.cpp
     workspaces/MainWindowIoVariableTable.cpp

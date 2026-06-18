@@ -1515,6 +1515,24 @@ void MainWindow::wire() {
           &MainWindow::exportIoVariablesPlcDeclarationsSt);
   connect(findAction("reviewPlcHandoffAction"), &QAction::triggered, this,
           &MainWindow::reviewPlcHandoffIssues);
+  connect(findAction("exportPdoMapAction"), &QAction::triggered, this,
+          &MainWindow::exportPdoMapCsv);
+  connect(findAction("exportSdoDictionaryAction"), &QAction::triggered, this,
+          &MainWindow::exportSdoDictionaryCsv);
+  connect(findAction("exportSdoHistoryAction"), &QAction::triggered, this,
+          &MainWindow::exportSdoHistoryCsv);
+  connect(findAction("exportWatchAction"), &QAction::triggered, this,
+          &MainWindow::exportWatchCsv);
+  connect(findAction("exportStartupSdoAction"), &QAction::triggered, this,
+          &MainWindow::exportStartupSdoCsv);
+  connect(findAction("exportEsiRepositoryAction"), &QAction::triggered, this,
+          &MainWindow::exportEsiRepositoryCsv);
+  connect(findAction("exportEsiXmlAction"), &QAction::triggered, this,
+          &MainWindow::exportEsiXml);
+  connect(findAction("exportTopologyAction"), &QAction::triggered, this,
+          &MainWindow::exportTopologyCsv);
+  connect(findAction("exportHostHealthAction"), &QAction::triggered, this,
+          &MainWindow::exportHostHealthCsv);
   connect(findAction("importEsiAction"), &QAction::triggered, this,
           &MainWindow::importEsiFiles);
   connect(findAction("settingsAction"), &QAction::triggered, this,
