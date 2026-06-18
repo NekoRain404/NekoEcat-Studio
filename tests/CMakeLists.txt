@@ -1144,3 +1144,39 @@ add_test(NAME workspace_plugin_interface_test
 set_tests_properties(workspace_plugin_interface_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+add_executable(event_bus_test
+    event_bus_test.cpp
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+)
+target_link_libraries(event_bus_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
+target_include_directories(event_bus_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
+add_test(NAME event_bus_test COMMAND event_bus_test)
+set_tests_properties(event_bus_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# ── PluginRegistry ─────────────────────────────────────────────────────
+add_executable(plugin_registry_test
+    plugin_registry_test.cpp
+    ../apps/ecat-studio/plugins/PluginRegistry.cpp
+    ../apps/ecat-studio/plugins/PluginRegistry.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+)
+
+target_include_directories(plugin_registry_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+)
+target_link_libraries(plugin_registry_test PRIVATE
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::Test
+)
+
+set_target_properties(plugin_registry_test PROPERTIES AUTOMOC ON)
+
+add_test(NAME plugin_registry_test
+    COMMAND plugin_registry_test
+)
+set_tests_properties(plugin_registry_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)

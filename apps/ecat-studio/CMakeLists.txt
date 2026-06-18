@@ -11,7 +11,11 @@
 
 add_executable(ecat-studio
     # ── Plugins ───────────────────────────────────────────────────────
+    plugins/PluginRegistry.h                 plugins/PluginRegistry.cpp
     plugins/WorkspacePlugin.h
+
+    # ── Services ──────────────────────────────────────────────────────
+    services/EventBus.h                      services/EventBus.cpp
 
     # ── Models ──────────────────────────────────────────────────────────
     models/Cia402DriveModel.cpp                        models/Cia402DriveModel.h
