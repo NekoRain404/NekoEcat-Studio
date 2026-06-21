@@ -39,6 +39,7 @@ bool requestedMasterIndex(const QJsonObject &params, uint32_t *index, QString *e
 EcatDaemon::EcatDaemon(QObject *parent)
     : QObject(parent)
 {
+    uptimeTimer_.start();
     backend_ = new EthercatCliBackend(this);
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
     setupHandlers();
@@ -71,9 +72,11 @@ void EcatDaemon::acceptClient()
     // line buffer for reassembly across TCP fragmentation boundaries.
     while (auto *socket = server_.nextPendingConnection()) {
         buffers_.insert(socket, {});
+        ++activeConnections_;
         connect(socket, &QTcpSocket::readyRead, this, &EcatDaemon::readClient);
         connect(socket, &QTcpSocket::disconnected, socket, [this, socket] {
             buffers_.remove(socket);
+            --activeConnections_;
             socket->deleteLater();
         });
     }
@@ -106,13 +109,26 @@ void EcatDaemon::readClient()
 
 // Dispatch a parsed JSON request through the CommandDispatcher and send the response.
 void EcatDaemon::handle(QTcpSocket *socket, const QJsonObject &request) {
-    send(socket, dispatcher_.dispatch(request));
+    ++requestCount_;
+    const QJsonObject response = dispatcher_.dispatch(request);
+    if (!response.value("ok").toBool()) {
+        ++errorCount_;
+    }
+    send(socket, response);
 }
 
 // Register all 20+ command handlers as lambdas.  Each handler receives (id, params) and returns a JSON response.
 void EcatDaemon::setupHandlers() {
     dispatcher_.registerHandler("ping", [this](const QString &id, const QJsonObject &) {
-        return CommandDispatcher::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}});
+        return CommandDispatcher::success(id, {
+            {"name", "ecatd"},
+            {"version", "0.1.0"},
+            {"multiMaster", true},
+            {"uptimeMs", uptimeTimer_.elapsed()},
+            {"requestCount", static_cast<qint64>(requestCount_)},
+            {"errorCount", static_cast<qint64>(errorCount_)},
+            {"activeConnections", activeConnections_}
+        });
     });
 
     dispatcher_.registerHandler("hostDiagnostics", [this](const QString &id, const QJsonObject &) {

@@ -18,6 +18,7 @@
 #include <QHash>
 #include <QObject>
 #include <QTcpServer>
+#include <QElapsedTimer>
 
 class QTimer;
 class QTcpSocket;
@@ -65,4 +66,10 @@ private:
     void setupHandlers();
     void setBackendMode(const QString &mode);
     QString backendMode_ = "auto";
+
+    // Diagnostic metrics.
+    QElapsedTimer uptimeTimer_;
+    quint64 requestCount_ = 0;
+    quint64 errorCount_ = 0;
+    int activeConnections_ = 0;
 };
