@@ -9,7 +9,6 @@
 #include <QStringList>
 
 #include <cerrno>
-#include <chrono>
 #include <sched.h>
 #include <sys/mman.h>
 #include <thread>
