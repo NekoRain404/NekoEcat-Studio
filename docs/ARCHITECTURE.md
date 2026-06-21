@@ -533,11 +533,12 @@ QJsonObject dispatch(const QJsonObject &request) const;
 EcatDaemon
   ├── CommandDispatcher        (routes method → handler lambda)
   ├── EthercatCliBackend       (EcatService impl; wraps IgH CLI)
-  ├── FreeRunController        (ecrt-based process image I/O at ~1kHz)
+  ├── FreeRunController        (ecrt-based process image I/O at ~1kHz, SCHED_FIFO + TIMER_ABSTIME)
   ├── RtTestController         (real-time latency testing)
-  ├── DcSyncHandler            (DC sync status queries)
+  ├── DcSyncHandler            (DC sync status, configuration, activation, deactivation)
   ├── AlEventHandler           (AL event log; polled every 1s)
   ├── AdapterHandler           (network adapter discovery/selection)
+  ├── FoEHandler               (File over EtherCAT firmware read/write)
   └── SignalHandler            (signal subscription/polling)
 ```
 
@@ -547,7 +548,7 @@ The daemon accepts multiple TCP clients simultaneously (per-socket line buffers 
 
 | Method | Params | Description |
 |--------|--------|-------------|
-| `ping` | — | Returns daemon name, version, multiMaster flag |
+| `ping` | — | Returns daemon name, version, multiMaster flag, uptime, request/error counts, active connections |
 | `master` | `master` | Master status text |
 | `scan` | `master` | Scan bus and return all slaves |
 | `rescan` | `master` | Force bus rescan |
@@ -567,6 +568,11 @@ The daemon accepts multiple TCP clients simultaneously (per-socket line buffers 
 | `rtTestStop` | — | Stop RT test |
 | `rtTestStatus` | — | Get RT test telemetry |
 | `dcSyncStatus` | `master` | DC sync diagnostics per slave |
+| `dcConfigure` | `master, position` | Query DC configuration from ESI XML |
+| `dcActivate` | `master, refClockSlave` | Activate DC synchronization |
+| `dcDeactivate` | `master` | Deactivate DC synchronization |
+| `foeRead` | `master, position, filePath` | Read firmware from slave via FoE |
+| `foeWrite` | `master, position, filePath, password` | Write firmware to slave via FoE |
 | `alEventLog` | `limit` | Retrieve AL event log entries |
 | `alEventClear` | — | Clear AL event log |
 | `listAdapters` | — | List network adapters |
