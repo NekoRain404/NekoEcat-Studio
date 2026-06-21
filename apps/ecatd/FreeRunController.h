@@ -108,6 +108,7 @@ private:
     std::atomic_bool running_{false};
     std::atomic_ullong cycleCount_{0};
     std::atomic_ullong wcErrorCount_{0};  // Consecutive WC completeness errors.
+    static constexpr int kWcErrorThreshold = 100;  // Update status after this many consecutive errors.
     std::thread thread_;
     uint32_t activeMasterIndex_ = 0;
     QString status_ = "Stopped";

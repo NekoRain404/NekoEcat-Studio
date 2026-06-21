@@ -510,7 +510,18 @@ void FreeRunController::loop()
             // Track consecutive WC errors for diagnostics.
             if (domainState_.wc_state != EC_WC_COMPLETE) {
                 ++wcErrorCount_;
+                // Update status when WC errors exceed threshold.
+                if (wcErrorCount_ == kWcErrorThreshold) {
+                    status_ = QString("WARNING: %1 consecutive WC errors — check bus wiring")
+                                  .arg(wcErrorCount_.load());
+                }
             } else {
+                if (wcErrorCount_ > 0) {
+                    // Recovered from WC errors — restore normal status.
+                    status_ = QString("Running on master %1 — WC recovered after %2 errors")
+                                  .arg(activeMasterIndex_)
+                                  .arg(wcErrorCount_.load());
+                }
                 wcErrorCount_ = 0;
             }
         }
