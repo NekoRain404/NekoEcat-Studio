@@ -411,9 +411,10 @@ void EcatClient::handleLine(const QByteArray &line) {
   const auto handler = handlers_.take(id);
   requestTimestamps_.remove(id);
   if (!object.value("ok").toBool()) {
-    emit errorMessage(
-        object.value("error").toObject().value("message").toString(
-            "Unknown runtime error"));
+    const QString errorMsg = object.value("error").toObject().value("message").toString(
+        "Unknown runtime error");
+    // Include request ID in error for matching with specific requests.
+    emit errorMessage(QString("[%1] %2").arg(id, errorMsg));
     return;
   }
   if (handler) {

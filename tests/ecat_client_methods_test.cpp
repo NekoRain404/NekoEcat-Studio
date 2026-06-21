@@ -472,7 +472,7 @@ int main(int argc, char *argv[]) {
 
         client.upload(0, "0x1018", "0x01");
         expectTrue(waitFor([&] { return !errorMsg.isEmpty(); }, app), "T11: error response emits errorMessage");
-        expectEqual(errorMsg, "Test error", "T11: error message text");
+        expectTrue(errorMsg.contains("Test error"), "T11: error message contains 'Test error'");
     }
 
     // ─── T12: error response does NOT invoke success handler ────────────

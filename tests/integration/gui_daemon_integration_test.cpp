@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
 
         client.upload(0, "0x1018", "0x01");
         expectTrue(waitFor([&] { return !errorMsg.isEmpty(); }, app), "T4: error emitted");
-        expectEqual(errorMsg, "Slave not found", "T4: error message");
+        expectTrue(errorMsg.contains("Slave not found"), "T4: error message contains 'Slave not found'");
 
         // Verify success handlers did NOT fire.
         bool sdoFired = false;
