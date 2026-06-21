@@ -1,3 +1,11 @@
+// EventBusIntegrationTest — Tests for EventBus
+//
+// Test coverage:
+//   - Slave changed, SDO value, and connection state signals
+//   - Topology changed and DC sync update signals
+//   - AL event and signal data signals
+//   - Free-run telemetry signal
+
 #include <QTest>
 #include <QSignalSpy>
 #include <QJsonObject>
@@ -7,6 +15,7 @@
 class EventBusIntegrationTest : public QObject {
   Q_OBJECT
 private slots:
+  // Emit slaveChanged and verify received data
   void testSlaveChangedIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);
@@ -28,6 +37,7 @@ private slots:
     QCOMPARE(received.at(1).position, 2);
   }
 
+  // Emit multiple SDO values and verify arguments
   void testSdoValueIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::sdoValueReceived);
@@ -46,6 +56,7 @@ private slots:
     QCOMPARE(args2.at(1).toString(), QString("0x6041"));
   }
 
+  // Emit connection state changes and verify signals
   void testConnectionStateIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::connectionStateChanged);
@@ -58,6 +69,7 @@ private slots:
     QVERIFY(!spy.at(1).at(0).toBool());
   }
 
+  // Emit topologyChanged and verify slave data
   void testTopologyChangedIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::topologyChanged);
@@ -75,6 +87,7 @@ private slots:
     QCOMPARE(received.at(0).name, QString("TopologySlave"));
   }
 
+  // Emit DC sync update and verify JSON fields
   void testDcSyncUpdateIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::dcSyncUpdate);
@@ -88,6 +101,7 @@ private slots:
     QVERIFY(received.contains("sync0"));
   }
 
+  // Emit AL event and verify slave and code fields
   void testAlEventIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::alEvent);
@@ -101,6 +115,7 @@ private slots:
     QCOMPARE(received["code"].toInt(), 0x001A);
   }
 
+  // Emit signal data and verify channel index
   void testSignalDataIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::signalData);
@@ -114,6 +129,7 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toInt(), 0);
   }
 
+  // Emit free-run telemetry and verify JSON fields
   void testFreeRunTelemetryIntegration() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::freeRunTelemetry);

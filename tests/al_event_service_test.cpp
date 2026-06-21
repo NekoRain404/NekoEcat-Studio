@@ -1,5 +1,11 @@
-// al_event_service_test — tests for AlEventService signal forwarding and
-// AlEventPlugin identity/accessibility methods.
+// AlEventServiceTest / AlEventPluginTest — Tests for AlEventService and AlEventPlugin
+//
+// Test coverage:
+//   - Signal forwarding from EcatClient
+//   - Error forwarding
+//   - Polling requires connection
+//   - Plugin identity and accessibility
+//   - Table population and severity filtering
 
 #include <QTest>
 #include <QApplication>
@@ -84,6 +90,7 @@ private slots:
 class AlEventPluginTest : public QObject {
   Q_OBJECT
 private slots:
+  // Verify plugin id, display names (EN/ZH)
   void testIdentity() {
     EventBus bus;
     EcatClient client;
@@ -94,6 +101,7 @@ private slots:
     QCOMPARE(plugin.displayNameZh(), QString("AL事件"));
   }
 
+  // Verify default ordering value
   void testDefaultOrder() {
     EventBus bus;
     EcatClient client;
@@ -102,6 +110,7 @@ private slots:
     QCOMPARE(plugin.defaultOrder(), 65);
   }
 
+  // Verify plugin is visible
   void testVisible() {
     EventBus bus;
     EcatClient client;
@@ -110,6 +119,7 @@ private slots:
     QVERIFY(plugin.visible());
   }
 
+  // Verify main widget is created
   void testWidgetNotNull() {
     EventBus bus;
     EcatClient client;

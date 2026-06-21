@@ -1,4 +1,10 @@
-// Tests for AdapterHandler — network adapter discovery and configuration.
+// AdapterHandlerTest — Tests for AdapterHandler
+//
+// Test coverage:
+//   - Network adapter discovery and listing
+//   - Adapter field validation
+//   - Set adapter rejection (empty/invalid)
+//   - Loopback exclusion from list
 
 #include <QTest>
 #include <QJsonObject>

@@ -1,4 +1,11 @@
-// Unit tests for StateRecommendationModel.
+// StateRecommendationModelTest — Tests for StateRecommendationModel
+//
+// Test coverage:
+//   - INIT state recommends PREOP
+//   - PREOP requires PDO and Watch evidence for SAFEOP
+//   - SAFEOP requires clean process evidence and consistency for OP
+//   - OP and unknown states have no recommendation
+
 #include "models/EvidenceModel.h"
 
 #include <QCoreApplication>
@@ -26,6 +33,7 @@ EthercatStateEvidence evidence(QString state) {
   return item;
 }
 
+// Test INIT recommends PREOP with case-insensitive matching
 void testInitRecommendsPreop() {
   expectEqual(recommendedEthercatState(evidence("INIT")), "PREOP",
               "INIT recommends PREOP");
@@ -33,6 +41,7 @@ void testInitRecommendsPreop() {
               "state matching is trimmed and case-insensitive");
 }
 
+// Test PREOP requires both PDO and Watch values for SAFEOP recommendation
 void testPreopRequiresPdoAndWatchEvidence() {
   EthercatStateEvidence item = evidence("PREOP");
   expectEqual(recommendedEthercatState(item), QString(),
@@ -47,6 +56,7 @@ void testPreopRequiresPdoAndWatchEvidence() {
               "PREOP with PDO and Watch values recommends SAFEOP");
 }
 
+// Test SAFEOP requires clean process evidence and consistency for OP
 void testSafeopRequiresCleanProcessEvidenceAndConsistency() {
   EthercatStateEvidence item = evidence("SAFEOP");
   item.pdoLoaded = true;
@@ -76,6 +86,7 @@ void testSafeopRequiresCleanProcessEvidenceAndConsistency() {
               "SAFEOP without process evidence does not recommend OP");
 }
 
+// Test OP and unknown states have no recommendation
 void testOpAndUnknownHaveNoRecommendation() {
   expectEqual(recommendedEthercatState(evidence("OP")), QString(),
               "OP has no next-state recommendation");

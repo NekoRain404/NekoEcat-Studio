@@ -1,6 +1,13 @@
 #include "WatchService.h"
 #include "EcatClient.h"
 
+// WatchService.cpp — Live SDO watch window with add/remove/refresh operations
+//
+// Implementation notes:
+//   - Maintains a list of WatchEntry items (position, index, subIndex, type)
+//   - refreshAll() triggers upload for each entry via EcatClient
+//   - Tracks previous values and change flags per entry
+
 WatchService::WatchService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {}
 

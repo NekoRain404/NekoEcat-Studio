@@ -1,4 +1,12 @@
-// Unit tests for SdoHistoryRowDetail.
+// SdoHistoryRowDetailTest — Tests for SDO History Row Detail
+//
+// Test coverage:
+//   - Ready row detail text generation
+//   - Unavailable and no-selection states
+//   - Time, action, slave, object, type, value, status field rendering
+//   - Reuse status (fill target only, reusable, review failure, waiting)
+//   - Localized text support
+//   - Summary pattern formatting
 #include "detail/SdoHistoryRowDetail.h"
 
 #include <QCoreApplication>
@@ -87,6 +95,8 @@ SdoHistoryRow readyRow() {
   return row;
 }
 
+// Verify unavailable and no-selection empty states
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   SdoHistoryRowDetailState state =
       sdoHistoryRowDetailUnavailableState(englishTexts());
@@ -101,6 +111,8 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Verify severity rules: ok for complete read, error for failed, warning for requested
+// Test severity key rules for completed, failed, requested, write, and missing target
 void testSeverityRules() {
   const SdoHistoryRowDetailTexts texts = englishTexts();
   SdoHistoryRow row = readyRow();
@@ -126,6 +138,8 @@ void testSeverityRules() {
               "missing target is warning");
 }
 
+// Build selected row state and verify summary, tooltip, reuse text
+// Test selected row state with full detail text and tooltip generation
 void testSelectedRowState() {
   const SdoHistoryRow row = readyRow();
   const SdoHistoryRowDetailState state =
@@ -150,6 +164,8 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Handle localized and fallback state with missing fields
+// Test localized action/status text and missing field fallbacks
 void testLocalizedAndFallbackState() {
   SdoHistoryRow row;
   row.row = 0;

@@ -1,4 +1,10 @@
-// Unit tests for SlaveEvidenceDetail.
+// SlaveEvidenceDetailTest — Tests for SlaveEvidenceDetail
+//
+// Test coverage:
+//   - Display name and state fallbacks for blank/whitespace
+//   - UI row cell generation, readiness percentage, and detail lines
+//   - Matrix header generation
+
 #include "detail/SlaveEvidenceDetail.h"
 
 #include <QCoreApplication>
@@ -88,6 +94,8 @@ SlaveEvidenceUiTexts englishTexts() {
   };
 }
 
+// Test blank name/state fallbacks and trimmed name display
+// Test display name and state fallbacks for blank/whitespace values
 void testDisplayFallbacks() {
   const SlaveEvidenceUiTexts texts = englishTexts();
   expectEqual(slaveEvidenceDisplayName("  ", texts), "Unnamed",
@@ -98,6 +106,8 @@ void testDisplayFallbacks() {
               "slave name is trimmed");
 }
 
+// Test UI row cells, readiness percentage, risk text, and detail lines
+// Test UI row cell values and detail line generation
 void testUiRowCellsAndDetails() {
   const SlaveEvidenceUiTexts texts = englishTexts();
   SlaveEvidenceRow row;
@@ -135,6 +145,8 @@ void testUiRowCellsAndDetails() {
               "detail risk line");
 }
 
+// Test matrix header count and first/last header values
+// Test matrix header generation with correct count and order
 void testMatrixHeaders() {
   const QStringList headers = slaveEvidenceMatrixHeaders(englishTexts());
   expectEqual(headers.size(), 12, "matrix header count");

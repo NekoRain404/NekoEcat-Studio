@@ -20,7 +20,8 @@ public:
     virtual QString pdos(const QString &master, int position, QString *error = nullptr) const = 0;
     virtual QString sdos(const QString &master, int position, QString *error = nullptr) const = 0;
     virtual QString upload(const QString &master, int position, const QString &index,
-                           const QString &subIndex, QString *error = nullptr) const = 0;
+                           const QString &subIndex, const QString &type = QString(),
+                           QString *error = nullptr) const = 0;
     virtual bool download(const QString &master, int position, const QString &index,
                           const QString &subIndex, const QString &value,
                           const QString &type, QString *error = nullptr) const = 0;
@@ -30,4 +31,6 @@ public:
                               QString *error = nullptr) const = 0;
     virtual bool rescan(const QString &master, QString *error = nullptr) const = 0;
     virtual QJsonArray hostDiagnostics(QString *error = nullptr) const = 0;
+
+    virtual bool isNative() const { return false; }
 };

@@ -1,4 +1,10 @@
-// Unit tests for DiagnosticsEventDetail.
+// DiagnosticsEventDetailTest — Tests for DiagnosticsEventDetail
+//
+// Test coverage:
+//   - Table headers and color key mapping
+//   - Empty summary state
+//   - Summary counts for visible and hidden rows
+//   - Level counts ignore unknown levels
 #include "detail/DiagnosticsEventDetail.h"
 
 #include <QCoreApplication>
@@ -43,6 +49,8 @@ DiagnosticsEventTexts englishTexts() {
   };
 }
 
+// Verify table headers and severity color key mapping
+// Verify table headers and color key mapping for error/warning/info
 void testHeadersAndColorKeys() {
   const QStringList headers = diagnosticsEventHeaders(englishTexts());
   expectEqual(headers.size(), 4, "diagnostics header count");
@@ -55,6 +63,8 @@ void testHeadersAndColorKeys() {
   expectEqual(diagnosticsEventColorKey("Debug"), "info", "fallback color key");
 }
 
+// Verify empty summary has zero counts and default text
+// Verify empty summary has zero counts and "No diagnostics" text
 void testEmptySummary() {
   const DiagnosticsEventSummary summary =
       diagnosticsEventSummary({}, englishTexts());
@@ -63,6 +73,8 @@ void testEmptySummary() {
   expectEqual(summary.text, "No diagnostics", "empty summary");
 }
 
+// Verify summary counts visible and hidden rows with level breakdown
+// Verify summary counts visible/hidden rows and per-level breakdown
 void testSummaryCountsVisibleAndHiddenRows() {
   const QList<DiagnosticsEventRowState> rows = {
       {.level = "Error", .visible = true},
@@ -81,6 +93,8 @@ void testSummaryCountsVisibleAndHiddenRows() {
               "summary text");
 }
 
+// Verify level counts handle unknown levels gracefully
+// Verify level counts include unknown levels in total but not in breakdown
 void testLevelCountsIgnoreUnknownLevels() {
   const DiagnosticsEventSummary counts =
       diagnosticsEventCounts({"Error", "Warning", "Info", "Debug", "Error"});

@@ -1,3 +1,11 @@
+// ConsistencyRouteModelTest — Tests for ConsistencyEvidenceRouteModel
+//
+// Test coverage:
+//   - Address and startup row parsing
+//   - Route kind decisions
+//   - I/O scope resolution
+//   - Decision payload with address and startup row
+
 // Unit tests for ConsistencyEvidenceRouteModel.
 #include "models/ConsistencyModel.h"
 
@@ -36,6 +44,7 @@ void expectKind(ConsistencyEvidenceRouteKind actual,
   }
 }
 
+// Parse slave address and startup row from text
 void testAddressAndStartupParsing() {
   ConsistencyEvidenceAddress address =
       parseConsistencyEvidenceAddress("#12 0x6040:0x0");
@@ -51,6 +60,7 @@ void testAddressAndStartupParsing() {
   expectEqual(parseConsistencyStartupRow("启动行 2"), 1, "Chinese startup row");
 }
 
+// Verify route kind decisions for topology, startup, watch, and I/O
 void testRouteKinds() {
   expectKind(consistencyEvidenceRouteDecision({.scope = "Topology"}).kind,
              ConsistencyEvidenceRouteKind::Topology, "topology route");
@@ -63,6 +73,7 @@ void testRouteKinds() {
              ConsistencyEvidenceRouteKind::IoVariables, "default I/O route");
 }
 
+// Verify I/O scope resolution for PLC, startup diff, missing value, PDO
 void testIoScopes() {
   expectEqual(consistencyEvidenceIoScope({.action = "PLC alias missing"}),
               QString::fromLatin1(kConsistencyIoScopePlcIssues), "PLC scope");
@@ -78,6 +89,7 @@ void testIoScopes() {
               QString::fromLatin1(kConsistencyIoScopeAll), "default scope");
 }
 
+// Verify full decision payload with address, startup row, and scope
 void testDecisionPayload() {
   const ConsistencyEvidenceRouteDecision route =
       consistencyEvidenceRouteDecision(

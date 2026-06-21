@@ -1,3 +1,10 @@
+// LargeDataBoundaryTest — Tests for EventBus boundary conditions
+//
+// Test coverage:
+//   - Large slave and topology vector handling
+//   - Large signal data and JSON object payloads
+//   - Multiple sequential emissions
+
 #include <QTest>
 #include <QVector>
 #include <QSignalSpy>
@@ -7,6 +14,7 @@
 class LargeDataBoundaryTest : public QObject {
   Q_OBJECT
 private slots:
+  // Test emitting 1000 slave entries via signal
   void testLargeSlaveVector() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);
@@ -28,6 +36,7 @@ private slots:
     QCOMPARE(received.at(999).name, QString("Slave_999"));
   }
 
+  // Test emitting 500 topology entries via signal
   void testLargeTopologyVector() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::topologyChanged);
@@ -47,6 +56,7 @@ private slots:
     QCOMPARE(received.size(), 500);
   }
 
+  // Test emitting 10000 signal data samples
   void testLargeSignalData() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::signalData);
@@ -64,6 +74,8 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toInt(), 0);
   }
 
+  // Verify EventBus handles large JSON object payloads
+  // Test emitting JSON object with 100 keys
   void testLargeJsonObject() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::dcSyncUpdate);
@@ -80,6 +92,8 @@ private slots:
     QCOMPARE(received.size(), 100);
   }
 
+  // Verify EventBus handles 100 sequential emissions
+  // Test 100 rapid slave and SDO emissions
   void testMultipleEmissions() {
     EventBus bus;
     QSignalSpy slaveSpy(&bus, &EventBus::slaveChanged);

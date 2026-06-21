@@ -1,4 +1,11 @@
-// Unit tests for SelectedDriveSummaryDetail.
+// SelectedDriveSummaryDetailTest — Tests for SelectedDriveSummaryDetail
+//
+// Test coverage:
+//   - Fallback states for missing Watch and CiA 402 evidence
+//   - Operation-enabled summary text and severity
+//   - Error code evidence display
+//   - Controlword recommendation logic
+
 #include "detail/SelectedDriveSummaryDetail.h"
 
 #include <QCoreApplication>
@@ -49,6 +56,7 @@ WatchStartupWatchRow watchRow(int position, const QString &index,
   return row;
 }
 
+// Test fallback text and severity when Watch or CiA 402 evidence is missing
 void testNoWatchAndNoCia402Fallbacks() {
   const SelectedDriveSummaryTexts texts = englishTexts();
   SelectedDriveSummaryDetail state = selectedDriveNoWatchEvidenceState(texts);
@@ -63,6 +71,7 @@ void testNoWatchAndNoCia402Fallbacks() {
   expectEqual(state.parts.size(), 0, "no CiA 402 parts");
 }
 
+// Test summary text when drive is in operation-enabled state
 void testOperationEnabledSummary() {
   const QVector<WatchStartupWatchRow> rows = {
       watchRow(2, "0x6041", "0x0037", "Operation enabled (0x0037, voltage)"),
@@ -82,6 +91,7 @@ void testOperationEnabledSummary() {
   expectEqual(state.parts.size(), 3, "operation enabled part count");
 }
 
+// Test error code display and severity in summary
 void testErrorCodeEvidence() {
   const SelectedDriveSummaryTexts texts = englishTexts();
   SelectedDriveSummaryDetail state = buildSelectedDriveSummaryDetail(
@@ -96,6 +106,7 @@ void testErrorCodeEvidence() {
   expectEqual(state.severityKey, "error", "non-zero error severity");
 }
 
+// Test controlword recommendation based on statusword
 void testRecommendedControlword() {
   Cia402ControlwordRecommendation recommendation =
       selectedDriveControlwordRecommendation(

@@ -1,4 +1,11 @@
-// Unit tests for SdoTargetPanelRouteModel.
+// SdoTargetPanelRouteModelTest — Tests for SDO Target Panel Route Model
+//
+// Test coverage:
+//   - Evidence row routing (review, digest, watch, startup, bookmark, trail)
+//   - Copy action kind selection (review, digest, focus OD)
+//   - Dictionary and link row routing
+//   - Fallback routing for unknown row types
+//   - Localized row label handling
 #include "models/SdoEvidenceModel.h"
 
 #include <cstdlib>
@@ -26,6 +33,8 @@ void expectCopyAction(SdoTargetPanelCopyActionKind actual,
   }
 }
 
+// Verify evidence row routing (review, digest) and copy actions
+// Test evidence row routing and copy action selection
 void testEvidenceRows() {
   auto decision = sdoTargetPanelRouteDecision("Evidence Set", true);
   expectRoute(decision.routeKind, SdoTargetPanelRouteKind::EvidenceReview,
@@ -42,6 +51,8 @@ void testEvidenceRows() {
                    "Write Delta copy action explains no delta");
 }
 
+// Verify link and dictionary row routing (Watch, Startup, Bookmark, Trail, OD)
+// Test evidence link and dictionary row routing
 void testEvidenceLinksAndDictionaryRows() {
   expectRoute(sdoTargetPanelRouteDecision("Watch 关联", false).routeKind,
               SdoTargetPanelRouteKind::Watch, "Watch link route");
@@ -59,6 +70,8 @@ void testEvidenceLinksAndDictionaryRows() {
       "Read Value copy action focuses dictionary");
 }
 
+// Verify fallback routing for unknown row types
+// Test fallback routing for unknown row types
 void testFallbackRows() {
   const auto decision = sdoTargetPanelRouteDecision("Safety", true);
   expectRoute(decision.routeKind, SdoTargetPanelRouteKind::CopyDigest,

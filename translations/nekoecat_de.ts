@@ -7912,4 +7912,745 @@
             <translation>Massen-Überwachungslesen</translation>
         </message>
     </context>
+    <context>
+        <name>TopologyPlugin</name>
+        <message>
+            <source>Linear Layout</source>
+            <translation>Lineares Layout</translation>
+        </message>
+        <message>
+            <source>Tree Layout</source>
+            <translation>Baum-Layout</translation>
+        </message>
+        <message>
+            <source>Zoom In</source>
+            <translation>Vergrößern</translation>
+        </message>
+        <message>
+            <source>Zoom Out</source>
+            <translation>Verkleinern</translation>
+        </message>
+        <message>
+            <source>Fit</source>
+            <translation>Anpassen</translation>
+        </message>
+    </context>
+    <context>
+        <name>EsiPlugin</name>
+        <message>
+            <source>Filter devices...</source>
+            <translation>Geräte filtern...</translation>
+        </message>
+        <message>
+            <source>Import ESI</source>
+            <translation>ESI importieren</translation>
+        </message>
+        <message>
+            <source>Export</source>
+            <translation>Exportieren</translation>
+        </message>
+        <message>
+            <source>Refresh</source>
+            <translation>Aktualisieren</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>Eigenschaft</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>Wert</translation>
+        </message>
+        <message>
+            <source>No ESI files loaded</source>
+            <translation>Keine ESI-Dateien geladen</translation>
+        </message>
+        <message>
+            <source>Import ESI XML</source>
+            <translation>ESI XML importieren</translation>
+        </message>
+        <message>
+            <source>Export ESI XML</source>
+            <translation>ESI XML exportieren</translation>
+        </message>
+        <message>
+            <source>%n device(s) in repository</source>
+            <translation>%n Gerät(e) im Repository</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Name</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>Typ</translation>
+        </message>
+        <message>
+            <source>Vendor ID</source>
+            <translation>Hersteller-ID</translation>
+        </message>
+        <message>
+            <source>Product Code</source>
+            <translation>Produktcode</translation>
+        </message>
+        <message>
+            <source>Revision</source>
+            <translation>Revision</translation>
+        </message>
+        <message>
+            <source>Description</source>
+            <translation>Beschreibung</translation>
+        </message>
+        <message>
+            <source>Rx PDOs</source>
+            <translation>Rx PDOs</translation>
+        </message>
+        <message>
+            <source>Tx PDOs</source>
+            <translation>Tx PDOs</translation>
+        </message>
+        <message>
+            <source>Sync Managers</source>
+            <translation>Synchronisationsmanager</translation>
+        </message>
+    </context>
+    <context>
+        <name>BusStatsPlugin</name>
+        <message>
+            <source>Start Monitoring</source>
+            <translation>Überwachung starten</translation>
+        </message>
+        <message>
+            <source>Stop Monitoring</source>
+            <translation>Überwachung stoppen</translation>
+        </message>
+        <message>
+            <source>Stopped</source>
+            <translation>Gestoppt</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>Läuft</translation>
+        </message>
+        <message>
+            <source>Frame Rate: --</source>
+            <translation>Bildrate: --</translation>
+        </message>
+        <message>
+            <source>Bandwidth: --</source>
+            <translation>Bandbreite: --</translation>
+        </message>
+        <message>
+            <source>Metric</source>
+            <translation>Kennzahl</translation>
+        </message>
+        <message>
+            <source>TX Frames</source>
+            <translation>TX-Frames</translation>
+        </message>
+        <message>
+            <source>RX Frames</source>
+            <translation>RX-Frames</translation>
+        </message>
+        <message>
+            <source>TX Errors</source>
+            <translation>TX-Fehler</translation>
+        </message>
+        <message>
+            <source>RX Errors</source>
+            <translation>RX-Fehler</translation>
+        </message>
+        <message>
+            <source>CRC Errors</source>
+            <translation>CRC-Fehler</translation>
+        </message>
+        <message>
+            <source>Lost Frames</source>
+            <translation>Verlorene Frames</translation>
+        </message>
+        <message>
+            <source>Total Errors</source>
+            <translation>Gesamtfehler</translation>
+        </message>
+        <message>
+            <source>Uptime</source>
+            <translation>Betriebszeit</translation>
+        </message>
+        <message>
+            <source>Frame Rate: %1 f/s</source>
+            <translation>Bildrate: %1 Bilder/s</translation>
+        </message>
+        <message>
+            <source>Bandwidth: %1 Mbps</source>
+            <translation>Bandbreite: %1 Mbps</translation>
+        </message>
+    </context>
+    <context>
+        <name>StartupSdoPlugin</name>
+        <message>
+            <source>Diffs Only</source>
+            <translation>Nur Diffs</translation>
+        </message>
+        <message>
+            <source>Slave</source>
+            <translation>Slave</translation>
+        </message>
+        <message>
+            <source>Index</source>
+            <translation>Index</translation>
+        </message>
+        <message>
+            <source>Sub</source>
+            <translation>Sub</translation>
+        </message>
+        <message>
+            <source>Status</source>
+            <translation>Status</translation>
+        </message>
+        <message>
+            <source>Detail</source>
+            <translation>Detail</translation>
+        </message>
+        <message>
+            <source>Watch Value</source>
+            <translation>Überwachungswert</translation>
+        </message>
+        <message>
+            <source>Watch Delta</source>
+            <translation>Überwachungs-Delta</translation>
+        </message>
+    </context>
+    <context>
+        <name>SignalPlugin</name>
+        <message>
+            <source>Channels</source>
+            <translation>Kanäle</translation>
+        </message>
+        <message>
+            <source>Add channel</source>
+            <translation>Kanal hinzufügen</translation>
+        </message>
+        <message>
+            <source>Remove selected channel</source>
+            <translation>Ausgewählten Kanal entfernen</translation>
+        </message>
+        <message>
+            <source>Window</source>
+            <translation>Fenster</translation>
+        </message>
+        <message>
+            <source>Add Signal Channel</source>
+            <translation>Signalkanal hinzufügen</translation>
+        </message>
+        <message>
+            <source>e.g. actual_position</source>
+            <translation>z.B. actual_position</translation>
+        </message>
+        <message>
+            <source>e.g. 0x6064</source>
+            <translation>z.B. 0x6064</translation>
+        </message>
+        <message>
+            <source>SubIndex</source>
+            <translation>SubIndex</translation>
+        </message>
+    </context>
+    <context>
+        <name>AlEventPlugin</name>
+        <message>
+            <source>All</source>
+            <translation>Alle</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Fehler</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>Warnung</translation>
+        </message>
+        <message>
+            <source>Info</source>
+            <translation>Info</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Löschen</translation>
+        </message>
+        <message>
+            <source>Time</source>
+            <translation>Zeit</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>Code</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>Schweregrad</translation>
+        </message>
+    </context>
+    <context>
+        <name>DcSyncPlugin</name>
+        <message>
+            <source>Position</source>
+            <translation>Position</translation>
+        </message>
+        <message>
+            <source>DC Capable</source>
+            <translation>DC-fähig</translation>
+        </message>
+        <message>
+            <source>Syncing</source>
+            <translation>Synchronisierung</translation>
+        </message>
+        <message>
+            <source>Drift (ns)</source>
+            <translation>Drift (ns)</translation>
+        </message>
+        <message>
+            <source>Jitter Min</source>
+            <translation>Jitter Min</translation>
+        </message>
+        <message>
+            <source>Jitter Max</source>
+            <translation>Jitter Max</translation>
+        </message>
+        <message>
+            <source>Jitter Avg</source>
+            <translation>Jitter Ø</translation>
+        </message>
+        <message>
+            <source>Ref Clock</source>
+            <translation>Referenztakt</translation>
+        </message>
+        <message>
+            <source>Yes</source>
+            <translation>Ja</translation>
+        </message>
+        <message>
+            <source>No</source>
+            <translation>Nein</translation>
+        </message>
+    </context>
+    <context>
+        <name>NotesPlugin</name>
+        <message>
+            <source>Enter project notes here...</source>
+            <translation>Projektnotizen hier eingeben...</translation>
+        </message>
+    </context>
+    <context>
+        <name>RtTestPlugin</name>
+        <message>
+            <source>Start</source>
+            <translation>Start</translation>
+        </message>
+        <message>
+            <source>Stop</source>
+            <translation>Stopp</translation>
+        </message>
+        <message>
+            <source>Cycle:</source>
+            <translation>Zyklus:</translation>
+        </message>
+        <message>
+            <source>Custom...</source>
+            <translation>Benutzerdefiniert...</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>Leerlauf</translation>
+        </message>
+        <message>
+            <source>Min \xC2\xB5s</source>
+            <translation>Min \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Max \xC2\xB5s</source>
+            <translation>Max \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Avg \xC2\xB5s</source>
+            <translation>Ø \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Jitter \xC2\xB5s</source>
+            <translation>Jitter \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Cycles</source>
+            <translation>Zyklen</translation>
+        </message>
+        <message>
+            <source>Errors</source>
+            <translation>Fehler</translation>
+        </message>
+        <message>
+            <source>Loss %</source>
+            <translation>Verlust %</translation>
+        </message>
+        <message>
+            <source>Cycle log...</source>
+            <translation>Zyklusprotokoll...</translation>
+        </message>
+        <message>
+            <source>Cycle Latency (\xC2\xB5s)</source>
+            <translation>Zyklus-Latenz (\xC2\xB5s)</translation>
+        </message>
+        <message>
+            <source>Avg</source>
+            <translation>Ø</translation>
+        </message>
+        <message>
+            <source>Max</source>
+            <translation>Max</translation>
+        </message>
+        <message>
+            <source>Min</source>
+            <translation>Min</translation>
+        </message>
+        <message>
+            <source>Jitter: %1 \xC2\xB5s</source>
+            <translation>Jitter: %1 \xC2\xB5s</translation>
+        </message>
+    </context>
+    <context>
+        <name>ExportPlugin</name>
+        <message>
+            <source>Export %1</source>
+            <translation>%1 exportieren</translation>
+        </message>
+        <message>
+            <source>No entries are available to export.</source>
+            <translation>Keine Einträge zum Exportieren verfügbar.</translation>
+        </message>
+        <message>
+            <source>Export %1 CSV</source>
+            <translation>%1 CSV exportieren</translation>
+        </message>
+        <message>
+            <source>Export failed</source>
+            <translation>Export fehlgeschlagen</translation>
+        </message>
+        <message>
+            <source>Exported %1 row(s): %2</source>
+            <translation>%1 Zeile(n) exportiert: %2</translation>
+        </message>
+        <message>
+            <source>No data is available to export.</source>
+            <translation>Keine Daten zum Exportieren verfügbar.</translation>
+        </message>
+        <message>
+            <source>Exported %1 node(s): %2</source>
+            <translation>%1 Knoten exportiert: %2</translation>
+        </message>
+        <message>
+            <source>Exported: %1</source>
+            <translation>Exportiert: %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>SessionPlugin</name>
+        <message>
+            <source>Area</source>
+            <translation>Bereich</translation>
+        </message>
+        <message>
+            <source>Evidence</source>
+            <translation>Nachweis</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Weiter</translation>
+        </message>
+        <message>
+            <source>Copy Row</source>
+            <translation>Zeile kopieren</translation>
+        </message>
+        <message>
+            <source>%1 rows</source>
+            <translation>%1 Zeilen</translation>
+        </message>
+        <message>
+            <source>Copy: %1</source>
+            <translation>Kopieren: %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>DiagnosticsPlugin</name>
+        <message>
+            <source>Filter diagnostics...</source>
+            <translation>Diagnose filtern...</translation>
+        </message>
+        <message>
+            <source>Timestamp</source>
+            <translation>Zeitstempel</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>Ebene</translation>
+        </message>
+        <message>
+            <source>Message</source>
+            <translation>Nachricht</translation>
+        </message>
+        <message>
+            <source>No topology baseline</source>
+            <translation>Keine Topologie-Basislinie</translation>
+        </message>
+        <message>
+            <source>Capture Baseline</source>
+            <translation>Basislinie erfassen</translation>
+        </message>
+        <message>
+            <source>Clear Baseline</source>
+            <translation>Basislinie löschen</translation>
+        </message>
+        <message>
+            <source>%1 shown | %2 errors | %3 warnings</source>
+            <translation>%1 angezeigt | %2 Fehler | %3 Warnungen</translation>
+        </message>
+        <message>
+            <source>Export Diagnostics Report</source>
+            <translation>Diagnosebericht exportieren</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConsistencyPlugin</name>
+        <message>
+            <source>Errors</source>
+            <translation>Fehler</translation>
+        </message>
+        <message>
+            <source>Warnings</source>
+            <translation>Warnungen</translation>
+        </message>
+        <message>
+            <source>Topology</source>
+            <translation>Topologie</translation>
+        </message>
+        <message>
+            <source>Startup</source>
+            <translation>Start</translation>
+        </message>
+        <message>
+            <source>Ready</source>
+            <translation>Bereit</translation>
+        </message>
+        <message>
+            <source>Filter consistency rows...</source>
+            <translation>Konsistenzzeilen filtern...</translation>
+        </message>
+        <message>
+            <source>Scope</source>
+            <translation>Bereich</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>Ziel</translation>
+        </message>
+        <message>
+            <source>Expected</source>
+            <translation>Erwartet</translation>
+        </message>
+        <message>
+            <source>Actual</source>
+            <translation>Tatsächlich</translation>
+        </message>
+        <message>
+            <source>%1 rows | errors %2 | warnings %3 | info %4 | ready %5</source>
+            <translation>%1 Zeilen | Fehler %2 | Warnungen %3 | Info %4 | Bereit %5</translation>
+        </message>
+    </context>
+    <context>
+        <name>StateMachinePlugin</name>
+    </context>
+    <context>
+        <name>IoVariablePlugin</name>
+        <message>
+            <source>Process</source>
+            <translation>Prozess</translation>
+        </message>
+        <message>
+            <source>PLC Issues</source>
+            <translation>PLC-Probleme</translation>
+        </message>
+        <message>
+            <source>Filter I/O variables...</source>
+            <translation>I/O-Variablen filtern...</translation>
+        </message>
+    </context>
+    <context>
+        <name>FreeRunPlugin</name>
+        <message>
+            <source>Filter free run entries...</source>
+            <translation>Freilauf-Einträge filtern...</translation>
+        </message>
+        <message>
+            <source>Changed only</source>
+            <translation>Nur geänderte</translation>
+        </message>
+    </context>
+    <context>
+        <name>WatchPlugin</name>
+        <message>
+            <source>Filter watch rows...</source>
+            <translation>Überwachungszeilen filtern...</translation>
+        </message>
+        <message>
+            <source>Auto refresh</source>
+            <translation>Automatisch aktualisieren</translation>
+        </message>
+        <message>
+            <source>500 ms</source>
+            <translation>500 ms</translation>
+        </message>
+        <message>
+            <source>1 s</source>
+            <translation>1 s</translation>
+        </message>
+        <message>
+            <source>2 s</source>
+            <translation>2 s</translation>
+        </message>
+        <message>
+            <source>5 s</source>
+            <translation>5 s</translation>
+        </message>
+        <message>
+            <source>Decoded</source>
+            <translation>Decodiert</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>Modus</translation>
+        </message>
+        <message>
+            <source>Baseline</source>
+            <translation>Basislinie</translation>
+        </message>
+        <message>
+            <source>Delta</source>
+            <translation>Delta</translation>
+        </message>
+        <message>
+            <source>Startup Delta</source>
+            <translation>Start-Delta</translation>
+        </message>
+    </context>
+    <context>
+        <name>OdPlugin</name>
+        <message>
+            <source>All Objects</source>
+            <translation>Alle Objekte</translation>
+        </message>
+        <message>
+            <source>CoE Objects</source>
+            <translation>CoE-Objekte</translation>
+        </message>
+        <message>
+            <source>CiA 402</source>
+            <translation>CiA 402</translation>
+        </message>
+        <message>
+            <source>Identity</source>
+            <translation>Identität</translation>
+        </message>
+        <message>
+            <source>PDO Mapping</source>
+            <translation>PDO-Mapping</translation>
+        </message>
+        <message>
+            <source>Error/Diag</source>
+            <translation>Fehler/Diagnose</translation>
+        </message>
+        <message>
+            <source>All Access</source>
+            <translation>Alle Zugriffe</translation>
+        </message>
+        <message>
+            <source>Read/Write</source>
+            <translation>Lesen/Schreiben</translation>
+        </message>
+        <message>
+            <source>Read Only</source>
+            <translation>Nur Lesen</translation>
+        </message>
+        <message>
+            <source>Filter OD rows...</source>
+            <translation>OD-Zeilen filtern...</translation>
+        </message>
+        <message>
+            <source>Object</source>
+            <translation>Objekt</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>Bits</translation>
+        </message>
+        <message>
+            <source>Last Value</source>
+            <translation>Letzter Wert</translation>
+        </message>
+        <message>
+            <source>Index (0x)</source>
+            <translation>Index (0x)</translation>
+        </message>
+        <message>
+            <source>Use</source>
+            <translation>Verwenden</translation>
+        </message>
+        <message>
+            <source>Value to write</source>
+            <translation>Zu schreibender Wert</translation>
+        </message>
+        <message>
+            <source>Run Row Action</source>
+            <translation>Zeilenaktion ausführen</translation>
+        </message>
+        <message>
+            <source>Copy row</source>
+            <translation>Zeile kopieren</translation>
+        </message>
+        <message>
+            <source>Key</source>
+            <translation>Schlüssel</translation>
+        </message>
+        <message>
+            <source>Action</source>
+            <translation>Aktion</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>Quelle</translation>
+        </message>
+        <message>
+            <source>Slave Name</source>
+            <translation>Slave-Name</translation>
+        </message>
+        <message>
+            <source>%1 obj | %2 vis | %3 evidence | %4 fail | %5 rw</source>
+            <translation>%1 Obj. | %2 sichtb. | %3 Nachw. | %4 Fehler | %5 LS</translation>
+        </message>
+    </context>
+    <context>
+        <name>OverviewPlugin</name>
+        <message>
+            <source>Details</source>
+            <translation>Details</translation>
+        </message>
+        <message>
+            <source>Brief</source>
+            <translation>Kurz</translation>
+        </message>
+        <message>
+            <source>Workflow</source>
+            <translation>Workflow</translation>
+        </message>
+        <message>
+            <source>Matrix</source>
+            <translation>Matrix</translation>
+        </message>
+    </context>
 </TS>

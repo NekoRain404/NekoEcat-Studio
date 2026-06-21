@@ -1,4 +1,10 @@
-// Unit tests for NextBestActionDetail.
+// NextBestActionDetailTest — Tests for NextBestActionDetail
+//
+// Test coverage:
+//   - Basic action detail generation
+//   - Consistency text variants
+//   - Matrix and command palette detail
+
 #include "detail/NextBestActionDetail.h"
 
 #include <QCoreApplication>
@@ -63,6 +69,7 @@ NextBestActionTexts englishTexts() {
   };
 }
 
+// Test connect action detail (key, severity, text, tip, icon)
 void testBasicActionDetail() {
   NextBestActionInput input;
   NextBestActionDecision decision{NextBestActionKind::Connect,
@@ -76,6 +83,7 @@ void testBasicActionDetail() {
   expectIcon(state.icon, NextBestActionIconKey::DriveNet, "connect icon");
 }
 
+// Test consistency text variants (run vs review with blocking issues)
 void testConsistencyTextVariants() {
   NextBestActionInput input;
   NextBestActionDecision decision{NextBestActionKind::Consistency,
@@ -97,6 +105,8 @@ void testConsistencyTextVariants() {
              "review consistency icon");
 }
 
+// Verify matrix risk/action and command palette detail generation
+// Test matrix review and command palette detail generation
 void testMatrixAndCommandPaletteDetail() {
   NextBestActionInput input;
   input.matrixP0 = 1;

@@ -1,4 +1,11 @@
-// Unit tests for WorkflowTableAdapter.
+// WorkflowTableAdapterTest — Tests for Workflow Table Adapter
+//
+// Test coverage:
+//   - Status key storage and retrieval from table cells
+//   - Workflow row initialization with phase, status, step columns
+//   - Table population from workflow data
+//   - Status color and icon mapping
+//   - Filter and sort operations
 #include "adapters/WorkflowTableAdapter.h"
 
 #include <QApplication>
@@ -74,6 +81,7 @@ void initWorkflowTable(QTableWidget *table) {
   setCommissioningWorkflowStatusKey(table, 2, "blocked");
 }
 
+// Test status key storage, row state flags, and structured row extraction
 void testStatusStorageAndState() {
   QTableWidget table;
   initWorkflowTable(&table);
@@ -101,6 +109,7 @@ void testStatusStorageAndState() {
               "workflow row next action");
 }
 
+// Test scope filtering, text search, and issue row navigation
 void testFilteringAndIssueLookup() {
   QTableWidget table;
   initWorkflowTable(&table);

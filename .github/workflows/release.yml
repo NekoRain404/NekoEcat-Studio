@@ -1,0 +1,94 @@
+# Release workflow — build, test, package, and publish on tag push.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CMAKE_BUILD_TYPE: Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Qt6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6
+
+      - name: Install IgH EtherCAT headers
+        run: |
+          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          if [ ! -f /usr/include/ecrt.h ]; then
+            sudo mkdir -p /usr/include
+            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            sudo mkdir -p /usr/lib
+            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+          fi
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -j$(nproc)
+
+      - name: Package
+        run: bash scripts/package-linux.sh "${{ steps.version.outputs.VERSION }}"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            CHANGES=$(git log --pretty=format:"- %s (%h)" "$PREV_TAG"..HEAD)
+          else
+            CHANGES=$(git log --pretty=format:"- %s (%h)")
+          fi
+          echo "CHANGES<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: NekoEcat Studio v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.CHANGES }}
+
+            ## Installation
+            ```bash
+            tar -xzf NekoEcat-Studio-v${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
+            cd NekoEcat-Studio-v${{ steps.version.outputs.VERSION }}-linux-x86_64
+            ./NekoEcat-Studio
+            ```
+          files: |
+            dist/NekoEcat-Studio-v${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
+            dist/NekoEcat-Studio-v${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz.sha256
+          draft: false
+          prerelease: false

@@ -8,8 +8,13 @@
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <cerrno>
 #include <chrono>
+#include <sched.h>
+#include <sys/mman.h>
 #include <thread>
+
+#include <time.h>
 
 namespace {
 constexpr int64_t NsecPerSec = 1000000000LL;
@@ -208,7 +213,10 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     running_ = true;
     activeMasterIndex_ = masterIndex;
     cycleCount_ = 0;
-    status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
+    {
+        std::lock_guard<std::mutex> lock(telemetryMutex_);
+        status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
+    }
     thread_ = std::thread(&FreeRunController::loop, this);
     return true;
 }
@@ -223,7 +231,10 @@ void FreeRunController::stop()
         }
     }
     cleanup();
-    status_ = "Stopped";
+    {
+        std::lock_guard<std::mutex> lock(telemetryMutex_);
+        status_ = "Stopped";
+    }
 }
 
 bool FreeRunController::running() const
@@ -234,6 +245,7 @@ bool FreeRunController::running() const
 // Thread-safe status string for display.
 QString FreeRunController::status() const
 {
+    std::lock_guard<std::mutex> lock(telemetryMutex_);
     return status_;
 }
 
@@ -455,10 +467,38 @@ QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList &
 void FreeRunController::loop()
 {
     // Real-time cycle: receive -> process -> sample state -> queue -> send,
-    // sleeping 1ms between iterations to drive the IgH domain exchange at ~1 kHz.
-    // This is the heartbeat of Free Run — it keeps the bus alive and PDO data flowing.
-    using namespace std::chrono_literals;
+    // at ~1 kHz using absolute-time clock_nanosleep to avoid drift accumulation.
+
+    // Elevate to real-time scheduling — failure is non-fatal, just means less deterministic timing.
+    struct sched_param param{};
+    param.sched_priority = 80;
+    sched_setscheduler(0, SCHED_FIFO, &param);
+
+    // Lock all current and future memory pages to prevent page faults during the RT loop.
+    mlockall(MCL_CURRENT | MCL_FUTURE);
+
+    constexpr uint64_t cycleNsec = 1000000ULL; // 1 ms
+    uint64_t wakeupTime = monotonicNsec();
+
     while (running_) {
+        // Schedule next wake-up using absolute time to avoid drift accumulation.
+        wakeupTime += cycleNsec;
+
+        // Sleep until next cycle — clock_nanosleep with TIMER_ABSTIME avoids drift.
+        struct timespec wake{};
+        wake.tv_sec = static_cast<time_t>(wakeupTime / NsecPerSec);
+        wake.tv_nsec = static_cast<long>(wakeupTime % NsecPerSec);
+        int sleepErr = 0;
+        while ((sleepErr = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &wake, nullptr)) == EINTR) {
+            // Retry on signal interruption.
+        }
+        if (sleepErr != 0) {
+            // EINVAL (invalid time) or EFAULT — break to avoid spinning at full CPU.
+            break;
+        }
+
+        if (!running_) break;
+
         ecrt_master_application_time(master_, monotonicNsec());
         ecrt_master_receive(master_);
         ecrt_domain_process(domain_);
@@ -470,8 +510,13 @@ void FreeRunController::loop()
         ecrt_domain_queue(domain_);
         ecrt_master_send(master_);
         ++cycleCount_;
-        std::this_thread::sleep_for(1ms);
     }
+
+    munlockall();
+
+    // Restore normal scheduling before exiting.
+    struct sched_param normal{};
+    sched_setscheduler(0, SCHED_OTHER, &normal);
 }
 
 QString FreeRunController::alStateText(unsigned int alStates) const
@@ -622,6 +667,7 @@ QString FreeRunController::readEntryDecodedValue(const RuntimeEntry &entry) cons
 void FreeRunController::cleanup()
 {
     // Release the IgH master/domain and reset all runtime state to idle.
+    running_ = false;  // Ensure the RT thread will exit even if stop() was not called.
     if (thread_.joinable()) {
         thread_.join();
     }

@@ -403,11 +403,22 @@ void MainWindow::updateStateMachineRowDetail() {
 
 // Request a single-slave state change with safety confirmation dialog
 void MainWindow::requestSlaveStateWithConfirmation(int position,
-                                                   const QString &state) {
+                                                    const QString &state) {
   if (!client_.isConnected() || position < 0) {
     return;
   }
 // Broadcast a state transition command to all slaves (INIT/PREOP/SAFEOP/OP).
+
+  // Validate the requested state is a valid EtherCAT AL state
+  const QString normalizedState = state.trimmed().toUpper();
+  if (normalizedState != "INIT" && normalizedState != "PREOP" &&
+      normalizedState != "SAFEOP" && normalizedState != "OP") {
+    updateDiagnostics("Error", "State",
+                      uiText("Invalid state transition requested: %1",
+                             "无效的状态切换请求：%1")
+                          .arg(state));
+    return;
+  }
 
   QString currentState = uiText("Unknown", "未知");
   QString slaveName = uiText("Unnamed", "未命名");
@@ -419,6 +430,16 @@ void MainWindow::requestSlaveStateWithConfirmation(int position,
           slave.name.trimmed().isEmpty() ? slaveName : slave.name.trimmed();
       break;
     }
+  }
+
+  // Detect redundant state transitions
+  if (currentState.trimmed().toUpper() == normalizedState) {
+    updateDiagnostics("Info", "State",
+                      uiText("Slave #%1 is already in %2 state",
+                             "从站 #%1 已在 %2 状态")
+                          .arg(position)
+                          .arg(state));
+    return;
   }
 
   QStringList details = {
@@ -445,6 +466,17 @@ void MainWindow::requestSlaveStateWithConfirmation(int position,
 // Broadcast a state request to every detected slave with confirmation
 void MainWindow::requestAllSlaveState(const QString &state) {
   if (!client_.isConnected() || slaves_.isEmpty()) {
+    return;
+  }
+
+  // Validate the requested state is a valid EtherCAT AL state
+  const QString normalizedState = state.trimmed().toUpper();
+  if (normalizedState != "INIT" && normalizedState != "PREOP" &&
+      normalizedState != "SAFEOP" && normalizedState != "OP") {
+    updateDiagnostics("Error", "State",
+                      uiText("Invalid state transition requested: %1",
+                             "无效的状态切换请求：%1")
+                          .arg(state));
     return;
   }
 

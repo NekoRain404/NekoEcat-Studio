@@ -1,0 +1,271 @@
+# NekoEcat Studio v3.5.0 Developer Guide
+
+## Architecture Overview
+
+NekoEcat Studio follows a modular architecture:
+
+```
+NekoEcatStudio/
+├── src/core/          # Shared libraries (EthercatTypes, JsonProtocol)
+├── src/igh/           # IgH EtherCAT CLI adapter
+├── apps/ecat-studio/  # Qt6 desktop GUI application
+├── apps/ecatd/        # Runtime daemon
+├── tests/             # Unit, integration, and performance tests
+├── scripts/           # Build and packaging scripts
+└── docs/              # Documentation
+```
+
+### Technology Stack
+
+- **Language**: C++20
+- **GUI Framework**: Qt6 (Core, Network, Widgets)
+- **Build System**: CMake 3.20+
+- **Testing**: Qt Test framework
+- **EtherCAT**: IgH EtherCAT Master
+
+### Plugin Architecture
+
+The application uses a plugin-based architecture:
+
+- **WorkspacePlugin**: Interface for workspace plugins
+- **EventBus**: Publish-subscribe event system
+- **ServiceContainer**: Dependency injection container
+- **PluginRegistry**: Plugin lifecycle management
+
+## Building
+
+### Prerequisites
+
+```bash
+# Arch Linux
+sudo pacman -S qt6-base qt6-tools cmake gcc
+
+# Ubuntu/Debian
+sudo apt-get install qt6-base-dev qt6-tools-dev cmake g++
+
+# IgH EtherCAT Master (required for runtime)
+sudo pacman -S ethercat  # Arch Linux
+```
+
+### Build Commands
+
+```bash
+# Configure
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+# Build
+cmake --build build -j$(nproc)
+
+# Run tests
+ctest --test-dir build --output-on-failure -j$(nproc)
+
+# Install (optional)
+cmake --install build --prefix /usr/local
+```
+
+### Build Types
+
+- **Release**: Optimized for production
+- **Debug**: Debug symbols, no optimization
+- **Coverage**: Instrumented for code coverage analysis
+
+## Testing
+
+### Test Structure
+
+```
+tests/
+├── unit/              # Unit tests for individual components
+├── integration/       # Integration tests for component interactions
+├── performance/       # Performance benchmarks
+├── fixtures/          # Test fixtures and utilities
+└── mocks/             # Mock objects for testing
+```
+
+### Running Tests
+
+```bash
+# All tests
+ctest --test-dir build --output-on-failure -j$(nproc)
+
+# Specific test
+./build/tests/event_bus_test
+
+# With coverage
+bash scripts/analyze_coverage.sh
+
+# Memory leak check
+bash scripts/check_memory.sh
+
+# Performance benchmarks
+bash scripts/benchmark.sh
+```
+
+### Writing Tests
+
+```cpp
+#include <QtTest/QtTest>
+
+class MyTest : public QObject {
+    Q_OBJECT
+private slots:
+    void testFeature();
+};
+
+void MyTest::testFeature() {
+    QCOMPARE(1 + 1, 2);
+}
+
+QTEST_MAIN(MyTest)
+#include "my_test.moc"
+```
+
+## Code Style
+
+### C++ Standards
+
+- Use C++20 features (concepts, ranges, etc.)
+- Prefer `auto` for type deduction
+- Use RAII for resource management
+- Follow Qt naming conventions for Qt-related code
+
+### Naming Conventions
+
+- **Classes**: PascalCase (`EventBus`, `PluginRegistry`)
+- **Functions**: camelCase (`connectToBus`, `readSdo`)
+- **Variables**: camelCase (`slaveCount`, `errorCode`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_SLAVES`, `DEFAULT_TIMEOUT`)
+- **Namespaces**: lowercase (`ecat`, `core`)
+
+### File Organization
+
+- Header files: `.h`
+- Source files: `.cpp`
+- One class per file (with exceptions for closely related classes)
+- Include guards: `#pragma once`
+
+## Contributing
+
+### Workflow
+
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+### Code Review
+
+- All changes require review
+- Tests must pass before merge
+- Documentation updates for user-facing changes
+
+## Release Process
+
+### Version Bumping
+
+1. Update `CMakeLists.txt` version
+2. Update `CHANGELOG.md`
+3. Update `RELEASE_NOTES.md`
+4. Update `README.md` examples
+
+### Packaging
+
+```bash
+# Create all packages
+bash scripts/package-linux.sh 3.5.0
+bash scripts/package-deb.sh 3.5.0
+bash scripts/package-source.sh 3.5.0
+
+# Create release
+bash scripts/release.sh 3.5.0
+```
+
+### Quality Checks
+
+```bash
+# Code quality
+bash scripts/check_quality.sh
+
+# Coverage analysis
+bash scripts/analyze_coverage.sh
+
+# Memory leak check
+bash scripts/check_memory.sh
+
+# Performance benchmarks
+bash scripts/benchmark.sh
+```
+
+## API Reference
+
+### Core Types (src/core/EthercatTypes.h)
+
+- `EcSlaveInfo`: Slave information structure
+- `EcPDOEntry`: PDO entry definition
+- `EcSDOValue`: SDO value container
+
+### EventBus (apps/ecat-studio/services/EventBus.h)
+
+```cpp
+// Subscribe to events
+eventBus->subscribe("topology_changed", [](const QVariant& data) {
+    // Handle event
+});
+
+// Publish events
+eventBus->publish("topology_changed", topologyData);
+```
+
+### ServiceContainer
+
+```cpp
+// Register services
+container->registerService<EventBus>(new EventBus());
+
+// Resolve services
+auto eventBus = container->resolve<EventBus>();
+```
+
+## Debugging
+
+### Enable Debug Logging
+
+```bash
+# Set log level
+export NEKOECAT_LOG_LEVEL=DEBUG
+
+# Run with debug output
+ecat-studio --debug
+```
+
+### Common Debug Scenarios
+
+1. **Connection issues**: Check adapter selection and master service
+2. **SDO errors**: Enable SDO logging in settings
+3. **UI freezes**: Check for blocking operations in main thread
+4. **Memory issues**: Run with Valgrind
+
+## Performance Tuning
+
+### Build Optimization
+
+```bash
+# Use ccache
+export CCACHE_DIR=~/.cache/ccache
+cmake -B build -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+# Parallel build
+cmake --build build -j$(nproc)
+```
+
+### Runtime Optimization
+
+- Use connection pooling for bus operations
+- Cache frequently accessed data
+- Minimize UI updates during batch operations
+- Use background threads for I/O operations
+
+## License
+
+NekoEcat Studio is licensed under the GNU General Public License v3.0. See LICENSE for details.

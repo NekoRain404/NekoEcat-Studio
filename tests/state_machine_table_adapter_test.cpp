@@ -1,4 +1,10 @@
-// Unit tests for StateMachineTableAdapter.
+// StateMachineTableAdapterTest — Tests for StateMachineTableAdapter
+//
+// Test coverage:
+//   - Structured row extraction from QTableWidget
+//   - Position parsing and recommendation detection
+//   - Invalid row handling and fallbacks
+
 #include "adapters/StateMachineTableAdapter.h"
 
 #include <QApplication>
@@ -68,6 +74,7 @@ void initStateMachineTable(QTableWidget *table) {
   setCell(table, 1, kStateMachineRecommendedColumn, " ");
 }
 
+// Test structured row extraction, position parsing, and recommendation detection
 void testStructuredRowExtraction() {
   QTableWidget table;
   initStateMachineTable(&table);
@@ -97,6 +104,7 @@ void testStructuredRowExtraction() {
              "recommendation from table");
 }
 
+// Test invalid row returns empty data and blank recommendation is rejected
 void testInvalidRowsAndFallbacks() {
   QTableWidget table;
   initStateMachineTable(&table);

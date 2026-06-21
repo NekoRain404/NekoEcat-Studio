@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <sched.h>
 #include <sys/mman.h>
 #include <chrono>
 #include <numeric>
@@ -91,8 +92,8 @@ bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString *error
         totalCycleNsec_ = 0;
         recentCycles_.clear();
         recentCycles_.reserve(kRollingWindow);
+        status_ = "Running";
     }
-    status_ = "Running";
     running_ = true;
 
     // Launch the real-time cycle thread. SCHED_FIFO with elevated priority ensures
@@ -108,7 +109,10 @@ void RtTestController::stop()
         thread_.join();
     }
     cleanup();
-    status_ = "Stopped";
+    {
+        std::lock_guard<std::mutex> lock(statsMutex_);
+        status_ = "Stopped";
+    }
 }
 
 bool RtTestController::running() const
@@ -118,30 +122,32 @@ bool RtTestController::running() const
 
 QString RtTestController::status() const
 {
+    std::lock_guard<std::mutex> lock(statsMutex_);
     return status_;
 }
 
 QJsonObject RtTestController::telemetry() const
 {
-    const unsigned long long cycles = cycleCount_.load();
+    unsigned long long cycles = 0;
     const unsigned long long errors = errorCount_.load();
 
     int64_t minNs = 0, maxNs = 0, avgNs = 0, jitterNs = 0;
     QJsonArray recent;
+    QString statusSnapshot;
 
     {
         std::lock_guard<std::mutex> lock(statsMutex_);
+        cycles = cycleCount_.load();
         minNs = minCycleNsec_;
         maxNs = maxCycleNsec_;
+        statusSnapshot = status_;
         if (minNs == INT64_MAX) minNs = 0;
 
         if (cycles > 0) {
             avgNs = totalCycleNsec_ / static_cast<int64_t>(cycles);
-            // Jitter = max deviation from average
             jitterNs = std::max(maxNs - avgNs, avgNs - minNs);
         }
 
-        // Send all recent samples — GUI handles chart downsampling.
         const int step = 1;
         for (int i = 0; i < static_cast<int>(recentCycles_.size()); i += step) {
             recent.append(static_cast<double>(recentCycles_[i]) / 1000.0);
@@ -154,7 +160,7 @@ QJsonObject RtTestController::telemetry() const
 
     QJsonObject obj;
     obj["running"] = running_.load();
-    obj["status"] = status_;
+    obj["status"] = statusSnapshot;
     obj["cycles"] = static_cast<qint64>(cycles);
     obj["errors"] = static_cast<qint64>(errors);
     obj["lossRate"] = lossRate;
@@ -186,7 +192,7 @@ void RtTestController::loop(int cycleUsec)
         // Schedule next wake-up using absolute time to avoid drift accumulation.
         wakeupTime += cycleNsec;
 
-        // Sleep until next cycle — clock_nanosleep with TIMER_ABROAD avoids drift.
+        // Sleep until next cycle — clock_nanosleep with TIMER_ABSTIME avoids drift.
         struct timespec wake{};
         wake.tv_sec = static_cast<time_t>(wakeupTime / NsecPerSec);
         wake.tv_nsec = static_cast<long>(wakeupTime % NsecPerSec);
@@ -218,16 +224,17 @@ void RtTestController::loop(int cycleUsec)
             if (static_cast<int>(recentCycles_.size()) < kRollingWindow) {
                 recentCycles_.push_back(cycleDelta);
             } else {
-                // Overwrite oldest entry (circular buffer behavior).
                 recentCycles_[cycleCount_ % kRollingWindow] = cycleDelta;
             }
+            ++cycleCount_;
         }
 
-        ++cycleCount_;
         if (ret < 0) {
             ++errorCount_;
         }
     }
+
+    munlockall();
 
     // Restore normal scheduling before exiting.
     struct sched_param normal{};

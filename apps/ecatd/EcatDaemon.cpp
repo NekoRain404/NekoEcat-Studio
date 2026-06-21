@@ -1,6 +1,7 @@
 // ecatd runtime daemon: TCP server, command dispatch, and master lifecycle.
 #include "EcatDaemon.h"
 
+#include "EthercatNativeBackend.h"
 #include "JsonProtocol.h"
 
 #include <QJsonArray>
@@ -46,6 +47,15 @@ EcatDaemon::EcatDaemon(QObject *parent)
     alPollTimer_ = new QTimer(this);
     connect(alPollTimer_, &QTimer::timeout, this, [this]() { alEventHandler_.poll(); });
     alPollTimer_->start(1000);
+
+    // Enrich DC sync data from ecrt every 500ms when Free Run is active.
+    dcPollTimer_ = new QTimer(this);
+    connect(dcPollTimer_, &QTimer::timeout, this, [this]() {
+        if (freeRun_.running()) {
+            dcSyncHandler_.update(freeRun_.masterHandle(), 0);
+        }
+    });
+    dcPollTimer_->start(500);
 }
 
 
@@ -78,7 +88,7 @@ void EcatDaemon::readClient()
         return;
     }
 
-    auto buffer = buffers_.value(socket);
+    auto &buffer = buffers_[socket];
     buffer += socket->readAll();
 
     int newline = -1;
@@ -92,8 +102,6 @@ void EcatDaemon::readClient()
         }
         handle(socket, document.object());
     }
-
-    buffers_[socket] = buffer;
 }
 
 // Dispatch a parsed JSON request through the CommandDispatcher and send the response.
@@ -176,6 +184,7 @@ void EcatDaemon::setupHandlers() {
                                              params.value("position").toInt(),
                                              params.value("index").toString(),
                                              params.value("subIndex").toString(),
+                                             params.value("type").toString(),
                                              &error);
         return error.isEmpty()
             ? CommandDispatcher::success(id, {{"value", text}})
@@ -291,6 +300,16 @@ void EcatDaemon::setupHandlers() {
         return dcSyncHandler_.handle(id, params);
     });
 
+    dispatcher_.registerHandler("dcConfigure", [this](const QString &id, const QJsonObject &params) {
+        return dcSyncHandler_.handleDcConfigure(id, params);
+    });
+    dispatcher_.registerHandler("dcActivate", [this](const QString &id, const QJsonObject &params) {
+        return dcSyncHandler_.handleDcActivate(id, params);
+    });
+    dispatcher_.registerHandler("dcDeactivate", [this](const QString &id, const QJsonObject &params) {
+        return dcSyncHandler_.handleDcDeactivate(id, params);
+    });
+
     dispatcher_.registerHandler("alEventLog", [this](const QString &id, const QJsonObject &p) {
         return alEventHandler_.handle(id, p);
     });
@@ -305,6 +324,26 @@ void EcatDaemon::setupHandlers() {
     });
     dispatcher_.registerHandler("setAdapter", [this](const QString &id, const QJsonObject &params) {
         return adapterHandler_.handleSet(id, params);
+    });
+
+    // File over EtherCAT (FoE) firmware operations.
+    dispatcher_.registerHandler("foeRead", [this](const QString &id, const QJsonObject &params) {
+        return foeHandler_.handleFoeRead(id, params);
+    });
+    dispatcher_.registerHandler("foeWrite", [this](const QString &id, const QJsonObject &params) {
+        return foeHandler_.handleFoeWrite(id, params);
+    });
+
+    dispatcher_.registerHandler("setBackend", [this](const QString &id, const QJsonObject &params) {
+        QString mode = params.value("mode").toString("auto");
+        setBackendMode(mode);
+        return CommandDispatcher::success(id, {{"backend", backend_->isNative() ? "native" : "cli"},
+                                                {"mode", backendMode_}});
+    });
+
+    dispatcher_.registerHandler("getBackend", [this](const QString &id, const QJsonObject &) {
+        return CommandDispatcher::success(id, {{"backend", backend_->isNative() ? "native" : "cli"},
+                                                {"mode", backendMode_}});
     });
 
     dispatcher_.registerHandler("signalPoll", [this](const QString &id, const QJsonObject &p) {
@@ -329,4 +368,43 @@ void EcatDaemon::send(QTcpSocket *socket, const QJsonObject &response)
     // Encode as newline-delimited JSON and flush immediately for low-latency reply.
     socket->write(JsonProtocol::encode(response));
     socket->flush();
+}
+
+void EcatDaemon::setBackendMode(const QString &mode) {
+    backendMode_ = mode;
+
+    if (mode == "cli") {
+        if (backend_->isNative()) {
+            delete backend_;
+            backend_ = new EthercatCliBackend(this);
+            qDebug() << "Switched to CLI backend";
+        }
+    } else if (mode == "native") {
+        if (!backend_->isNative()) {
+#ifdef HAVE_IGH
+            delete backend_;
+            backend_ = new EthercatNativeBackend(this);
+            qDebug() << "Switched to native backend";
+#else
+            qWarning() << "Native backend not available, keeping CLI";
+#endif
+        }
+    } else {
+        // Auto mode: try native, fallback to CLI
+#ifdef HAVE_IGH
+        auto *native = new EthercatNativeBackend(this);
+        QString error;
+        native->hostDiagnostics(&error);
+        if (error.isEmpty()) {
+            delete backend_;
+            backend_ = native;
+            qDebug() << "Auto-selected native backend";
+        } else {
+            delete native;
+            qDebug() << "Auto-selected CLI backend (native unavailable)";
+        }
+#else
+        qDebug() << "Auto-selected CLI backend (native not compiled)";
+#endif
+    }
 }

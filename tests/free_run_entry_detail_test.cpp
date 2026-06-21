@@ -1,3 +1,11 @@
+// FreeRunEntryDetailTest — Tests for FreeRunEntryDetail
+//
+// Test coverage:
+//   - Empty states (unavailable, no selection)
+//   - Severity rules (ok, action, warning, error)
+//   - Selected row state and tooltip generation
+//   - Fallback text for incomplete rows
+
 // Unit tests for FreeRunEntryDetail.
 #include "detail/FreeRunEntryDetail.h"
 
@@ -95,6 +103,7 @@ FreeRunEntryTableRow readyInputRow() {
   return row;
 }
 
+// Verify unavailable and no-selection empty states
 void testEmptyStates() {
   FreeRunEntryDetailState state =
       freeRunEntryDetailUnavailableState(englishTexts());
@@ -110,6 +119,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Verify severity rules for ok, action, warning, and error
 void testSeverityRules() {
   const FreeRunEntryDetailTexts texts = englishTexts();
   FreeRunEntryTableRow row = readyInputRow();
@@ -136,6 +146,7 @@ void testSeverityRules() {
               "missing map severity");
 }
 
+// Verify selected row state, summary, and tooltip
 void testSelectedRowState() {
   const FreeRunEntryTableRow row = readyInputRow();
   const FreeRunEntryDetailState state =
@@ -160,6 +171,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Verify fallback text for incomplete rows
 void testFallbacks() {
   FreeRunEntryTableRow row;
   row.row = 7;

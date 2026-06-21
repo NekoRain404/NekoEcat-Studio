@@ -1,0 +1,136 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'ethercat_compliance_service_test.cpp'
+**
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.11.1)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'ethercat_compliance_service_test.cpp' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.11.1. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t {};
+} // unnamed namespace
+
+template <> constexpr inline auto EtherCATComplianceServiceTest::qt_create_metaobjectdata<qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "EtherCATComplianceServiceTest",
+        "testDefaultRules",
+        "",
+        "testAddRule",
+        "testRemoveRule",
+        "testRemoveNonexistentRule",
+        "testRunComplianceCheck",
+        "testCheckCategory",
+        "testCheckCompletedSignal",
+        "testComplianceScore"
+    };
+
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'testDefaultRules'
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testAddRule'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testRemoveRule'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testRemoveNonexistentRule'
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testRunComplianceCheck'
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testCheckCategory'
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testCheckCompletedSignal'
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testComplianceScore'
+        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<EtherCATComplianceServiceTest, qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject EtherCATComplianceServiceTest::staticMetaObject = { {
+    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>.metaTypes,
+    nullptr
+} };
+
+void EtherCATComplianceServiceTest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<EtherCATComplianceServiceTest *>(_o);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: _t->testDefaultRules(); break;
+        case 1: _t->testAddRule(); break;
+        case 2: _t->testRemoveRule(); break;
+        case 3: _t->testRemoveNonexistentRule(); break;
+        case 4: _t->testRunComplianceCheck(); break;
+        case 5: _t->testCheckCategory(); break;
+        case 6: _t->testCheckCompletedSignal(); break;
+        case 7: _t->testComplianceScore(); break;
+        default: ;
+        }
+    }
+    (void)_a;
+}
+
+const QMetaObject *EtherCATComplianceServiceTest::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *EtherCATComplianceServiceTest::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29EtherCATComplianceServiceTestE_t>.strings))
+        return static_cast<void*>(this);
+    return QObject::qt_metacast(_clname);
+}
+
+int EtherCATComplianceServiceTest::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 8)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 8;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 8)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 8;
+    }
+    return _id;
+}
+QT_WARNING_POP

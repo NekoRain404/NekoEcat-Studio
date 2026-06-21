@@ -1,4 +1,19 @@
-// Unit tests for WorkspaceBoundaryDetail.
+// WorkspaceBoundaryDetailTest — Tests for Workspace Boundary Detail
+//
+// Test coverage:
+//   - Overview action and warning states based on matrix counts
+//   - Object dictionary boundary labels (SDO, local fill, online access)
+//   - PDO map boundary labels (loaded local, local fill)
+//   - Watch boundary labels (online reads, startup local)
+//   - Startup SDO boundary labels (local editing, online apply)
+//   - Free Run process data boundary
+//   - I/O Variables engineering boundary
+//   - Consistency gate local boundary
+//   - State machine danger boundary
+//   - Diagnostics host boundary
+//   - ESI file boundary
+//   - Notes project boundary
+//   - Raw evidence boundary
 #include "detail/WorkspaceBoundaryDetail.h"
 
 #include <QCoreApplication>
@@ -71,6 +86,7 @@ WorkspaceBoundaryTexts englishTexts() {
   };
 }
 
+// Verify overview action/warning severity based on matrix P0-P3 counts
 void testOverviewActionAndWarningStates() {
   WorkspaceBoundaryCounts counts;
   counts.matrixP0 = 0;
@@ -93,6 +109,7 @@ void testOverviewActionAndWarningStates() {
   expectEqual(state.severityKey, "warning", "overview warning severity");
 }
 
+// Verify high-risk workspace kinds (Startup, FreeRun, StateMachine) get error severity
 void testHighRiskWorkspaceKinds() {
   WorkspaceBoundaryDetail state = buildWorkspaceBoundaryDetail(
       WorkspaceBoundaryKind::StartupSdo, "Startup SDO", {}, englishTexts());
@@ -112,6 +129,7 @@ void testHighRiskWorkspaceKinds() {
   expectEqual(state.severityKey, "error", "state machine severity");
 }
 
+// Verify diagnostics (warning) and local workspace kinds (Consistency ok, RawEvidence neutral)
 void testDiagnosticsAndLocalWorkspaceKinds() {
   WorkspaceBoundaryDetail state = buildWorkspaceBoundaryDetail(
       WorkspaceBoundaryKind::Diagnostics, "Diagnostics", {}, englishTexts());

@@ -1,24 +1,67 @@
-// Unit tests for workspace widget structs — allocation and lifecycle.
+// WorkspaceWidgetsTest — Tests for Workspace Widget Structs
+//
+// Test coverage:
+//   - Session widgets default null state
+//   - Watch widgets default null state
+//   - SDO widgets default null state
+//   - Free Run widgets default null state
+//   - Consistency widgets default null state
+//   - Diagnostics widgets default null state
+//   - Workflow widgets default null state
+//   - I/O Variable widgets default null state
+//   - State Machine widgets default null state
+//   - Slave Evidence widgets default null state
+//   - Bookmark widgets default null state
+//   - Widget allocation and deletion lifecycle
 #include "WorkspaceWidgets.h"
 
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QTableWidget>
 #include <QtTest/QtTest>
 
 class WorkspaceWidgetsTest : public QObject {
     Q_OBJECT
 
 private slots:
+    // SessionWorkspaceWidgets pointers default to null
     void sessionWidgetsDefaultNull();
+    // WatchWorkspaceWidgets pointers default to null
     void watchWidgetsDefaultNull();
+    // SdoWorkspaceWidgets pointers default to null
     void sdoWidgetsDefaultNull();
+    // FreeRunWorkspaceWidgets pointers default to null
     void freeRunWidgetsDefaultNull();
+    // ConsistencyWorkspaceWidgets pointers default to null
     void consistencyWidgetsDefaultNull();
+    // DiagnosticsWorkspaceWidgets pointers default to null
     void diagnosticsWidgetsDefaultNull();
+    // WorkflowWorkspaceWidgets pointers default to null
     void workflowWidgetsDefaultNull();
+    // IoVarWorkspaceWidgets pointers default to null
     void ioVarWidgetsDefaultNull();
+    // StateMachineWorkspaceWidgets pointers default to null
     void stateMachineWidgetsDefaultNull();
+    // SlaveEvidenceWorkspaceWidgets pointers default to null
     void slaveEvidenceWidgetsDefaultNull();
+    // BookmarkWorkspaceWidgets pointers default to null
     void bookmarkWidgetsDefaultNull();
+    // SdoInspectorWidgets pointers default to null
+    void sdoInspectorWidgetsDefaultNull();
+    // RawTextWidgets pointers default to null
+    void rawTextWidgetsDefaultNull();
+    // Allocate widgets and verify non-null, then delete
     void canAllocateAndDelete();
+    // Assign real QWidget pointers and verify they persist
+    void widgetPointerValidity();
+    // SlaveEvidence triage buttons vector manipulation
+    void slaveEvidenceTriageButtonsVector();
+    // Copy struct preserves pointer values
+    void structCopyPreservesPointers();
 };
 
 void WorkspaceWidgetsTest::sessionWidgetsDefaultNull()
@@ -138,6 +181,31 @@ void WorkspaceWidgetsTest::bookmarkWidgetsDefaultNull()
     QVERIFY(w.objectBookmarkTable == nullptr);
 }
 
+void WorkspaceWidgetsTest::sdoInspectorWidgetsDefaultNull()
+{
+    SdoInspectorWidgets w;
+    QVERIFY(w.sdoInspectorLabel == nullptr);
+    QVERIFY(w.sdoTargetTable == nullptr);
+    QVERIFY(w.sdoIndex == nullptr);
+    QVERIFY(w.sdoSubIndex == nullptr);
+    QVERIFY(w.sdoValue == nullptr);
+    QVERIFY(w.sdoWriteValue == nullptr);
+    QVERIFY(w.useSdoValueButton == nullptr);
+    QVERIFY(w.sdoType == nullptr);
+}
+
+void WorkspaceWidgetsTest::rawTextWidgetsDefaultNull()
+{
+    RawTextWidgets w;
+    QVERIFY(w.masterText == nullptr);
+    QVERIFY(w.infoText == nullptr);
+    QVERIFY(w.pdoText == nullptr);
+    QVERIFY(w.sdoText == nullptr);
+    QVERIFY(w.xmlText == nullptr);
+    QVERIFY(w.logText == nullptr);
+    QVERIFY(w.projectNotes == nullptr);
+}
+
 void WorkspaceWidgetsTest::canAllocateAndDelete()
 {
     // Verify structs can be heap-allocated and deleted without crash.
@@ -164,6 +232,76 @@ void WorkspaceWidgetsTest::canAllocateAndDelete()
     delete se;
     delete b;
     QVERIFY(true); // reached without crash
+}
+
+void WorkspaceWidgetsTest::widgetPointerValidity()
+{
+    SdoWorkspaceWidgets w;
+    QTableWidget table;
+    QLineEdit filter;
+    QLabel summary;
+    w.sdoTable = &table;
+    w.sdoFilter = &filter;
+    w.sdoSummaryLabel = &summary;
+    QVERIFY(w.sdoTable != nullptr);
+    QVERIFY(w.sdoFilter != nullptr);
+    QVERIFY(w.sdoSummaryLabel != nullptr);
+    QCOMPARE(w.sdoTable, &table);
+    QCOMPARE(w.sdoFilter, &filter);
+    QCOMPARE(w.sdoSummaryLabel, &summary);
+    QVERIFY(w.pdoTable == nullptr);
+    QVERIFY(w.pdoFilter == nullptr);
+
+    WatchWorkspaceWidgets ww;
+    QCheckBox autoRefresh;
+    QComboBox scopeFilter;
+    ww.watchAutoRefresh = &autoRefresh;
+    ww.watchScopeFilter = &scopeFilter;
+    QVERIFY(ww.watchAutoRefresh != nullptr);
+    QVERIFY(ww.watchScopeFilter != nullptr);
+    QCOMPARE(ww.watchAutoRefresh, &autoRefresh);
+    QCOMPARE(ww.watchScopeFilter, &scopeFilter);
+}
+
+void WorkspaceWidgetsTest::slaveEvidenceTriageButtonsVector()
+{
+    SlaveEvidenceWorkspaceWidgets w;
+    QVERIFY(w.slaveEvidenceMatrixTriageButtons.isEmpty());
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.size(), 0);
+
+    QPushButton b1, b2, b3;
+    w.slaveEvidenceMatrixTriageButtons.append(&b1);
+    w.slaveEvidenceMatrixTriageButtons.append(&b2);
+    w.slaveEvidenceMatrixTriageButtons.append(&b3);
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.size(), 3);
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.at(0), &b1);
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.at(1), &b2);
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.at(2), &b3);
+
+    w.slaveEvidenceMatrixTriageButtons.removeFirst();
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.size(), 2);
+    QCOMPARE(w.slaveEvidenceMatrixTriageButtons.first(), &b2);
+
+    w.slaveEvidenceMatrixTriageButtons.clear();
+    QVERIFY(w.slaveEvidenceMatrixTriageButtons.isEmpty());
+}
+
+void WorkspaceWidgetsTest::structCopyPreservesPointers()
+{
+    IoVariableWorkspaceWidgets w;
+    QTableWidget table;
+    QLineEdit filter;
+    QLabel detail;
+    w.ioVariableTable = &table;
+    w.ioVariableFilter = &filter;
+    w.ioVariableDetailLabel = &detail;
+
+    IoVariableWorkspaceWidgets copy = w;
+    QCOMPARE(copy.ioVariableTable, w.ioVariableTable);
+    QCOMPARE(copy.ioVariableFilter, w.ioVariableFilter);
+    QCOMPARE(copy.ioVariableDetailLabel, w.ioVariableDetailLabel);
+    QCOMPARE(copy.ioVariableScopeFilter, nullptr);
+    QCOMPARE(copy.ioVariableSummaryLabel, nullptr);
 }
 
 QTEST_MAIN(WorkspaceWidgetsTest)

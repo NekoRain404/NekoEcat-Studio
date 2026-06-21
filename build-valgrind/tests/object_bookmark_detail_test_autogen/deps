@@ -1,0 +1,14 @@
+object_bookmark_detail_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/adapters/SdoEvidenceTableAdapter.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/adapters/SdoEvidenceTableAdapter.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/ObjectBookmarkDetail.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/ObjectBookmarkDetail.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/models/SdoEvidenceModel.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/models/SdoEvidenceModel.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TableHelpers.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TableHelpers.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TextHelpers.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TextHelpers.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/object_bookmark_detail_test.cpp \
+	/usr/bin/cmake

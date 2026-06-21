@@ -473,3 +473,235 @@ int MainWindow::currentSdoTargetTrailRow() const {
 QString MainWindow::currentSdoPreferredEvidenceValue(QString *source) const {
   return preferredSdoEvidenceValue(currentSdoEvidenceCandidates(), source);
 }
+
+void MainWindow::handleSdoValueResponse(int position, const QString &index,
+                                        const QString &subIndex,
+                                        const QString &value) {
+  log(QString("SDO upload #%1 %2:%3 = %4")
+          .arg(position)
+          .arg(index, subIndex, value));
+  const QString key = sdoEvidenceKey(position, index, subIndex);
+  const bool currentTarget = isCurrentSdoTarget(position, index, subIndex);
+  if (currentTarget && sdoInspector_->sdoValue) {
+    sdoInspector_->sdoValue->setText(value);
+    sdoInspector_->sdoValue->setPlaceholderText(uiText(
+        "Read-back for current SDO target", "当前 SDO 目标的读回值"));
+    updateActionAvailability();
+  }
+  const QString source = pendingSdoReads_.take(key);
+  const QString readType = pendingSdoReadTypes_.take(key);
+  updateSdoTableEvidence(position, index, subIndex, value,
+                         uiText("Complete", "完成"),
+                         source.isEmpty() ? uiText("Runtime response", "运行时返回")
+                                          : source);
+  const QStringList verification = pendingSdoVerifications_.take(key);
+  const bool hasStartupCheck = pendingStartupSdoChecks_.contains(key);
+  const QVector<int> startupCheckRows =
+      hasStartupCheck ? pendingStartupSdoChecks_.take(key) : QVector<int>{};
+  if (!verification.isEmpty()) {
+    auto normalize = [](QString text) {
+      return text.trimmed().remove(' ').toLower();
+    };
+    const QString expected = verification.value(4);
+    const bool match = normalize(expected) == normalize(value);
+    const QString verifyDetail =
+        match ? uiText("Read-back matched expected value %1",
+                       "读回值匹配期望值 %1")
+                    .arg(expected)
+              : uiText("Read-back mismatch, expected %1 got %2",
+                       "读回不匹配，期望 %1，实际 %2")
+                    .arg(expected, value);
+    appendSdoHistory(uiText("Verify", "校验"), position, index, subIndex,
+                     verification.value(3), value,
+                     match ? uiText("OK", "成功") : uiText("Failed", "失败"),
+                     verifyDetail);
+    updateSdoTableEvidence(position, index, subIndex, value,
+                           match ? uiText("OK", "成功")
+                                 : uiText("Failed", "失败"),
+                           verifyDetail);
+    updateDiagnostics(
+        match ? "Info" : "Error", "SDO",
+        match ? QString("SDO write verified #%1 %2:%3 = %4")
+                    .arg(position)
+                    .arg(index, subIndex, value)
+              : QString("SDO write verification failed #%1 "
+                        "%2:%3 expected %4 got %5")
+                    .arg(position)
+                    .arg(index, subIndex, expected, value));
+  }
+  if (hasStartupCheck) {
+    verifyStartupSdo(key, value, startupCheckRows);
+  }
+  appendSdoHistory(
+      uiText("Read", "读取"), position, index, subIndex,
+      !readType.isEmpty()
+          ? readType
+          : (currentTarget && sdoInspector_->sdoType
+                 ? sdoInspector_->sdoType->currentText()
+                 : QString()),
+      value, uiText("Complete", "完成"),
+      source.isEmpty() ? uiText("Runtime response", "运行时返回") : source);
+  updateWatchTableFromSdo(position, index, subIndex, value, source, readType,
+                          currentTarget, key);
+  feedChartFromSdo(index, subIndex, value);
+  watch_->watchTable->resizeColumnsToContents();
+  updateWatchAutoRefresh();
+  updateSelectedDriveSummary();
+}
+
+void MainWindow::updateWatchTableFromSdo(int position, const QString &index,
+                                         const QString &subIndex,
+                                         const QString &value,
+                                         const QString &source,
+                                         const QString &readType,
+                                         bool currentTarget,
+                                         const QString &key) {
+  ensureWatchTable();
+  int row = -1;
+  for (int i = 0; i < watch_->watchTable->rowCount(); ++i) {
+    const bool match =
+        (watch_->watchTable->item(i, 1) &&
+         watch_->watchTable->item(i, 1)->text().toInt() == position) &&
+        (watch_->watchTable->item(i, 2) &&
+         watch_->watchTable->item(i, 2)->text().compare(
+             index, Qt::CaseInsensitive) == 0) &&
+        (watch_->watchTable->item(i, 3) &&
+         watch_->watchTable->item(i, 3)->text().compare(
+             subIndex, Qt::CaseInsensitive) == 0);
+    if (match) {
+      row = i;
+      break;
+    }
+  }
+  if (row < 0) {
+    row = watch_->watchTable->rowCount();
+    watch_->watchTable->insertRow(row);
+    watch_->watchTable->setItem(
+        row, 1, new QTableWidgetItem(QString::number(position)));
+    watch_->watchTable->setItem(row, 2, new QTableWidgetItem(index));
+    watch_->watchTable->setItem(row, 3, new QTableWidgetItem(subIndex));
+    watch_->watchTable->setItem(row, 8, new QTableWidgetItem);
+    watch_->watchTable->setItem(row, 9, new QTableWidgetItem);
+    watch_->watchTable->setItem(row, 10, new QTableWidgetItem);
+    watch_->watchTable->setItem(row, 11, new QTableWidgetItem);
+  }
+  const bool changed =
+      watchValues_.contains(key) && watchValues_.value(key) != value;
+  watchValues_.insert(key, value);
+  if (changed) {
+    watchChangedKeys_.insert(key);
+  }
+
+  auto setCell = [this, row](int column, const QString &text) {
+    auto *item = watch_->watchTable->item(row, column);
+    if (!item) {
+      item = new QTableWidgetItem;
+      watch_->watchTable->setItem(row, column, item);
+    }
+    item->setText(text);
+    return item;
+  };
+
+  setCell(0, QDateTime::currentDateTime().toString("HH:mm:ss"));
+  auto *valueItem = setCell(4, value);
+  const QString currentType = watch_->watchTable->item(row, 6)
+                                  ? watch_->watchTable->item(row, 6)->text()
+                                  : QString();
+  const QString currentMode = watch_->watchTable->item(row, 7)
+                                  ? watch_->watchTable->item(row, 7)->text()
+                                  : QString();
+  if (!watch_->watchTable->item(row, 6) ||
+      watch_->watchTable->item(row, 6)->text().trimmed().isEmpty()) {
+    const bool watchRefreshSource =
+        source.contains("Watch", Qt::CaseInsensitive) ||
+        source.contains("监视", Qt::CaseInsensitive);
+    if (!watchRefreshSource && !readType.isEmpty()) {
+      setCell(6, readType);
+    } else if (!watchRefreshSource && currentTarget &&
+               sdoInspector_->sdoType) {
+      setCell(6, sdoInspector_->sdoType->currentText());
+    }
+  }
+  const QString effectiveType = watch_->watchTable->item(row, 6)
+                                    ? watch_->watchTable->item(row, 6)->text()
+                                    : currentType;
+  setCell(5, decodeWatchValue(index, subIndex, effectiveType, value,
+                              currentMode));
+  if (currentMode.trimmed().isEmpty()) {
+    setCell(7, "Watch");
+  }
+  updateWatchBaselineDelta(row);
+  updateWatchStartupDelta(row);
+  if (changed) {
+    valueItem->setBackground(settings_.theme == "Light" ? QColor("#fff7cc")
+                                                        : QColor("#3a2f16"));
+    valueItem->setForeground(settings_.theme == "Light" ? QColor("#854d0e")
+                                                        : QColor("#fde68a"));
+  } else {
+    valueItem->setBackground(QBrush());
+    valueItem->setForeground(QBrush());
+  }
+}
+
+void MainWindow::feedChartFromSdo(const QString &index,
+                                  const QString &subIndex,
+                                  const QString &value) {
+  const QString odPrefix = QString("od_%1_%2").arg(index, subIndex);
+  for (auto *chart : openCharts_) {
+    if (!chart) continue;
+    if (chart->entryKey().startsWith(odPrefix)) {
+      bool numOk = false;
+      double v = value.toDouble(&numOk);
+      if (!numOk) v = value.toULongLong(&numOk, 16);
+      if (numOk) chart->feedValue(v);
+    }
+  }
+}
+
+void MainWindow::verifyStartupSdo(const QString &key, const QString &value,
+                                  const QVector<int> &startupCheckRows) {
+  auto normalize = [](QString text) {
+    return text.trimmed().remove(' ').toLower();
+  };
+  for (const int startupCheckRow : startupCheckRows) {
+    if (startupCheckRow < 0 ||
+        startupCheckRow >= startupSdoTable_->rowCount()) {
+      continue;
+    }
+    const QString expected =
+        startupSdoTable_->item(startupCheckRow, 3)
+            ? startupSdoTable_->item(startupCheckRow, 3)->text()
+            : QString();
+    const bool match = normalize(expected) == normalize(value);
+    auto *status = startupSdoTable_->item(startupCheckRow, 5);
+    if (!status) {
+      status = new QTableWidgetItem;
+      startupSdoTable_->setItem(startupCheckRow, 5, status);
+    }
+    auto *detail = startupSdoTable_->item(startupCheckRow, 6);
+    if (!detail) {
+      detail = new QTableWidgetItem;
+      startupSdoTable_->setItem(startupCheckRow, 6, detail);
+    }
+    status->setText(match ? uiText("Verified", "已校验")
+                          : uiText("Mismatch", "不匹配"));
+    status->setForeground(match ? QColor("#22c55e") : QColor("#ef4444"));
+    status->setBackground(
+        match ? QBrush()
+              : (settings_.theme == "Light" ? QBrush(QColor("#fef2f2"))
+                                            : QBrush(QColor("#3a1218"))));
+    detail->setText(
+        match ? uiText("Read-back matched %1", "读回值匹配 %1").arg(expected)
+              : uiText("Expected %1, got %2", "期望 %1，实际 %2")
+                    .arg(expected, value));
+    updateDiagnostics(
+        match ? "Info" : "Error", "Startup SDO",
+        match ? QString("Startup SDO verified row %1")
+                    .arg(startupCheckRow + 1)
+              : QString("Startup SDO mismatch row %1 expected %2 got %3")
+                    .arg(startupCheckRow + 1)
+                    .arg(expected, value));
+  }
+  startupSdoTable_->resizeColumnsToContents();
+  updateWatchStartupDeltas();
+}

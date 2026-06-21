@@ -1,0 +1,6 @@
+workspace_boundary_detail_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/WorkspaceBoundaryDetail.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/WorkspaceBoundaryDetail.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/workspace_boundary_detail_test.cpp \
+	/usr/bin/cmake

@@ -1,3 +1,11 @@
+// ConcurrentAccessTest — Tests for concurrent EventBus access
+//
+// Test coverage:
+//   - Concurrent slaveChanged emissions
+//   - Concurrent sdoValue emissions
+//   - Mixed concurrent event types
+//   - Thread safety validation
+
 #include <QTest>
 #include <QThread>
 #include <QTimer>
@@ -32,6 +40,7 @@ private:
 class ConcurrentAccessTest : public QObject {
   Q_OBJECT
 private slots:
+  // Verify concurrent slaveChanged emissions are all received
   void testConcurrentSlaveChanged() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);
@@ -53,6 +62,7 @@ private slots:
     QCOMPARE(spy.count(), workerCount * 100);
   }
 
+  // Verify concurrent sdoValue emissions are all received
   void testConcurrentSdoValue() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::sdoValueReceived);
@@ -74,6 +84,7 @@ private slots:
     QCOMPARE(spy.count(), workerCount * 100);
   }
 
+  // Verify mixed concurrent event types are handled correctly
   void testConcurrentDifferentEvents() {
     EventBus bus;
     QSignalSpy slaveSpy(&bus, &EventBus::slaveChanged);

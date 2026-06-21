@@ -265,3 +265,46 @@
         QWidget {
             background: #282828;
         }
+        QLabel#rtTestFreqLabel {
+            color: #458588;
+            font-weight: bold;
+            min-width: 60px;
+        }
+        QLabel#rtTestStatusLabel {
+            font-weight: bold;
+        }
+        QLabel#rtTestStatusLabel[state="running"] {
+            color: #98971a;
+        }
+        QLabel#rtTestStatusLabel[state="stopped"] {
+            color: #d79921;
+        }
+        QLabel#rtTestStatusLabel[state="idle"] {
+            color: #ebdbb2;
+        }
+        QLabel#rtTestMetricValue {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        QLabel#rtTestHealthBar {
+            background: #504945;
+            border-radius: 2px;
+        }
+        QLabel#rtTestHealthBar[health="good"] {
+            background: #98971a;
+        }
+        QLabel#rtTestHealthBar[health="warn"] {
+            background: #d79921;
+        }
+        QLabel#rtTestHealthBar[health="bad"] {
+            background: #cc241d;
+        }
+        QLabel#signalStatsLabel {
+            background: #1d2021;
+            color: #ebdbb2;
+            padding: 2px 6px;
+        }
+        QGraphicsView {
+            background: #282828;
+            border: 1px solid #3c3836;
+        }

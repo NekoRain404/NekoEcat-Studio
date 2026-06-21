@@ -1,4 +1,11 @@
-// Unit tests for IoVariableHandoffModel.
+// IoVariableHandoffTest — Tests for IoVariableHandoffModel
+//
+// Test coverage:
+//   - Suggested alias generation from symbol and meaning
+//   - Handoff issues and duplicate detection
+//   - Comment generation with quality labels
+//   - Declaration blocks and CSV export
+
 #include "models/IoVariableModel.h"
 
 #include <QCoreApplication>
@@ -53,6 +60,7 @@ IoVariableTableRow baseRow() {
   return row;
 }
 
+// Test alias generation from symbol with prefix and address options
 void testSuggestedAlias() {
   IoVariableTableRow row = baseRow();
   expectEqual(suggestedIoVariableAlias(row, QString(), true),
@@ -68,6 +76,7 @@ void testSuggestedAlias() {
               "Control_word_and_enable", "alias from meaning");
 }
 
+// Test handoff issues: missing alias, auto-name, duplicate detection
 void testIssuesAndDuplicates() {
   IoVariableTableRow ready = baseRow();
   ready.alias = "AxisX_Controlword";
@@ -108,6 +117,8 @@ void testIssuesAndDuplicates() {
              "duplicate symbol issue detected");
 }
 
+// Test comment generation with address, direction, PDO, quality labels
+// Verify comment generation includes address, direction, PDO, and quality labels
 void testComment() {
   IoVariableTableRow row = baseRow();
   row.meaning = "Control (* unsafe *) word";
@@ -123,6 +134,8 @@ void testComment() {
              "comment strips nested ST comment delimiters");
 }
 
+// Test declaration block and CSV row generation for PLC export
+// Verify declaration block generation and CSV row export with unique symbols
 void testDeclarationsAndCsv() {
   IoVariableTableRow first = baseRow();
   first.alias = "Axis_Controlword";

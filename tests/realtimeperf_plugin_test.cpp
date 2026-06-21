@@ -1,0 +1,187 @@
+// realtimeperf_plugin_test — unit tests for RealtimePerformancePlugin,
+// LatencyMonitorWidget, ThroughputMonitorWidget, and RealtimePerformanceService.
+
+#include "plugins/realtimeperf/RealtimePerformancePlugin.h"
+#include "plugins/realtimeperf/LatencyMonitorWidget.h"
+#include "plugins/realtimeperf/ThroughputMonitorWidget.h"
+#include "services/RealtimePerformanceService.h"
+
+#include <QApplication>
+#include <QSignalSpy>
+#include <QTest>
+
+class RealtimePerformancePluginTest : public QObject {
+  Q_OBJECT
+private slots:
+  void testPluginIdentity() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QCOMPARE(plugin.id(), QString("realtimeperf"));
+    QCOMPARE(plugin.displayName(), QString("Real-time Performance"));
+    QCOMPARE(plugin.displayNameZh(), QString("实时性能"));
+  }
+
+  void testDefaultOrder() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QCOMPARE(plugin.defaultOrder(), 32);
+  }
+
+  void testVisible() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QVERIFY(plugin.visible());
+  }
+
+  void testWidgetNotNull() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QVERIFY(plugin.widget() != nullptr);
+  }
+
+  void testServiceAccessor() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QCOMPARE(plugin.service(), &svc);
+  }
+
+  void testLatencyMonitorAccessor() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QVERIFY(plugin.latencyMonitor() != nullptr);
+  }
+
+  void testThroughputMonitorAccessor() {
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+    QVERIFY(plugin.throughputMonitor() != nullptr);
+  }
+
+  void testServiceDefaultState() {
+    RealtimePerformanceService svc(nullptr);
+    QVERIFY(!svc.isMonitoring());
+    QCOMPARE(svc.latency().sampleCount, 0);
+    QCOMPARE(svc.latency().avgUs, 0.0);
+    QCOMPARE(svc.throughput().totalFrames, quint64(0));
+    QCOMPARE(svc.quality().score, 100.0);
+  }
+
+  void testServiceStartStop() {
+    RealtimePerformanceService svc(nullptr);
+    QSignalSpy startedSpy(&svc, &RealtimePerformanceService::monitoringStateChanged);
+    svc.startMonitoring(100);
+    QVERIFY(svc.isMonitoring());
+    QCOMPARE(startedSpy.count(), 1);
+    QCOMPARE(startedSpy.at(0).at(0).toBool(), true);
+
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
+    QCOMPARE(startedSpy.count(), 2);
+    QCOMPARE(startedSpy.at(1).at(0).toBool(), false);
+  }
+
+  void testServiceLatencyThreshold() {
+    RealtimePerformanceService svc(nullptr);
+    QCOMPARE(svc.latencyThreshold(), 1000.0);
+    svc.setLatencyThreshold(500.0);
+    QCOMPARE(svc.latencyThreshold(), 500.0);
+  }
+
+  void testServiceHistoryWindowSize() {
+    RealtimePerformanceService svc(nullptr);
+    QCOMPARE(svc.historyWindowSize(), 200);
+    svc.setHistoryWindowSize(500);
+    QCOMPARE(svc.historyWindowSize(), 500);
+  }
+
+  void testLatencyMetricsSignals() {
+    RealtimePerformanceService svc(nullptr);
+    QSignalSpy spy(&svc, &RealtimePerformanceService::latencyUpdated);
+    svc.startMonitoring(50);
+    QTest::qWait(200);
+    svc.stopMonitoring();
+    QVERIFY(spy.count() >= 1);
+    auto metrics = spy.at(0).at(0).value<LatencyMetrics>();
+    QVERIFY(metrics.sampleCount > 0);
+    QVERIFY(metrics.avgUs >= 0.0);
+  }
+
+  void testThroughputMetricsSignals() {
+    RealtimePerformanceService svc(nullptr);
+    QSignalSpy spy(&svc, &RealtimePerformanceService::throughputUpdated);
+    svc.startMonitoring(50);
+    QTest::qWait(200);
+    svc.stopMonitoring();
+    QVERIFY(spy.count() >= 1);
+    auto metrics = spy.at(0).at(0).value<ThroughputMetrics>();
+    QVERIFY(metrics.totalFrames > 0);
+  }
+
+  void testLatencyMonitorAddSample() {
+    LatencyMonitorWidget w;
+    w.addSample(100.0);
+    w.addSample(200.0);
+    w.addSample(150.0);
+    QVERIFY(w.width() >= 0);
+  }
+
+  void testLatencyMonitorThreshold() {
+    LatencyMonitorWidget w;
+    w.setThreshold(500.0);
+    w.addSample(100.0);
+  }
+
+  void testLatencyMonitorClear() {
+    LatencyMonitorWidget w;
+    w.addSample(100.0);
+    w.clear();
+  }
+
+  void testLatencyMonitorHistorySize() {
+    LatencyMonitorWidget w;
+    w.setHistorySize(50);
+    for (int i = 0; i < 100; ++i)
+      w.addSample(static_cast<double>(i));
+  }
+
+  void testLatencyMonitorUpdateMetrics() {
+    LatencyMonitorWidget w;
+    LatencyMetrics m;
+    m.minUs = 50.0;
+    m.maxUs = 200.0;
+    m.avgUs = 100.0;
+    m.stddevUs = 25.0;
+    m.sampleCount = 10;
+    w.updateMetrics(m);
+  }
+
+  void testThroughputMonitorUpdateMetrics() {
+    ThroughputMonitorWidget w;
+    ThroughputMetrics m;
+    m.framesPerSecond = 1000.0;
+    m.bytesPerSecond = 1518000.0;
+    m.errorRate = 0.5;
+    m.utilizationPercent = 45.0;
+    m.totalFrames = 100000;
+    m.totalBytes = 151800000;
+    m.totalErrors = 50;
+    w.updateMetrics(m);
+  }
+
+  void testDoubleStartNoOp() {
+    RealtimePerformanceService svc(nullptr);
+    svc.startMonitoring(100);
+    svc.startMonitoring(100);
+    QVERIFY(svc.isMonitoring());
+    svc.stopMonitoring();
+  }
+
+  void testDoubleStopNoOp() {
+    RealtimePerformanceService svc(nullptr);
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
+  }
+};
+
+QTEST_MAIN(RealtimePerformancePluginTest)
+#include "realtimeperf_plugin_test.moc"

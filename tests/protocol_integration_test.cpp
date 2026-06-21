@@ -1,3 +1,10 @@
+// ProtocolIntegrationTest — Tests for EcatClient protocol integration
+//
+// Test coverage:
+//   - JSON protocol framing and dispatch
+//   - Client connection and ping
+//   - Daemon info response format
+
 // Integration test: EcatClient ↔ test server over localhost TCP.
 // Tests JSON protocol framing, dispatch, and error handling end-to-end.
 #include "EcatClient.h"
@@ -49,6 +56,7 @@ public:
     }
 
 private slots:
+    // Accept client connection and dispatch JSON requests
     void acceptClient() {
         while (auto *socket = nextPendingConnection()) {
             connect(socket, &QTcpSocket::readyRead, this, [this, socket] {

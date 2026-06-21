@@ -1,3 +1,12 @@
+// DcSyncServiceTest — Tests for DcSyncService and DcSyncPlugin
+//
+// Test coverage:
+//   - Signal forwarding from EcatClient to DcSyncService
+//   - Error forwarding
+//   - Polling requires connection
+//   - Plugin identity, ordering, visibility
+//   - EventBus integration populates plugin table
+
 #include <QTest>
 #include <QApplication>
 #include <QSignalSpy>
@@ -29,7 +38,7 @@ private slots:
     delete client_; client_ = nullptr;
   }
 
-  // The service should forward dcSyncStatusResult into dcSyncUpdate.
+  // Verify dcSyncStatusResult is forwarded into dcSyncUpdate signal
   void testSignalForwarding() {
     QSignalSpy spy(svc_, &DcSyncService::dcSyncUpdate);
     QVERIFY(spy.isValid());
@@ -60,7 +69,7 @@ private slots:
     QCOMPARE(received.value("slaves").toArray().size(), 1);
   }
 
-  // Error forwarding from EcatClient.
+  // Verify error messages are forwarded from EcatClient
   void testErrorForwarding() {
     QSignalSpy spy(svc_, &DcSyncService::error);
     emit client_->errorMessage("boom");
@@ -68,7 +77,7 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toString(), QString("boom"));
   }
 
-  // Polling timer fires requestUpdate only when connected.
+  // Verify polling timer does not fire when disconnected
   void testPollingRequiresConnection() {
     QSignalSpy spy(client_, &EcatClient::dcSyncStatusResult);
     svc_->startPolling(50);  // 50 ms for fast test
@@ -84,6 +93,7 @@ private slots:
 class DcSyncPluginTest : public QObject {
   Q_OBJECT
 private slots:
+  // Verify plugin id and display names
   void testIdentity() {
     EventBus bus;
     EcatClient client;
@@ -94,6 +104,7 @@ private slots:
     QCOMPARE(plugin.displayNameZh(), QString("DC同步"));
   }
 
+  // Verify default tab order
   void testDefaultOrder() {
     EventBus bus;
     EcatClient client;
@@ -102,6 +113,7 @@ private slots:
     QCOMPARE(plugin.defaultOrder(), 60);
   }
 
+  // Verify plugin is visible
   void testVisible() {
     EventBus bus;
     EcatClient client;
@@ -110,6 +122,7 @@ private slots:
     QVERIFY(plugin.visible());
   }
 
+  // Verify main widget is created
   void testWidgetNotNull() {
     EventBus bus;
     EcatClient client;
@@ -118,7 +131,7 @@ private slots:
     QVERIFY(plugin.widget() != nullptr);
   }
 
-  // Pushing data through EventBus should populate the plugin table.
+  // Verify EventBus data populates plugin table rows
   void testEventBusIntegration() {
     EventBus bus;
     EcatClient client;

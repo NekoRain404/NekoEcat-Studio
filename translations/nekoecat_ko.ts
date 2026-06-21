@@ -7912,4 +7912,745 @@
             <translation>대량 감시 읽기</translation>
         </message>
     </context>
+    <context>
+        <name>TopologyPlugin</name>
+        <message>
+            <source>Linear Layout</source>
+            <translation>선형 레이아웃</translation>
+        </message>
+        <message>
+            <source>Tree Layout</source>
+            <translation>트리 레이아웃</translation>
+        </message>
+        <message>
+            <source>Zoom In</source>
+            <translation>확대</translation>
+        </message>
+        <message>
+            <source>Zoom Out</source>
+            <translation>축소</translation>
+        </message>
+        <message>
+            <source>Fit</source>
+            <translation>맞춤</translation>
+        </message>
+    </context>
+    <context>
+        <name>EsiPlugin</name>
+        <message>
+            <source>Filter devices...</source>
+            <translation>장치 필터...</translation>
+        </message>
+        <message>
+            <source>Import ESI</source>
+            <translation>ESI 가져오기</translation>
+        </message>
+        <message>
+            <source>Export</source>
+            <translation>내보내기</translation>
+        </message>
+        <message>
+            <source>Refresh</source>
+            <translation>새로고침</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>속성</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>값</translation>
+        </message>
+        <message>
+            <source>No ESI files loaded</source>
+            <translation>ESI 파일이 로드되지 않음</translation>
+        </message>
+        <message>
+            <source>Import ESI XML</source>
+            <translation>ESI XML 가져오기</translation>
+        </message>
+        <message>
+            <source>Export ESI XML</source>
+            <translation>ESI XML 내보내기</translation>
+        </message>
+        <message>
+            <source>%n device(s) in repository</source>
+            <translation>저장소에 %n개 장치</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>이름</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>유형</translation>
+        </message>
+        <message>
+            <source>Vendor ID</source>
+            <translation>벤더 ID</translation>
+        </message>
+        <message>
+            <source>Product Code</source>
+            <translation>제품 코드</translation>
+        </message>
+        <message>
+            <source>Revision</source>
+            <translation>리비전</translation>
+        </message>
+        <message>
+            <source>Description</source>
+            <translation>설명</translation>
+        </message>
+        <message>
+            <source>Rx PDOs</source>
+            <translation>Rx PDO</translation>
+        </message>
+        <message>
+            <source>Tx PDOs</source>
+            <translation>Tx PDO</translation>
+        </message>
+        <message>
+            <source>Sync Managers</source>
+            <translation>동기화 관리자</translation>
+        </message>
+    </context>
+    <context>
+        <name>BusStatsPlugin</name>
+        <message>
+            <source>Start Monitoring</source>
+            <translation>모니터링 시작</translation>
+        </message>
+        <message>
+            <source>Stop Monitoring</source>
+            <translation>모니터링 중지</translation>
+        </message>
+        <message>
+            <source>Stopped</source>
+            <translation>중지됨</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>실행 중</translation>
+        </message>
+        <message>
+            <source>Frame Rate: --</source>
+            <translation>프레임 레이트: --</translation>
+        </message>
+        <message>
+            <source>Bandwidth: --</source>
+            <translation>대역폭: --</translation>
+        </message>
+        <message>
+            <source>Metric</source>
+            <translation>지표</translation>
+        </message>
+        <message>
+            <source>TX Frames</source>
+            <translation>TX 프레임</translation>
+        </message>
+        <message>
+            <source>RX Frames</source>
+            <translation>RX 프레임</translation>
+        </message>
+        <message>
+            <source>TX Errors</source>
+            <translation>TX 오류</translation>
+        </message>
+        <message>
+            <source>RX Errors</source>
+            <translation>RX 오류</translation>
+        </message>
+        <message>
+            <source>CRC Errors</source>
+            <translation>CRC 오류</translation>
+        </message>
+        <message>
+            <source>Lost Frames</source>
+            <translation>손실 프레임</translation>
+        </message>
+        <message>
+            <source>Total Errors</source>
+            <translation>총 오류</translation>
+        </message>
+        <message>
+            <source>Uptime</source>
+            <translation>가동 시간</translation>
+        </message>
+        <message>
+            <source>Frame Rate: %1 f/s</source>
+            <translation>프레임 레이트: %1 프레임/초</translation>
+        </message>
+        <message>
+            <source>Bandwidth: %1 Mbps</source>
+            <translation>대역폭: %1 Mbps</translation>
+        </message>
+    </context>
+    <context>
+        <name>StartupSdoPlugin</name>
+        <message>
+            <source>Diffs Only</source>
+            <translation>차이만</translation>
+        </message>
+        <message>
+            <source>Slave</source>
+            <translation>Slave</translation>
+        </message>
+        <message>
+            <source>Index</source>
+            <translation>인덱스</translation>
+        </message>
+        <message>
+            <source>Sub</source>
+            <translation>서브</translation>
+        </message>
+        <message>
+            <source>Status</source>
+            <translation>상태</translation>
+        </message>
+        <message>
+            <source>Detail</source>
+            <translation>상세</translation>
+        </message>
+        <message>
+            <source>Watch Value</source>
+            <translation>감시 값</translation>
+        </message>
+        <message>
+            <source>Watch Delta</source>
+            <translation>감시 델타</translation>
+        </message>
+    </context>
+    <context>
+        <name>SignalPlugin</name>
+        <message>
+            <source>Channels</source>
+            <translation>채널</translation>
+        </message>
+        <message>
+            <source>Add channel</source>
+            <translation>채널 추가</translation>
+        </message>
+        <message>
+            <source>Remove selected channel</source>
+            <translation>선택 채널 삭제</translation>
+        </message>
+        <message>
+            <source>Window</source>
+            <translation>윈도우</translation>
+        </message>
+        <message>
+            <source>Add Signal Channel</source>
+            <translation>신호 채널 추가</translation>
+        </message>
+        <message>
+            <source>e.g. actual_position</source>
+            <translation>예: actual_position</translation>
+        </message>
+        <message>
+            <source>e.g. 0x6064</source>
+            <translation>예: 0x6064</translation>
+        </message>
+        <message>
+            <source>SubIndex</source>
+            <translation>서브인덱스</translation>
+        </message>
+    </context>
+    <context>
+        <name>AlEventPlugin</name>
+        <message>
+            <source>All</source>
+            <translation>모두</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>오류</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>경고</translation>
+        </message>
+        <message>
+            <source>Info</source>
+            <translation>정보</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>지우기</translation>
+        </message>
+        <message>
+            <source>Time</source>
+            <translation>시간</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>코드</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>심각도</translation>
+        </message>
+    </context>
+    <context>
+        <name>DcSyncPlugin</name>
+        <message>
+            <source>Position</source>
+            <translation>위치</translation>
+        </message>
+        <message>
+            <source>DC Capable</source>
+            <translation>DC 지원</translation>
+        </message>
+        <message>
+            <source>Syncing</source>
+            <translation>동기화 중</translation>
+        </message>
+        <message>
+            <source>Drift (ns)</source>
+            <translation>드리프트 (ns)</translation>
+        </message>
+        <message>
+            <source>Jitter Min</source>
+            <translation>지터 최소</translation>
+        </message>
+        <message>
+            <source>Jitter Max</source>
+            <translation>지터 최대</translation>
+        </message>
+        <message>
+            <source>Jitter Avg</source>
+            <translation>지터 평균</translation>
+        </message>
+        <message>
+            <source>Ref Clock</source>
+            <translation>기준 클럭</translation>
+        </message>
+        <message>
+            <source>Yes</source>
+            <translation>예</translation>
+        </message>
+        <message>
+            <source>No</source>
+            <translation>아니오</translation>
+        </message>
+    </context>
+    <context>
+        <name>NotesPlugin</name>
+        <message>
+            <source>Enter project notes here...</source>
+            <translation>여기에 프로젝트 메모 입력...</translation>
+        </message>
+    </context>
+    <context>
+        <name>RtTestPlugin</name>
+        <message>
+            <source>Start</source>
+            <translation>시작</translation>
+        </message>
+        <message>
+            <source>Stop</source>
+            <translation>중지</translation>
+        </message>
+        <message>
+            <source>Cycle:</source>
+            <translation>사이클:</translation>
+        </message>
+        <message>
+            <source>Custom...</source>
+            <translation>사용자 정의...</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>대기</translation>
+        </message>
+        <message>
+            <source>Min \xC2\xB5s</source>
+            <translation>최소 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Max \xC2\xB5s</source>
+            <translation>최대 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Avg \xC2\xB5s</source>
+            <translation>평균 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Jitter \xC2\xB5s</source>
+            <translation>지터 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Cycles</source>
+            <translation>사이클</translation>
+        </message>
+        <message>
+            <source>Errors</source>
+            <translation>오류</translation>
+        </message>
+        <message>
+            <source>Loss %</source>
+            <translation>손실 %</translation>
+        </message>
+        <message>
+            <source>Cycle log...</source>
+            <translation>사이클 로그...</translation>
+        </message>
+        <message>
+            <source>Cycle Latency (\xC2\xB5s)</source>
+            <translation>사이클 지연 (\xC2\xB5s)</translation>
+        </message>
+        <message>
+            <source>Avg</source>
+            <translation>평균</translation>
+        </message>
+        <message>
+            <source>Max</source>
+            <translation>최대</translation>
+        </message>
+        <message>
+            <source>Min</source>
+            <translation>최소</translation>
+        </message>
+        <message>
+            <source>Jitter: %1 \xC2\xB5s</source>
+            <translation>지터: %1 \xC2\xB5s</translation>
+        </message>
+    </context>
+    <context>
+        <name>ExportPlugin</name>
+        <message>
+            <source>Export %1</source>
+            <translation>%1 내보내기</translation>
+        </message>
+        <message>
+            <source>No entries are available to export.</source>
+            <translation>내보낼 항목이 없습니다.</translation>
+        </message>
+        <message>
+            <source>Export %1 CSV</source>
+            <translation>%1 CSV 내보내기</translation>
+        </message>
+        <message>
+            <source>Export failed</source>
+            <translation>내보내기 실패</translation>
+        </message>
+        <message>
+            <source>Exported %1 row(s): %2</source>
+            <translation>%1행 내보냄: %2</translation>
+        </message>
+        <message>
+            <source>No data is available to export.</source>
+            <translation>내보낼 데이터가 없습니다.</translation>
+        </message>
+        <message>
+            <source>Exported %1 node(s): %2</source>
+            <translation>%1 노드 내보냄: %2</translation>
+        </message>
+        <message>
+            <source>Exported: %1</source>
+            <translation>내보냄: %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>SessionPlugin</name>
+        <message>
+            <source>Area</source>
+            <translation>영역</translation>
+        </message>
+        <message>
+            <source>Evidence</source>
+            <translation>증거</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>다음</translation>
+        </message>
+        <message>
+            <source>Copy Row</source>
+            <translation>행 복사</translation>
+        </message>
+        <message>
+            <source>%1 rows</source>
+            <translation>%1행</translation>
+        </message>
+        <message>
+            <source>Copy: %1</source>
+            <translation>복사: %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>DiagnosticsPlugin</name>
+        <message>
+            <source>Filter diagnostics...</source>
+            <translation>진단 필터...</translation>
+        </message>
+        <message>
+            <source>Timestamp</source>
+            <translation>타임스탬프</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>수준</translation>
+        </message>
+        <message>
+            <source>Message</source>
+            <translation>메시지</translation>
+        </message>
+        <message>
+            <source>No topology baseline</source>
+            <translation>토폴로지 기준선 없음</translation>
+        </message>
+        <message>
+            <source>Capture Baseline</source>
+            <translation>기준선 캡처</translation>
+        </message>
+        <message>
+            <source>Clear Baseline</source>
+            <translation>기준선 지우기</translation>
+        </message>
+        <message>
+            <source>%1 shown | %2 errors | %3 warnings</source>
+            <translation>표시 %1 | 오류 %2 | 경고 %3</translation>
+        </message>
+        <message>
+            <source>Export Diagnostics Report</source>
+            <translation>진단 보고서 내보내기</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConsistencyPlugin</name>
+        <message>
+            <source>Errors</source>
+            <translation>오류</translation>
+        </message>
+        <message>
+            <source>Warnings</source>
+            <translation>경고</translation>
+        </message>
+        <message>
+            <source>Topology</source>
+            <translation>토폴로지</translation>
+        </message>
+        <message>
+            <source>Startup</source>
+            <translation>시작</translation>
+        </message>
+        <message>
+            <source>Ready</source>
+            <translation>준비</translation>
+        </message>
+        <message>
+            <source>Filter consistency rows...</source>
+            <translation>일관성 행 필터...</translation>
+        </message>
+        <message>
+            <source>Scope</source>
+            <translation>범위</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>대상</translation>
+        </message>
+        <message>
+            <source>Expected</source>
+            <translation>예상</translation>
+        </message>
+        <message>
+            <source>Actual</source>
+            <translation>실제</translation>
+        </message>
+        <message>
+            <source>%1 rows | errors %2 | warnings %3 | info %4 | ready %5</source>
+            <translation>%1행 | 오류 %2 | 경고 %3 | 정보 %4 | 준비 %5</translation>
+        </message>
+    </context>
+    <context>
+        <name>StateMachinePlugin</name>
+    </context>
+    <context>
+        <name>IoVariablePlugin</name>
+        <message>
+            <source>Process</source>
+            <translation>프로세스</translation>
+        </message>
+        <message>
+            <source>PLC Issues</source>
+            <translation>PLC 문제</translation>
+        </message>
+        <message>
+            <source>Filter I/O variables...</source>
+            <translation>I/O 변수 필터...</translation>
+        </message>
+    </context>
+    <context>
+        <name>FreeRunPlugin</name>
+        <message>
+            <source>Filter free run entries...</source>
+            <translation>프리런 항목 필터...</translation>
+        </message>
+        <message>
+            <source>Changed only</source>
+            <translation>변경된 것만</translation>
+        </message>
+    </context>
+    <context>
+        <name>WatchPlugin</name>
+        <message>
+            <source>Filter watch rows...</source>
+            <translation>감시 행 필터...</translation>
+        </message>
+        <message>
+            <source>Auto refresh</source>
+            <translation>자동 새로고침</translation>
+        </message>
+        <message>
+            <source>500 ms</source>
+            <translation>500 밀리초</translation>
+        </message>
+        <message>
+            <source>1 s</source>
+            <translation>1 초</translation>
+        </message>
+        <message>
+            <source>2 s</source>
+            <translation>2 초</translation>
+        </message>
+        <message>
+            <source>5 s</source>
+            <translation>5 초</translation>
+        </message>
+        <message>
+            <source>Decoded</source>
+            <translation>디코딩 값</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>모드</translation>
+        </message>
+        <message>
+            <source>Baseline</source>
+            <translation>기준선</translation>
+        </message>
+        <message>
+            <source>Delta</source>
+            <translation>델타</translation>
+        </message>
+        <message>
+            <source>Startup Delta</source>
+            <translation>시작 델타</translation>
+        </message>
+    </context>
+    <context>
+        <name>OdPlugin</name>
+        <message>
+            <source>All Objects</source>
+            <translation>모든 객체</translation>
+        </message>
+        <message>
+            <source>CoE Objects</source>
+            <translation>CoE 객체</translation>
+        </message>
+        <message>
+            <source>CiA 402</source>
+            <translation>CiA 402</translation>
+        </message>
+        <message>
+            <source>Identity</source>
+            <translation>식별</translation>
+        </message>
+        <message>
+            <source>PDO Mapping</source>
+            <translation>PDO 매핑</translation>
+        </message>
+        <message>
+            <source>Error/Diag</source>
+            <translation>오류/진단</translation>
+        </message>
+        <message>
+            <source>All Access</source>
+            <translation>모든 접근</translation>
+        </message>
+        <message>
+            <source>Read/Write</source>
+            <translation>읽기/쓰기</translation>
+        </message>
+        <message>
+            <source>Read Only</source>
+            <translation>읽기 전용</translation>
+        </message>
+        <message>
+            <source>Filter OD rows...</source>
+            <translation>OD 행 필터...</translation>
+        </message>
+        <message>
+            <source>Object</source>
+            <translation>객체</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>비트</translation>
+        </message>
+        <message>
+            <source>Last Value</source>
+            <translation>마지막 값</translation>
+        </message>
+        <message>
+            <source>Index (0x)</source>
+            <translation>인덱스 (0x)</translation>
+        </message>
+        <message>
+            <source>Use</source>
+            <translation>사용</translation>
+        </message>
+        <message>
+            <source>Value to write</source>
+            <translation>쓰기 값</translation>
+        </message>
+        <message>
+            <source>Run Row Action</source>
+            <translation>행 액션 실행</translation>
+        </message>
+        <message>
+            <source>Copy row</source>
+            <translation>행 복사</translation>
+        </message>
+        <message>
+            <source>Key</source>
+            <translation>키</translation>
+        </message>
+        <message>
+            <source>Action</source>
+            <translation>동작</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>소스</translation>
+        </message>
+        <message>
+            <source>Slave Name</source>
+            <translation>Slave 이름</translation>
+        </message>
+        <message>
+            <source>%1 obj | %2 vis | %3 evidence | %4 fail | %5 rw</source>
+            <translation>%1 객체 | %2 표시 | %3 증거 | %4 실패 | %5 읽쓰</translation>
+        </message>
+    </context>
+    <context>
+        <name>OverviewPlugin</name>
+        <message>
+            <source>Details</source>
+            <translation>상세</translation>
+        </message>
+        <message>
+            <source>Brief</source>
+            <translation>요약</translation>
+        </message>
+        <message>
+            <source>Workflow</source>
+            <translation>워크플로우</translation>
+        </message>
+        <message>
+            <source>Matrix</source>
+            <translation>매트릭스</translation>
+        </message>
+    </context>
 </TS>

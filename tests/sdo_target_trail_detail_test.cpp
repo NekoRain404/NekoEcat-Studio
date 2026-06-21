@@ -1,4 +1,13 @@
-// Unit tests for SdoTargetTrailDetail.
+// SdoTargetTrailDetailTest — Tests for SDO Target Trail Detail
+//
+// Test coverage:
+//   - Ready row detail text generation
+//   - Unavailable and no-selection states
+//   - Time, slave, object, type, source, value, write value field rendering
+//   - Startup candidate status (ready, watch/bookmark only, missing address)
+//   - Restore target locally action
+//   - Localized text support
+//   - Summary pattern formatting
 #include "detail/SdoTargetTrailDetail.h"
 
 #include <QCoreApplication>
@@ -91,6 +100,8 @@ SdoTargetTrailRow readyRow() {
   return row;
 }
 
+// Verify unavailable and no-selection empty states
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   SdoTargetTrailDetailState state =
       sdoTargetTrailDetailUnavailableState(englishTexts());
@@ -106,6 +117,8 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Verify severity: ok for startup-capable, action for valued, neutral/warning for missing
+// Test severity key rules for startup-capable, valued, no-value, and missing target
 void testSeverityRules() {
   const SdoTargetTrailDetailTexts texts = englishTexts();
   SdoTargetTrailRow row = readyRow();
@@ -124,6 +137,8 @@ void testSeverityRules() {
               "missing target is warning");
 }
 
+// Build selected row state and verify summary, tooltip, startup value, reuse
+// Test selected row state with full detail, startup value, and tooltip
 void testSelectedRowState() {
   const SdoTargetTrailRow row = readyRow();
   const SdoTargetTrailDetailState state =
@@ -153,6 +168,8 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Handle fallback state with no write value and limited reuse
+// Test fallback state for row without write value or startup capability
 void testFallbackState() {
   SdoTargetTrailRow row;
   row.row = 0;

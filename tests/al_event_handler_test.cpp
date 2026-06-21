@@ -1,3 +1,11 @@
+// AlEventHandlerTest — Tests for AlEventHandler
+//
+// Test coverage:
+//   - Empty event list handling
+//   - Adding and retrieving AL events
+//   - Clearing event history
+//   - Limit parameter filtering
+
 #include <QTest>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -8,6 +16,7 @@ class AlEventHandlerTest : public QObject {
     Q_OBJECT
 
 private slots:
+    // Verify handle returns empty events array when none added
     void testHandleEmptyEvents() {
         AlEventHandler handler;
         QJsonObject result = handler.handle("1", {});
@@ -17,6 +26,7 @@ private slots:
         QCOMPARE(result["events"].toArray().size(), 0);
     }
 
+    // Verify handle returns correct event data after adding events
     void testHandleWithEvents() {
         AlEventHandler handler;
 
@@ -50,6 +60,7 @@ private slots:
         QCOMPARE(first["severity"].toString(), QString("Error"));
     }
 
+    // Verify clear resets event history
     void testClear() {
         AlEventHandler handler;
 
@@ -71,6 +82,7 @@ private slots:
         QCOMPARE(result["events"].toArray().size(), 0);
     }
 
+    // Verify limit parameter restricts returned event count
     void testLimitParam() {
         AlEventHandler handler;
 

@@ -1,4 +1,11 @@
-// Unit tests for WorkflowStepDetail.
+// WorkflowStepDetailTest — Tests for Workflow Step Detail
+//
+// Test coverage:
+//   - Step status text rendering (ready, action, blocked states)
+//   - Phase and risk label generation
+//   - Evidence availability and tooltip formatting
+//   - Boundary annotation rendering
+//   - Localized text support
 #include "detail/WorkflowStepDetail.h"
 
 #include <QCoreApplication>
@@ -109,6 +116,7 @@ CommissioningWorkflowTableRow actionRow() {
   return row;
 }
 
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   WorkflowStepDetailState state =
       workflowStepDetailUnavailableState(detailTexts());
@@ -124,6 +132,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Test severity rules for action, ready, blocked, and severe risk
 void testSeverityRules() {
   const CommissioningWorkflowTexts workflow = workflowTexts();
   const WorkflowStepDetailTexts detail = detailTexts();
@@ -146,6 +155,7 @@ void testSeverityRules() {
               "error", "severe risk overrides status");
 }
 
+// Test selected row detail state with boundary, risk, and tooltip
 void testSelectedRowState() {
   const WorkflowStepDetailState state =
       buildWorkflowStepDetailState(actionRow(), workflowTexts(),
@@ -175,6 +185,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Test localized risk detection and no-risk fallback
 void testLocalizedRiskAndNoRiskFallback() {
   CommissioningWorkflowTableRow row = actionRow();
   row.status = "受阻";

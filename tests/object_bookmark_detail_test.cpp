@@ -1,4 +1,11 @@
-// Unit tests for ObjectBookmarkDetail.
+// ObjectBookmarkDetailTest — Tests for ObjectBookmarkDetail
+//
+// Test coverage:
+//   - Empty states (unavailable and no selection)
+//   - Severity rules for access and value combinations
+//   - Selected row state with tooltip and reuse text
+//   - Read-only and fallback state handling
+
 #include "detail/ObjectBookmarkDetail.h"
 
 #include <QCoreApplication>
@@ -90,6 +97,7 @@ SdoObjectBookmarkRow readyRow() {
   return row;
 }
 
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   ObjectBookmarkDetailState state =
       objectBookmarkDetailUnavailableState(englishTexts());
@@ -104,6 +112,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Test severity key rules for different row states
 void testSeverityRules() {
   const ObjectBookmarkDetailTexts texts = englishTexts();
   SdoObjectBookmarkRow row = readyRow();
@@ -124,6 +133,8 @@ void testSeverityRules() {
               "missing target is warning");
 }
 
+// Verify selected row state with summary, tooltip, and reuse text
+// Test selected row generates correct summary and tooltip
 void testSelectedRowState() {
   const SdoObjectBookmarkRow row = readyRow();
   const ObjectBookmarkDetailState state =
@@ -148,6 +159,8 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Verify read-only detection and missing target fallback
+// Test read-only detection and missing target fallback
 void testReadOnlyAndFallbackState() {
   SdoObjectBookmarkRow row;
   row.row = 1;

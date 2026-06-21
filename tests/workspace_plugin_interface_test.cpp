@@ -1,3 +1,11 @@
+// WorkspacePluginInterfaceTest — Tests for Workspace Plugin Interface
+//
+// Test coverage:
+//   - Plugin identity contract (id, display names, order, visibility)
+//   - Signal interface validity (requestNavigate, updateDiagnostics)
+//   - Default icon behavior
+//   - Lifecycle methods (activate, deactivate, onConnectionChanged)
+
 #include <QTest>
 #include <QSignalSpy>
 #include "plugins/WorkspacePlugin.h"
@@ -15,6 +23,8 @@ public:
 class WorkspacePluginInterfaceTest : public QObject {
     Q_OBJECT
 private slots:
+    // Verify plugin identity contract (id, names, order, visibility)
+    // Plugin identity contract returns configured values
     void testIdentity() {
         MockPlugin p;
         QCOMPARE(p.id(), "mock");
@@ -23,6 +33,8 @@ private slots:
         QCOMPARE(p.defaultOrder(), 42);
         QVERIFY(p.visible());
     }
+    // Verify requestNavigate and updateDiagnostics signals are valid
+    // Signal interfaces are valid and connectable
     void testSignalsExist() {
         MockPlugin p;
         QSignalSpy navSpy(&p, SIGNAL(requestNavigate(QString)));
@@ -30,10 +42,14 @@ private slots:
         QVERIFY(navSpy.isValid());
         QVERIFY(diagSpy.isValid());
     }
+    // Default icon is null for base plugin
+    // Default icon is null when not overridden
     void testDefaultIcon() {
         MockPlugin p;
         QVERIFY(p.icon().isNull());
     }
+    // Lifecycle methods (activate, deactivate, onConnectionChanged) do not crash
+    // Lifecycle methods execute without crash
     void testLifecycleDefaults() {
         MockPlugin p;
         // Should not crash

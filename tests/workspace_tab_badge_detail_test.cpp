@@ -1,4 +1,15 @@
-// Unit tests for WorkspaceTabBadgeDetail.
+// WorkspaceTabBadgeDetailTest — Tests for Workspace Tab Badge Detail
+//
+// Test coverage:
+//   - Badge text formatting (zero count, issue count, normal count)
+//   - Overview priority counts (P0-P3 matrix)
+//   - Startup diff issues precedence over row count
+//   - Watch delta badge text
+//   - Free Run row count badge
+//   - I/O Variables badge with review issues
+//   - Consistency badge with error/warning/info counts
+//   - State machine risk badge
+//   - Diagnostics badge with severity counts
 #include "detail/WorkspaceTabBadgeDetail.h"
 
 #include <QCoreApplication>
@@ -43,6 +54,7 @@ WorkspaceTabBadgeTexts englishTexts() {
   };
 }
 
+// Badge text with zero count shows label only, issues use ! prefix, normal uses count
 void testBadgeText() {
   expectEqual(workspaceTabBadgeText("Watch", 0), "Watch", "zero count text");
   expectEqual(workspaceTabBadgeText("Overview", 3, true), "Overview !3",
@@ -51,6 +63,7 @@ void testBadgeText() {
               "normal count text");
 }
 
+// Overview badge shows sum of P0+P1 priority counts with matrix tip
 void testOverviewPriorityCounts() {
   WorkspaceTabBadgeCounts counts;
   counts.matrixP0 = 1;
@@ -67,6 +80,7 @@ void testOverviewPriorityCounts() {
               "overview tip");
 }
 
+// Startup badge prefers diff issues over row count
 void testStartupUsesDiffIssuesBeforeRows() {
   WorkspaceTabBadgeCounts counts;
   counts.startupRows = 12;
@@ -83,6 +97,7 @@ void testStartupUsesDiffIssuesBeforeRows() {
   expectEqual(state.startupSdo.text, "Startup SDO 12", "startup row badge");
 }
 
+// Consistency badge shows blocking issues (errors+warnings) before row count
 void testConsistencyUsesBlockingIssuesBeforeRows() {
   WorkspaceTabBadgeCounts counts;
   counts.consistencyRows = 9;
@@ -105,6 +120,7 @@ void testConsistencyUsesBlockingIssuesBeforeRows() {
   expectEqual(state.consistency.text, "Consistency 9", "consistency row badge");
 }
 
+// Diagnostics badge shows issues (errors+warnings) before row count
 void testDiagnosticsUsesIssuesBeforeRows() {
   WorkspaceTabBadgeCounts counts;
   counts.diagnosticRows = 8;
@@ -125,6 +141,7 @@ void testDiagnosticsUsesIssuesBeforeRows() {
   expectEqual(state.diagnostics.text, "Diagnostics 8", "diagnostics row badge");
 }
 
+// Verify watch, free run, I/O variables, and state machine badges
 void testOtherWorkspaceBadges() {
   WorkspaceTabBadgeCounts counts;
   counts.watchRows = 7;

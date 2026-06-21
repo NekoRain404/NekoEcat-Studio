@@ -1,0 +1,8 @@
+table_helpers_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TableHelpers.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TableHelpers.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TextHelpers.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/utils/TextHelpers.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/table_helpers_test.cpp \
+	/usr/bin/cmake

@@ -97,7 +97,7 @@ void SignalPlugin::buildUi() {
   // Stats bar.
   statsLabel_ = new QLabel;
   statsLabel_->setFixedHeight(24);
-  statsLabel_->setStyleSheet("background: #1e1e1e; color: #b0b0b0; padding: 2px 6px;");
+  statsLabel_->setObjectName("signalStatsLabel");
   centerLayout->addWidget(statsLabel_);
 
   root->addWidget(centerPanel, 1);

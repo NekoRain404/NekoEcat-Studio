@@ -1,3 +1,10 @@
+// ConsistencyTableAdapterTest — Tests for ConsistencyTableAdapter
+//
+// Test coverage:
+//   - Issue counts from table rows
+//   - First blocking/I/O issue row detection
+//   - Scope and search filtering with row visibility
+
 // Unit tests for ConsistencyTableAdapter.
 #include "adapters/ConsistencyTableAdapter.h"
 
@@ -54,6 +61,7 @@ void initTable(QTableWidget *table) {
   setCell(table, 4, kConsistencyTargetColumn, "#5 0x6060:0x00");
 }
 
+// Verify issue counts, first blocking row, and table availability
 void testCountsAndFirstRows() {
   QTableWidget table;
   initTable(&table);
@@ -71,6 +79,7 @@ void testCountsAndFirstRows() {
   expectTrue(!consistencyTableAvailable(nullptr), "null table is unavailable");
 }
 
+// Verify scope and search text filtering hides/shows correct rows
 void testScopeAndSearchFiltering() {
   QTableWidget table;
   initTable(&table);

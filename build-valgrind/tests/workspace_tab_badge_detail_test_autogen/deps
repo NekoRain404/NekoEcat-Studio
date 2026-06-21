@@ -1,0 +1,6 @@
+workspace_tab_badge_detail_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/WorkspaceTabBadgeDetail.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/WorkspaceTabBadgeDetail.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/workspace_tab_badge_detail_test.cpp \
+	/usr/bin/cmake

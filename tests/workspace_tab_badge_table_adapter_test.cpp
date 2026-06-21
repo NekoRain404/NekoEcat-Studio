@@ -1,4 +1,11 @@
-// Unit tests for WorkspaceTabBadgeTableAdapter.
+// WorkspaceTabBadgeTableAdapterTest — Tests for Workspace Tab Badge Table Adapter
+//
+// Test coverage:
+//   - Simple issue classifiers (watch delta match/diff/pending)
+//   - Badge counts extraction from watch, startup, consistency tables
+//   - Table cell population and formatting
+//   - Badge text generation from table data
+//   - Edge cases (empty tables, hidden rows)
 #include "adapters/WorkspaceTabBadgeTableAdapter.h"
 
 #include "adapters/ConsistencyTableAdapter.h"
@@ -44,6 +51,7 @@ void initTable(QTableWidget *table, int rows, int columns) {
   table->setRowCount(rows);
 }
 
+// Verify issue classifiers for watch delta (match, diff, pending)
 void testSimpleIssueClassifiers() {
   expectTrue(!workspaceTabBadgeWatchDeltaIsIssue("match"),
              "watch match is not an issue");
@@ -53,6 +61,7 @@ void testSimpleIssueClassifiers() {
              "watch diff is an issue");
 }
 
+// Extract badge counts from populated watch, startup, consistency, state, diagnostics tables
 void testWorkspaceTabBadgeCountsFromTables() {
   QTableWidget watch;
   initTable(&watch, 3, 12);

@@ -1,4 +1,11 @@
-// Unit tests for Cia402DriveModel.
+// Cia402DriveModelTest — Tests for Cia402DriveModel
+//
+// Test coverage:
+//   - Controlword recommendations from status
+//   - No recommendation for enabled state
+//   - CiA 402 object detection
+//   - CiA 402 value decoding (statusword, controlword, modes, errors)
+
 #include "models/Cia402DriveModel.h"
 
 #include <QCoreApplication>

@@ -1,0 +1,6 @@
+cia402_drive_model_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/models/Cia402DriveModel.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/models/Cia402DriveModel.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/cia402_drive_model_test.cpp \
+	/usr/bin/cmake

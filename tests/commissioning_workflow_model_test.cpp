@@ -1,4 +1,11 @@
-// Unit tests for CommissioningWorkflowModel.
+// CommissioningWorkflowModelTest — Tests for CommissioningWorkflowModel
+//
+// Test coverage:
+//   - Ready workflow state
+//   - Next step ordering logic
+//   - Step state transitions
+//   - Workflow input validation
+
 #include "models/CommissioningWorkflowModel.h"
 
 #include <QCoreApplication>
@@ -43,6 +50,7 @@ CommissioningWorkflowInput readyInput() {
   return input;
 }
 
+// Verify ready input produces all-ready workflow steps
 void testReadyWorkflow() {
   const QVector<CommissioningWorkflowStepState> states =
       buildCommissioningWorkflowStepStates(readyInput());
@@ -55,6 +63,7 @@ void testReadyWorkflow() {
               "ready workflow has no next step");
 }
 
+// Verify next step ordering based on input state
 void testNextStepOrdering() {
   CommissioningWorkflowInput input;
   expectEqual(nextCommissioningWorkflowStepIndex(input), 0,
@@ -87,6 +96,7 @@ void testNextStepOrdering() {
               "missing process image is last next step");
 }
 
+// Verify step status lookup for specific steps
 void testStepStatusLookup() {
   CommissioningWorkflowInput input = readyInput();
   input.hasPdoRows = false;
@@ -101,6 +111,7 @@ void testStepStatusLookup() {
                CommissioningWorkflowStatus::Ready, "watch step remains ready");
 }
 
+// Verify step index mapping and order count
 void testStepIndexMapping() {
   expectEqual(commissioningWorkflowStepOrder().size(), 10,
               "workflow step order count");

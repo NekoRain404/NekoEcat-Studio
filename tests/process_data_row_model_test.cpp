@@ -1,4 +1,10 @@
-// Unit tests for ProcessDataRowModel.
+// ProcessDataRowModelTest — Tests for ProcessDataRowModel
+//
+// Test coverage:
+//   - Type inference from bits and source aliases
+//   - I/O row rules for target, value, and key generation
+//   - Fallback rules for missing data and invalid positions
+
 #include "models/ProcessDataRowModel.h"
 
 #include <QCoreApplication>
@@ -51,6 +57,8 @@ IoVariableTableRow baseIoRow() {
   return row;
 }
 
+// Test type inference from bit width and IEC type normalization
+// Verify type inference from bit width and source alias normalization
 void testTypeRules() {
   expectEqual(processDataTypeFromBits("1"), "bool", "1-bit type");
   expectEqual(processDataTypeFromBits("8"), "uint8", "8-bit type");
@@ -69,6 +77,8 @@ void testTypeRules() {
               "double maps to IEC LREAL");
 }
 
+// Test I/O row target, value, type, key, and flag detection
+// Verify I/O row target, value, type, key, and flag detection
 void testIoRowRules() {
   const IoVariableTableRow row = baseIoRow();
   expectTrue(ioVariableTableRowHasTarget(row), "I/O row has target");
@@ -96,6 +106,8 @@ void testIoRowRules() {
               "row with raw/watch is not missing value");
 }
 
+// Test fallback rules for missing source type and invalid position
+// Verify fallback behavior for missing data and invalid positions
 void testFallbackRules() {
   IoVariableTableRow row;
   row.position = 4;

@@ -1,4 +1,12 @@
-// Unit tests for CommandDispatcher.
+// CommandDispatcherTest — Tests for CommandDispatcher
+//
+// Test coverage:
+//   - Dispatch unregistered method returns error
+//   - Dispatch calls registered handler
+//   - Handler receives correct params
+//   - Handler failure propagation
+//   - Multiple handler registration
+
 #include "CommandDispatcher.h"
 
 #include <QCoreApplication>

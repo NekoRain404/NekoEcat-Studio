@@ -228,6 +228,24 @@ QWidget *SettingsDialog::buildEthercatTab(const AppSettings &s, bool zh)
         emit themePreviewRequested(QStringLiteral("__refresh_adapters__"));
     });
 
+    // ── Backend Mode section ────────────────────────────────────────────
+    layout->addSpacing(8);
+    layout->addWidget(makeSection(zh ? QStringLiteral("后端模式") : QStringLiteral("Backend Mode")));
+
+    auto *backendRow = new QHBoxLayout;
+    backendRow->setSpacing(8);
+    backendModeCombo_ = new QComboBox;
+    backendModeCombo_->setMinimumWidth(280);
+    backendModeCombo_->addItem(zh ? QStringLiteral("自动 (推荐)") : QStringLiteral("Auto (Recommended)"), QStringLiteral("auto"));
+    backendModeCombo_->addItem(zh ? QStringLiteral("IgH 原生 API") : QStringLiteral("IgH Native API"), QStringLiteral("native"));
+    backendModeCombo_->addItem(zh ? QStringLiteral("IgH 命令行") : QStringLiteral("IgH CLI"), QStringLiteral("cli"));
+    backendModeCombo_->setCurrentIndex(
+        s.backendMode == QStringLiteral("native") ? 1 :
+        s.backendMode == QStringLiteral("cli") ? 2 : 0);
+    backendRow->addWidget(backendModeCombo_);
+    backendRow->addStretch(1);
+    layout->addLayout(backendRow);
+
     return tab;
 }
 
@@ -567,6 +585,10 @@ AppSettings SettingsDialog::settings() const
     // Adapter
     if (adapterCombo_)
         r.networkAdapter = adapterCombo_->currentData().toString();
+
+    // Backend Mode
+    if (backendModeCombo_)
+        r.backendMode = backendModeCombo_->currentData().toString();
 
     // Timing
     r.watchAutoRefreshMs = watchRefreshCombo_->currentData().toInt();

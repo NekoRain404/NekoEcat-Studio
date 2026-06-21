@@ -1,4 +1,11 @@
-// Unit tests for PdoMapDetail.
+// PdoMapDetailTest — Tests for PdoMapDetail
+//
+// Test coverage:
+//   - Empty states (unavailable and no selection)
+//   - Direction, severity, and drive evidence detection
+//   - Selected row state with tooltip
+//   - Fallback state for empty rows
+
 #include "detail/PdoMapDetail.h"
 
 #include <QCoreApplication>
@@ -84,6 +91,7 @@ PdoMapTableRow rxControlwordRow() {
   return row;
 }
 
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   PdoMapDetailState state = pdoMapDetailUnavailableState(englishTexts());
   expectEqual(state.text, "PDO Map evidence is not available.",
@@ -97,6 +105,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Test direction detection, severity, and CiA 402 evidence
 void testDirectionSeverityAndDriveEvidence() {
   PdoMapTableRow row = rxControlwordRow();
   expectTrue(pdoMapDetailIsRxOutput(row), "RxPDO is output-like");
@@ -120,6 +129,8 @@ void testDirectionSeverityAndDriveEvidence() {
   expectEqual(pdoMapDetailSeverityKey(row), "warning", "missing address warns");
 }
 
+// Verify selected row state with summary, tooltip, and role
+// Test selected row generates correct summary and tooltip
 void testSelectedRowState() {
   const PdoMapTableRow row = rxControlwordRow();
   const PdoMapDetailState state =
@@ -143,6 +154,8 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Verify fallback state for empty row with warning severity
+// Test fallback state for empty row
 void testFallbackState() {
   PdoMapTableRow row;
   const PdoMapDetailState state =

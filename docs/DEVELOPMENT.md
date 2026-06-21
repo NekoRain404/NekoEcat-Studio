@@ -18,11 +18,45 @@ risk register, commenting standard, and gradual `MainWindow` split plan.
   runs.
 - Online behavior should flow through `EcatClient` -> `ecatd` -> backend.
 
-## Build
+## Build Instructions
 
 ```bash
 cmake -S . -B build
-cmake --build build
+cmake --build build -j$(nproc)
+```
+
+Build specific targets:
+
+```bash
+cmake --build build --target ecat-studio
+cmake --build build --target ecatd
+cmake --build build --target release-smoke
+```
+
+## Test Instructions
+
+Run all tests:
+
+```bash
+ctest --test-dir build --output-on-failure -j4
+```
+
+Run specific test:
+
+```bash
+ctest --test-dir build -R <test_name>
+```
+
+Release smoke test:
+
+```bash
+cmake --build build --target release-smoke
+```
+
+GUI smoke test:
+
+```bash
+QT_QPA_PLATFORM=offscreen timeout 5s build/apps/ecat-studio/ecat-studio
 ```
 
 ## Run
@@ -91,3 +125,48 @@ For a visual UI check without EtherCAT hardware, start the GUI under `xvfb-run`
 and capture the main window. Confirm that Overview is the default workspace,
 high-frequency tabs are reachable through the scrollable tab bar, and Host
 Health remains inside Diagnostics.
+
+## Code Style Guide
+
+- C++20 standard
+- 2-space indentation
+- `#pragma once` for include guards
+- Qt naming conventions (camelCase methods, trailing_ for members)
+- Descriptive comments on public interfaces
+- Models must not include QWidget headers
+
+## Commit Message Conventions
+
+Format: `type: short description`
+
+Types:
+- `feat`: new feature
+- `fix`: bug fix
+- `refactor`: code restructuring
+- `test`: adding or updating tests
+- `docs`: documentation changes
+- `chore`: maintenance tasks
+- `plan`: planning documents
+- `spec`: specifications
+
+Examples:
+```
+feat: add SDO upload support
+fix: handle empty slave list gracefully
+refactor: extract model from MainWindow
+test: add unit tests for EcatClient
+docs: update development guide
+chore: update CMake minimum version
+plan: outline PDO mapping feature
+spec: define SDO upload protocol
+```
+
+## PR Review Checklist
+
+- [ ] Build succeeds with no warnings
+- [ ] All existing tests pass
+- [ ] New features have tests
+- [ ] No widget dependencies in `models/`
+- [ ] GUI-only review stays local (no bus access)
+- [ ] `clang-format` applied
+- [ ] No build artifacts committed

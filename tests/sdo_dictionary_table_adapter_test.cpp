@@ -1,4 +1,12 @@
-// Unit tests for SdoDictionaryTableAdapter.
+// SdoDictionaryTableAdapterTest — Tests for SDO Dictionary Table Adapter
+//
+// Test coverage:
+//   - Dictionary table population with SDO entries
+//   - Read-only and read-write access type detection
+//   - Hex address normalization
+//   - Failed entry handling
+//   - Hidden row filtering
+//   - Value and status extraction from table cells
 #include "adapters/SdoDictionaryTableAdapter.h"
 
 #include <QApplication>
@@ -78,6 +86,8 @@ void populateDictionaryTable(QTableWidget *table) {
   table->hideRow(3);
 }
 
+// Parse dictionary row from table and verify index, type, value, access
+// Test SDO dictionary row parsing, access types, and value extraction
 void testRowParsing() {
   QTableWidget table;
   populateDictionaryTable(&table);
@@ -99,6 +109,8 @@ void testRowParsing() {
   expectFalse(sdoDictionaryRowHasTarget(missing), "missing row has no target");
 }
 
+// Verify visible, failed, and value-containing row collections
+// Test visible and failed row collections, and value containment
 void testRowCollections() {
   QTableWidget table;
   populateDictionaryTable(&table);
@@ -118,6 +130,8 @@ void testRowCollections() {
               "selected rows contain no values");
 }
 
+// Extract SDO read objects from selected rows and count skipped
+// Test read object extraction from selected rows with skip counting
 void testReadObjectsFromRows() {
   QTableWidget table;
   populateDictionaryTable(&table);
@@ -134,6 +148,8 @@ void testReadObjectsFromRows() {
   expectEqual(objects.at(1).index, "0x6041", "second object index");
 }
 
+// Lookup dictionary row by index/subindex target
+// Test target lookup by index and subindex
 void testTargetLookup() {
   QTableWidget table;
   populateDictionaryTable(&table);

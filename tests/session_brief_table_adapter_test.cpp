@@ -1,4 +1,9 @@
-// Unit tests for SessionBriefTableAdapter.
+// SessionBriefTableAdapterTest — Tests for SessionBriefTableAdapter
+//
+// Test coverage:
+//   - Structured row extraction from QTableWidget
+//   - Invalid row handling and legacy action key fallback
+
 #include "adapters/SessionBriefTableAdapter.h"
 
 #include <QApplication>
@@ -55,6 +60,7 @@ void initSessionBriefTable(QTableWidget *table) {
   setSessionBriefActionKey(table, 1, "gate");
 }
 
+// Test extracting structured row data from populated table
 void testStructuredRowExtraction() {
   QTableWidget table;
   initSessionBriefTable(&table);
@@ -69,6 +75,7 @@ void testStructuredRowExtraction() {
   expectEqual(row.firstTooltip, "Gate detail", "brief tooltip");
 }
 
+// Test invalid row returns empty data and legacy UserRole action key fallback
 void testInvalidRowsAndLegacyActionKeyFallback() {
   QTableWidget table;
   initSessionBriefTable(&table);

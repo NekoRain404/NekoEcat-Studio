@@ -1,3 +1,11 @@
+// HostHealthDetailTest — Tests for HostHealthDetail
+//
+// Test coverage:
+//   - Empty state (unchecked host health)
+//   - Row counts, summary, and color keys
+//   - Warning and ready summary generation
+//   - Default field values
+
 // Unit tests for HostHealthDetail.
 #include "detail/HostHealthDetail.h"
 
@@ -56,6 +64,7 @@ QJsonObject check(const QString &level, const QString &source,
   };
 }
 
+// Verify empty state with no checks
 void testEmptyState() {
   const HostHealthDetail state =
       buildHostHealthDetail(QJsonArray(), englishTexts());
@@ -65,6 +74,7 @@ void testEmptyState() {
               "unchecked summary");
 }
 
+// Verify row counts, summary, and color keys
 void testRowsCountsSummaryAndColors() {
   QJsonArray checks;
   checks.append(check("Error", "Service", "offline", "restart",
@@ -88,6 +98,7 @@ void testRowsCountsSummaryAndColors() {
               "error summary");
 }
 
+// Verify warning and ready summary text
 void testWarningAndReadySummaries() {
   QJsonArray warningChecks;
   warningChecks.append(check("Warning", "NIC", "driver", "", "", ""));

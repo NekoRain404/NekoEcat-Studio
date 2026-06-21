@@ -1,4 +1,12 @@
-// Unit tests for SdoEvidenceTableAdapter.
+// SdoEvidenceTableAdapterTest — Tests for SDO Evidence Table Adapter
+//
+// Test coverage:
+//   - Candidate extraction from dictionary, watch, startup, bookmark, trail tables
+//   - Evidence value population into detail table
+//   - Conflict highlighting in table cells
+//   - Source column labeling
+//   - Empty and missing value handling
+//   - Multi-row evidence assembly
 #include "adapters/SdoEvidenceTableAdapter.h"
 
 #include <QApplication>
@@ -47,6 +55,8 @@ void setCell(QTableWidget *table, int row, int column, const QString &value) {
   table->setItem(row, column, new QTableWidgetItem(value));
 }
 
+// Extract evidence candidates from dictionary, watch, startup, bookmark, trail tables
+// Test candidate extraction from dictionary, watch, startup, bookmark, trail tables
 void testCandidateExtraction() {
   QTableWidget dictionary;
   dictionary.setColumnCount(8);
@@ -105,6 +115,8 @@ void testCandidateExtraction() {
   expectEqual(candidates.at(5).second, "0x000B", "trail write value");
 }
 
+// Lookup target rows across tables by position, index, subindex
+// Test target row lookup across all evidence source tables
 void testTargetRowLookup() {
   QTableWidget dictionary;
   dictionary.setColumnCount(8);
@@ -166,6 +178,8 @@ void testTargetRowLookup() {
               "dictionary row waits for loaded position");
 }
 
+// Handle empty rows and trail fallback when write value is missing
+// Test empty rows and trail fallback when other sources are missing
 void testEmptyRowsAndTrailFallback() {
   QTableWidget trail;
   trail.setColumnCount(8);
@@ -193,6 +207,8 @@ void testEmptyRowsAndTrailFallback() {
   expectEqual(candidates.at(0).second, "0x0010", "trail fallback value");
 }
 
+// Extract local evidence items from watch, dictionary, startup tables
+// Test local evidence extraction from watch, dictionary, and startup tables
 void testLocalEvidenceExtraction() {
   QTableWidget watch;
   watch.setColumnCount(5);
@@ -239,6 +255,8 @@ void testLocalEvidenceExtraction() {
   expectEqual(items.at(3).source, "Startup #1", "local startup source");
 }
 
+// Extract write evidence items with read priority and fallback
+// Test write evidence extraction with fallback and read priority
 void testWriteEvidenceExtraction() {
   QVector<SdoEvidenceItem> items = sdoWriteEvidenceItemsFromValues(
       QString(), "0x0006", "0x0007", QString(), "0x0008", "0x0009", QString(),
@@ -267,6 +285,8 @@ void testWriteEvidenceExtraction() {
   expectEqual(items.at(1).value, "0x000A", "write evidence trail write value");
 }
 
+// Determine write delta review availability from evidence sources
+// Test write delta review availability based on evidence presence
 void testWriteDeltaAvailability() {
   QTableWidget dictionary;
   dictionary.setColumnCount(9);
@@ -312,6 +332,8 @@ void testWriteDeltaAvailability() {
               false, "empty evidence is unavailable");
 }
 
+// Parse target trail rows and verify position, index, startup value, keys
+// Test target trail row parsing, normalization, and startup value extraction
 void testTargetTrailRowParsing() {
   QTableWidget trail;
   trail.setColumnCount(9);
@@ -356,6 +378,8 @@ void testTargetTrailRowParsing() {
               "missing trail row has no target");
 }
 
+// Parse object bookmark rows and verify access type detection
+// Test object bookmark row parsing and read-only access detection
 void testObjectBookmarkRowParsing() {
   QTableWidget bookmark;
   bookmark.setColumnCount(10);

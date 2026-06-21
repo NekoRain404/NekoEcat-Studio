@@ -1,3 +1,10 @@
+// ConsistencyGateTest — Tests for ConsistencyGateModel
+//
+// Test coverage:
+//   - Issue level parsing (multilingual)
+//   - Issue counts and blocking logic
+//   - Gate state transitions
+
 // Unit tests for ConsistencyGateModel.
 #include "models/ConsistencyModel.h"
 
@@ -42,6 +49,7 @@ void expectGateState(ConsistencyGateState actual, ConsistencyGateState expected,
   }
 }
 
+// Parse issue levels from English and Chinese text
 void testIssueLevelParsing() {
   expectLevel(consistencyIssueLevelFromText("Error"),
               ConsistencyIssueLevel::Error, "English error is recognized");
@@ -61,6 +69,7 @@ void testIssueLevelParsing() {
               "blank text is empty");
 }
 
+// Verify issue count accumulation and blocking detection
 void testIssueCountsAndBlocking() {
   ConsistencyIssueCounts counts;
   addConsistencyIssueLevel(&counts, ConsistencyIssueLevel::Error);
@@ -79,6 +88,7 @@ void testIssueCountsAndBlocking() {
              "info and ready rows are not blocking");
 }
 
+// Verify gate state transitions: NotRun, Stale, Blocking, Passed
 void testGateState() {
   expectGateState(consistencyGateState(false, false, {}),
                   ConsistencyGateState::NotRun,

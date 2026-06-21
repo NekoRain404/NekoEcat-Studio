@@ -26,7 +26,7 @@ public:
     QString slaveXml(const QString &master, int position, QString *error = nullptr) const override;
     QString pdos(const QString &master, int position, QString *error = nullptr) const override;
     QString sdos(const QString &master, int position, QString *error = nullptr) const override;
-    QString upload(const QString &master, int position, const QString &index, const QString &subIndex, QString *error = nullptr) const override;
+    QString upload(const QString &master, int position, const QString &index, const QString &subIndex, const QString &type = QString(), QString *error = nullptr) const override;
     bool download(const QString &master, int position, const QString &index, const QString &subIndex, const QString &value, const QString &type, QString *error = nullptr) const override;
     bool setState(const QString &master, int position, const QString &state, QString *error = nullptr) const override;
     bool setAllStates(const QString &master, const QString &state, QString *error = nullptr) const override;

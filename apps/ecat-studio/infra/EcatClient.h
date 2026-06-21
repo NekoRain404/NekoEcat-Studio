@@ -34,6 +34,7 @@ class EcatClient : public QObject {
   // callback handler that fires when the correlated response arrives.
 public:
   explicit EcatClient(QObject *parent = nullptr);
+  ~EcatClient() override;
 
   void connectToDaemon();
   bool isConnected() const;
@@ -61,11 +62,18 @@ public:
   void rtTestStart(int cycleUsec = 1000);
   void rtTestStop();
   void dcSyncStatus();
+  void dcConfigure(int position);
+  void dcActivate(int refClockSlave);
+  void dcDeactivate();
   void rtTestStatus();
   void alEventLog(int limit = 100);
   void alEventClear();
   void listAdapters();
   void setAdapter(const QString &name);
+  void setBackendMode(const QString &mode);
+  void foeRead(int position, const QString &filePath);
+  void foeWrite(int position, const QString &filePath, quint32 password = 0);
+  void getBackendMode();
   void setRequestTimeout(int ms);
   ConnectionState connectionState() const;
   void connectToHost(const QHostAddress &address, quint16 port);
@@ -92,9 +100,17 @@ signals:
   void freeRunTelemetry(const QJsonObject &telemetry);
   void rtTestTelemetry(const QJsonObject &telemetry);
   void dcSyncStatusResult(const QJsonObject &data);
+  void dcConfigureResult(const QJsonObject &data);
+  void dcActivateResult(const QJsonObject &data);
+  void dcDeactivateResult(const QJsonObject &data);
   void alEventLogResult(const QJsonObject &data);
   void adaptersListResult(const QJsonObject &data);
+  void backendModeChanged(const QString &backend, const QString &mode);
+  void foeReadResult(int position, const QString &filePath, qint64 fileSize);
+  void foeWriteResult(int position, qint64 bytesWritten);
   void reconnected();  // Emitted after successful auto-reconnect.
+  void reconnecting(int attempt, int intervalMs);  // Emitted before each reconnect attempt.
+  void reconnectFailed(int maxAttempts);  // Emitted when max consecutive failures reached.
 
 private slots:
   void attemptReconnect();
@@ -108,7 +124,7 @@ private:
 
   QTcpSocket socket_;
   QByteArray buffer_;
-  int nextId_ = 1;
+  quint64 nextId_ = 1;
   QString masterTarget_ = "0";
   QHash<QString, Handler> handlers_;
 
@@ -126,8 +142,14 @@ private:
   QTimer *heartbeatTimer_ = nullptr;    // Pings daemon every 5s.
   QTimer *reconnectTimer_ = nullptr;    // Fires at increasing intervals.
   int consecutiveFailures_ = 0;         // Reset on successful ping.
+  bool pendingPing_ = false;            // True while awaiting pong response.
   int reconnectIntervalMs_ = 2000;      // Exponential backoff: 2→4→8→16→30s.
   static constexpr int kMaxReconnectMs = 30000;
   static constexpr int kMaxConsecutiveFailures = 3;
   void setupAutoReconnect();
+
+  // Connection timeout tracking.
+  QTimer *connectTimeoutTimer_ = nullptr;  // Fires if initial connect hangs.
+  static constexpr int kConnectTimeoutMs = 10000;
+  void setupConnectTimeout();
 };

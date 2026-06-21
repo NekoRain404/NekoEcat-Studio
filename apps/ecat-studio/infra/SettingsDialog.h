@@ -40,6 +40,7 @@ struct AppSettings {
     QVector<MasterProfile> masters = {MasterProfile{}};
     QString activeMaster = "0";
     QString networkAdapter;               // selected NIC for IgH (e.g. "eth0")
+    QString backendMode = "auto";         // "native", "cli", "auto"
 
     // ── Refresh & Timing ──────────────────────────────────────────
     int watchAutoRefreshMs = 0;        // 0=off, 250, 500, 1000, 2000
@@ -120,6 +121,7 @@ private:
 
     // ── EtherCAT widgets ──────────────────────────────────────────
     QTableWidget *masterTable_ = nullptr;
+    QComboBox *backendModeCombo_ = nullptr;
 
     // ── Timing widgets ────────────────────────────────────────────
     QComboBox *watchRefreshCombo_ = nullptr;

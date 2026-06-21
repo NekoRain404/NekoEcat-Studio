@@ -1,3 +1,11 @@
+// EvidenceStatusTest — Tests for EvidenceModel (EvidenceStatus)
+//
+// Test coverage:
+//   - Startup diff evidence detection (English and Chinese)
+//   - PDO map issue evidence detection (English and Chinese)
+//   - Drive evidence severity classification
+//   - Drive fault evidence detection
+
 // Unit tests for EvidenceStatusModel.
 #include "models/EvidenceModel.h"
 
@@ -26,6 +34,7 @@ void expectSeverity(DriveEvidenceSeverity actual,
   }
 }
 
+// Detect startup diff evidence keywords (English and Chinese)
 void testStartupDiffEvidence() {
   expectTrue(hasStartupDiffEvidence("diff"), "diff is Startup diff evidence");
   expectTrue(hasStartupDiffEvidence("Watch diff: 0x0006 -> 0x000F"),
@@ -42,6 +51,7 @@ void testStartupDiffEvidence() {
              "pending is not Startup diff evidence");
 }
 
+// Detect PDO map issue evidence keywords (English and Chinese)
 void testPdoMapIssueEvidence() {
   expectTrue(hasPdoMapIssueEvidence("warning"),
              "warning is PDO map issue evidence");
@@ -60,6 +70,7 @@ void testPdoMapIssueEvidence() {
   expectTrue(!hasPdoMapIssueEvidence("OK"), "OK is not PDO map issue evidence");
 }
 
+// Classify drive evidence severity levels
 void testDriveEvidenceSeverity() {
   expectSeverity(driveEvidenceSeverity(""), DriveEvidenceSeverity::Neutral,
                  "empty drive evidence is neutral");

@@ -7912,4 +7912,745 @@
             <translation>一括ウォッチ読み取り</translation>
         </message>
     </context>
+    <context>
+        <name>TopologyPlugin</name>
+        <message>
+            <source>Linear Layout</source>
+            <translation>リニアレイアウト</translation>
+        </message>
+        <message>
+            <source>Tree Layout</source>
+            <translation>ツリーレイアウト</translation>
+        </message>
+        <message>
+            <source>Zoom In</source>
+            <translation>拡大</translation>
+        </message>
+        <message>
+            <source>Zoom Out</source>
+            <translation>縮小</translation>
+        </message>
+        <message>
+            <source>Fit</source>
+            <translation>フィット</translation>
+        </message>
+    </context>
+    <context>
+        <name>EsiPlugin</name>
+        <message>
+            <source>Filter devices...</source>
+            <translation>デバイスをフィルタ...</translation>
+        </message>
+        <message>
+            <source>Import ESI</source>
+            <translation>ESI インポート</translation>
+        </message>
+        <message>
+            <source>Export</source>
+            <translation>エクスポート</translation>
+        </message>
+        <message>
+            <source>Refresh</source>
+            <translation>更新</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>プロパティ</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>値</translation>
+        </message>
+        <message>
+            <source>No ESI files loaded</source>
+            <translation>ESI ファイルが読み込まれていません</translation>
+        </message>
+        <message>
+            <source>Import ESI XML</source>
+            <translation>ESI XML インポート</translation>
+        </message>
+        <message>
+            <source>Export ESI XML</source>
+            <translation>ESI XML エクスポート</translation>
+        </message>
+        <message>
+            <source>%n device(s) in repository</source>
+            <translation>リポジトリに %n 台のデバイス</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>名前</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>タイプ</translation>
+        </message>
+        <message>
+            <source>Vendor ID</source>
+            <translation>ベンダー ID</translation>
+        </message>
+        <message>
+            <source>Product Code</source>
+            <translation>製品コード</translation>
+        </message>
+        <message>
+            <source>Revision</source>
+            <translation>リビジョン</translation>
+        </message>
+        <message>
+            <source>Description</source>
+            <translation>説明</translation>
+        </message>
+        <message>
+            <source>Rx PDOs</source>
+            <translation>Rx PDO</translation>
+        </message>
+        <message>
+            <source>Tx PDOs</source>
+            <translation>Tx PDO</translation>
+        </message>
+        <message>
+            <source>Sync Managers</source>
+            <translation>同期マネージャ</translation>
+        </message>
+    </context>
+    <context>
+        <name>BusStatsPlugin</name>
+        <message>
+            <source>Start Monitoring</source>
+            <translation>監視開始</translation>
+        </message>
+        <message>
+            <source>Stop Monitoring</source>
+            <translation>監視停止</translation>
+        </message>
+        <message>
+            <source>Stopped</source>
+            <translation>停止中</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>実行中</translation>
+        </message>
+        <message>
+            <source>Frame Rate: --</source>
+            <translation>フレームレート：--</translation>
+        </message>
+        <message>
+            <source>Bandwidth: --</source>
+            <translation>帯域幅：--</translation>
+        </message>
+        <message>
+            <source>Metric</source>
+            <translation>指標</translation>
+        </message>
+        <message>
+            <source>TX Frames</source>
+            <translation>送信フレーム</translation>
+        </message>
+        <message>
+            <source>RX Frames</source>
+            <translation>受信フレーム</translation>
+        </message>
+        <message>
+            <source>TX Errors</source>
+            <translation>送信エラー</translation>
+        </message>
+        <message>
+            <source>RX Errors</source>
+            <translation>受信エラー</translation>
+        </message>
+        <message>
+            <source>CRC Errors</source>
+            <translation>CRC エラー</translation>
+        </message>
+        <message>
+            <source>Lost Frames</source>
+            <translation>喪失フレーム</translation>
+        </message>
+        <message>
+            <source>Total Errors</source>
+            <translation>総エラー</translation>
+        </message>
+        <message>
+            <source>Uptime</source>
+            <translation>稼働時間</translation>
+        </message>
+        <message>
+            <source>Frame Rate: %1 f/s</source>
+            <translation>フレームレート：%1 フレーム/秒</translation>
+        </message>
+        <message>
+            <source>Bandwidth: %1 Mbps</source>
+            <translation>帯域幅：%1 Mbps</translation>
+        </message>
+    </context>
+    <context>
+        <name>StartupSdoPlugin</name>
+        <message>
+            <source>Diffs Only</source>
+            <translation>差分のみ</translation>
+        </message>
+        <message>
+            <source>Slave</source>
+            <translation>スレーブ</translation>
+        </message>
+        <message>
+            <source>Index</source>
+            <translation>インデックス</translation>
+        </message>
+        <message>
+            <source>Sub</source>
+            <translation>サブ</translation>
+        </message>
+        <message>
+            <source>Status</source>
+            <translation>ステータス</translation>
+        </message>
+        <message>
+            <source>Detail</source>
+            <translation>詳細</translation>
+        </message>
+        <message>
+            <source>Watch Value</source>
+            <translation>ウォッチ値</translation>
+        </message>
+        <message>
+            <source>Watch Delta</source>
+            <translation>ウォッチ差分</translation>
+        </message>
+    </context>
+    <context>
+        <name>SignalPlugin</name>
+        <message>
+            <source>Channels</source>
+            <translation>チャンネル</translation>
+        </message>
+        <message>
+            <source>Add channel</source>
+            <translation>チャンネル追加</translation>
+        </message>
+        <message>
+            <source>Remove selected channel</source>
+            <translation>選択チャンネル削除</translation>
+        </message>
+        <message>
+            <source>Window</source>
+            <translation>ウィンドウ</translation>
+        </message>
+        <message>
+            <source>Add Signal Channel</source>
+            <translation>信号チャンネル追加</translation>
+        </message>
+        <message>
+            <source>e.g. actual_position</source>
+            <translation>例：actual_position</translation>
+        </message>
+        <message>
+            <source>e.g. 0x6064</source>
+            <translation>例：0x6064</translation>
+        </message>
+        <message>
+            <source>SubIndex</source>
+            <translation>サブインデックス</translation>
+        </message>
+    </context>
+    <context>
+        <name>AlEventPlugin</name>
+        <message>
+            <source>All</source>
+            <translation>すべて</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>エラー</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>警告</translation>
+        </message>
+        <message>
+            <source>Info</source>
+            <translation>情報</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>クリア</translation>
+        </message>
+        <message>
+            <source>Time</source>
+            <translation>時刻</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>コード</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>重要度</translation>
+        </message>
+    </context>
+    <context>
+        <name>DcSyncPlugin</name>
+        <message>
+            <source>Position</source>
+            <translation>位置</translation>
+        </message>
+        <message>
+            <source>DC Capable</source>
+            <translation>DC 対応</translation>
+        </message>
+        <message>
+            <source>Syncing</source>
+            <translation>同期中</translation>
+        </message>
+        <message>
+            <source>Drift (ns)</source>
+            <translation>ドリフト (ns)</translation>
+        </message>
+        <message>
+            <source>Jitter Min</source>
+            <translation>ジッタ最小</translation>
+        </message>
+        <message>
+            <source>Jitter Max</source>
+            <translation>ジッタ最大</translation>
+        </message>
+        <message>
+            <source>Jitter Avg</source>
+            <translation>ジッタ平均</translation>
+        </message>
+        <message>
+            <source>Ref Clock</source>
+            <translation>基準クロック</translation>
+        </message>
+        <message>
+            <source>Yes</source>
+            <translation>はい</translation>
+        </message>
+        <message>
+            <source>No</source>
+            <translation>いいえ</translation>
+        </message>
+    </context>
+    <context>
+        <name>NotesPlugin</name>
+        <message>
+            <source>Enter project notes here...</source>
+            <translation>プロジェクトメモを入力...</translation>
+        </message>
+    </context>
+    <context>
+        <name>RtTestPlugin</name>
+        <message>
+            <source>Start</source>
+            <translation>開始</translation>
+        </message>
+        <message>
+            <source>Stop</source>
+            <translation>停止</translation>
+        </message>
+        <message>
+            <source>Cycle:</source>
+            <translation>サイクル：</translation>
+        </message>
+        <message>
+            <source>Custom...</source>
+            <translation>カスタム...</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>アイドル</translation>
+        </message>
+        <message>
+            <source>Min \xC2\xB5s</source>
+            <translation>最小 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Max \xC2\xB5s</source>
+            <translation>最大 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Avg \xC2\xB5s</source>
+            <translation>平均 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Jitter \xC2\xB5s</source>
+            <translation>ジッタ \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Cycles</source>
+            <translation>サイクル数</translation>
+        </message>
+        <message>
+            <source>Errors</source>
+            <translation>エラー</translation>
+        </message>
+        <message>
+            <source>Loss %</source>
+            <translation>損失率 %</translation>
+        </message>
+        <message>
+            <source>Cycle log...</source>
+            <translation>サイクルログ...</translation>
+        </message>
+        <message>
+            <source>Cycle Latency (\xC2\xB5s)</source>
+            <translation>サイクルレイテンシ (\xC2\xB5s)</translation>
+        </message>
+        <message>
+            <source>Avg</source>
+            <translation>平均</translation>
+        </message>
+        <message>
+            <source>Max</source>
+            <translation>最大</translation>
+        </message>
+        <message>
+            <source>Min</source>
+            <translation>最小</translation>
+        </message>
+        <message>
+            <source>Jitter: %1 \xC2\xB5s</source>
+            <translation>ジッタ：%1 \xC2\xB5s</translation>
+        </message>
+    </context>
+    <context>
+        <name>ExportPlugin</name>
+        <message>
+            <source>Export %1</source>
+            <translation>%1 エクスポート</translation>
+        </message>
+        <message>
+            <source>No entries are available to export.</source>
+            <translation>エクスポート可能なエントリがありません。</translation>
+        </message>
+        <message>
+            <source>Export %1 CSV</source>
+            <translation>%1 CSV エクスポート</translation>
+        </message>
+        <message>
+            <source>Export failed</source>
+            <translation>エクスポート失敗</translation>
+        </message>
+        <message>
+            <source>Exported %1 row(s): %2</source>
+            <translation>%1 行をエクスポート：%2</translation>
+        </message>
+        <message>
+            <source>No data is available to export.</source>
+            <translation>エクスポート可能なデータがありません。</translation>
+        </message>
+        <message>
+            <source>Exported %1 node(s): %2</source>
+            <translation>%1 ノードをエクスポート：%2</translation>
+        </message>
+        <message>
+            <source>Exported: %1</source>
+            <translation>エクスポート済み：%1</translation>
+        </message>
+    </context>
+    <context>
+        <name>SessionPlugin</name>
+        <message>
+            <source>Area</source>
+            <translation>エリア</translation>
+        </message>
+        <message>
+            <source>Evidence</source>
+            <translation>エビデンス</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>次へ</translation>
+        </message>
+        <message>
+            <source>Copy Row</source>
+            <translation>行コピー</translation>
+        </message>
+        <message>
+            <source>%1 rows</source>
+            <translation>%1 行</translation>
+        </message>
+        <message>
+            <source>Copy: %1</source>
+            <translation>コピー：%1</translation>
+        </message>
+    </context>
+    <context>
+        <name>DiagnosticsPlugin</name>
+        <message>
+            <source>Filter diagnostics...</source>
+            <translation>診断をフィルタ...</translation>
+        </message>
+        <message>
+            <source>Timestamp</source>
+            <translation>タイムスタンプ</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>レベル</translation>
+        </message>
+        <message>
+            <source>Message</source>
+            <translation>メッセージ</translation>
+        </message>
+        <message>
+            <source>No topology baseline</source>
+            <translation>トポロジベースラインなし</translation>
+        </message>
+        <message>
+            <source>Capture Baseline</source>
+            <translation>ベースライン取得</translation>
+        </message>
+        <message>
+            <source>Clear Baseline</source>
+            <translation>ベースラインクリア</translation>
+        </message>
+        <message>
+            <source>%1 shown | %2 errors | %3 warnings</source>
+            <translation>表示 %1 | エラー %2 | 警告 %3</translation>
+        </message>
+        <message>
+            <source>Export Diagnostics Report</source>
+            <translation>診断レポートエクスポート</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConsistencyPlugin</name>
+        <message>
+            <source>Errors</source>
+            <translation>エラー</translation>
+        </message>
+        <message>
+            <source>Warnings</source>
+            <translation>警告</translation>
+        </message>
+        <message>
+            <source>Topology</source>
+            <translation>トポロジ</translation>
+        </message>
+        <message>
+            <source>Startup</source>
+            <translation>スタートアップ</translation>
+        </message>
+        <message>
+            <source>Ready</source>
+            <translation>準備完了</translation>
+        </message>
+        <message>
+            <source>Filter consistency rows...</source>
+            <translation>整合性行をフィルタ...</translation>
+        </message>
+        <message>
+            <source>Scope</source>
+            <translation>スコープ</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>ターゲット</translation>
+        </message>
+        <message>
+            <source>Expected</source>
+            <translation>期待値</translation>
+        </message>
+        <message>
+            <source>Actual</source>
+            <translation>実際値</translation>
+        </message>
+        <message>
+            <source>%1 rows | errors %2 | warnings %3 | info %4 | ready %5</source>
+            <translation>%1 行 | エラー %2 | 警告 %3 | 情報 %4 | 準備完了 %5</translation>
+        </message>
+    </context>
+    <context>
+        <name>StateMachinePlugin</name>
+    </context>
+    <context>
+        <name>IoVariablePlugin</name>
+        <message>
+            <source>Process</source>
+            <translation>プロセス</translation>
+        </message>
+        <message>
+            <source>PLC Issues</source>
+            <translation>PLC 問題</translation>
+        </message>
+        <message>
+            <source>Filter I/O variables...</source>
+            <translation>I/O 変数をフィルタ...</translation>
+        </message>
+    </context>
+    <context>
+        <name>FreeRunPlugin</name>
+        <message>
+            <source>Filter free run entries...</source>
+            <translation>フリーランエントリをフィルタ...</translation>
+        </message>
+        <message>
+            <source>Changed only</source>
+            <translation>変更のみ</translation>
+        </message>
+    </context>
+    <context>
+        <name>WatchPlugin</name>
+        <message>
+            <source>Filter watch rows...</source>
+            <translation>ウォッチ行をフィルタ...</translation>
+        </message>
+        <message>
+            <source>Auto refresh</source>
+            <translation>自動更新</translation>
+        </message>
+        <message>
+            <source>500 ms</source>
+            <translation>500 ミリ秒</translation>
+        </message>
+        <message>
+            <source>1 s</source>
+            <translation>1 秒</translation>
+        </message>
+        <message>
+            <source>2 s</source>
+            <translation>2 秒</translation>
+        </message>
+        <message>
+            <source>5 s</source>
+            <translation>5 秒</translation>
+        </message>
+        <message>
+            <source>Decoded</source>
+            <translation>デコード値</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>モード</translation>
+        </message>
+        <message>
+            <source>Baseline</source>
+            <translation>ベースライン</translation>
+        </message>
+        <message>
+            <source>Delta</source>
+            <translation>差分</translation>
+        </message>
+        <message>
+            <source>Startup Delta</source>
+            <translation>スタートアップ差分</translation>
+        </message>
+    </context>
+    <context>
+        <name>OdPlugin</name>
+        <message>
+            <source>All Objects</source>
+            <translation>すべてのオブジェクト</translation>
+        </message>
+        <message>
+            <source>CoE Objects</source>
+            <translation>CoE オブジェクト</translation>
+        </message>
+        <message>
+            <source>CiA 402</source>
+            <translation>CiA 402</translation>
+        </message>
+        <message>
+            <source>Identity</source>
+            <translation>アイデンティティ</translation>
+        </message>
+        <message>
+            <source>PDO Mapping</source>
+            <translation>PDO マッピング</translation>
+        </message>
+        <message>
+            <source>Error/Diag</source>
+            <translation>エラー/診断</translation>
+        </message>
+        <message>
+            <source>All Access</source>
+            <translation>すべてのアクセス</translation>
+        </message>
+        <message>
+            <source>Read/Write</source>
+            <translation>読み書き</translation>
+        </message>
+        <message>
+            <source>Read Only</source>
+            <translation>読み取り専用</translation>
+        </message>
+        <message>
+            <source>Filter OD rows...</source>
+            <translation>OD 行をフィルタ...</translation>
+        </message>
+        <message>
+            <source>Object</source>
+            <translation>オブジェクト</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>ビット幅</translation>
+        </message>
+        <message>
+            <source>Last Value</source>
+            <translation>最終値</translation>
+        </message>
+        <message>
+            <source>Index (0x)</source>
+            <translation>インデックス (0x)</translation>
+        </message>
+        <message>
+            <source>Use</source>
+            <translation>使用</translation>
+        </message>
+        <message>
+            <source>Value to write</source>
+            <translation>書き込み値</translation>
+        </message>
+        <message>
+            <source>Run Row Action</source>
+            <translation>行アクション実行</translation>
+        </message>
+        <message>
+            <source>Copy row</source>
+            <translation>行コピー</translation>
+        </message>
+        <message>
+            <source>Key</source>
+            <translation>キー</translation>
+        </message>
+        <message>
+            <source>Action</source>
+            <translation>アクション</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>ソース</translation>
+        </message>
+        <message>
+            <source>Slave Name</source>
+            <translation>スレーブ名</translation>
+        </message>
+        <message>
+            <source>%1 obj | %2 vis | %3 evidence | %4 fail | %5 rw</source>
+            <translation>%1 オブジェクト | %2 表示 | %3 エビデンス | %4 失敗 | %5 読み書き</translation>
+        </message>
+    </context>
+    <context>
+        <name>OverviewPlugin</name>
+        <message>
+            <source>Details</source>
+            <translation>詳細</translation>
+        </message>
+        <message>
+            <source>Brief</source>
+            <translation>簡潔</translation>
+        </message>
+        <message>
+            <source>Workflow</source>
+            <translation>ワークフロー</translation>
+        </message>
+        <message>
+            <source>Matrix</source>
+            <translation>マトリックス</translation>
+        </message>
+    </context>
 </TS>

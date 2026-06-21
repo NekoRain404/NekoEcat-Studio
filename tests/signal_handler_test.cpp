@@ -1,3 +1,14 @@
+// SignalHandlerTest — Tests for SignalHandler
+//
+// Test coverage:
+//   - Channel subscription returns unique IDs
+//   - Data push stores samples correctly
+//   - Ring buffer enforces 10,000-sample limit
+//   - Unsubscribe removes channel
+//   - Poll returns correct JSON structure
+//   - Poll with since parameter filters samples
+//   - Push to nonexistent channel is no-op
+
 #include <QTest>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -8,6 +19,7 @@ class SignalHandlerTest : public QObject {
   Q_OBJECT
 
 private slots:
+  // Verify each subscription returns a unique channel ID
   void testSubscribeReturnsUniqueIds() {
     SignalHandler handler;
     int id1 = handler.subscribe("ch1", 0, "0x6000", "0x01");
@@ -20,6 +32,7 @@ private slots:
     QCOMPARE(handler.channels().size(), 3);
   }
 
+  // Test push stores samples with correct values and timestamps
   void testPushStoresSamples() {
     SignalHandler handler;
     int id = handler.subscribe("test", 0, "0x6000", "0x01");
@@ -37,6 +50,7 @@ private slots:
     QCOMPARE(chs[0].samples[2].timestampMs, static_cast<int64_t>(300));
   }
 
+  // Verify ring buffer evicts oldest samples at 10,000 limit
   void testRingBufferLimit() {
     SignalHandler handler;
     int id = handler.subscribe("stress", 0, "0x6000", "0x01");
@@ -56,6 +70,7 @@ private slots:
     QCOMPARE(chs[0].samples.last().value, 10049.0);
   }
 
+  // Test unsubscribe removes channel; unsubscribing unknown ID is no-op
   void testUnsubscribeRemovesChannel() {
     SignalHandler handler;
     int id1 = handler.subscribe("keep", 0, "0x6000", "0x01");
@@ -72,6 +87,7 @@ private slots:
     QCOMPARE(handler.channels().size(), 1);
   }
 
+  // Verify handlePoll returns correct JSON with channel and sample data
   void testHandlePollReturnsCorrectJson() {
     SignalHandler handler;
     int id = handler.subscribe("voltage", 0, "0x6000", "0x01");
@@ -99,6 +115,7 @@ private slots:
     QCOMPARE(static_cast<int64_t>(s0["ts"].toDouble()), static_cast<int64_t>(1000));
   }
 
+  // Test poll with since parameter returns only newer samples
   void testPollWithSinceFiltersSamples() {
     SignalHandler handler;
     int id = handler.subscribe("current", 0, "0x6000", "0x02");
@@ -121,6 +138,7 @@ private slots:
     QCOMPARE(samples[1].toObject()["value"].toDouble(), 4.0);
   }
 
+  // Verify push to nonexistent channel does not crash or add data
   void testPushToNonexistentChannelIsNoop() {
     SignalHandler handler;
     handler.subscribe("real", 0, "0x6000", "0x01");

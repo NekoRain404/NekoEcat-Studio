@@ -1,4 +1,10 @@
-// Unit tests for SlaveEvidenceSummaryDetail.
+// SlaveEvidenceSummaryDetailTest — Tests for SlaveEvidenceSummaryDetail
+//
+// Test coverage:
+//   - No-selection state text and severity
+//   - Summary text generation and severity rules
+//   - Missing evidence fallback text
+
 #include "detail/SlaveEvidenceSummaryDetail.h"
 
 #include <QCoreApplication>
@@ -69,6 +75,7 @@ SlaveEvidenceInput readyInput() {
   return input;
 }
 
+// Test no-selection state text and neutral severity
 void testNoSelectionState() {
   const SlaveEvidenceSummaryDetail state =
       slaveEvidenceNoSelectionState(englishTexts());
@@ -77,6 +84,7 @@ void testNoSelectionState() {
   expectEqual(state.tooltip, QString(), "no selection tooltip");
 }
 
+// Test summary text, severity rules, and tooltip generation
 void testSummaryAndSeverityRules() {
   const SlaveEvidenceSummaryTexts texts = englishTexts();
   SlaveEvidenceInput input = readyInput();
@@ -108,6 +116,7 @@ void testSummaryAndSeverityRules() {
                  "topology tooltip");
 }
 
+// Test missing evidence generates correct fallback text
 void testMissingEvidenceFallbacks() {
   const SlaveEvidenceSummaryTexts texts = englishTexts();
   SlaveEvidenceInput input;

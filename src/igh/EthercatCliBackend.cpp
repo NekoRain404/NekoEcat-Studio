@@ -195,15 +195,29 @@ QString EthercatCliBackend::sdos(const QString &master, int position,
 }
 
 // SDO upload (read) — returns the value as a string from CLI output.
+// Added --type parameter support and auto 0x prefix for SDO indices.
 QString EthercatCliBackend::upload(const QString &master, int position,
                                    const QString &index,
                                    const QString &subIndex,
+                                   const QString &type,
                                    QString *error) const {
   int exitCode = 0;
   QString stdErr;
-  const QString text =
-      run(master, {"upload", "-p", QString::number(position), index, subIndex},
-          &exitCode, &stdErr);
+  QStringList args = {"upload", "-p", QString::number(position)};
+  if (!type.isEmpty()) {
+    args << "-t" << type;
+  }
+  // Auto-add 0x prefix if not present
+  QString sdoIndex = index;
+  if (!sdoIndex.startsWith("0x") && !sdoIndex.startsWith("0X")) {
+    sdoIndex = "0x" + sdoIndex;
+  }
+  QString sdoSubIndex = subIndex;
+  if (!sdoSubIndex.startsWith("0x") && !sdoSubIndex.startsWith("0X")) {
+    sdoSubIndex = "0x" + sdoSubIndex;
+  }
+  args << sdoIndex << sdoSubIndex;
+  const QString text = run(master, args, &exitCode, &stdErr);
   if (exitCode != 0 && error) {
     *error = stdErr.isEmpty() ? text : stdErr;
   }
@@ -221,7 +235,15 @@ bool EthercatCliBackend::download(const QString &master, int position,
   if (!type.trimmed().isEmpty()) {
     args << "-t" << type.trimmed();
   }
-  args << index << subIndex << value;
+  QString sdoIndex = index;
+  if (!sdoIndex.startsWith("0x") && !sdoIndex.startsWith("0X")) {
+    sdoIndex = "0x" + sdoIndex;
+  }
+  QString sdoSubIndex = subIndex;
+  if (!sdoSubIndex.startsWith("0x") && !sdoSubIndex.startsWith("0X")) {
+    sdoSubIndex = "0x" + sdoSubIndex;
+  }
+  args << sdoIndex << sdoSubIndex << value;
   run(master, args, &exitCode, &stdErr);
   if (exitCode != 0 && error) {
     *error = stdErr;
@@ -482,7 +504,13 @@ QString EthercatCliBackend::run(const QString &master,
     }
     return {};
   }
-  process.waitForFinished(10000);
+  if (!process.waitForFinished(10000)) {
+    process.kill();
+    process.waitForFinished(1000);
+    if (exitCode) *exitCode = -1;
+    if (stdErr) *stdErr = "Process timed out";
+    return {};
+  }
   if (exitCode) {
     *exitCode = process.exitCode();
   }

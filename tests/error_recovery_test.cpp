@@ -1,3 +1,13 @@
+// ErrorRecoveryTest — Tests for error recovery and edge cases via EventBus
+//
+// Test coverage:
+//   - Invalid slave position handling
+//   - Empty and malformed SDO values
+//   - Empty AL event forwarding
+//   - Rapid connection state changes
+//   - Large SDO value passthrough
+//   - Special characters in slave names
+
 #include <QTest>
 #include <QSignalSpy>
 #include <QJsonObject>
@@ -7,6 +17,7 @@
 class ErrorRecoveryTest : public QObject {
   Q_OBJECT
 private slots:
+  // Verify invalid slave position propagates through EventBus
   void testInvalidSlavePosition() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);
@@ -24,6 +35,7 @@ private slots:
     QCOMPARE(received.at(0).position, -1);
   }
 
+  // Verify empty SDO index propagates through EventBus
   void testEmptySdoIndex() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::sdoValueReceived);
@@ -35,6 +47,7 @@ private slots:
     QCOMPARE(args.at(1).toString(), QString(""));
   }
 
+  // Verify malformed SDO value propagates unchanged
   void testMalformedSdoValue() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::sdoValueReceived);
@@ -46,6 +59,7 @@ private slots:
     QCOMPARE(args.at(3).toString(), QString("invalid_value"));
   }
 
+  // Verify empty AL event JSON propagates through EventBus
   void testEmptyAlEvent() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::alEvent);
@@ -58,6 +72,7 @@ private slots:
     QVERIFY(received.isEmpty());
   }
 
+  // Verify rapid connection state changes all propagate
   void testInvalidConnectionState() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::connectionStateChanged);
@@ -73,6 +88,7 @@ private slots:
     QVERIFY(spy.at(2).at(0).toBool());
   }
 
+  // Verify empty signal data vectors propagate through EventBus
   void testEmptySignalData() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::signalData);
@@ -86,6 +102,7 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toInt(), 0);
   }
 
+  // Verify large SDO value (10k chars) propagates unchanged
   void testLargeSdoValue() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::sdoValueReceived);
@@ -98,6 +115,7 @@ private slots:
     QCOMPARE(args.at(3).toString(), largeValue);
   }
 
+  // Verify special characters in slave names survive round-trip
   void testSpecialCharactersInName() {
     EventBus bus;
     QSignalSpy spy(&bus, &EventBus::slaveChanged);

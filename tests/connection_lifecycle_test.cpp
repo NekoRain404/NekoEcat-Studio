@@ -1,4 +1,12 @@
-// Unit tests for EcatClient connection lifecycle and timeout.
+// ConnectionLifecycleTest — Tests for EcatClient connection lifecycle
+//
+// Test coverage:
+//   - Initial disconnected state
+//   - Connect to daemon transitions
+//   - Double connect is no-op
+//   - Disconnect transitions
+//   - Connection timeout handling
+
 #include "EcatClient.h"
 #include "CommandDispatcher.h"
 #include "JsonProtocol.h"
@@ -39,6 +47,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
     // --- Test 1: initial state is Disconnected ---
+    // Verify client starts in Disconnected state
     {
         EcatClient client;
         expectEqual(client.connectionState(), ConnectionState::Disconnected, "T1: initial state");
@@ -46,6 +55,7 @@ int main(int argc, char *argv[]) {
     }
 
     // --- Test 2: connectToDaemon goes to Connecting ---
+    // Verify connect transitions through Connecting to Connected
     {
         // Start a server so connection can succeed.
         QTcpServer server;
@@ -71,6 +81,7 @@ int main(int argc, char *argv[]) {
     }
 
     // --- Test 3: double connect is no-op ---
+    // Verify second connect call is ignored
     {
         QTcpServer server;
         server.listen(QHostAddress::LocalHost, 15879);
@@ -92,6 +103,7 @@ int main(int argc, char *argv[]) {
     }
 
     // --- Test 4: pending handlers cleared on disconnect ---
+    // Verify disconnect clears pending handlers and transitions state
     {
         QTcpServer server;
         server.listen(QHostAddress::LocalHost, 15880);

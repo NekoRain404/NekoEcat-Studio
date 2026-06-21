@@ -1,4 +1,11 @@
-// Unit tests for SlaveEvidenceModel.
+// SlaveEvidenceModelTest — Tests for SlaveEvidenceModel
+//
+// Test coverage:
+//   - Priority ordering and row counts (P0–P3)
+//   - Next action priority order
+//   - Risk kind detection for all risk types
+//   - Route target determination
+
 #include "models/SlaveEvidenceModel.h"
 
 #include <QCoreApplication>
@@ -58,6 +65,8 @@ bool hasRisk(const SlaveEvidenceRow &row, SlaveEvidenceRiskKind kind) {
   return false;
 }
 
+// Test priority ordering, row counts, and sort order
+// Test priority ordering and evidence gap/risk row counts
 void testPriorityOrderingAndCounts() {
   SlaveEvidenceInput ready;
   ready.position = 3;
@@ -108,6 +117,8 @@ void testPriorityOrderingAndCounts() {
                  "complete row is P3");
 }
 
+// Test next action priority order based on evidence gaps
+// Test next action ordering based on missing evidence
 void testNextActionOrder() {
   SlaveEvidenceInput input;
   input.position = 1;
@@ -146,6 +157,8 @@ void testNextActionOrder() {
              "SAFEOP still needs process evidence");
 }
 
+// Test all risk kinds are detected correctly
+// Test risk kind detection for all risk types
 void testRiskKinds() {
   SlaveEvidenceInput input;
   input.position = 1;
@@ -174,6 +187,8 @@ void testRiskKinds() {
              "drive fault risk");
 }
 
+// Test route target determination based on evidence state
+// Test route target selection based on evidence state progression
 void testRouteTargets() {
   SlaveEvidenceInput input;
   input.position = 1;

@@ -1,3 +1,14 @@
+// SignalServiceTest / SignalPluginTest — Tests for Signal Service and Plugin
+//
+// Test coverage:
+//   - Channel add/remove with unique IDs
+//   - Channel metadata storage
+//   - Signal emissions (channelAdded, channelRemoved, channelDataUpdated)
+//   - Data push and statistics computation (min, max, avg, stddev)
+//   - EventBus integration for data push
+//   - Max points limit enforcement
+//   - Polling start/stop
+//   - Plugin identity, order, visibility, and widget
 #include <QTest>
 #include <QApplication>
 #include <QSignalSpy>
@@ -15,17 +26,19 @@ private:
   SignalService *svc_ = nullptr;
 
 private slots:
+  // Initialize EventBus and SignalService
   void init() {
     bus_ = new EventBus(this);
     svc_ = new SignalService(bus_, this);
   }
 
+  // Clean up EventBus and SignalService
   void cleanup() {
     delete svc_; svc_ = nullptr;
     delete bus_; bus_ = nullptr;
   }
 
-  // addChannel returns a unique, positive id.
+  // Verify addChannel returns positive unique IDs
   void testAddChannelReturnsId() {
     const int id1 = svc_->addChannel("ch1", 0, "0x6064", "0");
     const int id2 = svc_->addChannel("ch2", 1, "0x6041", "0");
@@ -34,7 +47,7 @@ private slots:
     QVERIFY(id1 != id2);
   }
 
-  // Channel metadata is stored correctly.
+  // Verify channel metadata (name, slave, index, subIndex) is stored
   void testChannelMetadata() {
     svc_->addChannel("actual_pos", 3, "0x6064", "0x01");
     const auto chs = svc_->channels();
@@ -45,7 +58,7 @@ private slots:
     QCOMPARE(chs[0].subIndex, QString("0x01"));
   }
 
-  // removeChannel deletes the correct entry.
+  // Test removeChannel deletes the correct entry
   void testRemoveChannel() {
     const int id1 = svc_->addChannel("a", 0, "0x6064", "0");
     const int id2 = svc_->addChannel("b", 1, "0x6041", "0");
@@ -55,21 +68,21 @@ private slots:
     QCOMPARE(chs[0].id, id2);
   }
 
-  // Removing a nonexistent channel is a no-op.
+  // Verify removing a nonexistent channel is a no-op
   void testRemoveNonexistent() {
     svc_->addChannel("a", 0, "0x6064", "0");
     svc_->removeChannel(999);
     QCOMPARE(svc_->channels().size(), 1);
   }
 
-  // channelAdded signal fires on addChannel.
+  // Verify channelAdded signal fires on addChannel
   void testChannelAddedSignal() {
     QSignalSpy spy(svc_, &SignalService::channelAdded);
     svc_->addChannel("ch", 0, "0x6064", "0");
     QCOMPARE(spy.count(), 1);
   }
 
-  // channelRemoved signal fires on removeChannel.
+  // Verify channelRemoved signal fires with correct ID
   void testChannelRemovedSignal() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
     QSignalSpy spy(svc_, &SignalService::channelRemoved);
@@ -78,7 +91,7 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toInt(), id);
   }
 
-  // pushData appends values and emits channelDataUpdated.
+  // Test pushData appends values and emits channelDataUpdated
   void testPushData() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
     QSignalSpy spy(svc_, &SignalService::channelDataUpdated);
@@ -92,14 +105,14 @@ private slots:
     QCOMPARE(svc_->channels()[0].timestamps.size(), 3);
   }
 
-  // pushData to nonexistent channel is a no-op.
+  // Verify pushData to nonexistent channel is a no-op
   void testPushDataNonexistent() {
     QSignalSpy spy(svc_, &SignalService::channelDataUpdated);
     svc_->pushData(999, {1.0}, {100});
     QCOMPARE(spy.count(), 0);
   }
 
-  // Stats are computed correctly for a known dataset.
+  // Test statistics computation (min, max, avg, stddev)
   void testStatsComputation() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
     QVector<double> vals = {2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0};
@@ -115,7 +128,7 @@ private slots:
     QCOMPARE(s.stddev, 2.0);
   }
 
-  // Stats return zeroed for an empty channel.
+  // Verify stats return zeroed for an empty channel
   void testStatsEmpty() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
     const ChannelStats s = svc_->stats(id);
@@ -125,7 +138,7 @@ private slots:
     QCOMPARE(s.stddev, 0.0);
   }
 
-  // Data push via EventBus signal works.
+  // Test data push via EventBus signal works
   void testEventBusIntegration() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
     QSignalSpy spy(svc_, &SignalService::channelDataUpdated);
@@ -140,7 +153,7 @@ private slots:
     QCOMPARE(svc_->channels()[0].values[1], 20.0);
   }
 
-  // Data respects kMaxPoints limit.
+  // Verify data respects kMaxPoints limit (oldest dropped)
   void testMaxPointsLimit() {
     const int id = svc_->addChannel("ch", 0, "0x6064", "0");
 
@@ -156,7 +169,7 @@ private slots:
     QCOMPARE(svc_->channels()[0].values.last(), 99.0);
   }
 
-  // Polling start/stop does not crash.
+  // Verify polling start/stop does not crash
   void testPollingStartStop() {
     svc_->startPolling(50);
     QTest::qWait(120);
@@ -171,6 +184,7 @@ private slots:
 class SignalPluginTest : public QObject {
   Q_OBJECT
 private slots:
+  // Verify SignalPlugin identity strings
   void testIdentity() {
     EventBus bus;
     SignalService svc(&bus);
@@ -180,6 +194,7 @@ private slots:
     QCOMPARE(plugin.displayNameZh(), QString("信号分析"));
   }
 
+  // Verify SignalPlugin default order
   void testDefaultOrder() {
     EventBus bus;
     SignalService svc(&bus);
@@ -187,6 +202,7 @@ private slots:
     QCOMPARE(plugin.defaultOrder(), 70);
   }
 
+  // Verify SignalPlugin is visible
   void testVisible() {
     EventBus bus;
     SignalService svc(&bus);
@@ -194,6 +210,7 @@ private slots:
     QVERIFY(plugin.visible());
   }
 
+  // Verify SignalPlugin widget is created
   void testWidgetNotNull() {
     EventBus bus;
     SignalService svc(&bus);

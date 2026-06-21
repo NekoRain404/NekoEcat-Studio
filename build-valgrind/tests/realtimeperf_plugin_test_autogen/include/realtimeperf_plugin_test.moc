@@ -1,0 +1,188 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'realtimeperf_plugin_test.cpp'
+**
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.11.1)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'realtimeperf_plugin_test.cpp' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.11.1. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN29RealtimePerformancePluginTestE_t {};
+} // unnamed namespace
+
+template <> constexpr inline auto RealtimePerformancePluginTest::qt_create_metaobjectdata<qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "RealtimePerformancePluginTest",
+        "testPluginIdentity",
+        "",
+        "testDefaultOrder",
+        "testVisible",
+        "testWidgetNotNull",
+        "testServiceAccessor",
+        "testLatencyMonitorAccessor",
+        "testThroughputMonitorAccessor",
+        "testServiceDefaultState",
+        "testServiceStartStop",
+        "testServiceLatencyThreshold",
+        "testServiceHistoryWindowSize",
+        "testLatencyMetricsSignals",
+        "testThroughputMetricsSignals",
+        "testLatencyMonitorAddSample",
+        "testLatencyMonitorThreshold",
+        "testLatencyMonitorClear",
+        "testLatencyMonitorHistorySize",
+        "testLatencyMonitorUpdateMetrics",
+        "testThroughputMonitorUpdateMetrics",
+        "testDoubleStartNoOp",
+        "testDoubleStopNoOp"
+    };
+
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'testPluginIdentity'
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testDefaultOrder'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testVisible'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testWidgetNotNull'
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testServiceAccessor'
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorAccessor'
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testThroughputMonitorAccessor'
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testServiceDefaultState'
+        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testServiceStartStop'
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testServiceLatencyThreshold'
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testServiceHistoryWindowSize'
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMetricsSignals'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testThroughputMetricsSignals'
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorAddSample'
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorThreshold'
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorClear'
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorHistorySize'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testLatencyMonitorUpdateMetrics'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testThroughputMonitorUpdateMetrics'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testDoubleStartNoOp'
+        QtMocHelpers::SlotData<void()>(21, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testDoubleStopNoOp'
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<RealtimePerformancePluginTest, qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject RealtimePerformancePluginTest::staticMetaObject = { {
+    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>.metaTypes,
+    nullptr
+} };
+
+void RealtimePerformancePluginTest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<RealtimePerformancePluginTest *>(_o);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: _t->testPluginIdentity(); break;
+        case 1: _t->testDefaultOrder(); break;
+        case 2: _t->testVisible(); break;
+        case 3: _t->testWidgetNotNull(); break;
+        case 4: _t->testServiceAccessor(); break;
+        case 5: _t->testLatencyMonitorAccessor(); break;
+        case 6: _t->testThroughputMonitorAccessor(); break;
+        case 7: _t->testServiceDefaultState(); break;
+        case 8: _t->testServiceStartStop(); break;
+        case 9: _t->testServiceLatencyThreshold(); break;
+        case 10: _t->testServiceHistoryWindowSize(); break;
+        case 11: _t->testLatencyMetricsSignals(); break;
+        case 12: _t->testThroughputMetricsSignals(); break;
+        case 13: _t->testLatencyMonitorAddSample(); break;
+        case 14: _t->testLatencyMonitorThreshold(); break;
+        case 15: _t->testLatencyMonitorClear(); break;
+        case 16: _t->testLatencyMonitorHistorySize(); break;
+        case 17: _t->testLatencyMonitorUpdateMetrics(); break;
+        case 18: _t->testThroughputMonitorUpdateMetrics(); break;
+        case 19: _t->testDoubleStartNoOp(); break;
+        case 20: _t->testDoubleStopNoOp(); break;
+        default: ;
+        }
+    }
+    (void)_a;
+}
+
+const QMetaObject *RealtimePerformancePluginTest::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *RealtimePerformancePluginTest::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN29RealtimePerformancePluginTestE_t>.strings))
+        return static_cast<void*>(this);
+    return QObject::qt_metacast(_clname);
+}
+
+int RealtimePerformancePluginTest::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 21)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 21;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 21)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 21;
+    }
+    return _id;
+}
+QT_WARNING_POP

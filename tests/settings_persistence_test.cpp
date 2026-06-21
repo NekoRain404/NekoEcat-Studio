@@ -1,4 +1,11 @@
-// Unit tests for AppSettings and MasterProfile — settings persistence.
+// SettingsPersistenceTest — Tests for AppSettings and MasterProfile
+//
+// Test coverage:
+//   - MasterProfile default values
+//   - AppSettings default values
+//   - MasterProfile field assignment
+//   - Multiple master profiles in AppSettings
+
 #include "SettingsDialog.h"
 
 #include <QtTest/QtTest>
@@ -13,6 +20,7 @@ private slots:
     void appSettingsMultipleMasters();
 };
 
+// Verify MasterProfile has correct default name and target
 void SettingsPersistenceTest::masterProfileDefaults()
 {
     MasterProfile p;
@@ -20,6 +28,7 @@ void SettingsPersistenceTest::masterProfileDefaults()
     QCOMPARE(p.target, QString("0"));
 }
 
+// Verify AppSettings has correct default theme, language, scale, and masters
 void SettingsPersistenceTest::appSettingsDefaults()
 {
     AppSettings s;
@@ -30,6 +39,7 @@ void SettingsPersistenceTest::appSettingsDefaults()
     QCOMPARE(s.activeMaster, QString("0"));
 }
 
+// Test MasterProfile field assignment
 void SettingsPersistenceTest::masterProfileFields()
 {
     MasterProfile p;
@@ -39,6 +49,7 @@ void SettingsPersistenceTest::masterProfileFields()
     QCOMPARE(p.target, QString("3"));
 }
 
+// Test AppSettings with multiple master profiles
 void SettingsPersistenceTest::appSettingsMultipleMasters()
 {
     AppSettings s;

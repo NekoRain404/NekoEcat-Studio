@@ -1,4 +1,10 @@
-// Unit tests for TopologyChangeModel.
+// TopologyChangeTest — Tests for TopologyChangeModel
+//
+// Test coverage:
+//   - Initial scan does not report changes
+//   - Name, state, flags, added, and removed change detection
+//   - Identical topology produces no changes
+
 #include "models/TopologyModel.h"
 
 #include <QCoreApplication>
@@ -52,11 +58,13 @@ SlaveInfo slave(int position, QString name, QString state = QString(),
   return info;
 }
 
+// Initial scan against empty previous produces no changes
 void testInitialScanDoesNotReportChanges() {
   const auto changes = detectTopologyChanges({}, {slave(0, "Drive", "OP")});
   expectTrue(changes.isEmpty(), "initial scan does not report changes");
 }
 
+// Detects name, state, flags changes plus added and removed slaves
 void testTopologyChangeOrderAndPayloads() {
   const QVector<SlaveInfo> previous = {
       slave(0, "Drive A", "PREOP", "+"),
@@ -97,6 +105,7 @@ void testTopologyChangeOrderAndPayloads() {
               "removed slave keeps previous data");
 }
 
+// Identical previous and current topology yields no changes
 void testIdenticalTopologyHasNoChanges() {
   const QVector<SlaveInfo> previous = {slave(0, "Drive", "OP", "+")};
   const QVector<SlaveInfo> current = {slave(0, "Drive", "OP", "+")};

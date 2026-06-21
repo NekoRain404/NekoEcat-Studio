@@ -1,4 +1,11 @@
-// Unit tests for StateMachineRowDetail.
+// StateMachineRowDetailTest — Tests for StateMachineRowDetail
+//
+// Test coverage:
+//   - Unavailable and no-selection empty states
+//   - Severity rules for recommendations, risks, and current state
+//   - Selected row detail state, boundary, and tooltip generation
+//   - Localized risk detection and fallback handling
+
 #include "detail/StateMachineRowDetail.h"
 
 #include <QCoreApplication>
@@ -88,6 +95,7 @@ StateMachineTableRow readyRow() {
   return row;
 }
 
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   StateMachineRowDetailState state =
       stateMachineRowDetailUnavailableState(englishTexts());
@@ -102,6 +110,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Test severity rules for recommendation, risk, and current state
 void testSeverityRules() {
   const StateMachineRowDetailTexts texts = englishTexts();
   StateMachineTableRow row = readyRow();
@@ -127,6 +136,7 @@ void testSeverityRules() {
               "review-only row is neutral");
 }
 
+// Test selected row detail state, boundary, and tooltip
 void testSelectedRowState() {
   const StateMachineTableRow row = readyRow();
   const StateMachineRowDetailState state =
@@ -155,6 +165,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Test localized risk detection and fallback display values
 void testLocalizedRiskAndFallbackState() {
   StateMachineTableRow row;
   row.row = 4;

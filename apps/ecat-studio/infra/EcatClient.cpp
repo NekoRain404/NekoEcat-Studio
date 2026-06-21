@@ -8,12 +8,18 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+EcatClient::~EcatClient() {
+  socket_.blockSignals(true);
+}
+
 // Client constructor: initialize timeout sweep timer (2s interval, 10s request timeout).
 EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   // Wire Qt socket signals for connection lifecycle and incoming data.
   connect(&socket_, &QTcpSocket::connected, this, [this] {
+    if (connectTimeoutTimer_) connectTimeoutTimer_->stop();
     setConnectionState(ConnectionState::Connected);
     consecutiveFailures_ = 0;
+    pendingPing_ = false;
     reconnectIntervalMs_ = 2000;
     emit connected();
     emit reconnected();
@@ -21,8 +27,15 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   });
   connect(&socket_, &QTcpSocket::disconnected, this, [this] {
     setConnectionState(ConnectionState::Disconnected);
-    handlers_.clear();
+    QHash<QString, Handler> pending;
+    pending.swap(handlers_);
     requestTimestamps_.clear();
+    QJsonObject error;
+    error["code"] = -1;
+    error["message"] = "Connection lost";
+    for (auto it = pending.begin(); it != pending.end(); ++it) {
+      it.value()(error);
+    }
     emit disconnected();
     // Start auto-reconnect if enabled.
     if (autoReconnectEnabled_ && !reconnectTimer_->isActive()) {
@@ -31,8 +44,19 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
   });
   connect(&socket_, &QTcpSocket::readyRead, this, &EcatClient::readSocket);
   connect(&socket_, &QTcpSocket::errorOccurred, this,
-          [this](QAbstractSocket::SocketError) {
-            emit errorMessage(socket_.errorString());
+          [this](QAbstractSocket::SocketError error) {
+            if (connectTimeoutTimer_) connectTimeoutTimer_->stop();
+            if (error == QAbstractSocket::ConnectionRefusedError) {
+              consecutiveFailures_++;
+              emit errorMessage(QString("Connection refused (attempt %1)").arg(consecutiveFailures_));
+            } else if (error == QAbstractSocket::SocketTimeoutError) {
+              emit errorMessage("Connection timed out");
+            } else {
+              emit errorMessage(socket_.errorString());
+            }
+            if (connectionState_ == ConnectionState::Connecting) {
+              setConnectionState(ConnectionState::Disconnected);
+            }
           });
 
   // Request timeout sweep — evicts stale handlers every 2s.
@@ -54,6 +78,7 @@ void EcatClient::connectToDaemon() {
     return;
   }
   setConnectionState(ConnectionState::Connecting);
+  setupConnectTimeout();
   socket_.connectToHost(QHostAddress::LocalHost, 5877);
 }
 
@@ -77,7 +102,24 @@ void EcatClient::connectToHost(const QHostAddress &address, quint16 port) {
     return;
   }
   setConnectionState(ConnectionState::Connecting);
+  setupConnectTimeout();
   socket_.connectToHost(address, port);
+}
+
+// Set up connection timeout timer — aborts if connect hangs beyond kConnectTimeoutMs.
+void EcatClient::setupConnectTimeout() {
+  if (!connectTimeoutTimer_) {
+    connectTimeoutTimer_ = new QTimer(this);
+    connectTimeoutTimer_->setSingleShot(true);
+    connect(connectTimeoutTimer_, &QTimer::timeout, this, [this]() {
+      if (connectionState_ == ConnectionState::Connecting) {
+        socket_.abort();
+        setConnectionState(ConnectionState::Disconnected);
+        emit errorMessage(QString("Connection timed out after %1ms").arg(kConnectTimeoutMs));
+      }
+    });
+  }
+  connectTimeoutTimer_->start(kConnectTimeoutMs);
 }
 
 // True if the TCP socket is in ConnectedState.
@@ -299,6 +341,32 @@ void EcatClient::dcSyncStatus() {
   });
 }
 
+// Query DC configuration from a slave's ESI XML descriptor.
+void EcatClient::dcConfigure(int position) {
+  send("dcConfigure", {{"position", position}},
+       [this](const QJsonObject &result) {
+         emit dcConfigureResult(result);
+         emit commandSucceeded("DC configuration queried");
+       });
+}
+
+// Activate DC synchronization with the specified reference clock slave.
+void EcatClient::dcActivate(int refClockSlave) {
+  send("dcActivate", {{"refClockSlave", refClockSlave}},
+       [this](const QJsonObject &result) {
+         emit dcActivateResult(result);
+         emit commandSucceeded("DC activation requested");
+       });
+}
+
+// Deactivate DC synchronization.
+void EcatClient::dcDeactivate() {
+  send("dcDeactivate", {}, [this](const QJsonObject &result) {
+    emit dcDeactivateResult(result);
+    emit commandSucceeded("DC deactivated");
+  });
+}
+
 // Accumulate bytes and split on newlines to extract complete JSON response frames.
 void EcatClient::readSocket() {
   buffer_ += socket_.readAll();
@@ -406,6 +474,51 @@ void EcatClient::setAdapter(const QString &name) {
   });
 }
 
+void EcatClient::setBackendMode(const QString &mode) {
+  QJsonObject params;
+  params["mode"] = mode;
+  send("setBackend", params, [this](const QJsonObject &result) {
+    QString backend = result.value("backend").toString();
+    QString mode = result.value("mode").toString();
+    emit backendModeChanged(backend, mode);
+  });
+}
+
+// Read firmware from a slave using FoE protocol (daemon saves to filePath).
+void EcatClient::foeRead(int position, const QString &filePath) {
+  send("foeRead",
+       {{"position", position}, {"filePath", filePath}},
+       [this, position, filePath](const QJsonObject &result) {
+         const qint64 fileSize = static_cast<qint64>(result.value("fileSize").toDouble());
+         emit foeReadResult(position, filePath, fileSize);
+         emit commandSucceeded(result.value("message").toString());
+       });
+}
+
+// Write firmware to a slave using FoE protocol (daemon reads from filePath).
+void EcatClient::foeWrite(int position, const QString &filePath, quint32 password) {
+  QJsonObject params;
+  params["position"] = position;
+  params["filePath"] = filePath;
+  if (password != 0) {
+    params["password"] = static_cast<qint64>(password);
+  }
+  send("foeWrite", params,
+       [this, position](const QJsonObject &result) {
+         const qint64 bytesWritten = static_cast<qint64>(result.value("bytesWritten").toDouble());
+         emit foeWriteResult(position, bytesWritten);
+         emit commandSucceeded(result.value("message").toString());
+       });
+}
+
+void EcatClient::getBackendMode() {
+  send("getBackend", {}, [this](const QJsonObject &result) {
+    QString backend = result.value("backend").toString();
+    QString mode = result.value("mode").toString();
+    emit backendModeChanged(backend, mode);
+  });
+}
+
 // ─── Auto-reconnect ────────────────────────────────────────────────────────
 
 // Enable or disable the automatic reconnect mechanism.
@@ -431,17 +544,24 @@ void EcatClient::setupAutoReconnect() {
     heartbeatTimer_ = new QTimer(this);
     connect(heartbeatTimer_, &QTimer::timeout, this, [this]() {
       if (connectionState_ != ConnectionState::Connected) return;
-      // Fire a ping; if it fails, increment failure counter.
+      if (pendingPing_) return;  // Don't send another ping while one is pending.
+      pendingPing_ = true;
       send("ping", {}, [this](const QJsonObject &result) {
         Q_UNUSED(result);
+        pendingPing_ = false;
         consecutiveFailures_ = 0;  // Reset on successful pong.
       });
-      // If no pong arrives within 3s, sweepTimedOutRequests will emit errorMessage.
-      // We track failures via a delayed check.
+      // If no pong arrives within 3.5s, count as failure.
       QTimer::singleShot(3500, this, [this]() {
         if (connectionState_ != ConnectionState::Connected) return;
-        // If there are still pending ping handlers that haven't resolved, count as failure.
-        // This is a simple heuristic — the timeout sweep handles the actual cleanup.
+        if (pendingPing_) {
+          pendingPing_ = false;
+          consecutiveFailures_++;
+          if (consecutiveFailures_ >= kMaxConsecutiveFailures) {
+            setConnectionState(ConnectionState::Disconnected);
+            emit reconnectFailed(kMaxConsecutiveFailures);
+          }
+        }
       });
     });
   }
@@ -462,7 +582,15 @@ void EcatClient::attemptReconnect() {
   if (!autoReconnectEnabled_) return;
   if (connectionState_ == ConnectionState::Connected) return;
 
+  if (consecutiveFailures_ >= kMaxConsecutiveFailures) {
+    emit reconnectFailed(kMaxConsecutiveFailures);
+    return;
+  }
+
+  consecutiveFailures_++;
+  emit reconnecting(consecutiveFailures_, reconnectIntervalMs_);
   setConnectionState(ConnectionState::Reconnecting);
+  setupConnectTimeout();
   socket_.connectToHost(QHostAddress::LocalHost, 5877);
 
   // Schedule next attempt if this one doesn't succeed within 5s.

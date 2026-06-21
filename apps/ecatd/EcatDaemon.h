@@ -12,6 +12,7 @@
 #include "handlers/AlEventHandler.h"
 #include "handlers/DcSyncHandler.h"
 #include "handlers/AdapterHandler.h"
+#include "handlers/FoEHandler.h"
 #include "handlers/SignalHandler.h"
 
 #include <QHash>
@@ -53,9 +54,15 @@ private:
     DcSyncHandler dcSyncHandler_;
     // Discovers and configures host NICs for IgH master binding.
     AdapterHandler adapterHandler_;
+    // File over EtherCAT (FoE) firmware read/write handler.
+    FoEHandler foeHandler_;
     // Multi-channel signal acquisition handler for real-time monitoring.
     SignalHandler signalHandler_;
     // Periodic timer that polls slave AL status every second.
     QTimer *alPollTimer_ = nullptr;
+    // Periodic timer that enriches DC sync data from ecrt when Free Run is active.
+    QTimer *dcPollTimer_ = nullptr;
     void setupHandlers();
+    void setBackendMode(const QString &mode);
+    QString backendMode_ = "auto";
 };

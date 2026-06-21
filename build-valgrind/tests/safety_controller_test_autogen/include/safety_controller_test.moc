@@ -1,0 +1,180 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'safety_controller_test.cpp'
+**
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.11.1)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'safety_controller_test.cpp' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.11.1. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN20SafetyControllerTestE_t {};
+} // unnamed namespace
+
+template <> constexpr inline auto SafetyControllerTest::qt_create_metaobjectdata<qt_meta_tag_ZN20SafetyControllerTestE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "SafetyControllerTest",
+        "testOpToInitBlocked",
+        "",
+        "testOpToPreOpBlocked",
+        "testOpToSafeOpAllowed",
+        "testInitToOpAllowed",
+        "testPreOpToSafeOpAllowed",
+        "testSafeOpToOpAllowed",
+        "testInvalidFromState",
+        "testInvalidToState",
+        "testSdoWriteValid",
+        "testSdoWriteNegativePosition",
+        "testSdoWriteEmptyIndex",
+        "testSdoWriteReadOnlyObject",
+        "testSdoWriteReadOnlyErrorRegister",
+        "testSdoWriteReadOnlyIdentity",
+        "testFreeRunStartRequiresOp",
+        "testFreeRunStartWithOpAllowed",
+        "testSdoWriteDuringFreeRunBlocked",
+        "testSdoWriteWithoutFreeRunAllowed",
+        "testSafetyViolationSignal"
+    };
+
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'testOpToInitBlocked'
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testOpToPreOpBlocked'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testOpToSafeOpAllowed'
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testInitToOpAllowed'
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testPreOpToSafeOpAllowed'
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSafeOpToOpAllowed'
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testInvalidFromState'
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testInvalidToState'
+        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteValid'
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteNegativePosition'
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteEmptyIndex'
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteReadOnlyObject'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteReadOnlyErrorRegister'
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteReadOnlyIdentity'
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testFreeRunStartRequiresOp'
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testFreeRunStartWithOpAllowed'
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteDuringFreeRunBlocked'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSdoWriteWithoutFreeRunAllowed'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'testSafetyViolationSignal'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<SafetyControllerTest, qt_meta_tag_ZN20SafetyControllerTestE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject SafetyControllerTest::staticMetaObject = { {
+    QMetaObject::SuperData::link<QObject::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20SafetyControllerTestE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20SafetyControllerTestE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN20SafetyControllerTestE_t>.metaTypes,
+    nullptr
+} };
+
+void SafetyControllerTest::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<SafetyControllerTest *>(_o);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: _t->testOpToInitBlocked(); break;
+        case 1: _t->testOpToPreOpBlocked(); break;
+        case 2: _t->testOpToSafeOpAllowed(); break;
+        case 3: _t->testInitToOpAllowed(); break;
+        case 4: _t->testPreOpToSafeOpAllowed(); break;
+        case 5: _t->testSafeOpToOpAllowed(); break;
+        case 6: _t->testInvalidFromState(); break;
+        case 7: _t->testInvalidToState(); break;
+        case 8: _t->testSdoWriteValid(); break;
+        case 9: _t->testSdoWriteNegativePosition(); break;
+        case 10: _t->testSdoWriteEmptyIndex(); break;
+        case 11: _t->testSdoWriteReadOnlyObject(); break;
+        case 12: _t->testSdoWriteReadOnlyErrorRegister(); break;
+        case 13: _t->testSdoWriteReadOnlyIdentity(); break;
+        case 14: _t->testFreeRunStartRequiresOp(); break;
+        case 15: _t->testFreeRunStartWithOpAllowed(); break;
+        case 16: _t->testSdoWriteDuringFreeRunBlocked(); break;
+        case 17: _t->testSdoWriteWithoutFreeRunAllowed(); break;
+        case 18: _t->testSafetyViolationSignal(); break;
+        default: ;
+        }
+    }
+    (void)_a;
+}
+
+const QMetaObject *SafetyControllerTest::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *SafetyControllerTest::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20SafetyControllerTestE_t>.strings))
+        return static_cast<void*>(this);
+    return QObject::qt_metacast(_clname);
+}
+
+int SafetyControllerTest::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 19)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 19;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 19)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 19;
+    }
+    return _id;
+}
+QT_WARNING_POP

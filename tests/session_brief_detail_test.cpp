@@ -1,4 +1,10 @@
-// Unit tests for SessionBriefDetail.
+// SessionBriefDetailTest — Tests for SessionBriefDetail
+//
+// Test coverage:
+//   - Status text mapping and color key generation
+//   - Table header generation
+//   - UI row cell and tooltip generation
+
 #include "detail/SessionBriefDetail.h"
 
 #include <QCoreApplication>
@@ -44,6 +50,7 @@ SessionBriefUiTexts englishTexts() {
   };
 }
 
+// Test status text and color key for each SessionBriefStatus value
 void testStatusTextAndColorKeys() {
   const SessionBriefUiTexts texts = englishTexts();
   expectEqual(sessionBriefStatusText(SessionBriefStatus::Ready, texts), "Ready",
@@ -64,6 +71,7 @@ void testStatusTextAndColorKeys() {
               "error color key");
 }
 
+// Test table headers and UI row cell/tooltip generation
 void testHeadersAndUiRow() {
   const SessionBriefUiTexts texts = englishTexts();
   const QStringList headers = sessionBriefTableHeaders(texts);

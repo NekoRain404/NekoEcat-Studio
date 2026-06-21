@@ -30,6 +30,10 @@ public:
     QString status() const;
     QJsonObject telemetry() const;
 
+    // Expose the IgH master handle for DC sync enrichment.
+    // Returns nullptr when Free Run is not active.
+    ec_master_t *masterHandle() const { return master_; }
+
 private:
     // Describes a single PDO entry from the cstruct output.
     struct EntrySpec {

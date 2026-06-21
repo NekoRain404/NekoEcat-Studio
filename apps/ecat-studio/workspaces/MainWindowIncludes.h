@@ -65,6 +65,10 @@
 
 // ── Infrastructure ───────────────────────────────────────────────────
 #include "infra/LanguageManager.h"
+#include "services/SdoService.h"
+#include "services/WatchService.h"
+#include "services/TopologyService.h"
+#include "services/ServiceContainer.h"
 // ── Utilities ────────────────────────────────────────────────────────
 #include "utils/Documentation.h"
 #include "utils/TableHelpers.h"

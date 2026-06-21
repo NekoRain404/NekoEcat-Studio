@@ -1,4 +1,4 @@
-# CI pipeline for NekoEcat Studio — build, test, GUI smoke.
+# CI pipeline for NekoEcat Studio — build matrix, static analysis, coverage, tests.
 name: CI
 
 on:
@@ -7,25 +7,120 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  CMAKE_BUILD_TYPE: Release
+
 jobs:
-  build-and-test:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            container: null
+            qt_version: "6.2"
+          - os: ubuntu-latest
+            container: null
+            qt_version: "6.5"
+          - os: ubuntu-latest
+            container: null
+            qt_version: "6.7"
+          - os: fedora-latest
+            container: fedora:latest
+            qt_version: "6.7"
+          - os: archlinux
+            container: archlinux:latest
+            qt_version: "6.7"
+
+    runs-on: ubuntu-latest
+    container: ${{ matrix.container }}
+
+    steps:
+      - name: Install base tools (container)
+        if: matrix.container != null
+        run: |
+          if command -v dnf &>/dev/null; then
+            dnf install -y git cmake gcc gcc-c++ make tar gzip findutils
+          elif command -v pacman &>/dev/null; then
+            pacman -Syu --noconfirm git cmake gcc make tar gzip
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Install Qt6 (Ubuntu)
+        if: matrix.container == null
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6 libqt6qml6
+
+      - name: Install Qt6 (Fedora)
+        if: matrix.container == 'fedora:latest'
+        run: |
+          dnf install -y qt6-qtbase-devel qt6-qttools-devel qt6-qtdeclarative-devel
+
+      - name: Install Qt6 (Arch)
+        if: matrix.container == 'archlinux:latest'
+        run: |
+          pacman -S --noconfirm qt6-base qt6-tools qt6-declarative
+
+      - name: Install IgH EtherCAT headers
+        run: |
+          if command -v apt-get &>/dev/null; then
+            sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          elif command -v dnf &>/dev/null; then
+            dnf install -y ethercat-devel 2>/dev/null || true
+          elif command -v pacman &>/dev/null; then
+            pacman -S --noconfirm ethercat 2>/dev/null || true
+          fi
+
+          if [ ! -f /usr/include/ecrt.h ]; then
+            echo "Creating stub ecrt.h for CI..."
+            mkdir -p /usr/include
+            cat > /usr/include/ecrt.h << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            mkdir -p /usr/lib
+            echo "/* stub */" > /usr/lib/libethercat.so
+          fi
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -j$(nproc)
+
+      - name: GUI Smoke Test
+        run: |
+          if [ -f build/apps/ecat-studio/ecat-studio ]; then
+            QT_QPA_PLATFORM=offscreen timeout 10 build/apps/ecat-studio/ecat-studio || true
+          fi
+
+  static-analysis:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Qt6
+      - name: Install tools
         run: |
           sudo apt-get update
           sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
-            libqt6network6 libqt6widgets6 libqt6test6
+            libqt6network6 libqt6widgets6 libqt6test6 clang-tidy cppcheck
 
-      - name: Install IgH EtherCAT headers
+      - name: Install IgH stub
         run: |
-          # IgH headers may not be in standard repos — install if available.
           sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
-          # If not available, create stub headers for CI compilation.
           if [ ! -f /usr/include/ecrt.h ]; then
-            echo "Creating stub ecrt.h for CI..."
             sudo mkdir -p /usr/include
             sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
           #pragma once
@@ -37,13 +132,117 @@ jobs:
           inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
           inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
           STUB
-            sudo tee /usr/lib/libethercat.so > /dev/null << 'LIBSTUB'
-          /* stub */
-          LIBSTUB
+            sudo mkdir -p /usr/lib
+            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
           fi
 
       - name: Configure
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: clang-tidy
+        run: |
+          find src apps -name '*.cpp' -o -name '*.h' | head -50 | \
+            xargs -r clang-tidy -p build --quiet 2>&1 || true
+
+      - name: cppcheck
+        run: |
+          cppcheck --enable=warning,style,performance,portability \
+            --suppress=missingIncludeSystem \
+            --error-exitcode=0 \
+            -I src -I apps \
+            src/ apps/ 2>&1
+
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          find src apps tests -name '*.cpp' -o -name '*.h' | \
+            xargs -r clang-format --dry-run --Werror 2>&1 || {
+              echo "::error::Code formatting issues found. Run: find src apps tests -name '*.cpp' -o -name '*.h' | xargs clang-format -i"
+              exit 1
+            }
+
+  valgrind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6 valgrind
+
+      - name: Install IgH stub
+        run: |
+          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          if [ ! -f /usr/include/ecrt.h ]; then
+            sudo mkdir -p /usr/include
+            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            sudo mkdir -p /usr/lib
+            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+          fi
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Valgrind tests
+        run: |
+          ctest --test-dir build --output-on-failure -j1 \
+            --test-command "valgrind --leak-check=full --error-exitcode=1 --track-origins=yes" 2>&1 || {
+              echo "::warning::Valgrind reported issues (non-blocking)"
+            }
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6 lcov gcovr
+
+      - name: Install IgH stub
+        run: |
+          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          if [ ! -f /usr/include/ecrt.h ]; then
+            sudo mkdir -p /usr/include
+            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            sudo mkdir -p /usr/lib
+            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+          fi
+
+      - name: Configure with coverage
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="--coverage"
 
       - name: Build
         run: cmake --build build -j$(nproc)
@@ -51,5 +250,73 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure -j$(nproc)
 
-      - name: GUI Smoke Test
-        run: QT_QPA_PLATFORM=offscreen timeout 10 build/apps/ecat-studio/ecat-studio || true
+      - name: Generate coverage report
+        run: |
+          lcov --capture --directory build --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' '*/tests/*' --output-file coverage.info
+          lcov --list coverage.info
+          genhtml coverage.info --output-directory coverage-html
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-html/
+
+      - name: Upload to Codecov
+        if: github.event_name == 'push'
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.info
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  advanced-analysis:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
+            libqt6network6 libqt6widgets6 libqt6test6 \
+            lcov gcovr valgrind cppcheck clang-tidy clang-format
+
+      - name: Install IgH stub
+        run: |
+          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          if [ ! -f /usr/include/ecrt.h ]; then
+            sudo mkdir -p /usr/include
+            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
+          #pragma once
+          #include <cstdint>
+          typedef struct ec_master ec_master_t;
+          typedef struct ec_domain ec_domain_t;
+          typedef struct ec_slave_config ec_slave_config_t;
+          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
+          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
+          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
+          STUB
+            sudo mkdir -p /usr/lib
+            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+          fi
+
+      - name: Coverage analysis
+        run: bash scripts/analyze_coverage.sh
+
+      - name: Memory leak check
+        run: bash scripts/check_memory.sh
+
+      - name: Code quality analysis
+        run: bash scripts/check_quality.sh
+
+      - name: Upload advanced reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: advanced-reports
+          path: build/reports/
+          retention-days: 30

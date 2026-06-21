@@ -1,4 +1,10 @@
-// Unit tests for IoVariableBulkNamingModel.
+// IoVariableNamingTest — Tests for IoVariableBulkNamingModel
+//
+// Test coverage:
+//   - Keep existing aliases and merge tags
+//   - Replace aliases and suffix duplicates
+//   - Skip invalid rows
+
 #include "models/IoVariableModel.h"
 
 #include <QCoreApplication>
@@ -52,6 +58,7 @@ IoVariableTableRow rowFor(int rowNumber, int position, const QString &index,
   return row;
 }
 
+// Test keeping existing aliases while merging requested and inferred tags
 void testKeepExistingAliasAndMergeTags() {
   const IoVariableTableRow first =
       rowFor(0, 3, "0x6040", "Existing_Alias", "Drive.Controlword");
@@ -93,6 +100,7 @@ void testKeepExistingAliasAndMergeTags() {
               "new row receives requested and inferred tags");
 }
 
+// Test replacing aliases with unique suffix for duplicates
 void testReplaceExistingAliasesAndSuffixDuplicates() {
   IoVariableTableRow first =
       rowFor(0, 3, "0x6040", "Axis_Controlword", "Axis Controlword");
@@ -121,6 +129,8 @@ void testReplaceExistingAliasesAndSuffixDuplicates() {
               "Axis_Controlword_2", "second replacement gets unique suffix");
 }
 
+// Verify invalid and unkeyed rows are skipped during naming
+// Test that invalid rows are excluded from naming plan
 void testInvalidRowsAreSkipped() {
   IoVariableTableRow invalid = rowFor(0, 3, "0x6040", QString(), "Signal");
   invalid.positionValid = false;

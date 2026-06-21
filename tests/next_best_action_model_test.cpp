@@ -1,4 +1,10 @@
-// Unit tests for NextBestActionModel.
+// NextBestActionModelTest — Tests for NextBestActionModel
+//
+// Test coverage:
+//   - Primary action ordering priority
+//   - Consistency, free run, and matrix ordering
+//   - Action and severity key generation
+
 #include "models/NextBestActionModel.h"
 
 #include <QCoreApplication>
@@ -41,6 +47,7 @@ NextBestActionInput readyInput() {
   return input;
 }
 
+// Test primary action ordering priorities
 void testPrimaryOrdering() {
   NextBestActionInput input;
   input.hasDiagnosticError = true;
@@ -76,6 +83,7 @@ void testPrimaryOrdering() {
                  "Startup diffs outrank consistency");
 }
 
+// Test consistency, free run, and matrix action ordering
 void testConsistencyFreeRunAndMatrixOrdering() {
   NextBestActionInput input = readyInput();
   input.workflow.hasConsistencyCheck = false;
@@ -115,6 +123,8 @@ void testConsistencyFreeRunAndMatrixOrdering() {
       NextBestActionSeverity::Neutral, "ready session falls back to commands");
 }
 
+// Verify action and severity key string generation
+// Test action and severity key string generation
 void testKeys() {
   expectEqual(nextBestActionKey(NextBestActionKind::Connect), "connect",
               "connect action key");

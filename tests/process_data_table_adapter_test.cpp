@@ -1,4 +1,10 @@
-// Unit tests for ProcessDataTableAdapter.
+// ProcessDataTableAdapterTest — Tests for ProcessDataTableAdapter
+//
+// Test coverage:
+//   - PDO map row parsing from table widget
+//   - Free run entry row parsing from table widget
+//   - I/O variable row parsing with visibility and selection
+
 #include "models/ProcessDataRowModel.h"
 #include "adapters/ProcessDataTableAdapter.h"
 
@@ -48,6 +54,8 @@ void setCell(QTableWidget *table, int row, int column, const QString &value) {
   table->setItem(row, column, new QTableWidgetItem(value));
 }
 
+// Test PDO map row parsing, normalization, and missing row handling
+// Verify PDO map row parsing with normalized addresses
 void testPdoMapRowParsing() {
   QTableWidget table;
   table.setColumnCount(6);
@@ -70,6 +78,8 @@ void testPdoMapRowParsing() {
               "missing PDO row has no target");
 }
 
+// Test Free Run entry row parsing with all 15 columns
+// Verify free run entry row parsing with all fields
 void testFreeRunEntryRowParsing() {
   QTableWidget table;
   table.setColumnCount(15);
@@ -113,6 +123,8 @@ void testFreeRunEntryRowParsing() {
   expectTrue(row.changed, "Free Run changed state");
 }
 
+// Test I/O variable row parsing, hidden row filtering, and value detection
+// Verify I/O variable row parsing with visibility and selection helpers
 void testIoVariableRowParsing() {
   QTableWidget table;
   table.setColumnCount(19);

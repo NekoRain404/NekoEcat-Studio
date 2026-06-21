@@ -1,3 +1,12 @@
+// DcSyncHandlerTest — Tests for DcSyncHandler
+//
+// Test coverage:
+//   - Empty and short-form input parsing
+//   - Verbose DC block parsing with jitter/drift
+//   - Reference clock detection
+//   - Handle() JSON envelope and data fields
+//   - Multiple jitter value aggregation
+
 // Unit tests for DcSyncHandler — DC sync status parsing and JSON output.
 #include "handlers/DcSyncHandler.h"
 #include "CommandDispatcher.h"
@@ -71,6 +80,7 @@ Alias 0x0000, Position 0x0002, Vendor 0x00000002, Product 0x04000401
 
 // ─── T1: empty input returns no slaves ─────────────────────────────────────
 
+// Empty input returns no slaves
 void testEmptyInput() {
   DcSyncHandler handler;
   const auto slaves = handler.queryDcStatus(QString());
@@ -79,6 +89,7 @@ void testEmptyInput() {
 
 // ─── T2: short-form slave output (no DC blocks) ───────────────────────────
 
+// Short-form slave output without DC blocks
 void testShortFormNoDC() {
   DcSyncHandler handler;
   const QString input =
@@ -94,6 +105,7 @@ void testShortFormNoDC() {
 
 // ─── T3: verbose output with DC blocks ─────────────────────────────────────
 
+// Verbose output with DC blocks parses jitter, drift, and sync status
 void testVerboseWithDC() {
   DcSyncHandler handler;
   const auto slaves = handler.queryDcStatus(kSampleSlavesVerboseOutput);
@@ -117,6 +129,7 @@ void testVerboseWithDC() {
 
 // ─── T4: detectRefClock from master output ─────────────────────────────────
 
+// Detect reference clock from master output
 void testDetectRefClock() {
   DcSyncHandler handler;
   const int ref = handler.detectRefClock(kSampleMasterOutput);
@@ -125,6 +138,7 @@ void testDetectRefClock() {
 
 // ─── T5: detectRefClock returns -1 on empty ────────────────────────────────
 
+// Empty input returns -1 for reference clock
 void testDetectRefClockEmpty() {
   DcSyncHandler handler;
   expectEqual(handler.detectRefClock(QString()), -1, "T5: empty input returns -1");
@@ -134,6 +148,7 @@ void testDetectRefClockEmpty() {
 
 // ─── T6: detectRefClock with alternate format ──────────────────────────────
 
+// Alternate reference clock format detection
 void testDetectRefClockAlternate() {
   DcSyncHandler handler;
   const QString alt = "Slave 1 is the reference clock for DC";
@@ -142,6 +157,7 @@ void testDetectRefClockAlternate() {
 
 // ─── T7: handle() returns valid JSON envelope ──────────────────────────────
 
+// Handle() returns valid JSON envelope with ok and id fields
 void testHandleEnvelope() {
   DcSyncHandler handler;
   QJsonObject params;
@@ -158,11 +174,17 @@ void testHandleEnvelope() {
     const QJsonObject result = response.value("result").toObject();
     expectTrue(result.contains("refClock"), "T7: result has refClock");
     expectTrue(result.contains("slaves"), "T7: result has slaves");
+    expectTrue(result.contains("refClockTime"), "T7: result has refClockTime");
+    expectTrue(result.contains("syncMaxDiff"), "T7: result has syncMaxDiff");
+    expectTrue(result.contains("rtDataValid"), "T7: result has rtDataValid");
+    // Without calling update(), rt data should be invalid.
+    expectTrue(!result.value("rtDataValid").toBool(), "T7: rtDataValid is false without update()");
   }
 }
 
 // ─── T8: multiple jitter values produce correct min/max/avg ────────────────
 
+// Multiple jitter values produce correct min/max/avg
 void testMultipleJitterValues() {
   DcSyncHandler handler;
   const QString input =
@@ -183,6 +205,7 @@ void testMultipleJitterValues() {
 
 // ─── T9: handle() response includes data fields ────────────────────────────
 
+// Handle() response includes refClock and slaves data fields
 void testHandleData() {
   DcSyncHandler handler;
   QJsonObject params;
@@ -194,7 +217,74 @@ void testHandleData() {
     const QJsonObject result = response.value("result").toObject();
     expectTrue(result.contains("refClock"), "T9: result has refClock");
     expectTrue(result.contains("slaves"), "T9: result has slaves");
+    expectTrue(result.contains("refClockTime"), "T9: result has refClockTime");
+    expectTrue(result.contains("syncMaxDiff"), "T9: result has syncMaxDiff");
+    expectTrue(result.contains("rtDataValid"), "T9: result has rtDataValid");
   }
+}
+
+// ─── T10: parseDcConfigFromXml with valid ESI XML ────────────────────────
+void testParseDcConfigValidXml() {
+    DcSyncHandler handler;
+    const QString xml = R"(
+        <Device>
+            <Dc>
+                <OpMode>
+                    <AssignActivate>#x0300</AssignActivate>
+                    <Sync0Cycle>1000000</Sync0Cycle>
+                    <Sync0Shift>0</Sync0Shift>
+                    <Sync1Cycle>0</Sync1Cycle>
+                    <Sync1Shift>0</Sync1Shift>
+                </OpMode>
+            </Dc>
+        </Device>
+    )";
+    DcConfig config = handler.parseDcConfigFromXml(xml);
+    expectEqual((int)config.assignActivate, 0x0300, "T10: assignActivate");
+    expectEqual((int)config.sync0CycleNs, 1000000, "T10: sync0CycleNs");
+    expectEqual((int)config.sync0ShiftNs, 0, "T10: sync0ShiftNs");
+    expectEqual((int)config.sync1CycleNs, 0, "T10: sync1CycleNs");
+    expectEqual((int)config.sync1ShiftNs, 0, "T10: sync1ShiftNs");
+}
+
+// ─── T11: parseDcConfigFromXml with 0x prefix ───────────────────────────
+void testParseDcConfigHexPrefix() {
+    DcSyncHandler handler;
+    const QString xml = R"(
+        <Device>
+            <Dc>
+                <OpMode>
+                    <AssignActivate>0x0300</AssignActivate>
+                    <Sync0Cycle>500000</Sync0Cycle>
+                </OpMode>
+            </Dc>
+        </Device>
+    )";
+    DcConfig config = handler.parseDcConfigFromXml(xml);
+    expectEqual((int)config.assignActivate, 0x0300, "T11: assignActivate with 0x prefix");
+    expectEqual((int)config.sync0CycleNs, 500000, "T11: sync0CycleNs");
+}
+
+// ─── T12: parseDcConfigFromXml with empty/malformed XML ──────────────────
+void testParseDcConfigEmptyXml() {
+    DcSyncHandler handler;
+    DcConfig config = handler.parseDcConfigFromXml(QString());
+    expectEqual((int)config.assignActivate, 0, "T12: empty XML returns zero config");
+
+    DcConfig config2 = handler.parseDcConfigFromXml("<invalid>not xml");
+    expectEqual((int)config2.assignActivate, 0, "T12: malformed XML returns zero config");
+}
+
+// ─── T13: parseDcConfigFromXml with no Dc element ────────────────────────
+void testParseDcConfigNoDcElement() {
+    DcSyncHandler handler;
+    const QString xml = R"(
+        <Device>
+            <Type>EL1008</Type>
+        </Device>
+    )";
+    DcConfig config = handler.parseDcConfigFromXml(xml);
+    expectEqual((int)config.assignActivate, 0, "T13: no Dc element returns zero config");
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
@@ -211,6 +301,10 @@ int main(int argc, char *argv[]) {
   testHandleEnvelope();
   testMultipleJitterValues();
   testHandleData();
+  testParseDcConfigValidXml();
+  testParseDcConfigHexPrefix();
+  testParseDcConfigEmptyXml();
+  testParseDcConfigNoDcElement();
 
   if (failures > 0) {
     std::cerr << failures << " test(s) failed.\n";

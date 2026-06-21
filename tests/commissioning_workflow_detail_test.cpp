@@ -1,4 +1,11 @@
-// Unit tests for CommissioningWorkflowDetail.
+// CommissioningWorkflowDetailTest — Tests for CommissioningWorkflowDetail
+//
+// Test coverage:
+//   - Status rules and keys
+//   - Workflow step states
+//   - Text localization (English)
+//   - Tooltip pattern generation
+
 #include "detail/CommissioningWorkflowDetail.h"
 
 #include <QCoreApplication>
@@ -73,6 +80,7 @@ CommissioningWorkflowTexts englishTexts() {
   };
 }
 
+// Verify status rules (ready/action/blocked) and color keys
 void testStatusRulesAndKeys() {
   expectStatus(commissioningWorkflowStatus(true, false),
                CommissioningWorkflowStatus::Ready, "done row is ready");
@@ -90,6 +98,7 @@ void testStatusRulesAndKeys() {
       "blocked", "blocked color key");
 }
 
+// Verify headers, UI row generation, and workflow stats
 void testHeadersUiRowAndStats() {
   const CommissioningWorkflowTexts texts = englishTexts();
   const QStringList headers = commissioningWorkflowHeaders(texts);
@@ -133,6 +142,7 @@ void testHeadersUiRowAndStats() {
   expectEqual(stats.blocked, 1, "blocked stats");
 }
 
+// Verify step boundary kind and detail strings
 void testStepBoundaries() {
   const CommissioningWorkflowTexts texts = englishTexts();
   const CommissioningWorkflowStepBoundary odBoundary =

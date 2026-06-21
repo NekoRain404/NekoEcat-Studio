@@ -1,0 +1,7 @@
+ecat_core_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/EthercatTypes.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/EthercatTypes.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/JsonProtocol.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/JsonProtocol.h \
+	/usr/bin/cmake

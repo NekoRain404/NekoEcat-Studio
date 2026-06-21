@@ -1,3 +1,11 @@
+// IoVariableDetailTest — Tests for IoVariableDetail
+//
+// Test coverage:
+//   - Empty states (unavailable, no selection)
+//   - Severity and signal state classification
+//   - Selected row state and tooltip generation
+//   - Fallback text for incomplete rows
+
 // Unit tests for IoVariableDetail.
 #include "detail/IoVariableDetail.h"
 
@@ -94,6 +102,7 @@ IoVariableTableRow readyRow() {
   return row;
 }
 
+// Verify unavailable and no-selection empty states
 void testEmptyStates() {
   IoVariableDetailState state =
       ioVariableDetailUnavailableState(englishTexts());
@@ -109,6 +118,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Verify severity and signal state classification
 void testSeverityAndSignalState() {
   const IoVariableDetailTexts texts = englishTexts();
   IoVariableTableRow row = readyRow();
@@ -136,6 +146,7 @@ void testSeverityAndSignalState() {
               "PLC issue signal state");
 }
 
+// Verify selected row state, summary, and tooltip
 void testSelectedRowState() {
   const IoVariableDetailState state =
       buildIoVariableDetailState(readyRow(), englishTexts());
@@ -155,6 +166,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Verify fallback text for incomplete rows
 void testFallbackText() {
   IoVariableTableRow row;
   row.positionValid = false;

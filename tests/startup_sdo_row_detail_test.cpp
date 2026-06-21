@@ -1,4 +1,11 @@
-// Unit tests for StartupSdoRowDetail.
+// StartupSdoRowDetailTest — Tests for StartupSdoRowDetail
+//
+// Test coverage:
+//   - Unavailable and no-selection empty states
+//   - Severity rules for match, diff, validation, applying, pending
+//   - Selected row detail state and tooltip generation
+//   - Localized status and fallback handling
+
 #include "detail/StartupSdoRowDetail.h"
 
 #include <QCoreApplication>
@@ -87,6 +94,7 @@ WatchStartupStartupRow readyRow() {
   return row;
 }
 
+// Test unavailable and no-selection empty states
 void testEmptyStates() {
   StartupSdoRowDetailState state =
       startupSdoRowDetailUnavailableState(englishTexts());
@@ -102,6 +110,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Test severity rules for various row states
 void testSeverityRules() {
   const StartupSdoRowDetailTexts texts = englishTexts();
   WatchStartupStartupRow row = readyRow();
@@ -132,6 +141,7 @@ void testSeverityRules() {
               "missing target value is warning");
 }
 
+// Test selected row detail state and tooltip content
 void testSelectedRowState() {
   const WatchStartupStartupRow row = readyRow();
   const StartupSdoRowDetailState state =
@@ -156,6 +166,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Test localized status strings and missing-value fallback
 void testLocalizedAndFallbackState() {
   WatchStartupStartupRow row;
   row.row = 0;

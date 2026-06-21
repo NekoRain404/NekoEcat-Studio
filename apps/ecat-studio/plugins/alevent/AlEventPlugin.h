@@ -1,9 +1,32 @@
 #pragma once
 
-// AlEventPlugin — workspace plugin that displays Application-Layer (AL) event
-// log entries from the EtherCAT master.  Supports severity filtering and
-// auto-scrolls to the latest event.  Connects to EventBus for live updates
-// pushed through AlEventService.
+/// @brief Workspace plugin for Application-Layer (AL) event log viewing.
+///
+/// @details The AL Events workspace displays timestamped application-layer
+/// event entries from the EtherCAT master. These events include state
+/// changes, error conditions, and diagnostic messages from individual
+/// slaves and the master itself.
+///
+/// Features:
+///   - **Event log table**: Time-stamped entries with severity level,
+///     source identification, error code, and descriptive message.
+///   - **Severity filtering**: Filter events by severity level
+///     (error, warning, info, all).
+///   - **Auto-scroll**: Automatically scrolls to the latest event.
+///   - **Clear log**: Clear all accumulated events.
+///   - **Real-time updates**: Events are pushed via EventBus::alEvent
+///     signals from AlEventService (polled every 1s).
+///
+/// @par Constructor
+///   AlEventPlugin(EventBus *bus, AlEventService *service, QObject *parent = nullptr)
+///   Uses fine-grained injection pattern.
+///
+/// @par Plugin Identity
+///   - id: "alevent"
+///   - defaultOrder: 65
+///   - visible: always true
+///
+/// @see WorkspacePlugin, AlEventService, EventBus
 
 #include "plugins/WorkspacePlugin.h"
 

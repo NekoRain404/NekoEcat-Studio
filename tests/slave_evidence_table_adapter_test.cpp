@@ -1,4 +1,12 @@
-// Unit tests for SlaveEvidenceTableAdapter.
+// SlaveEvidenceTableAdapterTest — Tests for Slave Evidence Table Adapter
+//
+// Test coverage:
+//   - Loaded table evidence application (watch, startup, process data)
+//   - Drive status word, mode display, error code, and fault detection
+//   - Evidence row lookup helpers
+//   - Matrix filtering by scope (missing watch, ready, search)
+//   - Matrix priority counting (P0-P3)
+//   - Matrix route target storage and retrieval
 #include "adapters/SlaveEvidenceTableAdapter.h"
 
 #include <QApplication>
@@ -53,6 +61,8 @@ void initTable(QTableWidget *table, int rows, int columns) {
   table->setRowCount(rows);
 }
 
+// Apply loaded watch/startup/process table evidence for a slave position
+// Test applying loaded table evidence into SlaveEvidenceInput
 void testAppliesLoadedTableEvidence() {
   QTableWidget watch;
   initTable(&watch, 4, 6);
@@ -118,6 +128,8 @@ void testAppliesLoadedTableEvidence() {
               "first process issue row");
 }
 
+// Filter matrix by scope and count priorities per level
+// Test matrix filtering by scope and priority counting
 void testMatrixFilteringAndPriorityCounts() {
   QTableWidget matrix;
   initTable(&matrix, 4, 12);
@@ -207,6 +219,8 @@ void testMatrixFilteringAndPriorityCounts() {
   expectTrue(!matrix.isRowHidden(3), "search keeps matching row visible");
 }
 
+// Store and retrieve route targets for matrix rows
+// Test matrix route target storage and retrieval per row
 void testMatrixRouteTargetStorage() {
   QTableWidget matrix;
   initTable(&matrix, 2, 12);

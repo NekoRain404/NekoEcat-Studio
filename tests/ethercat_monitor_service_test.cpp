@@ -1,0 +1,129 @@
+// EtherCATMonitorServiceTest — Tests for EtherCATMonitorService
+//
+// Test coverage:
+//   - Default state (monitoring off, zero traffic, health 100)
+//   - Start/stop monitoring (including double start/stop)
+//   - Traffic, error rate, performance, and health updates
+//   - Signal emission and health grade defaults
+
+#include <QTest>
+#include <QSignalSpy>
+#include "services/EtherCATMonitorService.h"
+
+class EtherCATMonitorServiceTest : public QObject {
+  Q_OBJECT
+private slots:
+  // Default state: not monitoring, zero traffic, health 100
+  // Verify default monitoring state is off with zero traffic and health 100
+  void testDefaultState() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    QVERIFY(!svc.isMonitoring());
+    QCOMPARE(svc.busTraffic().txFrames, static_cast<quint64>(0));
+    QCOMPARE(svc.errorRate().rate, 0.0);
+    QCOMPARE(svc.health().score, 100);
+  }
+
+  // Start and stop monitoring toggles state
+  // Start and stop monitoring toggles isMonitoring flag
+  void testStartStop() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    svc.startMonitoring(10000);
+    QVERIFY(svc.isMonitoring());
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
+  }
+
+  // Double start keeps monitoring active
+  // Double start remains monitoring without error
+  void testDoubleStart() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    svc.startMonitoring(10000);
+    svc.startMonitoring(10000);
+    QVERIFY(svc.isMonitoring());
+    svc.stopMonitoring();
+  }
+
+  // Double stop is safe when not monitoring
+  // Double stop when already stopped is safe
+  void testDoubleStop() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
+  }
+
+  // Update and read back bus traffic metrics
+  // Update bus traffic and verify values
+  void testUpdateTraffic() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    BusTraffic t;
+    t.txFrames = 100;
+    t.rxFrames = 99;
+    t.bandwidth = 10.5;
+    svc.updateTraffic(t);
+    QCOMPARE(svc.busTraffic().txFrames, static_cast<quint64>(100));
+    QCOMPARE(svc.busTraffic().bandwidth, 10.5);
+  }
+
+  // Update and read back error rate
+  // Update error rate and verify values
+  void testUpdateErrorRate() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    ErrorRate r;
+    r.rate = 0.01;
+    r.totalErrors = 5;
+    svc.updateErrorRate(r);
+    QCOMPARE(svc.errorRate().rate, 0.01);
+    QCOMPARE(svc.errorRate().totalErrors, static_cast<quint64>(5));
+  }
+
+  // Update and read back performance metrics
+  // Update performance metrics and verify values
+  void testUpdatePerformance() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    PerformanceMetrics m;
+    m.cycleTimeUs = 1000.0;
+    m.jitterUs = 5.0;
+    svc.updatePerformance(m);
+    QCOMPARE(svc.performance().cycleTimeUs, 1000.0);
+    QCOMPARE(svc.performance().jitterUs, 5.0);
+  }
+
+  // Update and read back health status
+  // Update health status and verify score and slave counts
+  void testUpdateHealth() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    HealthStatus h;
+    h.score = 85;
+    h.grade = QStringLiteral("B");
+    h.totalSlaves = 4;
+    h.opSlaves = 3;
+    svc.updateHealth(h);
+    QCOMPARE(svc.health().score, 85);
+    QCOMPARE(svc.health().totalSlaves, 4);
+  }
+
+  // trafficUpdated signal fires on update
+  // Verify trafficUpdated signal is emitted
+  void testSignalEmission() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    QSignalSpy spy(&svc, &EtherCATMonitorService::trafficUpdated);
+    BusTraffic t;
+    t.txFrames = 50;
+    svc.startMonitoring(10000);
+    svc.updateTraffic(t);
+    QVERIFY(spy.count() >= 1);
+    svc.stopMonitoring();
+  }
+
+  // Health defaults: score 100, watchdog OK, DC not in sync
+  // Verify default health grade values
+  void testHealthGradeDefaults() {
+    EtherCATMonitorService svc(nullptr, nullptr);
+    QCOMPARE(svc.health().score, 100);
+    QVERIFY(svc.health().watchdogOk);
+    QVERIFY(!svc.health().dcInSync);
+  }
+};
+
+QTEST_MAIN(EtherCATMonitorServiceTest)
+#include "ethercat_monitor_service_test.moc"

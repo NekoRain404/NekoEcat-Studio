@@ -1,4 +1,11 @@
-// Unit tests for WatchStartupModel.
+// WatchStartupModelTest — Tests for WatchStartupModel
+//
+// Test coverage:
+//   - Watch row match (target validation and key normalization)
+//   - Pending and diff states
+//   - Startup deltas evaluation and summary
+//   - Diff row filtering
+
 #include "models/WatchStartupModel.h"
 
 #include <QCoreApplication>
@@ -46,6 +53,7 @@ WatchStartupStartupRow startup(int row, int position, QString index,
   return {row, position, index, subIndex, value, type};
 }
 
+// Target validation, key normalization, and match detection
 void testWatchRowMatch() {
   expectTrue(watchStartupHasTarget(2, "6040", "0"),
              "watch/startup target accepts complete addresses");
@@ -67,6 +75,7 @@ void testWatchRowMatch() {
   expectTrue(match.expectedValue == "0x0006", "expected value is retained");
 }
 
+// Empty watch value is pending; different value is diff
 void testWatchRowPendingAndDiff() {
   const QVector<WatchStartupStartupRow> startupRows = {
       startup(0, 2, "6040", "0", "0x0006"),
@@ -82,6 +91,7 @@ void testWatchRowPendingAndDiff() {
               "different watch value reports diff");
 }
 
+// Evaluates deltas for all startup rows and summarizes counts
 void testStartupDeltasAndSummary() {
   const QVector<WatchStartupWatchRow> watchRows = {
       watch(0, 1, "6040", "0", "0x0006"),

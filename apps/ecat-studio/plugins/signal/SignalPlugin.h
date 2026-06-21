@@ -1,8 +1,33 @@
 #pragma once
 
-// SignalPlugin — workspace plugin for the Signal Analyzer.
-// Displays a real-time scrolling multi-channel chart with channel management
-// controls and per-channel statistics overlay.
+/// @brief Workspace plugin for real-time multi-channel signal analysis.
+///
+/// @details The Signal Analyzer workspace provides real-time waveform
+/// visualization of EtherCAT process data signals. It uses a QPainter-based
+/// anti-aliased scrolling chart with a 10,000-point ring buffer per channel.
+///
+/// Features:
+///   - **Multi-channel real-time chart**: SignalChartWidget with scrolling
+///     time-domain display and color-coded channels.
+///   - **Channel management**: Add/remove signal subscriptions by specifying
+///     slave position, index, and subindex.
+///   - **Configurable window size**: Adjust the time window for display
+///     (e.g. 1s, 5s, 10s, 30s).
+///   - **Per-channel statistics**: Min, max, mean, standard deviation
+///     overlay for the selected channel.
+///   - **Signal integration**: Uses SignalService for data acquisition
+///     and EventBus::signalData for real-time updates.
+///
+/// @par Constructor
+///   SignalPlugin(SignalService *service, QObject *parent = nullptr)
+///   Uses fine-grained injection pattern.
+///
+/// @par Plugin Identity
+///   - id: "signal"
+///   - defaultOrder: 67 (after AlEvent, before Consistency)
+///   - visible: always true
+///
+/// @see WorkspacePlugin, SignalService, SignalChartWidget, EventBus
 
 #include "plugins/WorkspacePlugin.h"
 

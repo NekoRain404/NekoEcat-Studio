@@ -1,6 +1,13 @@
 #include "TopologyService.h"
 #include "EcatClient.h"
 
+// TopologyService.cpp — Manages EtherCAT slave topology scanning and baseline comparison
+//
+// Implementation notes:
+//   - Delegates scan/rescan to EcatClient, receives results via slavesChanged signal
+//   - Baseline capture enables drift detection against a known-good topology
+//   - Current and baseline slave lists stored as QVector<SlaveInfo>
+
 TopologyService::TopologyService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {
   connect(client_, &EcatClient::slavesChanged, this,

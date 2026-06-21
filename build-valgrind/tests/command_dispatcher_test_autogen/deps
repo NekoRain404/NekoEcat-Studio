@@ -1,0 +1,8 @@
+command_dispatcher_test_autogen/timestamp: \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecatd/CommandDispatcher.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecatd/CommandDispatcher.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/JsonProtocol.cpp \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/src/core/JsonProtocol.h \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
+	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/command_dispatcher_test.cpp \
+	/usr/bin/cmake

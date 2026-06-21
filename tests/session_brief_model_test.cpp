@@ -1,4 +1,10 @@
-// Unit tests for SessionBriefModel.
+// SessionBriefModelTest — Tests for SessionBriefModel
+//
+// Test coverage:
+//   - Ready-state row generation and action keys
+//   - Status rule transitions for various conditions
+//   - Status key string mapping
+
 #include "models/SessionBriefModel.h"
 
 #include <QCoreApplication>
@@ -65,6 +71,7 @@ SessionBriefInput readyInput() {
   return input;
 }
 
+// Test ready input produces correct row count and action keys
 void testReadyRowsAndActionKeys() {
   const QVector<SessionBriefRow> rows = buildSessionBriefRows(readyInput());
   expectEqual(rows.size(), 6, "brief row count");
@@ -87,6 +94,7 @@ void testReadyRowsAndActionKeys() {
   }
 }
 
+// Test status transitions for offline, errors, warnings, and workflow
 void testStatusRules() {
   SessionBriefInput input = readyInput();
   input.connected = false;
@@ -128,6 +136,7 @@ void testStatusRules() {
       SessionBriefStatus::Action, "open workflow row needs action");
 }
 
+// Test status key string mapping for all status values
 void testStatusKeys() {
   expectEqual(sessionBriefStatusKey(SessionBriefStatus::Ready), "ready",
               "ready status key");

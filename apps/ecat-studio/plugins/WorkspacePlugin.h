@@ -1,8 +1,30 @@
 #pragma once
 
-// WorkspacePlugin — common interface for all workspace tabs.
-// Each workspace (Overview, Object Dictionary, Watch, etc.) implements
-// this interface and registers with PluginRegistry.
+// WorkspacePlugin — abstract interface for every workspace tab in NekoEcat Studio.
+//
+// Each workspace (Overview, Object Dictionary, Watch, Startup SDO, Free Run,
+// I/O Variables, Consistency, State Machine, Diagnostics, DC Sync, AL Events,
+// Signal Analyzer, RT Test, Export, Bus Stats, ESI, Session, Topology, Notes)
+// implements this interface and registers with PluginRegistry.
+//
+// Interface contract:
+//   Identity:     id() returns a unique short string (e.g. "od", "watch").
+//                 displayName() / displayNameZh() provide bilingual tab labels.
+//                 icon() returns an optional QIcon for the tab bar.
+//   UI:           widget() returns the workspace's root QWidget. The plugin
+//                 owns the widget and must keep it alive for the plugin's
+//                 lifetime. defaultOrder() determines tab position; lower values
+//                 appear first. visible() controls whether the tab is shown.
+//   Lifecycle:    activate() / deactivate() are called when the user switches
+//                 to/from this tab — use them for expensive refresh or pause
+//                 operations. onSettingsChanged() notifies of preference
+//                 updates. onConnectionChanged() notifies of daemon link state.
+//   Signals:      requestNavigate(pluginId) asks MainWindow to switch tabs.
+//                 updateDiagnostics(level, source, msg) posts to the log.
+//
+// Plugin instances are created by MainWindow, receive a ServiceContainer in
+// their constructor for service access, and are registered with PluginRegistry.
+// MainWindow queries the registry for tab ordering and visibility.
 
 #include <QObject>
 #include <QString>

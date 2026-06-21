@@ -1,3 +1,11 @@
+// IoVariableFilterTest — Tests for IoVariableFilterModel
+//
+// Test coverage:
+//   - Row state and scope detection (selected, process, Rx, CiA 402)
+//   - Scope matching (All, Selected, Process, Rx, PDO, Tx, StartupDiff)
+//   - Text search and filter decision logic
+//   - Stats accumulation and summary text
+
 // Unit tests for IoVariableFilterModel.
 #include "models/IoVariableModel.h"
 
@@ -56,6 +64,7 @@ IoVariableTableRow baseRow() {
   return row;
 }
 
+// Verify row state flags and scope matching
 void testRowStateAndScope() {
   IoVariableTableRow row = baseRow();
   const IoVariableFilterRowState state =
@@ -82,6 +91,7 @@ void testRowStateAndScope() {
              "PDO scope matches non-process PDO rows");
 }
 
+// Verify text search and filter decision logic
 void testSearchAndDecision() {
   const IoVariableTableRow row = baseRow();
   expectTrue(
@@ -107,6 +117,7 @@ void testSearchAndDecision() {
   expectFalse(decision.visible, "search mismatch hides row");
 }
 
+// Verify stats accumulation and summary text generation
 void testStatsAndSummary() {
   IoVariableFilterStats stats;
 

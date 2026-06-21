@@ -1,4 +1,11 @@
-// Unit tests for TableHelpers.
+// TableHelpersTest — Tests for TableHelpers
+//
+// Test coverage:
+//   - Table row selection and focus with edge cases
+//   - Position-based row lookup
+//   - Object index and address matching with hex normalization
+//   - First visible row lookup with hidden rows
+
 #include "utils/TableHelpers.h"
 
 #include <QApplication>
@@ -30,6 +37,8 @@ void expectEqual(int actual, int expected, const QString &message) {
   }
 }
 
+// Test row selection, focus, column fallbacks, and boundary rejection
+// Verify row selection with valid, negative, and out-of-range columns
 void testSelectAndFocusTableRow() {
   QTableWidget table;
   table.setColumnCount(2);
@@ -64,6 +73,8 @@ void testSelectAndFocusTableRow() {
   expectTrue(!selectAndFocusTableRow(nullptr, 0, 0), "null table is rejected");
 }
 
+// Test position lookup, object index/address matching, and visible row helpers
+// Verify position, object index, address lookups, and visible row detection
 void testRowLookupHelpers() {
   QTableWidget table;
   table.setColumnCount(3);

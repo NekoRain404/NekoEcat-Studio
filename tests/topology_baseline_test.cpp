@@ -1,4 +1,11 @@
-// Unit tests for TopologyBaselineModel.
+// TopologyBaselineTest — Tests for TopologyBaselineModel
+//
+// Test coverage:
+//   - Empty baseline comparison
+//   - Name, state, and unexpected slave issue detection
+//   - Empty state does not create false issues
+//   - Display name fallback to raw line
+
 #include "models/TopologyModel.h"
 
 #include <QCoreApplication>
@@ -53,11 +60,13 @@ SlaveInfo slave(int position, QString name, QString state = QString(),
   return info;
 }
 
+// Empty baseline against current topology produces no issues
 void testEmptyBaselineHasNoIssues() {
   const auto issues = compareTopologyBaseline({}, {slave(0, "Drive", "OP")});
   expectTrue(issues.isEmpty(), "empty topology baseline has no issues");
 }
 
+// Detects name change, state change, missing slave, and unexpected slave
 void testMissingNameStateAndUnexpectedIssues() {
   const QVector<SlaveInfo> baseline = {
       slave(0, "Drive A", "OP"),
@@ -91,6 +100,7 @@ void testMissingNameStateAndUnexpectedIssues() {
               "unexpected slave keeps current slave data");
 }
 
+// Empty baseline state does not trigger a false state-change issue
 void testEmptyStateDoesNotCreateStateIssue() {
   const QVector<SlaveInfo> baseline = {slave(0, "Drive", QString())};
   const QVector<SlaveInfo> current = {slave(0, "Drive", "OP")};
@@ -98,6 +108,7 @@ void testEmptyStateDoesNotCreateStateIssue() {
   expectTrue(issues.isEmpty(), "empty baseline state does not create issue");
 }
 
+// Display name falls back to raw line when name is empty
 void testTopologyDisplayNameFallback() {
   expectEqual(topologySlaveDisplayName(slave(1, "", "OP", "1  OP  Raw")),
               "1  OP  Raw", "empty slave name falls back to raw line");

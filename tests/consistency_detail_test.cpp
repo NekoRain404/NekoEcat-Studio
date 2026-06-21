@@ -1,3 +1,12 @@
+// ConsistencyDetailTest — Tests for ConsistencyDetail
+//
+// Test coverage:
+//   - Empty/unavailable/no-selection states
+//   - Severity key mapping
+//   - Evidence route resolution
+//   - Selected row detail state
+//   - Fallback text generation
+
 // Unit tests for ConsistencyDetail.
 #include "detail/ConsistencyDetail.h"
 
@@ -58,6 +67,7 @@ ConsistencyDetailTexts englishTexts() {
   };
 }
 
+// Verify unavailable and no-selection states produce correct text/severity
 void testEmptyStates() {
   ConsistencyDetailState state =
       consistencyDetailUnavailableState(englishTexts());
@@ -73,6 +83,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tip");
 }
 
+// Verify severity key mapping and evidence route decisions
 void testSeverityAndRoutes() {
   expectEqual(consistencyDetailSeverityKey("Error"), "error", "error severity");
   expectEqual(consistencyDetailSeverityKey("警告"), "warning",
@@ -93,6 +104,7 @@ void testSeverityAndRoutes() {
               "default route");
 }
 
+// Verify selected row builds correct summary, severity, route, and tooltip
 void testSelectedRowState() {
   const ConsistencyDetailState state =
       buildConsistencyDetailState({.level = "Warning",
@@ -121,6 +133,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Verify fallback text when all fields are empty
 void testFallbackText() {
   const ConsistencyDetailState state =
       buildConsistencyDetailState({}, englishTexts());

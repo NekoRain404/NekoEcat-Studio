@@ -7912,4 +7912,745 @@
             <translation>批量监视读取</translation>
         </message>
     </context>
+    <context>
+        <name>TopologyPlugin</name>
+        <message>
+            <source>Linear Layout</source>
+            <translation>线性布局</translation>
+        </message>
+        <message>
+            <source>Tree Layout</source>
+            <translation>树形布局</translation>
+        </message>
+        <message>
+            <source>Zoom In</source>
+            <translation>放大</translation>
+        </message>
+        <message>
+            <source>Zoom Out</source>
+            <translation>缩小</translation>
+        </message>
+        <message>
+            <source>Fit</source>
+            <translation>适应</translation>
+        </message>
+    </context>
+    <context>
+        <name>EsiPlugin</name>
+        <message>
+            <source>Filter devices...</source>
+            <translation>筛选设备...</translation>
+        </message>
+        <message>
+            <source>Import ESI</source>
+            <translation>导入 ESI</translation>
+        </message>
+        <message>
+            <source>Export</source>
+            <translation>导出</translation>
+        </message>
+        <message>
+            <source>Refresh</source>
+            <translation>刷新</translation>
+        </message>
+        <message>
+            <source>Property</source>
+            <translation>属性</translation>
+        </message>
+        <message>
+            <source>Value</source>
+            <translation>值</translation>
+        </message>
+        <message>
+            <source>No ESI files loaded</source>
+            <translation>未加载 ESI 文件</translation>
+        </message>
+        <message>
+            <source>Import ESI XML</source>
+            <translation>导入 ESI XML</translation>
+        </message>
+        <message>
+            <source>Export ESI XML</source>
+            <translation>导出 ESI XML</translation>
+        </message>
+        <message>
+            <source>%n device(s) in repository</source>
+            <translation>仓库中有 %n 个设备</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>名称</translation>
+        </message>
+        <message>
+            <source>Type</source>
+            <translation>类型</translation>
+        </message>
+        <message>
+            <source>Vendor ID</source>
+            <translation>厂商 ID</translation>
+        </message>
+        <message>
+            <source>Product Code</source>
+            <translation>产品代码</translation>
+        </message>
+        <message>
+            <source>Revision</source>
+            <translation>版本</translation>
+        </message>
+        <message>
+            <source>Description</source>
+            <translation>描述</translation>
+        </message>
+        <message>
+            <source>Rx PDOs</source>
+            <translation>Rx PDO</translation>
+        </message>
+        <message>
+            <source>Tx PDOs</source>
+            <translation>Tx PDO</translation>
+        </message>
+        <message>
+            <source>Sync Managers</source>
+            <translation>同步管理器</translation>
+        </message>
+    </context>
+    <context>
+        <name>BusStatsPlugin</name>
+        <message>
+            <source>Start Monitoring</source>
+            <translation>开始监控</translation>
+        </message>
+        <message>
+            <source>Stop Monitoring</source>
+            <translation>停止监控</translation>
+        </message>
+        <message>
+            <source>Stopped</source>
+            <translation>已停止</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>运行中</translation>
+        </message>
+        <message>
+            <source>Frame Rate: --</source>
+            <translation>帧率：--</translation>
+        </message>
+        <message>
+            <source>Bandwidth: --</source>
+            <translation>带宽：--</translation>
+        </message>
+        <message>
+            <source>Metric</source>
+            <translation>指标</translation>
+        </message>
+        <message>
+            <source>TX Frames</source>
+            <translation>发送帧</translation>
+        </message>
+        <message>
+            <source>RX Frames</source>
+            <translation>接收帧</translation>
+        </message>
+        <message>
+            <source>TX Errors</source>
+            <translation>发送错误</translation>
+        </message>
+        <message>
+            <source>RX Errors</source>
+            <translation>接收错误</translation>
+        </message>
+        <message>
+            <source>CRC Errors</source>
+            <translation>CRC 错误</translation>
+        </message>
+        <message>
+            <source>Lost Frames</source>
+            <translation>丢失帧</translation>
+        </message>
+        <message>
+            <source>Total Errors</source>
+            <translation>总错误</translation>
+        </message>
+        <message>
+            <source>Uptime</source>
+            <translation>运行时间</translation>
+        </message>
+        <message>
+            <source>Frame Rate: %1 f/s</source>
+            <translation>帧率：%1 帧/秒</translation>
+        </message>
+        <message>
+            <source>Bandwidth: %1 Mbps</source>
+            <translation>带宽：%1 Mbps</translation>
+        </message>
+    </context>
+    <context>
+        <name>StartupSdoPlugin</name>
+        <message>
+            <source>Diffs Only</source>
+            <translation>仅显示差异</translation>
+        </message>
+        <message>
+            <source>Slave</source>
+            <translation>从站</translation>
+        </message>
+        <message>
+            <source>Index</source>
+            <translation>索引</translation>
+        </message>
+        <message>
+            <source>Sub</source>
+            <translation>子索引</translation>
+        </message>
+        <message>
+            <source>Status</source>
+            <translation>状态</translation>
+        </message>
+        <message>
+            <source>Detail</source>
+            <translation>详情</translation>
+        </message>
+        <message>
+            <source>Watch Value</source>
+            <translation>监视值</translation>
+        </message>
+        <message>
+            <source>Watch Delta</source>
+            <translation>监视偏差</translation>
+        </message>
+    </context>
+    <context>
+        <name>SignalPlugin</name>
+        <message>
+            <source>Channels</source>
+            <translation>通道</translation>
+        </message>
+        <message>
+            <source>Add channel</source>
+            <translation>添加通道</translation>
+        </message>
+        <message>
+            <source>Remove selected channel</source>
+            <translation>移除选中通道</translation>
+        </message>
+        <message>
+            <source>Window</source>
+            <translation>窗口</translation>
+        </message>
+        <message>
+            <source>Add Signal Channel</source>
+            <translation>添加信号通道</translation>
+        </message>
+        <message>
+            <source>e.g. actual_position</source>
+            <translation>例如 actual_position</translation>
+        </message>
+        <message>
+            <source>e.g. 0x6064</source>
+            <translation>例如 0x6064</translation>
+        </message>
+        <message>
+            <source>SubIndex</source>
+            <translation>子索引</translation>
+        </message>
+    </context>
+    <context>
+        <name>AlEventPlugin</name>
+        <message>
+            <source>All</source>
+            <translation>全部</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>错误</translation>
+        </message>
+        <message>
+            <source>Warning</source>
+            <translation>警告</translation>
+        </message>
+        <message>
+            <source>Info</source>
+            <translation>信息</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>清除</translation>
+        </message>
+        <message>
+            <source>Time</source>
+            <translation>时间</translation>
+        </message>
+        <message>
+            <source>Code</source>
+            <translation>代码</translation>
+        </message>
+        <message>
+            <source>Severity</source>
+            <translation>严重程度</translation>
+        </message>
+    </context>
+    <context>
+        <name>DcSyncPlugin</name>
+        <message>
+            <source>Position</source>
+            <translation>位置</translation>
+        </message>
+        <message>
+            <source>DC Capable</source>
+            <translation>DC 能力</translation>
+        </message>
+        <message>
+            <source>Syncing</source>
+            <translation>同步中</translation>
+        </message>
+        <message>
+            <source>Drift (ns)</source>
+            <translation>漂移 (ns)</translation>
+        </message>
+        <message>
+            <source>Jitter Min</source>
+            <translation>抖动最小值</translation>
+        </message>
+        <message>
+            <source>Jitter Max</source>
+            <translation>抖动最大值</translation>
+        </message>
+        <message>
+            <source>Jitter Avg</source>
+            <translation>抖动平均值</translation>
+        </message>
+        <message>
+            <source>Ref Clock</source>
+            <translation>参考时钟</translation>
+        </message>
+        <message>
+            <source>Yes</source>
+            <translation>是</translation>
+        </message>
+        <message>
+            <source>No</source>
+            <translation>否</translation>
+        </message>
+    </context>
+    <context>
+        <name>NotesPlugin</name>
+        <message>
+            <source>Enter project notes here...</source>
+            <translation>在此输入项目备注...</translation>
+        </message>
+    </context>
+    <context>
+        <name>RtTestPlugin</name>
+        <message>
+            <source>Start</source>
+            <translation>启动</translation>
+        </message>
+        <message>
+            <source>Stop</source>
+            <translation>停止</translation>
+        </message>
+        <message>
+            <source>Cycle:</source>
+            <translation>周期：</translation>
+        </message>
+        <message>
+            <source>Custom...</source>
+            <translation>自定义...</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>空闲</translation>
+        </message>
+        <message>
+            <source>Min \xC2\xB5s</source>
+            <translation>最小 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Max \xC2\xB5s</source>
+            <translation>最大 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Avg \xC2\xB5s</source>
+            <translation>平均 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Jitter \xC2\xB5s</source>
+            <translation>抖动 \xC2\xB5s</translation>
+        </message>
+        <message>
+            <source>Cycles</source>
+            <translation>周期数</translation>
+        </message>
+        <message>
+            <source>Errors</source>
+            <translation>错误</translation>
+        </message>
+        <message>
+            <source>Loss %</source>
+            <translation>丢失率 %</translation>
+        </message>
+        <message>
+            <source>Cycle log...</source>
+            <translation>周期日志...</translation>
+        </message>
+        <message>
+            <source>Cycle Latency (\xC2\xB5s)</source>
+            <translation>周期延迟 (\xC2\xB5s)</translation>
+        </message>
+        <message>
+            <source>Avg</source>
+            <translation>平均</translation>
+        </message>
+        <message>
+            <source>Max</source>
+            <translation>最大</translation>
+        </message>
+        <message>
+            <source>Min</source>
+            <translation>最小</translation>
+        </message>
+        <message>
+            <source>Jitter: %1 \xC2\xB5s</source>
+            <translation>抖动：%1 \xC2\xB5s</translation>
+        </message>
+    </context>
+    <context>
+        <name>ExportPlugin</name>
+        <message>
+            <source>Export %1</source>
+            <translation>导出 %1</translation>
+        </message>
+        <message>
+            <source>No entries are available to export.</source>
+            <translation>没有可导出的条目。</translation>
+        </message>
+        <message>
+            <source>Export %1 CSV</source>
+            <translation>导出 %1 CSV</translation>
+        </message>
+        <message>
+            <source>Export failed</source>
+            <translation>导出失败</translation>
+        </message>
+        <message>
+            <source>Exported %1 row(s): %2</source>
+            <translation>已导出 %1 行：%2</translation>
+        </message>
+        <message>
+            <source>No data is available to export.</source>
+            <translation>没有可导出的数据。</translation>
+        </message>
+        <message>
+            <source>Exported %1 node(s): %2</source>
+            <translation>已导出 %1 个节点：%2</translation>
+        </message>
+        <message>
+            <source>Exported: %1</source>
+            <translation>已导出：%1</translation>
+        </message>
+    </context>
+    <context>
+        <name>SessionPlugin</name>
+        <message>
+            <source>Area</source>
+            <translation>区域</translation>
+        </message>
+        <message>
+            <source>Evidence</source>
+            <translation>证据</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>下一步</translation>
+        </message>
+        <message>
+            <source>Copy Row</source>
+            <translation>复制行</translation>
+        </message>
+        <message>
+            <source>%1 rows</source>
+            <translation>%1 行</translation>
+        </message>
+        <message>
+            <source>Copy: %1</source>
+            <translation>复制：%1</translation>
+        </message>
+    </context>
+    <context>
+        <name>DiagnosticsPlugin</name>
+        <message>
+            <source>Filter diagnostics...</source>
+            <translation>筛选诊断...</translation>
+        </message>
+        <message>
+            <source>Timestamp</source>
+            <translation>时间戳</translation>
+        </message>
+        <message>
+            <source>Level</source>
+            <translation>级别</translation>
+        </message>
+        <message>
+            <source>Message</source>
+            <translation>消息</translation>
+        </message>
+        <message>
+            <source>No topology baseline</source>
+            <translation>无拓扑基线</translation>
+        </message>
+        <message>
+            <source>Capture Baseline</source>
+            <translation>捕获基线</translation>
+        </message>
+        <message>
+            <source>Clear Baseline</source>
+            <translation>清除基线</translation>
+        </message>
+        <message>
+            <source>%1 shown | %2 errors | %3 warnings</source>
+            <translation>显示 %1 | %2 个错误 | %3 个警告</translation>
+        </message>
+        <message>
+            <source>Export Diagnostics Report</source>
+            <translation>导出诊断报告</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConsistencyPlugin</name>
+        <message>
+            <source>Errors</source>
+            <translation>错误</translation>
+        </message>
+        <message>
+            <source>Warnings</source>
+            <translation>警告</translation>
+        </message>
+        <message>
+            <source>Topology</source>
+            <translation>拓扑</translation>
+        </message>
+        <message>
+            <source>Startup</source>
+            <translation>启动</translation>
+        </message>
+        <message>
+            <source>Ready</source>
+            <translation>就绪</translation>
+        </message>
+        <message>
+            <source>Filter consistency rows...</source>
+            <translation>筛选一致性行...</translation>
+        </message>
+        <message>
+            <source>Scope</source>
+            <translation>范围</translation>
+        </message>
+        <message>
+            <source>Target</source>
+            <translation>目标</translation>
+        </message>
+        <message>
+            <source>Expected</source>
+            <translation>期望</translation>
+        </message>
+        <message>
+            <source>Actual</source>
+            <translation>实际</translation>
+        </message>
+        <message>
+            <source>%1 rows | errors %2 | warnings %3 | info %4 | ready %5</source>
+            <translation>%1 行 | 错误 %2 | 警告 %3 | 信息 %4 | 就绪 %5</translation>
+        </message>
+    </context>
+    <context>
+        <name>StateMachinePlugin</name>
+    </context>
+    <context>
+        <name>IoVariablePlugin</name>
+        <message>
+            <source>Process</source>
+            <translation>过程</translation>
+        </message>
+        <message>
+            <source>PLC Issues</source>
+            <translation>PLC 问题</translation>
+        </message>
+        <message>
+            <source>Filter I/O variables...</source>
+            <translation>筛选 I/O 变量...</translation>
+        </message>
+    </context>
+    <context>
+        <name>FreeRunPlugin</name>
+        <message>
+            <source>Filter free run entries...</source>
+            <translation>筛选自由运行条目...</translation>
+        </message>
+        <message>
+            <source>Changed only</source>
+            <translation>仅显示变化</translation>
+        </message>
+    </context>
+    <context>
+        <name>WatchPlugin</name>
+        <message>
+            <source>Filter watch rows...</source>
+            <translation>筛选监视行...</translation>
+        </message>
+        <message>
+            <source>Auto refresh</source>
+            <translation>自动刷新</translation>
+        </message>
+        <message>
+            <source>500 ms</source>
+            <translation>500 毫秒</translation>
+        </message>
+        <message>
+            <source>1 s</source>
+            <translation>1 秒</translation>
+        </message>
+        <message>
+            <source>2 s</source>
+            <translation>2 秒</translation>
+        </message>
+        <message>
+            <source>5 s</source>
+            <translation>5 秒</translation>
+        </message>
+        <message>
+            <source>Decoded</source>
+            <translation>解码值</translation>
+        </message>
+        <message>
+            <source>Mode</source>
+            <translation>模式</translation>
+        </message>
+        <message>
+            <source>Baseline</source>
+            <translation>基线</translation>
+        </message>
+        <message>
+            <source>Delta</source>
+            <translation>偏差</translation>
+        </message>
+        <message>
+            <source>Startup Delta</source>
+            <translation>启动偏差</translation>
+        </message>
+    </context>
+    <context>
+        <name>OdPlugin</name>
+        <message>
+            <source>All Objects</source>
+            <translation>全部对象</translation>
+        </message>
+        <message>
+            <source>CoE Objects</source>
+            <translation>CoE 对象</translation>
+        </message>
+        <message>
+            <source>CiA 402</source>
+            <translation>CiA 402</translation>
+        </message>
+        <message>
+            <source>Identity</source>
+            <translation>标识</translation>
+        </message>
+        <message>
+            <source>PDO Mapping</source>
+            <translation>PDO 映射</translation>
+        </message>
+        <message>
+            <source>Error/Diag</source>
+            <translation>错误/诊断</translation>
+        </message>
+        <message>
+            <source>All Access</source>
+            <translation>全部权限</translation>
+        </message>
+        <message>
+            <source>Read/Write</source>
+            <translation>读/写</translation>
+        </message>
+        <message>
+            <source>Read Only</source>
+            <translation>只读</translation>
+        </message>
+        <message>
+            <source>Filter OD rows...</source>
+            <translation>筛选 OD 行...</translation>
+        </message>
+        <message>
+            <source>Object</source>
+            <translation>对象</translation>
+        </message>
+        <message>
+            <source>Bits</source>
+            <translation>位宽</translation>
+        </message>
+        <message>
+            <source>Last Value</source>
+            <translation>最后值</translation>
+        </message>
+        <message>
+            <source>Index (0x)</source>
+            <translation>索引 (0x)</translation>
+        </message>
+        <message>
+            <source>Use</source>
+            <translation>使用</translation>
+        </message>
+        <message>
+            <source>Value to write</source>
+            <translation>写入值</translation>
+        </message>
+        <message>
+            <source>Run Row Action</source>
+            <translation>执行行操作</translation>
+        </message>
+        <message>
+            <source>Copy row</source>
+            <translation>复制行</translation>
+        </message>
+        <message>
+            <source>Key</source>
+            <translation>键</translation>
+        </message>
+        <message>
+            <source>Action</source>
+            <translation>操作</translation>
+        </message>
+        <message>
+            <source>Source</source>
+            <translation>来源</translation>
+        </message>
+        <message>
+            <source>Slave Name</source>
+            <translation>从站名称</translation>
+        </message>
+        <message>
+            <source>%1 obj | %2 vis | %3 evidence | %4 fail | %5 rw</source>
+            <translation>%1 个对象 | %2 可见 | %3 有证据 | %4 失败 | %5 可读写</translation>
+        </message>
+    </context>
+    <context>
+        <name>OverviewPlugin</name>
+        <message>
+            <source>Details</source>
+            <translation>详情</translation>
+        </message>
+        <message>
+            <source>Brief</source>
+            <translation>简报</translation>
+        </message>
+        <message>
+            <source>Workflow</source>
+            <translation>工作流</translation>
+        </message>
+        <message>
+            <source>Matrix</source>
+            <translation>矩阵</translation>
+        </message>
+    </context>
 </TS>

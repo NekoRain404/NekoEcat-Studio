@@ -1,4 +1,12 @@
-// Unit tests for WatchRowDetail.
+// WatchRowDetailTest — Tests for WatchRowDetail model
+//
+// Test coverage:
+//   - Unavailable and no-selection empty states
+//   - Severity rules (ok, action, warning, error)
+//   - CiA 402 detection and match text parsing
+//   - Selected row state with summary and tooltip
+//   - Fallback state for empty rows
+
 #include "detail/WatchRowDetail.h"
 
 #include <QCoreApplication>
@@ -98,6 +106,7 @@ WatchStartupWatchRow readyRow() {
   return row;
 }
 
+// Unavailable and no-selection states return correct text and severity
 void testEmptyStates() {
   WatchRowDetailState state = watchRowDetailUnavailableState(englishTexts());
   expectEqual(state.text, "Watch evidence is not available.",
@@ -111,6 +120,7 @@ void testEmptyStates() {
   expectEqual(state.tooltip, "Selection is local.", "no selection tooltip");
 }
 
+// Severity escalates: ok -> action -> warning -> error based on row state
 void testSeverityRules() {
   const WatchRowDetailTexts texts = englishTexts();
   WatchStartupWatchRow row = readyRow();
@@ -141,6 +151,7 @@ void testSeverityRules() {
               "missing value severity");
 }
 
+// Selected row builds full state with summary, tooltip, and evidence
 void testSelectedRowState() {
   const WatchStartupWatchRow row = readyRow();
   const WatchRowDetailState state =
@@ -166,6 +177,7 @@ void testSelectedRowState() {
   expectEqual(state.tooltip, state.tooltipLines.join('\n'), "tooltip text");
 }
 
+// Empty row falls back to default values and warns
 void testFallbackState() {
   WatchStartupWatchRow row;
   row.row = 8;
