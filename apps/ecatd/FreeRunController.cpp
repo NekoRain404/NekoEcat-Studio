@@ -213,6 +213,7 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     running_ = true;
     activeMasterIndex_ = masterIndex;
     cycleCount_ = 0;
+    wcErrorCount_ = 0;
     {
         std::lock_guard<std::mutex> lock(telemetryMutex_);
         status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
@@ -266,6 +267,7 @@ QJsonObject FreeRunController::telemetry() const
         {"workingCounter", static_cast<int>(domainState_.working_counter)},
         {"wcState", static_cast<int>(domainState_.wc_state)},
         {"wcStateText", wcStateText(domainState_.wc_state)},
+        {"wcErrors", static_cast<qint64>(wcErrorCount_.load())},
         {"redundancyActive", static_cast<int>(domainState_.redundancy_active)},
         {"pdoEntries", static_cast<int>(registrations_.empty() ? 0 : registrations_.size() - 1)},
         {"configuredSlaves", static_cast<int>(runtimeSlaves_.size())},
@@ -506,6 +508,12 @@ void FreeRunController::loop()
             std::lock_guard<std::mutex> lock(telemetryMutex_);
             ecrt_master_state(master_, &masterState_);
             ecrt_domain_state(domain_, &domainState_);
+            // Track consecutive WC errors for diagnostics.
+            if (domainState_.wc_state != EC_WC_COMPLETE) {
+                ++wcErrorCount_;
+            } else {
+                wcErrorCount_ = 0;
+            }
         }
         ecrt_domain_queue(domain_);
         ecrt_master_send(master_);
