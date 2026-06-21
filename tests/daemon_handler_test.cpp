@@ -209,6 +209,35 @@ private slots:
         QVERIFY(resp["ok"].toBool() == true);
         QCOMPARE(resp["result"].toObject()["name"].toString(), QString("ecatd"));
     }
+
+    void testPingDiagnosticMetrics() {
+        CommandDispatcher dispatcher;
+        dispatcher.registerHandler("ping", [](const QString &id, const QJsonObject &) {
+            return CommandDispatcher::success(id, {
+                {"name", "ecatd"},
+                {"version", "0.1.0"},
+                {"multiMaster", true},
+                {"uptimeMs", 12345},
+                {"requestCount", 100},
+                {"errorCount", 5},
+                {"activeConnections", 2}
+            });
+        });
+
+        QJsonObject request = JsonProtocol::request("ping-1", "ping", {});
+        QJsonObject response = dispatcher.dispatch(request);
+
+        QVERIFY(response["ok"].toBool() == true);
+        QJsonObject result = response["result"].toObject();
+        QVERIFY(result.contains("uptimeMs"));
+        QVERIFY(result.contains("requestCount"));
+        QVERIFY(result.contains("errorCount"));
+        QVERIFY(result.contains("activeConnections"));
+        QCOMPARE(result["uptimeMs"].toInt(), 12345);
+        QCOMPARE(result["requestCount"].toInt(), 100);
+        QCOMPARE(result["errorCount"].toInt(), 5);
+        QCOMPARE(result["activeConnections"].toInt(), 2);
+    }
 };
 
 QTEST_MAIN(DaemonHandlerTest)

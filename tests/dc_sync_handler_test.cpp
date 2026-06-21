@@ -287,6 +287,66 @@ void testParseDcConfigNoDcElement() {
     expectEqual((int)config.assignActivate, 0, "T13: no Dc element returns zero config");
 }
 
+// ─── T14: handleDcConfigure with valid position ──────────────────────────
+void testDcConfigureValidPosition() {
+    DcSyncHandler handler;
+    QJsonObject params;
+    params["master"] = "0";
+    params["position"] = 0;
+    const QJsonObject response = handler.handleDcConfigure("test-dc-1", params);
+
+    expectTrue(response.contains("ok"), "T14: response has ok field");
+    expectTrue(response.contains("id"), "T14: response has id field");
+    expectEqual(response.value("id").toString(), QString("test-dc-1"), "T14: id matches");
+
+    // If CLI is available, check result structure
+    if (response.value("ok").toBool()) {
+        const QJsonObject result = response.value("result").toObject();
+        expectTrue(result.contains("position"), "T14: result has position");
+        expectTrue(result.contains("config"), "T14: result has config");
+        expectTrue(result.contains("dcCapable"), "T14: result has dcCapable");
+    }
+}
+
+// ─── T15: handleDcConfigure with missing position ────────────────────────
+void testDcConfigureMissingPosition() {
+    DcSyncHandler handler;
+    QJsonObject params;
+    params["master"] = "0";
+    // No position parameter
+    const QJsonObject response = handler.handleDcConfigure("test-dc-2", params);
+
+    expectTrue(!response.value("ok").toBool(), "T15: fails without position");
+}
+
+// ─── T16: handleDcActivate with auto-detect ──────────────────────────────
+void testDcActivateAutoDetect() {
+    DcSyncHandler handler;
+    QJsonObject params;
+    params["master"] = "0";
+    params["refClockSlave"] = -1;  // Auto-detect
+    const QJsonObject response = handler.handleDcActivate("test-dc-3", params);
+
+    expectTrue(response.contains("ok"), "T16: response has ok field");
+
+    if (response.value("ok").toBool()) {
+        const QJsonObject result = response.value("result").toObject();
+        expectTrue(result.contains("dcActivated"), "T16: result has dcActivated");
+        expectTrue(result.contains("refClockSlave"), "T16: result has refClockSlave");
+    }
+}
+
+// ─── T17: handleDcDeactivate ─────────────────────────────────────────────
+void testDcDeactivate() {
+    DcSyncHandler handler;
+    QJsonObject params;
+    const QJsonObject response = handler.handleDcDeactivate("test-dc-4", params);
+
+    expectTrue(response.value("ok").toBool(), "T17: deactivate succeeds");
+    const QJsonObject result = response.value("result").toObject();
+    expectTrue(!result.value("dcActivated").toBool(), "T17: dcActivated is false");
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────
 
 int main(int argc, char *argv[]) {
@@ -305,6 +365,10 @@ int main(int argc, char *argv[]) {
   testParseDcConfigHexPrefix();
   testParseDcConfigEmptyXml();
   testParseDcConfigNoDcElement();
+  testDcConfigureValidPosition();
+  testDcConfigureMissingPosition();
+  testDcActivateAutoDetect();
+  testDcDeactivate();
 
   if (failures > 0) {
     std::cerr << failures << " test(s) failed.\n";
