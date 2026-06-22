@@ -232,7 +232,9 @@ void EcatClient::download(int position, const QString &index,
         {"subIndex", subIndex},
         {"value", value},
         {"type", type}},
-       [this, position, index, subIndex](const QJsonObject &) {
+       [this, position, index, subIndex](const QJsonObject &result) {
+         // Don't emit success or auto-read on error.
+         if (result.contains("error")) return;
          emit commandSucceeded(QString("SDO download complete #%1: %2:%3")
                                    .arg(position)
                                    .arg(index, subIndex));
@@ -271,7 +273,8 @@ void EcatClient::applyStartupSdos(const QJsonArray &items) {
 // Request AL state transition for a single slave, then auto-rescan to reflect the change.
 void EcatClient::setState(int position, const QString &state) {
   send("setState", {{"position", position}, {"state", state}},
-       [this, state](const QJsonObject &) {
+       [this, state](const QJsonObject &result) {
+         if (result.contains("error")) return;
          emit commandSucceeded(QString("State request sent: %1").arg(state));
          scan();
        });
@@ -279,7 +282,8 @@ void EcatClient::setState(int position, const QString &state) {
 
 // Broadcast AL state transition to all slaves, then auto-rescan.
 void EcatClient::setAllStates(const QString &state) {
-  send("setAllStates", {{"state", state}}, [this, state](const QJsonObject &) {
+  send("setAllStates", {{"state", state}}, [this, state](const QJsonObject &result) {
+    if (result.contains("error")) return;
     emit commandSucceeded(QString("All-state request sent: %1").arg(state));
     scan();
   });
