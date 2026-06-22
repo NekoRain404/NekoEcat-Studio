@@ -214,6 +214,12 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     cycleCount_ = 0;
     wcErrorCount_ = 0;
     {
+        std::lock_guard<std::mutex> lock(cycleMutex_);
+        minCycleNsec_ = INT64_MAX;
+        maxCycleNsec_ = 0;
+        totalCycleNsec_ = 0;
+    }
+    {
         std::lock_guard<std::mutex> lock(telemetryMutex_);
         status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
     }
@@ -254,6 +260,14 @@ QString FreeRunController::status() const
 QJsonObject FreeRunController::telemetry() const
 {
     std::lock_guard<std::mutex> lock(telemetryMutex_);
+    std::lock_guard<std::mutex> cycleLock(cycleMutex_);
+    const auto cycles = cycleCount_.load();
+    int64_t minNs = minCycleNsec_, maxNs = maxCycleNsec_, avgNs = 0, jitterNs = 0;
+    if (minNs == INT64_MAX) minNs = 0;
+    if (cycles > 0) {
+        avgNs = totalCycleNsec_ / static_cast<int64_t>(cycles);
+        jitterNs = std::max(maxNs - avgNs, avgNs - minNs);
+    }
     return {
         {"running", running_.load()},
         {"status", status_},
@@ -267,6 +281,10 @@ QJsonObject FreeRunController::telemetry() const
         {"wcState", static_cast<int>(domainState_.wc_state)},
         {"wcStateText", wcStateText(domainState_.wc_state)},
         {"wcErrors", static_cast<qint64>(wcErrorCount_.load())},
+        {"minCycleUsec", static_cast<double>(minNs) / 1000.0},
+        {"maxCycleUsec", static_cast<double>(maxNs) / 1000.0},
+        {"avgCycleUsec", static_cast<double>(avgNs) / 1000.0},
+        {"jitterUsec", static_cast<double>(jitterNs) / 1000.0},
         {"redundancyActive", static_cast<int>(domainState_.redundancy_active)},
         {"pdoEntries", static_cast<int>(registrations_.empty() ? 0 : registrations_.size() - 1)},
         {"configuredSlaves", static_cast<int>(runtimeSlaves_.size())},
@@ -480,6 +498,7 @@ void FreeRunController::loop()
 
     constexpr uint64_t cycleNsec = 1000000ULL; // 1 ms
     uint64_t wakeupTime = monotonicNsec();
+    uint64_t prevTime = wakeupTime;
 
     while (running_) {
         // Schedule next wake-up using absolute time to avoid drift accumulation.
@@ -499,6 +518,17 @@ void FreeRunController::loop()
         }
 
         if (!running_) break;
+
+        // Measure actual cycle interval for jitter analysis.
+        const uint64_t now = monotonicNsec();
+        const int64_t cycleDelta = static_cast<int64_t>(now - prevTime);
+        prevTime = now;
+        {
+            std::lock_guard<std::mutex> lock(cycleMutex_);
+            if (cycleDelta < minCycleNsec_) minCycleNsec_ = cycleDelta;
+            if (cycleDelta > maxCycleNsec_) maxCycleNsec_ = cycleDelta;
+            totalCycleNsec_ += cycleDelta;
+        }
 
         ecrt_master_application_time(master_, monotonicNsec());
         ecrt_master_receive(master_);

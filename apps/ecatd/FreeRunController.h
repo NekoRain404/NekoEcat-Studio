@@ -109,6 +109,11 @@ private:
     std::atomic_ullong cycleCount_{0};
     std::atomic_ullong wcErrorCount_{0};  // Consecutive WC completeness errors.
     static constexpr int kWcErrorThreshold = 100;  // Update status after this many consecutive errors.
+    // Cycle time statistics (nanoseconds) — updated by the RT thread, read by telemetry().
+    mutable std::mutex cycleMutex_;
+    int64_t minCycleNsec_ = INT64_MAX;
+    int64_t maxCycleNsec_ = 0;
+    int64_t totalCycleNsec_ = 0;
     std::thread thread_;
     uint32_t activeMasterIndex_ = 0;
     QString status_ = "Stopped";
