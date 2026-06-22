@@ -215,6 +215,8 @@ void EcatClient::upload(int position, const QString &index,
   send("upload",
        {{"position", position}, {"index", index}, {"subIndex", subIndex}},
        [this, position, index, subIndex](const QJsonObject &result) {
+         // Don't emit sdoValue on error — the error is already reported via errorMessage.
+         if (result.contains("error")) return;
          emit sdoValue(position, index, subIndex,
                        result.value("value").toString());
        });
@@ -411,10 +413,19 @@ void EcatClient::handleLine(const QByteArray &line) {
   const auto handler = handlers_.take(id);
   requestTimestamps_.remove(id);
   if (!object.value("ok").toBool()) {
-    const QString errorMsg = object.value("error").toObject().value("message").toString(
-        "Unknown runtime error");
+    const QJsonObject errorObj = object.value("error").toObject();
+    const QString errorMsg = errorObj.value("message").toString("Unknown runtime error");
     // Include request ID in error for matching with specific requests.
     emit errorMessage(QString("[%1] %2").arg(id, errorMsg));
+    // Also invoke the handler with the error info so consumers can handle failures.
+    // The handler receives a JSON object with an "error" key indicating failure.
+    if (handler) {
+      QJsonObject errorResult;
+      errorResult["error"] = true;
+      errorResult["errorMessage"] = errorMsg;
+      errorResult["errorCode"] = errorObj.value("code").toInt(-1);
+      handler(errorResult);
+    }
     return;
   }
   if (handler) {
