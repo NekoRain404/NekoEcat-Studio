@@ -75,7 +75,6 @@ private:
   MaintenanceTaskInfo makeTask(const QString &id, const QString &taskType,
                                const QString &schedule, const QString &status,
                                const QString &result);
-  bool backendReady() const;
 
   EventBus *bus_;
   EcatClient *client_;

@@ -8,6 +8,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATMaintenanceService.h"
 
 class EtherCATMaintenanceServiceTest : public QObject {
@@ -129,6 +130,25 @@ private slots:
     QVERIFY(!result);
     QCOMPARE(svc.maintenanceHistory().size(), 0);
     QCOMPARE(svc.maintenanceSchedule().size(), 1);
+  }
+
+  // Implementation must not keep dead execution success paths.
+  void testImplementationDoesNotContainSyntheticExecutionSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATMaintenanceService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"Completed\")")),
+             "Maintenance execution must not synthesize completed task status.");
+    QVERIFY2(!text.contains(QStringLiteral("completed successfully")),
+             "Maintenance execution must not synthesize successful task results.");
+    QVERIFY2(!text.contains(QStringLiteral("record.success = true")),
+             "Maintenance execution history must not synthesize success records.");
+    QVERIFY2(!text.contains(QStringLiteral("emit taskCompleted(t)")),
+             "Maintenance execution must not emit task completion without a real backend.");
+    QVERIFY2(!text.contains(QStringLiteral("emit maintenanceCompleted(record)")),
+             "Maintenance execution must not emit maintenance completion without a real backend.");
   }
 };
 

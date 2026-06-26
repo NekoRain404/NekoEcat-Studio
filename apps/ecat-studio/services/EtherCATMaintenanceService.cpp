@@ -60,19 +60,11 @@ MaintenanceTaskInfo EtherCATMaintenanceService::runTask(const QString &taskId)
 {
     for (auto &t : tasks_) {
         if (t.id == taskId) {
-            if (!backendReady()) {
-                auto rejected = t;
-                rejected.status = QStringLiteral("Rejected");
-                rejected.result = QStringLiteral("Task '%1' requires a connected EtherCAT maintenance backend")
-                                      .arg(t.taskType);
-                return rejected;
-            }
-
-            t.status = QStringLiteral("Completed");
-            t.lastRun = QDateTime::currentDateTime().toString(Qt::ISODate);
-            t.result = QStringLiteral("Task '%1' completed successfully").arg(t.taskType);
-            emit taskCompleted(t);
-            return t;
+            auto rejected = t;
+            rejected.status = QStringLiteral("Rejected");
+            rejected.result = QStringLiteral("Task '%1' requires a connected EtherCAT maintenance backend")
+                                  .arg(t.taskType);
+            return rejected;
         }
     }
     return makeTask(taskId, QString(), QString(), QStringLiteral("Failed"),
@@ -105,19 +97,7 @@ bool EtherCATMaintenanceService::executeMaintenance(int taskId)
 {
     for (int i = 0; i < schedule_.size(); ++i) {
         if (schedule_.at(i).taskId == taskId) {
-            if (!backendReady())
-                return false;
-
-            MaintenanceExecutionRecord record;
-            record.taskId = schedule_.at(i).taskId;
-            record.type = schedule_.at(i).type;
-            record.description = schedule_.at(i).description;
-            record.executedAt = QDateTime::currentDateTime();
-            record.success = true;
-            history_.append(record);
-            schedule_.removeAt(i);
-            emit maintenanceCompleted(record);
-            return true;
+            return false;
         }
     }
     return false;
@@ -131,10 +111,4 @@ QVector<MaintenanceExecutionRecord> EtherCATMaintenanceService::maintenanceHisto
 QVector<ScheduledMaintenanceTask> EtherCATMaintenanceService::maintenanceSchedule() const
 {
     return schedule_;
-}
-
-bool EtherCATMaintenanceService::backendReady() const
-{
-    // No real maintenance backend is wired yet; keep execution paths unreachable.
-    return false;
 }
