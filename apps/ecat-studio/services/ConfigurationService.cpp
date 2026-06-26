@@ -112,28 +112,53 @@ ConfigurationService::ConfigurationService(QObject *parent)
 }
 
 bool ConfigurationService::loadConfiguration(const QString &filePath) {
+    if (filePath.isEmpty())
+        return false;
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly))
         return false;
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    if (doc.isNull() || !doc.isObject())
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject())
         return false;
 
     QJsonObject root = doc.object();
-    master_ = MasterConfig::fromJson(root["master"].toObject());
-    network_ = NetworkConfig::fromJson(root["network"].toObject());
-    timing_ = TimingConfig::fromJson(root["timing"].toObject());
-    safety_ = SafetyConfig::fromJson(root["safety"].toObject());
+    if (!root.value("master").isObject() ||
+        !root.value("network").isObject() ||
+        !root.value("timing").isObject() ||
+        !root.value("safety").isObject() ||
+        !root.value("slaves").isArray()) {
+        return false;
+    }
 
-    slaves_.clear();
-    for (const auto &v : root["slaves"].toArray())
-        slaves_.append(SlaveConfig::fromJson(v.toObject()));
+    QVector<SlaveConfig> loadedSlaves;
+    const QJsonArray slavesArray = root.value("slaves").toArray();
+    for (const auto &v : slavesArray) {
+        if (!v.isObject())
+            return false;
+        loadedSlaves.append(SlaveConfig::fromJson(v.toObject()));
+    }
+
+    MasterConfig loadedMaster = MasterConfig::fromJson(root["master"].toObject());
+    NetworkConfig loadedNetwork = NetworkConfig::fromJson(root["network"].toObject());
+    TimingConfig loadedTiming = TimingConfig::fromJson(root["timing"].toObject());
+    SafetyConfig loadedSafety = SafetyConfig::fromJson(root["safety"].toObject());
+
+    master_ = loadedMaster;
+    network_ = loadedNetwork;
+    timing_ = loadedTiming;
+    safety_ = loadedSafety;
+    slaves_ = loadedSlaves;
 
     emit configurationChanged();
     return true;
 }
 
 bool ConfigurationService::saveConfiguration(const QString &filePath) {
+    if (filePath.isEmpty())
+        return false;
+
     QJsonObject root;
     root["master"] = master_.toJson();
     root["network"] = network_.toJson();
@@ -149,7 +174,9 @@ bool ConfigurationService::saveConfiguration(const QString &filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly))
         return false;
-    file.write(doc.toJson(QJsonDocument::Indented));
+    const QByteArray bytes = doc.toJson(QJsonDocument::Indented);
+    if (file.write(bytes) != bytes.size() || !file.flush())
+        return false;
     return true;
 }
 

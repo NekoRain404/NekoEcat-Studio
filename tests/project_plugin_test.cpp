@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QFile>
 
 #include "services/ProjectManagerService.h"
 #include "services/ConfigurationService.h"
@@ -150,6 +151,43 @@ private slots:
         QCOMPARE(cs2.masterConfig().cycleTimeUs, 2000);
         QCOMPARE(cs2.timingConfig().sync0Shift, 100);
         QCOMPARE(cs2.safetyConfig().watchdogTimeoutMs, 10000);
+    }
+
+    // Invalid configuration files fail without mutating existing state
+    void testConfigurationRejectsInvalidPersistence() {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+
+        ConfigurationService cs;
+        cs.masterConfig().adapter = "eth0";
+        cs.masterConfig().cycleTimeUs = 2000;
+        cs.slaveConfigs().append(SlaveConfig{1, "Drive", 1234, 5678, {}});
+        QSignalSpy changedSpy(&cs, &ConfigurationService::configurationChanged);
+
+        QVERIFY(!cs.saveConfiguration(QString()));
+        QVERIFY(!cs.saveConfiguration(dir.path()));
+
+        const QString arrayPath = dir.filePath("array.json");
+        QFile arrayFile(arrayPath);
+        QVERIFY(arrayFile.open(QIODevice::WriteOnly));
+        QCOMPARE(arrayFile.write(QByteArrayLiteral("[]")), 2);
+        arrayFile.close();
+
+        const QString missingSlavesPath = dir.filePath("missing-slaves.json");
+        QFile missingSlavesFile(missingSlavesPath);
+        QVERIFY(missingSlavesFile.open(QIODevice::WriteOnly));
+        QVERIFY(missingSlavesFile.write(QByteArrayLiteral(
+                    "{\"master\":{},\"network\":{},\"timing\":{},\"safety\":{}}")) > 0);
+        missingSlavesFile.close();
+
+        QVERIFY(!cs.loadConfiguration(QString()));
+        QVERIFY(!cs.loadConfiguration(arrayPath));
+        QVERIFY(!cs.loadConfiguration(missingSlavesPath));
+        QCOMPARE(changedSpy.count(), 0);
+        QCOMPARE(cs.masterConfig().adapter, QString("eth0"));
+        QCOMPARE(cs.masterConfig().cycleTimeUs, 2000);
+        QCOMPARE(cs.slaveConfigs().size(), 1);
+        QCOMPARE(cs.slaveConfigs().first().name, QString("Drive"));
     }
 
     // Verify resetToDefaults restores cycleTimeUs and emits signal
