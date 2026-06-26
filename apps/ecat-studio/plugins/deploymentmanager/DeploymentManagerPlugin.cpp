@@ -188,9 +188,10 @@ void DeploymentManagerPlugin::deploy(int targetIndex, int packageIndex) {
   rec.targetName = t.name;
   rec.packageName = p.name;
   rec.version = p.version;
-  rec.status = "Success";
+  rec.status = "Rejected";
   rec.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-  rec.log = tr("Deployed %1 v%2 to %3 successfully.").arg(p.name, p.version, t.name);
+  rec.log = tr("Deployment of %1 v%2 to %3 requires a deployment backend acknowledgement.")
+                .arg(p.name, p.version, t.name);
   records_.append(rec);
 
   int row = historyTable_->rowCount();
@@ -201,34 +202,15 @@ void DeploymentManagerPlugin::deploy(int targetIndex, int packageIndex) {
   historyTable_->setItem(row, 3, new QTableWidgetItem(rec.status));
   historyTable_->setItem(row, 4, new QTableWidgetItem(rec.timestamp));
 
-  emit deploymentFinished(rec.id, rec.status);
   refreshStatus();
 }
 
 void DeploymentManagerPlugin::rollback(int historyIndex) {
   if (historyIndex < 0 || historyIndex >= records_.size()) return;
   const auto &orig = records_[historyIndex];
-
-  DeploymentMgrRecord rec;
-  rec.id = QString("rec_%1").arg(nextId_++);
-  rec.targetName = orig.targetName;
-  rec.packageName = orig.packageName;
-  rec.version = orig.version;
-  rec.status = "Rolled Back";
-  rec.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-  rec.log = tr("Rollback of %1 v%2 from %3 completed.").arg(orig.packageName, orig.version, orig.targetName);
-  records_.append(rec);
-
-  int row = historyTable_->rowCount();
-  historyTable_->insertRow(row);
-  historyTable_->setItem(row, 0, new QTableWidgetItem(rec.targetName));
-  historyTable_->setItem(row, 1, new QTableWidgetItem(rec.packageName));
-  historyTable_->setItem(row, 2, new QTableWidgetItem(rec.version));
-  historyTable_->setItem(row, 3, new QTableWidgetItem(rec.status));
-  historyTable_->setItem(row, 4, new QTableWidgetItem(rec.timestamp));
-
-  emit rollbackRequested(orig.id);
-  refreshStatus();
+  if (orig.status == QStringLiteral("Success")) {
+    emit rollbackRequested(orig.id);
+  }
 }
 
 void DeploymentManagerPlugin::clearHistory() {

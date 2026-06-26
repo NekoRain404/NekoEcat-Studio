@@ -165,7 +165,7 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  // Verify deploy emits start/finish signals and adds history record
+  // Verify deploy fails closed without deployment backend acknowledgement
   void testDeploy() {
     DeploymentManagerPlugin plugin;
     DeploymentMgrTarget t;
@@ -185,13 +185,13 @@ private slots:
     plugin.deploy(0, 0);
 
     QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(finishSpy.count(), 1);
-    QCOMPARE(finishSpy.at(0).at(1).toString(), QString("Success"));
+    QCOMPARE(finishSpy.count(), 0);
     QCOMPARE(plugin.historyCount(), 1);
     QCOMPARE(plugin.historyTable()->rowCount(), 1);
+    QCOMPARE(plugin.historyTable()->item(0, 3)->text(), QString("Rejected"));
   }
 
-  // Verify rollback emits signal and adds "Rolled Back" history entry
+  // Verify rollback does not synthesize completion without a successful deploy
   void testRollback() {
     DeploymentManagerPlugin plugin;
     DeploymentMgrTarget t;
@@ -210,9 +210,9 @@ private slots:
     QSignalSpy spy(&plugin, &DeploymentManagerPlugin::rollbackRequested);
     plugin.rollback(0);
 
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(plugin.historyCount(), 2);
-    QCOMPARE(plugin.historyTable()->item(1, 3)->text(), QString("Rolled Back"));
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(plugin.historyCount(), 1);
+    QCOMPARE(plugin.historyTable()->item(0, 3)->text(), QString("Rejected"));
   }
 
   // Verify clear history removes all records and table rows
@@ -230,6 +230,7 @@ private slots:
     p.version = "1.0.0";
     plugin.addPackage(p);
     plugin.deploy(0, 0);
+    QCOMPARE(plugin.historyTable()->item(0, 3)->text(), QString("Rejected"));
     QCOMPARE(plugin.historyCount(), 1);
 
     plugin.clearHistory();
@@ -252,11 +253,27 @@ private slots:
     p.version = "1.0.0";
     plugin.addPackage(p);
     plugin.deploy(0, 0);
+    QCOMPARE(plugin.historyTable()->item(0, 3)->text(), QString("Rejected"));
 
     QString path = QDir::temp().absoluteFilePath("deploymentmanager_log_test.json");
     QVERIFY(plugin.exportLog(path));
     QVERIFY(QFile::exists(path));
     QFile::remove(path);
+  }
+
+  void testSourceDoesNotMintSyntheticDeploymentSuccess() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/plugins/deploymentmanager/DeploymentManagerPlugin.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("rec.status = \"Success\"")),
+             "Deployment manager UI must not mark deployments successful without backend acknowledgement");
+    QVERIFY2(!source.contains(QStringLiteral("successfully.")),
+             "Deployment manager UI must not log synthetic successful completion");
+    QVERIFY2(!source.contains(QStringLiteral("rec.status = \"Rolled Back\"")),
+             "Deployment manager UI must not mark rollback complete without backend acknowledgement");
   }
 };
 
