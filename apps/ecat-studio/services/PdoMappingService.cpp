@@ -76,6 +76,9 @@ PdoMappingService::validateMapping(const PdoMapping &mapping) const {
 
 bool PdoMappingService::exportMapping(int position,
                                        const QString &filePath) const {
+  if (filePath.isEmpty())
+    return false;
+
   auto it = mappings_.constFind(position);
   if (it == mappings_.constEnd())
     return false;
@@ -102,22 +105,36 @@ bool PdoMappingService::exportMapping(int position,
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly))
     return false;
-  file.write(QJsonDocument(root).toJson());
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  if (file.write(bytes) != bytes.size() || !file.flush())
+    return false;
   return true;
 }
 
 bool PdoMappingService::importMapping(int position,
                                        const QString &filePath) {
+  if (filePath.isEmpty())
+    return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly))
     return false;
 
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject())
+    return false;
+
   QJsonObject root = doc.object();
-  QJsonArray arr = root[QStringLiteral("mappings")].toArray();
+  const QJsonValue mappingsValue = root[QStringLiteral("mappings")];
+  if (!mappingsValue.isArray())
+    return false;
+  QJsonArray arr = mappingsValue.toArray();
 
   QVector<PdoMapping> imported;
   for (const auto &v : arr) {
+    if (!v.isObject())
+      return false;
     QJsonObject obj = v.toObject();
     PdoMapping m;
     m.index = obj[QStringLiteral("index")].toString();
@@ -131,6 +148,11 @@ bool PdoMappingService::importMapping(int position,
                       : PdoDirection::Input;
     m.slavePosition = position;
     m.enabled = obj[QStringLiteral("enabled")].toBool(true);
+    PdoValidationResult vr = validateMapping(m);
+    if (!vr.valid) {
+      emit error(vr.errorMessage);
+      return false;
+    }
     imported.append(m);
   }
 

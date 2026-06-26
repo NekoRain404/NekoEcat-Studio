@@ -12,6 +12,9 @@
 //   - PDO mapping export/import
 #include <QtTest>
 #include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QTemporaryDir>
 #include "services/SdoCacheService.h"
 #include "services/PdoMappingService.h"
 #include "plugins/sdocache/SdoCachePlugin.h"
@@ -41,6 +44,8 @@ private slots:
   void pdoMappingValidation();
   // Export and import PDO mappings round-trip
   void pdoMappingExportImport();
+  // Reject invalid PDO mapping import/export paths without clearing state
+  void pdoMappingImportRejectsInvalidJson();
 };
 
 void SdoCachePluginTest::cacheValueAndRetrieve() {
@@ -165,13 +170,56 @@ void SdoCachePluginTest::pdoMappingExportImport() {
   m.direction = PdoDirection::Input;
   m.slavePosition = 0;
   m.enabled = true;
+  QVERIFY(svc.configureMapping(0, m));
 
-  QString path = QDir::tempPath() + "/pdo_test_export.json";
-  svc.exportMapping(0, path);
-  svc.importMapping(0, path);
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString path = dir.filePath(QStringLiteral("pdo_test_export.json"));
+  QVERIFY(svc.exportMapping(0, path));
+
+  PdoMappingService imported;
+  QVERIFY(imported.importMapping(0, path));
+  auto mappings = imported.currentMappings(0);
+  QCOMPARE(mappings.size(), 1);
+  QCOMPARE(mappings.first().index, QStringLiteral("1A00"));
+  QCOMPARE(mappings.first().subIndex, QStringLiteral("01"));
+  QCOMPARE(mappings.first().name, QStringLiteral("StatusWord"));
+  QCOMPARE(mappings.first().dataType, QStringLiteral("UINT16"));
+  QCOMPARE(mappings.first().bitSize, 16);
+  QCOMPARE(mappings.first().direction, PdoDirection::Input);
+  QVERIFY(mappings.first().enabled);
+}
+
+void SdoCachePluginTest::pdoMappingImportRejectsInvalidJson() {
+  PdoMappingService svc;
+  PdoMapping m;
+  m.index = "1A00";
+  m.subIndex = "01";
+  m.name = "StatusWord";
+  m.dataType = "UINT16";
+  m.bitSize = 16;
+  m.direction = PdoDirection::Input;
+  m.slavePosition = 0;
+  m.enabled = true;
+  QVERIFY(svc.configureMapping(0, m));
+
+  QVERIFY(!svc.exportMapping(0, QString()));
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  QVERIFY(!svc.exportMapping(0, dir.path()));
+
+  const QString invalidPath = dir.filePath(QStringLiteral("invalid.json"));
+  QFile invalidFile(invalidPath);
+  QVERIFY(invalidFile.open(QIODevice::WriteOnly));
+  QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
+  invalidFile.close();
+
+  QVERIFY(!svc.importMapping(0, QString()));
+  QVERIFY(!svc.importMapping(0, invalidPath));
   auto mappings = svc.currentMappings(0);
-  // Imported mapping should have the same structure
-  QFile::remove(path);
+  QCOMPARE(mappings.size(), 1);
+  QCOMPARE(mappings.first().index, QStringLiteral("1A00"));
 }
 
 static int argc = 1;
