@@ -5360,6 +5360,7 @@ add_executable(maintenancescheduler_plugin_test
 )
 target_link_libraries(maintenancescheduler_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(maintenancescheduler_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
+target_compile_definitions(maintenancescheduler_plugin_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 set_target_properties(maintenancescheduler_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME maintenancescheduler_plugin_test COMMAND maintenancescheduler_plugin_test)
 set_tests_properties(maintenancescheduler_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

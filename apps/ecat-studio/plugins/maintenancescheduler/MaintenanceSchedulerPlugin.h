@@ -57,7 +57,7 @@ public:
   void addScheduleEntry(const QString &taskName, const QString &dateTime);
   void removeScheduleEntry(int index);
 
-  void recordMaintenance(const MaintenanceRecord &record);
+  bool recordMaintenance(const MaintenanceRecord &record);
   void clearHistory();
 
   void generateReport();

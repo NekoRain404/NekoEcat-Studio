@@ -5,11 +5,14 @@
 //   - UI widget and table creation (task, schedule, history tables)
 //   - Task add/remove/update operations
 //   - Schedule entry add/remove
-//   - Maintenance record creation and history
+//   - Maintenance record requests fail closed without a backend acknowledgement
 //   - Report generation and export
-//   - Signal emissions (taskAdded, taskUpdated, taskRemoved, maintenanceRecorded)
+//   - Signal emissions (taskAdded, taskUpdated, taskRemoved)
+//   - Source guard against synthetic completion records
 
 #include <QApplication>
+#include <QFile>
+#include <QLabel>
 #include <QPushButton>
 #include <QTableWidget>
 #include <QTextEdit>
@@ -31,11 +34,12 @@ private slots:
   void updateTask();          // Test task update with signal
   void addScheduleEntry();    // Test adding schedule entry
   void removeScheduleEntry(); // Test removing schedule entries
-  void recordMaintenance();   // Test recording maintenance history
+  void recordMaintenanceRequiresBackendAck(); // Test maintenance records fail closed
   void clearHistory();        // Test clearing maintenance history
   void generateReport();      // Test report generation
   void exportReport();        // Test report export to JSON
   void signalEmissions();     // Verify all plugin signals
+  void noSyntheticCompletionInSource();
 
 private:
   MaintenanceSchedulerPlugin *plugin_ = nullptr;
@@ -149,20 +153,21 @@ void TestMaintenanceSchedulerPlugin::removeScheduleEntry() {
   QCOMPARE(plugin_->scheduleCount(), 0);
 }
 
-void TestMaintenanceSchedulerPlugin::recordMaintenance() {
+void TestMaintenanceSchedulerPlugin::recordMaintenanceRequiresBackendAck() {
   QCOMPARE(plugin_->historyCount(), 0);
 
+  QSignalSpy recordedSpy(plugin_, &MaintenanceSchedulerPlugin::maintenanceRecorded);
   MaintenanceRecord rec;
   rec.id = "rec_1";
   rec.taskName = "Lubrication";
   rec.status = "Completed";
   rec.timestamp = "2025-01-01T00:00:00";
   rec.notes = "All bearings lubricated";
-  plugin_->recordMaintenance(rec);
-  QCOMPARE(plugin_->historyCount(), 1);
-  QCOMPARE(plugin_->historyTable()->rowCount(), 1);
-  QCOMPARE(plugin_->historyTable()->item(0, 0)->text(), QString("Lubrication"));
-  QCOMPARE(plugin_->historyTable()->item(0, 1)->text(), QString("Completed"));
+  QVERIFY(!plugin_->recordMaintenance(rec));
+  QCOMPARE(plugin_->historyCount(), 0);
+  QCOMPARE(plugin_->historyTable()->rowCount(), 0);
+  QCOMPARE(recordedSpy.count(), 0);
+  QVERIFY(plugin_->statusLabel()->text().contains("backend", Qt::CaseInsensitive));
 }
 
 void TestMaintenanceSchedulerPlugin::clearHistory() {
@@ -175,8 +180,8 @@ void TestMaintenanceSchedulerPlugin::clearHistory() {
   rec.status = "Completed";
   rec.timestamp = "2025-01-01T00:00:00";
   rec.notes = "Test note";
-  plugin_->recordMaintenance(rec);
-  QCOMPARE(plugin_->historyCount(), 1);
+  QVERIFY(!plugin_->recordMaintenance(rec));
+  QCOMPARE(plugin_->historyCount(), 0);
   plugin_->clearHistory();
   QCOMPARE(plugin_->historyCount(), 0);
   QCOMPARE(plugin_->historyTable()->rowCount(), 0);
@@ -209,14 +214,6 @@ void TestMaintenanceSchedulerPlugin::exportReport() {
   t.status = "Active";
   plugin_->addTask(t);
 
-  MaintenanceRecord rec;
-  rec.id = "rec_1";
-  rec.taskName = "Export Task";
-  rec.status = "Completed";
-  rec.timestamp = "2025-01-01T00:00:00";
-  rec.notes = "Done";
-  plugin_->recordMaintenance(rec);
-
   QString tmpPath = QDir::tempPath() + "/maintenance_report.json";
   QVERIFY(plugin_->exportReport(tmpPath));
   QVERIFY(QFile::exists(tmpPath));
@@ -230,7 +227,6 @@ void TestMaintenanceSchedulerPlugin::signalEmissions() {
   QSignalSpy taskAddedSpy(plugin_, &MaintenanceSchedulerPlugin::taskAdded);
   QSignalSpy taskUpdatedSpy(plugin_, &MaintenanceSchedulerPlugin::taskUpdated);
   QSignalSpy taskRemovedSpy(plugin_, &MaintenanceSchedulerPlugin::taskRemoved);
-  QSignalSpy recordedSpy(plugin_, &MaintenanceSchedulerPlugin::maintenanceRecorded);
 
   MaintenanceTask t;
   t.id = "task_1";
@@ -246,19 +242,21 @@ void TestMaintenanceSchedulerPlugin::signalEmissions() {
   plugin_->updateTask(0, t);
   QCOMPARE(taskUpdatedSpy.count(), 1);
 
-  MaintenanceRecord rec;
-  rec.id = "rec_1";
-  rec.taskName = "Signal Task";
-  rec.status = "Done";
-  rec.timestamp = "2025-01-01T00:00:00";
-  rec.notes = "Signal test";
-  plugin_->recordMaintenance(rec);
-  QCOMPARE(recordedSpy.count(), 1);
-
   plugin_->removeTask(0);
   QCOMPARE(taskRemovedSpy.count(), 1);
 
   plugin_->clearHistory();
+}
+
+void TestMaintenanceSchedulerPlugin::noSyntheticCompletionInSource() {
+  QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/maintenancescheduler/MaintenanceSchedulerPlugin.cpp"));
+  QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+           qPrintable(QStringLiteral("Unable to open %1").arg(source.fileName())));
+  const QString text = QString::fromUtf8(source.readAll());
+  QVERIFY2(!text.contains(QStringLiteral("rec.status = \"Completed\"")),
+           "Maintenance scheduler must not synthesize a Completed record from the UI button.");
+  QVERIFY2(!text.contains(QStringLiteral("Completed maintenances: %1")),
+           "Maintenance reports must not count unacknowledged local history as completed maintenance.");
 }
 
 QTEST_MAIN(TestMaintenanceSchedulerPlugin)

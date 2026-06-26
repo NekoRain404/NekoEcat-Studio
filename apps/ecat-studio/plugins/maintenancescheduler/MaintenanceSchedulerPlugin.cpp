@@ -122,9 +122,9 @@ void MaintenanceSchedulerPlugin::buildUi() {
       MaintenanceRecord rec;
       rec.id = QString("mrec_%1").arg(nextId_++);
       rec.taskName = tasks_.first().name;
-      rec.status = "Completed";
+      rec.status = tr("Requested");
       rec.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-      rec.notes = tr("Maintenance performed");
+      rec.notes = tr("Maintenance completion requires a backend acknowledgement");
       recordMaintenance(rec);
     }
   });
@@ -182,19 +182,11 @@ void MaintenanceSchedulerPlugin::removeScheduleEntry(int index) {
   scheduleTable_->removeRow(index);
 }
 
-void MaintenanceSchedulerPlugin::recordMaintenance(const MaintenanceRecord &record) {
-  MaintenanceRecord r = record;
-  if (r.id.isEmpty()) r.id = QString("mrec_%1").arg(nextId_++);
-  history_.append(r);
-
-  int row = historyTable_->rowCount();
-  historyTable_->insertRow(row);
-  historyTable_->setItem(row, 0, new QTableWidgetItem(r.taskName));
-  historyTable_->setItem(row, 1, new QTableWidgetItem(r.status));
-  historyTable_->setItem(row, 2, new QTableWidgetItem(r.timestamp));
-  historyTable_->setItem(row, 3, new QTableWidgetItem(r.notes));
-
-  emit maintenanceRecorded(r.id);
+bool MaintenanceSchedulerPlugin::recordMaintenance(const MaintenanceRecord &record) {
+  Q_UNUSED(record);
+  refreshReport();
+  statusLabel_->setText(tr("Maintenance backend is not connected; record request rejected"));
+  return false;
 }
 
 void MaintenanceSchedulerPlugin::clearHistory() {
@@ -212,7 +204,7 @@ void MaintenanceSchedulerPlugin::refreshReport() {
   report += tr("=== Maintenance Report ===\n\n");
   report += tr("Total tasks: %1\n").arg(tasks_.size());
   report += tr("Scheduled entries: %1\n").arg(scheduleTable_ ? scheduleTable_->rowCount() : 0);
-  report += tr("Completed maintenances: %1\n\n").arg(history_.size());
+  report += tr("Backend-acknowledged records: %1\n\n").arg(history_.size());
 
   report += tr("-- Tasks --\n");
   for (const auto &t : tasks_) {
