@@ -168,9 +168,9 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | ConfigurationEditorPlugin | `configeditor` | Advanced configuration editor |
 | NetworkAnalyzerPlugin | `networkanalyzer` | Network traffic analyzer |
 | SystemMonitorPlugin | `systemmonitor` | System resource monitoring |
-| SecurityManagerPlugin | `security` | Security policy management |
-| ComplianceCheckerPlugin | `compliance` | EtherCAT compliance checking |
-| CertificationManagerPlugin | `certification` | Device certification management |
+| SecurityManagerPlugin | `securitymanager` | Security policy management |
+| ComplianceCheckerPlugin | `compliancechecker` | EtherCAT compliance checking |
+| CertificationManagerPlugin | `certificationmanager` | Device certification management |
 | OptimizationDashboardPlugin | `optimization` | Performance optimization dashboard |
 | MonitoringDashboardPlugin | `monitoring` | Real-time monitoring dashboard |
 | AnalyticsDashboardPlugin | `analytics` | Data analytics dashboard |

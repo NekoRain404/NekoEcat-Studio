@@ -18,6 +18,7 @@ private slots:
   void publicDocsDoNotUseStaleReleaseNumbers();
   void publicDocsDoNotAdvertiseStaleProjectStats();
   void digitalTwinPluginHasSingleCanonicalPathAndId();
+  void managerPluginsHaveSingleCanonicalPathAndId();
 
 private:
   static QString readTextFile(const QString &path);
@@ -372,6 +373,37 @@ void ProductBoundaryTest::digitalTwinPluginHasSingleCanonicalPathAndId() {
       readTextFile(QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"));
   QVERIFY2(!architecture.contains(QStringLiteral("| DigitalTwinStudioPlugin | `digitaltwin` |")),
            "Docs must use the canonical digitaltwinstudio plugin id.");
+}
+
+void ProductBoundaryTest::managerPluginsHaveSingleCanonicalPathAndId() {
+  const QStringList legacyFiles = {
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/security/SecurityManagerPlugin.cpp"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/security/SecurityManagerPlugin.h"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/compliance/ComplianceCheckerPlugin.cpp"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/compliance/ComplianceCheckerPlugin.h"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/certification/CertificationManagerPlugin.cpp"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/certification/CertificationManagerPlugin.h"),
+  };
+
+  for (const QString &legacyFile : legacyFiles) {
+    QVERIFY2(!QFile::exists(legacyFile),
+             qPrintable(QStringLiteral("Legacy duplicate plugin file must not exist: %1")
+                            .arg(legacyFile)));
+  }
+
+  const QString architecture =
+      readTextFile(QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"));
+  const QStringList staleRows = {
+      QStringLiteral("| SecurityManagerPlugin | `security` |"),
+      QStringLiteral("| ComplianceCheckerPlugin | `compliance` |"),
+      QStringLiteral("| CertificationManagerPlugin | `certification` |"),
+  };
+
+  for (const QString &staleRow : staleRows) {
+    QVERIFY2(!architecture.contains(staleRow),
+             qPrintable(QStringLiteral("Docs must not use stale plugin id row: %1")
+                            .arg(staleRow)));
+  }
 }
 
 QTEST_MAIN(ProductBoundaryTest)
