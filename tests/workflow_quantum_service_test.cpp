@@ -1,11 +1,9 @@
 // WorkflowQuantumServiceTest — Tests for WorkflowQuantumService
 //
 // Test coverage:
-//   - Quantum key distribution
-//   - Quantum random number generation
-//   - Quantum-safe encryption
-//   - Quantum-resistant signatures
-//   - Key revocation and signal emission
+//   - Quantum key distribution, random generation, encryption, and signatures fail closed without backend
+//   - Rejected quantum requests do not emit synthetic key lifecycle signals
+//   - Key lookup and revocation remain empty without distributed keys
 
 #include <QTest>
 #include <QSignalSpy>
@@ -20,19 +18,18 @@ private slots:
     WfQuantumKeys keys = svc.distributeQuantumKeys(1);
     QCOMPARE(keys.keyLength, 256);
     QCOMPARE(keys.algorithm, WfQuantumAlgorithm::BB84);
-    QVERIFY(!keys.publicKey.isEmpty());
-    QVERIFY(!keys.privateKey.isEmpty());
-    QVERIFY(!keys.sharedSecret.isEmpty());
-    QVERIFY(keys.expiry.isValid());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(keys.publicKey.isEmpty());
+    QVERIFY(keys.privateKey.isEmpty());
+    QVERIFY(keys.sharedSecret.isEmpty());
+    QVERIFY(!keys.expiry.isValid());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testKeysLookup() {
     WorkflowQuantumService svc;
     svc.distributeQuantumKeys(5);
     WfQuantumKeys keys = svc.keys(5);
-    QCOMPARE(keys.keyLength, 256);
-    QVERIFY(!keys.publicKey.isEmpty());
+    QVERIFY(keys.publicKey.isEmpty());
   }
 
   void testKeysNotFound() {
@@ -44,10 +41,7 @@ private slots:
   void testGenerateQuantumRandom() {
     WorkflowQuantumService svc;
     QVector<int> random = svc.generateQuantumRandom(10);
-    QCOMPARE(random.size(), 10);
-    for (int val : random) {
-      QVERIFY(val >= 0 && val < 256);
-    }
+    QVERIFY(random.isEmpty());
   }
 
   void testGenerateQuantumRandomZero() {
@@ -60,22 +54,20 @@ private slots:
     WorkflowQuantumService svc;
     QByteArray data = "Hello, Quantum World!";
     QByteArray encrypted = svc.encryptQuantumSafe(data);
-    QVERIFY(encrypted != data);
-    QVERIFY(encrypted.endsWith("_QSA"));
+    QVERIFY(encrypted.isEmpty());
   }
 
   void testEncryptQuantumSafeEmpty() {
     WorkflowQuantumService svc;
     QByteArray encrypted = svc.encryptQuantumSafe({});
-    QVERIFY(encrypted.endsWith("_QSA"));
+    QVERIFY(encrypted.isEmpty());
   }
 
   void testSignQuantumResistant() {
     WorkflowQuantumService svc;
     QByteArray data = "Sign me";
     QByteArray signature = svc.signQuantumResistant(data);
-    QVERIFY(!signature.isEmpty());
-    QCOMPARE(signature.size(), 64);
+    QVERIFY(signature.isEmpty());
   }
 
   void testSignQuantumResistantDeterministic() {
@@ -83,6 +75,7 @@ private slots:
     QByteArray data = "Deterministic";
     QByteArray sig1 = svc.signQuantumResistant(data);
     QByteArray sig2 = svc.signQuantumResistant(data);
+    QVERIFY(sig1.isEmpty());
     QCOMPARE(sig1, sig2);
   }
 
@@ -90,8 +83,8 @@ private slots:
     WorkflowQuantumService svc;
     svc.distributeQuantumKeys(1);
     QSignalSpy spy(&svc, &WorkflowQuantumService::keysRevoked);
-    QVERIFY(svc.revokeKeys(1));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.revokeKeys(1));
+    QCOMPARE(spy.count(), 0);
     WfQuantumKeys keys = svc.keys(1);
     QVERIFY(keys.publicKey.isEmpty());
   }
@@ -106,8 +99,7 @@ private slots:
     QSignalSpy spy(&svc, &WorkflowQuantumService::quantumKeysDistributed);
     QVERIFY(spy.isValid());
     svc.distributeQuantumKeys(1);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testMultipleKeyDistribution() {
@@ -118,15 +110,15 @@ private slots:
     WfQuantumKeys k1 = svc.keys(1);
     WfQuantumKeys k2 = svc.keys(2);
     WfQuantumKeys k3 = svc.keys(3);
-    QVERIFY(!k1.publicKey.isEmpty());
-    QVERIFY(!k2.publicKey.isEmpty());
-    QVERIFY(!k3.publicKey.isEmpty());
+    QVERIFY(k1.publicKey.isEmpty());
+    QVERIFY(k2.publicKey.isEmpty());
+    QVERIFY(k3.publicKey.isEmpty());
   }
 
   void testKeysExpiry() {
     WorkflowQuantumService svc;
     WfQuantumKeys keys = svc.distributeQuantumKeys(1);
-    QVERIFY(keys.expiry > QDateTime::currentDateTime());
+    QVERIFY(!keys.expiry.isValid());
   }
 };
 
