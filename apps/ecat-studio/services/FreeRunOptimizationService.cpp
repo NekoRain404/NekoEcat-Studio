@@ -127,6 +127,9 @@ FreeRunOptimizationResult FreeRunOptimizationService::optimizeErrorHandling() {
 }
 
 bool FreeRunOptimizationService::applyOptimization(const FreeRunOptimizationResult &result) {
+  if (!client_ || !client_->isConnected())
+    return false;
+
   FreeRunOptimizationResult applied = result;
   applied.applied = true;
   applied.timestamp = QDateTime::currentDateTime();

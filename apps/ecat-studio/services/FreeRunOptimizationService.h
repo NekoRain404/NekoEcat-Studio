@@ -3,7 +3,8 @@
 // FreeRunOptimizationService — Free Run optimization for process data exchange.
 //
 // Provides cycle time optimization, data mapping optimization, performance
-// optimization, and error handling optimization for EtherCAT Free Run mode.
+// optimization, and error handling recommendations for EtherCAT Free Run mode.
+// Applying a recommendation requires a live daemon connection.
 //
 // Usage:
 //   FreeRunOptimizationService *svc = new FreeRunOptimizationService(client, bus, this);
@@ -43,6 +44,8 @@ public:
   FreeRunOptimizationResult optimizePerformance();
   FreeRunOptimizationResult optimizeErrorHandling();
 
+  // Apply an optimization to live Free Run settings.
+  // Returns false while offline instead of recording a synthetic applied item.
   bool applyOptimization(const FreeRunOptimizationResult &result);
 
   QVector<FreeRunOptimizationResult> optimizationHistory() const { return history_; }

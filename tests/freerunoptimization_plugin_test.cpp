@@ -3,6 +3,7 @@
 // Test coverage:
 //   - Plugin identity and ordering
 //   - Widget creation
+//   - Offline service apply fails closed
 //   - Cycle time optimizer widget
 //   - Data mapping optimizer widget
 //   - Export button
@@ -10,6 +11,7 @@
 #include <QTest>
 #include <QLabel>
 #include <QPushButton>
+#include <QSignalSpy>
 #include <QTabWidget>
 #include "plugins/freerunoptimization/FreeRunOptimizationPlugin.h"
 #include "plugins/freerunoptimization/CycleTimeOptimizerWidget.h"
@@ -49,6 +51,19 @@ private slots:
     EventBus bus;
     FreeRunOptimizationPlugin p(&client, &bus);
     QVERIFY(p.widget() != nullptr);
+  }
+
+  void testServiceApplyOptimizationOfflineFailsClosed() {
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &FreeRunOptimizationService::optimizationApplied);
+    QVERIFY(spy.isValid());
+
+    const FreeRunOptimizationResult result = svc.optimizeCycleTime();
+    QVERIFY(!svc.applyOptimization(result));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(svc.optimizationHistory().isEmpty());
   }
 
   void testCycleTimeOptimizerNotNull() {
