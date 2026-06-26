@@ -132,7 +132,8 @@ bool EtherCATConfigService::exportProfile(const QString &name, const QString &pa
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return false;
 
-    return file.write(QJsonDocument(root).toJson(QJsonDocument::Indented)) >= 0;
+    const QByteArray bytes = QJsonDocument(root).toJson(QJsonDocument::Indented);
+    return file.write(bytes) == bytes.size() && file.flush();
 }
 
 bool EtherCATConfigService::importProfile(const QString &path)
@@ -150,6 +151,11 @@ bool EtherCATConfigService::importProfile(const QString &path)
         return false;
 
     const QJsonObject root = doc.object();
+    if (!root.contains(QStringLiteral("parameters")) ||
+        !root.value(QStringLiteral("parameters")).isArray()) {
+        return false;
+    }
+
     ConfigProfile profile;
     profile.name = root.value(QStringLiteral("name")).toString();
     profile.description = root.value(QStringLiteral("description")).toString();
@@ -160,6 +166,8 @@ bool EtherCATConfigService::importProfile(const QString &path)
 
     const QJsonArray params = root.value(QStringLiteral("parameters")).toArray();
     for (const QJsonValue &value : params) {
+        if (!value.isObject())
+            return false;
         const QJsonObject obj = value.toObject();
         ConfigParameter param;
         param.name = obj.value(QStringLiteral("name")).toString();

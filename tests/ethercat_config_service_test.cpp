@@ -143,6 +143,21 @@ private slots:
     QVERIFY(!svc.exportProfile(QStringLiteral("missing"),
                                dir.filePath(QStringLiteral("missing.ecatcfg"))));
     QVERIFY(!svc.importProfile(dir.filePath(QStringLiteral("missing.ecatcfg"))));
+
+    ConfigProfile p;
+    p.name = QStringLiteral("known");
+    svc.setCurrentProfile(p);
+    QVERIFY(svc.saveProfile(QStringLiteral("known")));
+
+    const QString malformedPath = dir.filePath(QStringLiteral("malformed.ecatcfg"));
+    QFile malformed(malformedPath);
+    QVERIFY(malformed.open(QIODevice::WriteOnly));
+    QVERIFY(malformed.write(R"({"name":"malformed"})") > 0);
+    malformed.close();
+
+    QVERIFY(!svc.importProfile(malformedPath));
+    QCOMPARE(svc.savedProfiles().size(), 1);
+    QCOMPARE(svc.savedProfiles().first().name, QStringLiteral("known"));
   }
 };
 
