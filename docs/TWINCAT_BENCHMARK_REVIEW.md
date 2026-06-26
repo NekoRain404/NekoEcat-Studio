@@ -48,9 +48,9 @@
 
 | 功能 | TwinCAT | NekoEcat | 状态 |
 |------|---------|----------|------|
-| 拓扑扫描 | ✅ 自动检测 | ✅ `ethercat slaves` CLI 解析 | **持平** |
+| 拓扑扫描 | ✅ 自动检测 | ✅ 原生 IgH 后端，CLI fallback | **持平** |
 | 从站状态管理 | ✅ INIT/PREOP/SAFEOP/OP | ✅ setState API | **持平** |
-| SDO Upload/Download | ✅ 原生 API | ✅ CLI + 自动 0x 前缀 | **持平** |
+| SDO Upload/Download | ✅ 原生 API | ✅ 原生 IgH SDO upload/download，CLI fallback | **持平** |
 | PDO 映射查看 | ✅ 可视化配置 | ✅ PDO Mapping Editor | **持平** |
 | 对象字典浏览 | ✅ 完整 OD 浏览器 | ✅ OD 工作区 + 语义过滤 | **持平** |
 | ESI 支持 | ✅ 完整 ESI 解析 | ✅ ESI Repository + Browser | **持平** |
@@ -170,14 +170,14 @@
 
 | 场景 | TwinCAT | NekoEcat | 差距 |
 |------|---------|----------|------|
-| SDO 读取速率 | ~1000 次/秒 | ~10-50 次/秒 (CLI 调用) | **20-100x 差距** |
+| SDO 读取速率 | ~1000 次/秒 | 原生 IgH 后端覆盖 SDO 读写；未覆盖路径仍回退 CLI | **场景依赖** |
 | PDO 交换速率 | 与周期同步 (1-10 kHz) | ~1 kHz (FreeRun) | **1-10x 差距** |
-| 拓扑扫描速度 | < 1 秒 | ~2-5 秒 (CLI 调用) | **2-5x 差距** |
-| 并发 SDO 操作 | 无限制 | 受 CLI 进程限制 | **重大差距** |
+| 拓扑扫描速度 | < 1 秒 | 原生 IgH 后端覆盖从站扫描；ESI/部分字典路径仍回退 CLI | **部分差距** |
+| 并发 SDO 操作 | 无限制 | 原生后端减少进程开销，但仍受主站访问序列化和现场硬件限制 | **差距** |
 
 **瓶颈分析**:
-- NekoEcat 通过 `ethercat` CLI 工具访问硬件，每次操作都需启动新进程
-- 建议实现原生 IgH API 直接调用，避免 CLI 开销
+- NekoEcat 已有原生 IgH 后端，覆盖 SDO 读写、从站扫描、PDO 和 slave info 等核心路径
+- SDO 字典枚举、ESI XML 和部分兼容路径仍回退 `ethercat` CLI，现场性能取决于后端模式和硬件状态
 
 ---
 
@@ -212,9 +212,9 @@
 |------|----------|------|------|
 | **实验服务仍有模拟实现** | 低 | Cloud/AI/Blockchain/Quantum/Digital Twin 等不属于稳定调试路径 | 保持 `ECAT_EXPERIMENTAL_SERVICES` 条件编译隔离 |
 | **31 个 MainWindow 分部文件** | 低 | 维护复杂，但已有效拆分 | 继续插件化迁移 |
-| **CLI 依赖** | 高 | 性能瓶颈，无法实现实时操作 | 实现原生 IgH API |
+| **CLI fallback 覆盖仍偏多** | 中 | SDO 字典、ESI XML 等路径仍有进程开销 | 继续扩大原生后端覆盖 |
 | **GUI 单线程** | 中 | 大量 SDO 操作时 UI 卡顿 | 使用异步操作 + 进度回调 |
-| **无原生 EtherCAT API** | 高 | 无法达到 TwinCAT 级别的实时性能 | 集成 ecrt API 到 daemon |
+| **原生后端覆盖不完整** | 中 | 核心 SDO/扫描/PDO 已覆盖，部分工程查询仍回退 CLI | 补齐字典枚举、ESI 和后端一致性测试 |
 
 ---
 
@@ -278,7 +278,7 @@
 |------|------|----------|--------|
 | **无实时内核** | 无法保证确定性控制 | 集成 PREEMPT_RT + CPU 隔离 | 中 |
 | **无 PLC 运行时** | 无法执行控制逻辑 | 集成 OpenPLC 或 SoftPLC | 大 |
-| **CLI 性能瓶颈** | SDO 操作慢，无法实时 | 实现原生 IgH ecrt API | 中 |
+| **CLI fallback 性能瓶颈** | 未覆盖的工程查询仍慢，无法作为实时路径 | 扩大原生 IgH 后端覆盖并标注 fallback 边界 | 中 |
 | **无安全功能 (FSoE)** | 无法用于安全关键应用 | 需要 FSoE 协议栈 | 大 |
 
 ### 6.2 P1 — 重要差距（限制应用场景）
@@ -322,9 +322,9 @@
 
 **目标**: 补全核心 EtherCAT 功能，提升实用性
 
-1. **实现原生 IgH API 调用** (P0)
-   - 在 daemon 中直接使用 ecrt API，避免 CLI 开销
-   - 目标: SDO 操作速度提升 10-100x
+1. **扩大原生 IgH API 覆盖** (P0)
+   - SDO 读写、从站扫描、PDO 和 slave info 已走原生后端
+   - 下一步补齐 SDO 字典、ESI XML、兼容路径和现场性能基准
 
 2. **完善 FoE 协议实现** (P1)
    - 实现固件更新功能
@@ -401,7 +401,7 @@
 |------|------|------|------|
 | `ServiceContainer.h` | 实验服务区域 | Cloud/AI/Blockchain/Quantum/Digital Twin 等模拟服务已条件编译隔离 | 继续保持稳定构建默认不包含实验面 |
 | `MainWindow.h` | 194-295 | 大量成员变量应迁移到插件 | 继续插件化迁移 |
-| `EthercatCliBackend` | 全文件 | CLI 调用性能瓶颈 | 实现原生 ecrt API |
+| `EthercatNativeBackend` / `EthercatCliBackend` | fallback 路径 | SDO 字典、ESI XML 等仍需 CLI 兼容路径 | 扩大原生覆盖并保留显式 fallback 标识 |
 | `FreeRunController` | 全文件 | 实时调度策略可优化 | 使用 SCHED_FIFO + CPU 亲和性 |
 
 ### 8.2 中优先级代码问题
@@ -436,7 +436,7 @@
 ### 9.2 优先级建议
 
 **立即执行** (1-2 个月):
-1. 实现原生 IgH API，解决性能瓶颈
+1. 扩大原生 IgH 后端覆盖，减少 CLI fallback
 2. 完善 EoE、通用 FoE 文件操作和 CoE 紧急对象
 3. 优化实时调度策略
 

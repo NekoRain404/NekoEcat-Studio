@@ -473,8 +473,8 @@ Dependency injection container holding all service instances. Passed to plugins 
 
 `EthercatNativeBackend` 实现了 `EcatService` 接口，使用 ecrt API 直接与 IgH EtherCAT Master 通信：
 
-- **优势**: 无 CLI 进程开销，10-100x 性能提升
-- **限制**: 某些操作（如 ESI XML 访问）仍需 CLI 后端
+- **优势**: 已覆盖路径无 CLI 进程开销，现场延迟取决于 IgH 版本、主站状态和从站响应
+- **限制**: 某些操作（如 SDO 字典枚举和 ESI XML 访问）仍需 CLI 后端
 - **自动选择**: Daemon 启动时自动检测并选择最佳后端
 
 关键 ecrt API 函数：

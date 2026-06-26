@@ -80,15 +80,12 @@ English:
 
 NekoEcat Studio 现在支持原生 IgH ecrt API 进行高性能 EtherCAT 操作：
 
-- **SDO 操作**: 使用 `ecrt_master_sdo_upload/download` 替代 CLI 调用，性能提升 10-100x
+- **SDO 操作**: 支持 `ecrt_master_sdo_upload/download`，未覆盖路径继续回退 CLI
 - **拓扑扫描**: 使用 `ecrt_master_get_slave` 直接获取从站信息
 - **PDO 信息**: 使用 `ecrt_master_get_sync_manager/pdo` 获取 PDO 结构
 - **自动回退**: 如果原生 API 不可用，自动回退到 CLI 后端
 
-性能对比（10 次 SDO 上传）:
-- CLI 后端: ~500ms
-- 原生 API: ~50ms
-- **提升**: 10x
+性能说明：原生后端避免为已覆盖路径启动 `ethercat` 进程；实际延迟取决于 IgH 版本、主站状态、从站响应和后端模式。现场性能以本机基准为准。
 
 ### 双后端模式
 

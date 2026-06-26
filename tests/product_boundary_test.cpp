@@ -366,6 +366,10 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("FoE 存根"),
       QStringLiteral("无法进行固件更新"),
       QStringLiteral("80+ 存根服务"),
+      QStringLiteral("无原生 EtherCAT API"),
+      QStringLiteral("实现原生 IgH API"),
+      QStringLiteral("实现原生 IgH ecrt API"),
+      QStringLiteral("实现原生 ecrt API"),
   };
 
   for (const QString &docPath : docPaths) {
