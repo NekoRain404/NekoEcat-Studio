@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSignalSpy>
+#include <QFile>
 
 #include "services/PdoMappingOptimizationService.h"
 #include "plugins/pdomappingoptimization/PdoMappingOptimizationPlugin.h"
@@ -23,6 +24,8 @@ private slots:
   void testServiceApplyOptimizationFailsWithoutBackend();
   void testServiceHistoryRemainsEmptyWithoutBackend();
   void testServiceClearHistory();
+  void testServiceDoesNotEmitCompletedWithoutBackend();
+  void testSourceDoesNotContainSyntheticOptimizationData();
 
   void testPluginIdentity();
   void testPluginVisible();
@@ -54,9 +57,11 @@ void PdoMappingOptimizationPluginTest::testServiceOptimizeMapping() {
   auto result = service_->optimizeMapping();
   QCOMPARE(result.category, tr("Mapping"));
   QVERIFY(!result.description.isEmpty());
-  QVERIFY(result.before.contains("totalPdos"));
-  QVERIFY(result.after.contains("totalEntries"));
-  QVERIFY(result.improvement > 0.0);
+  QVERIFY(result.description.contains(QStringLiteral("backend"),
+                                      Qt::CaseInsensitive));
+  QVERIFY(result.before.isEmpty());
+  QVERIFY(result.after.isEmpty());
+  QCOMPARE(result.improvement, 0.0);
   QVERIFY(!result.recommendations.isEmpty());
   QVERIFY(!result.applied);
 }
@@ -65,9 +70,9 @@ void PdoMappingOptimizationPluginTest::testServiceOptimizeSize() {
   auto result = service_->optimizeSize();
   QCOMPARE(result.category, tr("Size"));
   QVERIFY(!result.description.isEmpty());
-  QVERIFY(result.before.contains("totalBytes"));
-  QVERIFY(result.after.contains("wastedBytes"));
-  QVERIFY(result.improvement > 0.0);
+  QVERIFY(result.before.isEmpty());
+  QVERIFY(result.after.isEmpty());
+  QCOMPARE(result.improvement, 0.0);
   QVERIFY(!result.recommendations.isEmpty());
 }
 
@@ -75,9 +80,9 @@ void PdoMappingOptimizationPluginTest::testServiceOptimizeAlignment() {
   auto result = service_->optimizeAlignment();
   QCOMPARE(result.category, tr("Alignment"));
   QVERIFY(!result.description.isEmpty());
-  QVERIFY(result.before.contains("maxMisalignment"));
-  QVERIFY(result.after.contains("paddingBytes"));
-  QVERIFY(result.improvement > 0.0);
+  QVERIFY(result.before.isEmpty());
+  QVERIFY(result.after.isEmpty());
+  QCOMPARE(result.improvement, 0.0);
   QVERIFY(!result.recommendations.isEmpty());
 }
 
@@ -85,9 +90,9 @@ void PdoMappingOptimizationPluginTest::testServiceOptimizePerformance() {
   auto result = service_->optimizePerformance();
   QCOMPARE(result.category, tr("Performance"));
   QVERIFY(!result.description.isEmpty());
-  QVERIFY(result.before.contains("cycleTimeUs"));
-  QVERIFY(result.after.contains("throughputMbps"));
-  QVERIFY(result.improvement > 0.0);
+  QVERIFY(result.before.isEmpty());
+  QVERIFY(result.after.isEmpty());
+  QCOMPARE(result.improvement, 0.0);
   QVERIFY(!result.recommendations.isEmpty());
 }
 
@@ -118,6 +123,33 @@ void PdoMappingOptimizationPluginTest::testServiceClearHistory() {
   service_->applyOptimization(service_->optimizeMapping());
   service_->clearHistory();
   QCOMPARE(service_->optimizationHistory().size(), 0);
+}
+
+void PdoMappingOptimizationPluginTest::testServiceDoesNotEmitCompletedWithoutBackend() {
+  QSignalSpy spy(service_, &PdoMappingOptimizationService::optimizationCompleted);
+  QVERIFY(spy.isValid());
+
+  service_->optimizeMapping();
+  service_->optimizeSize();
+  service_->optimizeAlignment();
+  service_->optimizePerformance();
+  QCOMPARE(spy.count(), 0);
+}
+
+void PdoMappingOptimizationPluginTest::testSourceDoesNotContainSyntheticOptimizationData() {
+  QFile file(QStringLiteral(SOURCE_ROOT
+                            "/apps/ecat-studio/services/PdoMappingOptimizationService.cpp"));
+  QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+  const QString source = QString::fromUtf8(file.readAll());
+
+  QVERIFY2(!source.contains(QStringLiteral("emit optimizationCompleted(result)")),
+           "Offline PDO optimization must not emit completion.");
+  QVERIFY2(!source.contains(QStringLiteral("31.25")),
+           "PDO mapping optimization must not synthesize improvement values.");
+  QVERIFY2(!source.contains(QStringLiteral("18.75")),
+           "PDO size optimization must not synthesize improvement values.");
+  QVERIFY2(!source.contains(QStringLiteral("83.33")),
+           "PDO alignment optimization must not synthesize improvement values.");
 }
 
 void PdoMappingOptimizationPluginTest::testPluginIdentity() {

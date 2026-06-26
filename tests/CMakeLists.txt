@@ -1496,6 +1496,9 @@ target_include_directories(pdomappingoptimization_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins/pdomappingoptimization
 )
+target_compile_definitions(pdomappingoptimization_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 
 target_link_libraries(pdomappingoptimization_plugin_test PRIVATE
     Qt6::Core
