@@ -1,43 +1,21 @@
 #include "EtherCATBlockchainService.h"
 
-// EtherCATBlockchainService.cpp — Blockchain ledger for transaction tracking and smart contracts
-//
-// Implementation notes:
-//   - In-memory transaction store with auto-eviction at kMaxTransactions
-//   - Auto-generates transaction IDs and block numbers via nextBlock_ counter
-//   - Supports supply chain tracking and smart contract execution
-
 EtherCATBlockchainService::EtherCATBlockchainService(QObject *parent)
     : QObject(parent) {}
 
 bool EtherCATBlockchainService::recordTransaction(const Transaction &transaction) {
-  Transaction tx = transaction;
-  if (tx.transactionId.isEmpty())
-    tx.transactionId = QString("TX_%1_%2").arg(nextBlock_).arg(QDateTime::currentDateTime().toMSecsSinceEpoch());
-  tx.timestamp = QDateTime::currentDateTime();
-  tx.blockNumber = nextBlock_++;
-  tx.status = TransactionStatus::Confirmed;
-  transactions_[tx.transactionId] = tx;
-  if (transactions_.size() > kMaxTransactions) {
-    auto oldest = transactions_.constBegin().key();
-    transactions_.remove(oldest);
-  }
-  emit transactionRecorded(tx);
-  return true;
+  Q_UNUSED(transaction);
+  return false;
 }
 
 bool EtherCATBlockchainService::verifyTransaction(const QString &transactionId) {
-  bool valid = transactions_.contains(transactionId);
-  emit verificationCompleted(transactionId, valid);
-  return valid;
+  Q_UNUSED(transactionId);
+  return false;
 }
 
 bool EtherCATBlockchainService::executeSmartContract(const SmartContract &contract) {
-  SmartContract sc = contract;
-  sc.active = true;
-  contracts_[contract.contractId] = sc;
-  emit smartContractExecuted(sc);
-  return true;
+  Q_UNUSED(contract);
+  return false;
 }
 
 SupplyChain EtherCATBlockchainService::trackSupplyChain(const QString &productId) {

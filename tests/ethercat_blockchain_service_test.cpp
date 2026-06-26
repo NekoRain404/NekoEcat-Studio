@@ -1,11 +1,9 @@
 // EtherCATBlockchainServiceTest — Tests for EtherCATBlockchainService
 //
 // Test coverage:
-//   - Transaction recording (auto ID, custom ID, multiple)
-//   - Transaction verification (valid + not found)
-//   - Smart contract execution and activation
+//   - Blockchain transaction recording, verification, and smart contracts fail closed without backend
+//   - Rejected blockchain requests do not emit synthetic transaction or contract success signals
 //   - Supply chain tracking and entry management
-//   - Signal emission for all blockchain events
 
 #include <QTest>
 #include <QSignalSpy>
@@ -28,23 +26,19 @@ private slots:
     tx.sender = "master";
     tx.receiver = "slave_1";
     tx.data = QByteArray("read_sdo_0x6000");
-    QVERIFY(svc.recordTransaction(tx));
-    QCOMPARE(svc.allTransactions().size(), 1);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.recordTransaction(tx));
+    QCOMPARE(svc.allTransactions().size(), 0);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Auto-generated ID, block number, and timestamp
+  // Auto-generated blockchain metadata is not synthesized without backend
   void testTransactionAutoId() {
     EtherCATBlockchainService svc;
     Transaction tx;
     tx.sender = "master";
     tx.receiver = "slave_1";
-    svc.recordTransaction(tx);
-    Transaction recorded = svc.allTransactions().first();
-    QVERIFY(!recorded.transactionId.isEmpty());
-    QCOMPARE(recorded.status, TransactionStatus::Confirmed);
-    QVERIFY(recorded.blockNumber > 0);
-    QVERIFY(recorded.timestamp.isValid());
+    QVERIFY(!svc.recordTransaction(tx));
+    QCOMPARE(svc.allTransactions().size(), 0);
   }
 
   // Custom transaction ID preserved
@@ -54,23 +48,22 @@ private slots:
     tx.transactionId = "TX_CUSTOM_001";
     tx.sender = "master";
     tx.receiver = "slave_1";
-    svc.recordTransaction(tx);
+    QVERIFY(!svc.recordTransaction(tx));
     Transaction recorded = svc.transaction("TX_CUSTOM_001");
-    QCOMPARE(recorded.transactionId, QString("TX_CUSTOM_001"));
+    QVERIFY(recorded.transactionId.isEmpty());
   }
 
-  // Verify existing transaction succeeds
+  // Verify transaction fails without a blockchain backend
   void testVerifyTransaction() {
     EtherCATBlockchainService svc;
     Transaction tx;
     tx.transactionId = "TX_VERIFY_001";
     tx.sender = "master";
     tx.receiver = "slave_1";
-    svc.recordTransaction(tx);
+    QVERIFY(!svc.recordTransaction(tx));
     QSignalSpy spy(&svc, &EtherCATBlockchainService::verificationCompleted);
-    QVERIFY(svc.verifyTransaction("TX_VERIFY_001"));
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(spy.at(0).at(1).toBool());
+    QVERIFY(!svc.verifyTransaction("TX_VERIFY_001"));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Verify nonexistent transaction fails
@@ -78,8 +71,7 @@ private slots:
     EtherCATBlockchainService svc;
     QSignalSpy spy(&svc, &EtherCATBlockchainService::verificationCompleted);
     QVERIFY(!svc.verifyTransaction("nonexistent"));
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(!spy.at(0).at(1).toBool());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Execute smart contract and verify signal
@@ -91,21 +83,18 @@ private slots:
     contract.name = "AutoReset";
     contract.bytecode = QByteArray("reset_code");
     contract.parameters["threshold"] = 100;
-    QVERIFY(svc.executeSmartContract(contract));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.executeSmartContract(contract));
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Smart contract activation state
+  // Smart contract activation is not synthesized without backend
   void testSmartContractActivation() {
     EtherCATBlockchainService svc;
     SmartContract contract;
     contract.contractId = "SC_002";
     contract.name = "AutoConfig";
     contract.active = false;
-    svc.executeSmartContract(contract);
-    SmartContract executed = svc.transaction("TX_001").sender.isEmpty()
-        ? SmartContract()
-        : SmartContract();
+    QVERIFY(!svc.executeSmartContract(contract));
   }
 
   // Track supply chain for unknown product
@@ -138,13 +127,9 @@ private slots:
       Transaction tx;
       tx.sender = "master";
       tx.receiver = QString("slave_%1").arg(i);
-      svc.recordTransaction(tx);
+      QVERIFY(!svc.recordTransaction(tx));
     }
-    QCOMPARE(svc.allTransactions().size(), 10);
-    QSet<int> blockNumbers;
-    for (const auto &tx : svc.allTransactions())
-      blockNumbers.insert(tx.blockNumber);
-    QCOMPARE(blockNumbers.size(), 10);
+    QCOMPARE(svc.allTransactions().size(), 0);
   }
 
   // transactionRecorded signal fires on record
@@ -156,7 +141,7 @@ private slots:
     tx.sender = "master";
     tx.receiver = "slave_1";
     svc.recordTransaction(tx);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // verificationCompleted signal fires on verify
@@ -165,7 +150,7 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATBlockchainService::verificationCompleted);
     QVERIFY(spy.isValid());
     svc.verifyTransaction("test");
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // smartContractExecuted signal fires on execute
@@ -176,7 +161,7 @@ private slots:
     SmartContract sc;
     sc.contractId = "test";
     svc.executeSmartContract(sc);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 };
 

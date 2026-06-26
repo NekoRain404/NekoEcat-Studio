@@ -1,13 +1,8 @@
 #pragma once
-// PLACEHOLDER IMPLEMENTATION
-// This is a template/stub for future development.
-// Not production ready.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
-
-// EtherCATBlockchainService — provides immutable audit trail, smart contracts,
-// decentralized verification, and supply chain tracking for EtherCAT operations.
+// EtherCATBlockchainService -- request facade for immutable audit trails,
+// smart contracts, decentralized verification, and supply chain tracking.
+// No blockchain backend is wired yet, so transaction, verification, and smart
+// contract requests fail closed instead of generating synthetic confirmations.
 
 #include <QObject>
 #include <QVector>
