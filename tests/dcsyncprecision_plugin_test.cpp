@@ -3,6 +3,7 @@
 // Test coverage:
 //   - Plugin identity and ordering
 //   - Widget creation
+//   - Offline service start does not synthesize precision monitoring
 //   - Sync status table
 //   - Drift monitor widget
 //   - Jitter analysis widget
@@ -10,6 +11,7 @@
 //   - Export button
 
 #include <QTest>
+#include <QSignalSpy>
 #include <QLabel>
 #include <QPushButton>
 #include <QSpinBox>
@@ -21,6 +23,7 @@
 #include "plugins/dcsyncprecision/JitterAnalysisWidget.h"
 #include "infra/EcatClient.h"
 #include "services/EventBus.h"
+#include "services/DcSyncPrecisionService.h"
 
 class DcSyncPrecisionPluginTest : public QObject {
   Q_OBJECT
@@ -53,6 +56,21 @@ private slots:
     EventBus bus;
     DcSyncPrecisionPlugin p(&client, &bus);
     QVERIFY(p.widget() != nullptr);
+  }
+
+  void testServiceStartMonitoringOfflineDoesNotActivate() {
+    EcatClient client;
+    EventBus bus;
+    DcSyncPrecisionService svc(&client, &bus);
+    QSignalSpy spy(&svc, &DcSyncPrecisionService::monitoringStateChanged);
+    QVERIFY(spy.isValid());
+
+    svc.startMonitoring();
+    QVERIFY(!svc.isMonitoring());
+    QCOMPARE(spy.count(), 0);
+
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
   }
 
   void testSyncTableNotNull() {

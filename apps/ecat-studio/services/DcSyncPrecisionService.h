@@ -3,7 +3,8 @@
 // DcSyncPrecisionService — hardware-verified DC synchronization precision monitoring.
 //
 // Provides reference clock tracking, drift measurement, jitter analysis,
-// and sync quality assessment for the EtherCAT Distributed Clock.
+// and sync quality assessment for the EtherCAT Distributed Clock when a
+// live daemon connection can supply hardware DC status.
 //
 // Usage:
 //   DcSyncPrecisionService *svc = new DcSyncPrecisionService(client, eventBus, this);
@@ -66,6 +67,8 @@ public:
   explicit DcSyncPrecisionService(EcatClient *client, EventBus *bus,
                                   QObject *parent = nullptr);
 
+  // Start polling hardware DC status when the daemon connection is live.
+  // Offline calls are ignored and leave the service inactive.
   void startMonitoring();
   void stopMonitoring();
   bool isMonitoring() const { return monitoring_; }

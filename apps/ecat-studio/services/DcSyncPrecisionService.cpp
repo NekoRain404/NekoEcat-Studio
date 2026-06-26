@@ -23,6 +23,7 @@ DcSyncPrecisionService::DcSyncPrecisionService(EcatClient *client,
 
 void DcSyncPrecisionService::startMonitoring() {
   if (monitoring_) return;
+  if (!client_ || !client_->isConnected()) return;
   monitoring_ = true;
   pollTimer_->start();
   emit monitoringStateChanged(true);
@@ -44,7 +45,7 @@ void DcSyncPrecisionService::setHistoryWindow(int samples) {
 }
 
 void DcSyncPrecisionService::pollSyncData() {
-  if (!client_) return;
+  if (!client_ || !client_->isConnected()) return;
   client_->dcSyncStatus();
 }
 
