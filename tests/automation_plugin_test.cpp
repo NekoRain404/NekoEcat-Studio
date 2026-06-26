@@ -136,6 +136,11 @@ private slots:
                                   QStringLiteral("log('nested');")));
     QVERIFY(scripting.loadScript(QStringLiteral("../escape")).isEmpty());
 
+    const QString tooLongName(129, QLatin1Char('x'));
+    QVERIFY(!scripting.saveScript(tooLongName,
+                                  QStringLiteral("log('long');")));
+    QVERIFY(scripting.loadScript(tooLongName).isEmpty());
+
     const QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     const QString escapedPath = QDir(appData).filePath(QStringLiteral("escape.js"));
     QVERIFY(!QFile::exists(escapedPath));

@@ -202,8 +202,8 @@ bool ScriptingService::saveScript(const QString &name, const QString &script) {
   const QString path = scriptPath(name);
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
-  file.write(script.toUtf8());
-  return true;
+  const QByteArray bytes = script.toUtf8();
+  return file.write(bytes) == bytes.size() && file.flush();
 }
 
 QString ScriptingService::loadScript(const QString &name) const {
@@ -224,6 +224,7 @@ QString ScriptingService::scriptsDir() {
 
 bool ScriptingService::isValidScriptName(const QString &name) {
   if (name.isEmpty()) return false;
+  if (name.size() > 128) return false;
 
   const QFileInfo info(name);
   if (info.isAbsolute()) return false;
