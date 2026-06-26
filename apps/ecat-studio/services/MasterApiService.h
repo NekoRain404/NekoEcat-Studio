@@ -59,15 +59,15 @@ public:
   explicit MasterApiService(EcatClient *client, QObject *parent = nullptr);
 
   // Create the EtherCAT master.
-  // @return true if master was created successfully
+  // @return true only after backend-confirmed master creation
   bool createMaster();
 
   // Activate the EtherCAT master.
-  // @return true if master was activated successfully
+  // @return true only after backend-confirmed master activation
   bool activateMaster();
 
   // Deactivate the EtherCAT master.
-  // @return true if master was deactivated successfully
+  // @return true only after backend-confirmed master deactivation
   bool deactivateMaster();
 
   // Get the current master state.
@@ -97,7 +97,7 @@ private:
   bool backendReady() const;
 
   EcatClient *client_;        // TCP client to ecatd daemon
-  bool created_ = false;      // Whether master is created
-  bool active_ = false;       // Whether master is active
+  bool created_ = false;      // Backend-confirmed master creation state
+  bool active_ = false;       // Backend-confirmed master activation state
   MasterApiState state_;      // Current master state
 };

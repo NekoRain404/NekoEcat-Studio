@@ -4219,6 +4219,9 @@ target_include_directories(master_api_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
     ${CMAKE_SOURCE_DIR}/src/core
 )
+target_compile_definitions(master_api_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 target_link_libraries(master_api_service_test PRIVATE
     Qt6::Core
     Qt6::Network

@@ -16,7 +16,6 @@ bool MasterApiService::backendReady() const {
 }
 
 bool MasterApiService::createMaster() {
-  if (created_) return true;
   if (!client_) {
     emit error(QStringLiteral("No client available"));
     return false;
@@ -35,7 +34,6 @@ bool MasterApiService::activateMaster() {
     emit error(QStringLiteral("Master not created"));
     return false;
   }
-  if (active_) return true;
   if (!backendReady()) {
     emit error(QStringLiteral("Master API backend is not available"));
     return false;
@@ -47,7 +45,10 @@ bool MasterApiService::activateMaster() {
 }
 
 bool MasterApiService::deactivateMaster() {
-  if (!active_) return true;
+  if (!active_) {
+    emit error(QStringLiteral("Master not active"));
+    return false;
+  }
   if (!backendReady()) {
     emit error(QStringLiteral("Master API backend is not available"));
     return false;
@@ -66,6 +67,5 @@ SlaveApiConfig MasterApiService::slaveConfig(int position) const {
   SlaveApiConfig cfg;
   if (!created_ || position < 0) return cfg;
   cfg.position = position;
-  cfg.valid = true;
   return cfg;
 }

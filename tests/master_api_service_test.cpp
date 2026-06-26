@@ -14,6 +14,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/MasterApiService.h"
 #include "infra/EcatClient.h"
 
@@ -78,23 +79,23 @@ private slots:
     QVERIFY(!svc.activateMaster());
   }
 
-  // Deactivation without an active master is an idempotent no-op.
-  void testDeactivateWithoutActiveMasterIsNoOp() {
+  // Deactivation without an active backend-confirmed master must fail closed.
+  void testDeactivateWithoutActiveMasterFailsClosed() {
     EcatClient client;
     MasterApiService svc(&client);
     QSignalSpy spy(&svc, &MasterApiService::masterDeactivated);
-    QVERIFY(svc.deactivateMaster());
+    QVERIFY(!svc.deactivateMaster());
     QCOMPARE(spy.count(), 0);
     MasterApiState st = svc.masterState();
     QVERIFY(!st.linkUp);
   }
 
-  // Verify deactivate is idempotent
-  void testDeactivateIdempotent() {
+  // Verify repeated deactivate attempts do not report local-only success.
+  void testRepeatedDeactivateFailsClosed() {
     EcatClient client;
     MasterApiService svc(&client);
-    svc.deactivateMaster();
-    QVERIFY(svc.deactivateMaster());
+    QVERIFY(!svc.deactivateMaster());
+    QVERIFY(!svc.deactivateMaster());
   }
 
   // Verify slave config invalid before create
@@ -142,12 +143,29 @@ private slots:
     QVERIFY(!svc.createMaster());
     QVERIFY(!svc.activateMaster());
     QCOMPARE(svc.masterState().linkUp, false);
-    QVERIFY(svc.deactivateMaster());
+    QVERIFY(!svc.deactivateMaster());
     QCOMPARE(svc.masterState().linkUp, false);
 
     QCOMPARE(createdSpy.count(), 0);
     QCOMPARE(activatedSpy.count(), 0);
     QCOMPARE(deactivatedSpy.count(), 0);
+  }
+
+  // Source-level guard against reintroducing local lifecycle success.
+  void testSourceDoesNotContainSyntheticLifecycleSuccess() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/services/MasterApiService.cpp"));
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("if (created_) return true")),
+             "createMaster must not treat local created_ state as backend success.");
+    QVERIFY2(!source.contains(QStringLiteral("if (active_) return true")),
+             "activateMaster must not treat local active_ state as backend success.");
+    QVERIFY2(!source.contains(QStringLiteral("if (!active_) return true")),
+             "deactivateMaster must not treat inactive state as backend success.");
+    QVERIFY2(!source.contains(QStringLiteral("cfg.valid = true")),
+             "slaveConfig must not synthesize valid configs without backend data.");
   }
 };
 
