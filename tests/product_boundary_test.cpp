@@ -394,6 +394,11 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **构建警告** | 0 |"),
       QStringLiteral("全部验证通过"),
       QStringLiteral("CMake 3.22+"),
+      QStringLiteral("TwinCAT 95/100 vs NekoEcat 68/100"),
+      QStringLiteral("达到 85%"),
+      QStringLiteral("达到 70%"),
+      QStringLiteral("代码质量行业领先"),
+      QStringLiteral("代码质量**超越行业标准"),
   };
 
   for (const QString &docPath : docPaths) {
