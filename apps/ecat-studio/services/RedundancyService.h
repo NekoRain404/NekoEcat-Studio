@@ -1,37 +1,36 @@
 #pragma once
 
-// RedundancyService — manages EtherCAT network redundancy.
-// Monitors primary/secondary paths and handles failover.
+// RedundancyService — manages offline EtherCAT redundancy drafts.
+// Runtime redundancy operations fail closed until wired to a live backend.
 //
-// This service provides network redundancy management for the EtherCAT
-// network. It handles:
-//   - Primary/secondary path management
-//   - Redundancy state tracking (SinglePath, DualPath, Failover, Error)
-//   - Path state monitoring (Active, Standby, Failed)
-//   - Automatic and manual failover
-//   - Failback to primary path
-//   - Redundancy event history
+// This service currently handles:
+//   - Primary/secondary path draft metadata
+//   - Redundancy state readback
+//   - Explicit rejection of unsupported offline enable/failover/failback
+//   - Redundancy event history readback
 //
 // Usage:
 //   RedundancyService redundancy;
 //   redundancy.setPrimaryPath(10);  // 10 slaves on primary
 //   redundancy.setSecondaryPath(10);  // 10 slaves on secondary
+//   // Returns false until connected to a real backend:
 //   redundancy.enableRedundancy();
 //   RedundancyState state = redundancy.currentState();
 //   RedundancyPath primary = redundancy.primaryPath();
 //   RedundancyPath secondary = redundancy.secondaryPath();
-//   redundancy.failover();  // Switch to secondary
-//   redundancy.failback();  // Switch back to primary
+//   // Return false until connected to a real backend:
+//   redundancy.failover();
+//   redundancy.failback();
 //   QVector<RedundancyEvent> history = redundancy.redundancyHistory();
 //   bool isRedundant = redundancy.isRedundant();
 //
 // Thread safety:
-//   All methods must be called from the main (GUI) thread. Redundancy
+//   All methods must be called from the main (GUI) thread. Offline draft
 //   operations are synchronous and block the calling thread.
 //
 // Performance:
 //   - Path management is O(1)
-//   - Failover/failback is O(1)
+//   - Offline enable/failover/failback rejection is O(1)
 //   - State monitoring is O(1)
 //   - History retrieval is O(n) where n is history size
 
@@ -88,19 +87,19 @@ public:
   void setSecondaryPath(int slaveCount);
 
   // Enable redundancy.
-  // @return true if redundancy was enabled successfully
+  // @return true if redundancy was enabled successfully; currently false without backend
   bool enableRedundancy();
 
   // Disable redundancy.
-  // @return true if redundancy was disabled successfully
+  // @return true if redundancy was disabled successfully; currently false without backend
   bool disableRedundancy();
 
   // Perform failover to secondary path.
-  // @return true if failover was successful
+  // @return true if failover was successful; currently false without backend
   bool failover();
 
   // Perform failback to primary path.
-  // @return true if failback was successful
+  // @return true if failback was successful; currently false without backend
   bool failback();
 
   // Get the current redundancy state.

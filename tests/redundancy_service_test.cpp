@@ -3,12 +3,12 @@
 // Test coverage:
 //   - Initial state (SinglePath, not redundant)
 //   - Primary and secondary path configuration
-//   - Enable/disable redundancy with signals
+//   - Enable/disable redundancy fail closed without a live backend
 //   - Enable without paths fails
-//   - Enable when already enabled
-//   - Failover with state transitions and signal
+//   - Repeated enable attempts fail closed
+//   - Failover cannot be simulated without a live backend
 //   - Failover without redundancy fails
-//   - Failback to dual-path state
+//   - Failback cannot be simulated without a live backend
 //   - Failback without prior failover fails
 //   - Redundancy history tracking
 
@@ -17,9 +17,8 @@
 // Test coverage:
 //   - Initial state (SinglePath, not redundant)
 //   - Primary and secondary path configuration
-//   - Enable/disable redundancy with signal verification
-//   - Failover and failback state transitions
-//   - Redundancy history tracking
+//   - Enable/disable/failover/failback fail closed without a live backend
+//   - Redundancy history is not synthesized from offline attempts
 //   - Error cases (enable without paths, failover without redundancy)
 #include <QTest>
 #include <QSignalSpy>
@@ -54,17 +53,17 @@ private slots:
     QCOMPARE(s.state, PathState::Standby);
     QVERIFY(s.isHealthy);
   }
-  // Test enabling redundancy with both paths
-  // Enable redundancy and verify signal, state, and isRedundant
-  void testEnableRedundancy() {
+  // Verify enabling redundancy cannot be simulated without a live backend.
+  void testEnableRedundancyFailsClosedWithoutBackend() {
     RedundancyService svc;
     QSignalSpy spy(&svc, &RedundancyService::redundancyStateChanged);
     svc.setPrimaryPath(4);
     svc.setSecondaryPath(4);
-    QVERIFY(svc.enableRedundancy());
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(svc.currentState(), RedundancyState::DualPath);
-    QVERIFY(svc.isRedundant());
+    QVERIFY(!svc.enableRedundancy());
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(svc.currentState(), RedundancyState::SinglePath);
+    QVERIFY(!svc.isRedundant());
+    QCOMPARE(svc.redundancyHistory().size(), 0);
   }
   // Verify enable fails without paths
   // Verify enabling redundancy without paths fails
@@ -72,40 +71,39 @@ private slots:
     RedundancyService svc;
     QVERIFY(!svc.enableRedundancy());
   }
-  // Verify enable is idempotent when already enabled
-  // Verify enabling redundancy when already enabled succeeds
-  void testEnableRedundancyAlreadyEnabled() {
+  // Verify repeated enable attempts still fail closed.
+  void testEnableRedundancyRepeatedAttemptFailsClosed() {
     RedundancyService svc;
     svc.setPrimaryPath(2);
     svc.setSecondaryPath(2);
-    svc.enableRedundancy();
-    QVERIFY(svc.enableRedundancy());
+    QVERIFY(!svc.enableRedundancy());
+    QVERIFY(!svc.enableRedundancy());
   }
-  // Test disabling redundancy
-  // Disable redundancy and verify signal and state reverts to SinglePath
-  void testDisableRedundancy() {
+  // Verify disabling redundancy cannot be simulated without a live backend.
+  void testDisableRedundancyFailsClosedWithoutBackend() {
     RedundancyService svc;
     QSignalSpy spy(&svc, &RedundancyService::redundancyStateChanged);
     svc.setPrimaryPath(2);
     svc.setSecondaryPath(2);
     svc.enableRedundancy();
-    QVERIFY(svc.disableRedundancy());
-    QCOMPARE(spy.count(), 2);
+    QVERIFY(!svc.disableRedundancy());
+    QCOMPARE(spy.count(), 0);
     QCOMPARE(svc.currentState(), RedundancyState::SinglePath);
   }
-  // Test failover with state transitions and signal
-  // Trigger failover and verify signal, Failover state, path states
-  void testFailover() {
+  // Verify failover cannot be simulated without a live backend.
+  void testFailoverFailsClosedWithoutBackend() {
     RedundancyService svc;
-    QSignalSpy spy(&svc, &RedundancyService::failoverOccurred);
+    QSignalSpy failoverSpy(&svc, &RedundancyService::failoverOccurred);
+    QSignalSpy pathSpy(&svc, &RedundancyService::pathStateChanged);
     svc.setPrimaryPath(3);
     svc.setSecondaryPath(3);
     svc.enableRedundancy();
-    QVERIFY(svc.failover());
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(svc.currentState(), RedundancyState::Failover);
-    QCOMPARE(svc.primaryPath().state, PathState::Failed);
-    QCOMPARE(svc.secondaryPath().state, PathState::Active);
+    QVERIFY(!svc.failover());
+    QCOMPARE(failoverSpy.count(), 0);
+    QCOMPARE(pathSpy.count(), 0);
+    QCOMPARE(svc.currentState(), RedundancyState::SinglePath);
+    QCOMPARE(svc.primaryPath().state, PathState::Active);
+    QCOMPARE(svc.secondaryPath().state, PathState::Standby);
   }
   // Verify failover fails without redundancy
   // Verify failover without redundancy fails
@@ -113,16 +111,15 @@ private slots:
     RedundancyService svc;
     QVERIFY(!svc.failover());
   }
-  // Test failback restores dual-path state
-  // Failback after failover and verify DualPath state restored
-  void testFailback() {
+  // Verify failback cannot be simulated without a live backend.
+  void testFailbackFailsClosedWithoutBackend() {
     RedundancyService svc;
     svc.setPrimaryPath(2);
     svc.setSecondaryPath(2);
     svc.enableRedundancy();
     svc.failover();
-    QVERIFY(svc.failback());
-    QCOMPARE(svc.currentState(), RedundancyState::DualPath);
+    QVERIFY(!svc.failback());
+    QCOMPARE(svc.currentState(), RedundancyState::SinglePath);
     QCOMPARE(svc.primaryPath().state, PathState::Active);
     QCOMPARE(svc.secondaryPath().state, PathState::Standby);
   }
@@ -135,9 +132,8 @@ private slots:
     svc.enableRedundancy();
     QVERIFY(!svc.failback());
   }
-  // Test redundancy history records
-  // Verify redundancy history records enable, failover, failback
-  void testHistory() {
+  // Verify offline redundancy operations do not synthesize history.
+  void testHistoryNotSynthesizedOffline() {
     RedundancyService svc;
     svc.setPrimaryPath(2);
     svc.setSecondaryPath(2);
@@ -145,7 +141,7 @@ private slots:
     svc.failover();
     svc.failback();
     auto history = svc.redundancyHistory();
-    QCOMPARE(history.size(), 3);
+    QCOMPARE(history.size(), 0);
   }
 };
 
