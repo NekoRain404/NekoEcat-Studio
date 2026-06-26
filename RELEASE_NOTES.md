@@ -4,7 +4,7 @@
 
 ## Highlights
 
-Native IgH API backend for 10-100x SDO performance improvement, dual-backend mode switching, and comprehensive test coverage.
+Native IgH API backend, dual-backend mode switching, and test coverage that must be revalidated for the target build.
 
 ## New Features
 
@@ -22,8 +22,8 @@ Native IgH API backend for 10-100x SDO performance improvement, dual-backend mod
 - Runtime switching without daemon restart
 
 ### Performance Improvements
-- SDO operations: ~500ms (CLI) → ~50ms (Native) = **10x improvement**
-- Topology scanning: ~500ms (CLI) → ~100ms (Native) = **5x improvement**
+- SDO operations: native backend reduces CLI process overhead; measure on target hardware
+- Topology scanning: native backend reduces CLI process overhead; measure on target hardware
 
 ## New Tests
 
@@ -207,9 +207,9 @@ Final release preparation with comprehensive release packages, quality assurance
 
 ## Verification
 
-- Clean build with no warnings
+- Re-run a clean build and inspect warnings for the target build
 - Rerun the full test suite for the target build
-- All packages created and validated
+- Recreate and validate packages for the target release
 - All documentation generated
 
 ---

@@ -5,7 +5,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 ## [3.8.0] - 2026-06-21
 
 ### Added
-- **Native IgH API Backend**: Direct ecrt API integration for 10-100x SDO performance improvement
+- **Native IgH API Backend**: Direct ecrt API integration; performance must be measured on the target build and hardware
   - `EthercatNativeBackend` class implementing `EcatService` interface using ecrt API
   - `MasterGuard` RAII class for safe master lifecycle management with mutex protection
   - Type-aware SDO upload/download with hex index parsing
@@ -27,8 +27,8 @@ All notable changes to NekoEcat Studio are documented in this file.
 - Updated README.md, ARCHITECTURE.md, PROJECT_OVERVIEW.md
 
 ### Performance
-- SDO operations: ~500ms (CLI) → ~50ms (Native) = 10x improvement
-- Topology scanning: ~500ms (CLI) → ~100ms (Native) = 5x improvement
+- SDO operations: native backend reduces CLI process overhead; measure on target hardware
+- Topology scanning: native backend reduces CLI process overhead; measure on target hardware
 
 ## [3.7.0] - 2026-06-20
 
@@ -74,7 +74,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
 - **Release Documentation**: Release notes, installation guide, user manual, developer guide
 - **Quality Reports**: Test coverage, performance, memory usage, and code quality reports
-- **Final Verification**: Clean build, all tests pass, all packages valid
+- **Final Verification**: Re-run build, tests, and package validation for the target release
 
 ### Changed
 - Version bumped to 3.5.0
