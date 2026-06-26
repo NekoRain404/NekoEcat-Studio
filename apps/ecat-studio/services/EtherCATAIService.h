@@ -1,10 +1,9 @@
 #pragma once
 
-// EtherCATAIService — AI-powered predictive maintenance, anomaly detection,
-// performance optimization, and pattern recognition for EtherCAT systems.
-//
-// Provides machine learning based analysis of EtherCAT telemetry data
-// for proactive system management.
+// EtherCATAIService -- request facade for AI-powered predictive maintenance,
+// anomaly detection, performance optimization, and pattern recognition. No AI
+// model or inference backend is wired yet, so requests fail closed instead of
+// reporting synthetic predictions, anomalies, optimizations, or patterns.
 //
 // Thread safety: main (GUI) thread only.
 

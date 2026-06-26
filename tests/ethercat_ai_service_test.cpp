@@ -1,10 +1,8 @@
 // EtherCATAIServiceTest — Tests for EtherCATAIService
 //
 // Test coverage:
-//   - Predictive maintenance (normal + empty data)
-//   - Anomaly detection (with outliers, single point, severity)
-//   - Performance optimization (CPU, memory, latency, throughput)
-//   - Pattern recognition (increasing, decreasing, stable, empty)
+//   - AI prediction, anomaly detection, optimization, and pattern recognition fail closed without model backend
+//   - Rejected AI requests do not emit synthetic prediction or anomaly signals
 
 #include <QTest>
 #include <QSignalSpy>
@@ -25,11 +23,12 @@ private slots:
         data.append(dp);
     }
     Prediction pred = svc.predictMaintenance(data);
-    QCOMPARE(pred.component, QStringLiteral("motor"));
-    QVERIFY(pred.probability >= 0.0 && pred.probability <= 1.0);
-    QVERIFY(pred.confidence > 0.0);
-    QVERIFY(pred.timeframeDays > 0);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(pred.component.isEmpty());
+    QCOMPARE(pred.probability, 0.0);
+    QCOMPARE(pred.confidence, 0.0);
+    QCOMPARE(pred.timeframeDays, 0);
+    QVERIFY(pred.recommendations.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Predict maintenance with empty data returns empty result
@@ -54,10 +53,8 @@ private slots:
     outlier.value = 500.0;
     data.append(outlier);
     QVector<Anomaly> anomalies = svc.detectAnomalies(data);
-    QVERIFY(!anomalies.isEmpty());
-    QCOMPARE(anomalies[0].point.value, 500.0);
-    QVERIFY(anomalies[0].deviation > 2.0);
-    QCOMPARE(spy.count(), anomalies.size());
+    QVERIFY(anomalies.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
   // No anomalies detected in uniform data
@@ -94,8 +91,11 @@ private slots:
     metrics.throughput = 100.0;
     metrics.errorRate = 0.01;
     Optimization opt = svc.optimizePerformance(metrics);
-    QCOMPARE(opt.target, QStringLiteral("CPU"));
-    QVERIFY(opt.expectedImprovement > 0.0);
+    QVERIFY(opt.target.isEmpty());
+    QCOMPARE(opt.currentValue, 0.0);
+    QCOMPARE(opt.suggestedValue, 0.0);
+    QCOMPARE(opt.expectedImprovement, 0.0);
+    QVERIFY(opt.description.isEmpty());
   }
 
   // Optimize for high memory usage
@@ -107,7 +107,7 @@ private slots:
     metrics.latency = 5.0;
     metrics.throughput = 100.0;
     Optimization opt = svc.optimizePerformance(metrics);
-    QCOMPARE(opt.target, QStringLiteral("Memory"));
+    QVERIFY(opt.target.isEmpty());
   }
 
   // Optimize for high latency
@@ -119,7 +119,7 @@ private slots:
     metrics.latency = 15.0;
     metrics.throughput = 100.0;
     Optimization opt = svc.optimizePerformance(metrics);
-    QCOMPARE(opt.target, QStringLiteral("Latency"));
+    QVERIFY(opt.target.isEmpty());
   }
 
   // Optimize for throughput bottleneck
@@ -131,10 +131,10 @@ private slots:
     metrics.latency = 5.0;
     metrics.throughput = 100.0;
     Optimization opt = svc.optimizePerformance(metrics);
-    QCOMPARE(opt.target, QStringLiteral("Throughput"));
+    QVERIFY(opt.target.isEmpty());
   }
 
-  // Detect increasing trend pattern
+  // Pattern recognition fails closed without model backend
   void testRecognizePatternsIncreasing() {
     EtherCATAIService svc;
     QVector<AIDataPoint> data;
@@ -144,15 +144,10 @@ private slots:
         data.append(dp);
     }
     QVector<Pattern> patterns = svc.recognizePatterns(data);
-    bool found = false;
-    for (const auto &p : patterns) {
-        if (p.name.contains(QStringLiteral("Increase")))
-            found = true;
-    }
-    QVERIFY(found);
+    QVERIFY(patterns.isEmpty());
   }
 
-  // Detect decreasing trend pattern
+  // Decreasing trend is not reported as AI pattern without model backend
   void testRecognizePatternsDecreasing() {
     EtherCATAIService svc;
     QVector<AIDataPoint> data;
@@ -162,15 +157,10 @@ private slots:
         data.append(dp);
     }
     QVector<Pattern> patterns = svc.recognizePatterns(data);
-    bool found = false;
-    for (const auto &p : patterns) {
-        if (p.name.contains(QStringLiteral("Decrease")))
-            found = true;
-    }
-    QVERIFY(found);
+    QVERIFY(patterns.isEmpty());
   }
 
-  // Detect stable pattern in low-variance data
+  // Stable pattern is not reported as AI pattern without model backend
   void testRecognizePatternsStable() {
     EtherCATAIService svc;
     QVector<AIDataPoint> data;
@@ -180,12 +170,7 @@ private slots:
         data.append(dp);
     }
     QVector<Pattern> patterns = svc.recognizePatterns(data);
-    bool found = false;
-    for (const auto &p : patterns) {
-        if (p.name == QStringLiteral("Stable"))
-            found = true;
-    }
-    QVERIFY(found);
+    QVERIFY(patterns.isEmpty());
   }
 
   // Empty data returns no patterns
@@ -208,8 +193,7 @@ private slots:
     extreme.value = 1000.0;
     data.append(extreme);
     QVector<Anomaly> anomalies = svc.detectAnomalies(data);
-    if (!anomalies.isEmpty())
-        QCOMPARE(anomalies[0].severity, Anomaly::Critical);
+    QVERIFY(anomalies.isEmpty());
   }
 };
 

@@ -21,12 +21,13 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.predictMaintenance(dataPoints);
+      QVERIFY(svc.predictMaintenance(dataPoints).component.isEmpty());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
-    qDebug() << "AI predict throughput:" << count << "predictions in" << elapsed << "ms";
+    qDebug() << "AI predict offline rejection throughput:" << count
+             << "requests in" << elapsed << "ms";
   }
 
   void testAnomalyDetectionThroughput() {
@@ -44,12 +45,13 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.detectAnomalies(dataPoints);
+      QVERIFY(svc.detectAnomalies(dataPoints).isEmpty());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
-    qDebug() << "AI anomaly detection throughput:" << count << "detections in" << elapsed << "ms";
+    qDebug() << "AI anomaly offline rejection throughput:" << count
+             << "requests in" << elapsed << "ms";
   }
 
   void testOptimizeThroughput() {
@@ -65,12 +67,13 @@ private slots:
 
     const int count = 10000;
     for (int i = 0; i < count; i++) {
-      svc.optimizePerformance(metrics);
+      QVERIFY(svc.optimizePerformance(metrics).target.isEmpty());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "AI optimize throughput:" << count << "optimizes in" << elapsed << "ms";
+    qDebug() << "AI optimize offline rejection throughput:" << count
+             << "requests in" << elapsed << "ms";
   }
 
   void testPatternRecognitionThroughput() {
@@ -88,12 +91,13 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.recognizePatterns(dataPoints);
+      QVERIFY(svc.recognizePatterns(dataPoints).isEmpty());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
-    qDebug() << "AI pattern recognition throughput:" << count << "recognitions in" << elapsed << "ms";
+    qDebug() << "AI pattern offline rejection throughput:" << count
+             << "requests in" << elapsed << "ms";
   }
 };
 
