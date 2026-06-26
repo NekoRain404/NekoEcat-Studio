@@ -8,6 +8,9 @@
 //   - Add checks
 //   - Compliance UI must not mint backend-free results
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -229,11 +232,30 @@ private slots:
   // Verify export report creates file
   void testExportReport() {
     ComplianceCheckerPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("compliance_report_test.txt");
-    plugin.exportReport(path);
+    plugin.addViolation({"v_export", "c1", "warning", "Export violation",
+                         "Fix export issue", QDateTime::currentDateTime()});
+    plugin.addRecommendation({"r_export", "high", "Export recommendation",
+                              "Review compliance export", "General"});
+
+    const QString path = dir.filePath("compliance_report_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Compliance Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Score: 0.0%\n")));
+    QVERIFY(text.contains(QStringLiteral("[warning] Export violation\n")));
+    QVERIFY(text.contains(QStringLiteral("[high] Export recommendation: Review compliance export\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 
   void testSourceDoesNotMintSyntheticComplianceResults() {

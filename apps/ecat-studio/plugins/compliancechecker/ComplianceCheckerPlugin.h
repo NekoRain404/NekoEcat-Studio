@@ -79,7 +79,7 @@ public:
 
   double complianceScore() const;
   ComplianceReport generateReport() const;
-  void exportReport(const QString &path);
+  bool exportReport(const QString &path);
 
   QTableWidget *checkTable() const;
   QTableWidget *violationTable() const;

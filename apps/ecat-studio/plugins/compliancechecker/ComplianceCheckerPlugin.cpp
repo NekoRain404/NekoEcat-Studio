@@ -121,28 +121,30 @@ ComplianceCheckerPlugin::generateReport() const {
   return report;
 }
 
-void ComplianceCheckerPlugin::exportReport(const QString &path) {
+bool ComplianceCheckerPlugin::exportReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    auto report = generateReport();
-    out << "Compliance Report\n";
-    out << "=================\n\n";
-    out << "Score: " << QString::number(report.score, 'f', 1) << "%\n";
-    out << "Total Checks: " << report.totalChecks << "\n";
-    out << "Passed: " << report.passedChecks << "\n";
-    out << "Failed: " << report.failedChecks << "\n\n";
-    out << "--- Violations ---\n";
-    for (const auto &v : violations_) {
-      out << "[" << v.severity << "] " << v.description << "\n";
-      out << "  Recommendation: " << v.recommendation << "\n";
-    }
-    out << "\n--- Recommendations ---\n";
-    for (const auto &r : recommendations_) {
-      out << "[" << r.priority << "] " << r.title << ": " << r.description
-          << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  auto report = generateReport();
+  out << "Compliance Report\n";
+  out << "=================\n\n";
+  out << "Score: " << QString::number(report.score, 'f', 1) << "%\n";
+  out << "Total Checks: " << report.totalChecks << "\n";
+  out << "Passed: " << report.passedChecks << "\n";
+  out << "Failed: " << report.failedChecks << "\n\n";
+  out << "--- Violations ---\n";
+  for (const auto &v : violations_) {
+    out << "[" << v.severity << "] " << v.description << "\n";
+    out << "  Recommendation: " << v.recommendation << "\n";
   }
+  out << "\n--- Recommendations ---\n";
+  for (const auto &r : recommendations_) {
+    out << "[" << r.priority << "] " << r.title << ": " << r.description
+        << "\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *ComplianceCheckerPlugin::checkTable() const {
