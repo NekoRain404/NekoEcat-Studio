@@ -1,7 +1,8 @@
 #pragma once
 
-// WorkflowSyncService -- manages synchronization of time, data, state,
-// and configuration for workflow systems.
+// WorkflowSyncService -- request facade for workflow time, data, state,
+// and configuration synchronization. No synchronization backend is wired yet,
+// so requests fail closed instead of publishing synthetic success state.
 //
 // Thread safety: main (GUI) thread only.
 

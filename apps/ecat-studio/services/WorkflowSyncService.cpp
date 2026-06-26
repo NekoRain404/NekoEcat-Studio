@@ -4,30 +4,19 @@ WorkflowSyncService::WorkflowSyncService(QObject *parent)
     : QObject(parent) {}
 
 bool WorkflowSyncService::syncTime() {
-  QDateTime now = QDateTime::currentDateTime();
-  status_.lastSync = now;
-  status_.syncCount++;
-  emit timeSynced(now);
-  return true;
+  return false;
 }
 
 bool WorkflowSyncService::syncData() {
-  status_.lastSync = QDateTime::currentDateTime();
-  status_.syncCount++;
-  emit dataSynced(0);
-  return true;
+  return false;
 }
 
 bool WorkflowSyncService::syncState() {
-  status_.lastSync = QDateTime::currentDateTime();
-  status_.syncCount++;
-  return true;
+  return false;
 }
 
 bool WorkflowSyncService::syncConfiguration() {
-  status_.lastSync = QDateTime::currentDateTime();
-  status_.syncCount++;
-  return true;
+  return false;
 }
 
 WorkflowSyncStatus WorkflowSyncService::syncStatus() const {
