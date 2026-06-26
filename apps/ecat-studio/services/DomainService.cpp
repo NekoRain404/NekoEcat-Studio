@@ -1,11 +1,11 @@
 #include "DomainService.h"
 
-// DomainService.cpp — EtherCAT domain creation and PDO entry registration
+// DomainService.cpp — EtherCAT domain draft creation and PDO entry registration
 //
 // Implementation notes:
 //   - Each domain tracks its PDO entries, data size, and working counter
-//   - processDomain() allocates a zeroed data buffer sized to registered entries
-//   - Simple in-memory store; no persistence or real hardware I/O
+//   - processDomain() fails closed until wired to a live EtherCAT backend
+//   - Simple in-memory draft store; no persistence or real hardware I/O
 
 DomainService::DomainService(QObject *parent) : QObject(parent) {}
 
@@ -42,16 +42,17 @@ bool DomainService::registerPdoEntry(int domain, int position, int index,
   return true;
 }
 
-// Allocates a zeroed data buffer for the domain and emits domainProcessed
+// Process-data exchange requires a live EtherCAT backend. Do not synthesize
+// zeroed domain data because callers may treat that as real PDO exchange.
 bool DomainService::processDomain(int domain) {
   auto it = infos_.find(domain);
-  if (it == infos_.end()) return false;
+  if (it == infos_.end()) {
+    emit error(QStringLiteral("Domain %1 does not exist").arg(domain));
+    return false;
+  }
 
-  it->workingCounter = it->pdoEntryCount;
-  QByteArray d(it->dataSize, 0);
-  data_[domain] = d;
-  emit domainProcessed(domain, d);
-  return true;
+  emit error(QStringLiteral("Domain processing requires a connected EtherCAT backend"));
+  return false;
 }
 
 QByteArray DomainService::domainData(int domain) const {

@@ -4,7 +4,7 @@
 //   - Domain creation (single and multiple)
 //   - PDO entry registration
 //   - Invalid domain and parameter rejection
-//   - Domain processing and data retrieval
+//   - Domain processing fails closed without a live backend
 //   - Domain info defaults
 
 // DomainServiceTest — Tests for DomainService
@@ -12,7 +12,7 @@
 // Test coverage:
 //   - Domain creation (single and multiple)
 //   - PDO entry registration (valid and invalid)
-//   - Domain processing (empty, with entries, invalid)
+//   - Domain processing fails closed without a live backend
 //   - Domain data access
 //   - Domain info defaults
 
@@ -84,25 +84,28 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  // Verify processing a domain updates working counter
-  // Verify processing a domain updates working counter
-  void testProcessDomain() {
+  // Verify processing a domain cannot be simulated without a live backend.
+  void testProcessDomainFailsClosedWithoutBackend() {
     DomainService svc;
     int d = svc.createDomain();
     svc.registerPdoEntry(d, 0, 0x6000, 1);
-    QSignalSpy spy(&svc, &DomainService::domainProcessed);
-    QVERIFY(svc.processDomain(d));
-    QCOMPARE(spy.count(), 1);
+    QSignalSpy processedSpy(&svc, &DomainService::domainProcessed);
+    QSignalSpy errorSpy(&svc, &DomainService::error);
+    QVERIFY(!svc.processDomain(d));
+    QCOMPARE(processedSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
     DomainInfo info = svc.domainInfo(d);
-    QCOMPARE(info.workingCounter, 1);
+    QCOMPARE(info.workingCounter, 0);
+    QCOMPARE(svc.domainData(d).size(), 0);
   }
 
-  // Verify processing an empty domain succeeds with zero counter
-  // Verify processing an empty domain succeeds with zero counter
-  void testProcessEmptyDomain() {
+  // Verify processing an empty domain still fails closed without a backend.
+  void testProcessEmptyDomainFailsClosedWithoutBackend() {
     DomainService svc;
     int d = svc.createDomain();
-    QVERIFY(svc.processDomain(d));
+    QSignalSpy errorSpy(&svc, &DomainService::error);
+    QVERIFY(!svc.processDomain(d));
+    QCOMPARE(errorSpy.count(), 1);
     DomainInfo info = svc.domainInfo(d);
     QCOMPARE(info.workingCounter, 0);
   }
@@ -114,15 +117,14 @@ private slots:
     QVERIFY(!svc.processDomain(99));
   }
 
-  // Verify domainData returns correct size after processing
-  // Verify domain data returns correct size after processing
-  void testDomainData() {
+  // Verify failed processing does not create synthetic process data.
+  void testDomainDataAfterFailedProcessRemainsEmpty() {
     DomainService svc;
     int d = svc.createDomain();
     svc.registerPdoEntry(d, 0, 0x6000, 1);
     svc.processDomain(d);
     QByteArray data = svc.domainData(d);
-    QCOMPARE(data.size(), 4);
+    QCOMPARE(data.size(), 0);
   }
 
   // Verify domainData returns empty before processing

@@ -1,34 +1,34 @@
 #pragma once
 
-// DomainService — EtherCAT domain management for process data.
+// DomainService — EtherCAT domain draft management for process data.
 //
-// Provides domain creation, PDO entry registration, domain processing,
-// and data access. Manages the mapping between PDO entries and process
-// data memory regions.
+// Provides offline domain draft creation, PDO entry registration, and readback
+// of draft metadata. Process-data exchange fails closed until this service is
+// wired to a live EtherCAT backend.
 //
-// This service provides EtherCAT domain management capabilities. It handles:
-//   - Domain creation and management
+// This service currently handles:
+//   - Offline domain draft creation and management
 //   - PDO entry registration within domains
-//   - Domain processing (exchange of process data)
-//   - Domain data access and retrieval
-//   - Domain information tracking
+//   - Explicit rejection of unsupported offline process-data exchange
+//   - Domain draft information tracking
 //
 // Usage:
 //   DomainService domain;
 //   int domIdx = domain.createDomain();
 //   domain.registerPdoEntry(domIdx, 0, 0x6000, 0x01);
+//   // Returns false until connected to a real backend:
 //   domain.processDomain(domIdx);
 //   QByteArray data = domain.domainData(domIdx);
 //   DomainInfo info = domain.domainInfo(domIdx);
 //
 // Thread safety:
-//   All methods must be called from the main (GUI) thread. Domain
-//   processing is synchronous and blocks the calling thread.
+//   All methods must be called from the main (GUI) thread. Offline draft
+//   operations are synchronous and block the calling thread.
 //
 // Performance:
 //   - Domain creation is O(1)
 //   - PDO registration is O(1)
-//   - Domain processing is O(n) where n is number of PDO entries
+//   - Offline process rejection is O(1)
 //   - Data access is O(1)
 
 #include <QObject>
@@ -70,7 +70,7 @@ public:
 
   // Process a domain (exchange process data).
   // @param domain  Domain index
-  // @return true if processing was successful
+  // @return true if processing was successful; currently false without backend
   bool processDomain(int domain);
 
   // Get the data from a domain.
