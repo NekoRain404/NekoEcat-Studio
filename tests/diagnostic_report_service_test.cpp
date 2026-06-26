@@ -19,6 +19,7 @@
 #include <QSignalSpy>
 #include <QJsonObject>
 #include <QTemporaryFile>
+#include <QTemporaryDir>
 #include "services/DiagnosticReportService.h"
 #include "services/EventBus.h"
 #include "services/TopologyService.h"
@@ -106,7 +107,7 @@ private slots:
     QString path = tmp.fileName();
     tmp.close();
 
-    svc.exportReport(path);
+    QVERIFY(svc.exportReport(path));
 
     QFile f(path);
     QVERIFY(f.open(QIODevice::ReadOnly | QIODevice::Text));
@@ -132,12 +133,32 @@ private slots:
     QString path = tmp.fileName();
     tmp.close();
 
-    svc.exportReportCsv(path);
+    QVERIFY(svc.exportReportCsv(path));
 
     QFile f(path);
     QVERIFY(f.open(QIODevice::ReadOnly | QIODevice::Text));
     QString content = f.readAll();
     QVERIFY(content.contains("Section,Metric,Value"));
+  }
+
+  void testExportRejectsInvalidPaths() {
+    EcatClient client;
+    EventBus bus;
+    TopologyService topology(&client);
+    DcSyncService dcSync(&client);
+    PerformanceMonitorService perfMon(&bus, &client);
+    WatchdogService watchdog(&bus, &client);
+
+    DiagnosticReportService svc(&bus, &client, &topology, &dcSync, &perfMon,
+                                &watchdog);
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    QVERIFY(!svc.exportReport(QString()));
+    QVERIFY(!svc.exportReportCsv(QString()));
+    QVERIFY(!svc.exportReport(dir.path()));
+    QVERIFY(!svc.exportReportCsv(dir.path()));
   }
 };
 

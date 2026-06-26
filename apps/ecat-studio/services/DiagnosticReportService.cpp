@@ -48,19 +48,27 @@ QString DiagnosticReportService::generateReport() const {
   return report;
 }
 
-void DiagnosticReportService::exportReport(const QString &filePath) const {
+bool DiagnosticReportService::exportReport(const QString &filePath) const {
+  if (filePath.isEmpty())
+    return false;
+
   QString report = generateReport();
   QFile file(filePath);
-  if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream ts(&file);
-    ts << report;
-  }
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    return false;
+
+  QTextStream ts(&file);
+  ts << report;
+  return ts.status() == QTextStream::Ok && file.flush();
 }
 
-void DiagnosticReportService::exportReportCsv(const QString &filePath) const {
+bool DiagnosticReportService::exportReportCsv(const QString &filePath) const {
+  if (filePath.isEmpty())
+    return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    return;
+    return false;
 
   QTextStream ts(&file);
   ts << "Section,Metric,Value\n";
@@ -85,6 +93,7 @@ void DiagnosticReportService::exportReportCsv(const QString &filePath) const {
     ts << "Watchdog,TotalTimeouts," << w["totalTimeouts"].toInt() << "\n";
     ts << "Watchdog,TotalTriggers," << w["totalTriggers"].toInt() << "\n";
   }
+  return ts.status() == QTextStream::Ok && file.flush();
 }
 
 QString DiagnosticReportService::topologySection() const {

@@ -54,11 +54,13 @@ public:
 
   // Export the diagnostic report to a file in Markdown format.
   // @param filePath  Path to the output file
-  void exportReport(const QString &filePath) const;
+  // @return true if the report was written and flushed successfully
+  bool exportReport(const QString &filePath) const;
 
   // Export the diagnostic report to a file in CSV format.
   // @param filePath  Path to the output file
-  void exportReportCsv(const QString &filePath) const;
+  // @return true if the report was written and flushed successfully
+  bool exportReportCsv(const QString &filePath) const;
 
 signals:
   // Emitted when a report is generated.
