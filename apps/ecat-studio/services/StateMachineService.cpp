@@ -3,8 +3,8 @@
 // StateMachineService.cpp — Per-slave EtherCAT state machine with transition validation
 //
 // Implementation notes:
-//   - Maintains current state per slave position in a QHash
 //   - Validates transitions against the EtherCAT state diagram
+//   - Does not mutate slave state locally without a daemon-backed transition
 //   - Transition history capped at kMaxHistory per position
 
 StateMachineService::StateMachineService(QObject *parent)
@@ -18,42 +18,30 @@ bool StateMachineService::requestState(int position, int state) {
   }
 
   int from = currentStates_.value(position, 0);
-  if (from == state)
-    return true;
-
+  QString reason;
   if (!validateTransition(from, state)) {
-    QString reason = QString("Transition from state %1 to %2 is not allowed")
-                         .arg(from)
-                         .arg(state);
-    emit stateTransitionFailed(position, from, state, reason);
-    StateTransition tr;
-    tr.position = position;
-    tr.fromState = from;
-    tr.toState = state;
-    tr.timestamp = QDateTime::currentDateTime();
-    tr.success = false;
-    tr.reason = reason;
-    auto &h = history_[position];
-    h.append(tr);
-    if (h.size() > kMaxHistory)
-      h.removeFirst();
-    return false;
+    reason = QString("Transition from state %1 to %2 is not allowed")
+                 .arg(from)
+                 .arg(state);
+  } else {
+    reason = QStringLiteral(
+        "State transition requires a connected EtherCAT backend");
   }
 
-  currentStates_[position] = state;
   StateTransition tr;
   tr.position = position;
   tr.fromState = from;
   tr.toState = state;
   tr.timestamp = QDateTime::currentDateTime();
-  tr.success = true;
+  tr.success = false;
+  tr.reason = reason;
   auto &h = history_[position];
   h.append(tr);
   if (h.size() > kMaxHistory)
     h.removeFirst();
 
-  emit stateChanged(position, state);
-  return true;
+  emit stateTransitionFailed(position, from, state, reason);
+  return false;
 }
 
 int StateMachineService::currentState(int position) const {
@@ -88,11 +76,8 @@ QVector<StateTransition> StateMachineService::stateHistory(int position) const {
 }
 
 bool StateMachineService::recoverState(int position) {
-  int current = currentStates_.value(position, 0);
-  int target = recoveryTargetState(current);
-  if (target == current)
-    return false;
-  return requestState(position, target);
+  Q_UNUSED(position);
+  return false;
 }
 
 bool StateMachineService::isValidState(int state) {
