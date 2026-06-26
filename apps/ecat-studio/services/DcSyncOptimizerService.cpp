@@ -187,6 +187,10 @@ bool DcSyncOptimizerService::applyOptimization(
     const DcSyncOptimizationResult &result) {
     if (result.category.isEmpty())
         return false;
+    if (!client_ || !client_->isConnected()) {
+        emit error(QStringLiteral("Cannot apply DC sync optimization while offline"));
+        return false;
+    }
 
     DcSyncOptimizationResult applied = result;
     applied.applied = true;

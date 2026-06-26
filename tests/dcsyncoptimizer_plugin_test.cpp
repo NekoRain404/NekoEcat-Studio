@@ -3,7 +3,8 @@
 //
 // Test coverage:
 //   - Service optimization methods return valid results
-//   - Signal emission on optimization completed/applied
+//   - Signal emission on optimization completed
+//   - Offline apply fails closed without marking results applied
 //   - Plugin identity, ordering, visibility
 //   - Widget creation and tab count
 //   - Optimization result display
@@ -82,13 +83,14 @@ private slots:
         QCOMPARE(spy.count(), 1);
     }
 
-    void testApplyOptimization() {
+    void testApplyOptimizationOfflineFailsClosed() {
         auto result = svc_->optimizeSync();
         QSignalSpy spy(svc_, &DcSyncOptimizerService::optimizationApplied);
         bool ok = svc_->applyOptimization(result);
-        QVERIFY(ok);
-        QCOMPARE(spy.count(), 1);
-        QVERIFY(spy.at(0).at(0).value<DcSyncOptimizationResult>().applied);
+        QVERIFY(!ok);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(svc_->pendingResults().size(), 1);
+        QVERIFY(!svc_->pendingResults().first().applied);
     }
 
     void testPendingResults() {

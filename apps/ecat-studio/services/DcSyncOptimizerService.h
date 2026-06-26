@@ -5,8 +5,9 @@
 // Analyzes and optimizes DC synchronization, drift compensation, jitter
 // reduction, and configuration tuning for EtherCAT networks.
 //
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+// Analysis still uses synthetic recommendation data for UI demonstration.
+// Applying an optimization requires a live daemon connection and does not
+// synthesize a successful hardware change while offline.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -40,6 +41,9 @@ public:
     DcSyncOptimizationResult optimizeDrift();
     DcSyncOptimizationResult optimizeJitter();
     DcSyncOptimizationResult optimizeConfiguration();
+
+    // Apply an optimization to live hardware-backed DC configuration.
+    // Returns false offline and leaves pending results unmodified.
     bool applyOptimization(const DcSyncOptimizationResult &result);
 
     QVector<DcSyncOptimizationResult> pendingResults() const { return results_; }
