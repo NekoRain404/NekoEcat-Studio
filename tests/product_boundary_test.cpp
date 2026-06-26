@@ -377,6 +377,10 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("实现原生 ecrt API"),
       QStringLiteral("NekoEcat-Studio-v3.7.0-linux-x86_64"),
       QStringLiteral("**版本**: 3.7.0"),
+      QStringLiteral("| **测试通过率** | 100% |"),
+      QStringLiteral("| **通过率** | 100% |"),
+      QStringLiteral("| **构建警告** | 0 |"),
+      QStringLiteral("全部验证通过"),
   };
 
   for (const QString &docPath : docPaths) {
