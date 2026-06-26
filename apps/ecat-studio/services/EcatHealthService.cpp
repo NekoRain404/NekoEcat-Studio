@@ -12,6 +12,7 @@
 //   - Polls slave states (OP/SafeOp/PreOp/Init/Error), DC sync, and watchdog status
 //   - Scoring: 100 base minus penalties for errors, non-OP slaves, watchdog triggers
 //   - Grades: Excellent (100), Good (80+), Fair (60+), Poor (40+), Critical (<40)
+//   - Monitoring starts only when a live daemon connection exists
 
 EcatHealthService::EcatHealthService(EcatClient *client, EventBus *bus,
                                      TopologyService *topology,
@@ -27,6 +28,7 @@ EcatHealthService::EcatHealthService(EcatClient *client, EventBus *bus,
 
 void EcatHealthService::startMonitoring(int intervalMs) {
   if (pollTimer_->isActive()) return;
+  if (!client_ || !client_->isConnected()) return;
   pollTimer_->start(intervalMs);
 }
 

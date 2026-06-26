@@ -5,7 +5,7 @@
 //   - DC sync and AL event status
 //   - Watchdog status
 //   - Slave state out-of-range query
-//   - Monitoring signals and start/stop lifecycle
+//   - Monitoring signals and offline start/stop lifecycle
 
 // EcatHealthServiceTest — Tests for EcatHealthService
 //
@@ -13,8 +13,8 @@
 //   - Default state (not monitoring, empty master state)
 //   - Default health score, DC sync, AL event, and watchdog status
 //   - Slave state for out-of-range position
-//   - Monitoring signals and start/stop lifecycle
-//   - Idempotent start/stop monitoring
+//   - Monitoring signals and offline start/stop lifecycle
+//   - Idempotent offline start/stop monitoring
 
 #include <QTest>
 #include <QSignalSpy>
@@ -133,21 +133,19 @@ private slots:
     QVERIFY(stateSpy.isValid());
   }
 
-  // Verify start and stop monitoring toggle isMonitoring flag
-  // Verify start/stop monitoring toggles isMonitoring flag
-  void testStartStopMonitoring() {
+  // Offline start must not synthesize active health monitoring.
+  void testStartStopMonitoringOffline() {
     svc_->startMonitoring(100);
-    QVERIFY(svc_->isMonitoring());
+    QVERIFY(!svc_->isMonitoring());
     svc_->stopMonitoring();
     QVERIFY(!svc_->isMonitoring());
   }
 
-  // Verify starting monitoring twice is idempotent
-  // Verify starting monitoring twice is idempotent
-  void testStartMonitoringIdempotent() {
+  // Verify repeated offline start remains inactive.
+  void testStartMonitoringIdempotentOffline() {
     svc_->startMonitoring(100);
     svc_->startMonitoring(100);
-    QVERIFY(svc_->isMonitoring());
+    QVERIFY(!svc_->isMonitoring());
     svc_->stopMonitoring();
   }
 

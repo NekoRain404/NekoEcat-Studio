@@ -6,7 +6,8 @@
 // watchdog status into a 0-100 health score with a letter grade (A-F).
 //
 // Uses EventBus for topology changes and polls the daemon for state updates.
-// Emits healthChanged() at a configurable interval (default 1s).
+// Emits healthChanged() at a configurable interval (default 1s). Offline start
+// requests do not synthesize an active health-monitoring session.
 //
 // Health score calculation:
 //   - Base 100, minus penalties for non-OP slaves, DC drift, watchdog triggers,
