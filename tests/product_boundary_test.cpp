@@ -463,6 +463,14 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| AL Event 监控 | ✅ 完整事件日志 | ✅ AL Event 工作区 | **持平** |"),
       QStringLiteral("| 环形缓冲 | ✅ 支持 | ✅ 10,000 点环形缓冲 | **持平** |"),
       QStringLiteral("| 总线统计 | ✅ 带宽/帧计数/错误率 | ✅ BusStatsPlugin | **持平** |"),
+      QStringLiteral("| 变量监控 | ✅ Watch 窗口 | ✅ Watch 工作区 | **持平** |"),
+      QStringLiteral("| 工程文件 | ✅ .tsproj XML | ✅ .ecatproj JSON | **持平** |"),
+      QStringLiteral("| 诊断报告 | ✅ 集成报告 | ✅ DiagnosticReportService | **持平** |"),
+      QStringLiteral("| 多语言 | ✅ 多语言支持 | ✅ 多语言注册表（以当前仓库为准） | **持平** |"),
+      QStringLiteral("| **拓扑验证** | ✅ | ✅ Consistency 工作区 | **持平** |"),
+      QStringLiteral("| **错误分析** | ✅ 诊断日志 | ✅ ErrorAnalysisPlugin | **持平** |"),
+      QStringLiteral("| **DC 同步诊断** | ✅ | ✅ DC Sync + Precision | **持平** |"),
+      QStringLiteral("| **看门狗监控** | ✅ | ✅ WatchdogService | **持平** |"),
   };
 
   for (const QString &docPath : docPaths) {
