@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowCloudService — cloud connectivity, synchronization, backup,
-// and monitoring for workflow data.
+// WorkflowCloudService -- request facade for workflow cloud connectivity,
+// synchronization, backup, and monitoring. No cloud provider backend is wired
+// yet, so mutating requests fail closed instead of publishing synthetic
+// connected/synced/backup success state.
 //
 // Thread safety: main (GUI) thread only.
 

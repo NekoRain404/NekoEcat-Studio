@@ -11,9 +11,9 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    QVERIFY(svc.connectToCloud(config));
-    QVERIFY(svc.isConnected());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.connectToCloud(config));
+    QVERIFY(!svc.isConnected());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testConnectEmptyEndpoint() {
@@ -38,11 +38,11 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QSignalSpy spy(&svc, &WorkflowCloudService::cloudSynced);
-    QVERIFY(svc.syncToCloud());
-    QCOMPARE(svc.status().recordCount, 10);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.syncToCloud());
+    QCOMPARE(svc.status().recordCount, 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testSyncNotConnected() {
@@ -55,10 +55,10 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QSignalSpy spy(&svc, &WorkflowCloudService::cloudBackupCompleted);
-    QVERIFY(svc.backupToCloud());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.backupToCloud());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testBackupNotConnected() {
@@ -71,9 +71,9 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     auto status = svc.monitorCloud();
-    QVERIFY(status.connected);
+    QVERIFY(!status.connected);
     QCOMPARE(status.recordCount, 0);
   }
 
@@ -82,11 +82,11 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
-    svc.syncToCloud();
-    svc.syncToCloud();
-    svc.syncToCloud();
-    QCOMPARE(svc.status().recordCount, 30);
+    QVERIFY(!svc.connectToCloud(config));
+    QVERIFY(!svc.syncToCloud());
+    QVERIFY(!svc.syncToCloud());
+    QVERIFY(!svc.syncToCloud());
+    QCOMPARE(svc.status().recordCount, 0);
   }
 };
 

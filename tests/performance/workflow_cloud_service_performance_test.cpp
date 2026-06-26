@@ -13,10 +13,11 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.connectToCloud(config);
+      QVERIFY(!svc.connectToCloud(config));
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
+    QVERIFY(!svc.isConnected());
   }
 
   void testSyncThroughput() {
@@ -24,15 +25,15 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.syncToCloud();
+      QVERIFY(!svc.syncToCloud());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
-    QCOMPARE(svc.status().recordCount, 100000);
+    QCOMPARE(svc.status().recordCount, 0);
   }
 
   void testBackupThroughput() {
@@ -40,14 +41,15 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.backupToCloud();
+      QVERIFY(!svc.backupToCloud());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
+    QCOMPARE(svc.status().lastBackupTime, 0);
   }
 
   void testMonitoringLatency() {
@@ -55,7 +57,7 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 100000; ++i) {
@@ -70,14 +72,14 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     for (int i = 0; i < 100000; ++i) {
-      svc.syncToCloud();
-      svc.backupToCloud();
+      QVERIFY(!svc.syncToCloud());
+      QVERIFY(!svc.backupToCloud());
       svc.monitorCloud();
     }
-    QVERIFY(svc.isConnected());
-    QCOMPARE(svc.status().recordCount, 1000000);
+    QVERIFY(!svc.isConnected());
+    QCOMPARE(svc.status().recordCount, 0);
   }
 
   void testConcurrentOperations() {
@@ -85,12 +87,12 @@ private slots:
     WfCloudConfig config;
     config.endpoint = "https://cloud.example.com";
     config.apiKey = "key123";
-    svc.connectToCloud(config);
+    QVERIFY(!svc.connectToCloud(config));
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; ++i) {
-      svc.syncToCloud();
-      svc.backupToCloud();
+      QVERIFY(!svc.syncToCloud());
+      QVERIFY(!svc.backupToCloud());
       svc.monitorCloud();
     }
     qint64 elapsed = timer.elapsed();
