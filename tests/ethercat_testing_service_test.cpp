@@ -12,44 +12,48 @@
 class EtherCATTestingServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Run unit tests and verify all pass
-  // Run unit tests and verify all pass
+  // Run unit tests and verify suite metadata without reporting fake passes
+  // Run unit tests and verify suite metadata without reporting fake passes
   void testRunUnitTests() {
     EtherCATTestingService svc;
     TestResults results = svc.runUnitTests();
     QVERIFY(results.total > 0);
-    QCOMPARE(results.passed, results.total);
+    QCOMPARE(results.passed, 0);
     QCOMPARE(results.failed, 0);
+    QCOMPARE(results.skipped, results.total);
   }
 
-  // Run integration tests and verify all pass
-  // Run integration tests and verify all pass
+  // Run integration tests and verify suite metadata without reporting fake passes
+  // Run integration tests and verify suite metadata without reporting fake passes
   void testRunIntegrationTests() {
     EtherCATTestingService svc;
     TestResults results = svc.runIntegrationTests();
     QVERIFY(results.total > 0);
-    QCOMPARE(results.passed, results.total);
+    QCOMPARE(results.passed, 0);
     QCOMPARE(results.failed, 0);
+    QCOMPARE(results.skipped, results.total);
   }
 
-  // Run performance tests and verify all pass
-  // Run performance tests and verify all pass
+  // Run performance tests and verify suite metadata without reporting fake passes
+  // Run performance tests and verify suite metadata without reporting fake passes
   void testRunPerformanceTests() {
     EtherCATTestingService svc;
     TestResults results = svc.runPerformanceTests();
     QVERIFY(results.total > 0);
-    QCOMPARE(results.passed, results.total);
+    QCOMPARE(results.passed, 0);
     QCOMPARE(results.failed, 0);
+    QCOMPARE(results.skipped, results.total);
   }
 
-  // Run stress tests and verify all pass
-  // Run stress tests and verify all pass
+  // Run stress tests and verify suite metadata without reporting fake passes
+  // Run stress tests and verify suite metadata without reporting fake passes
   void testRunStressTests() {
     EtherCATTestingService svc;
     TestResults results = svc.runStressTests();
     QVERIFY(results.total > 0);
-    QCOMPARE(results.passed, results.total);
+    QCOMPARE(results.passed, 0);
     QCOMPARE(results.failed, 0);
+    QCOMPARE(results.skipped, results.total);
   }
 
   // Verify unit test pass count matches total minus skipped
@@ -102,6 +106,25 @@ private slots:
     EtherCATTestingService svc;
     TestResults results = svc.runUnitTests();
     QCOMPARE(results.failures.size(), 0);
+  }
+
+  void testDefaultRunnerDoesNotReportSimulatedPasses() {
+    EtherCATTestingService svc;
+    const QVector<TestResults> suites = {
+        svc.runUnitTests(),
+        svc.runIntegrationTests(),
+        svc.runPerformanceTests(),
+        svc.runStressTests(),
+    };
+
+    for (const auto &results : suites) {
+      QVERIFY(results.total > 0);
+      QCOMPARE(results.passed, 0);
+      QCOMPARE(results.failed, 0);
+      QCOMPARE(results.skipped, results.total);
+      QVERIFY(results.failures.isEmpty());
+      QVERIFY(results.statusMessage.contains("not executed"));
+    }
   }
 };
 

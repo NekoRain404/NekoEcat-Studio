@@ -30,6 +30,7 @@ struct TestResults {
     qint64 endTimeMs = 0;
     QVector<TestFailure> failures;
     QString suiteName;
+    QString statusMessage;
 };
 
 class EtherCATTestingService : public QObject {

@@ -5,7 +5,7 @@
 //
 // Implementation notes:
 //   - All test types delegate to runTestSuite with configurable test count
-//   - Simulates 100% pass rate with elapsed time tracking
+//   - Reports skipped suites until a real test runner is wired in
 //   - Emits testStarted and testCompleted signals around suite execution
 
 EtherCATTestingService::EtherCATTestingService(QObject *parent)
@@ -42,9 +42,11 @@ TestResults EtherCATTestingService::runTestSuite(const QString &name, int testCo
     results.startTimeMs = QDateTime::currentMSecsSinceEpoch();
 
     results.total = testCount;
-    results.passed = testCount;
+    results.passed = 0;
     results.failed = 0;
-    results.skipped = 0;
+    results.skipped = testCount;
+    results.statusMessage =
+        QStringLiteral("No test runner is configured; suite was not executed.");
 
     results.endTimeMs = QDateTime::currentMSecsSinceEpoch();
     results.durationMs = results.endTimeMs - results.startTimeMs;
