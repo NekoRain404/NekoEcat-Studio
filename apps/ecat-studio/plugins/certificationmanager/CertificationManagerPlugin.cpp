@@ -16,26 +16,6 @@
 
 CertificationManagerPlugin::CertificationManagerPlugin(QObject *parent) {
   if (parent) setParent(parent);
-  auto now = QDateTime::currentDateTime();
-  auto future = now.addDays(365);
-  auto soon = now.addDays(15);
-  certificates_ = {
-      {"cert1", "EtherCAT Conformance", "ETG", "ETG.1020", now, future,
-       "Valid", "SN-001-2025"},
-      {"cert2", "CE Marking", "TÜV", "EN 61000-6-2", now, soon, "Expiring",
-       "SN-002-2025"},
-      {"cert3", "UL Certification", "UL", "UL 61010-1", now.addYears(-2),
-       now.addDays(-1), "Expired", "SN-003-2023"},
-  };
-  statuses_ = {
-      {"cert1", "Valid", now, "All checks passed"},
-      {"cert2", "Expiring Soon", now, "Renewal required within 30 days"},
-      {"cert3", "Expired", now, "Certificate has expired"},
-  };
-  renewals_ = {
-      {"cert2", "CE Marking", soon, 15, false},
-      {"cert3", "UL Certification", now.addDays(-1), -1, true},
-  };
   buildUi();
 }
 
@@ -95,7 +75,7 @@ void CertificationManagerPlugin::validateCertificate(int index) {
     int days = QDateTime::currentDateTime().daysTo(cert.expiresAt);
     emit renewalDue(cert.id, days);
   } else {
-    cert.status = "Valid";
+    cert.status = "Unverified";
   }
   rebuildCertificateTable();
 }
@@ -240,8 +220,7 @@ void CertificationManagerPlugin::buildUi() {
     c.issuer = "";
     c.standard = "";
     c.issuedAt = QDateTime::currentDateTime();
-    c.expiresAt = c.issuedAt.addYears(1);
-    c.status = "Valid";
+    c.status = "Unverified";
     c.serialNumber = "";
     addCertificate(c);
   });

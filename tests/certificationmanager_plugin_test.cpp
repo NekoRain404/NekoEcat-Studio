@@ -5,12 +5,13 @@
 //   - Widget creation
 //   - Certificate, status, and renewal tables
 //   - Add/remove certificates
-//   - Certificate renewal tracking
+//   - Certificate records fail closed without certification backend
 
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
 #include <QLabel>
+#include <QPushButton>
 #include "plugins/certificationmanager/CertificationManagerPlugin.h"
 
 class CertificationManagerPluginTest : public QObject {
@@ -37,8 +38,8 @@ private slots:
   void testInitialState() {
     CertificationManagerPlugin plugin;
 
-    QCOMPARE(plugin.certificateCount(), 3);
-    QCOMPARE(plugin.renewalCount(), 2);
+    QCOMPARE(plugin.certificateCount(), 0);
+    QCOMPARE(plugin.renewalCount(), 0);
   }
 
   // Verify certificate table structure
@@ -47,7 +48,7 @@ private slots:
 
     QTableWidget *table = plugin.certificateTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 7);
   }
 
@@ -57,7 +58,7 @@ private slots:
 
     QTableWidget *table = plugin.statusTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 4);
   }
 
@@ -67,7 +68,7 @@ private slots:
 
     QTableWidget *table = plugin.renewalTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 2);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 4);
   }
 
@@ -83,8 +84,7 @@ private slots:
     c.issuer = "Test Issuer";
     c.standard = "ISO 9001";
     c.issuedAt = QDateTime::currentDateTime();
-    c.expiresAt = c.issuedAt.addYears(1);
-    c.status = "Valid";
+    c.status = "Unverified";
     c.serialNumber = "SN-NEW";
 
     plugin.addCertificate(c);
@@ -95,6 +95,11 @@ private slots:
   // Verify removing a certificate
   void testRemoveCertificate() {
     CertificationManagerPlugin plugin;
+    CertificationManagerPlugin::Certificate c;
+    c.id = "remove";
+    c.name = "Remove Certificate";
+    c.status = "Unverified";
+    plugin.addCertificate(c);
     int initial = plugin.certificateCount();
 
     plugin.removeCertificate(0);
@@ -103,6 +108,11 @@ private slots:
 
   void testUpdateCertificate() {
     CertificationManagerPlugin plugin;
+    CertificationManagerPlugin::Certificate existing;
+    existing.id = "cert1";
+    existing.name = "Existing Certificate";
+    existing.status = "Unverified";
+    plugin.addCertificate(existing);
 
     CertificationManagerPlugin::Certificate c;
     c.id = "cert1";
@@ -110,8 +120,7 @@ private slots:
     c.issuer = "Updated Issuer";
     c.standard = "Updated Standard";
     c.issuedAt = QDateTime::currentDateTime();
-    c.expiresAt = c.issuedAt.addYears(2);
-    c.status = "Valid";
+    c.status = "Unverified";
     c.serialNumber = "SN-UPDATED";
 
     plugin.updateCertificate(0, c);
@@ -122,15 +131,25 @@ private slots:
   void testIsExpired() {
     CertificationManagerPlugin plugin;
 
-    QVERIFY(plugin.isExpired(2));
-    QVERIFY(!plugin.isExpired(0));
+    CertificationManagerPlugin::Certificate c;
+    c.id = "expired";
+    c.name = "Expired Certificate";
+    c.expiresAt = QDateTime::currentDateTime().addDays(-1);
+    c.status = "Unverified";
+    plugin.addCertificate(c);
+    QVERIFY(plugin.isExpired(0));
   }
 
   void testIsExpiringSoon() {
     CertificationManagerPlugin plugin;
 
-    QVERIFY(plugin.isExpiringSoon(1, 30));
-    QVERIFY(!plugin.isExpiringSoon(0, 30));
+    CertificationManagerPlugin::Certificate c;
+    c.id = "soon";
+    c.name = "Soon Certificate";
+    c.expiresAt = QDateTime::currentDateTime().addDays(15);
+    c.status = "Unverified";
+    plugin.addCertificate(c);
+    QVERIFY(plugin.isExpiringSoon(0, 30));
   }
 
   void testValidateCertificate() {
@@ -138,7 +157,13 @@ private slots:
     QSignalSpy expiredSpy(&plugin,
                           &CertificationManagerPlugin::certificateExpired);
 
-    plugin.validateCertificate(2);
+    CertificationManagerPlugin::Certificate c;
+    c.id = "expired";
+    c.name = "Expired Certificate";
+    c.expiresAt = QDateTime::currentDateTime().addDays(-1);
+    c.status = "Unverified";
+    plugin.addCertificate(c);
+    plugin.validateCertificate(0);
     QCOMPARE(expiredSpy.count(), 1);
   }
 
@@ -146,23 +171,53 @@ private slots:
     CertificationManagerPlugin plugin;
     QSignalSpy renewalSpy(&plugin, &CertificationManagerPlugin::renewalDue);
 
-    plugin.validateCertificate(1);
+    CertificationManagerPlugin::Certificate c;
+    c.id = "soon";
+    c.name = "Soon Certificate";
+    c.expiresAt = QDateTime::currentDateTime().addDays(15);
+    c.status = "Unverified";
+    plugin.addCertificate(c);
+    plugin.validateCertificate(0);
     QCOMPARE(renewalSpy.count(), 1);
   }
 
-  void testValidateValid() {
+  void testValidateDoesNotSynthesizeValid() {
     CertificationManagerPlugin plugin;
+    CertificationManagerPlugin::Certificate c;
+    c.id = "cert1";
+    c.name = "Certificate";
+    c.expiresAt = QDateTime::currentDateTime().addDays(365);
+    c.status = "Unverified";
+    plugin.addCertificate(c);
 
     plugin.validateCertificate(0);
     QCOMPARE(plugin.certificateTable()->item(0, 6)->text(),
-             QString("Valid"));
+             QString("Unverified"));
   }
 
   void testCheckRenewals() {
     CertificationManagerPlugin plugin;
 
     plugin.checkRenewals();
-    QVERIFY(plugin.renewalCount() >= 1);
+    QCOMPARE(plugin.renewalCount(), 0);
+  }
+
+  void testAddButtonDoesNotMintValidCertificate() {
+    CertificationManagerPlugin plugin;
+    auto buttons = plugin.widget()->findChildren<QPushButton *>();
+    QPushButton *addButton = nullptr;
+    for (auto *button : buttons) {
+      if (button->text() == QStringLiteral("Add Certificate")) {
+        addButton = button;
+        break;
+      }
+    }
+    QVERIFY(addButton != nullptr);
+    addButton->click();
+    QCOMPARE(plugin.certificateCount(), 1);
+    QCOMPARE(plugin.certificateTable()->item(0, 6)->text(),
+             QString("Unverified"));
+    QVERIFY(plugin.certificateTable()->item(0, 5)->text().isEmpty());
   }
 
   void testStatusLabel() {
@@ -180,6 +235,21 @@ private slots:
     plugin.exportReport(path);
     QVERIFY(QFile::exists(path));
     QFile::remove(path);
+  }
+
+  void testSourceDoesNotMintSyntheticCertificates() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/plugins/certificationmanager/CertificationManagerPlugin.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("c.expiresAt = c.issuedAt.addYears(1)")),
+             "Certification manager UI must not mint default certificate expiry dates");
+    QVERIFY2(!source.contains(QStringLiteral("c.status = \"Valid\"")),
+             "Certification manager UI must not mint valid certificates");
+    QVERIFY2(!source.contains(QStringLiteral("cert.status = \"Valid\"")),
+             "Certification validation must not report valid without a backend");
   }
 };
 
