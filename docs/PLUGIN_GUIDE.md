@@ -30,7 +30,7 @@ MainWindow
 
 - C++20 compiler (GCC 12+, Clang 15+)
 - Qt 6 development packages (`qt6-base-dev`, `qt6-network-dev`)
-- CMake 3.22+
+- CMake 3.20+
 - Familiarity with Qt signals/slots and the `Q_OBJECT` macro
 
 ## Step 1: Create Plugin Directory

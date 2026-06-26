@@ -393,6 +393,7 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **通过率** | 100% |"),
       QStringLiteral("| **构建警告** | 0 |"),
       QStringLiteral("全部验证通过"),
+      QStringLiteral("CMake 3.22+"),
   };
 
   for (const QString &docPath : docPaths) {
