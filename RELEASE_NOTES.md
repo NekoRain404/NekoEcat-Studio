@@ -32,11 +32,11 @@ Native IgH API backend for 10-100x SDO performance improvement, dual-backend mod
 
 ## Quality Assurance
 
-- **Total Tests**: 335+ registered tests
-- **Test Pass Rate**: 100%
-- **Build Warnings**: 0
-- **ServiceContainer**: 130+ domain services
-- **Plugins**: 97 workspace plugins
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
+- **Build Warnings**: Recheck the target build log
+- **ServiceContainer**: Service count is defined by the corresponding source tree
+- **Plugins**: Plugin count is defined by the corresponding source tree
 
 ## Documentation
 
@@ -53,7 +53,7 @@ Native IgH API backend for 10-100x SDO performance improvement, dual-backend mod
 
 ---
 
-# NekoEcat Studio v3.7.0 Release Notes
+# NekoEcat Studio 3.7 Release Notes
 
 **Release Date**: June 20, 2026
 
@@ -83,10 +83,10 @@ Architecture documentation update, boundary and integration test expansion, Serv
 
 ## Quality Assurance
 
-- **Total Tests**: 325+ registered tests
-- **Test Pass Rate**: 100%
-- **ServiceContainer**: 130+ domain services
-- **Plugins**: 90+ workspace plugins
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
+- **ServiceContainer**: Service count is defined by the corresponding source tree
+- **Plugins**: Plugin count is defined by the corresponding source tree
 
 ## Release Packages
 
@@ -158,9 +158,9 @@ New optimization features for DC Sync, Free Run, PDO Mapping, and SDO communicat
 
 ## Quality Assurance
 
-- **Total Tests**: 400+
-- **Test Pass Rate**: 100%
-- **ServiceContainer**: 130+ domain services
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
+- **ServiceContainer**: Service count is defined by the corresponding source tree
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
 
 ## Release Packages
@@ -203,12 +203,12 @@ Final release preparation with comprehensive release packages, quality assurance
 - **Performance**: Startup, memory, and I/O benchmarks
 - **Memory Analysis**: Valgrind leak detection
 - **Code Quality**: cppcheck, clang-tidy, formatting checks
-- **Total Tests**: 400+ (100% pass rate)
+- **Total Tests**: See the corresponding build output
 
 ## Verification
 
 - Clean build with no warnings
-- All 400+ tests pass
+- Rerun the full test suite for the target build
 - All packages created and validated
 - All documentation generated
 
@@ -241,8 +241,8 @@ New security, compliance, and certification manager services with comprehensive 
 
 ## Quality Assurance
 
-- **Total Tests**: 400+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
 
 ---
@@ -274,8 +274,8 @@ Final testing, optimization, and release preparation with three new workflow ser
 
 ## Quality Assurance
 
-- **Total Tests**: 400+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **New Unit Tests**: 3 test files
 - **New Performance Tests**: 3 test files
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
@@ -307,8 +307,8 @@ Final testing, optimization, and release preparation with comprehensive test cov
 
 ## Quality Assurance
 
-- **Total Tests**: 380+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **New Unit Tests**: 6 test files
 - **New Integration Tests**: 2 test files
 - **New Performance Tests**: 6 test files
@@ -348,8 +348,8 @@ New workflow services for cloud, edge computing, and AI-powered optimization wit
 
 ## Quality Assurance
 
-- **Total Tests**: 350+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **New Unit Tests**: 33 test cases
 - **New Performance Tests**: 18 test cases
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
@@ -385,8 +385,8 @@ Major release with new workflow integration services, comprehensive test coverag
 
 ## Quality Assurance
 
-- **Total Tests**: 318+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **New Unit Tests**: 33 test cases
 - **New Performance Tests**: 9 test cases
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
@@ -409,8 +409,8 @@ Final testing, optimization, and release preparation with comprehensive quality 
 
 ## Quality Assurance
 
-- **Total Tests**: 264
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Unit Tests**: All service tests passing (security, compliance, certification, visualization, reporting, integration)
 - **Integration Tests**: WorkflowOptimizerPlugin and WorkflowDashboardPlugin integration tests passing
 - **Performance Tests**: Security, compliance, and certification performance tests passing
@@ -440,8 +440,8 @@ Final release preparation with additional performance tests for workflow analyti
 
 ## Quality Statistics
 
-- **Total Tests**: 370+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Performance Test Coverage**: All major services
 - **Integration Test Coverage**: All workflow plugins
 
@@ -478,8 +478,8 @@ Comprehensive performance testing for workflow services, plugin integration test
 
 ## Quality Statistics
 
-- **Total Tests**: 350+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Performance Test Coverage**: All major services
 - **Integration Test Coverage**: All workflow plugins
 
@@ -532,8 +532,8 @@ Digital Twin, Blockchain, and Quantum Security services with comprehensive unit,
 
 ## Quality Statistics
 
-- **Total Tests**: 330+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Performance Test Coverage**: All major services
 
 ---
@@ -583,8 +583,8 @@ Cloud Manager, Edge Computing, and AI Assistant plugins with comprehensive unit 
 
 ## Quality Statistics
 
-- **Total Tests**: 280+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Performance Test Coverage**: All major services
 
 ---
@@ -615,8 +615,8 @@ New Documentation Browser plugin, comprehensive performance tests for visualizat
 
 ## Quality Statistics
 
-- **Total Tests**: 223+
-- **Test Pass Rate**: 100%
+- **Total Tests**: See the corresponding build output
+- **Test Pass Rate**: Revalidate for the target build
 - **Performance Test Coverage**: All major services
 
 ## Build Instructions
@@ -876,7 +876,7 @@ cmake --build build -j4 && ctest --test-dir build --output-on-failure -j4
 - **EtherCATValidationService** — 4 performance tests for validation throughput
 
 ## Test Statistics
-- **Total Tests**: 220+ (unit, integration, performance, UI)
+- **Total Tests**: See the corresponding build output
 - **New Tests**: 76+ tests added in this release
 
 ## System Requirements
@@ -919,7 +919,7 @@ cmake --build build -j4 && ctest --test-dir build --output-on-failure -j4
 - Push configurations to EtherCAT networks
 
 ## Test Statistics
-- **Total Tests**: 200+ (unit, integration, performance, UI)
+- **Total Tests**: See the corresponding build output
 - **New Tests**: 56+ tests added in this release
 
 ## System Requirements

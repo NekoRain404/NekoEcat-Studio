@@ -23,7 +23,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 ### Changed
 - Version bumped to 3.8.0
 - Default backend mode: Auto (try native, fallback to CLI)
-- Total registered tests: 335+ (100% pass rate)
+- Default registered tests: see the corresponding build output; rerun validation before release
 - Updated README.md, ARCHITECTURE.md, PROJECT_OVERVIEW.md
 
 ### Performance
@@ -46,9 +46,9 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.7.0
-- Total registered tests: 325+ (100% pass rate)
-- ServiceContainer: 130+ domain services with single EcatClient instance
-- Plugin count: 90+ workspace plugins
+- Default registered tests: see the corresponding build output; rerun validation before release
+- ServiceContainer service count is defined by the corresponding source tree
+- Plugin count is defined by the corresponding source tree
 - Updated README.md, ARCHITECTURE.md, CHANGELOG.md, RELEASE_NOTES.md
 
 ## [3.6.0] - 2026-06-20
@@ -65,8 +65,8 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.6.0
-- ServiceContainer expanded to 130+ domain services
-- Total tests: 400+ (100% pass rate)
+- ServiceContainer service count is defined by the corresponding source tree
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.5.0] - 2026-06-20
 
@@ -78,7 +78,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.5.0
-- Total tests: 400+ (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.4.0] - 2026-06-20
 
@@ -86,7 +86,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 - **New Features**:
   - **PDO Mapping Editor** (`pdomapping`): Visual PDO mapping configuration with canvas-based drag-and-drop, mapping validator, SM/PDO assignment, and export
   - **ESI Browser** (`esi`): Enhanced ESI repository with tree-based device browsing, PDO mapping lookup, and multi-file ESI XML import
-  - **Online Diagnostics** (`onlinediagnostics`): Real-time bus monitoring with BusMonitorWidget, ErrorAnalyzerWidget, health scoring, and automated fix suggestions
+  - **Online Diagnostics** (`onlinediagnostics`): Real-time bus monitoring with BusMonitorWidget, ErrorAnalyzerWidget, health scoring, and reviewable diagnostic suggestions
   - **DC Sync Precision** (`dcsyncprecision`): Extended DC sync diagnostics with DriftMonitorWidget, JitterAnalysisWidget, and per-slave synchronization precision assessment
   - **Multi-Master Support** (`multimaster`): Multi-master management with MasterComparisonWidget for side-by-side diagnostics and cross-master slave management
   - **Real-time Performance Monitor** (`realtimeperf`): Latency and throughput monitoring with LatencyMonitorWidget, ThroughputMonitorWidget, and 1000-sample ring buffers
@@ -103,10 +103,10 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.4.0
-- ServiceContainer expanded to 120+ domain services
-- 89 plugin directories (69 compiled into binary)
-- 306 registered tests (330 test files on disk)
-- Total tests: 306 registered (100% pass rate on 304/306)
+- ServiceContainer service count is defined by the corresponding source tree
+- Plugin count is defined by the corresponding source tree
+- registered tests and test files as reported by the corresponding build output
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.3.0] - 2026-06-20
 
@@ -118,7 +118,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.3.0
-- Total tests: 400+ (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.2.0] - 2026-06-19
 
@@ -130,7 +130,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.2.0
-- Total tests: 380+ (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.1.0] - 2026-06-19
 
@@ -142,7 +142,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.1.0
-- Total tests: 350+ (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [3.0.0] - 2026-06-19
 
@@ -154,7 +154,7 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 3.0.0
-- Total tests: 318+ (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [2.9.0] - 2026-06-19
 
@@ -164,13 +164,13 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Changed
 - Version bumped to 2.9.0
-- Total tests: 273 (100% pass rate)
+- Test results: see the corresponding build output; rerun validation before release
 
 ## [2.8.0] - 2026-06-19
 
 ### Added
 - **Final Release Preparation**: Comprehensive testing, optimization, and release packaging for v2.8.0
-- **Quality Assurance**: All 264 tests passing (100% pass rate), test coverage, performance, and memory reports
+- **Quality Assurance**: Test, coverage, performance, and memory reports should be regenerated for the target release build
 
 ### Changed
 - Version bumped to 2.8.0
@@ -476,18 +476,18 @@ All notable changes to NekoEcat Studio are documented in this file.
 #### Architecture
 
 - **Plugin System** — WorkspacePlugin interface with PluginRegistry for lifecycle management, EventBus for inter-plugin communication, and ServiceContainer for dependency injection.
-- **Service Layer** — 120+ domain services covering SDO, topology, watch, DC sync, AL events, signals, performance monitoring, ESI, bus statistics, caching, async operations, watchdog, safety, diagnostics, project management, configuration, alarms, logging, charts, batch operations, scripting, export, data pipeline, device management, firmware update, report generation, master management, distributed clock, PDO mapping, DC sync precision, online diagnostics, multi-master, real-time performance, error analysis, and hardware verification.
+- **Service Layer** — Service coverage spans SDO, topology, watch, DC sync, AL events, signals, performance monitoring, ESI, bus statistics, caching, async operations, watchdog, safety, diagnostics, project management, configuration, alarms, logging, charts, batch operations, scripting, export, data pipeline, device management, firmware update, report generation, master management, distributed clock, PDO mapping, DC sync precision, online diagnostics, multi-master, real-time performance, error analysis, and hardware verification.
 - **Safety Model** — Explicit safety boundaries with local-only review paths, confirmation dialogs for dangerous operations, and SafetyController validation.
 
 ### Changed
 
 - MainWindow refactored into 31 partial `.cpp` files in `workspaces/` for maintainability
-- ServiceContainer expanded from 11 to 120+ services
+- ServiceContainer service count is defined by the corresponding source tree
 - EventBus maintained 8 event types with type-safe emit methods
 - PluginRegistry supports null/empty/duplicate id guards
 - All service headers include comprehensive documentation comments
-- 89 plugin directories total (69 compiled into binary)
-- 306 registered tests across unit, integration, performance, and boundary categories
+- Plugin count is defined by the corresponding source tree
+- Registered tests across unit, integration, performance, and boundary categories are defined by the corresponding build output
 
 ### Fixed
 
@@ -495,8 +495,8 @@ All notable changes to NekoEcat Studio are documented in this file.
 
 ### Testing
 
-- 306 registered tests covering models, adapters, plugins, services, integration, and boundary cases
-- 330 test files on disk (24 not yet registered in CMake)
-- 15 release smoke tests that must pass before packaging
+- Registered tests covering models, adapters, plugins, services, integration, and boundary cases are defined by the corresponding build output
+- Test files on disk are defined by the corresponding source tree
+- Release smoke coverage should be regenerated for the target packaging build
 - Test categories: model tests, adapter tests, UI state tests, integration tests, performance tests
 - Offscreen Qt platform for headless CI testing
