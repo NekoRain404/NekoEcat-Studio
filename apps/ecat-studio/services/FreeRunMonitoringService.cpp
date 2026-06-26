@@ -1,4 +1,5 @@
 #include "FreeRunMonitoringService.h"
+#include "infra/EcatClient.h"
 
 FreeRunMonitoringService::FreeRunMonitoringService(EcatClient *client,
                                                    EventBus *bus,
@@ -15,6 +16,7 @@ FreeRunMonitoringService::FreeRunMonitoringService(EcatClient *client,
 
 void FreeRunMonitoringService::startMonitoring() {
   if (monitoring_) return;
+  if (!client_ || !client_->isConnected()) return;
   monitoring_ = true;
   pollTimer_->start();
   emit monitoringStateChanged(true);

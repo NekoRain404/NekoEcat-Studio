@@ -3,7 +3,9 @@
 // FreeRunMonitoringService — Free Run process data and performance monitoring.
 //
 // Provides real-time monitoring of process data exchange, performance metrics,
-// error tracking, and Free Run status during operation.
+// error tracking, and Free Run status during operation. Monitoring starts only
+// when a live daemon connection exists; offline calls do not synthesize a
+// running Free Run state.
 //
 // Usage:
 //   FreeRunMonitoringService *svc = new FreeRunMonitoringService(client, eventBus, this);

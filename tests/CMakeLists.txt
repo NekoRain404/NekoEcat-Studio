@@ -7786,11 +7786,18 @@ add_executable(free_run_monitoring_service_test
     free_run_monitoring_service_test.cpp
     ../apps/ecat-studio/services/FreeRunMonitoringService.cpp
     ../apps/ecat-studio/services/FreeRunMonitoringService.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
 )
 target_include_directories(free_run_monitoring_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/src/core
 )
-target_link_libraries(free_run_monitoring_service_test PRIVATE Qt6::Core Qt6::Test)
+target_link_libraries(free_run_monitoring_service_test PRIVATE
+    Qt6::Core Qt6::Network Qt6::Test ecat_core
+)
 set_target_properties(free_run_monitoring_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME free_run_monitoring_service_test COMMAND free_run_monitoring_service_test)
 

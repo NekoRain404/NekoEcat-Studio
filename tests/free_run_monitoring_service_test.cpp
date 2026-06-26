@@ -2,7 +2,7 @@
 //
 // Test coverage:
 //   - Default state
-//   - Start/stop monitoring (including double start/stop)
+//   - Offline monitoring start rejection (including double start/stop)
 //   - Process data update
 //   - Performance metrics update
 //   - Error tracking
@@ -28,7 +28,7 @@ private slots:
   void testStartStop() {
     FreeRunMonitoringService svc(nullptr, nullptr);
     svc.startMonitoring();
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
     QVERIFY(!svc.isMonitoring());
   }
@@ -37,7 +37,7 @@ private slots:
     FreeRunMonitoringService svc(nullptr, nullptr);
     svc.startMonitoring();
     svc.startMonitoring();
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
   }
 
@@ -125,15 +125,15 @@ private slots:
     QSignalSpy spy(&svc, &FreeRunMonitoringService::monitoringStateChanged);
     svc.startMonitoring();
     svc.stopMonitoring();
-    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testStopUpdatesStatus() {
     FreeRunMonitoringService svc(nullptr, nullptr);
     svc.startMonitoring();
     svc.stopMonitoring();
-    QCOMPARE(svc.status().state, FreeRunState::Stopped);
-    QCOMPARE(svc.status().stateString, QStringLiteral("Stopped"));
+    QCOMPARE(svc.status().state, FreeRunState::Idle);
+    QCOMPARE(svc.status().stateString, QStringLiteral("Idle"));
   }
 };
 
