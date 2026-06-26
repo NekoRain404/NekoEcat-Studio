@@ -1,9 +1,10 @@
 #pragma once
 
-// EtherCATBackupService — backup management for EtherCAT system state.
+// EtherCATBackupService — backup request facade for EtherCAT system state.
 //
-// Supports full, incremental, differential, and selective backups.
-// Each backup operation returns a BackupResult with path, size, and status.
+// Full, incremental, differential, selective backup, and restore requests fail
+// closed until a live backup/restore backend can collect and apply real
+// EtherCAT state.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -40,10 +41,10 @@ signals:
   void restoreCompleted(bool success);
 
 private:
+  EcatBackupResult rejectBackup(const QString &err);
   EcatBackupResult makeResult(const QString &path, qint64 size,
                               const QStringList &items, bool ok,
                               const QString &err);
 
   QString backupDir_;
-  QDateTime lastBackupTime_;
 };

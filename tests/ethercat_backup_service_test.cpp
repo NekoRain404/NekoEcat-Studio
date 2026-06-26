@@ -2,13 +2,13 @@
 //
 // Test coverage:
 //   - Default and custom backup directory
-//   - Full, incremental, differential, and selective backup
-//   - Restore backup and restore non-existent file
-//   - Backup and restore signal emission
+//   - Full, incremental, differential, and selective backup fail closed without a source
+//   - Restore backup fails closed without a restore backend
 
 #include <QTest>
 #include <QSignalSpy>
 #include <QTemporaryDir>
+#include <QFile>
 #include "services/EtherCATBackupService.h"
 
 class EtherCATBackupServiceTest : public QObject {
@@ -27,8 +27,8 @@ private slots:
     QCOMPARE(svc.backupDirectory(), QStringLiteral("/tmp/mybackups"));
   }
 
-  // Verify full backup succeeds and emits signal
-  void testCreateFullBackup() {
+  // Verify full backup fails closed without a live source.
+  void testCreateFullBackupFailsClosedWithoutSource() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
@@ -36,38 +36,38 @@ private slots:
 
     QSignalSpy spy(&svc, &EtherCATBackupService::backupCompleted);
     auto result = svc.createFullBackup();
-    QVERIFY(result.success);
-    QVERIFY(!result.backupPath.isEmpty());
-    QVERIFY(result.backupSize > 0);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!result.success);
+    QVERIFY(result.backupPath.isEmpty());
+    QCOMPARE(result.backupSize, 0);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Verify incremental backup contains changed configs
-  void testCreateIncrementalBackup() {
+  // Verify incremental backup fails closed without a live source.
+  void testCreateIncrementalBackupFailsClosedWithoutSource() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     svc.setBackupDirectory(dir.path());
 
     auto result = svc.createIncrementalBackup();
-    QVERIFY(result.success);
-    QVERIFY(result.items.contains(QStringLiteral("changed_configs")));
+    QVERIFY(!result.success);
+    QVERIFY(result.items.isEmpty());
   }
 
-  // Verify differential backup contains all configs
-  void testCreateDifferentialBackup() {
+  // Verify differential backup fails closed without a live source.
+  void testCreateDifferentialBackupFailsClosedWithoutSource() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     svc.setBackupDirectory(dir.path());
 
     auto result = svc.createDifferentialBackup();
-    QVERIFY(result.success);
-    QVERIFY(result.items.contains(QStringLiteral("all_configs")));
+    QVERIFY(!result.success);
+    QVERIFY(result.items.isEmpty());
   }
 
-  // Verify selective backup includes only specified items
-  void testCreateSelectiveBackup() {
+  // Verify selective backup fails closed without a live source.
+  void testCreateSelectiveBackupFailsClosedWithoutSource() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
@@ -76,25 +76,28 @@ private slots:
     QStringList items;
     items << QStringLiteral("master_config") << QStringLiteral("timing_config");
     auto result = svc.createSelectiveBackup(items);
-    QVERIFY(result.success);
-    QCOMPARE(result.items.size(), 2);
+    QVERIFY(!result.success);
+    QVERIFY(result.items.isEmpty());
   }
 
-  // Verify restore from valid backup succeeds and emits signal
-  void testRestoreBackup() {
+  // Verify restore does not treat local JSON as a successful device restore.
+  void testRestoreBackupFailsClosedWithoutBackend() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     svc.setBackupDirectory(dir.path());
 
-    auto backup = svc.createFullBackup();
-    QVERIFY(backup.success);
+    const QString backupPath = dir.path() + QStringLiteral("/backup.json");
+    QFile f(backupPath);
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("{\"type\":\"full\"}");
+    f.close();
 
     QSignalSpy spy(&svc, &EtherCATBackupService::restoreCompleted);
-    bool ok = svc.restoreBackup(backup.backupPath);
-    QVERIFY(ok);
+    bool ok = svc.restoreBackup(backupPath);
+    QVERIFY(!ok);
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toBool(), true);
+    QCOMPARE(spy.at(0).at(0).toBool(), false);
   }
 
   // Verify restore from non-existent file fails
@@ -107,8 +110,8 @@ private slots:
     QCOMPARE(spy.at(0).at(0).toBool(), false);
   }
 
-  // Verify all backup types emit backupCompleted signal
-  void testBackupSignals() {
+  // Verify rejected backup requests do not emit completed signals.
+  void testBackupSignalsNotEmittedWithoutSource() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
@@ -116,15 +119,26 @@ private slots:
 
     QSignalSpy fullSpy(&svc, &EtherCATBackupService::backupCompleted);
     svc.createFullBackup();
-    QCOMPARE(fullSpy.count(), 1);
+    QCOMPARE(fullSpy.count(), 0);
 
     QSignalSpy incrSpy(&svc, &EtherCATBackupService::backupCompleted);
     svc.createIncrementalBackup();
-    QCOMPARE(incrSpy.count(), 1);
+    QCOMPARE(incrSpy.count(), 0);
 
     QSignalSpy diffSpy(&svc, &EtherCATBackupService::backupCompleted);
     svc.createDifferentialBackup();
-    QCOMPARE(diffSpy.count(), 1);
+    QCOMPARE(diffSpy.count(), 0);
+  }
+
+  void testImplementationDoesNotContainSyntheticBackupPayloads() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATBackupService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("master_config")),
+             "Backup service must not hard-code EtherCAT backup payloads");
+    QVERIFY2(!text.contains(QStringLiteral("emit restoreCompleted(true)")),
+             "Backup service must not report local JSON validation as restore success");
   }
 };
 

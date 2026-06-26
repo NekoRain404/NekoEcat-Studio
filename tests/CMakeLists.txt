@@ -5214,6 +5214,9 @@ target_link_libraries(ethercat_backup_service_test PRIVATE Qt6::Core Qt6::Test)
 target_include_directories(ethercat_backup_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
 )
+target_compile_definitions(ethercat_backup_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 set_target_properties(ethercat_backup_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_backup_service_test COMMAND ethercat_backup_service_test)
 

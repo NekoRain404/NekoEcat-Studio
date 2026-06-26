@@ -1,40 +1,41 @@
 #include <QTest>
 #include <QElapsedTimer>
 #include <QTemporaryDir>
+#include <QFile>
 #include "services/EtherCATBackupService.h"
 
 class EtherCATBackupPerformanceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testCreateFullBackupPerformance() {
+  void testCreateFullBackupRejectionThroughput() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     svc.setBackupDirectory(dir.path());
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.createFullBackup();
+      QVERIFY(!svc.createFullBackup().success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "1000 createFullBackup() calls:" << elapsed << "ms";
+    qDebug() << "1000 createFullBackup() rejections:" << elapsed << "ms";
   }
 
-  void testCreateIncrementalBackupPerformance() {
+  void testCreateIncrementalBackupRejectionThroughput() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     svc.setBackupDirectory(dir.path());
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.createIncrementalBackup();
+      QVERIFY(!svc.createIncrementalBackup().success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "1000 createIncrementalBackup() calls:" << elapsed << "ms";
+    qDebug() << "1000 createIncrementalBackup() rejections:" << elapsed << "ms";
   }
 
-  void testCreateSelectiveBackupPerformance() {
+  void testCreateSelectiveBackupRejectionThroughput() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     svc.setBackupDirectory(dir.path());
@@ -43,43 +44,47 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.createSelectiveBackup(items);
+      QVERIFY(!svc.createSelectiveBackup(items).success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "1000 createSelectiveBackup() calls:" << elapsed << "ms";
+    qDebug() << "1000 createSelectiveBackup() rejections:" << elapsed << "ms";
   }
 
-  void testRestoreBackupPerformance() {
+  void testRestoreBackupRejectionThroughput() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     svc.setBackupDirectory(dir.path());
-    auto backup = svc.createFullBackup();
+    const QString backupPath = dir.path() + QStringLiteral("/backup.json");
+    QFile f(backupPath);
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("{\"type\":\"full\"}");
+    f.close();
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.restoreBackup(backup.backupPath);
+      QVERIFY(!svc.restoreBackup(backupPath));
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "1000 restoreBackup() calls:" << elapsed << "ms";
+    qDebug() << "1000 restoreBackup() rejections:" << elapsed << "ms";
   }
 
-  void testMixedBackupPerformance() {
+  void testMixedBackupRejectionThroughput() {
     EtherCATBackupService svc;
     QTemporaryDir dir;
     svc.setBackupDirectory(dir.path());
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 250; i++) {
-      svc.createFullBackup();
-      svc.createIncrementalBackup();
-      svc.createDifferentialBackup();
-      svc.createSelectiveBackup({"config"});
+      QVERIFY(!svc.createFullBackup().success);
+      QVERIFY(!svc.createIncrementalBackup().success);
+      QVERIFY(!svc.createDifferentialBackup().success);
+      QVERIFY(!svc.createSelectiveBackup({"config"}).success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "1000 mixed backup calls:" << elapsed << "ms";
+    qDebug() << "1000 mixed backup rejections:" << elapsed << "ms";
   }
 };
 
