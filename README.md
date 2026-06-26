@@ -563,8 +563,8 @@ Project files are JSON-based `.ecatproj` files. New files use the `NekoEcatStudi
 
 ## 测试 / Testing
 
-默认稳定构建当前注册 285 个 CTest；启用实验服务会增加额外测试。测试覆盖单元、集成、边界和性能场景。
-The stable default build currently registers 285 CTest entries; enabling experimental services adds extra tests. Coverage includes unit, integration, boundary, and performance scenarios.
+默认稳定构建的 CTest 注册数量以当前构建目录输出为准；启用实验服务会增加额外测试。测试覆盖单元、集成、边界和性能场景。
+The stable default CTest registration count is defined by the current build directory output; enabling experimental services adds extra tests. Coverage includes unit, integration, boundary, and performance scenarios.
 
 ### 测试分类 / Test Categories
 
