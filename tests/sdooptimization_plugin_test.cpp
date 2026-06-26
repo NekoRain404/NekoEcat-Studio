@@ -3,6 +3,7 @@
 // Test coverage:
 //   - Plugin identity and ordering
 //   - Widget creation
+//   - Offline service apply fails closed
 //   - Cache optimizer widget
 //   - Batch optimizer widget
 //   - Export button
@@ -10,6 +11,7 @@
 #include <QTest>
 #include <QLabel>
 #include <QPushButton>
+#include <QSignalSpy>
 #include <QTabWidget>
 #include "plugins/sdooptimization/SdoOptimizationPlugin.h"
 #include "plugins/sdooptimization/CacheOptimizerWidget.h"
@@ -49,6 +51,19 @@ private slots:
     EventBus bus;
     SdoOptimizationPlugin p(&client, &bus);
     QVERIFY(p.widget() != nullptr);
+  }
+
+  void testServiceApplyOptimizationOfflineFailsClosed() {
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &SdoOptimizationService::optimizationApplied);
+    QVERIFY(spy.isValid());
+
+    const SdoOptimizationResult result = svc.optimizeCache();
+    QVERIFY(!svc.applyOptimization(result));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(svc.optimizationHistory().isEmpty());
   }
 
   void testCacheOptimizerNotNull() {

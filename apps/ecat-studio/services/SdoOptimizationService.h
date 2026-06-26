@@ -3,7 +3,8 @@
 // SdoOptimizationService — SDO communication optimization.
 //
 // Provides cache optimization, batch optimization, performance optimization,
-// and error handling optimization for EtherCAT SDO transfers.
+// and error handling optimization recommendations for EtherCAT SDO transfers.
+// Applying a recommendation requires a live daemon connection.
 //
 // Usage:
 //   SdoOptimizationService *svc = new SdoOptimizationService(client, bus, this);
@@ -43,6 +44,8 @@ public:
   SdoOptimizationResult optimizePerformance();
   SdoOptimizationResult optimizeErrorHandling();
 
+  // Apply an optimization to live SDO communication settings.
+  // Returns false while offline instead of recording a synthetic applied item.
   bool applyOptimization(const SdoOptimizationResult &result);
 
   QVector<SdoOptimizationResult> optimizationHistory() const { return history_; }
