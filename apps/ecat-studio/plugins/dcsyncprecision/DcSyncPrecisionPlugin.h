@@ -49,6 +49,7 @@ public:
   QTableWidget *syncTable() const { return syncTable_; }
   QPushButton *startStopButton() const { return startStopBtn_; }
   QPushButton *exportButton() const { return exportBtn_; }
+  bool exportReportToFile(const QString &path);
 
 private slots:
   void handleStartStop();

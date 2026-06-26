@@ -11,6 +11,8 @@
 //   - Export button
 
 #include <QTest>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QLabel>
 #include <QPushButton>
@@ -18,6 +20,7 @@
 #include <QDoubleSpinBox>
 #include <QTabWidget>
 #include <QTableWidget>
+#include <QTemporaryDir>
 #include "plugins/dcsyncprecision/DcSyncPrecisionPlugin.h"
 #include "plugins/dcsyncprecision/DriftMonitorWidget.h"
 #include "plugins/dcsyncprecision/JitterAnalysisWidget.h"
@@ -180,6 +183,30 @@ private slots:
     DcSyncPrecisionPlugin p(&client, &bus);
     QVERIFY(p.exportButton() != nullptr);
     QVERIFY(!p.exportButton()->isEnabled());
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    EcatClient client;
+    EventBus bus;
+    DcSyncPrecisionPlugin p(&client, &bus);
+
+    const QString path = dir.filePath("dc_sync_precision.md");
+    QVERIFY(p.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString markdown = QString::fromUtf8(file.readAll());
+    QVERIFY(markdown.startsWith(QStringLiteral("# DC Sync Precision Report\n")));
+    QVERIFY(markdown.contains(QStringLiteral("## Sync Quality")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!p.exportReportToFile(QString()));
+    QVERIFY(!p.exportReportToFile(dir.path()));
   }
 };
 

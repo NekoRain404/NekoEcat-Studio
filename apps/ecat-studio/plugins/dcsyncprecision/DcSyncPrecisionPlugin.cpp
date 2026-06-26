@@ -267,8 +267,14 @@ void DcSyncPrecisionPlugin::handleExport() {
       "Markdown (*.md);;Text (*.txt)");
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool DcSyncPrecisionPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "# DC Sync Precision Report\n\n";
@@ -297,4 +303,5 @@ void DcSyncPrecisionPlugin::handleExport() {
         << QString::number(ds.drift, 'f', 1) << " | "
         << ds.status << " |\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }
