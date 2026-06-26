@@ -77,7 +77,7 @@ signals:
   void stepChanged(int step);
 
 public slots:
-  void exportHistory(const QString &path);
+  bool exportHistory(const QString &path);
 
 private:
   void buildUi();

@@ -134,16 +134,18 @@ QListWidget *WizardPlugin::wizardList() const { return wizardList_; }
 QTableWidget *WizardPlugin::stepTable() const { return stepTable_; }
 QTableWidget *WizardPlugin::historyTable() const { return historyTable_; }
 
-void WizardPlugin::exportHistory(const QString &path) {
+bool WizardPlugin::exportHistory(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &h : history_) {
-      out << h.wizardId << "," << h.wizardName << ","
-          << h.completedAt.toString(Qt::ISODate) << ","
-          << (h.success ? "success" : "failed") << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &h : history_) {
+    out << h.wizardId << "," << h.wizardName << ","
+        << h.completedAt.toString(Qt::ISODate) << ","
+        << (h.success ? "success" : "failed") << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 void WizardPlugin::buildUi() {

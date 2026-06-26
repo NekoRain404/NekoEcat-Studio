@@ -12,6 +12,9 @@
 //   - Multiple wizard runs
 //   - Custom wizard steps
 //   - Export history
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QListWidget>
@@ -211,14 +214,26 @@ private slots:
   // Export wizard history to CSV file
   void testExportHistory() {
     WizardPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
     plugin.startWizard("network_setup");
     plugin.finishWizard(true);
 
-    QString path = QDir::temp().absoluteFilePath("wizard_history_test.csv");
-    plugin.exportHistory(path);
+    const QString path = dir.filePath("wizard_history_test.csv");
+    QVERIFY(plugin.exportHistory(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.contains(QStringLiteral("network_setup,Network Setup,")));
+    QVERIFY(csv.contains(QStringLiteral(",success\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportHistory(QString()));
+    QVERIFY(!plugin.exportHistory(dir.path()));
   }
 };
 
