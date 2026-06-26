@@ -12,6 +12,7 @@
 #include <QTest>
 #include <QSignalSpy>
 #include "services/FreeRunConfigurationService.h"
+#include "infra/EcatClient.h"
 
 class FreeRunConfigurationServiceTest : public QObject {
   Q_OBJECT
@@ -119,6 +120,19 @@ private slots:
     ProcessDataConfig pdConfig;
     pdConfig.inputs = {0x6000};
     svc.configureProcessData(pdConfig);
+    QVERIFY(!svc.applyConfiguration());
+    QVERIFY(!svc.isApplied());
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testApplyConfigurationFailsClosedWithDisconnectedClient() {
+    EcatClient client;
+    FreeRunConfigurationService svc(&client, nullptr);
+    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
+
+    ProcessDataConfig pdConfig;
+    pdConfig.inputs = {0x6000};
+    QVERIFY(svc.configureProcessData(pdConfig));
     QVERIFY(!svc.applyConfiguration());
     QVERIFY(!svc.isApplied());
     QCOMPARE(spy.count(), 0);

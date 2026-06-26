@@ -3,7 +3,8 @@
 // FreeRunConfigurationService — Free Run process data configuration management.
 //
 // Manages configuration for Free Run mode including process data layout,
-// cycle time, data mapping, and error handling policies.
+// cycle time, data mapping, and error handling policies. Configuration can be
+// staged offline; applying it requires a live daemon connection.
 //
 // Usage:
 //   FreeRunConfigurationService *svc = new FreeRunConfigurationService(client, eventBus, this);
@@ -55,6 +56,9 @@ public:
   bool configureCycleTime(int cycleTimeUs);
   bool configureDataMapping(const DataMappingConfig &config);
   bool configureErrorHandling(const ErrorHandlingConfig &config);
+
+  // Apply the staged Free Run configuration to the live daemon.
+  // Returns false while offline instead of marking the configuration applied.
   bool applyConfiguration();
 
   ProcessDataConfig processDataConfig() const { return pdConfig_; }

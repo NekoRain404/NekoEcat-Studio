@@ -1,4 +1,5 @@
 #include "FreeRunConfigurationService.h"
+#include "infra/EcatClient.h"
 
 FreeRunConfigurationService::FreeRunConfigurationService(EcatClient *client,
                                                          EventBus *bus,
@@ -56,7 +57,7 @@ bool FreeRunConfigurationService::configureErrorHandling(
 bool FreeRunConfigurationService::applyConfiguration() {
   if (pdConfig_.inputs.isEmpty() && pdConfig_.outputs.isEmpty())
     return false;
-  if (!client_)
+  if (!client_ || !client_->isConnected())
     return false;
 
   applied_ = true;
