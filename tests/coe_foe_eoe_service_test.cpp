@@ -130,9 +130,9 @@ private slots:
         EoEService eoe(&client);
         QSignalSpy spy(&eoe, &EoEService::frameSent);
         bool result = eoe.sendEthernetFrame(1, QByteArray(64, 0xFF));
-        QVERIFY(result);
+        QVERIFY(!result);
         QCOMPARE(spy.count(), 1);
-        QVERIFY(spy.at(0).at(1).toBool());
+        QVERIFY(!spy.at(0).at(1).toBool());
     }
 
     // Verify empty frame send returns error
@@ -150,9 +150,10 @@ private slots:
         EcatClient client;
         EoEService eoe(&client);
         QSignalSpy spy(&eoe, &EoEService::frameReceived);
+        QSignalSpy errorSpy(&eoe, &EoEService::error);
         eoe.receiveEthernetFrame(1);
-        QCOMPARE(spy.count(), 1);
-        QCOMPARE(spy.at(0).at(1).toByteArray().size(), 64);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify IP configuration
@@ -160,10 +161,11 @@ private slots:
         EcatClient client;
         EoEService eoe(&client);
         QSignalSpy spy(&eoe, &EoEService::ipConfigured);
+        QSignalSpy errorSpy(&eoe, &EoEService::error);
         bool result = eoe.configureIp(1, "192.168.1.100", "255.255.255.0");
-        QVERIFY(result);
-        QCOMPARE(spy.count(), 1);
-        QCOMPARE(spy.at(0).at(1).toString(), QString("192.168.1.100"));
+        QVERIFY(!result);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify learned MACs retrieval
@@ -171,11 +173,33 @@ private slots:
         EcatClient client;
         EoEService eoe(&client);
         QSignalSpy spy(&eoe, &EoEService::macListReceived);
+        QSignalSpy errorSpy(&eoe, &EoEService::error);
         eoe.learnedMacs(1);
-        QCOMPARE(spy.count(), 1);
-        auto macs = spy.at(0).at(1).toStringList();
-        QCOMPARE(macs.size(), 2);
-        QVERIFY(macs.contains("00:11:22:33:44:55"));
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
+    }
+
+    void testEoEDisconnectedClientDoesNotReportProtocolSuccess() {
+        EcatClient client;
+        QVERIFY(!client.isConnected());
+        EoEService eoe(&client);
+        QSignalSpy frameSentSpy(&eoe, &EoEService::frameSent);
+        QSignalSpy frameReceivedSpy(&eoe, &EoEService::frameReceived);
+        QSignalSpy ipSpy(&eoe, &EoEService::ipConfigured);
+        QSignalSpy macSpy(&eoe, &EoEService::macListReceived);
+        QSignalSpy errorSpy(&eoe, &EoEService::error);
+
+        QVERIFY(!eoe.sendEthernetFrame(1, QByteArray(64, 0xFF)));
+        eoe.receiveEthernetFrame(1);
+        QVERIFY(!eoe.configureIp(1, "192.168.1.100", "255.255.255.0"));
+        eoe.learnedMacs(1);
+
+        QCOMPARE(frameSentSpy.count(), 1);
+        QVERIFY(!frameSentSpy.at(0).at(1).toBool());
+        QCOMPARE(frameReceivedSpy.count(), 0);
+        QCOMPARE(ipSpy.count(), 0);
+        QCOMPARE(macSpy.count(), 0);
+        QVERIFY(errorSpy.count() >= 4);
     }
 };
 

@@ -5,8 +5,8 @@
 //
 // Implementation notes:
 //   - Wraps EcatClient error forwarding for unified error signaling
-//   - Frame send/receive and IP configuration are currently stubbed
-//   - MAC learning returns simulated address lists
+//   - Frame send/receive and IP configuration require a connected daemon
+//   - MAC learning is unavailable until daemon-backed EoE support is wired in
 
 EoEService::EoEService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {
@@ -19,25 +19,43 @@ bool EoEService::sendEthernetFrame(int position, const QByteArray &frame) {
         emit error("Cannot send empty Ethernet frame");
         return false;
     }
-    emit frameSent(position, true);
-    return true;
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot send EoE frame: EtherCAT daemon is not connected");
+        emit frameSent(position, false);
+        return false;
+    }
+    emit error("EoE frame send is not implemented by the daemon backend");
+    emit frameSent(position, false);
+    return false;
 }
 
 void EoEService::receiveEthernetFrame(int position) {
-    QByteArray frame;
-    frame.fill(0, 64);
-    emit frameReceived(position, frame);
+    Q_UNUSED(position);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot receive EoE frame: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("EoE frame receive is not implemented by the daemon backend");
 }
 
 bool EoEService::configureIp(int position, const QString &ip,
                               const QString &subnet) {
+    Q_UNUSED(position);
+    Q_UNUSED(ip);
     Q_UNUSED(subnet);
-    emit ipConfigured(position, ip);
-    return true;
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot configure EoE IP: EtherCAT daemon is not connected");
+        return false;
+    }
+    emit error("EoE IP configuration is not implemented by the daemon backend");
+    return false;
 }
 
 void EoEService::learnedMacs(int position) {
-    QStringList macs;
-    macs << "00:11:22:33:44:55" << "AA:BB:CC:DD:EE:FF";
-    emit macListReceived(position, macs);
+    Q_UNUSED(position);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot query EoE MAC list: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("EoE MAC learning is not implemented by the daemon backend");
 }
