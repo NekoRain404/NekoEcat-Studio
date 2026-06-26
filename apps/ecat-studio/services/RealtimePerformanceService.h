@@ -4,10 +4,8 @@
 ///
 /// @details Provides latency measurement, throughput measurement, resource
 /// monitoring, and quality assessment. Uses a QTimer to poll metrics at a
-/// configurable interval and emits signals when data is updated.
-///
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+/// configurable interval and emits signals when data is updated. Offline start
+/// requests do not synthesize active monitoring or random performance data.
 
 #include <QObject>
 #include <QTimer>

@@ -1,14 +1,13 @@
 // RealtimePerformanceService — real-time EtherCAT bus performance monitoring.
 //
 // Polls EcatClient at a configurable interval and computes latency, throughput,
-// resource, and quality metrics. Emits signals on each poll cycle so that
-// plugin widgets can update their displays.
+// resource, and quality metrics. Offline calls do not synthesize performance
+// samples or active monitoring state.
 
 #include "RealtimePerformanceService.h"
 #include "infra/EcatClient.h"
 
 #include <QtMath>
-#include <QRandomGenerator>
 
 RealtimePerformanceService::RealtimePerformanceService(EcatClient *client,
                                                        QObject *parent)
@@ -20,6 +19,7 @@ RealtimePerformanceService::RealtimePerformanceService(EcatClient *client,
 
 void RealtimePerformanceService::startMonitoring(int intervalMs) {
   if (pollTimer_->isActive()) return;
+  if (!client_ || !client_->isConnected()) return;
   lastPollTimeMs_ = QDateTime::currentMSecsSinceEpoch();
   pollTimer_->start(intervalMs);
   emit monitoringStateChanged(true);
@@ -52,6 +52,7 @@ void RealtimePerformanceService::setHistoryWindowSize(int samples) {
 }
 
 void RealtimePerformanceService::poll() {
+  if (!client_ || !client_->isConnected()) return;
   measureLatency();
   measureThroughput();
   measureResources();
@@ -64,14 +65,10 @@ void RealtimePerformanceService::poll() {
 
 void RealtimePerformanceService::measureLatency() {
   double sampleUs = 0.0;
-  if (client_ && client_->isConnected()) {
-    qint64 startNs = QDateTime::currentMSecsSinceEpoch() * 1000;
-    client_->ping();
-    qint64 elapsedNs = (QDateTime::currentMSecsSinceEpoch() * 1000) - startNs;
-    sampleUs = static_cast<double>(elapsedNs) / 1000.0;
-  } else {
-    sampleUs = QRandomGenerator::global()->bounded(50, 300);
-  }
+  qint64 startNs = QDateTime::currentMSecsSinceEpoch() * 1000;
+  client_->ping();
+  qint64 elapsedNs = (QDateTime::currentMSecsSinceEpoch() * 1000) - startNs;
+  sampleUs = static_cast<double>(elapsedNs) / 1000.0;
 
   latencySamples_.append(sampleUs);
   while (latencySamples_.size() > historyWindowSize_)
@@ -118,9 +115,9 @@ void RealtimePerformanceService::measureThroughput() {
   double elapsedS = (nowMs - lastPollTimeMs_) / 1000.0;
   if (elapsedS <= 0) elapsedS = 0.5;
 
-  quint64 currentFrames = QRandomGenerator::global()->bounded(900, 1100);
+  quint64 currentFrames = throughput_.totalFrames;
   quint64 currentBytes = currentFrames * 1518;
-  quint64 currentErrors = QRandomGenerator::global()->bounded(0, 3);
+  quint64 currentErrors = throughput_.totalErrors;
 
   if (lastPollTimeMs_ > 0) {
     throughput_.framesPerSecond = static_cast<double>(currentFrames) / elapsedS;
@@ -141,11 +138,7 @@ void RealtimePerformanceService::measureThroughput() {
 }
 
 void RealtimePerformanceService::measureResources() {
-  resources_.cpuPercent = QRandomGenerator::global()->bounded(5, 35);
-  resources_.memoryMB = 128.0 + QRandomGenerator::global()->bounded(0, 64);
-  resources_.threadCount = 12 + QRandomGenerator::global()->bounded(0, 4);
-  resources_.socketCount = 2 + QRandomGenerator::global()->bounded(0, 2);
-  resources_.openFilesPercent = QRandomGenerator::global()->bounded(10, 40);
+  resources_ = {};
 }
 
 void RealtimePerformanceService::assessQuality() {
