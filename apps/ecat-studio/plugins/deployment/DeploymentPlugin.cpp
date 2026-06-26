@@ -251,35 +251,22 @@ void DeploymentPlugin::deploy(const QString &targetId, const QString &packageId)
     }
   }
 
-  record.status = "Success";
+  record.status = "Rejected";
   record.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-  record.log = tr("Deployment of %1 v%2 to %3 completed successfully.")
+  record.log = tr("Deployment of %1 v%2 to %3 requires a deployment backend acknowledgement.")
     .arg(record.packageName, record.version, record.targetName);
 
   emit deploymentStarted(targetId, packageId);
   addDeploymentRecord(record);
-  emit deploymentFinished(record.id, record.status);
 }
 
 void DeploymentPlugin::rollback(const QString &deploymentId) {
-  DeploymentRecord record;
-  record.id = QString("deploy_%1").arg(nextRecordId_++);
-  record.status = "Rolled Back";
-  record.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-
   for (const auto &r : records_) {
-    if (r.id == deploymentId) {
-      record.targetName = r.targetName;
-      record.packageName = r.packageName;
-      record.version = r.version;
-      record.log = tr("Rollback of %1 v%2 from %3 completed.")
-        .arg(r.packageName, r.version, r.targetName);
-      break;
+    if (r.id == deploymentId && r.status == QStringLiteral("Success")) {
+      emit rollbackRequested(deploymentId);
+      return;
     }
   }
-
-  addDeploymentRecord(record);
-  emit rollbackRequested(deploymentId);
 }
 
 void DeploymentPlugin::addDeploymentRecord(const DeploymentRecord &record) {

@@ -5309,6 +5309,9 @@ add_executable(deployment_plugin_test
 target_link_libraries(deployment_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(deployment_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
 set_target_properties(deployment_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(deployment_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME deployment_plugin_test COMMAND deployment_plugin_test)
 set_tests_properties(deployment_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 

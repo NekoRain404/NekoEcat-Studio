@@ -45,9 +45,9 @@ private slots:
   void updateTargetStatus();
   // Verify adding and removing packages updates count correctly
   void addAndRemovePackages();
-  // Verify deploy emits start/finish signals and adds history record
+  // Verify deploy fails closed without deployment backend acknowledgement
   void deploy();
-  // Verify rollback emits signal and adds "Rolled Back" history entry
+  // Verify rollback does not synthesize completion without a successful deploy
   void rollback();
   // Verify manual deployment record can be added
   void deploymentRecords();
@@ -57,6 +57,8 @@ private slots:
   void exportLog();
   // Verify all expected signals are emitted on operations
   void signalEmissions();
+  // Verify source does not mint success without backend acknowledgement
+  void sourceDoesNotMintSyntheticDeploymentSuccess();
 
 private:
   DeploymentPlugin *plugin_ = nullptr;
@@ -172,10 +174,10 @@ void TestDeploymentPlugin::deploy() {
   plugin_->deploy("target_1", "pkg_1");
 
   QCOMPARE(startSpy.count(), 1);
-  QCOMPARE(finishSpy.count(), 1);
-  QCOMPARE(finishSpy.at(0).at(1).toString(), QString("Success"));
+  QCOMPARE(finishSpy.count(), 0);
   QCOMPARE(plugin_->deploymentHistoryCount(), 1);
   QCOMPARE(plugin_->deploymentHistory()->rowCount(), 1);
+  QCOMPARE(plugin_->deploymentHistory()->item(0, 3)->text(), QString("Rejected"));
 
   plugin_->removeTarget("target_1");
   plugin_->removePackage("pkg_1");
@@ -193,9 +195,9 @@ void TestDeploymentPlugin::rollback() {
   QSignalSpy rollbackSpy(plugin_, &DeploymentPlugin::rollbackRequested);
   plugin_->rollback("deploy_1");
 
-  QCOMPARE(rollbackSpy.count(), 1);
-  QCOMPARE(plugin_->deploymentHistoryCount(), 2);
-  QCOMPARE(plugin_->deploymentHistory()->item(1, 3)->text(), QString("Rolled Back"));
+  QCOMPARE(rollbackSpy.count(), 0);
+  QCOMPARE(plugin_->deploymentHistoryCount(), 1);
+  QCOMPARE(plugin_->deploymentHistory()->item(0, 3)->text(), QString("Rejected"));
 
   plugin_->removeTarget("target_1");
   plugin_->removePackage("pkg_1");
@@ -211,7 +213,7 @@ void TestDeploymentPlugin::deploymentRecords() {
   record.targetName = "test-target";
   record.packageName = "test-pkg";
   record.version = "1.0.0";
-  record.status = "Success";
+  record.status = "Rejected";
   record.timestamp = "2025-01-01T00:00:00";
   record.log = "Manual test deployment";
 
@@ -228,6 +230,7 @@ void TestDeploymentPlugin::clearHistory() {
   plugin_->addTarget("ClearTarget", "192.168.1.70", "remote");
   plugin_->addPackage("clear-pkg", "1.0.0");
   plugin_->deploy("target_1", "pkg_1");
+  QCOMPARE(plugin_->deploymentHistory()->item(0, 3)->text(), QString("Rejected"));
 
   QCOMPARE(plugin_->deploymentHistoryCount(), 1);
 
@@ -246,6 +249,7 @@ void TestDeploymentPlugin::exportLog() {
   plugin_->addTarget("ExportTarget", "192.168.1.80", "remote");
   plugin_->addPackage("export-pkg", "1.0.0");
   plugin_->deploy("target_1", "pkg_1");
+  QCOMPARE(plugin_->deploymentHistory()->item(0, 3)->text(), QString("Rejected"));
 
   QString tmpPath = QDir::tempPath() + "/deployment_log.json";
   QVERIFY(plugin_->exportDeploymentLog(tmpPath));
@@ -278,7 +282,7 @@ void TestDeploymentPlugin::signalEmissions() {
 
   plugin_->deploy("target_1", "pkg_1");
   QCOMPARE(deploySpy.count(), 1);
-  QCOMPARE(finishSpy.count(), 1);
+  QCOMPARE(finishSpy.count(), 0);
 
   plugin_->removeTarget("target_1");
   QCOMPARE(targetRemoveSpy.count(), 1);
@@ -287,6 +291,21 @@ void TestDeploymentPlugin::signalEmissions() {
   QCOMPARE(pkgRemoveSpy.count(), 1);
 
   plugin_->clearHistory();
+}
+
+void TestDeploymentPlugin::sourceDoesNotMintSyntheticDeploymentSuccess() {
+  QFile file(QStringLiteral(SOURCE_ROOT
+                            "/apps/ecat-studio/plugins/deployment/DeploymentPlugin.cpp"));
+  QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+           qPrintable(file.errorString()));
+  const QString source = QString::fromUtf8(file.readAll());
+
+  QVERIFY2(!source.contains(QStringLiteral("record.status = \"Success\"")),
+           "Deployment UI must not mark deployments successful without backend acknowledgement");
+  QVERIFY2(!source.contains(QStringLiteral("completed successfully")),
+           "Deployment UI must not log synthetic successful completion");
+  QVERIFY2(!source.contains(QStringLiteral("record.status = \"Rolled Back\"")),
+           "Deployment UI must not mark rollback complete without backend acknowledgement");
 }
 
 QTEST_MAIN(TestDeploymentPlugin)
