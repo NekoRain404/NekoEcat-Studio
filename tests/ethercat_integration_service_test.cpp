@@ -1,11 +1,11 @@
 // EtherCATIntegrationServiceTest — Tests for EtherCATIntegrationService
 //
 // Test coverage:
-//   - PLC connection (valid, empty IP, zero port)
-//   - SCADA connection (valid, empty URL)
-//   - MES connection (valid, empty endpoint)
-//   - ERP connection (valid, empty host)
-//   - Data synchronization and signal emission
+//   - PLC connection fails closed offline (valid, empty IP, zero port)
+//   - SCADA connection fails closed offline (valid, empty URL)
+//   - MES connection fails closed offline (valid, empty endpoint)
+//   - ERP connection fails closed offline (valid, empty host)
+//   - Data synchronization and success signals are not synthesized offline
 
 #include <QTest>
 #include <QSignalSpy>
@@ -14,13 +14,13 @@
 class EtherCATIntegrationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Verify valid PLC config connects successfully
-  void testConnectToPLCValid() {
+  // Verify valid PLC config fails closed without a live integration backend.
+  void testConnectToPLCFailsClosedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     PlcConfig cfg;
     cfg.ipAddress = QStringLiteral("192.168.1.1");
     cfg.port = 502;
-    QVERIFY(svc.connectToPLC(cfg));
+    QVERIFY(!svc.connectToPLC(cfg));
   }
 
   // Verify PLC connection fails with empty IP
@@ -40,13 +40,13 @@ private slots:
     QVERIFY(!svc.connectToPLC(cfg));
   }
 
-  // Verify valid SCADA config connects successfully
-  void testConnectToSCADAValid() {
+  // Verify valid SCADA config fails closed without a live integration backend.
+  void testConnectToSCADAFailsClosedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     ScadaConfig cfg;
     cfg.serverUrl = QStringLiteral("http://scada.local");
     cfg.username = QStringLiteral("admin");
-    QVERIFY(svc.connectToSCADA(cfg));
+    QVERIFY(!svc.connectToSCADA(cfg));
   }
 
   // Verify SCADA connection fails with empty URL
@@ -57,13 +57,13 @@ private slots:
     QVERIFY(!svc.connectToSCADA(cfg));
   }
 
-  // Verify valid MES config connects successfully
-  void testConnectToMESValid() {
+  // Verify valid MES config fails closed without a live integration backend.
+  void testConnectToMESFailsClosedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     MesConfig cfg;
     cfg.endpoint = QStringLiteral("http://mes.local/api");
     cfg.apiKey = QStringLiteral("key-123");
-    QVERIFY(svc.connectToMES(cfg));
+    QVERIFY(!svc.connectToMES(cfg));
   }
 
   // Verify MES connection fails with empty endpoint
@@ -74,13 +74,13 @@ private slots:
     QVERIFY(!svc.connectToMES(cfg));
   }
 
-  // Verify valid ERP config connects successfully
-  void testConnectToERPValid() {
+  // Verify valid ERP config fails closed without a live integration backend.
+  void testConnectToERPFailsClosedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     ErpConfig cfg;
     cfg.host = QStringLiteral("erp.local");
     cfg.database = QStringLiteral("production");
-    QVERIFY(svc.connectToERP(cfg));
+    QVERIFY(!svc.connectToERP(cfg));
   }
 
   // Verify ERP connection fails with empty host
@@ -91,10 +91,10 @@ private slots:
     QVERIFY(!svc.connectToERP(cfg));
   }
 
-  // Verify sync with non-empty ID succeeds
-  void testSyncDataNonEmpty() {
+  // Verify sync with non-empty ID fails closed without a live integration backend.
+  void testSyncDataFailsClosedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
-    QVERIFY(svc.syncData(QStringLiteral("plc-01")));
+    QVERIFY(!svc.syncData(QStringLiteral("plc-01")));
   }
 
   // Verify sync with empty ID fails
@@ -103,23 +103,23 @@ private slots:
     QVERIFY(!svc.syncData(QString()));
   }
 
-  // Verify connectedToSystem signal is emitted on PLC connect
-  void testConnectedToSystemSignal() {
+  // Verify connectedToSystem is not emitted for offline rejection.
+  void testConnectedToSystemSignalNotEmittedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATIntegrationService::connectedToSystem);
     PlcConfig cfg;
     cfg.ipAddress = QStringLiteral("192.168.1.1");
     cfg.port = 502;
     svc.connectToPLC(cfg);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Verify dataSynced signal is emitted on sync
-  void testDataSyncedSignal() {
+  // Verify dataSynced is not emitted for offline rejection.
+  void testDataSyncedSignalNotEmittedWithoutBackend() {
     EtherCATIntegrationService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATIntegrationService::dataSynced);
     svc.syncData(QStringLiteral("plc-01"));
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 };
 

@@ -1,7 +1,9 @@
 #pragma once
 
-// EtherCATIntegrationService — manages integration with external
-// systems including PLC, SCADA, MES, and ERP platforms.
+// EtherCATIntegrationService — external integration request facade.
+//
+// PLC, SCADA, MES, ERP, and data-sync operations fail closed until a live
+// integration backend is wired.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -55,4 +57,5 @@ signals:
 private:
   EventBus *bus_;
   EcatClient *client_;
+  bool backendReady() const;
 };

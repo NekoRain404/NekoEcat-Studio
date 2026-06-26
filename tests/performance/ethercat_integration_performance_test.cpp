@@ -7,7 +7,7 @@
 class EtherCATIntegrationPerformanceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testPLCConnectionThroughput() {
+  void testPLCConnectionOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATIntegrationService svc(&bus, &client);
@@ -23,15 +23,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.connectToPLC(cfg);
+      QVERIFY(!svc.connectToPLC(cfg));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "PLC connection throughput:" << count << "connects in" << elapsed << "ms";
+    qDebug() << "PLC connection offline rejection throughput:" << count << "connects in" << elapsed << "ms";
   }
 
-  void testSCADAConnectionThroughput() {
+  void testSCADAConnectionOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATIntegrationService svc(&bus, &client);
@@ -46,15 +46,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.connectToSCADA(cfg);
+      QVERIFY(!svc.connectToSCADA(cfg));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "SCADA connection throughput:" << count << "connects in" << elapsed << "ms";
+    qDebug() << "SCADA connection offline rejection throughput:" << count << "connects in" << elapsed << "ms";
   }
 
-  void testMESConnectionThroughput() {
+  void testMESConnectionOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATIntegrationService svc(&bus, &client);
@@ -69,15 +69,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.connectToMES(cfg);
+      QVERIFY(!svc.connectToMES(cfg));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "MES connection throughput:" << count << "connects in" << elapsed << "ms";
+    qDebug() << "MES connection offline rejection throughput:" << count << "connects in" << elapsed << "ms";
   }
 
-  void testERPConnectionThroughput() {
+  void testERPConnectionOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATIntegrationService svc(&bus, &client);
@@ -92,15 +92,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.connectToERP(cfg);
+      QVERIFY(!svc.connectToERP(cfg));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "ERP connection throughput:" << count << "connects in" << elapsed << "ms";
+    qDebug() << "ERP connection offline rejection throughput:" << count << "connects in" << elapsed << "ms";
   }
 
-  void testSyncDataThroughput() {
+  void testSyncDataOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATIntegrationService svc(&bus, &client);
@@ -110,12 +110,12 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.syncData("PLC");
+      QVERIFY(!svc.syncData("PLC"));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "Integration syncData throughput:" << count << "syncs in" << elapsed << "ms";
+    qDebug() << "Integration syncData offline rejection throughput:" << count << "syncs in" << elapsed << "ms";
   }
 };
 

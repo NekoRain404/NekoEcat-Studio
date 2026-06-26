@@ -17,7 +17,7 @@
 class EtherCATAdvancedServicesTest : public QObject {
   Q_OBJECT
 private slots:
-  // Connect to PLC with valid config
+  // Connect to PLC fails closed without a live integration backend.
   void testIntegrationConnectPLC() {
     EcatClient client;
     EventBus bus;
@@ -29,9 +29,8 @@ private slots:
     cfg.port = 502;
     cfg.protocol = QStringLiteral("ModbusTCP");
     cfg.timeout = 3000;
-    QVERIFY(svc.connectToPLC(cfg));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("PLC"));
+    QVERIFY(!svc.connectToPLC(cfg));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Connect to PLC with empty config fails
@@ -44,7 +43,7 @@ private slots:
     QVERIFY(!svc.connectToPLC(cfg));
   }
 
-  // Connect to SCADA with valid config
+  // Connect to SCADA fails closed without a live integration backend.
   void testIntegrationConnectSCADA() {
     EcatClient client;
     EventBus bus;
@@ -55,9 +54,8 @@ private slots:
     cfg.serverUrl = QStringLiteral("http://scada.local");
     cfg.username = QStringLiteral("admin");
     cfg.password = QStringLiteral("pass");
-    QVERIFY(svc.connectToSCADA(cfg));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("SCADA"));
+    QVERIFY(!svc.connectToSCADA(cfg));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Connect to SCADA with empty config fails
@@ -70,7 +68,7 @@ private slots:
     QVERIFY(!svc.connectToSCADA(cfg));
   }
 
-  // Connect to MES with valid config
+  // Connect to MES fails closed without a live integration backend.
   void testIntegrationConnectMES() {
     EcatClient client;
     EventBus bus;
@@ -81,9 +79,8 @@ private slots:
     cfg.endpoint = QStringLiteral("http://mes.local/api");
     cfg.apiKey = QStringLiteral("key123");
     cfg.version = QStringLiteral("v2");
-    QVERIFY(svc.connectToMES(cfg));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("MES"));
+    QVERIFY(!svc.connectToMES(cfg));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Connect to MES with empty config fails
@@ -96,7 +93,7 @@ private slots:
     QVERIFY(!svc.connectToMES(cfg));
   }
 
-  // Connect to ERP with valid config
+  // Connect to ERP fails closed without a live integration backend.
   void testIntegrationConnectERP() {
     EcatClient client;
     EventBus bus;
@@ -107,9 +104,8 @@ private slots:
     cfg.host = QStringLiteral("erp.local");
     cfg.database = QStringLiteral("production");
     cfg.credentials = QStringLiteral("token");
-    QVERIFY(svc.connectToERP(cfg));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("ERP"));
+    QVERIFY(!svc.connectToERP(cfg));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Connect to ERP with empty config fails
@@ -122,16 +118,15 @@ private slots:
     QVERIFY(!svc.connectToERP(cfg));
   }
 
-  // Sync data to connected system
+  // Sync data fails closed without a live integration backend.
   void testIntegrationSyncData() {
     EcatClient client;
     EventBus bus;
     EtherCATIntegrationService svc(&bus, &client);
 
     QSignalSpy spy(&svc, &EtherCATIntegrationService::dataSynced);
-    QVERIFY(svc.syncData(QStringLiteral("PLC")));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("PLC"));
+    QVERIFY(!svc.syncData(QStringLiteral("PLC")));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Sync data with empty system name fails
