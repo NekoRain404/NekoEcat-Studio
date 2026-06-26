@@ -72,6 +72,10 @@ QVector<LogEntry> LoggingService::getLogs(int count) const {
 }
 
 bool LoggingService::exportLogs(const QString &filePath) const {
+  if (filePath.isEmpty()) {
+    return false;
+  }
+
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     return false;
@@ -84,7 +88,7 @@ bool LoggingService::exportLogs(const QString &filePath) const {
         << (entry.source.isEmpty() ? "" : entry.source + ": ")
         << entry.message << "\n";
   }
-  return true;
+  return out.status() == QTextStream::Ok && file.flush();
 }
 
 void LoggingService::clearLogs() {

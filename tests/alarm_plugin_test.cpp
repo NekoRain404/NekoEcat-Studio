@@ -30,6 +30,7 @@
 #include <QSignalSpy>
 #include <QTableWidget>
 #include <QDir>
+#include <QRegularExpression>
 #include "plugins/alarm/AlarmPlugin.h"
 #include "services/AlarmService.h"
 #include "services/LoggingService.h"
@@ -181,7 +182,9 @@ private slots:
     LoggingService logSvc;
     logSvc.log(LogLevel::Info, LogCategory::System, "Export test");
 
-    QString path = QDir::tempPath() + "/test_export.log";
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QString path = dir.filePath("test_export.log");
     QVERIFY(logSvc.exportLogs(path));
 
     QFile file(path);
@@ -189,7 +192,19 @@ private slots:
     QString content = file.readAll();
     QVERIFY(content.contains("Export test"));
     file.close();
-    QFile::remove(path);
+  }
+
+  void testLoggingExportRejectsInvalidPath() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    LoggingService logSvc;
+    logSvc.log(LogLevel::Info, LogCategory::System, "Export test");
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!logSvc.exportLogs(QString()));
+    QVERIFY(!logSvc.exportLogs(dir.path()));
   }
 };
 
