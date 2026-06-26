@@ -7,7 +7,10 @@
 //   - Blocks CRUD
 //   - Smart contracts CRUD
 //   - Supply chain entries CRUD
+//   - UI buttons do not synthesize blockchain records without backend evidence
 
+#include <QFile>
+#include <QPushButton>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -207,6 +210,38 @@ private slots:
     b.miner = "miner0";
     plugin.addBlock(b);
     QCOMPARE(spy.count(), 1);
+  }
+
+  void testUiButtonsDoNotSynthesizeBlockchainRecords() {
+    BlockchainExplorerPlugin plugin;
+    QWidget *widget = plugin.widget();
+    const auto buttons = widget->findChildren<QPushButton *>();
+    for (QPushButton *button : buttons) {
+      if (button->text() == QStringLiteral("Add") ||
+          button->text() == QStringLiteral("Execute")) {
+        QTest::mouseClick(button, Qt::LeftButton);
+      }
+    }
+
+    QCOMPARE(plugin.transactionCount(), 0);
+    QCOMPARE(plugin.blockCount(), 0);
+    QCOMPARE(plugin.smartContractCount(), 0);
+    QCOMPARE(plugin.supplyChainEntryCount(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticBlockchainGenerators() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/blockchainexplorer/BlockchainExplorerPlugin.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QRandomGenerator")),
+             "Blockchain explorer must not synthesize random addresses");
+    QVERIFY2(!text.contains(QStringLiteral("miner_")),
+             "Blockchain explorer must not synthesize mined blocks");
+    QVERIFY2(!text.contains(QStringLiteral("Contract_")),
+             "Blockchain explorer must not synthesize smart contracts");
+    QVERIFY2(!text.contains(QStringLiteral("ITEM-")),
+             "Blockchain explorer must not synthesize supply-chain entries");
   }
 };
 

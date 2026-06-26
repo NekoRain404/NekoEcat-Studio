@@ -11,7 +11,6 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QRandomGenerator>
 
 BlockchainExplorerPlugin::BlockchainExplorerPlugin(QObject *parent) {
   if (parent) setParent(parent);
@@ -263,14 +262,7 @@ void BlockchainExplorerPlugin::buildUi() {
   mainLayout->addWidget(statusLabel_);
 
   connect(addTxBtn_, &QPushButton::clicked, this, [this]() {
-    Transaction tx;
-    tx.hash = "0x" + QString::number(transactions_.size(), 16).rightJustified(8, '0');
-    tx.from = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    tx.to = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    tx.amount = 1.0;
-    tx.timestamp = QDateTime::currentDateTime();
-    tx.status = "confirmed";
-    addTransaction(tx);
+    statusLabel_->setText(tr("Transaction creation requires a blockchain backend"));
   });
   connect(removeTxBtn_, &QPushButton::clicked, this, [this]() {
     int row = transactionTable_->currentRow();
@@ -280,50 +272,24 @@ void BlockchainExplorerPlugin::buildUi() {
     filterTransactions(text);
   });
   connect(addBlockBtn_, &QPushButton::clicked, this, [this]() {
-    BlockInfo b;
-    b.number = blocks_.isEmpty() ? 1 : blocks_.last().number + 1;
-    b.hash = "0x" + QString::number(b.number * 137, 16).rightJustified(8, '0');
-    b.previousHash = blocks_.isEmpty() ? "0x00000000" : blocks_.last().hash;
-    b.transactionCount = 0;
-    b.timestamp = QDateTime::currentDateTime();
-    b.miner = "miner_" + QString::number(b.number);
-    addBlock(b);
+    statusLabel_->setText(tr("Block creation requires a blockchain backend"));
   });
   connect(removeBlockBtn_, &QPushButton::clicked, this, [this]() {
     int row = blockTable_->currentRow();
     if (row >= 0) removeBlock(row);
   });
   connect(addContractBtn_, &QPushButton::clicked, this, [this]() {
-    SmartContract c;
-    c.address = "0x" + QString::number(contracts_.size(), 16).rightJustified(8, '0');
-    c.name = "Contract_" + QString::number(contracts_.size());
-    c.owner = "0xowner";
-    c.deployedAt = QDateTime::currentDateTime();
-    c.callCount = 0;
-    c.active = true;
-    addSmartContract(c);
+    statusLabel_->setText(tr("Smart contract creation requires a blockchain backend"));
   });
   connect(removeContractBtn_, &QPushButton::clicked, this, [this]() {
     int row = contractTable_->currentRow();
     if (row >= 0) removeSmartContract(row);
   });
   connect(executeContractBtn_, &QPushButton::clicked, this, [this]() {
-    int row = contractTable_->currentRow();
-    if (row >= 0 && row < contracts_.size()) {
-      contracts_[row].callCount++;
-      rebuildContractTable();
-      emit contractExecuted(contracts_[row].address);
-    }
+    statusLabel_->setText(tr("Smart contract execution requires a blockchain backend"));
   });
   connect(addSupplyBtn_, &QPushButton::clicked, this, [this]() {
-    SupplyChainEntry e;
-    e.itemId = "ITEM-" + QString::number(supplyChain_.size());
-    e.stage = "production";
-    e.location = "Factory A";
-    e.timestamp = QDateTime::currentDateTime();
-    e.handler = "handler_0";
-    e.status = "in_transit";
-    addSupplyChainEntry(e);
+    statusLabel_->setText(tr("Supply-chain entry creation requires a blockchain backend"));
   });
   connect(removeSupplyBtn_, &QPushButton::clicked, this, [this]() {
     int row = supplyChainTable_->currentRow();
