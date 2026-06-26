@@ -33,6 +33,7 @@ public:
   MultiMasterService *service() const { return service_; }
   int masterCount() const;
   int selectedMasterId() const;
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();

@@ -6,10 +6,13 @@
 //   - MasterComparisonWidget: set masters, difference counting
 //   - Signal emission verification
 #include <QTest>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTableWidget>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QTemporaryDir>
 #include "plugins/multimaster/MultiMasterPlugin.h"
 #include "plugins/multimaster/MasterComparisonWidget.h"
 #include "services/MultiMasterService.h"
@@ -221,6 +224,35 @@ private slots:
 
     MultiMasterPlugin plugin(&svc);
     QCOMPARE(plugin.masterCount(), 1);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    MultiMasterService svc(nullptr, nullptr);
+    MmMasterInfo info;
+    info.adapterName = "eth0";
+    info.slaveCount = 3;
+    info.ipAddress = "192.168.1.10";
+    info.macAddress = "AA:BB:CC:DD:EE:10";
+    svc.addMaster(info);
+
+    MultiMasterPlugin plugin(&svc);
+    const QString path = dir.filePath("master_report.csv");
+    QVERIFY(plugin.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Master ID,Adapter,Slave Count,State,IP Address,MAC Address\n")));
+    QVERIFY(csv.contains(QStringLiteral("eth0")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReportToFile(QString()));
+    QVERIFY(!plugin.exportReportToFile(dir.path()));
   }
 
   // ── Comparison Widget Tests ────────────────────────────────────────

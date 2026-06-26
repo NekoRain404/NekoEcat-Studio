@@ -244,8 +244,14 @@ void MultiMasterPlugin::exportReport() {
       tr("CSV Files (*.csv);;All Files (*)"));
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool MultiMasterPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Master ID,Adapter,Slave Count,State,IP Address,MAC Address\n";
@@ -256,4 +262,5 @@ void MultiMasterPlugin::exportReport() {
         << static_cast<int>(m.state) << "," << m.ipAddress << ","
         << m.macAddress << "\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }
