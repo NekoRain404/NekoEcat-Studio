@@ -65,7 +65,7 @@ cmake --install build --prefix /usr/local
 
 ### Build Types
 
-- **Release**: Optimized for production
+- **Release**: Optimized build; validate target hardware and runtime before field use
 - **Debug**: Debug symbols, no optimization
 - **Coverage**: Instrumented for code coverage analysis
 

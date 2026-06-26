@@ -195,7 +195,7 @@ flowchart TB
 | 模式 | 说明 | 使用场景 |
 |------|------|----------|
 | **Auto (推荐)** | 自动检测最佳后端 | 默认模式，优先原生 API |
-| **IgH Native API** | 强制使用 ecrt API | 需要最高性能时 |
+| **IgH Native API** | 显式选择原生 ecrt 后端 | 需要减少 CLI fallback 时 |
 | **IgH CLI** | 强制使用命令行后端 | 兼容性问题时 |
 
 ---
