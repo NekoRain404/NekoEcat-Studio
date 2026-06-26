@@ -102,14 +102,16 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  void testServiceApplyOptimization() {
+  void testServiceApplyOptimizationFailsWithoutExecutionBackend() {
     RealtimeOptimizerService svc;
     auto result = svc.optimizeLatency();
+    const int historyBefore = svc.optimizationHistory().size();
 
     QSignalSpy spy(&svc, &RealtimeOptimizerService::optimizationApplied);
     bool applied = svc.applyOptimization(result);
-    QVERIFY(applied);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!applied);
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(svc.optimizationHistory().size(), historyBefore);
   }
 
   void testServiceOptimizationHistory() {

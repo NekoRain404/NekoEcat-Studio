@@ -1,7 +1,8 @@
 // RealtimeOptimizerService — service for real-time performance optimization.
 //
 // Provides latency, throughput, resource, and priority optimization with
-// actionable recommendations and before/after comparison.
+// actionable recommendations and before/after comparison. Applying host
+// realtime settings requires a privileged execution backend.
 
 #include "RealtimeOptimizerService.h"
 
@@ -95,9 +96,8 @@ OptimizationResult RealtimeOptimizerService::optimizePriorities() {
 
 bool RealtimeOptimizerService::applyOptimization(
     const OptimizationResult &result) {
-  history_.append(result);
-  emit optimizationApplied(result);
-  return true;
+  Q_UNUSED(result);
+  return false;
 }
 
 QVector<OptimizationResult> RealtimeOptimizerService::optimizationHistory()

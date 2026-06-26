@@ -4,7 +4,9 @@
 ///
 /// @details Provides latency optimization, throughput optimization, resource
 /// optimization, and priority optimization. Analyzes current performance metrics
-/// and generates actionable optimization recommendations.
+/// and generates actionable optimization recommendations. Applying those
+/// recommendations requires a real privileged backend for scheduler, IRQ, CPU,
+/// and memory-lock configuration; this service does not synthesize success.
 
 #include "EtherCATOptimizerService.h"
 
@@ -22,6 +24,7 @@ public:
   OptimizationResult optimizeResources();
   OptimizationResult optimizePriorities();
 
+  // Returns false until a privileged host realtime execution backend is wired.
   bool applyOptimization(const OptimizationResult &result);
 
   QVector<OptimizationResult> optimizationHistory() const;
