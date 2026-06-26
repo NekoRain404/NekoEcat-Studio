@@ -10,7 +10,7 @@
 
 ### 1.1 项目定位
 
-NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代工程工作站，目标是超越 TwinCAT 在性能和用户体验方面的表现。
+NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代工程工作站，聚焦 EtherCAT 调试、诊断、复核和交接流程。
 
 ### 1.2 核心特性
 

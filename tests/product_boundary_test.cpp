@@ -411,6 +411,10 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("1264 entries"),
       QStringLiteral("100% coverage"),
       QStringLiteral("8 languages supported"),
+      QStringLiteral("目标是超越 TwinCAT"),
+      QStringLiteral("无限的扩展可能"),
+      QStringLiteral("独特的竞争优势"),
+      QStringLiteral("最好的 EtherCAT 调试工具"),
   };
 
   for (const QString &docPath : docPaths) {
