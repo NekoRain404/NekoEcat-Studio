@@ -36,7 +36,7 @@ private slots:
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 500);
-    QCOMPARE(svc.testHistory(0).size(), 100);
+    QCOMPARE(svc.testHistory(0).size(), 0);
   }
 
   void testQueryPerformance() {

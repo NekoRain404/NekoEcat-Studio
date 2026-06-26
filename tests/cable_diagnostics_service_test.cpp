@@ -1,12 +1,11 @@
 // CableDiagnosticsServiceTest — Tests for CableDiagnosticsService
 //
 // Test coverage:
-//   - Single port test
-//   - All ports test
-//   - Test history tracking
-//   - Last result retrieval
+//   - Single port failure without a physical diagnostics backend
+//   - All ports failure report without synthetic pass data
+//   - Test history remains empty while offline
+//   - Last result retrieval remains empty while offline
 //   - History clearing
-//   - Cable length variation by port
 
 #include <QTest>
 #include <QSignalSpy>
@@ -15,66 +14,59 @@
 class CableDiagnosticsServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Verify single port test with signals and result fields
-  void testTestPort() {
+  // Verify single port diagnostics cannot be simulated without a backend.
+  void testTestPortFailsWithoutBackend() {
     CableDiagnosticsService svc;
     QSignalSpy startedSpy(&svc, &CableDiagnosticsService::testStarted);
     QSignalSpy completedSpy(&svc, &CableDiagnosticsService::testCompleted);
     auto result = svc.testPort(0);
     QCOMPARE(startedSpy.count(), 1);
-    QCOMPARE(completedSpy.count(), 1);
+    QCOMPARE(completedSpy.count(), 0);
     QCOMPARE(result.portId, 0);
-    QCOMPARE(result.status, CableTestStatus::Passed);
-    QCOMPARE(result.faultType, CableFaultType::None);
-    QVERIFY(result.cableLengthM > 0);
-    QVERIFY(result.impedanceOhms > 0);
-    QVERIFY(result.signalQuality > 0);
+    QCOMPARE(result.status, CableTestStatus::Error);
+    QCOMPARE(result.faultType, CableFaultType::Unknown);
+    QCOMPARE(result.cableLengthM, 0.0);
+    QCOMPARE(result.impedanceOhms, 0.0);
+    QCOMPARE(result.signalQuality, 0.0);
+    QVERIFY(result.details.contains(QStringLiteral("backend")));
   }
-  // Verify all ports test completes with correct counts
-  void testTestAllPorts() {
+  // Verify all ports diagnostics report failure instead of synthetic pass data.
+  void testTestAllPortsFailsWithoutBackend() {
     CableDiagnosticsService svc;
     QSignalSpy spy(&svc, &CableDiagnosticsService::diagnosticsCompleted);
     auto report = svc.testAllPorts(4);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(report.results.size(), 4);
-    QCOMPARE(report.passedCount, 4);
-    QCOMPARE(report.failedCount, 0);
-    QVERIFY(report.allPassed);
+    QCOMPARE(report.passedCount, 0);
+    QCOMPARE(report.failedCount, 4);
+    QVERIFY(!report.allPassed);
   }
-  // Verify test history tracks multiple runs
-  void testTestHistory() {
+  // Verify offline diagnostics do not create synthetic history.
+  void testTestHistoryRemainsEmptyWithoutBackend() {
     CableDiagnosticsService svc;
     svc.testPort(0);
     svc.testPort(0);
     auto history = svc.testHistory(0);
-    QCOMPARE(history.size(), 2);
+    QCOMPARE(history.size(), 0);
   }
-  // Verify last result returns most recent test
-  void testLastResult() {
+  // Verify offline diagnostics do not create synthetic last results.
+  void testLastResultRemainsEmptyWithoutBackend() {
     CableDiagnosticsService svc;
     svc.testPort(1);
     auto last = svc.lastResult(1);
-    QCOMPARE(last.portId, 1);
-    QCOMPARE(last.status, CableTestStatus::Passed);
+    QCOMPARE(last.status, CableTestStatus::NotRun);
   }
-  // Verify clear history removes entries
-  void testClearHistory() {
+  // Verify clear history reports false when offline tests created no history.
+  void testClearHistoryWithoutBackendHistory() {
     CableDiagnosticsService svc;
     svc.testPort(0);
-    QVERIFY(svc.clearHistory(0));
+    QVERIFY(!svc.clearHistory(0));
     QCOMPARE(svc.testHistory(0).size(), 0);
   }
   // Verify clear returns false for nonexistent history
   void testClearNonexistentHistory() {
     CableDiagnosticsService svc;
     QVERIFY(!svc.clearHistory(99));
-  }
-  // Verify cable length varies by port index
-  void testCableLengthVariesByPort() {
-    CableDiagnosticsService svc;
-    auto r0 = svc.testPort(0);
-    auto r5 = svc.testPort(5);
-    QVERIFY(r5.cableLengthM > r0.cableLengthM);
   }
 };
 

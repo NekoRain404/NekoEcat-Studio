@@ -1,10 +1,11 @@
 #pragma once
 
 // CableDiagnosticsService — performs cable diagnostics on EtherCAT network.
-// Tests cable quality, length, and detects faults.
+// Tests cable quality, length, and detects faults when a physical diagnostics
+// backend is available.
 //
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+// Until a real hardware integration is wired, diagnostic runs fail closed and
+// do not generate synthetic pass/fail measurements.
 //
 // This service provides cable diagnostic capabilities for the EtherCAT
 // network. It handles:
@@ -85,14 +86,14 @@ class CableDiagnosticsService : public QObject {
 public:
   explicit CableDiagnosticsService(QObject *parent = nullptr);
 
-  // Test a specific port.
+  // Test a specific port through the physical diagnostics backend.
   // @param portId  Port ID to test
-  // @return CableTestResult structure
+  // @return Error result until a physical diagnostics backend is wired.
   CableTestResult testPort(int portId);
 
-  // Test all ports.
+  // Test all ports through the physical diagnostics backend.
   // @param portCount  Number of ports to test
-  // @return CableDiagnosticsReport with results
+  // @return Failed report until a physical diagnostics backend is wired.
   CableDiagnosticsReport testAllPorts(int portCount);
 
   // Get test history for a specific port.
@@ -125,8 +126,7 @@ signals:
   void diagnosticsCompleted(const CableDiagnosticsReport &report);
 
 private:
-  // Simulate a cable test (for demo/testing).
-  CableTestResult simulateTest(int portId);
+  CableTestResult backendUnavailableResult(int portId);
 
   QHash<int, QVector<CableTestResult>> history_;  // Test history per port
   QHash<int, CableTestResult> lastResults_;        // Last result per port

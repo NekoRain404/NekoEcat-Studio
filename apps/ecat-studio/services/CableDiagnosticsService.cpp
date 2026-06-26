@@ -4,21 +4,17 @@
 // CableDiagnosticsService.cpp — Cable quality testing and fault detection
 //
 // Implementation notes:
-//   - Supports per-port and all-port test runs with aggregated reports
-//   - Maintains per-port test history capped at kMaxHistory
-//   - simulateTest() generates synthetic results for offline/demo use
+//   - Per-port and all-port test runs fail closed until a real physical cable
+//     diagnostics backend is wired.
+//   - Maintains per-port test history capped at kMaxHistory once backend results
+//     are available.
 
 CableDiagnosticsService::CableDiagnosticsService(QObject *parent)
     : QObject(parent) {}
 
 CableTestResult CableDiagnosticsService::testPort(int portId) {
   emit testStarted(portId);
-  auto result = simulateTest(portId);
-  history_[portId].append(result);
-  if (history_[portId].size() > kMaxHistory)
-    history_[portId].removeFirst();
-  lastResults_[portId] = result;
-  emit testCompleted(portId, result);
+  auto result = backendUnavailableResult(portId);
   return result;
 }
 
@@ -55,16 +51,12 @@ bool CableDiagnosticsService::clearHistory(int portId) {
   return true;
 }
 
-// Generates synthetic cable test data based on port ID (demo/offline mode)
-CableTestResult CableDiagnosticsService::simulateTest(int portId) {
+CableTestResult CableDiagnosticsService::backendUnavailableResult(int portId) {
   CableTestResult result;
   result.portId = portId;
   result.timestamp = QDateTime::currentDateTime();
-  result.status = CableTestStatus::Passed;
-  result.faultType = CableFaultType::None;
-  result.cableLengthM = 5.0 + (portId * 0.5);
-  result.impedanceOhms = 100.0 + (portId % 3);
-  result.signalQuality = 95.0 - (portId * 0.5);
-  result.details = "Cable test passed";
+  result.status = CableTestStatus::Error;
+  result.faultType = CableFaultType::Unknown;
+  result.details = "Cable diagnostics require a connected physical cable test backend";
   return result;
 }
