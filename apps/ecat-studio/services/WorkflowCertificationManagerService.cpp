@@ -14,7 +14,7 @@ QString WorkflowCertificationManagerService::addRequirement(
     r.standard = standard;
     r.status = QStringLiteral("pending");
     r.createdAt = QDateTime::currentDateTime();
-    r.expiry = expiry.isValid() ? expiry : r.createdAt.addYears(1);
+    r.expiry = expiry;
     requirements_.append(r);
     emit requirementAdded(r.id);
     return r.id;
@@ -35,6 +35,12 @@ bool WorkflowCertificationManagerService::removeRequirement(const QString &reqId
 bool WorkflowCertificationManagerService::updateStatus(const QString &reqId,
                                                         const QString &status)
 {
+    if (status == QStringLiteral("approved") ||
+        status == QStringLiteral("renewed") ||
+        status == QStringLiteral("valid")) {
+        return false;
+    }
+
     for (auto &r : requirements_) {
         if (r.id == reqId) {
             r.status = status;
@@ -79,14 +85,8 @@ QVector<WfCertRequirement> WorkflowCertificationManagerService::requirementsBySt
 bool WorkflowCertificationManagerService::renewRequirement(
     const QString &reqId, const QDateTime &newExpiry)
 {
-    for (auto &r : requirements_) {
-        if (r.id == reqId) {
-            r.expiry = newExpiry;
-            r.status = QStringLiteral("renewed");
-            emit requirementRenewed(reqId);
-            return true;
-        }
-    }
+    Q_UNUSED(reqId);
+    Q_UNUSED(newExpiry);
     return false;
 }
 

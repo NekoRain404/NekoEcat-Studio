@@ -10,6 +10,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/WorkflowCertificationManagerService.h"
 
 class WorkflowCertificationManagerServiceTest : public QObject {
@@ -23,6 +24,7 @@ private slots:
       QVERIFY(!id.isEmpty());
       QCOMPARE(spy.count(), 1);
       QCOMPARE(svc.requirementCount(), 1);
+      QVERIFY(!svc.requirement(id).expiry.isValid());
   }
 
   void testRemoveRequirement() {
@@ -43,9 +45,11 @@ private slots:
       WorkflowCertificationManagerService svc;
       auto id = svc.addRequirement(QStringLiteral("Test"), QStringLiteral("Std"));
       QSignalSpy spy(&svc, &WorkflowCertificationManagerService::statusUpdated);
-      QVERIFY(svc.updateStatus(id, QStringLiteral("approved")));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(svc.requirement(id).status, QStringLiteral("approved"));
+      QVERIFY(!svc.updateStatus(id, QStringLiteral("approved")));
+      QCOMPARE(spy.count(), 0);
+      QCOMPARE(svc.requirement(id).status, QStringLiteral("pending"));
+      QVERIFY(svc.updateStatus(id, QStringLiteral("blocked")));
+      QCOMPARE(svc.requirement(id).status, QStringLiteral("blocked"));
   }
 
   void testUpdateStatusNonexistent() {
@@ -93,9 +97,10 @@ private slots:
       auto id = svc.addRequirement(QStringLiteral("Test"), QStringLiteral("Std"));
       QDateTime newExpiry = QDateTime::currentDateTime().addYears(2);
       QSignalSpy spy(&svc, &WorkflowCertificationManagerService::requirementRenewed);
-      QVERIFY(svc.renewRequirement(id, newExpiry));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(svc.requirement(id).status, QStringLiteral("renewed"));
+      QVERIFY(!svc.renewRequirement(id, newExpiry));
+      QCOMPARE(spy.count(), 0);
+      QCOMPARE(svc.requirement(id).status, QStringLiteral("pending"));
+      QVERIFY(!svc.requirement(id).expiry.isValid());
   }
 
   void testRenewNonexistent() {
@@ -108,7 +113,7 @@ private slots:
       svc.addRequirement(QStringLiteral("R1"), QStringLiteral("S1"));
       svc.addRequirement(QStringLiteral("R2"), QStringLiteral("S2"));
       auto id3 = svc.addRequirement(QStringLiteral("R3"), QStringLiteral("S3"));
-      svc.updateStatus(id3, QStringLiteral("approved"));
+      svc.updateStatus(id3, QStringLiteral("blocked"));
       QCOMPARE(svc.pendingCount(), 2);
   }
 
@@ -119,6 +124,19 @@ private slots:
                                    customExpiry);
       auto r = svc.requirement(id);
       QVERIFY(r.expiry.isValid());
+  }
+
+  void testSourceDoesNotSynthesizeCertificationValidity() {
+      QFile file(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/WorkflowCertificationManagerService.cpp"));
+      QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+               qPrintable(file.errorString()));
+      const QString source = QString::fromUtf8(file.readAll());
+
+      QVERIFY2(!source.contains(QStringLiteral("createdAt.addYears(1)")),
+               "Certification manager must not synthesize default certificate expiry");
+      QVERIFY2(!source.contains(QStringLiteral("r.status = QStringLiteral(\"renewed\")")),
+               "Certification manager must not renew requirements without a backend");
   }
 };
 
