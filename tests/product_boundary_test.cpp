@@ -415,6 +415,11 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("无限的扩展可能"),
       QStringLiteral("独特的竞争优势"),
       QStringLiteral("最好的 EtherCAT 调试工具"),
+      QStringLiteral("TwinCAT 3 (Build 4026)"),
+      QStringLiteral("超越 —"),
+      QStringLiteral("NekoEcat 更优"),
+      QStringLiteral("架构设计超越 TwinCAT"),
+      QStringLiteral("超越 TwinCAT 的模块系统"),
   };
 
   for (const QString &docPath : docPaths) {
