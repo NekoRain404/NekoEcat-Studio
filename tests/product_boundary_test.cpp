@@ -341,6 +341,7 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
   const QStringList docPaths = {
       QStringLiteral(SOURCE_ROOT "/README.md"),
       QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/PLUGIN_GUIDE.md"),
       QStringLiteral(SOURCE_ROOT "/docs/PROJECT_OVERVIEW.md"),
       QStringLiteral(SOURCE_ROOT "/docs/TWINCAT_BENCHMARK_REVIEW.md"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"),
@@ -371,6 +372,9 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("无法进行固件更新"),
       QStringLiteral("80+ 存根服务"),
       QStringLiteral("80+ other services"),
+      QStringLiteral("120+ services total"),
+      QStringLiteral("130+ 个领域服务"),
+      QStringLiteral("130+ domain services"),
       QStringLiteral("无原生 EtherCAT API"),
       QStringLiteral("实现原生 IgH API"),
       QStringLiteral("实现原生 IgH ecrt API"),

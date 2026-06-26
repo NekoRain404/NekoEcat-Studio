@@ -12,10 +12,10 @@ MainWindow
   ├── PluginRegistry          (ordered plugin list, lookup by id)
   ├── ServiceContainer         (holds all services + EcatClient)
   │     ├── EventBus           (inter-plugin signal hub)
-│     ├── SdoService
-│     ├── TopologyService
-│     ├── SignalService
-│     └── ... (120+ services total)
+  │     ├── SdoService
+  │     ├── TopologyService
+  │     ├── SignalService
+  │     └── ... (registered domain services)
   └── WorkspacePlugin[]        (each owns a QWidget tab)
 ```
 

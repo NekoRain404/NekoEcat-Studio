@@ -54,7 +54,7 @@ Ethercat/
 │   │   ├── infra/            # TCP 客户端、共享类型、设置、i18n
 │   │   ├── workspaces/       # MainWindow 的 partial 实现（31 个文件）
 │   │   ├── plugins/          # 工作区插件（90 个目录，实验项默认关闭）
-│   │   ├── services/         # 服务层（130+ 个服务）
+│   │   ├── services/         # 服务层（以当前注册代码为准）
 │   │   ├── themes/           # UI 主题（12 个 .qss 文件）
 │   │   └── translations/     # i18n 翻译文件（8 种语言）
 │   └── ecatd/                # 本地运行时 Daemon

@@ -365,12 +365,12 @@ NekoEcat Studio uses a plugin-based architecture where each workspace is an inde
 - **WorkspacePlugin**：工作区插件接口，定义 `initialize()`、`shutdown()`、`workspaceId()` 等生命周期方法
 - **PluginRegistry**：插件注册中心，负责插件发现、实例化和生命周期管理。使用 QVector + QMap 双重存储，支持 O(1) 索引访问和 O(log n) id 查找。注册时自动按 defaultOrder() 排序，确保一致的标签页顺序。
 - **EventBus**：全局事件总线，支持松耦合的发布/订阅通信模式。提供 8 种事件类型，通过 Qt 信号槽机制实现类型安全的事件分发。
-- **ServiceContainer**：服务容器，提供依赖注入和服务定位，包含 130+ 个领域服务。使用单一 EcatClient 实例和 Qt 父子对象树管理服务生命周期，支持自动清理。
+- **ServiceContainer**：服务容器，提供依赖注入和服务定位，具体服务集合以当前注册代码为准。使用单一 EcatClient 实例和 Qt 父子对象树管理服务生命周期，支持自动清理。
 
 - **WorkspacePlugin**: Workspace plugin interface defining lifecycle methods like `initialize()`, `shutdown()`, `workspaceId()`
 - **PluginRegistry**: Plugin registry handling discovery, instantiation, and lifecycle management. Uses QVector + QMap dual storage for O(1) index access and O(log n) id lookup. Automatically sorts by defaultOrder() on registration for consistent tab ordering.
 - **EventBus**: Global event bus supporting loose-coupled publish/subscribe communication. Provides 8 event types with type-safe dispatch via Qt signals/slots.
-- **ServiceContainer**: Service container providing dependency injection and service location with 130+ domain services. Uses Qt parent-child object tree for automatic service lifetime management and cleanup.
+- **ServiceContainer**: Service container providing dependency injection and service location; the concrete service set is defined by the current registration code. Uses Qt parent-child object tree for automatic service lifetime management and cleanup.
 
 详细插件开发指南请参阅 [`PLUGIN_GUIDE.md`](PLUGIN_GUIDE.md)。
 
