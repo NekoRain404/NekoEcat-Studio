@@ -7,8 +7,11 @@
 #include "services/RealtimePerformanceService.h"
 
 #include <QApplication>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTest>
+#include <QTemporaryDir>
 
 class RealtimePerformancePluginTest : public QObject {
   Q_OBJECT
@@ -176,6 +179,29 @@ private slots:
     RealtimePerformanceService svc(nullptr);
     svc.stopMonitoring();
     QVERIFY(!svc.isMonitoring());
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    RealtimePerformanceService svc(nullptr);
+    RealtimePerformancePlugin plugin(&svc);
+
+    const QString path = dir.filePath("performance_report.csv");
+    QVERIFY(plugin.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Metric,Value\n")));
+    QVERIFY(csv.contains(QStringLiteral("Quality Score")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReportToFile(QString()));
+    QVERIFY(!plugin.exportReportToFile(dir.path()));
   }
 };
 

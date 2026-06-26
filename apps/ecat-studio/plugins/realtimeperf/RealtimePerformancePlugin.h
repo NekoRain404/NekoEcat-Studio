@@ -42,6 +42,7 @@ public:
   RealtimePerformanceService *service() const { return service_; }
   LatencyMonitorWidget *latencyMonitor() const { return latencyMonitor_; }
   ThroughputMonitorWidget *throughputMonitor() const { return throughputMonitor_; }
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();

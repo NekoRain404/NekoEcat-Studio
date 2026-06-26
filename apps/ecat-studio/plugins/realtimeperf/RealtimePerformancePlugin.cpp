@@ -249,8 +249,14 @@ void RealtimePerformancePlugin::exportReport() {
       tr("CSV Files (*.csv);;All Files (*)"));
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool RealtimePerformancePlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Metric,Value\n";
@@ -284,4 +290,5 @@ void RealtimePerformancePlugin::exportReport() {
   out << "Jitter (us)," << q.jitterUs << "\n";
   out << "Packet Loss (%)," << q.packetLossPercent << "\n";
   out << "Consecutive Errors," << q.consecutiveErrors << "\n";
+  return out.status() == QTextStream::Ok && file.flush();
 }
