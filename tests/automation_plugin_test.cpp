@@ -12,6 +12,9 @@
 #include <QPlainTextEdit>
 #include <QListWidget>
 #include <QPushButton>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
 #include "plugins/automation/AutomationPlugin.h"
 #include "services/ScriptingService.h"
 #include "services/BatchOperationService.h"
@@ -117,6 +120,25 @@ private slots:
 
     QStringList scripts = scripting.listScripts();
     QVERIFY(scripts.contains(name + ".js"));
+  }
+
+  // Verify script names cannot escape the managed script directory.
+  void testScriptingServiceRejectsUnsafeScriptNames() {
+    EcatClient client;
+    SdoService sdo(&client);
+    TopologyService topo(&client);
+    ScriptingService scripting(&client, &sdo, &topo);
+
+    QVERIFY(!scripting.saveScript(QString(), QStringLiteral("log('empty');")));
+    QVERIFY(!scripting.saveScript(QStringLiteral("../escape"),
+                                  QStringLiteral("log('escape');")));
+    QVERIFY(!scripting.saveScript(QStringLiteral("nested/name"),
+                                  QStringLiteral("log('nested');")));
+    QVERIFY(scripting.loadScript(QStringLiteral("../escape")).isEmpty());
+
+    const QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    const QString escapedPath = QDir(appData).filePath(QStringLiteral("escape.js"));
+    QVERIFY(!QFile::exists(escapedPath));
   }
 
   // Verify registering a service makes it available to scripts

@@ -193,6 +193,8 @@ private:
 
   // Get the scripts directory path.
   static QString scriptsDir();
+  static bool isValidScriptName(const QString &name);
+  static QString scriptPath(const QString &name);
 
 #ifdef ECAT_SCRIPTING_ENABLED
   QJSEngine *engine_ = nullptr;           // JavaScript engine

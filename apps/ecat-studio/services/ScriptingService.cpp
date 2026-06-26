@@ -195,9 +195,11 @@ QStringList ScriptingService::listScripts() const {
 }
 
 bool ScriptingService::saveScript(const QString &name, const QString &script) {
+  if (!isValidScriptName(name)) return false;
+
   QDir dir;
-  dir.mkpath(scriptsDir());
-  QString path = scriptsDir() + QDir::separator() + name + QStringLiteral(".js");
+  if (!dir.mkpath(scriptsDir())) return false;
+  const QString path = scriptPath(name);
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
   file.write(script.toUtf8());
@@ -205,7 +207,9 @@ bool ScriptingService::saveScript(const QString &name, const QString &script) {
 }
 
 QString ScriptingService::loadScript(const QString &name) const {
-  QString path = scriptsDir() + QDir::separator() + name + QStringLiteral(".js");
+  if (!isValidScriptName(name)) return {};
+
+  const QString path = scriptPath(name);
   QFile file(path);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return {};
   return QString::fromUtf8(file.readAll());
@@ -216,4 +220,18 @@ void ScriptingService::abortRunning() { abortRequested_ = true; }
 QString ScriptingService::scriptsDir() {
   return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
          QDir::separator() + QStringLiteral("scripts");
+}
+
+bool ScriptingService::isValidScriptName(const QString &name) {
+  if (name.isEmpty()) return false;
+
+  const QFileInfo info(name);
+  if (info.isAbsolute()) return false;
+  if (name == QStringLiteral(".") || name == QStringLiteral("..")) return false;
+  if (name.contains(QLatin1Char('/')) || name.contains(QLatin1Char('\\'))) return false;
+  return true;
+}
+
+QString ScriptingService::scriptPath(const QString &name) {
+  return QDir(scriptsDir()).filePath(name + QStringLiteral(".js"));
 }
