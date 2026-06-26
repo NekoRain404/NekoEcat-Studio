@@ -1,10 +1,8 @@
 #pragma once
 
 // ProtocolAnalyzerService — capture backend for the Protocol Analyzer plugin.
-// Simulates EtherCAT frame capture, filtering, and statistics.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+// Maintains capture state, filters, frames, and statistics. Until a real packet
+// capture backend is wired, startCapture() does not synthesize EtherCAT frames.
 
 #include <QObject>
 #include <QVector>
@@ -70,12 +68,8 @@ signals:
   void statisticsUpdated(const ProtocolStatistics &stats);
 
 private:
-  void generateFrame();
-
   QVector<ProtocolFrame> frames_;
-  QTimer *timer_ = nullptr;
   ProtocolFilter filter_;
   ProtocolStatistics stats_;
   bool capturing_ = false;
-  int tickCount_ = 0;
 };

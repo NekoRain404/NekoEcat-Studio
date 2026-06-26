@@ -5,10 +5,12 @@
 //   - Capture start/stop state management
 //   - Protocol filter configuration
 //   - Statistics defaults and JSON export
-//   - Frame capture, clear, and retrieval
+//   - Capture fails closed without synthetic frames
 //   - Frame type and direction enum values
 #include <QTest>
 #include <QApplication>
+#include <QFile>
+#include <QSignalSpy>
 #include "plugins/protocol/ProtocolAnalyzerPlugin.h"
 #include "plugins/protocol/ProtocolAnalyzerService.h"
 
@@ -97,28 +99,60 @@ private slots:
     QVERIFY(json.contains("bandwidthBps"));
   }
 
-  // Test frame capture and clear resets frameCount
-  void testServiceClearFrames() {
+  // Test capture does not synthesize frames without a real backend
+  void testServiceCaptureDoesNotSynthesizeFrames() {
     ProtocolAnalyzerService svc;
+    QSignalSpy frameSpy(&svc, &ProtocolAnalyzerService::frameCaptured);
+    QSignalSpy statsSpy(&svc, &ProtocolAnalyzerService::statisticsUpdated);
+    QVERIFY(frameSpy.isValid());
+    QVERIFY(statsSpy.isValid());
+
     svc.startCapture();
     QTest::qWait(100);
     svc.stopCapture();
-    QVERIFY(svc.frameCount() > 0);
-    svc.clearFrames();
+
     QCOMPARE(svc.frameCount(), 0);
+    QCOMPARE(svc.getFrames(5).size(), 0);
+    QCOMPARE(frameSpy.count(), 0);
+    QCOMPARE(statsSpy.count(), 0);
+    QCOMPARE(svc.statistics().totalFrames, 0);
+    QCOMPARE(svc.statistics().bandwidthBps, 0.0);
   }
 
-  // Test getFrames returns bounded results with valid timestamps
-  void testServiceGetFrames() {
+  // Test clear resets empty capture state and emits a zero-stat update
+  void testServiceClearFrames() {
+    ProtocolAnalyzerService svc;
+    QSignalSpy statsSpy(&svc, &ProtocolAnalyzerService::statisticsUpdated);
+    QVERIFY(statsSpy.isValid());
+
+    svc.clearFrames();
+
+    QCOMPARE(svc.frameCount(), 0);
+    QCOMPARE(statsSpy.count(), 1);
+  }
+
+  // Test getFrames remains empty without backend-captured frames
+  void testServiceGetFramesRequiresBackendFrames() {
     ProtocolAnalyzerService svc;
     svc.startCapture();
     QTest::qWait(100);
     svc.stopCapture();
+
     auto frames = svc.getFrames(5);
-    QVERIFY(frames.size() <= 5);
-    QVERIFY(frames.size() > 0);
-    QVERIFY(frames.first().timestamp > 0);
-    QVERIFY(!frames.first().decodedSummary.isEmpty());
+    QVERIFY(frames.isEmpty());
+  }
+
+  void testSourceDoesNotContainSyntheticCaptureGenerator() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/protocol/ProtocolAnalyzerService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("generateFrame")),
+             "Protocol analyzer must not keep a synthetic frame generator");
+    QVERIFY2(!text.contains(QStringLiteral("QByteArray(64")),
+             "Protocol analyzer must not synthesize frame payloads");
+    QVERIFY2(!text.contains(QStringLiteral("tickCount_ % 5")),
+             "Protocol analyzer must not cycle fake protocol frame types");
   }
 
   // Verify ProtocolFrameType enum values
