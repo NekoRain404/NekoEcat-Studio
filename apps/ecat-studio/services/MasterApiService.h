@@ -1,16 +1,17 @@
 #pragma once
 
-// MasterApiService — low-level EtherCAT master API interface.
+// MasterApiService — low-level EtherCAT master API boundary.
 //
 // Provides master creation, activation, deactivation, and state monitoring.
-// Wraps the ecrt API for direct master control.
+// Until a real ecrt-backed lifecycle path is connected, lifecycle operations
+// fail closed instead of synthesizing local success.
 //
 // This service provides low-level EtherCAT master API access. It handles:
-//   - Master creation and initialization
-//   - Master activation and deactivation
+//   - Master creation and initialization boundary
+//   - Master activation and deactivation boundary
 //   - Master state monitoring
 //   - Slave configuration retrieval
-//   - Direct ecrt API integration
+//   - Direct ecrt API integration boundary
 //
 // Usage:
 //   ServiceContainer *container = ...;
@@ -93,6 +94,8 @@ signals:
   void error(const QString &message);
 
 private:
+  bool backendReady() const;
+
   EcatClient *client_;        // TCP client to ecatd daemon
   bool created_ = false;      // Whether master is created
   bool active_ = false;       // Whether master is active

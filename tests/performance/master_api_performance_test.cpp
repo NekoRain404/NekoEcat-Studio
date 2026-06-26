@@ -49,7 +49,7 @@ private slots:
   void testSlaveConfigThroughput() {
     EcatClient client;
     MasterApiService svc(&client);
-    svc.createMaster();
+    QVERIFY(!svc.createMaster());
 
     QElapsedTimer timer;
     timer.start();
@@ -58,7 +58,7 @@ private slots:
     volatile int sink = 0;
     for (int i = 0; i < count; i++) {
       SlaveApiConfig cfg = svc.slaveConfig(i % 100);
-      sink = cfg.position;
+      sink = cfg.valid ? cfg.position : -1;
     }
 
     qint64 elapsed = timer.elapsed();

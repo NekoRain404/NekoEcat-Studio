@@ -2,15 +2,15 @@
 //
 // Test coverage:
 //   - Initial master state (no slaves, no link)
-//   - Master creation with signal
-//   - Idempotent create and activate
+//   - Master creation fails closed without backend confirmation
+//   - Repeated create/activate attempts do not synthesize lifecycle success
 //   - Activate before create failure
-//   - Activate after create with state verification
-//   - Deactivate with signal and state change
+//   - Activation remains closed after rejected create
+//   - Deactivate without active master is a no-op
 //   - Idempotent deactivate
 //   - Slave config query (valid, invalid, negative position)
 //   - Null client error handling
-//   - Full lifecycle (create -> activate -> deactivate)
+//   - Rejected lifecycle does not emit success signals
 
 #include <QTest>
 #include <QSignalSpy>
@@ -30,21 +30,24 @@ private slots:
     QVERIFY(!st.linkUp);
   }
 
-  // Test creating master with signal verification
-  void testCreateMaster() {
+  // Master creation must not be synthesized without backend confirmation.
+  void testCreateMasterFailsClosedWithoutBackend() {
     EcatClient client;
     MasterApiService svc(&client);
     QSignalSpy spy(&svc, &MasterApiService::masterCreated);
-    QVERIFY(svc.createMaster());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.createMaster());
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(!svc.masterState().linkUp);
   }
 
-  // Verify create is idempotent
-  void testCreateIdempotent() {
+  // Verify repeated create attempts do not create a local-only master.
+  void testRepeatedCreateDoesNotSynthesizeMaster() {
     EcatClient client;
     MasterApiService svc(&client);
-    QVERIFY(svc.createMaster());
-    QVERIFY(svc.createMaster());
+    QSignalSpy spy(&svc, &MasterApiService::masterCreated);
+    QVERIFY(!svc.createMaster());
+    QVERIFY(!svc.createMaster());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Verify activate fails before create
@@ -54,36 +57,34 @@ private slots:
     QVERIFY(!svc.activateMaster());
   }
 
-  // Test activate after create with link state check
-  void testActivateAfterCreate() {
+  // Activation must remain closed after backend creation is rejected.
+  void testActivateAfterRejectedCreateFailsClosed() {
     EcatClient client;
     MasterApiService svc(&client);
     QSignalSpy spy(&svc, &MasterApiService::masterActivated);
-    svc.createMaster();
-    QVERIFY(svc.activateMaster());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.createMaster());
+    QVERIFY(!svc.activateMaster());
+    QCOMPARE(spy.count(), 0);
     MasterApiState st = svc.masterState();
-    QVERIFY(st.linkUp);
+    QVERIFY(!st.linkUp);
   }
 
-  // Verify activate is idempotent
-  void testActivateIdempotent() {
+  // Verify repeated activate attempts do not report success offline.
+  void testRepeatedActivateFailsClosedWithoutBackend() {
     EcatClient client;
     MasterApiService svc(&client);
-    svc.createMaster();
-    svc.activateMaster();
-    QVERIFY(svc.activateMaster());
+    QVERIFY(!svc.createMaster());
+    QVERIFY(!svc.activateMaster());
+    QVERIFY(!svc.activateMaster());
   }
 
-  // Test deactivation with signal and state change
-  void testDeactivate() {
+  // Deactivation without an active master is an idempotent no-op.
+  void testDeactivateWithoutActiveMasterIsNoOp() {
     EcatClient client;
     MasterApiService svc(&client);
     QSignalSpy spy(&svc, &MasterApiService::masterDeactivated);
-    svc.createMaster();
-    svc.activateMaster();
     QVERIFY(svc.deactivateMaster());
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
     MasterApiState st = svc.masterState();
     QVERIFY(!st.linkUp);
   }
@@ -104,21 +105,20 @@ private slots:
     QVERIFY(!cfg.valid);
   }
 
-  // Verify slave config valid after create
-  void testSlaveConfigAfterCreate() {
+  // Rejected create must not unlock local-only slave configuration.
+  void testSlaveConfigAfterRejectedCreateIsInvalid() {
     EcatClient client;
     MasterApiService svc(&client);
-    svc.createMaster();
+    QVERIFY(!svc.createMaster());
     SlaveApiConfig cfg = svc.slaveConfig(0);
-    QVERIFY(cfg.valid);
-    QCOMPARE(cfg.position, 0);
+    QVERIFY(!cfg.valid);
   }
 
   // Verify slave config invalid for negative position
   void testSlaveConfigNegativePosition() {
     EcatClient client;
     MasterApiService svc(&client);
-    svc.createMaster();
+    QVERIFY(!svc.createMaster());
     SlaveApiConfig cfg = svc.slaveConfig(-1);
     QVERIFY(!cfg.valid);
   }
@@ -131,23 +131,23 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  // Test full create/activate/deactivate lifecycle
-  void testFullLifecycle() {
+  // Rejected lifecycle must not emit success signals or set linkUp locally.
+  void testRejectedLifecycleDoesNotEmitSuccessSignals() {
     EcatClient client;
     MasterApiService svc(&client);
     QSignalSpy createdSpy(&svc, &MasterApiService::masterCreated);
     QSignalSpy activatedSpy(&svc, &MasterApiService::masterActivated);
     QSignalSpy deactivatedSpy(&svc, &MasterApiService::masterDeactivated);
 
-    svc.createMaster();
-    svc.activateMaster();
-    QCOMPARE(svc.masterState().linkUp, true);
-    svc.deactivateMaster();
+    QVERIFY(!svc.createMaster());
+    QVERIFY(!svc.activateMaster());
+    QCOMPARE(svc.masterState().linkUp, false);
+    QVERIFY(svc.deactivateMaster());
     QCOMPARE(svc.masterState().linkUp, false);
 
-    QCOMPARE(createdSpy.count(), 1);
-    QCOMPARE(activatedSpy.count(), 1);
-    QCOMPARE(deactivatedSpy.count(), 1);
+    QCOMPARE(createdSpy.count(), 0);
+    QCOMPARE(activatedSpy.count(), 0);
+    QCOMPARE(deactivatedSpy.count(), 0);
   }
 };
 

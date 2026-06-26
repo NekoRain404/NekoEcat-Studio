@@ -1,20 +1,28 @@
 #include "MasterApiService.h"
 #include "infra/EcatClient.h"
 
-// MasterApiService.cpp — EtherCAT master lifecycle (create/activate/deactivate)
+// MasterApiService.cpp — EtherCAT master lifecycle boundary
 //
 // Implementation notes:
-//   - Thin state machine: tracks created_ and active_ flags
+//   - Tracks lifecycle state only after a backend-confirmed transition
 //   - Validates prerequisites (client exists, master created) before transitions
-//   - Slave config returns a lightweight descriptor; no hardware I/O
+//   - Fails closed until a real ecrt-backed lifecycle backend is connected
 
 MasterApiService::MasterApiService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {}
+
+bool MasterApiService::backendReady() const {
+  return false;
+}
 
 bool MasterApiService::createMaster() {
   if (created_) return true;
   if (!client_) {
     emit error(QStringLiteral("No client available"));
+    return false;
+  }
+  if (!backendReady()) {
+    emit error(QStringLiteral("Master API backend is not available"));
     return false;
   }
   created_ = true;
@@ -28,6 +36,10 @@ bool MasterApiService::activateMaster() {
     return false;
   }
   if (active_) return true;
+  if (!backendReady()) {
+    emit error(QStringLiteral("Master API backend is not available"));
+    return false;
+  }
   active_ = true;
   state_.linkUp = true;
   emit masterActivated();
@@ -36,6 +48,10 @@ bool MasterApiService::activateMaster() {
 
 bool MasterApiService::deactivateMaster() {
   if (!active_) return true;
+  if (!backendReady()) {
+    emit error(QStringLiteral("Master API backend is not available"));
+    return false;
+  }
   active_ = false;
   state_.linkUp = false;
   emit masterDeactivated();
