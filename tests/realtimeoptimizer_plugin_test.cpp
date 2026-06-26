@@ -9,8 +9,10 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTest>
+#include <QTemporaryDir>
 
 class RealtimeOptimizerPluginTest : public QObject {
   Q_OBJECT
@@ -173,6 +175,28 @@ private slots:
     svc.optimizeResources();
     svc.optimizePriorities();
     QCOMPARE(spy.count(), 0);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    RealtimeOptimizerService svc;
+    RealtimeOptimizerPlugin plugin(&svc);
+
+    const QString path = dir.filePath("optimization_report.csv");
+    QVERIFY(plugin.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Category,Description,Before,After,Improvement\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReportToFile(QString()));
+    QVERIFY(!plugin.exportReportToFile(dir.path()));
   }
 
   void testSourceDoesNotContainSyntheticRealtimeOptimizationData() {

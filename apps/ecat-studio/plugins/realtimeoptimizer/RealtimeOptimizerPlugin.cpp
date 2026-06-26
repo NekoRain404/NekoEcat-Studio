@@ -208,8 +208,14 @@ void RealtimeOptimizerPlugin::exportReport() {
       tr("CSV Files (*.csv);;All Files (*)"));
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool RealtimeOptimizerPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Category,Description,Before,After,Improvement\n";
@@ -221,4 +227,5 @@ void RealtimeOptimizerPlugin::exportReport() {
         << result.after << ","
         << result.improvement << "\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }

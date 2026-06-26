@@ -42,6 +42,7 @@ public:
   ThroughputOptimizerWidget *throughputOptimizer() const {
     return throughputOptimizer_;
   }
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();
