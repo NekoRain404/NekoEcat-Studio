@@ -471,6 +471,17 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **错误分析** | ✅ 诊断日志 | ✅ ErrorAnalysisPlugin | **持平** |"),
       QStringLiteral("| **DC 同步诊断** | ✅ | ✅ DC Sync + Precision | **持平** |"),
       QStringLiteral("| **看门狗监控** | ✅ | ✅ WatchdogService | **持平** |"),
+      QStringLiteral("接近 — 核心完整"),
+      QStringLiteral("| **架构质量** | ★★★★☆ | ★★★★★ |"),
+      QStringLiteral("| **代码质量** | ★★★★☆ | ★★★★★ |"),
+      QStringLiteral("架构设计更适合开源扩展"),
+      QStringLiteral("代码质量当前验证较充分"),
+      QStringLiteral("信息密度高，证据驱动的工作流设计"),
+      QStringLiteral("中英双语支持，国际化完成度高"),
+      QStringLiteral("NekoEcat 场景优势"),
+      QStringLiteral("NekoEcat 调试场景优势"),
+      QStringLiteral("自动修复建议"),
+      QStringLiteral("对标 TwinCAT 完整功能，支持复杂工业应用"),
   };
 
   for (const QString &docPath : docPaths) {

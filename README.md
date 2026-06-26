@@ -285,9 +285,9 @@ The ESI Browser enhances the ESI repository with tree-based device browsing, PDO
 
 ### 8. Online Diagnostics / 在线诊断
 
-Online Diagnostics 提供实时总线监控、错误分析器和健康评分。包含 BusMonitorWidget 和 ErrorAnalyzerWidget，支持帧计数、错误率跟踪和自动修复建议。
+Online Diagnostics 提供实时总线监控、错误分析器和健康评分。包含 BusMonitorWidget 和 ErrorAnalyzerWidget，支持帧计数、错误率跟踪和需人工复核的诊断建议。
 
-Online Diagnostics provides real-time bus monitoring, error analysis, and health scoring. Includes BusMonitorWidget and ErrorAnalyzerWidget with frame counting, error rate tracking, and automated fix suggestions.
+Online Diagnostics provides real-time bus monitoring, error analysis, and health scoring. Includes BusMonitorWidget and ErrorAnalyzerWidget with frame counting, error rate tracking, and reviewable diagnostic suggestions.
 
 ### 9. DC Sync Precision / DC 同步精度
 
