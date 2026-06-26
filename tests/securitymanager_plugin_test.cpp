@@ -8,6 +8,9 @@
 //   - Add/remove/update operations for users, roles, permissions
 //   - Audit entry management and filtering
 //   - Status label and report export
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -214,11 +217,25 @@ private slots:
   // Export security report to file and verify creation
   void testExportReport() {
     SecurityManagerPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("security_report_test.txt");
-    plugin.exportSecurityReport(path);
+    const QString path = dir.filePath("security_report_test.txt");
+    QVERIFY(plugin.exportSecurityReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Security Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Users: 3\n")));
+    QVERIFY(text.contains(QStringLiteral("Audit Entries: 2\n")));
+    QVERIFY(text.contains(QStringLiteral("admin [Administrator] active\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportSecurityReport(QString()));
+    QVERIFY(!plugin.exportSecurityReport(dir.path()));
   }
 };
 

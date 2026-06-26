@@ -135,27 +135,29 @@ void SecurityManagerPlugin::filterAudit(const QString &user,
   rebuildAuditTable();
 }
 
-void SecurityManagerPlugin::exportSecurityReport(const QString &path) {
+bool SecurityManagerPlugin::exportSecurityReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Security Report\n";
-    out << "===============\n\n";
-    out << "Users: " << users_.size() << "\n";
-    out << "Roles: " << roles_.size() << "\n";
-    out << "Permissions: " << permissions_.size() << "\n";
-    out << "Audit Entries: " << auditLog_.size() << "\n\n";
-    out << "--- Users ---\n";
-    for (const auto &u : users_) {
-      out << u.username << " [" << u.role << "] "
-          << (u.active ? "active" : "inactive") << "\n";
-    }
-    out << "\n--- Audit Log ---\n";
-    for (const auto &e : auditLog_) {
-      out << e.timestamp.toString(Qt::ISODate) << " " << e.user << " "
-          << e.action << " " << e.resource << " " << e.severity << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Security Report\n";
+  out << "===============\n\n";
+  out << "Users: " << users_.size() << "\n";
+  out << "Roles: " << roles_.size() << "\n";
+  out << "Permissions: " << permissions_.size() << "\n";
+  out << "Audit Entries: " << auditLog_.size() << "\n\n";
+  out << "--- Users ---\n";
+  for (const auto &u : users_) {
+    out << u.username << " [" << u.role << "] "
+        << (u.active ? "active" : "inactive") << "\n";
   }
+  out << "\n--- Audit Log ---\n";
+  for (const auto &e : auditLog_) {
+    out << e.timestamp.toString(Qt::ISODate) << " " << e.user << " "
+        << e.action << " " << e.resource << " " << e.severity << "\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *SecurityManagerPlugin::userTable() const { return userTable_; }

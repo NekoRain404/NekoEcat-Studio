@@ -79,7 +79,7 @@ public:
   int auditCount() const;
   void filterAudit(const QString &user, const QString &severity);
 
-  void exportSecurityReport(const QString &path);
+  bool exportSecurityReport(const QString &path);
 
   QTableWidget *userTable() const;
   QTableWidget *roleTable() const;
