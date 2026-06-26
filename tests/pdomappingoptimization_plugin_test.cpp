@@ -3,8 +3,10 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QFile>
+#include <QTemporaryDir>
 
 #include "services/PdoMappingOptimizationService.h"
 #include "plugins/pdomappingoptimization/PdoMappingOptimizationPlugin.h"
@@ -32,6 +34,7 @@ private slots:
   void testPluginDefaultOrder();
   void testPluginWidget();
   void testPluginService();
+  void testExportReportReportsPersistenceOutcome();
 
   void testMappingOptimizerWidget();
   void testSizeOptimizerWidget();
@@ -174,6 +177,26 @@ void PdoMappingOptimizationPluginTest::testPluginWidget() {
 
 void PdoMappingOptimizationPluginTest::testPluginService() {
   QVERIFY(plugin_->service() != nullptr);
+}
+
+void PdoMappingOptimizationPluginTest::testExportReportReportsPersistenceOutcome() {
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  const QString path = dir.filePath("pdo_mapping_optimization.md");
+  QVERIFY(plugin_->exportReportToFile(path));
+  QVERIFY(QFile::exists(path));
+
+  QFile file(path);
+  QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+  const QString markdown = QString::fromUtf8(file.readAll());
+  QVERIFY(markdown.startsWith(QStringLiteral("# PDO Mapping Optimization Report\n")));
+  QVERIFY(markdown.contains(QStringLiteral("No optimizations applied yet.")));
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportReportToFile(QString()));
+  QVERIFY(!plugin_->exportReportToFile(dir.path()));
 }
 
 void PdoMappingOptimizationPluginTest::testMappingOptimizerWidget() {

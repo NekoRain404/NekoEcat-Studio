@@ -40,6 +40,7 @@ public:
   MappingOptimizerWidget *mappingOptimizer() const { return mappingWidget_; }
   SizeOptimizerWidget *sizeOptimizer() const { return sizeWidget_; }
   QPushButton *exportButton() const { return exportBtn_; }
+  bool exportReportToFile(const QString &path);
 
 private slots:
   void handleMappingOptimize();
