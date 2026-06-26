@@ -25,16 +25,7 @@ bool WorkflowMaintenanceService::executeMaintenance(int taskId)
 {
     for (int i = 0; i < tasks_.size(); ++i) {
         if (tasks_[i].taskId == taskId) {
-            WfMaintenanceRecord record;
-            record.taskId = tasks_[i].taskId;
-            record.type = tasks_[i].type;
-            record.description = tasks_[i].description;
-            record.startTime = QDateTime::currentDateTime();
-            record.endTime = QDateTime::currentDateTime();
-            record.success = true;
-            history_.append(record);
-            emit maintenanceCompleted(record);
-            return true;
+            return false;
         }
     }
     return false;

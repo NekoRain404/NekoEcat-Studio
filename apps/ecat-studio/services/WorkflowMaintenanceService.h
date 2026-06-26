@@ -1,7 +1,8 @@
 #pragma once
 
-// WorkflowMaintenanceService -- schedules and executes preventive, corrective,
-// predictive, and scheduled maintenance tasks for EtherCAT networks.
+// WorkflowMaintenanceService -- schedules preventive, corrective, predictive,
+// and scheduled maintenance tasks for EtherCAT networks. Execution requires a
+// maintenance backend; until one is wired, execution fails closed.
 //
 // Thread safety: main (GUI) thread only.
 

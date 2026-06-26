@@ -2,7 +2,7 @@
 //
 // Test coverage:
 //   - Schedule maintenance task
-//   - Execute maintenance task
+//   - Execute maintenance task fails closed without maintenance backend
 //   - Execute nonexistent task returns false
 //   - Empty description returns false
 //   - Auto-assigned task IDs
@@ -45,9 +45,9 @@ private slots:
       auto tasks = svc.maintenanceSchedule();
       QCOMPARE(tasks.size(), 1);
 
-      QVERIFY(svc.executeMaintenance(tasks[0].taskId));
-      QCOMPARE(spy.count(), 1);
-      QVERIFY(spy.at(0).at(0).value<WfMaintenanceRecord>().success);
+      QVERIFY(!svc.executeMaintenance(tasks[0].taskId));
+      QCOMPARE(spy.count(), 0);
+      QCOMPARE(svc.maintenanceHistory().size(), 0);
   }
 
   void testExecuteNonexistentReturnsFalse() {
@@ -103,9 +103,7 @@ private slots:
       svc.executeMaintenance(tasks[0].taskId);
 
       auto history = svc.maintenanceHistory();
-      QCOMPARE(history.size(), 1);
-      QCOMPARE(history[0].description, QString("History task"));
-      QVERIFY(history[0].success);
+      QCOMPARE(history.size(), 0);
   }
 
   void testMaintenanceSchedule() {
@@ -165,9 +163,20 @@ private slots:
       svc.executeMaintenance(tasks[0].taskId);
 
       auto history = svc.maintenanceHistory();
-      QCOMPARE(history.size(), 1);
-      QVERIFY(history[0].startTime.isValid());
-      QVERIFY(history[0].endTime.isValid());
+      QCOMPARE(history.size(), 0);
+  }
+
+  void testSourceDoesNotMintSyntheticMaintenanceSuccess() {
+      QFile file(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/WorkflowMaintenanceService.cpp"));
+      QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+               qPrintable(file.errorString()));
+      const QString source = QString::fromUtf8(file.readAll());
+
+      QVERIFY2(!source.contains(QStringLiteral("record.success = true")),
+               "Maintenance execution must not synthesize success without a maintenance backend");
+      QVERIFY2(!source.contains(QStringLiteral("emit maintenanceCompleted(record)")),
+               "Maintenance execution must not emit completion without backend acknowledgement");
   }
 };
 
