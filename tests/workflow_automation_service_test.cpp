@@ -11,12 +11,13 @@
 //   - Automation progress signal
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/WorkflowAutomationService.h"
 
 class WorkflowAutomationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Automating a task emits started and completed signals
+  // Automating a task emits started but waits for an execution backend
   // Automate a task with schedule and triggers
   void testAutomateTask() {
       WorkflowAutomationService svc;
@@ -31,12 +32,12 @@ private slots:
 
       QVERIFY(svc.automateTask(cfg));
       QCOMPARE(startedSpy.count(), 1);
-      QCOMPARE(completedSpy.count(), 1);
+      QCOMPARE(completedSpy.count(), 0);
 
       auto s = svc.status(QStringLiteral("task"));
       QCOMPARE(s.type, QString("task"));
-      QCOMPARE(s.result, AutomationResult::Success);
-      QCOMPARE(s.progress, 100.0);
+      QCOMPARE(s.result, AutomationResult::Running);
+      QCOMPARE(s.progress, 0.0);
   }
 
   // Test automation with environment config and failFast
@@ -51,11 +52,10 @@ private slots:
       cfg.failFast = true;
 
       QVERIFY(svc.automateTest(cfg));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(1).toBool(), true);
+      QCOMPARE(spy.count(), 0);
 
       auto s = svc.status(QStringLiteral("test"));
-      QCOMPARE(s.result, AutomationResult::Success);
+      QCOMPARE(s.result, AutomationResult::Running);
   }
 
   // Deploy automation with rollback steps and dry run
@@ -88,7 +88,7 @@ private slots:
 
       QVERIFY(svc.automateMonitor(cfg));
       auto s = svc.status(QStringLiteral("monitor"));
-      QCOMPARE(s.result, AutomationResult::Success);
+      QCOMPARE(s.result, AutomationResult::Running);
   }
 
   // Empty task config returns false
@@ -123,8 +123,8 @@ private slots:
       QVERIFY(!svc.automateMonitor(cfg));
   }
 
-  // Cancel on completed task returns false
-  // Cancel completed task returns false
+  // Cancel on a backend-pending task marks it cancelled
+  // Cancel running task emits a failed completion
   void testCancel() {
       WorkflowAutomationService svc;
       AutoTaskConfig cfg;
@@ -132,8 +132,12 @@ private slots:
       svc.automateTask(cfg);
 
       auto s = svc.status(QStringLiteral("task"));
-      QCOMPARE(s.result, AutomationResult::Success);
-      QVERIFY(!svc.cancel(QStringLiteral("task")));
+      QCOMPARE(s.result, AutomationResult::Running);
+      QSignalSpy completedSpy(&svc, &WorkflowAutomationService::automationCompleted);
+      QVERIFY(svc.cancel(QStringLiteral("task")));
+      QCOMPARE(completedSpy.count(), 1);
+      QCOMPARE(completedSpy.at(0).at(1).toBool(), false);
+      QCOMPARE(svc.status(QStringLiteral("task")).result, AutomationResult::Cancelled);
   }
 
   // Cancel on nonexistent task returns false
@@ -159,9 +163,8 @@ private slots:
       QCOMPARE(svc.allStatuses().size(), 2);
   }
 
-  // Progress signal is emitted with 100% on completion
-  // Progress signal fires with 100% on completion
-  void testSignalProgress() {
+  // Progress signal must not report 100% without an execution backend
+  void testSignalProgressNotSynthesized() {
       WorkflowAutomationService svc;
       QSignalSpy spy(&svc, &WorkflowAutomationService::automationProgress);
 
@@ -169,8 +172,22 @@ private slots:
       cfg.task = QStringLiteral("progress_task");
       svc.automateTask(cfg);
 
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(1).toDouble(), 100.0);
+      QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotKeepSyntheticSuccessPath() {
+      QFile file(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/WorkflowAutomationService.cpp"));
+      QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+               qPrintable(file.errorString()));
+      const QString source = QString::fromUtf8(file.readAll());
+
+      QVERIFY2(!source.contains(QStringLiteral("s.result = AutomationResult::Success")),
+               "Workflow automation must not report success without an execution backend");
+      QVERIFY2(!source.contains(QStringLiteral("s.progress = 100.0")),
+               "Workflow automation must not report 100% progress without an execution backend");
+      QVERIFY2(!source.contains(QStringLiteral("emit automationCompleted(type, true)")),
+               "Workflow automation must not emit synthetic successful completion");
   }
 };
 

@@ -62,9 +62,11 @@ private slots:
     QVERIFY(scheduler.scheduleWorkflow(cfg));
     QCOMPARE(scheduler.workflowCount(), 1);
 
-    QSignalSpy spy(&scheduler, &WorkflowSchedulingService::workflowCompleted);
+    QSignalSpy spy(&scheduler, &WorkflowSchedulingService::workflowTriggered);
     scheduler.triggerWorkflow(QStringLiteral("deploy_wf"));
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(scheduler.runs(QStringLiteral("deploy_wf")).last().status,
+             WorkflowStatus::Running);
   }
 
   void testOptimizationDependencyResolution() {
@@ -196,9 +198,11 @@ private slots:
     cfg.steps.append(QJsonObject{{"action", "verify"}});
     QVERIFY(scheduler.scheduleWorkflow(cfg));
 
-    QSignalSpy spy(&scheduler, &WorkflowSchedulingService::workflowCompleted);
+    QSignalSpy spy(&scheduler, &WorkflowSchedulingService::workflowTriggered);
     scheduler.triggerWorkflow(QStringLiteral("full_lifecycle"));
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(scheduler.runs(QStringLiteral("full_lifecycle")).last().status,
+             WorkflowStatus::Running);
 
     designer.clearNodes();
     QCOMPARE(designer.nodeCount(), 0);

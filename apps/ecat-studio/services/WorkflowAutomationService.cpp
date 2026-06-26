@@ -140,14 +140,5 @@ AutomationStatus WorkflowAutomationService::executeAutomation(
     statuses_[type] = s;
 
     emit automationStarted(type);
-
-    s.result = AutomationResult::Success;
-    s.progress = 100.0;
-    s.endTime = QDateTime::currentDateTime();
-    s.message = QStringLiteral("%1 automation completed").arg(type);
-    statuses_[type] = s;
-
-    emit automationProgress(type, 100.0);
-    emit automationCompleted(type, true);
     return s;
 }

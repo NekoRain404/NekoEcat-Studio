@@ -41,12 +41,6 @@ bool WorkflowSchedulingService::triggerWorkflow(const QString &workflowId)
     runs_[workflowId].append(run);
 
     emit workflowTriggered(workflowId);
-
-    auto &r = runs_[workflowId].last();
-    r.status = WorkflowStatus::Completed;
-    r.completedAt = QDateTime::currentDateTime();
-    r.currentStep = r.totalSteps;
-    emit workflowCompleted(workflowId, true);
     return true;
 }
 

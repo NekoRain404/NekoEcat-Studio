@@ -11,6 +11,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/WorkflowSchedulingService.h"
 
 class WorkflowSchedulingServiceTest : public QObject {
@@ -65,8 +66,8 @@ private slots:
       QVERIFY(!svc.scheduleWorkflow(cfg));
   }
 
-  // Trigger workflow and verify run status and step count
-  // Triggering a workflow emits signal and records run
+  // Trigger workflow and verify it waits for an execution backend
+  // Triggering a workflow emits signal and records a running run
   void testTriggerWorkflow() {
       WorkflowSchedulingService svc;
       auto cfg = makeConfig();
@@ -78,8 +79,10 @@ private slots:
 
       auto rs = svc.runs(QStringLiteral("wf1"));
       QCOMPARE(rs.size(), 1);
-      QCOMPARE(rs[0].status, WorkflowStatus::Completed);
+      QCOMPARE(rs[0].status, WorkflowStatus::Running);
       QCOMPARE(rs[0].totalSteps, 2);
+      QCOMPARE(rs[0].currentStep, 0);
+      QVERIFY(!rs[0].completedAt.isValid());
   }
 
   // Trigger nonexistent workflow returns false
@@ -90,7 +93,7 @@ private slots:
   }
 
   // Pause workflow and verify signal
-  // Pausing a completed workflow returns false
+  // Pausing a triggered workflow succeeds while it waits for a backend
   void testPauseWorkflow() {
       WorkflowSchedulingService svc;
       auto cfg = makeConfig();
@@ -98,18 +101,22 @@ private slots:
       svc.triggerWorkflow(QStringLiteral("wf1"));
 
       QSignalSpy spy(&svc, &WorkflowSchedulingService::workflowPaused);
-      QVERIFY(!svc.pauseWorkflow(QStringLiteral("wf1")));
+      QVERIFY(svc.pauseWorkflow(QStringLiteral("wf1")));
+      QCOMPARE(spy.count(), 1);
   }
 
-  // Resuming a completed workflow returns false
+  // Resuming a paused workflow returns it to running state
   void testResumeWorkflow() {
       WorkflowSchedulingService svc;
       auto cfg = makeConfig();
       svc.scheduleWorkflow(cfg);
       svc.triggerWorkflow(QStringLiteral("wf1"));
+      QVERIFY(svc.pauseWorkflow(QStringLiteral("wf1")));
 
       QSignalSpy spy(&svc, &WorkflowSchedulingService::workflowResumed);
-      QVERIFY(!svc.resumeWorkflow(QStringLiteral("wf1")));
+      QVERIFY(svc.resumeWorkflow(QStringLiteral("wf1")));
+      QCOMPARE(spy.count(), 1);
+      QCOMPARE(svc.runs(QStringLiteral("wf1")).last().status, WorkflowStatus::Running);
   }
 
   // Canceling a workflow removes it from list
@@ -160,16 +167,27 @@ private slots:
       QCOMPARE(svc.runs(QStringLiteral("wf1")).size(), 2);
   }
 
-  // Completion signal is emitted with workflow ID and success flag
-  void testSignalWorkflowCompleted() {
+  // Completion signal must not be emitted without a workflow execution backend
+  void testTriggerDoesNotEmitSyntheticWorkflowCompleted() {
       WorkflowSchedulingService svc;
       QSignalSpy spy(&svc, &WorkflowSchedulingService::workflowCompleted);
       svc.scheduleWorkflow(makeConfig());
       svc.triggerWorkflow(QStringLiteral("wf1"));
 
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(0).toString(), QString("wf1"));
-      QCOMPARE(spy.at(0).at(1).toBool(), true);
+      QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotKeepSyntheticCompletionPath() {
+      QFile file(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/WorkflowSchedulingService.cpp"));
+      QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+               qPrintable(file.errorString()));
+      const QString source = QString::fromUtf8(file.readAll());
+
+      QVERIFY2(!source.contains(QStringLiteral("r.status = WorkflowStatus::Completed")),
+               "Workflow scheduling must not complete runs without an execution backend");
+      QVERIFY2(!source.contains(QStringLiteral("emit workflowCompleted(workflowId, true)")),
+               "Workflow scheduling must not emit synthetic successful completion");
   }
 };
 

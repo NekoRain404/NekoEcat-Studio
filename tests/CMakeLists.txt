@@ -6553,6 +6553,9 @@ target_link_libraries(workflow_automation_service_test PRIVATE
     Qt6::Test
 )
 set_target_properties(workflow_automation_service_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(workflow_automation_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME workflow_automation_service_test COMMAND workflow_automation_service_test)
 set_tests_properties(workflow_automation_service_test PROPERTIES
     TIMEOUT 30
@@ -6574,6 +6577,9 @@ target_link_libraries(workflow_scheduling_service_test PRIVATE
     Qt6::Test
 )
 set_target_properties(workflow_scheduling_service_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(workflow_scheduling_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME workflow_scheduling_service_test COMMAND workflow_scheduling_service_test)
 set_tests_properties(workflow_scheduling_service_test PROPERTIES
     TIMEOUT 30
