@@ -110,8 +110,10 @@ void HardwareVerificationPlugin::updateTimingTab() {
   auto result = service_->verifyTiming();
   QStringList lines;
   for (const auto &t : result.tests) {
-    lines << QStringLiteral("%1: %2 (%3 ms) — %4")
-                 .arg(t.testName, t.passed ? tr("PASS") : tr("FAIL"))
+    const QString status =
+        t.skipped ? tr("SKIP") : (t.passed ? tr("PASS") : tr("FAIL"));
+    lines << QStringLiteral("%1: %2 (%3 ms) - %4")
+                 .arg(t.testName, status)
                  .arg(t.durationMs)
                  .arg(t.details);
   }
@@ -130,8 +132,10 @@ void HardwareVerificationPlugin::updateComplianceTab() {
   auto result = service_->verifyCompliance();
   QStringList lines;
   for (const auto &t : result.tests) {
-    lines << QStringLiteral("%1: %2 (%3 ms) — %4")
-                 .arg(t.testName, t.passed ? tr("PASS") : tr("FAIL"))
+    const QString status =
+        t.skipped ? tr("SKIP") : (t.passed ? tr("PASS") : tr("FAIL"));
+    lines << QStringLiteral("%1: %2 (%3 ms) - %4")
+                 .arg(t.testName, status)
                  .arg(t.durationMs)
                  .arg(t.details);
   }

@@ -75,6 +75,9 @@ private:
   TestResult runStateMachineCompliance();
   TestResult runSdoCompliance();
   TestResult runPdoCompliance();
+  VerificationResult offlineResult(const QString &verificationId,
+                                   const QString &verificationName,
+                                   const QVector<TestResult> &tests);
 
   EcatClient *client_;
   QVector<VerificationResult> results_;

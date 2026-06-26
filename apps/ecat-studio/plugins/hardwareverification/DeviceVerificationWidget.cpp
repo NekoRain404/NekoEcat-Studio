@@ -71,9 +71,9 @@ void DeviceVerificationWidget::displayResult(
     const auto &t = result.tests[i];
     resultTable_->setItem(i, 0, new QTableWidgetItem(t.testId));
     resultTable_->setItem(i, 1, new QTableWidgetItem(t.testName));
-    resultTable_->setItem(
-        i, 2,
-        new QTableWidgetItem(t.passed ? tr("PASS") : tr("FAIL")));
+    const QString status =
+        t.skipped ? tr("SKIP") : (t.passed ? tr("PASS") : tr("FAIL"));
+    resultTable_->setItem(i, 2, new QTableWidgetItem(status));
     resultTable_->setItem(
         i, 3,
         new QTableWidgetItem(QStringLiteral("%1 ms").arg(t.durationMs)));

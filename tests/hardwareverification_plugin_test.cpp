@@ -61,13 +61,13 @@ private slots:
     auto result = service.verifyDevice(0);
     QCOMPARE(result.verificationId, QString("device_0"));
     QCOMPARE(result.verificationName, QString("Device Verification (Position 0)"));
-    QCOMPARE(result.passed, 4);
+    QCOMPARE(result.passed, 0);
     QCOMPARE(result.failed, 0);
-    QCOMPARE(result.skipped, 0);
+    QCOMPARE(result.skipped, 4);
     QCOMPARE(result.totalTests(), 4);
-    QVERIFY(result.allPassed());
+    QVERIFY(!result.allPassed());
     QCOMPARE(result.tests.size(), 4);
-    QVERIFY(result.totalDurationMs > 0);
+    QCOMPARE(result.totalDurationMs, 0.0);
   }
 
   void testDeviceVerificationDifferentPositions() {
@@ -86,10 +86,11 @@ private slots:
     auto result = service.verifyNetwork();
     QCOMPARE(result.verificationId, QString("network"));
     QCOMPARE(result.verificationName, QString("Network Verification"));
-    QCOMPARE(result.passed, 4);
+    QCOMPARE(result.passed, 0);
     QCOMPARE(result.failed, 0);
+    QCOMPARE(result.skipped, 4);
     QCOMPARE(result.totalTests(), 4);
-    QVERIFY(result.allPassed());
+    QVERIFY(!result.allPassed());
     QCOMPARE(result.tests.size(), 4);
   }
 
@@ -99,10 +100,11 @@ private slots:
     auto result = service.verifyTiming();
     QCOMPARE(result.verificationId, QString("timing"));
     QCOMPARE(result.verificationName, QString("Timing Verification"));
-    QCOMPARE(result.passed, 4);
+    QCOMPARE(result.passed, 0);
     QCOMPARE(result.failed, 0);
+    QCOMPARE(result.skipped, 4);
     QCOMPARE(result.totalTests(), 4);
-    QVERIFY(result.allPassed());
+    QVERIFY(!result.allPassed());
     QCOMPARE(result.tests.size(), 4);
   }
 
@@ -112,10 +114,11 @@ private slots:
     auto result = service.verifyCompliance();
     QCOMPARE(result.verificationId, QString("compliance"));
     QCOMPARE(result.verificationName, QString("Compliance Verification"));
-    QCOMPARE(result.passed, 4);
+    QCOMPARE(result.passed, 0);
     QCOMPARE(result.failed, 0);
+    QCOMPARE(result.skipped, 4);
     QCOMPARE(result.totalTests(), 4);
-    QVERIFY(result.allPassed());
+    QVERIFY(!result.allPassed());
     QCOMPARE(result.tests.size(), 4);
   }
 
@@ -127,9 +130,9 @@ private slots:
     QVERIFY(!t.testId.isEmpty());
     QVERIFY(!t.testName.isEmpty());
     QVERIFY(!t.category.isEmpty());
-    QVERIFY(t.passed);
-    QVERIFY(!t.skipped);
-    QVERIFY(t.durationMs > 0);
+    QVERIFY(!t.passed);
+    QVERIFY(t.skipped);
+    QCOMPARE(t.durationMs, 0.0);
     QVERIFY(!t.details.isEmpty());
   }
 
@@ -290,17 +293,40 @@ private slots:
     QVERIFY(r2.verificationName.contains("127"));
   }
 
-  void testTotalDurationPositive() {
+  void testDisconnectedVerificationHasZeroDuration() {
     EcatClient client;
     HardwareVerificationService service(&client);
     auto dev = service.verifyDevice(0);
-    QVERIFY(dev.totalDurationMs > 0);
+    QCOMPARE(dev.totalDurationMs, 0.0);
     auto net = service.verifyNetwork();
-    QVERIFY(net.totalDurationMs > 0);
+    QCOMPARE(net.totalDurationMs, 0.0);
     auto timing = service.verifyTiming();
-    QVERIFY(timing.totalDurationMs > 0);
+    QCOMPARE(timing.totalDurationMs, 0.0);
     auto comp = service.verifyCompliance();
-    QVERIFY(comp.totalDurationMs > 0);
+    QCOMPARE(comp.totalDurationMs, 0.0);
+  }
+
+  void testDisconnectedClientDoesNotReportHardwareVerified() {
+    EcatClient client;
+    QVERIFY(!client.isConnected());
+    HardwareVerificationService service(&client);
+
+    const QVector<VerificationResult> results = {
+        service.verifyDevice(0),
+        service.verifyNetwork(),
+        service.verifyTiming(),
+        service.verifyCompliance(),
+    };
+
+    for (const auto &result : results) {
+      QVERIFY2(!result.allPassed(),
+               qPrintable(result.verificationId +
+                          " must not report allPassed without daemon connection"));
+      QCOMPARE(result.passed, 0);
+      QCOMPARE(result.failed, 0);
+      QCOMPARE(result.skipped, result.totalTests());
+      QVERIFY(!result.recommendations.isEmpty());
+    }
   }
 };
 

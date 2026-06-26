@@ -11,6 +11,16 @@ VerificationResult HardwareVerificationService::verifyDevice(int position) {
   result.verificationName =
       QStringLiteral("Device Verification (Position %1)").arg(position);
 
+  if (!client_ || !client_->isConnected()) {
+    QVector<TestResult> tests = {
+        runDeviceIdentification(position),
+        runDeviceCapability(position),
+        runDevicePerformance(position),
+        runDeviceCompliance(position),
+    };
+    return offlineResult(result.verificationId, result.verificationName, tests);
+  }
+
   emit verificationStarted(result.verificationId);
 
   auto t1 = runDeviceIdentification(position);
@@ -44,6 +54,16 @@ VerificationResult HardwareVerificationService::verifyNetwork() {
   VerificationResult result;
   result.verificationId = QStringLiteral("network");
   result.verificationName = QStringLiteral("Network Verification");
+
+  if (!client_ || !client_->isConnected()) {
+    QVector<TestResult> tests = {
+        runLinkQuality(),
+        runCableQuality(),
+        runSignalQuality(),
+        runErrorRate(),
+    };
+    return offlineResult(result.verificationId, result.verificationName, tests);
+  }
 
   emit verificationStarted(result.verificationId);
 
@@ -79,6 +99,16 @@ VerificationResult HardwareVerificationService::verifyTiming() {
   result.verificationId = QStringLiteral("timing");
   result.verificationName = QStringLiteral("Timing Verification");
 
+  if (!client_ || !client_->isConnected()) {
+    QVector<TestResult> tests = {
+        runDcSyncTiming(),
+        runProcessDataTiming(),
+        runMailboxTiming(),
+        runCycleTime(),
+    };
+    return offlineResult(result.verificationId, result.verificationName, tests);
+  }
+
   emit verificationStarted(result.verificationId);
 
   auto t1 = runDcSyncTiming();
@@ -112,6 +142,16 @@ VerificationResult HardwareVerificationService::verifyCompliance() {
   VerificationResult result;
   result.verificationId = QStringLiteral("compliance");
   result.verificationName = QStringLiteral("Compliance Verification");
+
+  if (!client_ || !client_->isConnected()) {
+    QVector<TestResult> tests = {
+        runProtocolCompliance(),
+        runStateMachineCompliance(),
+        runSdoCompliance(),
+        runPdoCompliance(),
+    };
+    return offlineResult(result.verificationId, result.verificationName, tests);
+  }
 
   emit verificationStarted(result.verificationId);
 
@@ -147,6 +187,34 @@ QVector<VerificationResult> HardwareVerificationService::allResults() const {
 }
 
 void HardwareVerificationService::clearResults() { results_.clear(); }
+
+VerificationResult HardwareVerificationService::offlineResult(
+    const QString &verificationId, const QString &verificationName,
+    const QVector<TestResult> &tests) {
+  VerificationResult result;
+  result.verificationId = verificationId;
+  result.verificationName = verificationName;
+  result.recommendations.append(
+      QStringLiteral("Connect to the EtherCAT daemon before running hardware verification."));
+
+  emit verificationStarted(result.verificationId);
+  for (TestResult test : tests) {
+    test.passed = false;
+    test.skipped = true;
+    test.durationMs = 0.0;
+    test.details = QStringLiteral("Skipped: EtherCAT daemon is not connected.");
+    test.recommendation =
+        QStringLiteral("Connect to the daemon and rerun this verification.");
+    result.tests.append(test);
+    ++result.skipped;
+    emit verificationProgress(result.verificationId, result.tests.size(),
+                              tests.size());
+  }
+
+  results_.append(result);
+  emit verificationCompleted(result);
+  return result;
+}
 
 // ── Device test stubs ──────────────────────────────────────────────────
 
