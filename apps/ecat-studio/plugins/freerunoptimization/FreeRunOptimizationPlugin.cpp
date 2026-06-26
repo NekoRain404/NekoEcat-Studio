@@ -215,8 +215,14 @@ void FreeRunOptimizationPlugin::handleExport() {
       "Markdown (*.md);;Text (*.txt)");
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool FreeRunOptimizationPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "# Free Run Optimization Report\n\n";
@@ -239,4 +245,5 @@ void FreeRunOptimizationPlugin::handleExport() {
   if (history.isEmpty()) {
     out << "No optimizations applied yet.\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }

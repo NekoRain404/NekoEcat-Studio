@@ -42,6 +42,7 @@ public:
   CycleTimeOptimizerWidget *cycleTimeOptimizer() const { return cycleTimeWidget_; }
   DataMappingOptimizerWidget *dataMappingOptimizer() const { return dataMappingWidget_; }
   QPushButton *exportButton() const { return exportBtn_; }
+  bool exportReportToFile(const QString &path);
 
 private slots:
   void handleCycleTimeOptimize();

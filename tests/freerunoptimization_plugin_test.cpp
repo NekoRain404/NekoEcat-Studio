@@ -12,9 +12,11 @@
 #include <QFile>
 #include <QLabel>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTabWidget>
 #include <QTcpServer>
+#include <QTemporaryDir>
 #include "plugins/freerunoptimization/FreeRunOptimizationPlugin.h"
 #include "plugins/freerunoptimization/CycleTimeOptimizerWidget.h"
 #include "plugins/freerunoptimization/DataMappingOptimizerWidget.h"
@@ -313,6 +315,30 @@ private slots:
     EventBus bus;
     FreeRunOptimizationPlugin p(&client, &bus);
     QVERIFY(p.exportButton() != nullptr);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationPlugin p(&client, &bus);
+
+    const QString path = dir.filePath("free_run_optimization.md");
+    QVERIFY(p.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString markdown = QString::fromUtf8(file.readAll());
+    QVERIFY(markdown.startsWith(QStringLiteral("# Free Run Optimization Report\n")));
+    QVERIFY(markdown.contains(QStringLiteral("No optimizations applied yet.")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!p.exportReportToFile(QString()));
+    QVERIFY(!p.exportReportToFile(dir.path()));
   }
 };
 
