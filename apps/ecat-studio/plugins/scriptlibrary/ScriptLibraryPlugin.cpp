@@ -179,6 +179,17 @@ void ScriptLibraryPlugin::addScript(const QString &category, const QString &name
   emit scriptAdded(name);
 }
 
+QTreeWidgetItem *ScriptLibraryPlugin::findScriptItem(const QString &name) const {
+  for (int i = 0; i < scriptTree_->topLevelItemCount(); ++i) {
+    auto *category = scriptTree_->topLevelItem(i);
+    for (int j = 0; j < category->childCount(); ++j) {
+      auto *child = category->child(j);
+      if (child->text(0) == name) return child;
+    }
+  }
+  return nullptr;
+}
+
 void ScriptLibraryPlugin::removeScript(const QString &name) {
   for (int i = 0; i < scriptTree_->topLevelItemCount(); ++i) {
     auto *category = scriptTree_->topLevelItem(i);
@@ -233,10 +244,12 @@ QString ScriptLibraryPlugin::documentation() const {
 }
 
 bool ScriptLibraryPlugin::exportScript(const QString &filePath, const QString &name) {
-  Q_UNUSED(name);
+  auto *scriptItem = findScriptItem(name);
+  if (!scriptItem) return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
-  file.write(scriptEditor_->toPlainText().toUtf8());
+  file.write(scriptItem->data(0, Qt::UserRole).toString().toUtf8());
   return true;
 }
 

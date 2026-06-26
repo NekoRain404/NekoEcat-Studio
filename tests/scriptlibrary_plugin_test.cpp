@@ -12,6 +12,8 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QTemporaryDir>
+#include <QFile>
 #include <QTextEdit>
 #include <QTreeWidget>
 #include <QtTest/QtTest>
@@ -47,6 +49,8 @@ private slots:
   void documentation();
   // Verify signal emissions for script operations
   void signalEmissions();
+  // Verify export writes the named script, not unrelated editor content
+  void exportNamedScript();
 
 private:
   ScriptLibraryPlugin *plugin_ = nullptr;
@@ -161,6 +165,23 @@ void TestScriptLibraryPlugin::signalEmissions() {
 
   plugin_->removeScript("SignalScript");
   QCOMPARE(removeSpy.count(), 1);
+}
+
+void TestScriptLibraryPlugin::exportNamedScript() {
+  plugin_->clearScripts();
+  plugin_->addScript("Custom", "ExportMe", "print('selected')");
+  plugin_->setCurrentScript("print('editor')");
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString path = dir.filePath("exported.py");
+  QVERIFY(plugin_->exportScript(path, "ExportMe"));
+
+  QFile file(path);
+  QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+  QCOMPARE(QString::fromUtf8(file.readAll()), QString("print('selected')"));
+
+  QVERIFY(!plugin_->exportScript(dir.filePath("missing.py"), "MissingScript"));
 }
 
 QTEST_MAIN(TestScriptLibraryPlugin)

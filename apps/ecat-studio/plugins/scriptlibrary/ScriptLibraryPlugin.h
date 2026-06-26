@@ -9,6 +9,7 @@ class QPlainTextEdit;
 class QPushButton;
 class QTextEdit;
 class QTreeWidget;
+class QTreeWidgetItem;
 
 class ScriptLibraryPlugin : public WorkspacePlugin {
   Q_OBJECT
@@ -57,6 +58,7 @@ signals:
 
 private:
   void buildUi();
+  QTreeWidgetItem *findScriptItem(const QString &name) const;
 
   QWidget *containerWidget_ = nullptr;
   QTreeWidget *scriptTree_ = nullptr;
