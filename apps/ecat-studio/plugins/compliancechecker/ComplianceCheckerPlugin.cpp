@@ -16,35 +16,6 @@
 
 ComplianceCheckerPlugin::ComplianceCheckerPlugin(QObject *parent) {
   if (parent) setParent(parent);
-  auto now = QDateTime::currentDateTime();
-  checks_ = {
-      {"c1", "EtherCAT Cable Redundancy", "Network",
-       "Verify cable redundancy configuration", true, now},
-      {"c2", "Distributed Clock Sync", "Timing",
-       "Check DC synchronization accuracy", true, now},
-      {"c3", "PDO Mapping Validation", "Communication",
-       "Validate PDO mapping consistency", false, now},
-      {"c4", "Slave State Machine Compliance", "Safety",
-       "Verify slaves reach OP state", true, now},
-      {"c5", "Watchdog Configuration", "Safety",
-       "Check watchdog timeout settings", false, now},
-      {"c6", "Firmware Version Check", "Maintenance",
-       "Verify firmware versions match requirements", true, now},
-  };
-  violations_ = {
-      {"v1", "c3", "warning", "PDO mapping mismatch on slave 2",
-       "Update PDO mapping to match ESI file", now},
-      {"v2", "c5", "critical", "Watchdog timeout too long (>100ms)",
-       "Reduce watchdog timeout to 50ms", now},
-  };
-  recommendations_ = {
-      {"r1", "high", "Enable Cable Redundancy",
-       "Configure A/B cable paths for fault tolerance", "Network"},
-      {"r2", "medium", "Update Firmware",
-       "Upgrade all slaves to latest stable firmware", "Maintenance"},
-      {"r3", "low", "Document Configuration",
-       "Create configuration documentation for audit trail", "Compliance"},
-  };
   buildUi();
 }
 
@@ -79,7 +50,8 @@ void ComplianceCheckerPlugin::removeCheck(int index) {
 void ComplianceCheckerPlugin::runCheck(int index) {
   if (index >= 0 && index < checks_.size()) {
     checks_[index].checkedAt = QDateTime::currentDateTime();
-    emit checkCompleted(index, checks_[index].passed);
+    checks_[index].passed = false;
+    emit checkCompleted(index, false);
     rebuildCheckTable();
     updateScore();
   }
@@ -123,7 +95,7 @@ int ComplianceCheckerPlugin::recommendationCount() const {
 }
 
 double ComplianceCheckerPlugin::complianceScore() const {
-  if (checks_.isEmpty()) return 100.0;
+  if (checks_.isEmpty()) return 0.0;
   int passed = 0;
   for (const auto &c : checks_) {
     if (c.passed) ++passed;

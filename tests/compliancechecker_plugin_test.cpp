@@ -3,10 +3,10 @@
 // Test coverage:
 //   - Plugin identity and metadata
 //   - Widget creation
-//   - Check, violation, and recommendation tables
+//   - Empty fail-closed check, violation, and recommendation tables
 //   - Compliance score calculation
 //   - Add checks
-//   - Run compliance checks
+//   - Compliance UI must not mint backend-free results
 
 #include <QTest>
 #include <QSignalSpy>
@@ -38,9 +38,9 @@ private slots:
   void testInitialState() {
     ComplianceCheckerPlugin plugin;
 
-    QCOMPARE(plugin.checkCount(), 6);
-    QCOMPARE(plugin.violationCount(), 2);
-    QCOMPARE(plugin.recommendationCount(), 3);
+    QCOMPARE(plugin.checkCount(), 0);
+    QCOMPARE(plugin.violationCount(), 0);
+    QCOMPARE(plugin.recommendationCount(), 0);
   }
 
   // Verify check table structure
@@ -49,7 +49,7 @@ private slots:
 
     QTableWidget *table = plugin.checkTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 6);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 5);
   }
 
@@ -59,7 +59,7 @@ private slots:
 
     QTableWidget *table = plugin.violationTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 2);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 5);
   }
 
@@ -69,7 +69,7 @@ private slots:
 
     QTableWidget *table = plugin.recommendationTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 4);
   }
 
@@ -78,8 +78,7 @@ private slots:
     ComplianceCheckerPlugin plugin;
 
     double score = plugin.complianceScore();
-    QVERIFY(score > 0.0);
-    QVERIFY(score <= 100.0);
+    QCOMPARE(score, 0.0);
   }
 
   // Verify adding a check increments count
@@ -92,7 +91,7 @@ private slots:
     c.name = "New Check";
     c.category = "Safety";
     c.description = "Test check";
-    c.passed = true;
+    c.passed = false;
     c.checkedAt = QDateTime::currentDateTime();
 
     plugin.addCheck(c);
@@ -102,6 +101,13 @@ private slots:
   // Verify removing a check decrements count
   void testRemoveCheck() {
     ComplianceCheckerPlugin plugin;
+    ComplianceCheckerPlugin::ComplianceCheck c;
+    c.id = "c_remove";
+    c.name = "Remove Check";
+    c.category = "Safety";
+    c.description = "Remove test";
+    c.passed = false;
+    plugin.addCheck(c);
     int initial = plugin.checkCount();
 
     plugin.removeCheck(0);
@@ -113,8 +119,17 @@ private slots:
     ComplianceCheckerPlugin plugin;
     QSignalSpy spy(&plugin, &ComplianceCheckerPlugin::checkCompleted);
 
+    ComplianceCheckerPlugin::ComplianceCheck c;
+    c.id = "c_pending";
+    c.name = "Pending Check";
+    c.category = "Safety";
+    c.description = "Requires backend evidence";
+    c.passed = false;
+    plugin.addCheck(c);
+
     plugin.runCheck(0);
     QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.takeFirst().at(1).toBool(), false);
   }
 
   // Verify adding a violation with signal
@@ -139,6 +154,8 @@ private slots:
   // Verify removing a violation decrements count
   void testRemoveViolation() {
     ComplianceCheckerPlugin plugin;
+    plugin.addViolation({"v_remove", "c1", "info", "remove", "fix",
+                         QDateTime::currentDateTime()});
     int initial = plugin.violationCount();
 
     plugin.removeViolation(0);
@@ -164,6 +181,8 @@ private slots:
   // Verify removing a recommendation decrements count
   void testRemoveRecommendation() {
     ComplianceCheckerPlugin plugin;
+    plugin.addRecommendation({"r_remove", "low", "Remove Recommendation",
+                              "remove", "General"});
     int initial = plugin.recommendationCount();
 
     plugin.removeRecommendation(0);
@@ -175,9 +194,9 @@ private slots:
     ComplianceCheckerPlugin plugin;
 
     auto report = plugin.generateReport();
-    QCOMPARE(report.totalChecks, 6);
-    QVERIFY(report.score > 0.0);
-    QCOMPARE(report.violations.size(), 2);
+    QCOMPARE(report.totalChecks, 0);
+    QCOMPARE(report.score, 0.0);
+    QCOMPARE(report.violations.size(), 0);
   }
 
   // Verify score changed signal on violation add
@@ -215,6 +234,23 @@ private slots:
     plugin.exportReport(path);
     QVERIFY(QFile::exists(path));
     QFile::remove(path);
+  }
+
+  void testSourceDoesNotMintSyntheticComplianceResults() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/plugins/compliancechecker/ComplianceCheckerPlugin.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("\"EtherCAT Cable Redundancy\"")),
+             "Compliance checker UI must not seed canned checks");
+    QVERIFY2(!source.contains(QStringLiteral("\"PDO mapping mismatch on slave 2\"")),
+             "Compliance checker UI must not seed canned violations");
+    QVERIFY2(!source.contains(QStringLiteral("\"Enable Cable Redundancy\"")),
+             "Compliance checker UI must not seed canned recommendations");
+    QVERIFY2(!source.contains(QStringLiteral("emit checkCompleted(index, checks_[index].passed)")),
+             "Running a UI check must not replay a precomputed pass/fail result");
   }
 };
 
