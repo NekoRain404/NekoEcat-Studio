@@ -102,17 +102,19 @@ void NetworkAnalyzerPlugin::applyFilters() {
 
 int NetworkAnalyzerPlugin::filteredCount() const { return filteredIndices_.size(); }
 
-void NetworkAnalyzerPlugin::exportCapture(const QString &path) {
+bool NetworkAnalyzerPlugin::exportCapture(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Timestamp,Source,Destination,Protocol,Size,Summary\n";
-    for (const auto &p : packets_) {
-      out << p.timestamp.toString(Qt::ISODate) << ","
-          << p.source << "," << p.destination << ","
-          << p.protocol << "," << p.size << "," << p.summary << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Timestamp,Source,Destination,Protocol,Size,Summary\n";
+  for (const auto &p : packets_) {
+    out << p.timestamp.toString(Qt::ISODate) << ","
+        << p.source << "," << p.destination << ","
+        << p.protocol << "," << p.size << "," << p.summary << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *NetworkAnalyzerPlugin::packetTable() const { return packetTable_; }

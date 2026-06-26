@@ -66,7 +66,7 @@ public:
   void applyFilters();
   int filteredCount() const;
 
-  void exportCapture(const QString &path);
+  bool exportCapture(const QString &path);
 
   QTableWidget *packetTable() const;
   QTableWidget *statisticsTable() const;

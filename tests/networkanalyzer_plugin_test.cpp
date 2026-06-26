@@ -6,6 +6,9 @@
 //   - Packet table, selection, and decode view
 //   - Statistics, filters, and export
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -241,10 +244,23 @@ private slots:
     pkt.summary = "export test";
     plugin.addPacket(pkt);
 
-    QString path = QDir::temp().absoluteFilePath("capture_export_test.csv");
-    plugin.exportCapture(path);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString path = dir.filePath("capture_export_test.csv");
+    QVERIFY(plugin.exportCapture(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Timestamp,Source,Destination,Protocol,Size,Summary\n")));
+    QVERIFY(csv.contains(QStringLiteral("S,D,ECAT,64,export test")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportCapture(QString()));
+    QVERIFY(!plugin.exportCapture(dir.path()));
   }
 };
 
