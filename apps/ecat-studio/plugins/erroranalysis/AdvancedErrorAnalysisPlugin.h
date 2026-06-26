@@ -59,6 +59,7 @@ public:
 
   void runAnalysis();
   void exportReport(QWidget *parentWidget);
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();

@@ -8,10 +8,13 @@
 //   - Summary label updates
 
 #include <QTest>
+#include <QFile>
 #include <QLabel>
 #include <QLineEdit>
+#include <QRegularExpression>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QTemporaryDir>
 #include "plugins/erroranalysis/AdvancedErrorAnalysisPlugin.h"
 #include "plugins/erroranalysis/ErrorTimelineWidget.h"
 #include "plugins/erroranalysis/ErrorCorrelationWidget.h"
@@ -113,6 +116,29 @@ private slots:
     QVERIFY(!rca.rootCause.isEmpty());
     QVERIFY(rca.confidence > 0.0);
     QVERIFY(!rca.recommendedActions.isEmpty());
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    AdvancedErrorAnalysisPlugin p;
+    p.runAnalysis();
+
+    const QString path = dir.filePath("error_analysis.md");
+    QVERIFY(p.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString markdown = QString::fromUtf8(file.readAll());
+    QVERIFY(markdown.startsWith(QStringLiteral("# Error Analysis Report\n")));
+    QVERIFY(markdown.contains(QStringLiteral("Lost frame on port 0")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!p.exportReportToFile(QString()));
+    QVERIFY(!p.exportReportToFile(dir.path()));
   }
 };
 

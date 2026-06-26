@@ -266,8 +266,14 @@ void AdvancedErrorAnalysisPlugin::exportReport(QWidget *parentWidget) {
       "Markdown (*.md);;Text (*.txt)");
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool AdvancedErrorAnalysisPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "# Error Analysis Report\n\n";
@@ -297,4 +303,5 @@ void AdvancedErrorAnalysisPlugin::exportReport(QWidget *parentWidget) {
 
   out << "\n## Recommendations\n\n";
   out << correlationWidget_->recommendationsText()->toPlainText() << "\n";
+  return out.status() == QTextStream::Ok && file.flush();
 }
