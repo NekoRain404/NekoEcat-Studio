@@ -119,10 +119,8 @@ bool ProjectManagerService::createProject(const QString &name) {
 }
 
 bool ProjectManagerService::openProject(const QString &filePath) {
-    if (!readProjectFile(filePath)) {
-        emit projectError(QStringLiteral("Failed to open project: %1").arg(filePath));
+    if (!readProjectFile(filePath))
         return false;
-    }
     filePath_ = filePath;
     modified_ = false;
     addRecentProject(filePath);
@@ -162,6 +160,11 @@ bool ProjectManagerService::importProject(const QString &filePath) {
 }
 
 bool ProjectManagerService::validateProject(const QString &filePath, QString *errorOut) const {
+    if (filePath.isEmpty()) {
+        if (errorOut) *errorOut = QStringLiteral("Project path is empty");
+        return false;
+    }
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         if (errorOut) *errorOut = QStringLiteral("Cannot open file: %1").arg(filePath);
@@ -235,6 +238,11 @@ const ProjectData &ProjectManagerService::projectData() const {
 }
 
 bool ProjectManagerService::writeProjectFile(const QString &path) {
+    if (path.isEmpty()) {
+        emit projectError(QStringLiteral("Project path is empty"));
+        return false;
+    }
+
     QJsonObject root = data_.toJson();
     data_.checksum = data_.computeChecksum();
     root["checksum"] = QString::fromLatin1(data_.checksum);
@@ -245,37 +253,33 @@ bool ProjectManagerService::writeProjectFile(const QString &path) {
         emit projectError(QStringLiteral("Cannot write file: %1").arg(path));
         return false;
     }
-    file.write(doc.toJson(QJsonDocument::Indented));
+    const QByteArray bytes = doc.toJson(QJsonDocument::Indented);
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        emit projectError(QStringLiteral("Cannot write file: %1").arg(path));
+        return false;
+    }
     return true;
 }
 
 bool ProjectManagerService::readProjectFile(const QString &path) {
+    if (path.isEmpty()) {
+        emit projectError(QStringLiteral("Project path is empty"));
+        return false;
+    }
+
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         emit projectError(QStringLiteral("Cannot read file: %1").arg(path));
         return false;
     }
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    if (doc.isNull() || !doc.isObject()) {
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         emit projectError("Invalid project file format");
         return false;
     }
 
     QJsonObject root = doc.object();
-    QString error;
-    data_ = ProjectData::fromJson(root, &error);
-    if (!data_.isValid()) {
-        emit projectError(error);
-        return false;
-    }
-
-    if (data_.fileVersion < ProjectData::kCurrentVersion) {
-        if (!migrateProject(data_)) {
-            emit projectError("Project migration failed");
-            return false;
-        }
-    }
-
     QString storedChecksum = root["checksum"].toString();
     if (!storedChecksum.isEmpty()) {
         QJsonObject checkObj = root;
@@ -285,10 +289,26 @@ bool ProjectManagerService::readProjectFile(const QString &path) {
             checkDoc.toJson(QJsonDocument::Compact),
             QCryptographicHash::Sha256).toHex();
         if (storedChecksum.toLatin1() != computed) {
-            emit projectError("Warning: checksum mismatch — file may be corrupted");
+            emit projectError("Checksum mismatch — file may be corrupted");
+            return false;
         }
     }
 
+    QString error;
+    ProjectData loaded = ProjectData::fromJson(root, &error);
+    if (!loaded.isValid()) {
+        emit projectError(error);
+        return false;
+    }
+
+    if (loaded.fileVersion < ProjectData::kCurrentVersion) {
+        if (!migrateProject(loaded)) {
+            emit projectError("Project migration failed");
+            return false;
+        }
+    }
+
+    data_ = loaded;
     return true;
 }
 

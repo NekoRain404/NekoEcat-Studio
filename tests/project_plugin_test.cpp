@@ -102,6 +102,53 @@ private slots:
         QCOMPARE(ps2.projectName(), QString("SaveTest"));
     }
 
+    // Invalid project persistence fails without replacing the current project
+    void testProjectRejectsInvalidPersistence() {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+
+        ProjectManagerService ps;
+        QVERIFY(ps.createProject("CurrentProject"));
+        QSignalSpy openedSpy(&ps, &ProjectManagerService::projectOpened);
+        QSignalSpy errorSpy(&ps, &ProjectManagerService::projectError);
+
+        QVERIFY(!ps.saveProjectAs(QString()));
+        QVERIFY(!ps.saveProjectAs(dir.path()));
+        QCOMPARE(ps.projectName(), QString("CurrentProject"));
+
+        const QString arrayPath = dir.filePath("array.ecat.json");
+        QFile arrayFile(arrayPath);
+        QVERIFY(arrayFile.open(QIODevice::WriteOnly));
+        QCOMPARE(arrayFile.write(QByteArrayLiteral("[]")), 2);
+        arrayFile.close();
+
+        QVERIFY(!ps.openProject(QString()));
+        QVERIFY(!ps.openProject(arrayPath));
+        QCOMPARE(ps.projectName(), QString("CurrentProject"));
+
+        ProjectManagerService valid;
+        QVERIFY(valid.createProject("ValidProject"));
+        const QString validPath = dir.filePath("valid.ecat.json");
+        QVERIFY(valid.saveProjectAs(validPath));
+
+        QFile corruptFile(validPath);
+        QVERIFY(corruptFile.open(QIODevice::ReadOnly));
+        QByteArray content = corruptFile.readAll();
+        corruptFile.close();
+        content.replace("\"ValidProject\"", "\"CorruptedProject\"");
+
+        const QString corruptPath = dir.filePath("corrupt.ecat.json");
+        QFile out(corruptPath);
+        QVERIFY(out.open(QIODevice::WriteOnly));
+        QCOMPARE(out.write(content), content.size());
+        out.close();
+
+        QVERIFY(!ps.openProject(corruptPath));
+        QCOMPARE(ps.projectName(), QString("CurrentProject"));
+        QCOMPARE(openedSpy.count(), 0);
+        QVERIFY(errorSpy.count() >= 3);
+    }
+
     // Verify ConfigurationService defaults for master, timing, and safety
     void testConfigurationServiceDefaults() {
         ConfigurationService cs;

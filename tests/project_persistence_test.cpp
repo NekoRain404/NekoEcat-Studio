@@ -1,6 +1,7 @@
 #include <QTest>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QFile>
 #include <QTextStream>
@@ -168,8 +169,12 @@ void ProjectPersistenceTest::serviceCorruptChecksum() {
     file.close();
 
     ProjectManagerService reader;
-    reader.openProject(path);
-    QCOMPARE(reader.projectName(), QString("Tampered Test"));
+    QVERIFY(reader.createProject("Current Project"));
+    QSignalSpy errorSpy(&reader, &ProjectManagerService::projectError);
+    QVERIFY(!reader.openProject(path));
+    QCOMPARE(reader.projectName(), QString("Current Project"));
+    QCOMPARE(errorSpy.count(), 1);
+    QVERIFY(errorSpy.at(0).at(0).toString().contains("Checksum mismatch"));
 }
 
 void ProjectPersistenceTest::serviceMigrationOnLoad() {
