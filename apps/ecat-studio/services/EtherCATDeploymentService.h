@@ -1,10 +1,11 @@
 #pragma once
 
-// EtherCATDeploymentService — manages deployment operations for
-// EtherCAT configurations to remote targets.
+// EtherCATDeploymentService — deployment records and device deployment facade.
 //
-// Provides deploy, rollback, listing, and status tracking for
-// configuration deployments across the network.
+// Provides deployment record, rollback, listing, and status tracking helpers.
+// Position-based device deployment APIs fail closed until wired to a live
+// EtherCAT backend capable of applying configuration/firmware/software/system
+// data to real slaves.
 //
 // Thread safety: main (GUI) thread only.
 

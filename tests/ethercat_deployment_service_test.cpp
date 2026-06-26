@@ -3,8 +3,8 @@
 // Test coverage:
 //   - Configuration deployment and rollback
 //   - Deployment listing and status queries
-//   - Position-based deployment (config, firmware, software, system)
-//   - Deployment progress signals and unique ID generation
+//   - Position-based deployment fails closed without a live backend
+//   - Deployment record listing and unique ID generation
 
 #include <QTest>
 #include <QSignalSpy>
@@ -92,18 +92,19 @@ private slots:
     QVERIFY(d1.id != d2.id);
   }
 
-  // Deploy config by position with progress signals
-  void testDeployConfigByPosition() {
+  // Position config deployment must not be simulated without a live backend.
+  void testDeployConfigByPositionFailsClosedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     ConfigData d;
     d.configuration = QByteArray("cfg");
     d.version = "1.0";
     QSignalSpy startedSpy(&svc, &EtherCATDeploymentService::deploymentStarted);
+    QSignalSpy progressSpy(&svc, &EtherCATDeploymentService::deploymentProgress);
     QSignalSpy completedSpy(&svc, &EtherCATDeploymentService::positionDeploymentCompleted);
-    QVERIFY(svc.deployConfiguration(1, d));
-    QCOMPARE(startedSpy.count(), 1);
-    QCOMPARE(completedSpy.count(), 1);
-    QCOMPARE(completedSpy.at(0).at(1).toBool(), true);
+    QVERIFY(!svc.deployConfiguration(1, d));
+    QCOMPARE(startedSpy.count(), 0);
+    QCOMPARE(progressSpy.count(), 0);
+    QCOMPARE(completedSpy.count(), 0);
   }
 
   // Deploy empty config by position fails
@@ -113,15 +114,15 @@ private slots:
     QVERIFY(!svc.deployConfiguration(1, d));
   }
 
-  // Deploy firmware by position
-  void testDeployFirmwareByPosition() {
+  // Position firmware deployment must not be simulated without a live backend.
+  void testDeployFirmwareByPositionFailsClosedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     FirmwareData d;
     d.firmware = QByteArray("fw");
     d.version = "2.0";
     QSignalSpy spy(&svc, &EtherCATDeploymentService::positionDeploymentCompleted);
-    QVERIFY(svc.deployFirmware(2, d));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.deployFirmware(2, d));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Deploy empty firmware fails
@@ -131,15 +132,15 @@ private slots:
     QVERIFY(!svc.deployFirmware(1, d));
   }
 
-  // Deploy software by position
-  void testDeploySoftwareByPosition() {
+  // Position software deployment must not be simulated without a live backend.
+  void testDeploySoftwareByPositionFailsClosedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     SoftwareData d;
     d.software = QByteArray("sw");
     d.version = "3.0";
     QSignalSpy spy(&svc, &EtherCATDeploymentService::positionDeploymentCompleted);
-    QVERIFY(svc.deploySoftware(3, d));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.deploySoftware(3, d));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Deploy empty software fails
@@ -149,15 +150,15 @@ private slots:
     QVERIFY(!svc.deploySoftware(1, d));
   }
 
-  // Deploy system by position
-  void testDeploySystemByPosition() {
+  // Position system deployment must not be simulated without a live backend.
+  void testDeploySystemByPositionFailsClosedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     SystemData d;
     d.system = QByteArray("sys");
     d.version = "4.0";
     QSignalSpy spy(&svc, &EtherCATDeploymentService::positionDeploymentCompleted);
-    QVERIFY(svc.deploySystem(4, d));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.deploySystem(4, d));
+    QCOMPARE(spy.count(), 0);
   }
 
   // Deploy empty system fails
@@ -167,17 +168,15 @@ private slots:
     QVERIFY(!svc.deploySystem(1, d));
   }
 
-  // Deployment progress emits 50% and 100% signals
-  void testDeploymentProgressSignals() {
+  // Offline position deployment must not emit synthetic progress.
+  void testDeploymentProgressSignalsNotSynthesizedOffline() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     ConfigData d;
     d.configuration = QByteArray("cfg");
     d.version = "1.0";
     QSignalSpy progressSpy(&svc, &EtherCATDeploymentService::deploymentProgress);
     svc.deployConfiguration(1, d);
-    QCOMPARE(progressSpy.count(), 2);
-    QCOMPARE(progressSpy.at(0).at(1).toInt(), 50);
-    QCOMPARE(progressSpy.at(1).at(1).toInt(), 100);
+    QCOMPARE(progressSpy.count(), 0);
   }
 };
 

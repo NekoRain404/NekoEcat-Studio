@@ -1,10 +1,10 @@
 #include "EtherCATDeploymentService.h"
 #include <QDateTime>
 
-// EtherCATDeploymentService.cpp — Configuration deployment and rollback management
+// EtherCATDeploymentService.cpp — Deployment records and offline deployment facade
 //
 // Implementation notes:
-//   - Uses EventBus and EcatClient for deployment orchestration
+//   - Position-based device deployment fails closed without a live backend
 //   - Generates unique deployment IDs via nextId_ counter
 //   - Supports rollback by deployment ID with history tracking
 
@@ -81,12 +81,8 @@ bool EtherCATDeploymentService::deployConfiguration(int position,
 {
     if (data.configuration.isEmpty() || data.version.isEmpty())
         return false;
-
-    emit deploymentStarted(position, QStringLiteral("configuration"));
-    emit deploymentProgress(position, 50);
-    emit deploymentProgress(position, 100);
-    emit positionDeploymentCompleted(position, true);
-    return true;
+    Q_UNUSED(position);
+    return false;
 }
 
 bool EtherCATDeploymentService::deployFirmware(int position,
@@ -94,12 +90,8 @@ bool EtherCATDeploymentService::deployFirmware(int position,
 {
     if (data.firmware.isEmpty() || data.version.isEmpty())
         return false;
-
-    emit deploymentStarted(position, QStringLiteral("firmware"));
-    emit deploymentProgress(position, 50);
-    emit deploymentProgress(position, 100);
-    emit positionDeploymentCompleted(position, true);
-    return true;
+    Q_UNUSED(position);
+    return false;
 }
 
 bool EtherCATDeploymentService::deploySoftware(int position,
@@ -107,12 +99,8 @@ bool EtherCATDeploymentService::deploySoftware(int position,
 {
     if (data.software.isEmpty() || data.version.isEmpty())
         return false;
-
-    emit deploymentStarted(position, QStringLiteral("software"));
-    emit deploymentProgress(position, 50);
-    emit deploymentProgress(position, 100);
-    emit positionDeploymentCompleted(position, true);
-    return true;
+    Q_UNUSED(position);
+    return false;
 }
 
 bool EtherCATDeploymentService::deploySystem(int position,
@@ -120,10 +108,6 @@ bool EtherCATDeploymentService::deploySystem(int position,
 {
     if (data.system.isEmpty() || data.version.isEmpty())
         return false;
-
-    emit deploymentStarted(position, QStringLiteral("system"));
-    emit deploymentProgress(position, 50);
-    emit deploymentProgress(position, 100);
-    emit positionDeploymentCompleted(position, true);
-    return true;
+    Q_UNUSED(position);
+    return false;
 }
