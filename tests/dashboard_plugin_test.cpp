@@ -10,7 +10,7 @@
 //   - Service accessor: returns correct ChartService pointer
 //   - Gauge count: 4 gauge widgets
 //   - Counter count: 4 counter labels
-//   - Refresh: updates counters without crash
+//   - Refresh: does not synthesize runtime metrics without backend evidence
 //
 // Test Dependencies:
 //   - Qt6::Test (QTest framework)
@@ -21,6 +21,8 @@
 //   - Requires QT_QPA_PLATFORM=offscreen for widget-based tests
 
 #include <QTest>
+#include <QFile>
+#include <QLabel>
 #include "services/ChartService.h"
 #include "plugins/dashboard/DashboardPlugin.h"
 
@@ -79,12 +81,43 @@ private slots:
     QCOMPARE(plugin.counterCount(), 4);
   }
 
-  // Test that refresh() updates counters without crash.
-  void testRefreshUpdatesCounters() {
+  // Test that refresh() does not synthesize counters without backend evidence.
+  void testRefreshDoesNotSynthesizeCounters() {
     ChartService svc;
     DashboardPlugin plugin(&svc);
+    QWidget *widget = plugin.widget();
+    const auto labels = widget->findChildren<QLabel *>();
+    QStringList before;
+    before.reserve(labels.size());
+    for (const QLabel *label : labels) {
+      before.append(label->text());
+    }
+
     plugin.refresh();
+
+    QStringList after;
+    after.reserve(labels.size());
+    for (const QLabel *label : labels) {
+      after.append(label->text());
+    }
+
     QCOMPARE(plugin.counterCount(), 4);
+    QCOMPARE(after, before);
+    QVERIFY(!after.contains(QStringLiteral("12355")));
+    QVERIFY(!after.contains(QStringLiteral("1001")));
+  }
+
+  void testSourceDoesNotContainSyntheticDashboardGenerator() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/dashboard/DashboardPlugin.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("qSin")),
+             "Dashboard must not synthesize oscillating gauge values");
+    QVERIFY2(!text.contains(QStringLiteral("12345 + ticks_")),
+             "Dashboard must not synthesize frame counters");
+    QVERIFY2(!text.contains(QStringLiteral("1000 + (ticks_")),
+             "Dashboard must not synthesize cycle times");
   }
 };
 

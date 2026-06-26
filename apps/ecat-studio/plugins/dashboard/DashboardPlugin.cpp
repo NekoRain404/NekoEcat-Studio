@@ -20,8 +20,6 @@ DashboardPlugin::DashboardPlugin(ChartService *service, QObject *parent)
   setupDashboard();
 
   refreshTimer_ = new QTimer(this);
-  connect(refreshTimer_, &QTimer::timeout, this, &DashboardPlugin::refresh);
-  refreshTimer_->start(2000);
 }
 
 QString DashboardPlugin::id() const { return "dashboard"; }
@@ -77,7 +75,6 @@ void DashboardPlugin::setupDashboard() {
   // Gauges: CPU Load, Memory, EtherCAT Bandwidth, Bus Jitter
   const QStringList gaugeNames = {
       tr("CPU Load (%)"), tr("Memory (%)"), tr("Bandwidth (%)"), tr("Bus Jitter (us)")};
-  const double gaugeVals[] = {45.0, 62.0, 35.0, 12.5};
   const double gaugeMax[] = {100.0, 100.0, 100.0, 100.0};
 
   gauges_.clear();
@@ -93,7 +90,7 @@ void DashboardPlugin::setupDashboard() {
 
     auto *cw = new EcatChartWidget;
     cw->setChartType(EcatChartWidget::Gauge);
-    cw->setGaugeValue(gaugeVals[i], 0, gaugeMax[i]);
+    cw->setGaugeValue(0.0, 0, gaugeMax[i]);
     cw->setTitle(gaugeNames[i]);
     cw->setMinimumSize(180, 160);
     fl->addWidget(cw);
@@ -105,7 +102,8 @@ void DashboardPlugin::setupDashboard() {
   // Counters: Slaves, TX Frames, RX Errors, Cycle Time
   const QStringList counterNames = {
       tr("Slaves"), tr("TX Frames"), tr("RX Errors"), tr("Cycle Time (us)")};
-  const QString counterVals[] = {"4", "12,345", "0", "1000"};
+  const QString counterVals[] = {tr("No backend"), tr("No backend"),
+                                 tr("No backend"), tr("No backend")};
 
   counters_.clear();
   for (int i = 0; i < 4; ++i) {
@@ -132,21 +130,6 @@ void DashboardPlugin::setupDashboard() {
 }
 
 void DashboardPlugin::refresh() {
-  ++ticks_;
-  // Simulate gauge updates.
-  for (int i = 0; i < gauges_.size(); ++i) {
-    const double base = 30.0 + i * 15.0;
-    const double val = base + 10.0 * qSin(ticks_ * 0.1 + i);
-    gauges_[i].chart->setGaugeValue(val, 0, 100);
-  }
-  updateCounters();
-}
-
-void DashboardPlugin::updateCounters() {
-  if (counters_.size() >= 2) {
-    counters_[1]->setText(QString::number(12345 + ticks_ * 10));
-  }
-  if (counters_.size() >= 4) {
-    counters_[3]->setText(QString::number(1000 + (ticks_ % 5)));
-  }
+  // Runtime dashboard metrics require backend evidence. Do not synthesize
+  // changing counters or gauge values from a UI timer.
 }

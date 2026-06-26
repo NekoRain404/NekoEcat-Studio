@@ -2868,6 +2868,10 @@ target_include_directories(dashboard_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins/chart
 )
 
+target_compile_definitions(dashboard_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
+
 target_link_libraries(dashboard_plugin_test PRIVATE
     Qt6::Core
     Qt6::Widgets

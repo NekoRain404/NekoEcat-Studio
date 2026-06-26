@@ -3,17 +3,17 @@
 // DashboardPlugin — workspace plugin for a configurable real-time dashboard.
 //
 // Features:
-//   - 4 gauge widgets (EcatChartWidget) displaying real-time metrics
-//   - 4 counter labels showing key performance indicators
-//   - Configurable auto-refresh interval (QSpinBox + QTimer)
+//   - 4 gauge widgets (EcatChartWidget) reserved for backend metrics
+//   - 4 counter labels reserved for backend key performance indicators
+//   - Manual refresh button for backend-backed updates
 //   - Manual refresh button
 //   - Grid layout for responsive dashboard arrangement
 //
 // UI Description:
 //   The dashboard presents a grid of gauge charts and counter cards.
-//   Each gauge shows a real-time metric (bandwidth, latency, etc.) using
-//   EcatChartWidget. Counters display aggregate statistics. The refresh
-//   interval can be adjusted, and manual refresh is available.
+//   Each gauge shows a metric slot using EcatChartWidget. Counters display
+//   aggregate statistics only when backend evidence is wired. Manual refresh is
+//   available but does not synthesize runtime data.
 //
 // Constructor Pattern: Fine-grained injection (ChartService)
 // Default Order: 130 (appears in the right portion of the tab bar)
@@ -51,8 +51,6 @@ public slots:
 private:
   void buildUi();
   void setupDashboard();
-  void updateCounters();
-
   struct GaugeWidget {
     EcatChartWidget *chart;
     QLabel *label;
@@ -68,5 +66,4 @@ private:
 
   QVector<GaugeWidget> gauges_;
   QVector<QLabel *> counters_;
-  int ticks_ = 0;
 };
