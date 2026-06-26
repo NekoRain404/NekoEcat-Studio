@@ -187,7 +187,7 @@
 
 | 维度 | TwinCAT | NekoEcat | 评价 |
 |------|---------|----------|------|
-| **模块化** | ✅ Functions 模块系统 | ✅ 插件架构 (90+ 插件) | **NekoEcat 更优** |
+| **模块化** | ✅ Functions 模块系统 | ✅ 插件架构（以当前仓库为准） | **NekoEcat 更优** |
 | **依赖注入** | ⚠️ COM/DCOM 依赖 | ✅ ServiceContainer DI | **NekoEcat 更优** |
 | **事件系统** | ⚠️ ADS 回调 | ✅ EventBus pub/sub | **NekoEcat 更优** |
 | **扩展性** | ✅ 插件模块 | ✅ WorkspacePlugin 接口 | **持平** |
