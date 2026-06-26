@@ -16,6 +16,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QTreeWidget>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/documentationbrowser/DocumentationBrowserPlugin.h"
@@ -181,9 +183,15 @@ void TestDocumentationBrowserPlugin::searchQuery() {
 
 // Verify export documentation to HTML
 void TestDocumentationBrowserPlugin::exportDocumentation() {
-  QString tmpPath = QDir::tempPath() + "/doc_browser_test_export.html";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("doc_browser_test_export.html");
   QVERIFY(plugin_->exportDocumentation(tmpPath, "HTML"));
-  QFile::remove(tmpPath);
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportDocumentation(QString(), "HTML"));
+  QVERIFY(!plugin_->exportDocumentation(dir.path(), "HTML"));
 }
 
 // Verify document, bookmark, and search signals are emitted

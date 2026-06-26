@@ -226,6 +226,8 @@ QString DocumentationBrowserPlugin::searchQuery() const {
 }
 
 bool DocumentationBrowserPlugin::exportDocumentation(const QString &filePath, const QString &format) {
+  if (filePath.isEmpty()) return false;
+
   QJsonObject root;
   root["version"] = 1;
   root["format"] = format;
@@ -238,6 +240,6 @@ bool DocumentationBrowserPlugin::exportDocumentation(const QString &filePath, co
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly)) return false;
-  file.write(QJsonDocument(root).toJson());
-  return true;
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  return file.write(bytes) == bytes.size() && file.flush();
 }
