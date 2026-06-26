@@ -5088,10 +5088,6 @@
             <translation>ESIリポジトリCSV</translation>
         </message>
         <message>
-            <source>ESI XML</source>
-            <translation type="unfinished">ESI XML</translation>
-        </message>
-        <message>
             <source>Topology CSV</source>
             <translation>トポロジCSV</translation>
         </message>
@@ -5130,14 +5126,6 @@
         <message>
             <source>Poll:</source>
             <translation>ポーリング:</translation>
-        </message>
-        <message>
-            <source>Start</source>
-            <translation>開始</translation>
-        </message>
-        <message>
-            <source>Stop</source>
-            <translation>停止</translation>
         </message>
         <message>
             <source>Waiting for data...</source>

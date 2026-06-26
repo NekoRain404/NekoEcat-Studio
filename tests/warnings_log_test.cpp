@@ -28,6 +28,8 @@ void WarningsLogTest::defaultStudioBuildHasNoKnownWarnings() {
            "Qt deprecated API warnings must be fixed before product builds.");
   QVERIFY2(!text.contains(QStringLiteral("QDropEvent::pos() const")),
            "PDO mapping drag/drop should use QDropEvent::position().toPoint().");
+  QVERIFY2(!text.contains(QStringLiteral("dropping duplicate messages")),
+           "Qt translation catalogs must not contain duplicate context/source messages.");
 }
 
 QTEST_MAIN(WarningsLogTest)

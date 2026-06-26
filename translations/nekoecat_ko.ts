@@ -5088,10 +5088,6 @@
             <translation>ESI 저장소 CSV</translation>
         </message>
         <message>
-            <source>ESI XML</source>
-            <translation type="unfinished">ESI XML</translation>
-        </message>
-        <message>
             <source>Topology CSV</source>
             <translation>토폴로지 CSV</translation>
         </message>
@@ -5130,14 +5126,6 @@
         <message>
             <source>Poll:</source>
             <translation>폴링:</translation>
-        </message>
-        <message>
-            <source>Start</source>
-            <translation>시작</translation>
-        </message>
-        <message>
-            <source>Stop</source>
-            <translation>중지</translation>
         </message>
         <message>
             <source>Waiting for data...</source>

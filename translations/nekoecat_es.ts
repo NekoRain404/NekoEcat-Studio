@@ -5088,10 +5088,6 @@
             <translation>CSV del repositorio ESI</translation>
         </message>
         <message>
-            <source>ESI XML</source>
-            <translation type="unfinished">ESI XML</translation>
-        </message>
-        <message>
             <source>Topology CSV</source>
             <translation>CSV de topología</translation>
         </message>
@@ -5130,14 +5126,6 @@
         <message>
             <source>Poll:</source>
             <translation>Sondeo:</translation>
-        </message>
-        <message>
-            <source>Start</source>
-            <translation>Iniciar</translation>
-        </message>
-        <message>
-            <source>Stop</source>
-            <translation>Detener</translation>
         </message>
         <message>
             <source>Waiting for data...</source>
