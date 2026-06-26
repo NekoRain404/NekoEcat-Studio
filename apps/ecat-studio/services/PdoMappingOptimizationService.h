@@ -3,7 +3,9 @@
 // PdoMappingOptimizationService — PDO mapping optimization for EtherCAT slaves.
 //
 // Provides mapping optimization, size optimization, alignment optimization,
-// and performance optimization for PDO configurations.
+// and performance optimization recommendations for PDO configurations.
+// Applying recommendations requires a real PDO mapping backend; this service
+// does not synthesize successful hardware changes.
 //
 // Usage:
 //   PdoMappingOptimizationService *svc = new PdoMappingOptimizationService(this);
@@ -39,6 +41,8 @@ public:
   PdoMappingOptimizationResult optimizeAlignment();
   PdoMappingOptimizationResult optimizePerformance();
 
+  // Apply an optimization through a real PDO mapping backend.
+  // Returns false until such a backend is wired in.
   bool applyOptimization(const PdoMappingOptimizationResult &result);
 
   QVector<PdoMappingOptimizationResult> optimizationHistory() const { return history_; }

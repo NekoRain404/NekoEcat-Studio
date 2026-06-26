@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QPushButton>
+#include <QSignalSpy>
 
 #include "services/PdoMappingOptimizationService.h"
 #include "plugins/pdomappingoptimization/PdoMappingOptimizationPlugin.h"
@@ -19,8 +20,8 @@ private slots:
   void testServiceOptimizeSize();
   void testServiceOptimizeAlignment();
   void testServiceOptimizePerformance();
-  void testServiceApplyOptimization();
-  void testServiceHistory();
+  void testServiceApplyOptimizationFailsWithoutBackend();
+  void testServiceHistoryRemainsEmptyWithoutBackend();
   void testServiceClearHistory();
 
   void testPluginIdentity();
@@ -90,24 +91,27 @@ void PdoMappingOptimizationPluginTest::testServiceOptimizePerformance() {
   QVERIFY(!result.recommendations.isEmpty());
 }
 
-void PdoMappingOptimizationPluginTest::testServiceApplyOptimization() {
+void PdoMappingOptimizationPluginTest::testServiceApplyOptimizationFailsWithoutBackend() {
   service_->clearHistory();
+  QSignalSpy spy(service_, &PdoMappingOptimizationService::optimizationApplied);
+  QVERIFY(spy.isValid());
+
   auto result = service_->optimizeMapping();
   QVERIFY(!result.applied);
 
   bool applied = service_->applyOptimization(result);
-  QVERIFY(applied);
-  QCOMPARE(service_->optimizationHistory().size(), 1);
-  QVERIFY(service_->optimizationHistory().first().applied);
+  QVERIFY(!applied);
+  QCOMPARE(spy.count(), 0);
+  QCOMPARE(service_->optimizationHistory().size(), 0);
 }
 
-void PdoMappingOptimizationPluginTest::testServiceHistory() {
+void PdoMappingOptimizationPluginTest::testServiceHistoryRemainsEmptyWithoutBackend() {
   service_->clearHistory();
   QCOMPARE(service_->optimizationHistory().size(), 0);
 
-  service_->applyOptimization(service_->optimizeMapping());
-  service_->applyOptimization(service_->optimizeSize());
-  QCOMPARE(service_->optimizationHistory().size(), 2);
+  QVERIFY(!service_->applyOptimization(service_->optimizeMapping()));
+  QVERIFY(!service_->applyOptimization(service_->optimizeSize()));
+  QCOMPARE(service_->optimizationHistory().size(), 0);
 }
 
 void PdoMappingOptimizationPluginTest::testServiceClearHistory() {

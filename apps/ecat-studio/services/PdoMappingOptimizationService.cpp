@@ -133,12 +133,8 @@ PdoMappingOptimizationResult PdoMappingOptimizationService::optimizePerformance(
 }
 
 bool PdoMappingOptimizationService::applyOptimization(const PdoMappingOptimizationResult &result) {
-  PdoMappingOptimizationResult applied = result;
-  applied.applied = true;
-  applied.timestamp = QDateTime::currentDateTime();
-  history_.append(applied);
-  emit optimizationApplied(applied);
-  return true;
+  Q_UNUSED(result);
+  return false;
 }
 
 void PdoMappingOptimizationService::clearHistory() {
