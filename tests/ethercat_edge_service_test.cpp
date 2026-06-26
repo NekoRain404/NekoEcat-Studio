@@ -3,7 +3,7 @@
 // Test coverage:
 //   - Edge data processing (valid + empty)
 //   - Edge data analysis (statistics, empty)
-//   - Edge data storage and sync
+//   - Local edge data storage and sync rejection without backend
 //   - Signal emission for processing and analysis
 
 #include <QTest>
@@ -83,13 +83,14 @@ private slots:
     QCOMPARE(svc.storedCount(), 0);
   }
 
-  // Verify sync succeeds when data is stored
+  // Verify sync fails closed without a real edge backend
   void testSyncFromEdge() {
     EtherCATEdgeService svc(nullptr);
     EdgeData data;
     data.data = QByteArray("sync payload");
     svc.storeAtEdge(data);
-    QVERIFY(svc.syncFromEdge());
+    QCOMPARE(svc.storedCount(), 1);
+    QVERIFY(!svc.syncFromEdge());
   }
 
   // Verify sync fails when nothing is stored

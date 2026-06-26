@@ -1,10 +1,8 @@
 #pragma once
 
-// EtherCATEdgeService — edge computing, processing, analytics,
-// and storage for EtherCAT data.
-//
-// Provides local edge processing capabilities for real-time data
-// analysis and reduced latency operations.
+// EtherCATEdgeService -- local in-memory processing, analytics, and storage
+// helpers for EtherCAT data. No edge-node/backend sync path is wired yet, so
+// syncFromEdge() fails closed instead of reporting synthetic sync success.
 //
 // Thread safety: main (GUI) thread only.
 

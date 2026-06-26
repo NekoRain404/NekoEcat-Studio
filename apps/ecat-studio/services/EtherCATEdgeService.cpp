@@ -1,14 +1,4 @@
 #include "EtherCATEdgeService.h"
-#include <QDateTime>
-#include <QtMath>
-
-// EtherCATEdgeService.cpp — Edge computing operations for EtherCAT data processing
-//
-// Implementation notes:
-//   - Processes raw byte data at the edge with basic statistics (mean, min, max, variance)
-//   - Supports local storage and sync-back of processed edge data
-//   - Lightweight operations designed for constrained edge environments
-
 EtherCATEdgeService::EtherCATEdgeService(QObject *parent)
     : QObject(parent)
 {
@@ -76,5 +66,5 @@ bool EtherCATEdgeService::storeAtEdge(const EdgeData &data)
 
 bool EtherCATEdgeService::syncFromEdge()
 {
-    return storedCount_ > 0;
+    return false;
 }
