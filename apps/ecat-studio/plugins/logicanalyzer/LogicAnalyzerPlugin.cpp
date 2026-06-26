@@ -201,7 +201,7 @@ void LogicAnalyzerPlugin::zoomFit() {
 }
 
 void LogicAnalyzerPlugin::decodeProtocol() {
-  cursorLabel_->setText(tr("Protocol decode: Not implemented yet"));
+  cursorLabel_->setText(tr("Protocol decode requires captured signal evidence from the trace backend"));
 }
 
 void LogicAnalyzerPlugin::refreshWaveforms() {
