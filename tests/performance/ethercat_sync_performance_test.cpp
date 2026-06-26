@@ -7,7 +7,7 @@
 class EtherCATSyncPerformanceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testTimeSyncThroughput() {
+  void testTimeSyncOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATSyncService svc(&bus, &client);
@@ -17,15 +17,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.syncTime();
+      QVERIFY(!svc.syncTime());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "Time sync throughput:" << count << "syncs in" << elapsed << "ms";
+    qDebug() << "Time sync offline rejection throughput:" << count << "syncs in" << elapsed << "ms";
   }
 
-  void testDataSyncThroughput() {
+  void testDataSyncOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATSyncService svc(&bus, &client);
@@ -35,15 +35,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.syncData();
+      QVERIFY(!svc.syncData());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "Data sync throughput:" << count << "syncs in" << elapsed << "ms";
+    qDebug() << "Data sync offline rejection throughput:" << count << "syncs in" << elapsed << "ms";
   }
 
-  void testStateSyncThroughput() {
+  void testStateSyncOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATSyncService svc(&bus, &client);
@@ -53,15 +53,15 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.syncState();
+      QVERIFY(!svc.syncState());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "State sync throughput:" << count << "syncs in" << elapsed << "ms";
+    qDebug() << "State sync offline rejection throughput:" << count << "syncs in" << elapsed << "ms";
   }
 
-  void testConfigSyncThroughput() {
+  void testConfigSyncOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATSyncService svc(&bus, &client);
@@ -71,12 +71,12 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.syncConfiguration();
+      QVERIFY(!svc.syncConfiguration());
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
-    qDebug() << "Config sync throughput:" << count << "syncs in" << elapsed << "ms";
+    qDebug() << "Config sync offline rejection throughput:" << count << "syncs in" << elapsed << "ms";
   }
 
   void testStatusQueryPerformance() {

@@ -143,53 +143,53 @@ private slots:
     QVERIFY(!svc.syncData(QString()));
   }
 
-  // Sync time and verify signal and status
+  // Sync time fails closed without a live backend.
   void testSyncTime() {
     EcatClient client;
     EventBus bus;
     EtherCATSyncService svc(&bus, &client);
 
     QSignalSpy spy(&svc, &EtherCATSyncService::timeSynced);
-    QVERIFY(svc.syncTime());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.syncTime());
+    QCOMPARE(spy.count(), 0);
     SyncStatus st = svc.syncStatus();
-    QCOMPARE(st.syncCount, 1);
+    QCOMPARE(st.syncCount, 0);
   }
 
-  // Sync data and verify signal
+  // Sync data fails closed without a live backend.
   void testSyncData() {
     EcatClient client;
     EventBus bus;
     EtherCATSyncService svc(&bus, &client);
 
     QSignalSpy spy(&svc, &EtherCATSyncService::dataSynced);
-    QVERIFY(svc.syncData());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.syncData());
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Sync state and verify status count
+  // Sync state fails closed without a live backend.
   void testSyncState() {
     EcatClient client;
     EventBus bus;
     EtherCATSyncService svc(&bus, &client);
 
-    QVERIFY(svc.syncState());
+    QVERIFY(!svc.syncState());
     SyncStatus st = svc.syncStatus();
-    QCOMPARE(st.syncCount, 1);
+    QCOMPARE(st.syncCount, 0);
   }
 
-  // Sync configuration and verify status count
+  // Sync configuration fails closed without a live backend.
   void testSyncConfiguration() {
     EcatClient client;
     EventBus bus;
     EtherCATSyncService svc(&bus, &client);
 
-    QVERIFY(svc.syncConfiguration());
+    QVERIFY(!svc.syncConfiguration());
     SyncStatus st = svc.syncStatus();
-    QCOMPARE(st.syncCount, 1);
+    QCOMPARE(st.syncCount, 0);
   }
 
-  // Sync status accumulates across multiple syncs
+  // Sync status does not accumulate rejected offline syncs.
   void testSyncStatusAccumulates() {
     EcatClient client;
     EventBus bus;
@@ -199,8 +199,8 @@ private slots:
     svc.syncData();
     svc.syncState();
     SyncStatus st = svc.syncStatus();
-    QCOMPARE(st.syncCount, 3);
-    QVERIFY(st.lastSync.isValid());
+    QCOMPARE(st.syncCount, 0);
+    QVERIFY(!st.lastSync.isValid());
   }
 
   // Replicate configuration to multiple targets

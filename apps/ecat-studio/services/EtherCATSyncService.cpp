@@ -1,11 +1,11 @@
 #include "EtherCATSyncService.h"
 
-// EtherCATSyncService.cpp — Time, data, state, and configuration synchronization
+// EtherCATSyncService.cpp — Time, data, state, and configuration sync facade
 //
 // Implementation notes:
 //   - Uses EventBus and EcatClient for sync orchestration
 //   - Tracks sync count and last sync timestamp in SyncStatus struct
-//   - Emits timeSynced and dataSynced signals on successful sync
+//   - Rejects offline sync attempts instead of synthesizing success
 
 EtherCATSyncService::EtherCATSyncService(EventBus *bus, EcatClient *client,
                                           QObject *parent)
@@ -15,6 +15,9 @@ EtherCATSyncService::EtherCATSyncService(EventBus *bus, EcatClient *client,
 
 bool EtherCATSyncService::syncTime()
 {
+    if (!backendReady())
+        return false;
+
     QDateTime now = QDateTime::currentDateTime();
     status_.lastSync = now;
     status_.syncCount++;
@@ -24,6 +27,9 @@ bool EtherCATSyncService::syncTime()
 
 bool EtherCATSyncService::syncData()
 {
+    if (!backendReady())
+        return false;
+
     status_.lastSync = QDateTime::currentDateTime();
     status_.syncCount++;
     emit dataSynced(0);
@@ -32,6 +38,9 @@ bool EtherCATSyncService::syncData()
 
 bool EtherCATSyncService::syncState()
 {
+    if (!backendReady())
+        return false;
+
     status_.lastSync = QDateTime::currentDateTime();
     status_.syncCount++;
     return true;
@@ -39,6 +48,9 @@ bool EtherCATSyncService::syncState()
 
 bool EtherCATSyncService::syncConfiguration()
 {
+    if (!backendReady())
+        return false;
+
     status_.lastSync = QDateTime::currentDateTime();
     status_.syncCount++;
     return true;
@@ -47,4 +59,10 @@ bool EtherCATSyncService::syncConfiguration()
 SyncStatus EtherCATSyncService::syncStatus() const
 {
     return status_;
+}
+
+bool EtherCATSyncService::backendReady() const
+{
+    // No real sync backend is wired yet; keep success paths unreachable.
+    return false;
 }

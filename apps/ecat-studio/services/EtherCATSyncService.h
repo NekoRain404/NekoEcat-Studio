@@ -1,7 +1,9 @@
 #pragma once
 
-// EtherCATSyncService — manages synchronization of time, data,
-// state, and configuration across EtherCAT networks.
+// EtherCATSyncService — synchronization request facade.
+//
+// Time, data, state, and configuration sync operations fail closed until the
+// service is connected to a live EtherCAT backend.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -40,4 +42,6 @@ private:
   EventBus *bus_;
   EcatClient *client_;
   SyncStatus status_;
+
+  bool backendReady() const;
 };
