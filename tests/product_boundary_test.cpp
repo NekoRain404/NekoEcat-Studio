@@ -363,6 +363,9 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("322+ 测试"),
       QStringLiteral("106K+ 行代码"),
       QStringLiteral("| **总代码行数** | 106K+ |"),
+      QStringLiteral("FoE 存根"),
+      QStringLiteral("无法进行固件更新"),
+      QStringLiteral("80+ 存根服务"),
   };
 
   for (const QString &docPath : docPaths) {

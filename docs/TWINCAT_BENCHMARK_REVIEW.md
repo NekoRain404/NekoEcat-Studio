@@ -210,7 +210,7 @@
 
 | 问题 | 严重程度 | 影响 | 建议 |
 |------|----------|------|------|
-| **80+ 存根服务** | 中 | ServiceContainer 臃肿，启动慢 | 标记为可选编译，使用条件编译 |
+| **实验服务仍有模拟实现** | 低 | Cloud/AI/Blockchain/Quantum/Digital Twin 等不属于稳定调试路径 | 保持 `ECAT_EXPERIMENTAL_SERVICES` 条件编译隔离 |
 | **31 个 MainWindow 分部文件** | 低 | 维护复杂，但已有效拆分 | 继续插件化迁移 |
 | **CLI 依赖** | 高 | 性能瓶颈，无法实现实时操作 | 实现原生 IgH API |
 | **GUI 单线程** | 中 | 大量 SDO 操作时 UI 卡顿 | 使用异步操作 + 进度回调 |
@@ -285,7 +285,7 @@
 
 | 差距 | 影响 | 解决方案 | 工作量 |
 |------|------|----------|--------|
-| **FoE 存根** | 无法进行固件更新 | 实现 FoE 协议 | 中 |
+| **FoE 通用文件操作有限** | 固件读写已有 daemon/CLI 通道，但通用 file/list/info 仍是模拟数据 | 将通用 FoE mailbox 操作接入真实后端 | 中 |
 | **EoE 存根** | 无法进行以太网隧道 | 实现 EoE 协议 | 中 |
 | **CoE 紧急对象** | 无法处理驱动报警 | 实现 Emergency 处理 | 小 |
 | **无 OPC UA** | 无法与上层系统集成 | 集成 open62541 库 | 中 |
@@ -399,7 +399,7 @@
 
 | 文件 | 行号 | 问题 | 建议 |
 |------|------|------|------|
-| `ServiceContainer.h` | 全文件 | 80+ 存根服务增加编译时间和内存占用 | 使用条件编译 `ECAT_EXPERIMENTAL_SERVICES` |
+| `ServiceContainer.h` | 实验服务区域 | Cloud/AI/Blockchain/Quantum/Digital Twin 等模拟服务已条件编译隔离 | 继续保持稳定构建默认不包含实验面 |
 | `MainWindow.h` | 194-295 | 大量成员变量应迁移到插件 | 继续插件化迁移 |
 | `EthercatCliBackend` | 全文件 | CLI 调用性能瓶颈 | 实现原生 ecrt API |
 | `FreeRunController` | 全文件 | 实时调度策略可优化 | 使用 SCHED_FIFO + CPU 亲和性 |
@@ -437,7 +437,7 @@
 
 **立即执行** (1-2 个月):
 1. 实现原生 IgH API，解决性能瓶颈
-2. 完善 FoE/EoE/CoE 紧急对象
+2. 完善 EoE、通用 FoE 文件操作和 CoE 紧急对象
 3. 优化实时调度策略
 
 **中期规划** (3-6 个月):

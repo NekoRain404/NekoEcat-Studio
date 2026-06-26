@@ -474,7 +474,7 @@ echo '{"id":"test","method":"getBackend","params":{}}' | nc 127.0.0.1 5877
 
 | 问题 | 影响 | 状态 |
 |------|------|------|
-| **80+ 存根服务** | ServiceContainer 臃肿 | 低优先级 |
+| **实验服务仍有模拟实现** | Cloud/AI/Blockchain/Quantum/Digital Twin 默认不进入稳定构建 | 条件编译隔离 |
 | **MainWindow 成员变量多** | 维护复杂 | 持续优化中 |
 | **GUI 单线程** | 大量 SDO 操作时 UI 卡顿 | 已优化（异步操作） |
 
@@ -494,7 +494,7 @@ echo '{"id":"test","method":"getBackend","params":{}}' | nc 127.0.0.1 5877
 
 1. **完善原生 API** - 实现 SDO 字典枚举、ESI XML 缓存
 2. **优化实时性能** - CPU 隔离、SCHED_FIFO
-3. **完善 FoE/EoE** - 实现固件更新和以太网隧道
+3. **完善 EoE 和通用 FoE 文件操作** - FoE 固件读写已有 daemon 通道，继续补齐通用文件/list/info 和以太网隧道
 
 ### 13.2 中期（3-6 个月）
 
