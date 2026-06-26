@@ -22,6 +22,14 @@ int EsiParser::parseHexOrDec(const QString &s) const {
 }
 
 EsiParser::ParseResult EsiParser::parseFile(const QString &filePath) {
+    if (filePath.isEmpty()) {
+        ParseResult r;
+        r.valid = false;
+        r.errorString = QStringLiteral("ESI file path is empty");
+        emit parseError(r.errorString);
+        return r;
+    }
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         ParseResult r;
@@ -51,6 +59,14 @@ EsiParser::ParseResult EsiParser::parseFile(const QString &filePath) {
 }
 
 EsiParser::ParseResult EsiParser::parseXml(const QString &xmlContent) {
+    if (xmlContent.trimmed().isEmpty()) {
+        ParseResult r;
+        r.valid = false;
+        r.errorString = QStringLiteral("ESI XML content is empty");
+        emit parseError(r.errorString);
+        return r;
+    }
+
     QTemporaryDir dir;
     if (!dir.isValid()) {
         ParseResult r;
@@ -69,7 +85,15 @@ EsiParser::ParseResult EsiParser::parseXml(const QString &xmlContent) {
         emit parseError(r.errorString);
         return r;
     }
-    file.write(xmlContent.toUtf8());
+
+    const QByteArray bytes = xmlContent.toUtf8();
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        ParseResult r;
+        r.valid = false;
+        r.errorString = "Cannot write temporary file";
+        emit parseError(r.errorString);
+        return r;
+    }
     file.close();
 
     return parseFile(tempPath);

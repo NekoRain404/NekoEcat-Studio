@@ -14,6 +14,7 @@ class EsiBrowserPluginTest : public QObject {
 private slots:
     void parserParsesValidEsiXml();
     void parserRejectsInvalidXml();
+    void parserRejectsEmptyInputsWithoutTouchingState();
     void parserExtractsMultipleDevices();
     void parserExtractsSyncManagers();
     void parserValidatesStructure();
@@ -80,6 +81,24 @@ void EsiBrowserPluginTest::parserRejectsInvalidXml() {
     EsiParser parser;
     auto result = parser.parseXml("<not valid xml><<<");
     QVERIFY(!result.valid);
+}
+
+void EsiBrowserPluginTest::parserRejectsEmptyInputsWithoutTouchingState() {
+    EsiParser parser;
+    QVERIFY(parser.parseXml(kTestEsiXml).valid);
+    QCOMPARE(parser.deviceCount(), 2);
+
+    QSignalSpy errorSpy(&parser, &EsiParser::parseError);
+    auto xmlResult = parser.parseXml(QString());
+    QVERIFY(!xmlResult.valid);
+    QCOMPARE(xmlResult.errorString, QStringLiteral("ESI XML content is empty"));
+    QCOMPARE(parser.deviceCount(), 2);
+
+    auto fileResult = parser.parseFile(QString());
+    QVERIFY(!fileResult.valid);
+    QCOMPARE(fileResult.errorString, QStringLiteral("ESI file path is empty"));
+    QCOMPARE(parser.deviceCount(), 2);
+    QCOMPARE(errorSpy.count(), 2);
 }
 
 void EsiBrowserPluginTest::parserExtractsMultipleDevices() {
