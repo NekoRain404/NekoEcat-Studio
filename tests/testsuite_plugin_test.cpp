@@ -15,6 +15,8 @@
 #include <QTableWidget>
 #include <QTextEdit>
 #include <QTreeWidget>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/testsuite/TestSuitePlugin.h"
@@ -229,11 +231,17 @@ void TestTestSuitePlugin::exportReport() {
   plugin_->addTest("Test", "ExportTest");
   plugin_->updateTestResult("test_1", "Passed", "OK");
 
-  QString tmpPath = QDir::tempPath() + "/testsuite_report.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("testsuite_report.json");
   QVERIFY(plugin_->exportReport(tmpPath));
   QVERIFY(QFile::exists(tmpPath));
 
-  QFile::remove(tmpPath);
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportReport(QString()));
+  QVERIFY(!plugin_->exportReport(dir.path()));
+
   plugin_->clearTests();
 }
 
