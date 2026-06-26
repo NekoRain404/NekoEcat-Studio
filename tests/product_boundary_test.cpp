@@ -397,6 +397,9 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("TwinCAT 95/100 vs NekoEcat 68/100"),
       QStringLiteral("达到 85%"),
       QStringLiteral("达到 70%"),
+      QStringLiteral("达到 50%"),
+      QStringLiteral("达到 75%"),
+      QStringLiteral("达到 20%"),
       QStringLiteral("代码质量行业领先"),
       QStringLiteral("代码质量**超越行业标准"),
   };
