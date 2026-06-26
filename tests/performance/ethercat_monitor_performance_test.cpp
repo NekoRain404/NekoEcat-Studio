@@ -21,6 +21,7 @@ private slots:
   void testPollPerformance() {
     EtherCATMonitorService svc(nullptr, nullptr);
     svc.startMonitoring(1);
+    QVERIFY(!svc.isMonitoring());
     QElapsedTimer timer;
     timer.start();
     QTest::qWait(100);
@@ -50,6 +51,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     svc.startMonitoring(1);
+    QVERIFY(!svc.isMonitoring());
     for (int i = 0; i < 100; i++) {
       svc.busTraffic();
       svc.errorRate();

@@ -2,7 +2,7 @@
 //
 // Test coverage:
 //   - Default state (monitoring off, zero traffic, health 100)
-//   - Start/stop monitoring (including double start/stop)
+//   - Offline start/stop monitoring rejection (including double start/stop)
 //   - Traffic, error rate, performance, and health updates
 //   - Signal emission and health grade defaults
 
@@ -23,23 +23,21 @@ private slots:
     QCOMPARE(svc.health().score, 100);
   }
 
-  // Start and stop monitoring toggles state
-  // Start and stop monitoring toggles isMonitoring flag
-  void testStartStop() {
+  // Offline start must not synthesize active monitoring.
+  void testStartStopOffline() {
     EtherCATMonitorService svc(nullptr, nullptr);
     svc.startMonitoring(10000);
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
     QVERIFY(!svc.isMonitoring());
   }
 
-  // Double start keeps monitoring active
-  // Double start remains monitoring without error
-  void testDoubleStart() {
+  // Double offline start remains inactive.
+  void testDoubleStartOffline() {
     EtherCATMonitorService svc(nullptr, nullptr);
     svc.startMonitoring(10000);
     svc.startMonitoring(10000);
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
   }
 
@@ -102,16 +100,15 @@ private slots:
     QCOMPARE(svc.health().totalSlaves, 4);
   }
 
-  // trafficUpdated signal fires on update
-  // Verify trafficUpdated signal is emitted
-  void testSignalEmission() {
+  // Offline monitoring must not emit runtime traffic updates.
+  void testOfflineUpdateDoesNotEmitSignal() {
     EtherCATMonitorService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATMonitorService::trafficUpdated);
     BusTraffic t;
     t.txFrames = 50;
     svc.startMonitoring(10000);
     svc.updateTraffic(t);
-    QVERIFY(spy.count() >= 1);
+    QCOMPARE(spy.count(), 0);
     svc.stopMonitoring();
   }
 

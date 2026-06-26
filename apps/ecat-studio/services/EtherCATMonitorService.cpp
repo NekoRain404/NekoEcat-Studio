@@ -8,6 +8,7 @@
 //   - Tracks four metric domains: traffic, error rate, performance, health
 //   - Uses QTimer at configurable interval to emit metric update signals
 //   - External callers push updates; poll() re-emits current state when connected
+//   - Monitoring starts only when a live daemon connection exists
 
 EtherCATMonitorService::EtherCATMonitorService(EventBus *bus, EcatClient *client,
                                                QObject *parent)
@@ -18,6 +19,8 @@ EtherCATMonitorService::EtherCATMonitorService(EventBus *bus, EcatClient *client
 void EtherCATMonitorService::startMonitoring(int intervalMs)
 {
     if (running_)
+        return;
+    if (!client_ || !client_->isConnected())
         return;
     timer_ = new QTimer(this);
     connect(timer_, &QTimer::timeout, this, &EtherCATMonitorService::poll);

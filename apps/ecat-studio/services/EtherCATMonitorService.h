@@ -5,7 +5,8 @@
 //
 // Provides timer-based polling at a configurable interval (default 1s).
 // Emits trafficUpdated(), errorRateUpdated(), performanceUpdated(), and
-// healthUpdated() signals on each poll cycle.
+// healthUpdated() signals on each poll cycle. Offline start requests do not
+// synthesize an active monitoring session.
 //
 // Thread safety: main (GUI) thread only.
 
