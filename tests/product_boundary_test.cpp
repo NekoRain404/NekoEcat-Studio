@@ -455,6 +455,14 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| 指标 | TwinCAT | NekoEcat | 提升 |"),
       QStringLiteral("| **SDO 操作** | ~10ms | ~50ms (CLI) / ~5ms (原生) | 10x |"),
       QStringLiteral("| **拓扑扫描** | ~100ms | ~500ms (CLI) / ~100ms (原生) | 5x |"),
+      QStringLiteral("| 拓扑扫描 | ✅ 自动检测 | ✅ 原生 IgH 后端，CLI fallback | **持平** |"),
+      QStringLiteral("| SDO Upload/Download | ✅ 原生 API | ✅ 原生 IgH SDO upload/download，CLI fallback | **持平** |"),
+      QStringLiteral("| 对象字典浏览 | ✅ 完整 OD 浏览器 | ✅ OD 工作区 + 语义过滤 | **持平** |"),
+      QStringLiteral("| ESI 支持 | ✅ 完整 ESI 解析 | ✅ ESI Repository + Browser | **持平** |"),
+      QStringLiteral("| 过程映像 | ✅ 周期性 PDO 交换 | ✅ Free Run (ecrt API) | **持平** |"),
+      QStringLiteral("| AL Event 监控 | ✅ 完整事件日志 | ✅ AL Event 工作区 | **持平** |"),
+      QStringLiteral("| 环形缓冲 | ✅ 支持 | ✅ 10,000 点环形缓冲 | **持平** |"),
+      QStringLiteral("| 总线统计 | ✅ 带宽/帧计数/错误率 | ✅ BusStatsPlugin | **持平** |"),
   };
 
   for (const QString &docPath : docPaths) {

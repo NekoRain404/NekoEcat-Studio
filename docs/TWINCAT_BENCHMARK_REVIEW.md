@@ -48,15 +48,15 @@
 
 | 功能 | TwinCAT | NekoEcat | 状态 |
 |------|---------|----------|------|
-| 拓扑扫描 | ✅ 自动检测 | ✅ 原生 IgH 后端，CLI fallback | **持平** |
+| 拓扑扫描 | ✅ 自动检测 | 原生 IgH 后端覆盖从站扫描，ESI/字典路径仍有 CLI fallback | **核心覆盖** |
 | 从站状态管理 | ✅ INIT/PREOP/SAFEOP/OP | ✅ setState API | **持平** |
-| SDO Upload/Download | ✅ 原生 API | ✅ 原生 IgH SDO upload/download，CLI fallback | **持平** |
+| SDO Upload/Download | ✅ 原生 API | 原生 IgH SDO upload/download 覆盖核心读写，部分路径仍 fallback | **核心覆盖** |
 | PDO 映射查看 | ✅ 可视化配置 | ✅ PDO Mapping Editor | **持平** |
-| 对象字典浏览 | ✅ 完整 OD 浏览器 | ✅ OD 工作区 + 语义过滤 | **持平** |
-| ESI 支持 | ✅ 完整 ESI 解析 | ✅ ESI Repository + Browser | **持平** |
-| 过程映像 | ✅ 周期性 PDO 交换 | ✅ Free Run (ecrt API) | **持平** |
+| 对象字典浏览 | ✅ 完整 OD 浏览器 | OD 工作区 + 语义过滤，现场完整性依赖设备/ESI/后端路径 | **部分覆盖** |
+| ESI 支持 | ✅ 完整 ESI 解析 | ESI Repository + Browser，工程生成链路仍有限 | **部分覆盖** |
+| 过程映像 | ✅ 周期性 PDO 交换 | Free Run (ecrt API)，不等同于 TwinCAT 运行时任务系统 | **部分覆盖** |
 | DC 同步 | ✅ 完整 DC 支持 | ✅ DC Sync + 配置 + 激活 + Precision + Optimization | **部分持平** |
-| AL Event 监控 | ✅ 完整事件日志 | ✅ AL Event 工作区 | **持平** |
+| AL Event 监控 | ✅ 完整事件日志 | AL Event 工作区，事件来源和长期记录能力仍需现场验证 | **部分覆盖** |
 | 热连接/热插拔 | ✅ 运行时设备更换 | ⚠️ HotConnectService 存根 | **差距** |
 | ENI 生成 | ✅ 网络配置文件生成 | ❌ 完全缺失 | **重大差距** |
 | 多主站支持 | ✅ 单 PC 多主站 | ✅ Multi-Master 工作区 | **持平** |
@@ -79,14 +79,14 @@
 |------|---------------|----------|------|
 | 信号采集 | ✅ TF3300 Scope Server | ✅ SignalService | **部分持平** |
 | 波形显示 | ✅ 专业 Scope 显示器 | ✅ Oscilloscope + Signal Analyzer | **部分持平** |
-| 环形缓冲 | ✅ 支持 | ✅ 10,000 点环形缓冲 | **持平** |
+| 环形缓冲 | ✅ 支持 | 本地信号缓冲能力，非独立 Scope Server | **部分覆盖** |
 | 分布式数据记录 | ✅ 独立 Scope Server | ❌ 缺失 | **重大差距** |
 | MQTT 传输 | ✅ TF3500 Analytics | ⚠️ DataPipeline 存根 | **差距** |
 | OPC UA 集成 | ✅ 标准化通信 | ❌ 完全缺失 | **重大差距** |
 | 数据分析仪表盘 | ✅ TF3550 Analytics Runtime | ⚠️ Dashboard 存根 | **差距** |
 | 逻辑分析仪 | ✅ 数字信号分析 | ✅ LogicAnalyzerPlugin | **持平** |
 | 协议分析 | ✅ 帧捕获分析 | ✅ ProtocolAnalyzerPlugin | **持平** |
-| 总线统计 | ✅ 带宽/帧计数/错误率 | ✅ BusStatsPlugin | **持平** |
+| 总线统计 | ✅ 带宽/帧计数/错误率 | BusStatsPlugin，长期记录和现场覆盖仍需验证 | **部分覆盖** |
 
 ### 2.4 PLC 与控制 (对标 TwinCAT PLC)
 
