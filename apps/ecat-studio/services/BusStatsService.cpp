@@ -11,6 +11,7 @@
 //   - Uses a QTimer-driven poll loop against EcatClient::hostDiagnostics
 //   - Computes frame rate and bandwidth from delta counters each tick
 //   - Publishes stats as QJsonObject for direct UI/JSON consumers
+//   - Monitoring starts only when a live daemon connection exists
 
 BusStatsService::BusStatsService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {
@@ -20,6 +21,7 @@ BusStatsService::BusStatsService(EcatClient *client, QObject *parent)
 
 void BusStatsService::startMonitoring(int intervalMs) {
   if (pollTimer_->isActive()) return;
+  if (!client_ || !client_->isConnected()) return;
   pollTimer_->start(intervalMs);
 }
 

@@ -2,7 +2,8 @@
 
 // BusStatsService — polls the ecatd daemon for bus statistics and
 // emits periodic updates. Metrics include frame counts, error counts,
-// bandwidth usage, CRC errors, and lost frames.
+// bandwidth usage, CRC errors, and lost frames. Offline start requests do not
+// synthesize an active statistics session.
 //
 // This service provides bus statistics monitoring for the EtherCAT
 // network. It handles:

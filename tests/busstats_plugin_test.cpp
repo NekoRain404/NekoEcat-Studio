@@ -7,6 +7,7 @@
 ///
 /// @par Test Coverage
 ///   - Service default state with zero counters
+///   - Service offline start does not synthesize active monitoring
 ///   - Stats JSON structure validation
 ///   - Plugin identity (id, displayName, displayNameZh, defaultOrder, visible)
 ///   - Widget construction and non-null checks
@@ -46,6 +47,16 @@ private slots:
     QCOMPARE(stats.rxErrors, quint64(0));
     QCOMPARE(stats.crcErrors, quint64(0));
     QCOMPARE(stats.lostFrames, quint64(0));
+  }
+
+  /// @brief Verifies offline start does not create a monitoring session.
+  void testServiceStartMonitoringOfflineDoesNotActivate() {
+    EcatClient client;
+    BusStatsService svc(&client);
+    svc.startMonitoring(100);
+    QVERIFY(!svc.isMonitoring());
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
   }
 
   // Verify stats JSON contains all required fields
