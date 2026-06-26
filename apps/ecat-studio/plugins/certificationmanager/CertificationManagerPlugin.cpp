@@ -110,26 +110,28 @@ int CertificationManagerPlugin::renewalCount() const {
   return renewals_.size();
 }
 
-void CertificationManagerPlugin::exportReport(const QString &path) {
+bool CertificationManagerPlugin::exportReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Certification Report\n";
-    out << "====================\n\n";
-    out << "Total Certificates: " << certificates_.size() << "\n\n";
-    out << "--- Certificates ---\n";
-    for (const auto &c : certificates_) {
-      out << c.name << " [" << c.standard << "] - " << c.status << "\n";
-      out << "  Issuer: " << c.issuer << "\n";
-      out << "  Serial: " << c.serialNumber << "\n";
-      out << "  Issued: " << c.issuedAt.toString(Qt::ISODate) << "\n";
-      out << "  Expires: " << c.expiresAt.toString(Qt::ISODate) << "\n\n";
-    }
-    out << "--- Renewals Needed ---\n";
-    for (const auto &r : renewals_) {
-      out << r.certificateName << " - " << r.daysUntilExpiry << " days\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Certification Report\n";
+  out << "====================\n\n";
+  out << "Total Certificates: " << certificates_.size() << "\n\n";
+  out << "--- Certificates ---\n";
+  for (const auto &c : certificates_) {
+    out << c.name << " [" << c.standard << "] - " << c.status << "\n";
+    out << "  Issuer: " << c.issuer << "\n";
+    out << "  Serial: " << c.serialNumber << "\n";
+    out << "  Issued: " << c.issuedAt.toString(Qt::ISODate) << "\n";
+    out << "  Expires: " << c.expiresAt.toString(Qt::ISODate) << "\n\n";
   }
+  out << "--- Renewals Needed ---\n";
+  for (const auto &r : renewals_) {
+    out << r.certificateName << " - " << r.daysUntilExpiry << " days\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *CertificationManagerPlugin::certificateTable() const {

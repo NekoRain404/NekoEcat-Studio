@@ -7,6 +7,9 @@
 //   - Add/remove certificates
 //   - Certificate records fail closed without certification backend
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -229,12 +232,38 @@ private slots:
 
   void testExportReport() {
     CertificationManagerPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path =
-        QDir::temp().absoluteFilePath("certification_report_test.txt");
-    plugin.exportReport(path);
+    CertificationManagerPlugin::Certificate c;
+    c.id = "cert_export";
+    c.name = "Export Certificate";
+    c.issuer = "Export Issuer";
+    c.standard = "IEC 61508";
+    c.issuedAt = QDateTime::currentDateTime();
+    c.expiresAt = QDateTime::currentDateTime().addDays(10);
+    c.status = "Unverified";
+    c.serialNumber = "SN-EXPORT";
+    plugin.addCertificate(c);
+    plugin.checkRenewals();
+
+    const QString path = dir.filePath("certification_report_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Certification Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Total Certificates: 1\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Certificate [IEC 61508] - Unverified\n")));
+    QVERIFY(text.contains(QStringLiteral("Serial: SN-EXPORT\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Certificate - ")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 
   void testSourceDoesNotMintSyntheticCertificates() {

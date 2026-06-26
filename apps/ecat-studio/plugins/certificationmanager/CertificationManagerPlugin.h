@@ -67,7 +67,7 @@ public:
   void checkRenewals();
   int renewalCount() const;
 
-  void exportReport(const QString &path);
+  bool exportReport(const QString &path);
 
   QTableWidget *certificateTable() const;
   QTableWidget *statusTable() const;
