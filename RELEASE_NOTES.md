@@ -411,7 +411,7 @@ Final testing, optimization, and release preparation with quality checks and rel
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Unit Tests**: All service tests passing (security, compliance, certification, visualization, reporting, integration)
+- **Unit Tests**: Re-run service tests for the target build (security, compliance, certification, visualization, reporting, integration)
 - **Integration Tests**: WorkflowOptimizerPlugin and WorkflowDashboardPlugin integration tests passing
 - **Performance Tests**: Security, compliance, and certification performance tests passing
 - **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
@@ -442,8 +442,8 @@ Final release preparation with additional performance tests for workflow analyti
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Performance Test Coverage**: All major services
-- **Integration Test Coverage**: All workflow plugins
+- **Performance Test Coverage**: Revalidate the relevant major services for the target build
+- **Integration Test Coverage**: Revalidate workflow plugin coverage for the target build
 
 ---
 
@@ -467,21 +467,21 @@ Comprehensive performance testing for workflow services, plugin integration test
 - WorkflowDashboardPlugin integration test (10 test cases: dashboard with optimization and monitoring services)
 
 ### Performance Optimizations
-- Lazy initialization of all services for faster startup
-- Parallel initialization of all plugins
+- Lazy initialization for selected startup-heavy services
+- Parallel initialization where supported by plugin dependencies
 - Connection pooling for all daemon communication
-- Data caching for all SDO/PDO data
-- Async operations for all slow tasks
-- Batch operations for all multiple requests
-- Object pooling for all frequent allocations
-- Memory arenas for all temporary data
+- Data caching for selected SDO/PDO paths
+- Async operations for selected slow tasks
+- Batch operations for selected multi-request workflows
+- Object pooling for selected frequent allocations
+- Memory arenas for selected temporary data paths
 
 ## Quality Statistics
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Performance Test Coverage**: All major services
-- **Integration Test Coverage**: All workflow plugins
+- **Performance Test Coverage**: Revalidate the relevant major services for the target build
+- **Integration Test Coverage**: Revalidate workflow plugin coverage for the target build
 
 ---
 
@@ -534,7 +534,7 @@ Digital Twin, Blockchain, and Quantum Security services with unit, integration, 
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Performance Test Coverage**: All major services
+- **Performance Test Coverage**: Revalidate the relevant major services for the target build
 
 ---
 
@@ -585,7 +585,7 @@ Cloud Manager, Edge Computing, and AI Assistant plugins with unit and performanc
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Performance Test Coverage**: All major services
+- **Performance Test Coverage**: Revalidate the relevant major services for the target build
 
 ---
 
@@ -617,7 +617,7 @@ New Documentation Browser plugin, comprehensive performance tests for visualizat
 
 - **Total Tests**: See the corresponding build output
 - **Test Pass Rate**: Revalidate for the target build
-- **Performance Test Coverage**: All major services
+- **Performance Test Coverage**: Revalidate the relevant major services for the target build
 
 ## Build Instructions
 
