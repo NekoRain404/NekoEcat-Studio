@@ -56,6 +56,8 @@ bool FreeRunConfigurationService::configureErrorHandling(
 bool FreeRunConfigurationService::applyConfiguration() {
   if (pdConfig_.inputs.isEmpty() && pdConfig_.outputs.isEmpty())
     return false;
+  if (!client_)
+    return false;
 
   applied_ = true;
   emit configurationApplied();

@@ -113,15 +113,15 @@ private slots:
     QVERIFY(!svc.configureErrorHandling(config));
   }
 
-  void testApplyConfiguration() {
+  void testApplyConfigurationFailsClosedWithoutBackend() {
     FreeRunConfigurationService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
     ProcessDataConfig pdConfig;
     pdConfig.inputs = {0x6000};
     svc.configureProcessData(pdConfig);
-    QVERIFY(svc.applyConfiguration());
-    QVERIFY(svc.isApplied());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.applyConfiguration());
+    QVERIFY(!svc.isApplied());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testApplyWithoutConfigFails() {
@@ -134,8 +134,8 @@ private slots:
     ProcessDataConfig pdConfig;
     pdConfig.inputs = {0x6000};
     svc.configureProcessData(pdConfig);
-    svc.applyConfiguration();
-    QVERIFY(svc.isApplied());
+    QVERIFY(!svc.applyConfiguration());
+    QVERIFY(!svc.isApplied());
 
     svc.configureCycleTime(2000);
     QVERIFY(!svc.isApplied());
