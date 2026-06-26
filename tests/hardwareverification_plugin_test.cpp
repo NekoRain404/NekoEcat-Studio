@@ -14,6 +14,7 @@
 #include <QTest>
 #include <QSignalSpy>
 #include <QTcpServer>
+#include <QFile>
 #include "plugins/hardwareverification/HardwareVerificationPlugin.h"
 #include "plugins/hardwareverification/DeviceVerificationWidget.h"
 #include "plugins/hardwareverification/NetworkVerificationWidget.h"
@@ -355,6 +356,19 @@ private slots:
     QCOMPARE(result.skipped, result.totalTests());
     QCOMPARE(result.totalDurationMs, 0.0);
     QVERIFY(!service.allResults().isEmpty());
+  }
+
+  void testImplementationDoesNotContainSyntheticPassResults() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/HardwareVerificationService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("passed = true")),
+             "Hardware verification must not contain hard-coded pass results");
+    QVERIFY2(!text.contains(QStringLiteral("within specification")),
+             "Hardware verification must not claim timing or performance compliance without a real backend");
+    QVERIFY2(!text.contains(QStringLiteral("compliant with")),
+             "Hardware verification must not claim protocol compliance without a real backend");
   }
 };
 

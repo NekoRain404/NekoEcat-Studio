@@ -80,7 +80,6 @@ private:
   VerificationResult offlineResult(const QString &verificationId,
                                    const QString &verificationName,
                                    const QVector<TestResult> &tests);
-  bool verificationBackendReady() const;
 
   EcatClient *client_;
   QVector<VerificationResult> results_;
