@@ -1,10 +1,10 @@
 // WorkflowReplicationServiceTest — Tests for WorkflowReplicationService
 //
 // Test coverage:
-//   - Configuration, data, state, and backup replication
-//   - Replication history tracking
+//   - Configuration, data, state, and backup replication fail closed without backend
+//   - Replication history is not synthesized
 //   - Empty target list handling
-//   - Signal emission for replication start and completion
+//   - No synthetic replication start/completion signals
 
 #include <QTest>
 #include <QSignalSpy>
@@ -13,60 +13,60 @@
 class WorkflowReplicationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testReplicateConfiguration() {
+  void testReplicateConfigurationFailsWithoutBackend() {
     WorkflowReplicationService svc;
     QStringList targets = {QStringLiteral("node-01"), QStringLiteral("node-02")};
-    QVERIFY(svc.replicateConfiguration(targets));
-    QCOMPARE(svc.replicationHistory().size(), 2);
+    QVERIFY(!svc.replicateConfiguration(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  void testReplicateData() {
+  void testReplicateDataFailsWithoutBackend() {
     WorkflowReplicationService svc;
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateData(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateData(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  void testReplicateState() {
+  void testReplicateStateFailsWithoutBackend() {
     WorkflowReplicationService svc;
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateState(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateState(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  void testReplicateBackup() {
+  void testReplicateBackupFailsWithoutBackend() {
     WorkflowReplicationService svc;
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateBackup(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateBackup(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  void testReplicationHistoryCount() {
+  void testReplicationHistoryRemainsEmptyWithoutBackend() {
     WorkflowReplicationService svc;
     QStringList targets = {QStringLiteral("node-01"), QStringLiteral("node-02")};
     svc.replicateConfiguration(targets);
     svc.replicateData({QStringLiteral("node-03")});
-    QCOMPARE(svc.replicationHistory().size(), 3);
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
   void testReplicateEmptyTargets() {
     WorkflowReplicationService svc;
-    QVERIFY(svc.replicateConfiguration(QStringList()));
+    QVERIFY(!svc.replicateConfiguration(QStringList()));
     QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  void testReplicationStartedSignal() {
+  void testNoSyntheticReplicationStartedSignal() {
     WorkflowReplicationService svc;
     QSignalSpy spy(&svc, &WorkflowReplicationService::replicationStarted);
     svc.replicateConfiguration({QStringLiteral("node-01")});
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  void testReplicationCompletedSignal() {
+  void testNoSyntheticReplicationCompletedSignal() {
     WorkflowReplicationService svc;
     QSignalSpy spy(&svc, &WorkflowReplicationService::replicationCompleted);
     svc.replicateConfiguration({QStringLiteral("node-01")});
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 };
 

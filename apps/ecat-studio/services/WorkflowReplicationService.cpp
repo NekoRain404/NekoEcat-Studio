@@ -4,59 +4,23 @@ WorkflowReplicationService::WorkflowReplicationService(QObject *parent)
     : QObject(parent) {}
 
 bool WorkflowReplicationService::replicateConfiguration(const QStringList &targets) {
-  for (const auto &target : targets) {
-    emit replicationStarted(target);
-    WorkflowReplicationStatus s;
-    s.target = target;
-    s.status = QStringLiteral("Success");
-    s.startTime = QDateTime::currentDateTime();
-    s.endTime = s.startTime;
-    history_.append(s);
-    emit replicationCompleted(target, true);
-  }
-  return true;
+  Q_UNUSED(targets);
+  return false;
 }
 
 bool WorkflowReplicationService::replicateData(const QStringList &targets) {
-  for (const auto &target : targets) {
-    emit replicationStarted(target);
-    WorkflowReplicationStatus s;
-    s.target = target;
-    s.status = QStringLiteral("Success");
-    s.startTime = QDateTime::currentDateTime();
-    s.endTime = s.startTime;
-    history_.append(s);
-    emit replicationCompleted(target, true);
-  }
-  return true;
+  Q_UNUSED(targets);
+  return false;
 }
 
 bool WorkflowReplicationService::replicateState(const QStringList &targets) {
-  for (const auto &target : targets) {
-    emit replicationStarted(target);
-    WorkflowReplicationStatus s;
-    s.target = target;
-    s.status = QStringLiteral("Success");
-    s.startTime = QDateTime::currentDateTime();
-    s.endTime = s.startTime;
-    history_.append(s);
-    emit replicationCompleted(target, true);
-  }
-  return true;
+  Q_UNUSED(targets);
+  return false;
 }
 
 bool WorkflowReplicationService::replicateBackup(const QStringList &targets) {
-  for (const auto &target : targets) {
-    emit replicationStarted(target);
-    WorkflowReplicationStatus s;
-    s.target = target;
-    s.status = QStringLiteral("Success");
-    s.startTime = QDateTime::currentDateTime();
-    s.endTime = s.startTime;
-    history_.append(s);
-    emit replicationCompleted(target, true);
-  }
-  return true;
+  Q_UNUSED(targets);
+  return false;
 }
 
 QVector<WorkflowReplicationStatus> WorkflowReplicationService::replicationHistory() const {

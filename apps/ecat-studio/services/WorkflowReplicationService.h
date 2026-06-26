@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowReplicationService -- manages replication of configuration,
-// data, state, and backups across workflow targets.
+// WorkflowReplicationService -- replication request facade for configuration,
+// data, state, and backups across workflow targets. Until a real replication
+// backend is wired, requests fail closed and do not emit synthetic success
+// signals or history entries.
 //
 // Thread safety: main (GUI) thread only.
 
