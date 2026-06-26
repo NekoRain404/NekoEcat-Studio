@@ -10,6 +10,7 @@ private slots:
   void experimentalServicesAreOptInByDefault();
   void experimentalSourcesAreCompileGuarded();
   void experimentalIncludeDirsAreCompileGuarded();
+  void experimentalTestsAreOptInByDefault();
   void experimentalPluginsAreCompileGuarded();
   void readmeMarksExperimentalWorkspaces();
 
@@ -108,6 +109,56 @@ void ProductBoundaryTest::experimentalIncludeDirsAreCompileGuarded() {
              qPrintable(QStringLiteral("%1 must be inside "
                                        "ECAT_EXPERIMENTAL_SERVICES CMake guard")
                             .arg(includeDir)));
+  }
+}
+
+void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
+  const QString cmake = readTextFile(
+      QStringLiteral(SOURCE_ROOT "/tests/CMakeLists.txt"));
+  const QStringList testTargets = {
+      QStringLiteral("cloudmanager_plugin_test"),
+      QStringLiteral("edgecomputing_plugin_test"),
+      QStringLiteral("aiassistant_plugin_test"),
+      QStringLiteral("ethercat_cloud_service_test"),
+      QStringLiteral("ethercat_edge_service_test"),
+      QStringLiteral("ethercat_ai_service_test"),
+      QStringLiteral("ethercat_cloud_performance_test"),
+      QStringLiteral("ethercat_edge_performance_test"),
+      QStringLiteral("ethercat_ai_performance_test"),
+      QStringLiteral("ethercat_digital_twin_performance_test"),
+      QStringLiteral("ethercat_blockchain_performance_test"),
+      QStringLiteral("ethercat_quantum_performance_test"),
+      QStringLiteral("ethercat_digital_twin_service_test"),
+      QStringLiteral("ethercat_blockchain_service_test"),
+      QStringLiteral("ethercat_quantum_service_test"),
+      QStringLiteral("digitaltwinstudio_plugin_test"),
+      QStringLiteral("blockchainexplorer_plugin_test"),
+      QStringLiteral("quantumsecurity_plugin_test"),
+      QStringLiteral("workflow_cloud_service_test"),
+      QStringLiteral("workflow_edge_service_test"),
+      QStringLiteral("workflow_ai_service_test"),
+      QStringLiteral("workflow_cloud_service_performance_test"),
+      QStringLiteral("workflow_edge_service_performance_test"),
+      QStringLiteral("workflow_ai_service_performance_test"),
+      QStringLiteral("workflow_digital_twin_service_test"),
+      QStringLiteral("workflow_blockchain_service_test"),
+      QStringLiteral("workflow_quantum_service_test"),
+  };
+
+  for (const QString &testTarget : testTargets) {
+    const QString declaration = QStringLiteral("add_executable(%1").arg(testTarget);
+    const qsizetype targetIndex = cmake.indexOf(declaration);
+    QVERIFY2(targetIndex >= 0,
+             qPrintable(QStringLiteral("Missing test target %1").arg(testTarget)));
+
+    const qsizetype guardIndex = cmake.lastIndexOf(
+        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), targetIndex);
+    const qsizetype endGuardIndex =
+        cmake.lastIndexOf(QStringLiteral("endif()"), targetIndex);
+    QVERIFY2(guardIndex > endGuardIndex,
+             qPrintable(QStringLiteral("%1 must be inside "
+                                       "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+                            .arg(testTarget)));
   }
 }
 

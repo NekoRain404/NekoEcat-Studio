@@ -6372,6 +6372,8 @@ target_link_libraries(ethercat_documentation_performance_test PRIVATE Qt6::Core 
 set_target_properties(ethercat_documentation_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_documentation_performance_test COMMAND ethercat_documentation_performance_test)
 
+# ── Experimental Cloud/AI/Digital-Twin Tests ─────────────────────
+if(ECAT_EXPERIMENTAL_SERVICES)
 # ── CloudManagerPlugin ───────────────────────────────────────────
 add_executable(cloudmanager_plugin_test
     cloudmanager_plugin_test.cpp
@@ -6626,6 +6628,7 @@ target_include_directories(quantumsecurity_plugin_test PRIVATE ${CMAKE_SOURCE_DI
 set_target_properties(quantumsecurity_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME quantumsecurity_plugin_test COMMAND quantumsecurity_plugin_test)
 set_tests_properties(quantumsecurity_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
 
 # ── WorkflowOptimizationService (unit) ──────────────────────────────
 add_executable(workflow_optimization_service_test
@@ -7370,6 +7373,8 @@ target_link_libraries(workflow_replication_service_test PRIVATE Qt6::Core Qt6::T
 set_target_properties(workflow_replication_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME workflow_replication_service_test COMMAND workflow_replication_service_test)
 
+# ── Experimental Workflow Cloud/AI/Digital-Twin Tests ───────────────
+if(ECAT_EXPERIMENTAL_SERVICES)
 # ── WorkflowCloudService Test ─────────────────────────────────
 add_executable(workflow_cloud_service_test
     workflow_cloud_service_test.cpp
@@ -7507,6 +7512,7 @@ set_tests_properties(workflow_quantum_service_test PROPERTIES
     TIMEOUT 30
     LABELS "unit;quantum"
 )
+endif()
 
 # ── Workflow Optimization Services Tests ───────────────────────────────
 add_executable(workflow_visualization_studio_service_test
