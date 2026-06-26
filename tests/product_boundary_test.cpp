@@ -17,6 +17,7 @@ private slots:
   void docsMarkExperimentalSurfaces();
   void publicDocsDoNotUseStaleReleaseNumbers();
   void publicDocsDoNotAdvertiseStaleProjectStats();
+  void digitalTwinPluginHasSingleCanonicalPathAndId();
 
 private:
   static QString readTextFile(const QString &path);
@@ -357,6 +358,20 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
                               .arg(docPath, staleClaim)));
     }
   }
+}
+
+void ProductBoundaryTest::digitalTwinPluginHasSingleCanonicalPathAndId() {
+  QVERIFY2(!QFile::exists(QStringLiteral(
+               SOURCE_ROOT "/apps/ecat-studio/plugins/digitaltwin/DigitalTwinStudioPlugin.cpp")),
+           "Legacy apps/ecat-studio/plugins/digitaltwin duplicate must not exist.");
+  QVERIFY2(!QFile::exists(QStringLiteral(
+               SOURCE_ROOT "/apps/ecat-studio/plugins/digitaltwin/DigitalTwinStudioPlugin.h")),
+           "Legacy apps/ecat-studio/plugins/digitaltwin duplicate must not exist.");
+
+  const QString architecture =
+      readTextFile(QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"));
+  QVERIFY2(!architecture.contains(QStringLiteral("| DigitalTwinStudioPlugin | `digitaltwin` |")),
+           "Docs must use the canonical digitaltwinstudio plugin id.");
 }
 
 QTEST_MAIN(ProductBoundaryTest)

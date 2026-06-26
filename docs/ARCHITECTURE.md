@@ -186,7 +186,7 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | CloudManagerPlugin | `cloudmanager` | Experimental opt-in: Cloud connectivity management |
 | EdgeComputingPlugin | `edgecomputing` | Experimental opt-in: Edge computing management |
 | AIAssistantPlugin | `aiassistant` | Experimental opt-in: AI-powered diagnostic assistant |
-| DigitalTwinStudioPlugin | `digitaltwin` | Experimental opt-in: Digital twin modeling and management |
+| DigitalTwinStudioPlugin | `digitaltwinstudio` | Experimental opt-in: Digital twin modeling and management |
 | BlockchainExplorerPlugin | `blockchainexplorer` | Experimental opt-in: Blockchain audit log explorer |
 | QuantumSecurityPlugin | `quantumsecurity` | Experimental opt-in: Quantum-resistant security management |
 | WorkflowOptimizerPlugin | `workflowoptimizer` | Workflow optimization recommendations |
