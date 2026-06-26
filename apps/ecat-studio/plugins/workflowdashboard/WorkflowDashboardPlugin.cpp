@@ -190,6 +190,8 @@ void WorkflowDashboardPlugin::refreshActiveWorkflows() {
 }
 
 bool WorkflowDashboardPlugin::exportDashboard(const QString &filePath) {
+  if (filePath.isEmpty()) return false;
+
   QJsonObject root;
   root[QStringLiteral("version")] = 1;
   root[QStringLiteral("exportTime")] = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -227,7 +229,8 @@ bool WorkflowDashboardPlugin::exportDashboard(const QString &filePath) {
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly)) return false;
-  file.write(QJsonDocument(root).toJson());
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  if (file.write(bytes) != bytes.size() || !file.flush()) return false;
 
   statusLabel_->setText(tr("Dashboard exported"));
   emit dashboardExported(filePath);

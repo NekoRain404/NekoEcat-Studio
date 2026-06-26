@@ -15,6 +15,8 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QTableWidget>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/workflowdashboard/WorkflowDashboardPlugin.h"
@@ -134,20 +136,27 @@ void TestWorkflowDashboardPlugin::exportDashboard() {
   plugin_->addAlert("Info", "Test", "Test alert");
   plugin_->addNotification("test", "Test notification");
 
-  QString tmpPath = QDir::tempPath() + "/dashboard_export_test.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("dashboard_export_test.json");
   QVERIFY(plugin_->exportDashboard(tmpPath));
   QVERIFY(QFile::exists(tmpPath));
-  QFile::remove(tmpPath);
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportDashboard(QString()));
+  QVERIFY(!plugin_->exportDashboard(dir.path()));
 }
 
 void TestWorkflowDashboardPlugin::signalEmissions() {
   QSignalSpy actSpy(plugin_, &WorkflowDashboardPlugin::workflowActivated);
   QSignalSpy expSpy(plugin_, &WorkflowDashboardPlugin::dashboardExported);
 
-  QString tmpPath = QDir::tempPath() + "/dashboard_signal_test.json";
-  plugin_->exportDashboard(tmpPath);
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("dashboard_signal_test.json");
+  QVERIFY(plugin_->exportDashboard(tmpPath));
   QCOMPARE(expSpy.count(), 1);
-  QFile::remove(tmpPath);
 }
 
 QTEST_MAIN(TestWorkflowDashboardPlugin)
