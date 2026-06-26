@@ -1,12 +1,12 @@
 #include "EtherCATMaintenanceService.h"
 #include <QDateTime>
 
-// EtherCATMaintenanceService.cpp — Maintenance task scheduling and execution
+// EtherCATMaintenanceService.cpp — Maintenance task planning facade
 //
 // Implementation notes:
 //   - Uses EventBus and EcatClient for task orchestration
 //   - Generates unique task IDs via nextId_ counter
-//   - Supports schedule, cancel, and run operations with status tracking
+//   - Rejects offline execution instead of synthesizing completed maintenance
 
 EtherCATMaintenanceService::EtherCATMaintenanceService(EventBus *bus,
                                                        EcatClient *client,
@@ -60,6 +60,14 @@ MaintenanceTaskInfo EtherCATMaintenanceService::runTask(const QString &taskId)
 {
     for (auto &t : tasks_) {
         if (t.id == taskId) {
+            if (!backendReady()) {
+                auto rejected = t;
+                rejected.status = QStringLiteral("Rejected");
+                rejected.result = QStringLiteral("Task '%1' requires a connected EtherCAT maintenance backend")
+                                      .arg(t.taskType);
+                return rejected;
+            }
+
             t.status = QStringLiteral("Completed");
             t.lastRun = QDateTime::currentDateTime().toString(Qt::ISODate);
             t.result = QStringLiteral("Task '%1' completed successfully").arg(t.taskType);
@@ -97,6 +105,9 @@ bool EtherCATMaintenanceService::executeMaintenance(int taskId)
 {
     for (int i = 0; i < schedule_.size(); ++i) {
         if (schedule_.at(i).taskId == taskId) {
+            if (!backendReady())
+                return false;
+
             MaintenanceExecutionRecord record;
             record.taskId = schedule_.at(i).taskId;
             record.type = schedule_.at(i).type;
@@ -120,4 +131,10 @@ QVector<MaintenanceExecutionRecord> EtherCATMaintenanceService::maintenanceHisto
 QVector<ScheduledMaintenanceTask> EtherCATMaintenanceService::maintenanceSchedule() const
 {
     return schedule_;
+}
+
+bool EtherCATMaintenanceService::backendReady() const
+{
+    // No real maintenance backend is wired yet; keep execution paths unreachable.
+    return false;
 }

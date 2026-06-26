@@ -2,9 +2,9 @@
 //
 // Test coverage:
 //   - Task scheduling, cancellation, and listing
-//   - Task execution and status queries
+//   - Task execution fails closed without a live backend
 //   - Task type variety (Cleanup, Diagnostic, Backup, Calibration)
-//   - Maintenance scheduling and execution with history
+//   - Maintenance scheduling and offline execution rejection
 
 #include <QTest>
 #include <QSignalSpy>
@@ -53,14 +53,14 @@ private slots:
     QCOMPARE(list[1].taskType, QStringLiteral("Backup"));
   }
 
-  // Execute a scheduled task
-  // Run a task and verify completion status
-  void testRunTask() {
+  // Running a scheduled task fails closed without a live backend.
+  void testRunTaskFailsClosedWithoutBackend() {
     EtherCATMaintenanceService svc(nullptr, nullptr);
     auto task = svc.scheduleTask("Calibration", "monthly");
     auto result = svc.runTask(task.id);
-    QCOMPARE(result.status, QStringLiteral("Completed"));
+    QCOMPARE(result.status, QStringLiteral("Rejected"));
     QVERIFY(!result.result.isEmpty());
+    QCOMPARE(svc.getTaskStatus(task.id).status, QStringLiteral("Scheduled"));
   }
 
   // Get status of existing task
@@ -81,14 +81,13 @@ private slots:
     QCOMPARE(status.status, QStringLiteral("NotFound"));
   }
 
-  // taskCompleted signal fires on execution
-  // Verify taskCompleted signal is emitted on run
-  void testTaskSignal() {
+  // taskCompleted is not emitted for offline execution rejection.
+  void testTaskSignalNotEmittedWithoutBackend() {
     EtherCATMaintenanceService svc(nullptr, nullptr);
     auto task = svc.scheduleTask("Cleanup", "daily");
     QSignalSpy spy(&svc, &EtherCATMaintenanceService::taskCompleted);
     svc.runTask(task.id);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // All task types can be scheduled
@@ -119,17 +118,17 @@ private slots:
     QCOMPARE(svc.maintenanceSchedule().size(), 1);
   }
 
-  // Execute maintenance and verify history
-  // Execute maintenance and verify history entry
-  void testExecuteMaintenance() {
+  // Execute maintenance fails closed without a live backend.
+  void testExecuteMaintenanceFailsClosedWithoutBackend() {
     EtherCATMaintenanceService svc(nullptr, nullptr);
     ScheduledMaintenanceTask task;
     task.description = "Execute test";
     task.type = MaintenanceType::Corrective;
     svc.scheduleMaintenance(task);
     bool result = svc.executeMaintenance(1);
-    QVERIFY(result);
-    QCOMPARE(svc.maintenanceHistory().size(), 1);
+    QVERIFY(!result);
+    QCOMPARE(svc.maintenanceHistory().size(), 0);
+    QCOMPARE(svc.maintenanceSchedule().size(), 1);
   }
 };
 

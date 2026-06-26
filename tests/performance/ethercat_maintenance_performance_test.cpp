@@ -32,7 +32,7 @@ private slots:
     qDebug() << "1000 list calls:" << elapsed << "ms";
   }
 
-  void testRunPerformance() {
+  void testOfflineRunRejectionPerformance() {
     EtherCATMaintenanceService svc(nullptr, nullptr);
     QVector<MaintenanceTaskInfo> tasks;
     for (int i = 0; i < 100; i++) {
@@ -41,11 +41,12 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.runTask(tasks[i % tasks.size()].id);
+      auto result = svc.runTask(tasks[i % tasks.size()].id);
+      QCOMPARE(result.status, QStringLiteral("Rejected"));
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 500);
-    qDebug() << "1000 run calls:" << elapsed << "ms";
+    qDebug() << "1000 offline run rejections:" << elapsed << "ms";
   }
 };
 

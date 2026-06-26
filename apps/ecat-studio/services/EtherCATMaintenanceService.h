@@ -1,10 +1,9 @@
 #pragma once
 
-// EtherCATMaintenanceService — manages scheduled maintenance tasks
-// for EtherCAT networks.
+// EtherCATMaintenanceService — maintenance planning facade for EtherCAT networks.
 //
-// Provides task scheduling, execution, cancellation, and status
-// tracking for routine maintenance operations.
+// Provides local task scheduling, cancellation, and status tracking. Actual
+// maintenance execution fails closed until a live maintenance backend is wired.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -76,6 +75,7 @@ private:
   MaintenanceTaskInfo makeTask(const QString &id, const QString &taskType,
                                const QString &schedule, const QString &status,
                                const QString &result);
+  bool backendReady() const;
 
   EventBus *bus_;
   EcatClient *client_;
