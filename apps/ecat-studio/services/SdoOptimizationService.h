@@ -30,6 +30,8 @@ struct SdoOptimizationResult {
   QDateTime timestamp;
 };
 
+Q_DECLARE_METATYPE(SdoOptimizationResult)
+
 class SdoOptimizationService : public QObject {
   Q_OBJECT
 public:

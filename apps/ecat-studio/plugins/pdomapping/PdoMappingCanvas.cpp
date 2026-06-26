@@ -225,7 +225,7 @@ void PdoMappingCanvas::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void PdoMappingCanvas::dropEvent(QDropEvent *event) {
-  auto [smIdx, entryIdx] = entryAtPos(event->pos());
+  auto [smIdx, entryIdx] = entryAtPos(event->position().toPoint());
   if (smIdx >= 0) {
     QByteArray data = event->mimeData()->data("application/x-pdo-entry");
     QStringList parts = QString::fromUtf8(data).split(":");

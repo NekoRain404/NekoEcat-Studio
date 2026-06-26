@@ -27,6 +27,8 @@ struct PdoMappingOptimizationResult {
   QDateTime timestamp;
 };
 
+Q_DECLARE_METATYPE(PdoMappingOptimizationResult)
+
 class PdoMappingOptimizationService : public QObject {
   Q_OBJECT
 public:

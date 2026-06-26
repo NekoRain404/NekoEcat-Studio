@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QWidget>
+#include "services/FreeRunOptimizationService.h"
 
 class QLabel;
 class QPushButton;
 class QGroupBox;
-class FreeRunOptimizationResult;
 
 class CycleTimeOptimizerWidget : public QWidget {
   Q_OBJECT

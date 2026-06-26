@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QWidget>
+#include "services/SdoOptimizationService.h"
 
 class QLabel;
 class QPushButton;
-class SdoOptimizationResult;
 
 class BatchOptimizerWidget : public QWidget {
   Q_OBJECT

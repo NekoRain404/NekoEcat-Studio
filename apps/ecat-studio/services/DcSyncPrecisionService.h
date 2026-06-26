@@ -56,6 +56,10 @@ struct SyncQuality {
   double avgJitter = 0.0;
 };
 
+Q_DECLARE_METATYPE(DriftStatusEx)
+Q_DECLARE_METATYPE(JitterStatsEx)
+Q_DECLARE_METATYPE(SyncQuality)
+
 class DcSyncPrecisionService : public QObject {
   Q_OBJECT
 public:

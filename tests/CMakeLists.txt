@@ -18,6 +18,13 @@ target_link_libraries(product_boundary_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(product_boundary_test PROPERTIES AUTOMOC ON)
 add_test(NAME product_boundary_test COMMAND product_boundary_test)
 
+add_executable(warnings_log_test
+    warnings_log_test.cpp
+)
+target_link_libraries(warnings_log_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(warnings_log_test PROPERTIES AUTOMOC ON)
+add_test(NAME warnings_log_test COMMAND warnings_log_test)
+
 add_executable(sdo_evidence_model_test
     sdo_evidence_model_test.cpp
     ../apps/ecat-studio/models/SdoEvidenceModel.cpp

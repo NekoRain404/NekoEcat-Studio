@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QWidget>
+#include "services/PdoMappingOptimizationService.h"
 
 class QLabel;
 class QPushButton;
 class QGroupBox;
-struct PdoMappingOptimizationResult;
 
 class MappingOptimizerWidget : public QWidget {
   Q_OBJECT

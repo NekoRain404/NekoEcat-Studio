@@ -13,16 +13,15 @@
 //   defaultOrder: 48
 
 #include "plugins/WorkspacePlugin.h"
+#include "services/SdoOptimizationService.h"
 
 class QTabWidget;
 class QPushButton;
 class QLabel;
 class EcatClient;
 class EventBus;
-class SdoOptimizationService;
 class CacheOptimizerWidget;
 class BatchOptimizerWidget;
-struct SdoOptimizationResult;
 
 class SdoOptimizationPlugin : public WorkspacePlugin {
   Q_OBJECT

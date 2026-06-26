@@ -30,6 +30,8 @@ struct FreeRunOptimizationResult {
   QDateTime timestamp;
 };
 
+Q_DECLARE_METATYPE(FreeRunOptimizationResult)
+
 class FreeRunOptimizationService : public QObject {
   Q_OBJECT
 public:

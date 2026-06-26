@@ -12,16 +12,15 @@
 //   defaultOrder: 44
 
 #include "plugins/WorkspacePlugin.h"
+#include "services/FreeRunOptimizationService.h"
 
 class QTabWidget;
 class QPushButton;
 class QLabel;
 class EcatClient;
 class EventBus;
-class FreeRunOptimizationService;
 class CycleTimeOptimizerWidget;
 class DataMappingOptimizerWidget;
-struct FreeRunOptimizationResult;
 
 class FreeRunOptimizationPlugin : public WorkspacePlugin {
   Q_OBJECT

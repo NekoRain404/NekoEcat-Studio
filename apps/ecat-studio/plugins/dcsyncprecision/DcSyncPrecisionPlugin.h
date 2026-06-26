@@ -12,6 +12,7 @@
 //   defaultOrder: 26
 
 #include "plugins/WorkspacePlugin.h"
+#include "services/DcSyncPrecisionService.h"
 
 class QTabWidget;
 class QTableWidget;
@@ -22,12 +23,8 @@ class QSpinBox;
 class QComboBox;
 class EcatClient;
 class EventBus;
-class DcSyncPrecisionService;
 class DriftMonitorWidget;
 class JitterAnalysisWidget;
-struct DriftStatusEx;
-struct JitterStatsEx;
-struct SyncQuality;
 
 class DcSyncPrecisionPlugin : public WorkspacePlugin {
   Q_OBJECT

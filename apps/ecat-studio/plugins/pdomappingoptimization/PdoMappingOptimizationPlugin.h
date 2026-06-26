@@ -12,14 +12,13 @@
 //   defaultOrder: 46
 
 #include "plugins/WorkspacePlugin.h"
+#include "services/PdoMappingOptimizationService.h"
 
 class QTabWidget;
 class QPushButton;
 class QLabel;
-class PdoMappingOptimizationService;
 class MappingOptimizerWidget;
 class SizeOptimizerWidget;
-struct PdoMappingOptimizationResult;
 
 class PdoMappingOptimizationPlugin : public WorkspacePlugin {
   Q_OBJECT

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <QWidget>
+#include "services/SdoOptimizationService.h"
 
 class QLabel;
 class QPushButton;
-class SdoOptimizationResult;
 
 class CacheOptimizerWidget : public QWidget {
   Q_OBJECT
