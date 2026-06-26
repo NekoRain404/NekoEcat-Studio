@@ -3,8 +3,9 @@
 // EtherCATOptimizerService — performance optimization for EtherCAT
 // configuration, timing, buffers, and priorities.
 //
-// Provides on-demand optimization methods that produce structured results
-// with before/after comparisons and recommendations.
+// Provides on-demand optimization request methods. Without a connected
+// optimization backend, requests return rejected results with recommendations
+// and no synthetic before/after measurements.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -40,9 +41,8 @@ signals:
   void optimizationCompleted(const OptimizationResult &result);
 
 private:
-  OptimizationResult makeResult(const QString &category, const QString &description,
-                                double before, double after,
-                                const QStringList &recommendations);
+  OptimizationResult makeRejectedResult(const QString &category,
+                                        const QStringList &recommendations);
 
   EventBus *bus_;
   EcatClient *client_;

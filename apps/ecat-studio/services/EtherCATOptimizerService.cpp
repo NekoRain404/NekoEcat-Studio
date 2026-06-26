@@ -2,11 +2,11 @@
 #include "infra/EcatClient.h"
 #include "EventBus.h"
 
-// EtherCATOptimizerService.cpp — Targeted optimization for config, timing, buffers, and priorities
+// EtherCATOptimizerService.cpp — Targeted optimization request facade
 //
 // Implementation notes:
 //   - Four areas: configuration, timing, buffers, traffic priorities
-//   - Calculates improvement percentages from before/after baseline values
+//   - Fails closed until wired to a backend that can measure before/after values
 //   - Recommendations cover addressing, DC sync, buffer sizing, and thread affinity
 
 EtherCATOptimizerService::EtherCATOptimizerService(EventBus *bus, EcatClient *client,
@@ -15,18 +15,15 @@ EtherCATOptimizerService::EtherCATOptimizerService(EventBus *bus, EcatClient *cl
 {
 }
 
-OptimizationResult EtherCATOptimizerService::makeResult(
-    const QString &category, const QString &description,
-    double before, double after, const QStringList &recommendations)
+OptimizationResult EtherCATOptimizerService::makeRejectedResult(
+    const QString &category, const QStringList &recommendations)
 {
     OptimizationResult r;
     r.category = category;
-    r.description = description;
-    r.before = before;
-    r.after = after;
-    r.improvement = (before > 0.0) ? ((before - after) / before) * 100.0 : 0.0;
+    r.description = QStringLiteral(
+        "%1 optimization requires a connected EtherCAT optimization backend")
+                        .arg(category);
     r.recommendations = recommendations;
-    emit optimizationCompleted(r);
     return r;
 }
 
@@ -38,9 +35,7 @@ OptimizationResult EtherCATOptimizerService::optimizeConfiguration()
     recs << QStringLiteral("Use distributed clocks for synchronized operations");
     recs << QStringLiteral("Minimize SDO transfers during cyclic operation");
 
-    return makeResult(QStringLiteral("Configuration"),
-                      QStringLiteral("Slave configuration optimization"),
-                      100.0, 80.0, recs);
+    return makeRejectedResult(QStringLiteral("Configuration"), recs);
 }
 
 OptimizationResult EtherCATOptimizerService::optimizeTiming()
@@ -51,9 +46,7 @@ OptimizationResult EtherCATOptimizerService::optimizeTiming()
     recs << QStringLiteral("Use DC synchronization for deterministic timing");
     recs << QStringLiteral("Enable interrupt-based instead of polling mode");
 
-    return makeResult(QStringLiteral("Timing"),
-                      QStringLiteral("Cycle time and jitter optimization"),
-                      1000.0, 800.0, recs);
+    return makeRejectedResult(QStringLiteral("Timing"), recs);
 }
 
 OptimizationResult EtherCATOptimizerService::optimizeBuffers()
@@ -64,9 +57,7 @@ OptimizationResult EtherCATOptimizerService::optimizeBuffers()
     recs << QStringLiteral("Use datagram-level flow control");
     recs << QStringLiteral("Align buffer sizes to cache line boundaries");
 
-    return makeResult(QStringLiteral("Buffers"),
-                      QStringLiteral("Buffer configuration optimization"),
-                      100.0, 50.0, recs);
+    return makeRejectedResult(QStringLiteral("Buffers"), recs);
 }
 
 OptimizationResult EtherCATOptimizerService::optimizePriorities()
@@ -77,7 +68,5 @@ OptimizationResult EtherCATOptimizerService::optimizePriorities()
     recs << QStringLiteral("Use separate threads for cyclic and acyclic traffic");
     recs << QStringLiteral("Apply CPU affinity for EtherCAT master thread");
 
-    return makeResult(QStringLiteral("Priorities"),
-                      QStringLiteral("Traffic priority optimization"),
-                      10.0, 6.0, recs);
+    return makeRejectedResult(QStringLiteral("Priorities"), recs);
 }
