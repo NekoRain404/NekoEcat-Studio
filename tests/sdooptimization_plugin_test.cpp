@@ -11,10 +11,12 @@
 #include <QTest>
 #include <QLabel>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTabWidget>
 #include <QFile>
 #include <QTcpServer>
+#include <QTemporaryDir>
 #include "plugins/sdooptimization/SdoOptimizationPlugin.h"
 #include "plugins/sdooptimization/CacheOptimizerWidget.h"
 #include "plugins/sdooptimization/BatchOptimizerWidget.h"
@@ -306,6 +308,30 @@ private slots:
     EventBus bus;
     SdoOptimizationPlugin p(&client, &bus);
     QVERIFY(p.exportButton() != nullptr);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationPlugin p(&client, &bus);
+
+    const QString path = dir.filePath("sdo_optimization.md");
+    QVERIFY(p.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString markdown = QString::fromUtf8(file.readAll());
+    QVERIFY(markdown.startsWith(QStringLiteral("# SDO Optimization Report\n")));
+    QVERIFY(markdown.contains(QStringLiteral("No optimizations applied yet.")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!p.exportReportToFile(QString()));
+    QVERIFY(!p.exportReportToFile(dir.path()));
   }
 };
 

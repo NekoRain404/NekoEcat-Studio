@@ -43,6 +43,7 @@ public:
   CacheOptimizerWidget *cacheOptimizer() const { return cacheWidget_; }
   BatchOptimizerWidget *batchOptimizer() const { return batchWidget_; }
   QPushButton *exportButton() const { return exportBtn_; }
+  bool exportReportToFile(const QString &path);
 
 private slots:
   void handleCacheOptimize();
