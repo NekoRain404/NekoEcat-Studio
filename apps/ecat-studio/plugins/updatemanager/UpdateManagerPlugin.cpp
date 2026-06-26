@@ -146,9 +146,10 @@ void UpdateManagerPlugin::applyUpdate(int index) {
   rec.name = e.name;
   rec.fromVersion = e.currentVersion;
   rec.toVersion = e.availableVersion;
-  rec.status = "Success";
+  rec.status = "Rejected";
   rec.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-  rec.log = tr("Updated %1 from %2 to %3 successfully.").arg(e.name, e.currentVersion, e.availableVersion);
+  rec.log = tr("Update backend required before applying %1 from %2 to %3.")
+                .arg(e.name, e.currentVersion, e.availableVersion);
   history_.append(rec);
 
   int row = historyTable_->rowCount();
@@ -160,13 +161,13 @@ void UpdateManagerPlugin::applyUpdate(int index) {
   historyTable_->setItem(row, 4, new QTableWidgetItem(rec.timestamp));
   historyTable_->setItem(row, 5, new QTableWidgetItem(rec.log));
 
-  emit updateApplied(rec.id, rec.status);
   refreshStatus();
 }
 
 void UpdateManagerPlugin::rollbackUpdate(int historyIndex) {
   if (historyIndex < 0 || historyIndex >= history_.size()) return;
   const auto &orig = history_[historyIndex];
+  if (orig.status != QStringLiteral("Success")) return;
 
   UpdateRecord rec;
   rec.id = QString("urec_%1").arg(nextId_++);

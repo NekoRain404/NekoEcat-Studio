@@ -5329,6 +5329,7 @@ add_executable(updatemanager_plugin_test
 target_link_libraries(updatemanager_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(updatemanager_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
 set_target_properties(updatemanager_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(updatemanager_plugin_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 add_test(NAME updatemanager_plugin_test COMMAND updatemanager_plugin_test)
 set_tests_properties(updatemanager_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 

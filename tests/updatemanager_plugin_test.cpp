@@ -5,10 +5,10 @@
 //   - Widget creation
 //   - Available updates and history table structure
 //   - Add/remove available updates
-//   - Apply and rollback updates
+//   - Update apply fails closed without backend
 //   - Clear history
 //   - Export update log
-//   - Signal emissions (available, applied, rollback)
+//   - Signal emissions (available, rejected apply, rollback)
 
 #include <QApplication>
 #include <QPushButton>
@@ -46,6 +46,7 @@ private slots:
   void exportLog();
   // Verify signals fire for available, applied, and rollback events
   void signalEmissions();
+  void sourceDoesNotContainSyntheticApplySuccess();
 
 private:
   UpdateManagerPlugin *plugin_ = nullptr;
@@ -122,10 +123,12 @@ void TestUpdateManagerPlugin::applyUpdate() {
 
   QSignalSpy spy(plugin_, &UpdateManagerPlugin::updateApplied);
   plugin_->applyUpdate(0);
-  QCOMPARE(spy.count(), 1);
-  QCOMPARE(spy.at(0).at(1).toString(), QString("Success"));
+  QCOMPARE(spy.count(), 0);
   QCOMPARE(plugin_->historyCount(), 1);
   QCOMPARE(plugin_->historyTable()->rowCount(), 1);
+  QCOMPARE(plugin_->historyTable()->item(0, 3)->text(), QString("Rejected"));
+  QVERIFY(plugin_->historyTable()->item(0, 5)->text().contains("backend",
+                                                               Qt::CaseInsensitive));
 
   plugin_->removeAvailableUpdate(0);
   plugin_->clearHistory();
@@ -143,9 +146,9 @@ void TestUpdateManagerPlugin::rollbackUpdate() {
 
   QSignalSpy spy(plugin_, &UpdateManagerPlugin::rollbackRequested);
   plugin_->rollbackUpdate(0);
-  QCOMPARE(spy.count(), 1);
-  QCOMPARE(plugin_->historyCount(), 2);
-  QCOMPARE(plugin_->historyTable()->rowCount(), 2);
+  QCOMPARE(spy.count(), 0);
+  QCOMPARE(plugin_->historyCount(), 1);
+  QCOMPARE(plugin_->historyTable()->rowCount(), 1);
 
   plugin_->removeAvailableUpdate(0);
   plugin_->clearHistory();
@@ -203,13 +206,29 @@ void TestUpdateManagerPlugin::signalEmissions() {
   QCOMPARE(availableSpy.count(), 1);
 
   plugin_->applyUpdate(0);
-  QCOMPARE(appliedSpy.count(), 1);
+  QCOMPARE(appliedSpy.count(), 0);
 
   plugin_->rollbackUpdate(0);
-  QCOMPARE(rollbackSpy.count(), 1);
+  QCOMPARE(appliedSpy.count(), 0);
+  QCOMPARE(rollbackSpy.count(), 0);
 
   plugin_->removeAvailableUpdate(0);
   plugin_->clearHistory();
+}
+
+void TestUpdateManagerPlugin::sourceDoesNotContainSyntheticApplySuccess() {
+  QFile file(QStringLiteral(SOURCE_ROOT
+                            "/apps/ecat-studio/plugins/updatemanager/UpdateManagerPlugin.cpp"));
+  QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+           qPrintable(file.errorString()));
+  const QString source = QString::fromUtf8(file.readAll());
+
+  QVERIFY2(!source.contains(QStringLiteral("rec.status = \"Success\"")),
+           "Update manager must not synthesize successful update records");
+  QVERIFY2(!source.contains(QStringLiteral("successfully.")),
+           "Update manager must not claim successful update logs without a backend");
+  QVERIFY2(!source.contains(QStringLiteral("emit updateApplied(rec.id, rec.status)")),
+           "Update manager must not emit applied success without backend acknowledgement");
 }
 
 QTEST_MAIN(TestUpdateManagerPlugin)
