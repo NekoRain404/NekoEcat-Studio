@@ -72,7 +72,7 @@ Ethercat/
 │   └── igh/                  # IgH EtherCAT Master 适配器
 │       ├── EthercatCliBackend.h/cpp    # CLI 后端实现
 │       └── EthercatNativeBackend.h/cpp # 原生 API 后端实现
-├── tests/                    # 测试套件（测试源文件以当前仓库为准，285 个默认稳定 CTest）
+├── tests/                    # 测试套件（以当前仓库和 CTest 注册为准）
 │   ├── CMakeLists.txt        # 测试构建配置
 │   ├── fixtures/             # 测试夹具
 │   ├── mocks/                # 模拟对象
@@ -208,7 +208,7 @@ flowchart TB
 |------|------|------|
 | **源文件总数** | 3,389 | git 跟踪的 .cpp + .h 文件 |
 | **应用源文件** | ~1,000 | apps/ 目录下的 .cpp/.h |
-| **测试文件** | 361 | git 跟踪的测试源文件 |
+| **测试文件** | 以当前仓库为准 | git 跟踪的测试源文件 |
 | **插件目录** | 90 | apps/ecat-studio/plugins/ |
 | **服务文件** | 260 | apps/ecat-studio/services/ |
 | **主题文件** | 12 | .qss 主题样式 |
@@ -315,7 +315,7 @@ flowchart TB
 
 | 指标 | 数值 |
 |------|------|
-| **测试源文件** | 361 |
+| **测试源文件** | 以当前仓库为准 |
 | **默认稳定注册测试** | 以当前 CTest 注册为准 |
 | **最近默认验证** | 以最近完整 CTest 输出为准 |
 | **构建诊断** | 以当前构建日志为准 |
