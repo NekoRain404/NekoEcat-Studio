@@ -43,5 +43,5 @@ private:
   EcatClient *client_;
   SyncStatus status_;
 
-  bool backendReady() const;
+  bool rejectSync() const;
 };

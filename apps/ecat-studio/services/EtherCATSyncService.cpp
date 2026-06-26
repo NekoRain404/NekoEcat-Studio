@@ -15,45 +15,22 @@ EtherCATSyncService::EtherCATSyncService(EventBus *bus, EcatClient *client,
 
 bool EtherCATSyncService::syncTime()
 {
-    if (!backendReady())
-        return false;
-
-    QDateTime now = QDateTime::currentDateTime();
-    status_.lastSync = now;
-    status_.syncCount++;
-    emit timeSynced(now);
-    return true;
+    return rejectSync();
 }
 
 bool EtherCATSyncService::syncData()
 {
-    if (!backendReady())
-        return false;
-
-    status_.lastSync = QDateTime::currentDateTime();
-    status_.syncCount++;
-    emit dataSynced(0);
-    return true;
+    return rejectSync();
 }
 
 bool EtherCATSyncService::syncState()
 {
-    if (!backendReady())
-        return false;
-
-    status_.lastSync = QDateTime::currentDateTime();
-    status_.syncCount++;
-    return true;
+    return rejectSync();
 }
 
 bool EtherCATSyncService::syncConfiguration()
 {
-    if (!backendReady())
-        return false;
-
-    status_.lastSync = QDateTime::currentDateTime();
-    status_.syncCount++;
-    return true;
+    return rejectSync();
 }
 
 SyncStatus EtherCATSyncService::syncStatus() const
@@ -61,8 +38,7 @@ SyncStatus EtherCATSyncService::syncStatus() const
     return status_;
 }
 
-bool EtherCATSyncService::backendReady() const
+bool EtherCATSyncService::rejectSync() const
 {
-    // No real sync backend is wired yet; keep success paths unreachable.
     return false;
 }

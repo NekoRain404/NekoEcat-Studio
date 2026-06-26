@@ -5840,6 +5840,9 @@ add_executable(ethercat_sync_service_test
 target_include_directories(ethercat_sync_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
 )
+target_compile_definitions(ethercat_sync_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 target_link_libraries(ethercat_sync_service_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(ethercat_sync_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_sync_service_test COMMAND ethercat_sync_service_test)

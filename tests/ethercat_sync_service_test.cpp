@@ -7,6 +7,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATSyncService.h"
 
 class EtherCATSyncServiceTest : public QObject {
@@ -76,6 +77,19 @@ private slots:
     svc.syncState();
     svc.syncConfiguration();
     QCOMPARE(svc.syncStatus().syncCount, 0);
+  }
+
+  void testImplementationDoesNotContainSyntheticSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATSyncService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("syncCount++")),
+             "Sync service must not contain hard-coded successful sync counters");
+    QVERIFY2(!text.contains(QStringLiteral("emit timeSynced(now)")),
+             "Sync service must not emit synthetic time sync success");
+    QVERIFY2(!text.contains(QStringLiteral("emit dataSynced(0)")),
+             "Sync service must not emit synthetic data sync success");
   }
 };
 
