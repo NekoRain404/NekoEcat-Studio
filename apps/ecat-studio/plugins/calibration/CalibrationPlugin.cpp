@@ -11,7 +11,6 @@
 #include <QTableWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
-#include <QRandomGenerator>
 
 CalibrationPlugin::CalibrationPlugin(QObject *parent) {
   if (parent) setParent(parent);
@@ -289,27 +288,7 @@ void CalibrationPlugin::stopCalibration() {
 void CalibrationPlugin::collectSample() {
   if (!calibrating_ || collectedSamples_ >= requiredSamples_) return;
 
-  double rawValue = 1000.0 + (collectedSamples_ * 10.0) + QRandomGenerator::global()->bounded(100) * 0.1;
-  double refValue = 1000.0 + (collectedSamples_ * 10.0);
-  double error = qAbs(rawValue - refValue) / refValue * 100.0;
-
-  sampleValues_.append(rawValue);
-  ++collectedSamples_;
-
-  int row = dataTable_->rowCount();
-  dataTable_->insertRow(row);
-  dataTable_->setItem(row, 0, new QTableWidgetItem(QString::number(collectedSamples_)));
-  dataTable_->setItem(row, 1, new QTableWidgetItem(QString::number(rawValue, 'f', 2)));
-  dataTable_->setItem(row, 2, new QTableWidgetItem(QString::number(refValue, 'f', 2)));
-  dataTable_->setItem(row, 3, new QTableWidgetItem(QString::number(error, 'f', 3)));
-
-  progressLabel_->setText(tr("%1/%2 samples").arg(collectedSamples_).arg(requiredSamples_));
-  emit sampleCollected(collectedSamples_ - 1, rawValue);
-
-  if (collectedSamples_ >= requiredSamples_) {
-    calibrating_ = false;
-    updateButtons();
-  }
+  progressLabel_->setText(tr("Calibration sample collection requires a live device backend"));
 }
 
 void CalibrationPlugin::analyzeResults() {
@@ -348,7 +327,6 @@ void CalibrationPlugin::analyzeResults() {
   }
 
   nextStep();
-  emit calibrationComplete();
 }
 
 void CalibrationPlugin::resetWizard() {

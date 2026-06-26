@@ -4766,6 +4766,9 @@ add_executable(calibration_plugin_test
 target_include_directories(calibration_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
 )
+target_compile_definitions(calibration_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 target_link_libraries(calibration_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 set_target_properties(calibration_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME calibration_plugin_test COMMAND calibration_plugin_test)

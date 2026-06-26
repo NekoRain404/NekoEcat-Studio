@@ -7,8 +7,9 @@
 //   - Required samples configuration
 //   - Wizard navigation (next/prev step)
 //   - Start/stop calibration
-//   - Sample collection
+//   - Sample collection fails closed without backend evidence
 
+#include <QFile>
 #include <QTest>
 #include <QSignalSpy>
 #include <QStackedWidget>
@@ -102,7 +103,7 @@ private slots:
     QVERIFY(!plugin.isCalibrating());
   }
 
-  void testCollectSample() {
+  void testCollectSampleRequiresBackendEvidence() {
     CalibrationPlugin plugin;
     QSignalSpy sampleSpy(&plugin, &CalibrationPlugin::sampleCollected);
 
@@ -110,16 +111,14 @@ private slots:
     plugin.nextStep();
     plugin.startCalibration();
 
-    for (int i = 0; i < 5; ++i) {
-      plugin.collectSample();
-    }
+    plugin.collectSample();
 
-    QCOMPARE(plugin.collectedSamples(), 5);
-    QCOMPARE(sampleSpy.count(), 5);
-    QVERIFY(!plugin.isCalibrating()); // auto-stop at required
+    QCOMPARE(plugin.collectedSamples(), 0);
+    QCOMPARE(sampleSpy.count(), 0);
+    QVERIFY(plugin.isCalibrating());
   }
 
-  void testDataTable() {
+  void testDataTableStaysEmptyWithoutBackendSamples() {
     CalibrationPlugin plugin;
 
     plugin.setRequiredSamples(3);
@@ -131,10 +130,10 @@ private slots:
 
     QTableWidget *table = plugin.dataTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
   }
 
-  void testAnalyzeResults() {
+  void testAnalyzeResultsRequiresCollectedBackendSamples() {
     CalibrationPlugin plugin;
     QSignalSpy completeSpy(&plugin, &CalibrationPlugin::calibrationComplete);
 
@@ -147,11 +146,13 @@ private slots:
 
     plugin.analyzeResults();
 
-    QVERIFY(plugin.offsetResult() != 0.0 || plugin.gainResult() != 1.0);
-    QCOMPARE(completeSpy.count(), 1);
+    QCOMPARE(plugin.offsetResult(), 0.0);
+    QCOMPARE(plugin.gainResult(), 1.0);
+    QCOMPARE(plugin.linearityError(), 0.0);
+    QCOMPARE(completeSpy.count(), 0);
   }
 
-  void testResultsView() {
+  void testResultsViewStaysEmptyWithoutBackendSamples() {
     CalibrationPlugin plugin;
 
     plugin.setRequiredSamples(5);
@@ -164,7 +165,20 @@ private slots:
 
     QTextEdit *view = plugin.resultsView();
     QVERIFY(view != nullptr);
-    QVERIFY(!view->toPlainText().isEmpty());
+    QVERIFY(view->toPlainText().isEmpty());
+  }
+
+  void testSourceDoesNotContainSyntheticCalibrationSamples() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/calibration/CalibrationPlugin.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QRandomGenerator")),
+             "Calibration must not synthesize raw samples with random noise");
+    QVERIFY2(!text.contains(QStringLiteral("1000.0 + (collectedSamples_")),
+             "Calibration must not synthesize reference or raw sample ramps");
+    QVERIFY2(!text.contains(QStringLiteral("emit calibrationComplete()")),
+             "Calibration must not complete without backend-collected samples");
   }
 
   void testHistory() {
