@@ -24,7 +24,7 @@ bool EoEService::sendEthernetFrame(int position, const QByteArray &frame) {
         emit frameSent(position, false);
         return false;
     }
-    emit error("EoE frame send is not implemented by the daemon backend");
+    emit error("EoE frame send requires daemon backend support");
     emit frameSent(position, false);
     return false;
 }
@@ -35,7 +35,7 @@ void EoEService::receiveEthernetFrame(int position) {
         emit error("Cannot receive EoE frame: EtherCAT daemon is not connected");
         return;
     }
-    emit error("EoE frame receive is not implemented by the daemon backend");
+    emit error("EoE frame receive requires daemon backend support");
 }
 
 bool EoEService::configureIp(int position, const QString &ip,
@@ -47,7 +47,7 @@ bool EoEService::configureIp(int position, const QString &ip,
         emit error("Cannot configure EoE IP: EtherCAT daemon is not connected");
         return false;
     }
-    emit error("EoE IP configuration is not implemented by the daemon backend");
+    emit error("EoE IP configuration requires daemon backend support");
     return false;
 }
 
@@ -57,5 +57,5 @@ void EoEService::learnedMacs(int position) {
         emit error("Cannot query EoE MAC list: EtherCAT daemon is not connected");
         return;
     }
-    emit error("EoE MAC learning is not implemented by the daemon backend");
+    emit error("EoE MAC learning requires daemon backend support");
 }

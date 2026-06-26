@@ -4165,6 +4165,7 @@ target_link_libraries(coe_foe_eoe_service_test PRIVATE
     Qt6::Test
     ecat_core
 )
+target_compile_definitions(coe_foe_eoe_service_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 set_target_properties(coe_foe_eoe_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME coe_foe_eoe_service_test COMMAND coe_foe_eoe_service_test)
 

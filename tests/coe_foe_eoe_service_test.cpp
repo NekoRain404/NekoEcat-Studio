@@ -10,6 +10,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/CoEService.h"
 #include "services/FoEService.h"
 #include "services/EoEService.h"
@@ -240,6 +241,24 @@ private slots:
         QCOMPARE(ipSpy.count(), 0);
         QCOMPARE(macSpy.count(), 0);
         QVERIFY(errorSpy.count() >= 4);
+    }
+
+    void testProtocolErrorsDoNotExposeNotImplementedText() {
+        const QStringList paths = {
+            QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/CoEService.cpp"),
+            QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/FoEService.cpp"),
+            QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EoEService.cpp"),
+        };
+
+        for (const QString &path : paths) {
+            QFile source(path);
+            QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+                     qPrintable(QStringLiteral("Unable to open %1").arg(path)));
+            const QString text = QString::fromUtf8(source.readAll());
+            QVERIFY2(!text.contains(QStringLiteral("not implemented"), Qt::CaseInsensitive),
+                     qPrintable(QStringLiteral("%1 must not expose unfinished implementation wording.")
+                                    .arg(path)));
+        }
     }
 };
 

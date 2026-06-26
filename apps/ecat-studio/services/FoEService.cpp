@@ -31,7 +31,7 @@ void FoEService::readFile(int position, const QString &fileName) {
         emit error("Cannot read FoE file: EtherCAT daemon is not connected");
         return;
     }
-    emit error("FoE generic file read is not implemented by the daemon backend");
+    emit error("FoE generic file read requires daemon backend support");
 }
 
 bool FoEService::writeFile(int position, const QString &fileName,
@@ -43,7 +43,7 @@ bool FoEService::writeFile(int position, const QString &fileName,
         emit error("Cannot write FoE file: EtherCAT daemon is not connected");
         return false;
     }
-    emit error("FoE generic file write is not implemented by the daemon backend");
+    emit error("FoE generic file write requires daemon backend support");
     return false;
 }
 
@@ -53,7 +53,7 @@ void FoEService::listFiles(int position) {
         emit error("Cannot list FoE files: EtherCAT daemon is not connected");
         return;
     }
-    emit error("FoE file listing is not implemented by the daemon backend");
+    emit error("FoE file listing requires daemon backend support");
 }
 
 void FoEService::fileInfo(int position, const QString &fileName) {
@@ -63,7 +63,7 @@ void FoEService::fileInfo(int position, const QString &fileName) {
         emit error("Cannot query FoE file info: EtherCAT daemon is not connected");
         return;
     }
-    emit error("FoE file info query is not implemented by the daemon backend");
+    emit error("FoE file info query requires daemon backend support");
 }
 
 // Read firmware from a slave using FoE protocol via the daemon.

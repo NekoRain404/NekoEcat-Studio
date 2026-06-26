@@ -99,7 +99,7 @@ void CoEService::uploadSdoInfo(int position) {
         emit error("Cannot upload CoE SDO info: EtherCAT daemon is not connected");
         return;
     }
-    emit error("CoE SDO info upload is not implemented by the daemon backend");
+    emit error("CoE SDO info upload requires daemon backend support");
 }
 
 void CoEService::uploadDictionary(int position) {
@@ -108,7 +108,7 @@ void CoEService::uploadDictionary(int position) {
         emit error("Cannot upload CoE dictionary: EtherCAT daemon is not connected");
         return;
     }
-    emit error("CoE dictionary upload is not implemented by the daemon backend");
+    emit error("CoE dictionary upload requires daemon backend support");
 }
 
 void CoEService::uploadSegment(int position, const QString &index,
@@ -121,7 +121,7 @@ void CoEService::uploadSegment(int position, const QString &index,
         emit error("Cannot upload CoE segment: EtherCAT daemon is not connected");
         return;
     }
-    emit error("CoE segmented upload is not implemented by the daemon backend");
+    emit error("CoE segmented upload requires daemon backend support");
 }
 
 void CoEService::downloadSegment(int position, const QString &index,
@@ -133,7 +133,7 @@ void CoEService::downloadSegment(int position, const QString &index,
         emit segmentDownloaded(position, index, false);
         return;
     }
-    emit error("CoE segmented download is not implemented by the daemon backend");
+    emit error("CoE segmented download requires daemon backend support");
     emit segmentDownloaded(position, index, false);
 }
 
