@@ -24,15 +24,10 @@ private slots:
         EcatClient client;
         CoEService coe(&client);
         QSignalSpy spy(&coe, &CoEService::sdoInfoReceived);
+        QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadSdoInfo(1);
-        QCOMPARE(spy.count(), 1);
-        QCOMPARE(spy.at(0).at(0).toInt(), 1);
-        auto info = spy.at(0).at(1).value<SdoInfo>();
-        QCOMPARE(info.vendorId, quint32(0x00000123));
-        QCOMPARE(info.productCode, quint32(0x00000456));
-        QCOMPARE(info.revisionNumber, quint32(0x00000001));
-        QCOMPARE(info.serialNumber, quint32(0x00000001));
-        QVERIFY(!info.supportedCoEObjects.isEmpty());
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify dictionary upload returns correct entries
@@ -40,14 +35,10 @@ private slots:
         EcatClient client;
         CoEService coe(&client);
         QSignalSpy spy(&coe, &CoEService::dictionaryReceived);
+        QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadDictionary(1);
-        QCOMPARE(spy.count(), 1);
-        auto entries = spy.at(0).at(1).value<QList<CoESdoDictionary>>();
-        QCOMPARE(entries.size(), 2);
-        QCOMPARE(entries[0].index, QString("0x1000"));
-        QCOMPARE(entries[0].name, QString("Device Type"));
-        QCOMPARE(entries[0].type, QString("UINT32"));
-        QCOMPARE(entries[0].bitSize, 32);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify segment upload returns correct data size
@@ -55,10 +46,10 @@ private slots:
         EcatClient client;
         CoEService coe(&client);
         QSignalSpy spy(&coe, &CoEService::segmentReceived);
+        QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadSegment(1, "0x1000", 0, 64);
-        QCOMPARE(spy.count(), 1);
-        QCOMPARE(spy.at(0).at(1).toString(), QString("0x1000"));
-        QCOMPARE(spy.at(0).at(2).toByteArray().size(), 64);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify segment download succeeds
@@ -66,9 +57,34 @@ private slots:
         EcatClient client;
         CoEService coe(&client);
         QSignalSpy spy(&coe, &CoEService::segmentDownloaded);
+        QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.downloadSegment(1, "0x1000", 0, QByteArray(64, 0));
         QCOMPARE(spy.count(), 1);
-        QVERIFY(spy.at(0).at(2).toBool());
+        QVERIFY(!spy.at(0).at(2).toBool());
+        QCOMPARE(errorSpy.count(), 1);
+    }
+
+    void testCoEDisconnectedClientDoesNotReportProtocolSuccess() {
+        EcatClient client;
+        QVERIFY(!client.isConnected());
+        CoEService coe(&client);
+        QSignalSpy sdoInfoSpy(&coe, &CoEService::sdoInfoReceived);
+        QSignalSpy dictionarySpy(&coe, &CoEService::dictionaryReceived);
+        QSignalSpy segmentSpy(&coe, &CoEService::segmentReceived);
+        QSignalSpy downloadSpy(&coe, &CoEService::segmentDownloaded);
+        QSignalSpy errorSpy(&coe, &CoEService::error);
+
+        coe.uploadSdoInfo(1);
+        coe.uploadDictionary(1);
+        coe.uploadSegment(1, "0x1000", 0, 64);
+        coe.downloadSegment(1, "0x1000", 0, QByteArray(64, 0));
+
+        QCOMPARE(sdoInfoSpy.count(), 0);
+        QCOMPARE(dictionarySpy.count(), 0);
+        QCOMPARE(segmentSpy.count(), 0);
+        QCOMPARE(downloadSpy.count(), 1);
+        QVERIFY(!downloadSpy.at(0).at(2).toBool());
+        QVERIFY(errorSpy.count() >= 4);
     }
 
     // ── FoEService tests ──────────────────────────────────────────────

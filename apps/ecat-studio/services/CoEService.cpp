@@ -13,8 +13,8 @@
 //   - Wraps EcatClient for SDO info upload, dictionary browsing, segmented transfer
 //   - Emergency methods (0x1001, 0x1003) use a synchronous QEventLoop wrapper
 //     around the async EcatClient::upload() to return QJsonObject results
-//   - Current implementation uses stub/simulated data for offline development
-//   - All operations emit result signals for async consumer binding
+//   - Generic info, dictionary, and segmented transfer do not emit success
+//     signals until daemon-backed CoE support exists
 
 // ─── Synchronous SDO upload helper ───────────────────────────────────────────
 // Blocks the calling (GUI) thread until the daemon responds or timeout fires.
@@ -93,57 +93,48 @@ CoEService::CoEService(EcatClient *client, QObject *parent)
             [this](const QString &msg) { emit error(msg); });
 }
 
-// Uploads device SDO identity (vendor, product, revision) — currently stubbed
 void CoEService::uploadSdoInfo(int position) {
     Q_UNUSED(position);
-    SdoInfo info;
-    info.vendorId = 0x00000123;
-    info.productCode = 0x00000456;
-    info.revisionNumber = 0x00000001;
-    info.serialNumber = 0x00000001;
-    info.supportedCoEObjects = QStringList{"0x1000", "0x1001", "0x1018", "0x1600", "0x1A00"};
-    emit sdoInfoReceived(position, info);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot upload CoE SDO info: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("CoE SDO info upload is not implemented by the daemon backend");
 }
 
-// Browses and emits the CoE object dictionary for the target slave
 void CoEService::uploadDictionary(int position) {
     Q_UNUSED(position);
-    QList<CoESdoDictionary> entries;
-    CoESdoDictionary deviceType;
-    deviceType.index = "0x1000";
-    deviceType.name = "Device Type";
-    deviceType.type = "UINT32";
-    deviceType.bitSize = 32;
-    deviceType.accessType = 0;
-    entries.append(deviceType);
-
-    CoESdoDictionary errorRegister;
-    errorRegister.index = "0x1001";
-    errorRegister.name = "Error Register";
-    errorRegister.type = "UINT8";
-    errorRegister.bitSize = 8;
-    errorRegister.accessType = 0;
-    entries.append(errorRegister);
-
-    emit dictionaryReceived(position, entries);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot upload CoE dictionary: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("CoE dictionary upload is not implemented by the daemon backend");
 }
 
 void CoEService::uploadSegment(int position, const QString &index,
                                 int offset, int size) {
+    Q_UNUSED(position);
+    Q_UNUSED(index);
     Q_UNUSED(offset);
     Q_UNUSED(size);
-    QByteArray data;
-    data.fill(0, 64);
-    emit segmentReceived(position, index, data);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot upload CoE segment: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("CoE segmented upload is not implemented by the daemon backend");
 }
 
 void CoEService::downloadSegment(int position, const QString &index,
                                   int offset, const QByteArray &data) {
     Q_UNUSED(offset);
     Q_UNUSED(data);
-    Q_UNUSED(position);
-    Q_UNUSED(index);
-    emit segmentDownloaded(position, index, true);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot download CoE segment: EtherCAT daemon is not connected");
+        emit segmentDownloaded(position, index, false);
+        return;
+    }
+    emit error("CoE segmented download is not implemented by the daemon backend");
+    emit segmentDownloaded(position, index, false);
 }
 
 // ─── Emergency object handling ───────────────────────────────────────────────
