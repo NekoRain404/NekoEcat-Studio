@@ -77,8 +77,8 @@ signals:
   void templateSelected(int index);
 
 public slots:
-  void exportReport(const QString &path);
-  void exportHistory(const QString &path);
+  bool exportReport(const QString &path);
+  bool exportHistory(const QString &path);
 
 private:
   void buildUi();

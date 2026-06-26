@@ -109,24 +109,28 @@ QTableWidget *ReportPlugin::historyTable() const { return historyTable_; }
 QTextEdit *ReportPlugin::previewView() const { return previewView_; }
 QLabel *ReportPlugin::statusLabel() const { return statusLabel_; }
 
-void ReportPlugin::exportReport(const QString &path) {
-  if (!previewView_) return;
+bool ReportPlugin::exportReport(const QString &path) {
+  if (!previewView_) return false;
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << previewView_->toPlainText();
-  }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << previewView_->toPlainText();
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
-void ReportPlugin::exportHistory(const QString &path) {
+bool ReportPlugin::exportHistory(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &h : history_) {
-      out << h.id << "," << h.templateName << "," << h.format << ","
-          << h.generatedAt.toString(Qt::ISODate) << "," << h.filePath << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &h : history_) {
+    out << h.id << "," << h.templateName << "," << h.format << ","
+        << h.generatedAt.toString(Qt::ISODate) << "," << h.filePath << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 void ReportPlugin::buildUi() {

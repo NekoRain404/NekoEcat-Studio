@@ -6,6 +6,9 @@
 //   - Report generation, preview, and history
 //   - Format selection, export, and status updates
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -201,26 +204,50 @@ private slots:
   // Export history writes CSV file
   void testExportHistory() {
     ReportPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
     plugin.selectTemplate(0);
     plugin.generateReport();
 
-    QString path = QDir::temp().absoluteFilePath("report_history_test.csv");
-    plugin.exportHistory(path);
+    const QString path = dir.filePath("report_history_test.csv");
+    QVERIFY(plugin.exportHistory(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.contains(QStringLiteral("Network Overview,HTML")));
+    QVERIFY(csv.contains(QStringLiteral("/tmp/report_")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportHistory(QString()));
+    QVERIFY(!plugin.exportHistory(dir.path()));
   }
 
   // Export report to file and verify file exists
   // Export report writes file to disk
   void testExportReport() {
     ReportPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
     plugin.selectTemplate(0);
-    QString path = QDir::temp().absoluteFilePath("report_export_test.txt");
-    plugin.exportReport(path);
+    const QString path = dir.filePath("report_export_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("=== Network Overview ===")));
+    QVERIFY(text.contains(QStringLiteral("Data Sources:")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 };
 
