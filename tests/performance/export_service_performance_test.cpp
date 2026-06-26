@@ -1,8 +1,10 @@
 #include <QTest>
 #include <QSignalSpy>
 #include <QElapsedTimer>
+#include <QFile>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QTemporaryDir>
 #include "services/ExportService.h"
 
 class ExportServicePerformanceTest : public QObject {
@@ -16,10 +18,14 @@ private slots:
         table.setItem(r, c, new QTableWidgetItem(QString("cell_%1_%2").arg(r).arg(c)));
 
     QElapsedTimer timer;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("test_export.csv"));
     timer.start();
-    svc.exportToCsv(&table, "/tmp/test_export.csv");
+    QVERIFY(svc.exportToCsv(&table, path));
     qint64 elapsed = timer.elapsed();
 
+    QVERIFY(QFile::exists(path));
     QVERIFY(elapsed < 5000);
     qDebug() << "CSV export 1000x10 table:" << elapsed << "ms";
   }
@@ -32,10 +38,14 @@ private slots:
         table.setItem(r, c, new QTableWidgetItem(QString("val_%1_%2").arg(r).arg(c)));
 
     QElapsedTimer timer;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("test_export.json"));
     timer.start();
-    svc.exportToJson(&table, "/tmp/test_export.json");
+    QVERIFY(svc.exportToJson(&table, path));
     qint64 elapsed = timer.elapsed();
 
+    QVERIFY(QFile::exists(path));
     QVERIFY(elapsed < 5000);
     qDebug() << "JSON export 500x5 table:" << elapsed << "ms";
   }

@@ -11,6 +11,11 @@
 #include <QSignalSpy>
 #include <QTableWidget>
 #include <QPlainTextEdit>
+#include <QTemporaryDir>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 #include "services/ExportService.h"
 
 class ExportServiceTest : public QObject {
@@ -28,7 +33,7 @@ private slots:
   // Export CSV with null table fails
   void testExportTableCsvNullTable() {
     ExportService svc;
-    bool result = svc.exportToCsv(nullptr, "/tmp/test.csv");
+    bool result = svc.exportToCsv(nullptr, QStringLiteral("/tmp/test.csv"));
     QVERIFY(!result);
   }
 
@@ -36,8 +41,11 @@ private slots:
   void testExportTableCsvEmpty() {
     ExportService svc;
     QTableWidget table(0, 0);
-    bool result = svc.exportToCsv(&table, "/tmp/test_empty.csv");
-    QVERIFY(result || !result);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("empty.csv"));
+    QVERIFY(svc.exportToCsv(&table, path));
+    QVERIFY(QFile::exists(path));
   }
 
   // Export CSV with table data
@@ -50,22 +58,76 @@ private slots:
     table.setItem(1, 1, new QTableWidgetItem("D"));
     table.setItem(2, 0, new QTableWidgetItem("E"));
     table.setItem(2, 1, new QTableWidgetItem("F"));
-    bool result = svc.exportToCsv(&table, "/tmp/test_data.csv");
-    QVERIFY(result || !result);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("data.csv"));
+    QVERIFY(svc.exportToCsv(&table, path));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString content = QString::fromUtf8(file.readAll());
+    QVERIFY(content.contains(QStringLiteral("\"A\",\"B\"")));
+    QVERIFY(content.contains(QStringLiteral("\"E\",\"F\"")));
   }
 
   // Export JSON with null table fails
   void testExportToJsonNullTable() {
     ExportService svc;
-    bool result = svc.exportToJson(nullptr, "/tmp/test.json");
+    bool result = svc.exportToJson(nullptr, QStringLiteral("/tmp/test.json"));
     QVERIFY(!result);
+  }
+
+  // Export JSON with table data writes a parseable array.
+  void testExportToJsonWithData() {
+    ExportService svc;
+    QTableWidget table(1, 2);
+    table.setHorizontalHeaderItem(0, new QTableWidgetItem("Name"));
+    table.setHorizontalHeaderItem(1, new QTableWidgetItem("Value"));
+    table.setItem(0, 0, new QTableWidgetItem("Cycle"));
+    table.setItem(0, 1, new QTableWidgetItem("1000"));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("data.json"));
+    QVERIFY(svc.exportToJson(&table, path));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    QVERIFY(doc.isArray());
+    QCOMPARE(doc.array().size(), 1);
+    QCOMPARE(doc.array().first().toObject().value("Name").toString(), QStringLiteral("Cycle"));
   }
 
   // Export text with null editor fails
   void testExportToTextNullEditor() {
     ExportService svc;
-    bool result = svc.exportToText(nullptr, "/tmp/test.txt");
+    bool result = svc.exportToText(nullptr, QStringLiteral("/tmp/test.txt"));
     QVERIFY(!result);
+  }
+
+  // Export text writes editor content and invalid paths fail.
+  void testExportToTextWithDataAndInvalidPath() {
+    ExportService svc;
+    QPlainTextEdit editor;
+    editor.setPlainText(QStringLiteral("line 1\nline 2"));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("notes.txt"));
+    QVERIFY(svc.exportToText(&editor, path));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    QCOMPARE(QString::fromUtf8(file.readAll()), QStringLiteral("line 1\nline 2"));
+
+    QSignalSpy failedSpy(&svc, &ExportService::exportFailed);
+    QTableWidget emptyCsvTable(0, 0);
+    QTableWidget emptyJsonTable(0, 0);
+    QVERIFY(!svc.exportToCsv(&emptyCsvTable, QString()));
+    QVERIFY(!svc.exportToJson(&emptyJsonTable, QString()));
+    QVERIFY(!svc.exportToText(&editor, QString()));
+    QCOMPARE(failedSpy.count(), 3);
+    for (const auto &args : failedSpy) {
+      QCOMPARE(args.at(0).toString(), QStringLiteral("Export path is empty"));
+    }
   }
 
   // Set custom export options

@@ -22,6 +22,10 @@ bool ExportService::exportToCsv(QTableWidget *table, const QString &path) {
     emit exportFailed(QStringLiteral("Null table widget"));
     return false;
   }
+  if (path.isEmpty()) {
+    emit exportFailed(QStringLiteral("Export path is empty"));
+    return false;
+  }
 
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -59,6 +63,12 @@ bool ExportService::exportToCsv(QTableWidget *table, const QString &path) {
     out << options_.lineEnding;
   }
 
+  out.flush();
+  if (out.status() != QTextStream::Ok || !file.flush()) {
+    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+    return false;
+  }
+
   file.close();
   emit exportCompleted(path);
   return true;
@@ -67,6 +77,10 @@ bool ExportService::exportToCsv(QTableWidget *table, const QString &path) {
 bool ExportService::exportToJson(QTableWidget *table, const QString &path) {
   if (!table) {
     emit exportFailed(QStringLiteral("Null table widget"));
+    return false;
+  }
+  if (path.isEmpty()) {
+    emit exportFailed(QStringLiteral("Export path is empty"));
     return false;
   }
 
@@ -100,7 +114,11 @@ bool ExportService::exportToJson(QTableWidget *table, const QString &path) {
     emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
     return false;
   }
-  file.write(doc.toJson(QJsonDocument::Indented));
+  const QByteArray bytes = doc.toJson(QJsonDocument::Indented);
+  if (file.write(bytes) != bytes.size() || !file.flush()) {
+    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+    return false;
+  }
   file.close();
   emit exportCompleted(path);
   return true;
@@ -111,13 +129,21 @@ bool ExportService::exportToText(QPlainTextEdit *editor, const QString &path) {
     emit exportFailed(QStringLiteral("Null editor widget"));
     return false;
   }
+  if (path.isEmpty()) {
+    emit exportFailed(QStringLiteral("Export path is empty"));
+    return false;
+  }
 
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
     return false;
   }
-  file.write(editor->toPlainText().toUtf8());
+  const QByteArray bytes = editor->toPlainText().toUtf8();
+  if (file.write(bytes) != bytes.size() || !file.flush()) {
+    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+    return false;
+  }
   file.close();
   emit exportCompleted(path);
   return true;
