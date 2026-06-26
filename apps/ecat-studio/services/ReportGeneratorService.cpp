@@ -36,21 +36,33 @@ bool ReportGeneratorService::exportReport(const QString &path,
     emit reportFailed(QStringLiteral("No sections to export"));
     return false;
   }
+  if (path.isEmpty()) {
+    emit reportFailed(QStringLiteral("Report export path is empty"));
+    return false;
+  }
 
   QString title = QStringLiteral("NekoEcat Diagnostic Report");
   QString content;
 
-  if (format == "html")
+  if (format == "html") {
     content = renderHtml(title);
-  else
+  } else if (format == "text") {
     content = renderText(title);
+  } else {
+    emit reportFailed(QStringLiteral("Unsupported report format: %1").arg(format));
+    return false;
+  }
 
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     emit reportFailed(QStringLiteral("Cannot open file: %1").arg(path));
     return false;
   }
-  file.write(content.toUtf8());
+  const QByteArray bytes = content.toUtf8();
+  if (file.write(bytes) != bytes.size()) {
+    emit reportFailed(QStringLiteral("Cannot write report: %1").arg(path));
+    return false;
+  }
   file.close();
   emit reportGenerated(path);
   return true;

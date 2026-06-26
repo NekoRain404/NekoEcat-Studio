@@ -8,6 +8,8 @@
 //   - Signal validation
 #include <QTest>
 #include <QSignalSpy>
+#include <QTemporaryDir>
+#include <QFile>
 #include "services/ReportGeneratorService.h"
 
 class ReportGeneratorServiceTest : public QObject {
@@ -43,7 +45,16 @@ private slots:
     ReportGeneratorService svc;
     svc.generateReport("Test");
     svc.addSection("Section 1", "Content 1");
-    svc.exportReport("/tmp/report.txt", "text");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("report.txt");
+    QVERIFY(svc.exportReport(path, "text"));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString content = QString::fromUtf8(file.readAll());
+    QVERIFY(content.contains("NekoEcat Diagnostic Report"));
+    QVERIFY(content.contains("Section 1"));
+    QVERIFY(content.contains("Content 1"));
   }
 
   // Export report in HTML format
@@ -51,7 +62,25 @@ private slots:
     ReportGeneratorService svc;
     svc.generateReport("Test");
     svc.addSection("Section 1", "Content 1");
-    svc.exportReport("/tmp/report.html", "html");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("report.html");
+    QVERIFY(svc.exportReport(path, "html"));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString content = QString::fromUtf8(file.readAll());
+    QVERIFY(content.contains("<html>"));
+    QVERIFY(content.contains("Section 1"));
+  }
+
+  // Invalid export arguments fail explicitly.
+  void testExportReportInvalidArguments() {
+    ReportGeneratorService svc;
+    svc.addSection("Section 1", "Content 1");
+    QSignalSpy failedSpy(&svc, &ReportGeneratorService::reportFailed);
+    QVERIFY(!svc.exportReport(QString(), "text"));
+    QVERIFY(!svc.exportReport("/tmp/report.pdf", "pdf"));
+    QCOMPARE(failedSpy.count(), 2);
   }
 
   // Verify report generation and failure signals are valid
