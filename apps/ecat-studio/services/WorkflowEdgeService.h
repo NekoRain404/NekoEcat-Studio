@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowEdgeService — edge computing, processing, analytics,
-// and storage for workflow data.
+// WorkflowEdgeService -- request facade for workflow edge processing,
+// analytics, storage, and synchronization. No edge runtime/backend is wired
+// yet, so requests fail closed instead of publishing synthetic processing,
+// analysis, or storage success state.
 //
 // Thread safety: main (GUI) thread only.
 

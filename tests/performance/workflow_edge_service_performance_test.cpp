@@ -13,7 +13,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.processAtEdge(data);
+      QVERIFY(!svc.processAtEdge(data).success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
@@ -26,7 +26,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.analyzeAtEdge(data);
+      QVERIFY(!svc.analyzeAtEdge(data).success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 10000);
@@ -40,9 +40,9 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.storeAtEdge(data);
+      QVERIFY(!svc.storeAtEdge(data));
     }
-    QCOMPARE(svc.storedCount(), 10000);
+    QCOMPARE(svc.storedCount(), 0);
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
   }
@@ -52,11 +52,11 @@ private slots:
     WfEdgeData data;
     data.data = QByteArray("test");
     for (int i = 0; i < 10000; ++i) {
-      svc.processAtEdge(data);
-      svc.storeAtEdge(data);
+      QVERIFY(!svc.processAtEdge(data).success);
+      QVERIFY(!svc.storeAtEdge(data));
     }
-    QCOMPARE(svc.storedCount(), 10000);
-    QVERIFY(svc.syncFromEdge());
+    QCOMPARE(svc.storedCount(), 0);
+    QVERIFY(!svc.syncFromEdge());
   }
 
   void testLargeDataProcessing() {
@@ -66,7 +66,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 100; ++i) {
-      svc.processAtEdge(data);
+      QVERIFY(!svc.processAtEdge(data).success);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 10000);
@@ -76,11 +76,11 @@ private slots:
     WorkflowEdgeService svc;
     WfEdgeData data;
     data.data = QByteArray("sync-data");
-    svc.storeAtEdge(data);
+    QVERIFY(!svc.storeAtEdge(data));
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 100000; ++i) {
-      svc.syncFromEdge();
+      QVERIFY(!svc.syncFromEdge());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
