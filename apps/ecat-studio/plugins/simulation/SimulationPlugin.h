@@ -60,7 +60,7 @@ public:
   QTableWidget *dataViewTable() const;
   QTextEdit *logView() const;
 
-  void exportResults(const QString &path);
+  bool exportResults(const QString &path);
 
 signals:
   void simulationStateChanged(SimulationPlugin::SimState state);

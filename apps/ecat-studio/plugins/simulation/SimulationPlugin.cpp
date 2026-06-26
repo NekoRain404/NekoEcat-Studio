@@ -315,9 +315,12 @@ int SimulationPlugin::logCount() const {
   return logView_->toPlainText().isEmpty() ? 0 : logView_->document()->blockCount();
 }
 
-void SimulationPlugin::exportResults(const QString &path) {
+bool SimulationPlugin::exportResults(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
   QTextStream out(&file);
   out << "Frame,Time,Slave,Type,Data,Status\n";
   for (int r = 0; r < dataViewTable_->rowCount(); ++r) {
@@ -328,5 +331,8 @@ void SimulationPlugin::exportResults(const QString &path) {
     }
     out << cols.join(",") << "\n";
   }
+  if (out.status() != QTextStream::Ok || !file.flush()) return false;
+
   addLogEntry(tr("Results exported to %1").arg(path));
+  return true;
 }

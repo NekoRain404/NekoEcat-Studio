@@ -24,9 +24,12 @@
 //   - Frame and statistics signal emissions
 //   - Latency calculation
 #include <QTest>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTableWidget>
 #include <QTextEdit>
+#include <QTemporaryDir>
 #include "plugins/simulation/SimulationPlugin.h"
 
 class SimulationPluginTest : public QObject {
@@ -203,6 +206,23 @@ private slots:
     plugin.stepSimulation();
     QVERIFY(plugin.averageLatencyUs() > 0.0);
     QVERIFY(plugin.maxLatencyUs() > 0.0);
+  }
+
+  void testExportResultsReportsPersistenceOutcome() {
+    SimulationPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    plugin.stepSimulation();
+
+    const QString path = dir.filePath("simulation_results.csv");
+    QVERIFY(plugin.exportResults(path));
+    QVERIFY(QFile::exists(path));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportResults(QString()));
+    QVERIFY(!plugin.exportResults(dir.path()));
   }
 };
 
