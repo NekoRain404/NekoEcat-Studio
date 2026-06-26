@@ -37,8 +37,8 @@ MainWindow  ──uses──►  workspaces/*.cpp   (UI construction, event wiri
 
 All workspace `.cpp` files include `MainWindowIncludes.h` (the shared
 precompiled header in `workspaces/`) which provides all model, adapter,
-detail, utility, infra, and Qt headers. This eliminates 50+ repeated
-include blocks across 25 workspace files.
+detail, utility, infra, and Qt headers. This centralizes common include
+blocks across the current workspace partial files.
 
 Other headers are included by bare name (e.g. `#include "SdoEvidenceModel.h"`).
 CMake adds each subdirectory to the include path, so cross-directory
@@ -54,6 +54,6 @@ Appearance, EtherCAT, Timing, Free Run, Display, Notifications, Export.
 
 ## Internationalization
 
-8 languages supported via `TranslationRegistry` (1264 entries, 100%
-coverage). The `uiText(english, zh)` method selects the active language.
+Runtime language coverage is defined by `TranslationRegistry`. The
+`uiText(english, zh)` method selects the active language.
 User manual is bilingual (EN/ZH) with sidebar TOC and 22 sections.

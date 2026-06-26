@@ -154,7 +154,7 @@ from service count changes.
 |--------|---------|
 | `id()` | Unique lowercase identifier (e.g. `"myplugin"`) |
 | `displayName()` | English tab name |
-| `displayNameZh()` | Chinese tab name (8 languages supported) |
+| `displayNameZh()` | Chinese tab name; runtime language coverage is defined by `TranslationRegistry` |
 | `widget()` | Root QWidget for the tab content |
 | `defaultOrder()` | Tab ordering (lower = left). See existing values below. |
 | `visible()` | Whether the tab appears (can be dynamic) |

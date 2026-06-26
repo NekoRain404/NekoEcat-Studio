@@ -9,7 +9,7 @@ infra, and Qt headers in one place.
 
 | File | Scope |
 |------|-------|
-| `MainWindowIncludes.h` | Shared include header — eliminates 50+ repeated includes |
+| `MainWindowIncludes.h` | Shared include header for common workspace dependencies |
 | `MainWindowUiBuild` | `buildUi()` + `rebuildUi()` — full UI construction |
 | `MainWindowTheme` | Light/dark QSS theme application |
 | `MainWindowCommandPalette` | Command palette dialog |

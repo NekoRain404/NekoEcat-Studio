@@ -1,8 +1,8 @@
 #pragma once
 
 // MainWindowIncludes — shared precompiled include header for all MainWindow
-// workspace partial implementations. Eliminates the 50+ repeated includes
-// that were duplicated across every workspace .cpp file.
+// workspace partial implementations. Centralizes common repeated include
+// blocks that would otherwise be duplicated across workspace .cpp files.
 //
 // Include this header at the top of any workspace partial .cpp file that
 // implements MainWindow methods. It pulls in all model, adapter, detail,

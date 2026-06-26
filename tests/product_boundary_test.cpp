@@ -344,8 +344,13 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral(SOURCE_ROOT "/docs/PLUGIN_GUIDE.md"),
       QStringLiteral(SOURCE_ROOT "/docs/PROJECT_OVERVIEW.md"),
       QStringLiteral(SOURCE_ROOT "/docs/TWINCAT_BENCHMARK_REVIEW.md"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/AGENTS.md"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/infra/AGENTS.md"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/AGENTS.md"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.h"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/MainWindowManual.cpp"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/MainWindowIncludes.h"),
   };
   const QStringList staleClaims = {
       QStringLiteral("325+ registered tests"),
@@ -368,6 +373,7 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("90+ 插件"),
       QStringLiteral("50+ plugins"),
       QStringLiteral("50+ workspace plugins"),
+      QStringLiteral("50+ repeated includes"),
       QStringLiteral("322+ 测试"),
       QStringLiteral("361 个测试源文件"),
       QStringLiteral("测试套件（361 个测试源文件"),
@@ -402,6 +408,9 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("达到 20%"),
       QStringLiteral("代码质量行业领先"),
       QStringLiteral("代码质量**超越行业标准"),
+      QStringLiteral("1264 entries"),
+      QStringLiteral("100% coverage"),
+      QStringLiteral("8 languages supported"),
   };
 
   for (const QString &docPath : docPaths) {

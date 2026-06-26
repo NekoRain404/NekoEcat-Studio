@@ -331,7 +331,7 @@ body { margin-left: 192px !important; }
 <table>
 <tr><th>Setting</th><th>Description</th><th>Default</th></tr>
 <tr><td>Theme</td><td>Visual theme: Dark or Light</td><td>Dark</td></tr>
-<tr><td>Language</td><td>UI language (8 languages supported: English, 简体中文, 日本語, Deutsch, 한국어, 繁體中文, Français, Español)</td><td>English</td></tr>
+<tr><td>Language</td><td>Available UI languages: English, 简体中文, 日本語, Deutsch, 한국어, 繁體中文, Français, Español</td><td>English</td></tr>
 <tr><td>UI Scale</td><td>Interface scaling factor (0.75 – 1.75)</td><td>1.0</td></tr>
 </table>
 
@@ -1077,4 +1077,3 @@ th { background: #f0f4f9; color: #475569; }
   layout->addWidget(buttons);
   dialog.exec();
 }
-

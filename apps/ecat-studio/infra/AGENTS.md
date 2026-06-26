@@ -10,7 +10,7 @@ Core infrastructure shared across the GUI.
 | `LanguageManager` | Centralized language registry (8 languages) |
 | `ProcessDataTypes` | Shared POD types for PDO, Free Run, I/O variables |
 | `SettingsDialog` | Comprehensive tabbed settings dialog (7 sections: Appearance, EtherCAT, Timing, Free Run, Display, Notifications, Export) |
-| `TranslationRegistry` | Runtime translation lookup for 8 languages (1264 entries, 100% coverage) |
+| `TranslationRegistry` | Runtime translation lookup; supported languages and entries are defined in code |
 
 ## SettingsDialog Sections
 
