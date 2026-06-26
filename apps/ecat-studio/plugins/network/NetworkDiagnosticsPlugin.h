@@ -32,6 +32,7 @@ public:
   NetworkDiagnosticsService *service() const { return service_; }
   QTableWidget *portTable() const { return portTable_; }
   QTableWidget *errorTable() const { return errorTable_; }
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();

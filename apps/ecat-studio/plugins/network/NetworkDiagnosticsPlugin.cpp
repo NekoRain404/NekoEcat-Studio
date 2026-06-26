@@ -189,8 +189,14 @@ void NetworkDiagnosticsPlugin::exportReport() {
       tr("CSV Files (*.csv)"));
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool NetworkDiagnosticsPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Port,Link,Speed,Duplex,Errors\n";
@@ -207,4 +213,5 @@ void NetworkDiagnosticsPlugin::exportReport() {
   out << "Frame Errors," << errors.frame << "\n";
   out << "Lost Frames," << errors.lost << "\n";
   out << "Overrun Errors," << errors.overrun << "\n";
+  return out.status() == QTextStream::Ok && file.flush();
 }

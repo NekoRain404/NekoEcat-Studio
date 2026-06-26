@@ -7,7 +7,10 @@
 //   - Plugin service accessor and table widgets
 
 #include <QTest>
+#include <QFile>
+#include <QRegularExpression>
 #include <QTableWidget>
+#include <QTemporaryDir>
 #include "infra/EcatClient.h"
 #include "services/NetworkDiagnosticsService.h"
 #include "plugins/network/NetworkDiagnosticsPlugin.h"
@@ -144,6 +147,30 @@ private slots:
     auto *table = plugin.errorTable();
     QCOMPARE(table->rowCount(), 4);
     QCOMPARE(table->columnCount(), 2);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    EcatClient client;
+    NetworkDiagnosticsService svc(&client);
+    NetworkDiagnosticsPlugin plugin(&svc);
+
+    const QString path = dir.filePath("network_diagnostics.csv");
+    QVERIFY(plugin.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Port,Link,Speed,Duplex,Errors\n")));
+    QVERIFY(csv.contains(QStringLiteral("Counter,Value")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReportToFile(QString()));
+    QVERIFY(!plugin.exportReportToFile(dir.path()));
   }
 };
 
