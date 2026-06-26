@@ -138,11 +138,36 @@ Report EtherCATReportingService::generateComplianceReport()
 bool EtherCATReportingService::exportReport(const Report &report,
                                             const QString &format)
 {
-    if (report.title.isEmpty())
+    return !renderReport(report, format).isEmpty();
+}
+
+bool EtherCATReportingService::exportReport(const Report &report,
+                                            const QString &filePath,
+                                            const QString &format)
+{
+    if (filePath.isEmpty())
         return false;
 
-    QString content;
+    const QString content = renderReport(report, format);
+    if (content.isEmpty())
+        return false;
 
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        return false;
+
+    QTextStream out(&file);
+    out << content;
+    return out.status() == QTextStream::Ok;
+}
+
+QString EtherCATReportingService::renderReport(const Report &report,
+                                               const QString &format) const
+{
+    if (report.title.isEmpty())
+        return {};
+
+    QString content;
     if (format == QStringLiteral("html")) {
         content = QStringLiteral(
             "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
@@ -167,7 +192,7 @@ bool EtherCATReportingService::exportReport(const Report &report,
         content += QStringLiteral(
             "<hr><p>Generated: %1</p></body></html>")
                        .arg(report.timestamp.toString(Qt::ISODate));
-    } else {
+    } else if (format == QStringLiteral("text")) {
         content = report.title + QStringLiteral("\n");
         content += QString(report.title.size(), '=') + QStringLiteral("\n\n");
         content += report.summary + QStringLiteral("\n\n");
@@ -188,7 +213,9 @@ bool EtherCATReportingService::exportReport(const Report &report,
 
         content += QStringLiteral("\nGenerated: %1\n")
                        .arg(report.timestamp.toString(Qt::ISODate));
+    } else {
+        return {};
     }
 
-    return true;
+    return content;
 }

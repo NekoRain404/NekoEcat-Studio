@@ -95,7 +95,7 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.exportReport(r, "PDF");
+      QVERIFY(svc.exportReport(r, "text"));
     }
 
     qint64 elapsed = timer.elapsed();

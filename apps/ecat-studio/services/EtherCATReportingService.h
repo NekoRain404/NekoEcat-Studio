@@ -1,7 +1,7 @@
 #pragma once
 
 // EtherCATReportingService — generates system, performance, error,
-// and compliance reports with export capabilities.
+// and compliance reports with explicit file export capabilities.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -55,7 +55,12 @@ public:
   Report generatePerformanceReport();
   Report generateErrorReport();
   Report generateComplianceReport();
+
+  // Render/export compatibility check for existing callers. This overload does
+  // not write a file because no output path is provided.
   bool exportReport(const Report &report, const QString &format);
+  bool exportReport(const Report &report, const QString &filePath,
+                    const QString &format);
 
 signals:
   void reportGenerated(const Report &report);
@@ -64,6 +69,7 @@ private:
   Report makeReport(const QString &title, const QString &summary,
                     const QVector<ReportSection> &sections,
                     const QStringList &recommendations);
+  QString renderReport(const Report &report, const QString &format) const;
 
   EventBus *bus_;
   EcatClient *client_;

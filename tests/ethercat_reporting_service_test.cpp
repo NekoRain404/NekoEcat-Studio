@@ -8,6 +8,8 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QTemporaryDir>
+#include <QFile>
 #include "services/EtherCATReportingService.h"
 
 class EtherCATReportingServiceTest : public QObject {
@@ -58,8 +60,15 @@ private slots:
   void testExportReportText() {
     EtherCATReportingService svc(nullptr, nullptr);
     auto report = svc.generateSystemReport();
-    bool ok = svc.exportReport(report, QStringLiteral("text"));
-    QVERIFY(ok);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("system-report.txt"));
+    QVERIFY(svc.exportReport(report, path, QStringLiteral("text")));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    const QString content = QString::fromUtf8(file.readAll());
+    QVERIFY(content.contains(QStringLiteral("System Report")));
+    QVERIFY(content.contains(QStringLiteral("System Overview")));
   }
 
   // Export report in HTML format
@@ -67,8 +76,15 @@ private slots:
   void testExportReportHtml() {
     EtherCATReportingService svc(nullptr, nullptr);
     auto report = svc.generateSystemReport();
-    bool ok = svc.exportReport(report, QStringLiteral("html"));
-    QVERIFY(ok);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("system-report.html"));
+    QVERIFY(svc.exportReport(report, path, QStringLiteral("html")));
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    const QString content = QString::fromUtf8(file.readAll());
+    QVERIFY(content.contains(QStringLiteral("<html>")));
+    QVERIFY(content.contains(QStringLiteral("System Report")));
   }
 
   // Export empty report fails
@@ -76,8 +92,22 @@ private slots:
   void testExportEmptyReport() {
     EtherCATReportingService svc(nullptr, nullptr);
     Report empty;
-    bool ok = svc.exportReport(empty, QStringLiteral("text"));
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    bool ok = svc.exportReport(empty, dir.filePath(QStringLiteral("empty.txt")),
+                               QStringLiteral("text"));
     QVERIFY(!ok);
+  }
+
+  // Unsupported format and empty path fail instead of pretending to export.
+  void testExportInvalidArguments() {
+    EtherCATReportingService svc(nullptr, nullptr);
+    auto report = svc.generateSystemReport();
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(!svc.exportReport(report, QString(), QStringLiteral("text")));
+    QVERIFY(!svc.exportReport(report, dir.filePath(QStringLiteral("report.pdf")),
+                              QStringLiteral("pdf")));
   }
 
   // Verify reportGenerated signal emission
