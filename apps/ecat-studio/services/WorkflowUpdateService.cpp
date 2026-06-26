@@ -14,23 +14,18 @@ QVector<WfUpdateInfo> WorkflowUpdateService::checkForUpdates()
 
 bool WorkflowUpdateService::downloadUpdate(const WfUpdateInfo &update)
 {
-    if (update.downloadUrl.isEmpty() || update.version.isEmpty())
-        return false;
-    emit updateDownloaded(update);
-    return true;
+    Q_UNUSED(update);
+    return false;
 }
 
 bool WorkflowUpdateService::installUpdate(const WfUpdateInfo &update)
 {
-    if (update.version.isEmpty())
-        return false;
-    emit updateInstalled(update);
-    return true;
+    Q_UNUSED(update);
+    return false;
 }
 
 bool WorkflowUpdateService::rollbackUpdate(const WfUpdateInfo &update)
 {
-    if (update.version.isEmpty())
-        return false;
-    return true;
+    Q_UNUSED(update);
+    return false;
 }

@@ -1,7 +1,8 @@
 #pragma once
 
-// WorkflowUpdateService -- checks for updates, downloads, installs, and
-// rolls back configuration/firmware/software/system updates.
+// WorkflowUpdateService -- request facade for workflow update checks,
+// downloads, installs, and rollbacks. No updater backend is wired yet, so
+// mutating requests fail closed instead of emitting synthetic success signals.
 //
 // Thread safety: main (GUI) thread only.
 

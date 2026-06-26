@@ -2,9 +2,8 @@
 //
 // Test coverage:
 //   - Check for updates returns available updates
-//   - Download update emits signal
-//   - Install update emits signal
-//   - Rollback update succeeds
+//   - Download, install, and rollback fail closed without backend
+//   - Rejected update requests do not emit synthetic success signals
 //   - Empty URL download returns false
 //   - Empty version install returns false
 //   - Empty version rollback returns false
@@ -32,9 +31,8 @@ private slots:
       info.version = QStringLiteral("1.2.0");
       info.downloadUrl = QStringLiteral("https://example.com/fw.bin");
 
-      QVERIFY(svc.downloadUpdate(info));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(0).value<WfUpdateInfo>().version, QString("1.2.0"));
+      QVERIFY(!svc.downloadUpdate(info));
+      QCOMPARE(spy.count(), 0);
   }
 
   void testInstallUpdate() {
@@ -45,8 +43,8 @@ private slots:
       info.type = WfUpdateType::Software;
       info.version = QStringLiteral("2.0.0");
 
-      QVERIFY(svc.installUpdate(info));
-      QCOMPARE(spy.count(), 1);
+      QVERIFY(!svc.installUpdate(info));
+      QCOMPARE(spy.count(), 0);
   }
 
   void testRollbackUpdate() {
@@ -56,7 +54,7 @@ private slots:
       info.type = WfUpdateType::Configuration;
       info.version = QStringLiteral("1.0.0");
 
-      QVERIFY(svc.rollbackUpdate(info));
+      QVERIFY(!svc.rollbackUpdate(info));
   }
 
   void testDownloadEmptyUrlReturnsFalse() {
@@ -110,9 +108,9 @@ private slots:
       sw.version = QStringLiteral("2.0.0");
       sw.downloadUrl = QStringLiteral("https://example.com/sw");
 
-      svc.downloadUpdate(fw);
-      svc.downloadUpdate(sw);
-      QCOMPARE(spy.count(), 2);
+      QVERIFY(!svc.downloadUpdate(fw));
+      QVERIFY(!svc.downloadUpdate(sw));
+      QCOMPARE(spy.count(), 0);
   }
 };
 
