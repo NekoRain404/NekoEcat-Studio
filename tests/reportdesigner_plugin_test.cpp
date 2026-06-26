@@ -14,6 +14,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QTreeWidget>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/reportdesigner/ReportDesignerPlugin.h"
@@ -151,8 +153,16 @@ void TestReportDesignerPlugin::exportImport() {
   plugin_->addTemplate("ExportTest");
   plugin_->setPreviewText("export preview");
 
-  QString tmpPath = QDir::tempPath() + "/report_designer_test_export.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("report_designer_test_export.json");
   QVERIFY(plugin_->exportReport(tmpPath, "PDF"));
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportReport(QString(), "PDF"));
+  QVERIFY(!plugin_->importTemplate(QString()));
+  QVERIFY(!plugin_->exportReport(dir.path(), "PDF"));
 
   plugin_->clearTemplates();
   plugin_->setPreviewText("");
@@ -160,7 +170,6 @@ void TestReportDesignerPlugin::exportImport() {
   QVERIFY(plugin_->importTemplate(tmpPath));
   QCOMPARE(plugin_->previewText(), QString("export preview"));
 
-  QFile::remove(tmpPath);
   plugin_->clearTemplates();
   plugin_->clearDataBindings();
 }

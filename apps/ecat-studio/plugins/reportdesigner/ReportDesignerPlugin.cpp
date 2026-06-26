@@ -232,6 +232,8 @@ QString ReportDesignerPlugin::previewText() const {
 }
 
 bool ReportDesignerPlugin::exportReport(const QString &filePath, const QString &format) {
+  if (filePath.isEmpty()) return false;
+
   QJsonObject root;
   root["version"] = 1;
   root["format"] = format;
@@ -244,15 +246,18 @@ bool ReportDesignerPlugin::exportReport(const QString &filePath, const QString &
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly)) return false;
-  file.write(QJsonDocument(root).toJson());
-  return true;
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  return file.write(bytes) == bytes.size() && file.flush();
 }
 
 bool ReportDesignerPlugin::importTemplate(const QString &filePath) {
+  if (filePath.isEmpty()) return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly)) return false;
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-  if (doc.isNull()) return false;
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
 
   QJsonObject root = doc.object();
   if (root.contains("templates")) {
