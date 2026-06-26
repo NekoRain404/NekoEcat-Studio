@@ -1,10 +1,9 @@
 // WorkflowBlockchainServiceTest — Tests for WorkflowBlockchainService
 //
 // Test coverage:
-//   - Transaction recording and verification
-//   - Smart contract execution
+//   - Transaction recording, verification, and smart contract execution fail closed without backend
 //   - Supply chain tracking
-//   - Signal emission for blockchain events
+//   - Rejected blockchain requests do not emit synthetic success signals
 
 #include <QTest>
 #include <QSignalSpy>
@@ -20,8 +19,9 @@ private slots:
     tx.sender = "node1";
     tx.receiver = "node2";
     tx.data = QByteArray("test data");
-    QVERIFY(svc.recordTransaction(tx));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.recordTransaction(tx));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(svc.allTransactions().isEmpty());
   }
 
   void testTransactionAutoId() {
@@ -29,10 +29,9 @@ private slots:
     WfTransaction tx;
     tx.sender = "a";
     tx.receiver = "b";
-    svc.recordTransaction(tx);
+    QVERIFY(!svc.recordTransaction(tx));
     auto all = svc.allTransactions();
-    QCOMPARE(all.size(), 1);
-    QVERIFY(!all.first().transactionId.isEmpty());
+    QVERIFY(all.isEmpty());
   }
 
   void testVerifyTransaction() {
@@ -40,20 +39,17 @@ private slots:
     WfTransaction tx;
     tx.sender = "a";
     tx.receiver = "b";
-    svc.recordTransaction(tx);
-    auto recorded = svc.allTransactions().first();
+    QVERIFY(!svc.recordTransaction(tx));
     QSignalSpy spy(&svc, &WorkflowBlockchainService::verificationCompleted);
-    QVERIFY(svc.verifyTransaction(recorded.transactionId));
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(spy.at(0).at(1).toBool());
+    QVERIFY(!svc.verifyTransaction(QStringLiteral("WFTX_1")));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testVerifyTransactionNotFound() {
     WorkflowBlockchainService svc;
     QSignalSpy spy(&svc, &WorkflowBlockchainService::verificationCompleted);
     QVERIFY(!svc.verifyTransaction("nonexistent"));
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(!spy.at(0).at(1).toBool());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testExecuteSmartContract() {
@@ -62,8 +58,8 @@ private slots:
     WfSmartContract sc;
     sc.contractId = "SC001";
     sc.name = "TestContract";
-    QVERIFY(svc.executeSmartContract(sc));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.executeSmartContract(sc));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testTrackSupplyChain() {
@@ -92,9 +88,9 @@ private slots:
       WfTransaction tx;
       tx.sender = QString("sender_%1").arg(i);
       tx.receiver = QString("receiver_%1").arg(i);
-      svc.recordTransaction(tx);
+      QVERIFY(!svc.recordTransaction(tx));
     }
-    QCOMPARE(svc.allTransactions().size(), 5);
+    QVERIFY(svc.allTransactions().isEmpty());
   }
 
   void testTransactionBlockNumber() {
@@ -102,16 +98,13 @@ private slots:
     WfTransaction tx1;
     tx1.sender = "a";
     tx1.receiver = "b";
-    svc.recordTransaction(tx1);
+    QVERIFY(!svc.recordTransaction(tx1));
     WfTransaction tx2;
     tx2.sender = "c";
     tx2.receiver = "d";
-    svc.recordTransaction(tx2);
+    QVERIFY(!svc.recordTransaction(tx2));
     auto all = svc.allTransactions();
-    QCOMPARE(all.size(), 2);
-    QVERIFY(all[0].blockNumber != all[1].blockNumber);
-    QVERIFY(all[0].blockNumber > 0);
-    QVERIFY(all[1].blockNumber > 0);
+    QVERIFY(all.isEmpty());
   }
 
   void testTransactionStatusConfirmed() {
@@ -119,9 +112,8 @@ private slots:
     WfTransaction tx;
     tx.sender = "a";
     tx.receiver = "b";
-    svc.recordTransaction(tx);
-    auto recorded = svc.allTransactions().first();
-    QCOMPARE(recorded.status, WfTransactionStatus::Confirmed);
+    QVERIFY(!svc.recordTransaction(tx));
+    QVERIFY(svc.allTransactions().isEmpty());
   }
 
   void testTransactionTimestamp() {
@@ -129,9 +121,8 @@ private slots:
     WfTransaction tx;
     tx.sender = "a";
     tx.receiver = "b";
-    svc.recordTransaction(tx);
-    auto recorded = svc.allTransactions().first();
-    QVERIFY(recorded.timestamp.isValid());
+    QVERIFY(!svc.recordTransaction(tx));
+    QVERIFY(svc.allTransactions().isEmpty());
   }
 
   void testMultipleSupplyChainEntries() {

@@ -4,33 +4,18 @@ WorkflowBlockchainService::WorkflowBlockchainService(QObject *parent)
     : QObject(parent) {}
 
 bool WorkflowBlockchainService::recordTransaction(const WfTransaction &transaction) {
-  WfTransaction tx = transaction;
-  if (tx.transactionId.isEmpty())
-    tx.transactionId = QString("WFTX_%1_%2").arg(nextBlock_).arg(QDateTime::currentDateTime().toMSecsSinceEpoch());
-  tx.timestamp = QDateTime::currentDateTime();
-  tx.blockNumber = nextBlock_++;
-  tx.status = WfTransactionStatus::Confirmed;
-  transactions_[tx.transactionId] = tx;
-  if (transactions_.size() > kMaxTransactions) {
-    auto oldest = transactions_.constBegin().key();
-    transactions_.remove(oldest);
-  }
-  emit transactionRecorded(tx);
-  return true;
+  Q_UNUSED(transaction);
+  return false;
 }
 
 bool WorkflowBlockchainService::verifyTransaction(const QString &transactionId) {
-  bool valid = transactions_.contains(transactionId);
-  emit verificationCompleted(transactionId, valid);
-  return valid;
+  Q_UNUSED(transactionId);
+  return false;
 }
 
 bool WorkflowBlockchainService::executeSmartContract(const WfSmartContract &contract) {
-  WfSmartContract sc = contract;
-  sc.active = true;
-  contracts_[contract.contractId] = sc;
-  emit smartContractExecuted(sc);
-  return true;
+  Q_UNUSED(contract);
+  return false;
 }
 
 WfSupplyChain WorkflowBlockchainService::trackSupplyChain(const QString &productId) {

@@ -1,13 +1,9 @@
 #pragma once
-// PLACEHOLDER IMPLEMENTATION
-// This is a template/stub for future development.
-// Not production ready.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
-
-// WorkflowBlockchainService — provides immutable audit trail, smart contracts,
-// decentralized verification, and supply chain tracking for workflow operations.
+// WorkflowBlockchainService -- request facade for blockchain audit trails,
+// smart contracts, decentralized verification, and supply-chain tracking.
+// No blockchain node/backend is wired yet, so blockchain mutations fail closed
+// instead of generating synthetic transactions, confirmations, or contract
+// execution events. Supply-chain entries remain local draft records only.
 
 #include <QObject>
 #include <QVector>
