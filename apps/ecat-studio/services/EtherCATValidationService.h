@@ -1,10 +1,11 @@
 #pragma once
 
-// EtherCATValidationService — validation of EtherCAT configurations, network
-// topology, timing constraints, and safety requirements.
+// EtherCATValidationService — validation request facade for EtherCAT
+// configurations, network topology, timing constraints, and safety
+// requirements.
 //
-// Provides on-demand validation methods that produce structured results.
-// Emits validationCompleted() signal when each validation finishes.
+// Provides rejected validation results until a real evidence-producing
+// validation backend is available. It must not synthesize passing checks.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -48,5 +49,5 @@ signals:
     void validationCompleted(const EtherCATValidationResult &result);
 
 private:
-    EtherCATValidationResult createPassingResult(const QString &type);
+    EtherCATValidationResult createRejectedResult(const QString &type);
 };

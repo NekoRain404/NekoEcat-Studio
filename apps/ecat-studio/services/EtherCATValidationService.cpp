@@ -1,11 +1,11 @@
 #include "EtherCATValidationService.h"
 
-// EtherCATValidationService.cpp — Validation checks for configuration, network, timing, and safety
+// EtherCATValidationService.cpp — Validation request facade
 //
 // Implementation notes:
-//   - All validation types delegate to createPassingResult helper
-//   - Emits validationCompleted signal with result for each check
-//   - Results carry validation type, pass/fail status, and message
+//   - All validation types delegate to createRejectedResult helper
+//   - Results carry validation type and rejection details
+//   - No completion signal is emitted without real validation evidence
 
 EtherCATValidationService::EtherCATValidationService(QObject *parent)
     : QObject(parent)
@@ -14,38 +14,39 @@ EtherCATValidationService::EtherCATValidationService(QObject *parent)
 
 EtherCATValidationResult EtherCATValidationService::validateConfiguration()
 {
-    EtherCATValidationResult result = createPassingResult(QStringLiteral("Configuration"));
-    emit validationCompleted(result);
-    return result;
+    return createRejectedResult(QStringLiteral("Configuration"));
 }
 
 EtherCATValidationResult EtherCATValidationService::validateNetwork()
 {
-    EtherCATValidationResult result = createPassingResult(QStringLiteral("Network"));
-    emit validationCompleted(result);
-    return result;
+    return createRejectedResult(QStringLiteral("Network"));
 }
 
 EtherCATValidationResult EtherCATValidationService::validateTiming()
 {
-    EtherCATValidationResult result = createPassingResult(QStringLiteral("Timing"));
-    emit validationCompleted(result);
-    return result;
+    return createRejectedResult(QStringLiteral("Timing"));
 }
 
 EtherCATValidationResult EtherCATValidationService::validateSafety()
 {
-    EtherCATValidationResult result = createPassingResult(QStringLiteral("Safety"));
-    emit validationCompleted(result);
-    return result;
+    return createRejectedResult(QStringLiteral("Safety"));
 }
 
-EtherCATValidationResult EtherCATValidationService::createPassingResult(const QString &type)
+EtherCATValidationResult EtherCATValidationService::createRejectedResult(const QString &type)
 {
     EtherCATValidationResult result;
-    result.valid = true;
+    result.valid = false;
     result.validationType = type;
-    result.details = type + QStringLiteral(" validation passed.");
-    result.recommendations.append(QStringLiteral("No issues found."));
+    result.details = type + QStringLiteral(" validation requires a real validation backend.");
+
+    ValidationError error;
+    error.code = QStringLiteral("VALIDATION_BACKEND_REQUIRED");
+    error.message = result.details;
+    error.location = type;
+    error.severity = 3;
+    result.errors.append(error);
+
+    result.recommendations.append(
+        QStringLiteral("Run validation against a live evidence-producing backend before claiming validity."));
     return result;
 }

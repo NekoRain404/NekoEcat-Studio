@@ -7,77 +7,74 @@
 //   - Validation type identification
 
 #include <QTest>
+#include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATValidationService.h"
 
 class EtherCATValidationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Validate configuration passes with no errors
-  // Validate configuration passes
-  void testValidateConfiguration() {
+  // Configuration validation fails closed without a real validation backend.
+  void testValidateConfigurationFailsClosedWithoutBackend() {
     EtherCATValidationService svc;
+    QSignalSpy spy(&svc, &EtherCATValidationService::validationCompleted);
     EtherCATValidationResult result = svc.validateConfiguration();
-    QVERIFY(result.valid);
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(!result.valid);
+    QVERIFY(!result.details.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Validate network passes with no errors
-  // Validate network passes
-  void testValidateNetwork() {
+  // Network validation fails closed without a real validation backend.
+  void testValidateNetworkFailsClosedWithoutBackend() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateNetwork();
-    QVERIFY(result.valid);
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(!result.valid);
+    QCOMPARE(result.validationType, QString("Network"));
   }
 
-  // Validate timing passes with no errors
-  // Validate timing passes
-  void testValidateTiming() {
+  // Timing validation fails closed without a real validation backend.
+  void testValidateTimingFailsClosedWithoutBackend() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateTiming();
-    QVERIFY(result.valid);
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(!result.valid);
+    QCOMPARE(result.validationType, QString("Timing"));
   }
 
-  // Validate safety passes with no errors
-  // Validate safety passes
-  void testValidateSafety() {
+  // Safety validation fails closed without a real validation backend.
+  void testValidateSafetyFailsClosedWithoutBackend() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateSafety();
-    QVERIFY(result.valid);
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(!result.valid);
+    QCOMPARE(result.validationType, QString("Safety"));
   }
 
-  // Configuration validation returns zero errors
-  // Configuration validation has no errors
-  void testConfigurationNoErrors() {
+  // Configuration validation records an error explaining why it could not run.
+  void testConfigurationReportsRejectedError() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateConfiguration();
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(result.errors.size() > 0);
+    QCOMPARE(result.errors.first().code, QString("VALIDATION_BACKEND_REQUIRED"));
   }
 
-  // Network validation returns zero errors
-  // Network validation has no errors
-  void testNetworkNoErrors() {
+  // Network validation records an error explaining why it could not run.
+  void testNetworkReportsRejectedError() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateNetwork();
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(result.errors.size() > 0);
   }
 
-  // Timing validation returns zero errors
-  // Timing validation has no errors
-  void testTimingNoErrors() {
+  // Timing validation records an error explaining why it could not run.
+  void testTimingReportsRejectedError() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateTiming();
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(result.errors.size() > 0);
   }
 
-  // Safety validation returns zero errors
-  // Safety validation has no errors
-  void testSafetyNoErrors() {
+  // Safety validation records an error explaining why it could not run.
+  void testSafetyReportsRejectedError() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateSafety();
-    QCOMPARE(result.errors.size(), 0);
+    QVERIFY(result.errors.size() > 0);
   }
 
   // Configuration validation includes details
@@ -89,7 +86,6 @@ private slots:
   }
 
   // Configuration validation includes recommendations
-  // Configuration validation has recommendations
   void testConfigurationRecommendations() {
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateConfiguration();
@@ -110,6 +106,25 @@ private slots:
     EtherCATValidationService svc;
     EtherCATValidationResult result = svc.validateNetwork();
     QCOMPARE(result.validationType, QString("Network"));
+  }
+
+  // Implementation must not keep synthetic validation success paths.
+  void testImplementationDoesNotContainSyntheticValidationSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATValidationService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("createPassingResult")),
+             "Validation service must not use a passing result helper without evidence.");
+    QVERIFY2(!text.contains(QStringLiteral("result.valid = true")),
+             "Validation service must not synthesize valid results.");
+    QVERIFY2(!text.contains(QStringLiteral("validation passed")),
+             "Validation service must not synthesize passed detail text.");
+    QVERIFY2(!text.contains(QStringLiteral("No issues found")),
+             "Validation service must not synthesize no-issue recommendations.");
+    QVERIFY2(!text.contains(QStringLiteral("emit validationCompleted(result)")),
+             "Validation service must not emit validation completion for rejected checks.");
   }
 };
 

@@ -10,7 +10,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.validateConfiguration();
+      EtherCATValidationResult result = svc.validateConfiguration();
+      QVERIFY(!result.valid);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
@@ -22,7 +23,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.validateNetwork();
+      EtherCATValidationResult result = svc.validateNetwork();
+      QVERIFY(!result.valid);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
@@ -34,7 +36,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.validateTiming();
+      EtherCATValidationResult result = svc.validateTiming();
+      QVERIFY(!result.valid);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
@@ -46,7 +49,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.validateSafety();
+      EtherCATValidationResult result = svc.validateSafety();
+      QVERIFY(!result.valid);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
