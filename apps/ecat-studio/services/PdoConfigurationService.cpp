@@ -90,11 +90,10 @@ bool PdoConfigurationService::applyConfiguration(int position) {
   }
 
   slave.status.position = position;
-  slave.status.lastApplied = QDateTime::currentDateTime();
-  slave.status.lastError.clear();
-
-  configurationApplied(position);
-  return true;
+  slave.status.lastError = QStringLiteral(
+      "PDO configuration apply requires a connected EtherCAT backend");
+  configurationError(position, slave.status.lastError);
+  return false;
 }
 
 QVector<PdoMappingConfig> PdoConfigurationService::pdoMappings(int position) const {

@@ -147,9 +147,30 @@ private slots:
     svc.configurePdoMapping(0, mapping);
 
     QSignalSpy spy(&svc, &PdoConfigurationService::configurationApplied);
-    QVERIFY(svc.applyConfiguration(0));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy[0][0].toInt(), 0);
+    QSignalSpy errorSpy(&svc, &PdoConfigurationService::configurationError);
+    QVERIFY(!svc.applyConfiguration(0));
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
+  }
+
+  void testApplyConfigurationDoesNotReportHardwareSuccessOffline() {
+    PdoConfigurationService svc;
+    PdoMappingConfig mapping;
+    mapping.index = "0x6000";
+    mapping.subIndex = "0x01";
+    mapping.bitSize = 32;
+    mapping.dataType = "INT32";
+    QVERIFY(svc.configurePdoMapping(0, mapping));
+
+    QSignalSpy appliedSpy(&svc, &PdoConfigurationService::configurationApplied);
+    QSignalSpy errorSpy(&svc, &PdoConfigurationService::configurationError);
+    QVERIFY(!svc.applyConfiguration(0));
+    QCOMPARE(appliedSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
+
+    auto status = svc.configurationStatus(0);
+    QVERIFY(!status.lastApplied.isValid());
+    QVERIFY(!status.lastError.isEmpty());
   }
 
   void testApplyConfigurationNoMapping() {
@@ -215,10 +236,10 @@ private slots:
     mapping.bitSize = 16;
     svc.configurePdoMapping(0, mapping);
 
-    svc.applyConfiguration(0);
+    QVERIFY(!svc.applyConfiguration(0));
     auto status = svc.configurationStatus(0);
-    QVERIFY(status.lastApplied.isValid());
-    QVERIFY(status.lastError.isEmpty());
+    QVERIFY(!status.lastApplied.isValid());
+    QVERIFY(!status.lastError.isEmpty());
   }
 };
 
