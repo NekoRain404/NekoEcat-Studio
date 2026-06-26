@@ -1,8 +1,8 @@
 // WorkflowIntegrationHubServiceTest — Tests for WorkflowIntegrationHubService
 //
 // Test coverage:
-//   - System, data, process, and service integration
-//   - Signal emission for integration and data sync
+//   - System, data, process, and service integration fail closed without backend
+//   - No synthetic integration or data sync success signals are emitted
 //   - Validation of endpoints and required fields
 
 #include <QTest>
@@ -20,9 +20,8 @@ private slots:
     config.type = "sap";
     config.endpoint = "https://erp.example.com";
     config.credentials = "token";
-    QVERIFY(svc.integrateSystem(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), "erp");
+    QVERIFY(!svc.integrateSystem(config));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testIntegrateData() {
@@ -31,8 +30,8 @@ private slots:
     DataConfig config;
     config.source = "db-source";
     config.destination = "db-dest";
-    QVERIFY(svc.integrateData(config));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.integrateData(config));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testIntegrateProcess() {
@@ -40,9 +39,8 @@ private slots:
     QSignalSpy spy(&svc, &WorkflowIntegrationHubService::integrationConnected);
     ProcessConfig config;
     config.workflow = "order-process";
-    QVERIFY(svc.integrateProcess(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), "order-process");
+    QVERIFY(!svc.integrateProcess(config));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testIntegrateService() {
@@ -53,9 +51,8 @@ private slots:
     config.endpoint = "https://pay.example.com";
     config.protocol = "REST";
     config.timeout = 10;
-    QVERIFY(svc.integrateService(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), "payment");
+    QVERIFY(!svc.integrateService(config));
+    QCOMPARE(spy.count(), 0);
   }
 
   void testInvalidSystemEndpoint() {

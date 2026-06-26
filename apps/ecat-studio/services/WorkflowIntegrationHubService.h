@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowIntegrationHubService -- central hub for integrating workflows with
-// external systems, data sources, processes, and services.
+// WorkflowIntegrationHubService -- request facade for integrating workflows
+// with external systems, data sources, processes, and services. No external
+// integration backend is wired yet, so valid requests fail closed instead of
+// emitting synthetic connected/synced signals.
 //
 // Thread safety: main (GUI) thread only.
 
