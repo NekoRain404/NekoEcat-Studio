@@ -1,22 +1,20 @@
 #pragma once
 
-// EtherCATRecoveryService — provides error diagnosis, manual and automatic
-// recovery actions, and recovery progress tracking for EtherCAT system failures.
+// EtherCATRecoveryService — recovery action catalogue and offline facade.
 //
-// This service provides recovery capabilities for the EtherCAT system:
+// This service currently provides recovery planning helpers:
 //   - Error diagnosis with actionable suggestions
-//   - Manual recovery action execution with step tracking
-//   - Automatic recovery that selects and runs the best action
-//   - Recovery cancellation support
-//   - Real-time progress reporting via signals
+//   - Manual recovery action catalogue
+//   - Automatic recovery selection, rejected until a live backend is available
+//   - Recovery status readback/reset helpers
 //
 // Usage:
 //   ServiceContainer *container = ...;
 //   EtherCATRecoveryService *recovery = container->recovery();
 //   QStringList errors = recovery->diagnoseErrors();
 //   QVector<RecoveryAction> actions = recovery->availableActions();
-//   RecoveryResult result = recovery->executeRecovery("reset-master");
-//   // Or let the service pick automatically:
+//   // These return failure until connected to a real backend:
+//   RecoveryResult result = recovery->executeRecovery("reset_slaves");
 //   RecoveryResult autoResult = recovery->executeAutoRecovery();
 //
 // Thread safety:
@@ -24,7 +22,7 @@
 //
 // Performance:
 //   - Error diagnosis is O(n) where n is number of monitored components
-//   - Recovery execution time depends on the action (typically <1s)
+//   - Unsupported recovery execution is rejected in O(n) over actions
 //   - Status queries are O(1)
 
 #include <QObject>
@@ -73,14 +71,12 @@ public:
 
   // Execute a specific recovery action by ID.
   // @param actionId  ID of the recovery action to execute
-  // @return Result of the recovery attempt
-  // Emits recoveryStarted(), recoveryProgress(), recoveryCompleted().
+  // @return Result of the recovery attempt; currently failed without backend
   RecoveryResult executeRecovery(const QString &actionId);
 
   // Automatically select and execute the best recovery action.
   // Selects the highest-priority automatic action.
-  // @return Result of the recovery attempt
-  // Emits recoveryStarted(), recoveryProgress(), recoveryCompleted().
+  // @return Result of the recovery attempt; currently failed without backend
   RecoveryResult executeAutoRecovery();
 
   // Cancel the currently running recovery operation.

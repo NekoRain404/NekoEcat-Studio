@@ -3,11 +3,12 @@
 // Test coverage:
 //   - Default state (no recovery in progress)
 //   - Available recovery actions
-//   - Recovery execution and cancellation
+//   - Recovery execution fails closed without a live backend
 //   - Error diagnosis and status reset
-//   - Auto-recovery execution
+//   - Auto-recovery fails closed without a live backend
 
 #include <QTest>
+#include <QSignalSpy>
 #include "services/EtherCATRecoveryService.h"
 
 class EtherCATRecoveryServiceTest : public QObject {
@@ -29,15 +30,21 @@ private slots:
     QVERIFY(!actions.isEmpty());
   }
 
-  // Execute recovery action succeeds
-  // Execute a recovery action and verify success
-  void testExecuteRecovery() {
+  // Execute recovery action fails closed without a live backend.
+  void testExecuteRecoveryFailsClosedWithoutBackend() {
     EtherCATRecoveryService svc;
+    QSignalSpy startedSpy(&svc, &EtherCATRecoveryService::recoveryStarted);
+    QSignalSpy progressSpy(&svc, &EtherCATRecoveryService::recoveryProgress);
+    QSignalSpy completedSpy(&svc, &EtherCATRecoveryService::recoveryCompleted);
     auto actions = svc.availableActions();
     if (!actions.isEmpty()) {
       auto result = svc.executeRecovery(actions.first().id);
-      QVERIFY(result.success);
-      QVERIFY(result.stepsPerformed > 0);
+      QVERIFY(!result.success);
+      QCOMPARE(result.stepsPerformed, 0);
+      QCOMPARE(startedSpy.count(), 0);
+      QCOMPARE(progressSpy.count(), 0);
+      QCOMPARE(completedSpy.count(), 0);
+      QVERIFY(!svc.status().inProgress);
     }
   }
 
@@ -65,12 +72,14 @@ private slots:
     QCOMPARE(svc.status().completedSteps, 0);
   }
 
-  // Auto-recovery attempts automatic fix
-  // Execute auto-recovery and verify result
-  void testAutoRecovery() {
+  // Auto-recovery must not simulate an automatic fix without a live backend.
+  void testAutoRecoveryFailsClosedWithoutBackend() {
     EtherCATRecoveryService svc;
+    QSignalSpy completedSpy(&svc, &EtherCATRecoveryService::recoveryCompleted);
     auto result = svc.executeAutoRecovery();
-    QVERIFY(result.success || !result.success);
+    QVERIFY(!result.success);
+    QCOMPARE(result.stepsPerformed, 0);
+    QCOMPARE(completedSpy.count(), 0);
   }
 };
 

@@ -1,11 +1,11 @@
 #include "EtherCATRecoveryService.h"
 
-// EtherCATRecoveryService.cpp — Recovery action management for fault handling
+// EtherCATRecoveryService.cpp — Recovery action catalogue and offline facade
 //
 // Implementation notes:
 //   - Pre-defines recovery actions: reset slaves, restart master, reconfigure, clear errors
 //   - Actions have priority levels and safe-to-auto-execute flags
-//   - Executes actions by ID and emits recoveryCompleted signal
+//   - Execution fails closed until wired to a live EtherCAT backend
 
 EtherCATRecoveryService::EtherCATRecoveryService(QObject *parent)
     : QObject(parent)
@@ -47,32 +47,10 @@ RecoveryResult EtherCATRecoveryService::executeRecovery(const QString &actionId)
         return result;
     }
 
-    status_.inProgress = true;
-    status_.totalSteps = 3;
-    status_.completedSteps = 0;
-    status_.currentAction = action->name;
-    status_.log.clear();
-
-    emit recoveryStarted(actionId);
-
-    status_.completedSteps = 1;
-    status_.log.append(QStringLiteral("Step 1: Preparing"));
-    emit recoveryProgress(1, status_.totalSteps);
-
-    status_.completedSteps = 2;
-    status_.log.append(QStringLiteral("Step 2: Executing"));
-    emit recoveryProgress(2, status_.totalSteps);
-
-    status_.completedSteps = 3;
-    status_.log.append(QStringLiteral("Step 3: Verifying"));
-    emit recoveryProgress(3, status_.totalSteps);
-
-    result.success = true;
-    result.message = QStringLiteral("Recovery '%1' completed").arg(action->name);
-    result.stepsPerformed = 3;
-
-    status_.inProgress = false;
-    emit recoveryCompleted(result);
+    result.success = false;
+    result.message = QStringLiteral("Recovery '%1' requires a connected EtherCAT backend")
+                         .arg(action->name);
+    result.stepsPerformed = 0;
     return result;
 }
 
