@@ -209,8 +209,15 @@ void AlarmPlugin::exportHistory() {
       tr("CSV Files (*.csv)"));
   if (path.isEmpty()) return;
 
+  exportHistoryToFile(path);
+}
+
+bool AlarmPlugin::exportHistoryToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
   QTextStream out(&file);
   out << "ID,Time,Level,Category,State,Source,Message\n";
   for (const auto &a : alarmService_->alarmHistory(10000)) {
@@ -222,6 +229,7 @@ void AlarmPlugin::exportHistory() {
         << a.source << ","
         << a.message << "\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }
 
 void AlarmPlugin::populateRow(int row, const Alarm &alarm) {

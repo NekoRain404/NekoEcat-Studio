@@ -93,6 +93,8 @@ public:
   int defaultOrder() const override;     ///< Returns 110
   bool visible() const override;         ///< Returns true (always visible)
 
+  bool exportHistoryToFile(const QString &path);
+
 private slots:
   /// @brief Handles new alarm raised events from AlarmService.
   /// @param alarm  The newly raised alarm object

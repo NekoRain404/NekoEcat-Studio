@@ -206,6 +206,32 @@ private slots:
     QVERIFY(!logSvc.exportLogs(QString()));
     QVERIFY(!logSvc.exportLogs(dir.path()));
   }
+
+  void testAlarmHistoryExportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    AlarmService alarmSvc;
+    LoggingService logSvc;
+    AlarmPlugin plugin(&alarmSvc, &logSvc);
+    alarmSvc.raiseAlarm(AlarmLevel::Error, AlarmCategory::Communication,
+                        "Exported alarm", "AlarmTest");
+
+    const QString path = dir.filePath("alarms.csv");
+    QVERIFY(plugin.exportHistoryToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("ID,Time,Level,Category,State,Source,Message\n")));
+    QVERIFY(csv.contains(QStringLiteral("Exported alarm")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportHistoryToFile(QString()));
+    QVERIFY(!plugin.exportHistoryToFile(dir.path()));
+  }
 };
 
 QTEST_MAIN(AlarmPluginTest)
