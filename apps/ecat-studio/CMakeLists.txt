@@ -406,12 +406,6 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/visualizationstudio
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/reportdesigner
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/documentationbrowser
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/cloudmanager
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/edgecomputing
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/aiassistant
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/digitaltwinstudio
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/blockchainexplorer
-    ${CMAKE_CURRENT_SOURCE_DIR}/plugins/quantumsecurity
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/pdomapping
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/pdomappingoptimization
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/onlinediagnostics
@@ -448,6 +442,14 @@ target_include_directories(ecat-studio PRIVATE
 # ── Experimental Services ─────────────────────────────────────────────
 option(ECAT_EXPERIMENTAL_SERVICES "Include experimental/stub services (blockchain, quantum, AI, etc.)" OFF)
 if(ECAT_EXPERIMENTAL_SERVICES)
+    target_include_directories(ecat-studio PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/cloudmanager
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/edgecomputing
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/aiassistant
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/digitaltwinstudio
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/blockchainexplorer
+        ${CMAKE_CURRENT_SOURCE_DIR}/plugins/quantumsecurity
+    )
     target_sources(ecat-studio PRIVATE
         plugins/cloudmanager/CloudManagerPlugin.h plugins/cloudmanager/CloudManagerPlugin.cpp
         plugins/edgecomputing/EdgeComputingPlugin.h plugins/edgecomputing/EdgeComputingPlugin.cpp

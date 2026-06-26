@@ -9,7 +9,9 @@ class ProductBoundaryTest : public QObject {
 private slots:
   void experimentalServicesAreOptInByDefault();
   void experimentalSourcesAreCompileGuarded();
+  void experimentalIncludeDirsAreCompileGuarded();
   void experimentalPluginsAreCompileGuarded();
+  void readmeMarksExperimentalWorkspaces();
 
 private:
   static QString readTextFile(const QString &path);
@@ -80,6 +82,35 @@ void ProductBoundaryTest::experimentalSourcesAreCompileGuarded() {
   }
 }
 
+void ProductBoundaryTest::experimentalIncludeDirsAreCompileGuarded() {
+  const QString cmake = readTextFile(
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/CMakeLists.txt"));
+  const QStringList includeDirs = {
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/cloudmanager"),
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/edgecomputing"),
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/aiassistant"),
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/digitaltwinstudio"),
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/blockchainexplorer"),
+      QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/quantumsecurity"),
+  };
+
+  for (const QString &includeDir : includeDirs) {
+    const qsizetype includeIndex = cmake.indexOf(includeDir);
+    QVERIFY2(includeIndex >= 0,
+             qPrintable(QStringLiteral("Missing include entry for %1")
+                            .arg(includeDir)));
+
+    const qsizetype guardIndex = cmake.lastIndexOf(
+        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), includeIndex);
+    const qsizetype endGuardIndex =
+        cmake.lastIndexOf(QStringLiteral("endif()"), includeIndex);
+    QVERIFY2(guardIndex > endGuardIndex,
+             qPrintable(QStringLiteral("%1 must be inside "
+                                       "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+                            .arg(includeDir)));
+  }
+}
+
 void ProductBoundaryTest::experimentalPluginsAreCompileGuarded() {
   const QString mainWindow = readTextFile(
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"));
@@ -108,6 +139,30 @@ void ProductBoundaryTest::experimentalPluginsAreCompileGuarded() {
              qPrintable(QStringLiteral("%1 registration must be inside "
                                        "ECAT_EXPERIMENTAL_SERVICES guard")
                             .arg(pluginType)));
+  }
+}
+
+void ProductBoundaryTest::readmeMarksExperimentalWorkspaces() {
+  const QString readme = readTextFile(QStringLiteral(SOURCE_ROOT "/README.md"));
+  QVERIFY2(readme.contains(QStringLiteral("Experimental note:")),
+           "README must explicitly state that AI/Blockchain/Quantum/Cloud/"
+           "Edge/Digital Twin surfaces are experimental and opt-in.");
+
+  const QStringList workspaceNames = {
+      QStringLiteral("Digital Twin Studio"),
+      QStringLiteral("Blockchain Explorer"),
+      QStringLiteral("Quantum Security"),
+  };
+
+  for (const QString &workspaceName : workspaceNames) {
+    const QRegularExpression rowPattern(QStringLiteral(
+        R"(^\|\s*%1\b[^\n]*\b(Experimental|实验)\b[^\n]*$)")
+                                            .arg(QRegularExpression::escape(workspaceName)),
+                                        QRegularExpression::MultilineOption);
+    QVERIFY2(rowPattern.match(readme).hasMatch(),
+             qPrintable(QStringLiteral("README workspace row for %1 must be marked "
+                                       "Experimental/实验.")
+                            .arg(workspaceName)));
   }
 }
 
