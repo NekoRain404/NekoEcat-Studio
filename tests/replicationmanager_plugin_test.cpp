@@ -3,7 +3,7 @@
 // Test coverage:
 //   - Plugin identity and metadata
 //   - Widget creation
-//   - Initial state validation
+//   - Empty fail-closed initial state
 //   - Target/status/history/settings table structure
 //   - Add/remove/update operations for targets, status, history, settings
 //   - Status label and report export
@@ -37,10 +37,10 @@ private slots:
   void testInitialState() {
     ReplicationManagerPlugin plugin;
 
-    QCOMPARE(plugin.targetCount(), 3);
-    QCOMPARE(plugin.statusCount(), 3);
-    QCOMPARE(plugin.historyCount(), 3);
-    QCOMPARE(plugin.settingCount(), 4);
+    QCOMPARE(plugin.targetCount(), 0);
+    QCOMPARE(plugin.statusCount(), 0);
+    QCOMPARE(plugin.historyCount(), 0);
+    QCOMPARE(plugin.settingCount(), 0);
   }
 
   // Target table has correct dimensions
@@ -49,7 +49,7 @@ private slots:
 
     QTableWidget *table = plugin.targetTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 6);
   }
 
@@ -59,7 +59,7 @@ private slots:
 
     QTableWidget *table = plugin.statusTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 6);
   }
 
@@ -69,7 +69,7 @@ private slots:
 
     QTableWidget *table = plugin.historyTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 6);
   }
 
@@ -79,7 +79,7 @@ private slots:
 
     QTableWidget *table = plugin.settingsTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 4);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 5);
   }
 
@@ -106,6 +106,13 @@ private slots:
   void testRemoveTarget() {
     ReplicationManagerPlugin plugin;
     QSignalSpy spy(&plugin, &ReplicationManagerPlugin::targetRemoved);
+    ReplicationManagerPlugin::ReplicationTarget t;
+    t.id = "t_remove";
+    t.name = "Remove Target";
+    t.endpoint = "192.168.1.250:5877";
+    t.type = "Full";
+    t.enabled = false;
+    plugin.addTarget(t);
     int initial = plugin.targetCount();
 
     plugin.removeTarget(0);
@@ -120,14 +127,14 @@ private slots:
     ReplicationManagerPlugin::ReplicationStatus s;
     s.targetId = "t1";
     s.targetName = "Updated";
-    s.state = "Complete";
-    s.progress = 100;
+    s.state = "Pending";
+    s.progress = 0;
     s.lastUpdate = QDateTime::currentDateTime();
-    s.message = "Done";
+    s.message = "Waiting for replication backend";
 
     plugin.updateStatus(s);
-    QCOMPARE(plugin.statusCount(), 3);
-    QCOMPARE(plugin.statusTable()->item(0, 2)->text(), QString("Complete"));
+    QCOMPARE(plugin.statusCount(), 1);
+    QCOMPARE(plugin.statusTable()->item(0, 2)->text(), QString("Pending"));
   }
 
   // Add a history entry to the log
@@ -139,9 +146,9 @@ private slots:
     h.timestamp = QDateTime::currentDateTime();
     h.targetId = "t1";
     h.targetName = "Test";
-    h.result = "Success";
-    h.objectsReplicated = 100;
-    h.details = "OK";
+    h.result = "Failed";
+    h.objectsReplicated = 0;
+    h.details = "No backend acknowledgement";
 
     plugin.addHistoryEntry(h);
     QCOMPARE(plugin.historyCount(), initial + 1);
@@ -166,6 +173,13 @@ private slots:
   // Update an existing setting value
   void testUpdateSetting() {
     ReplicationManagerPlugin plugin;
+    ReplicationManagerPlugin::ReplicationSetting s;
+    s.id = "rs1";
+    s.name = "Replication Mode";
+    s.description = "Full or incremental";
+    s.value = "incremental";
+    s.defaultValue = "incremental";
+    plugin.addSetting(s);
 
     plugin.updateSetting(0, "full");
     QCOMPARE(plugin.settingsTable()->item(0, 3)->text(), QString("full"));
@@ -187,6 +201,23 @@ private slots:
     plugin.exportReport(path);
     QVERIFY(QFile::exists(path));
     QFile::remove(path);
+  }
+
+  void testSourceDoesNotMintSyntheticReplicationResults() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/plugins/replicationmanager/ReplicationManagerPlugin.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("\"Backup Server\", \"192.168.1.200:5877\"")),
+             "Replication manager UI must not seed backup targets");
+    QVERIFY2(!source.contains(QStringLiteral("\"Standby Master\", \"192.168.1.201:5877\"")),
+             "Replication manager UI must not seed standby targets");
+    QVERIFY2(!source.contains(QStringLiteral("\"Success\", 256, \"Full replication completed\"")),
+             "Replication manager UI must not seed successful full replication history");
+    QVERIFY2(!source.contains(QStringLiteral("\"Auto Replicate\", \"Auto replicate on config change\", \"true\"")),
+             "Replication manager UI must not seed enabled automation settings");
   }
 };
 

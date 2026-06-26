@@ -14,28 +14,6 @@
 
 ReplicationManagerPlugin::ReplicationManagerPlugin(QObject *parent) {
   if (parent) setParent(parent);
-  auto now = QDateTime::currentDateTime();
-  targets_ = {
-      {"t1", "Backup Server", "192.168.1.200:5877", "Full", true, now},
-      {"t2", "Standby Master", "192.168.1.201:5877", "Incremental", true, now},
-      {"t3", "Archive Store", "192.168.1.202:5877", "Config Only", false, now.addDays(-1)},
-  };
-  statuses_ = {
-      {"t1", "Backup Server", "Replicating", 75, now, "Syncing object dictionary"},
-      {"t2", "Standby Master", "Idle", 100, now, "Up to date"},
-      {"t3", "Archive Store", "Disabled", 0, now, "Replication disabled"},
-  };
-  history_ = {
-      {now, "t1", "Backup Server", "Success", 256, "Full replication completed"},
-      {now.addSecs(-1800), "t2", "Standby Master", "Success", 32, "Incremental sync"},
-      {now.addSecs(-7200), "t1", "Backup Server", "Failed", 0, "Network timeout"},
-  };
-  settings_ = {
-      {"rs1", "Replication Mode", "Full or incremental", "incremental", "incremental"},
-      {"rs2", "Auto Replicate", "Auto replicate on config change", "true", "true"},
-      {"rs3", "Interval", "Replication interval in seconds", "300", "300"},
-      {"rs4", "Compression", "Enable data compression", "true", "true"},
-  };
   buildUi();
 }
 

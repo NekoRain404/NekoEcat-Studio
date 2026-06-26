@@ -5827,6 +5827,9 @@ target_include_directories(replicationmanager_plugin_test PRIVATE
 )
 target_link_libraries(replicationmanager_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 set_target_properties(replicationmanager_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(replicationmanager_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME replicationmanager_plugin_test COMMAND replicationmanager_plugin_test)
 set_tests_properties(replicationmanager_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
