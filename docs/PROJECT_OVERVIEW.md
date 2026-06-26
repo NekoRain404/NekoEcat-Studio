@@ -235,8 +235,8 @@ flowchart TB
 | **数据服务** | 5 | EsiService, ProjectManagerService |
 | **报告服务** | 5 | DiagnosticReportService, ExportService |
 | **操作服务** | 3 | BatchOperationService, AsyncOperationManager |
-| **扩展服务** | 20+ | EtherCATMonitorService, EtherCATAnalyzerService |
-| **工作流服务** | 20+ | WorkflowAutomationService, WorkflowSchedulingService |
+| **扩展服务** | 以当前注册代码为准 | EtherCATMonitorService, EtherCATAnalyzerService |
+| **工作流服务** | 以当前注册代码为准 | WorkflowAutomationService, WorkflowSchedulingService |
 
 ---
 

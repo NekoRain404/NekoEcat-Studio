@@ -900,7 +900,7 @@ Services are created in dependency order during `ServiceContainer` construction:
 4. **Monitoring services**: PerformanceMonitorService, WatchdogService (depend on EventBus + EcatClient)
 5. **Composite services**: DiagnosticReportService, SafetyController (depend on multiple services)
 6. **Data services**: ProjectManagerService, ConfigurationService (mostly standalone)
-7. **Advanced services**: 100+ domain-specific services (depend on EventBus + EcatClient)
+7. **Advanced services**: registered domain-specific services (depend on EventBus + EcatClient)
 
 ### Plugin Registration System
 
