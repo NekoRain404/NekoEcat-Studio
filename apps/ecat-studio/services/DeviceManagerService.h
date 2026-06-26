@@ -2,13 +2,13 @@
 
 // DeviceManagerService — manages EtherCAT device discovery and configuration.
 //
-// Provides device discovery via EcatClient, maintains a local device list
-// as QJsonObject entries, and supports add/remove/info queries.
+// Provides device discovery via EcatClient and maintains a local device list
+// only from bus evidence reported by the daemon.
 //
 // This service provides device management capabilities for the EtherCAT
 // network. It handles:
 //   - Device discovery via bus scanning
-//   - Device list management (add, remove, configure)
+//   - Device list management from discovered slave evidence
 //   - Device information queries
 //   - Device state monitoring
 //   - Device configuration management
@@ -19,6 +19,7 @@
 //   deviceMgr->discoverDevices();
 //   QVector<DeviceInfo> devices = deviceMgr->allDevices();
 //   QJsonObject info = deviceMgr->deviceInfo(0);
+//   // addDevice() returns false until a real add/configure backend exists.
 //   deviceMgr->addDevice(1);
 //   deviceMgr->configureDevice(0);
 //
@@ -60,6 +61,7 @@ public:
   void startScan();
 
   // Add a device to the managed list.
+  // Fails closed until a backend can confirm a real device/configuration.
   // @param position  Device position on the bus
   // @return true if device was added successfully
   bool addDevice(int position);

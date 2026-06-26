@@ -5,7 +5,7 @@
 //   - Invalid/negative device info queries
 //   - Remove invalid device
 //   - Signal validity
-//   - Device discovery and addition
+//   - Device discovery and offline add rejection
 
 #include <QTest>
 #include <QSignalSpy>
@@ -68,11 +68,24 @@ private slots:
   // Verify discoverDevices runs without error
   void testDiscoverDevices() {
     svc_->discoverDevices();
+    QCOMPARE(svc_->deviceCount(), 0);
   }
 
-  // Verify addDevice runs without error
-  void testAddDevice() {
-    svc_->addDevice(0);
+  // Offline addDevice must not synthesize a device without bus evidence.
+  void testAddDeviceFailsClosedWithoutBackendEvidence() {
+    QSignalSpy changedSpy(svc_, &DeviceManagerService::deviceListChanged);
+    QVERIFY(!svc_->addDevice(0));
+    QCOMPARE(svc_->deviceCount(), 0);
+    QVERIFY(svc_->deviceList().isEmpty());
+    QCOMPARE(changedSpy.count(), 0);
+  }
+
+  // Offline scan must not synthesize a list-changed event.
+  void testStartScanDoesNotEmitOfflineListChanged() {
+    QSignalSpy changedSpy(svc_, &DeviceManagerService::deviceListChanged);
+    svc_->startScan();
+    QCOMPARE(changedSpy.count(), 0);
+    QCOMPARE(svc_->deviceCount(), 0);
   }
 };
 

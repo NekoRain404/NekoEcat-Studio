@@ -7,7 +7,8 @@
 // Implementation notes:
 //   - Listens to EcatClient::slavesChanged to auto-populate device list
 //   - Maintains both QJsonObject and DeviceInfo representations of each device
-//   - Supports add, remove, scan, and reset operations with signal notifications
+//   - Supports scan/reset operations with signal notifications
+//   - Does not synthesize devices without slave evidence from the daemon
 
 DeviceManagerService::DeviceManagerService(EcatClient *client,
                                            QObject *parent)
@@ -42,15 +43,8 @@ void DeviceManagerService::discoverDevices() {
 }
 
 bool DeviceManagerService::addDevice(int position) {
-  for (const auto &dev : devices_) {
-    if (dev["position"].toInt() == position) return false;
-  }
-
-  QJsonObject dev;
-  dev["position"] = position;
-  dev["state"] = "INIT";
-  devices_.append(dev);
-  return true;
+  Q_UNUSED(position);
+  return false;
 }
 
 bool DeviceManagerService::removeDevice(int position) {
@@ -78,8 +72,10 @@ QVector<QJsonObject> DeviceManagerService::deviceList() const {
 int DeviceManagerService::deviceCount() const { return devices_.size(); }
 
 void DeviceManagerService::startScan() {
+  const int previousCount = devices_.size();
   discoverDevices();
-  emit deviceListChanged();
+  if (!client_ || !client_->isConnected()) return;
+  if (devices_.size() != previousCount) emit deviceListChanged();
 }
 
 void DeviceManagerService::configureDevice(int position) {
