@@ -2,8 +2,7 @@
 // DcSyncOptimizerPlugin
 //
 // Test coverage:
-//   - Service optimization methods return valid results
-//   - Signal emission on optimization completed
+//   - Offline optimization fails closed without synthetic DC measurements
 //   - Offline apply fails closed without marking results applied
 //   - Plugin identity, ordering, visibility
 //   - Widget creation and tab count
@@ -14,6 +13,7 @@
 #include <QSignalSpy>
 #include <QJsonObject>
 #include <QTabWidget>
+#include <QTcpServer>
 
 #include "plugins/dcsyncoptimizer/DcSyncOptimizerPlugin.h"
 #include "plugins/dcsyncoptimizer/SyncOptimizerWidget.h"
@@ -28,6 +28,14 @@ private:
     EcatClient *client_ = nullptr;
     EventBus *bus_ = nullptr;
     DcSyncOptimizerService *svc_ = nullptr;
+
+    static bool waitForConnected(EcatClient &client) {
+        for (int i = 0; i < 50 && !client.isConnected(); ++i) {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
+            QTest::qWait(10);
+        }
+        return client.isConnected();
+    }
 
 private slots:
     void init() {
@@ -49,38 +57,44 @@ private slots:
         QSignalSpy spy(svc_, &DcSyncOptimizerService::optimizationCompleted);
         auto result = svc_->optimizeSync();
         QCOMPARE(result.category, QString("Sync"));
-        QVERIFY(result.improvement > 0.0);
+        QCOMPARE(result.improvement, 0.0);
         QVERIFY(!result.recommendations.isEmpty());
-        QVERIFY(!result.before.isEmpty());
-        QVERIFY(!result.after.isEmpty());
-        QCOMPARE(spy.count(), 1);
+        QVERIFY(result.before.isEmpty());
+        QVERIFY(result.after.isEmpty());
+        QCOMPARE(spy.count(), 0);
     }
 
     void testOptimizeDrift() {
         QSignalSpy spy(svc_, &DcSyncOptimizerService::optimizationCompleted);
         auto result = svc_->optimizeDrift();
         QCOMPARE(result.category, QString("Drift"));
-        QVERIFY(result.improvement > 0.0);
+        QCOMPARE(result.improvement, 0.0);
         QVERIFY(!result.recommendations.isEmpty());
-        QCOMPARE(spy.count(), 1);
+        QVERIFY(result.before.isEmpty());
+        QVERIFY(result.after.isEmpty());
+        QCOMPARE(spy.count(), 0);
     }
 
     void testOptimizeJitter() {
         QSignalSpy spy(svc_, &DcSyncOptimizerService::optimizationCompleted);
         auto result = svc_->optimizeJitter();
         QCOMPARE(result.category, QString("Jitter"));
-        QVERIFY(result.improvement > 0.0);
+        QCOMPARE(result.improvement, 0.0);
         QVERIFY(!result.recommendations.isEmpty());
-        QCOMPARE(spy.count(), 1);
+        QVERIFY(result.before.isEmpty());
+        QVERIFY(result.after.isEmpty());
+        QCOMPARE(spy.count(), 0);
     }
 
     void testOptimizeConfiguration() {
         QSignalSpy spy(svc_, &DcSyncOptimizerService::optimizationCompleted);
         auto result = svc_->optimizeConfiguration();
         QCOMPARE(result.category, QString("Configuration"));
-        QVERIFY(result.improvement > 0.0);
+        QCOMPARE(result.improvement, 0.0);
         QVERIFY(!result.recommendations.isEmpty());
-        QCOMPARE(spy.count(), 1);
+        QVERIFY(result.before.isEmpty());
+        QVERIFY(result.after.isEmpty());
+        QCOMPARE(spy.count(), 0);
     }
 
     void testApplyOptimizationOfflineFailsClosed() {
@@ -89,14 +103,34 @@ private slots:
         bool ok = svc_->applyOptimization(result);
         QVERIFY(!ok);
         QCOMPARE(spy.count(), 0);
-        QCOMPARE(svc_->pendingResults().size(), 1);
-        QVERIFY(!svc_->pendingResults().first().applied);
+        QVERIFY(svc_->pendingResults().isEmpty());
     }
 
-    void testPendingResults() {
+    void testOfflineOptimizationDoesNotCreatePendingResults() {
         svc_->optimizeSync();
         svc_->optimizeDrift();
-        QCOMPARE(svc_->pendingResults().size(), 2);
+        QVERIFY(svc_->pendingResults().isEmpty());
+    }
+
+    void testConnectedDaemonWithoutTelemetryFailsClosed() {
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+        EcatClient client;
+        client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+        QVERIFY(waitForConnected(client));
+
+        EventBus bus;
+        DcSyncOptimizerService svc(&client, &bus);
+        QSignalSpy spy(&svc, &DcSyncOptimizerService::optimizationCompleted);
+        auto result = svc.optimizeSync();
+
+        QCOMPARE(result.category, QString("Sync"));
+        QCOMPARE(result.improvement, 0.0);
+        QVERIFY(result.before.isEmpty());
+        QVERIFY(result.after.isEmpty());
+        QCOMPARE(spy.count(), 0);
+        QVERIFY(svc.pendingResults().isEmpty());
     }
 
     void testClearResults() {

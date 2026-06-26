@@ -1,41 +1,32 @@
 #include "DcSyncOptimizerService.h"
 #include "infra/EcatClient.h"
 #include "EventBus.h"
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QRandomGenerator>
-#include <QtMath>
 
 DcSyncOptimizerService::DcSyncOptimizerService(EcatClient *client,
                                                EventBus *eventBus,
                                                QObject *parent)
     : QObject(parent), client_(client), eventBus_(eventBus) {}
 
+DcSyncOptimizationResult DcSyncOptimizerService::offlineResult(
+    const QString &category, const QString &description) const {
+    DcSyncOptimizationResult result;
+    result.category = category;
+    result.description = description;
+    result.timestamp = QDateTime::currentDateTime();
+    result.recommendations = {
+        QStringLiteral("Connect to a live EtherCAT daemon with DC telemetry before running DC sync optimization.")
+    };
+    return result;
+}
+
 QJsonObject DcSyncOptimizerService::collectSyncStatus() const {
     QJsonObject status;
     status["connected"] = client_ && client_->isConnected();
-    status["dcEnabled"] = true;
-    status["syncIntervalNs"] = 1000000;
-    status["driftThresholdNs"] = 10000;
-    status["jitterFilterSize"] = 64;
-    status["systemTimeNs"] = QDateTime::currentMSecsSinceEpoch() * 1000000LL;
-
-    QJsonArray slaves;
-    for (int i = 0; i < 4; ++i) {
-        QJsonObject slave;
-        slave["position"] = i;
-        slave["name"] = QString("Slave_%1").arg(i);
-        slave["dcCapable"] = (i > 0);
-        slave["syncing"] = (i > 0);
-        slave["driftNs"] = (i > 0) ? (QRandomGenerator::global()->bounded(200) - 100) * 1.0 : 0.0;
-        slave["jitterMin"] = (i > 0) ? 1.0 + QRandomGenerator::global()->bounded(5) : 0.0;
-        slave["jitterMax"] = (i > 0) ? 10.0 + QRandomGenerator::global()->bounded(20) : 0.0;
-        slave["jitterAvg"] = (i > 0) ? 5.0 + QRandomGenerator::global()->bounded(10) : 0.0;
-        slaves.append(slave);
-    }
-    status["slaves"] = slaves;
-    status["referenceClockPosition"] = 0;
     return status;
+}
+
+bool DcSyncOptimizerService::hasDcTelemetry() const {
+    return false;
 }
 
 QJsonObject DcSyncOptimizerService::analyzeSyncParameters(
@@ -94,6 +85,11 @@ QJsonObject DcSyncOptimizerService::analyzeConfiguration(
 }
 
 DcSyncOptimizationResult DcSyncOptimizerService::optimizeSync() {
+    if (!hasDcTelemetry()) {
+        return offlineResult(QStringLiteral("Sync"),
+                             QStringLiteral("Distributed Clock synchronization optimization"));
+    }
+
     DcSyncOptimizationResult result;
     result.category = "Sync";
     result.description = "Distributed Clock synchronization optimization";
@@ -116,6 +112,11 @@ DcSyncOptimizationResult DcSyncOptimizerService::optimizeSync() {
 }
 
 DcSyncOptimizationResult DcSyncOptimizerService::optimizeDrift() {
+    if (!hasDcTelemetry()) {
+        return offlineResult(QStringLiteral("Drift"),
+                             QStringLiteral("Clock drift compensation optimization"));
+    }
+
     DcSyncOptimizationResult result;
     result.category = "Drift";
     result.description = "Clock drift compensation optimization";
@@ -138,6 +139,11 @@ DcSyncOptimizationResult DcSyncOptimizerService::optimizeDrift() {
 }
 
 DcSyncOptimizationResult DcSyncOptimizerService::optimizeJitter() {
+    if (!hasDcTelemetry()) {
+        return offlineResult(QStringLiteral("Jitter"),
+                             QStringLiteral("Jitter filtering and analysis optimization"));
+    }
+
     DcSyncOptimizationResult result;
     result.category = "Jitter";
     result.description = "Jitter filtering and analysis optimization";
@@ -160,6 +166,11 @@ DcSyncOptimizationResult DcSyncOptimizerService::optimizeJitter() {
 }
 
 DcSyncOptimizationResult DcSyncOptimizerService::optimizeConfiguration() {
+    if (!hasDcTelemetry()) {
+        return offlineResult(QStringLiteral("Configuration"),
+                             QStringLiteral("Overall DC configuration tuning"));
+    }
+
     DcSyncOptimizationResult result;
     result.category = "Configuration";
     result.description = "Overall DC configuration tuning";

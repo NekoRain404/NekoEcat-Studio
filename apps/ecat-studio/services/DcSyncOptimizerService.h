@@ -5,9 +5,8 @@
 // Analyzes and optimizes DC synchronization, drift compensation, jitter
 // reduction, and configuration tuning for EtherCAT networks.
 //
-// Analysis still uses synthetic recommendation data for UI demonstration.
-// Applying an optimization requires a live daemon connection and does not
-// synthesize a successful hardware change while offline.
+// Analysis requires live DC telemetry. Offline requests fail closed instead of
+// generating synthetic drift, jitter, or optimization recommendations.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -55,6 +54,9 @@ signals:
     void error(const QString &message);
 
 private:
+    DcSyncOptimizationResult offlineResult(const QString &category,
+                                           const QString &description) const;
+    bool hasDcTelemetry() const;
     QJsonObject collectSyncStatus() const;
     QJsonObject analyzeSyncParameters(const QJsonObject &status) const;
     QJsonObject analyzeDriftParameters(const QJsonObject &status) const;
