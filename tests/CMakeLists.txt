@@ -7398,10 +7398,13 @@ add_test(NAME workflow_certification_manager_performance_test COMMAND workflow_c
 # ── ESI Browser Plugin Test ──────────────────────────────────────────
 add_executable(esi_browser_plugin_test
     esi_browser_plugin_test.cpp
+    ../apps/ecat-studio/plugins/esi/EsiBrowserPlugin.cpp
+    ../apps/ecat-studio/plugins/esi/EsiBrowserPlugin.h
     ../apps/ecat-studio/plugins/esi/EsiParser.cpp
     ../apps/ecat-studio/plugins/esi/EsiParser.h
     ../apps/ecat-studio/plugins/esi/EsiDeviceMatcher.cpp
     ../apps/ecat-studio/plugins/esi/EsiDeviceMatcher.h
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
     ../apps/ecat-studio/services/EsiService.cpp
     ../apps/ecat-studio/services/EsiService.h
 )

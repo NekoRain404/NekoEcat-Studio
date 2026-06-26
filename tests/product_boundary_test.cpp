@@ -1,5 +1,7 @@
 #include <QFile>
+#include <QDirIterator>
 #include <QRegularExpression>
+#include <QSet>
 #include <QString>
 #include <QTest>
 
@@ -19,6 +21,7 @@ private slots:
   void publicDocsDoNotAdvertiseStaleProjectStats();
   void digitalTwinPluginHasSingleCanonicalPathAndId();
   void managerPluginsHaveSingleCanonicalPathAndId();
+  void pluginIdsAreUniqueAcrossSourceTree();
 
 private:
   static QString readTextFile(const QString &path);
@@ -403,6 +406,32 @@ void ProductBoundaryTest::managerPluginsHaveSingleCanonicalPathAndId() {
     QVERIFY2(!architecture.contains(staleRow),
              qPrintable(QStringLiteral("Docs must not use stale plugin id row: %1")
                             .arg(staleRow)));
+  }
+}
+
+void ProductBoundaryTest::pluginIdsAreUniqueAcrossSourceTree() {
+  QDirIterator it(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins"),
+                  QStringList() << QStringLiteral("*.cpp"),
+                  QDir::Files,
+                  QDirIterator::Subdirectories);
+  const QRegularExpression idPattern(QStringLiteral(
+      "QString\\s+\\w+::id\\s*\\(\\s*\\)\\s+const\\s*\\{\\s*"
+      "return\\s+\"([^\"]+)\";\\s*\\}"));
+
+  QSet<QString> seenIds;
+  while (it.hasNext()) {
+    const QString path = it.next();
+    const QString source = readTextFile(path);
+    const QRegularExpressionMatch match = idPattern.match(source);
+    if (!match.hasMatch()) {
+      continue;
+    }
+
+    const QString id = match.captured(1);
+    QVERIFY2(!seenIds.contains(id),
+             qPrintable(QStringLiteral("Duplicate plugin id '%1' found while scanning %2")
+                            .arg(id, path)));
+    seenIds.insert(id);
   }
 }
 

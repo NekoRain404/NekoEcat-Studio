@@ -132,6 +132,7 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | ExportPlugin | `export` | Data export |
 | NotesPlugin | `notes` | User notes |
 | EsiPlugin | `esi` | ESI XML repository |
+| EsiBrowserPlugin | `esibrowser` | ESI XML browser, parser, and device matcher |
 | BusStatsPlugin | `busstats` | Bus statistics monitoring |
 | DashboardPlugin | `dashboard` | Configurable dashboard with gauges, counters, sparklines |
 | ChartPlugin | `chart` | Data visualization (line, bar, pie, scatter, gauge) |

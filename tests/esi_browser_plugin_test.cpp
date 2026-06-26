@@ -5,6 +5,7 @@
 
 #include "plugins/esi/EsiParser.h"
 #include "plugins/esi/EsiDeviceMatcher.h"
+#include "plugins/esi/EsiBrowserPlugin.h"
 #include "services/EsiService.h"
 
 class EsiBrowserPluginTest : public QObject {
@@ -24,6 +25,7 @@ private slots:
     void serviceImportsAndMatches();
     void parserMatchByVendorProduct();
     void serviceListsDevices();
+    void pluginIdentityIsUnique();
 };
 
 static const char *kTestEsiXml = R"(<?xml version="1.0" encoding="UTF-8"?>
@@ -230,6 +232,14 @@ void EsiBrowserPluginTest::serviceListsDevices() {
     QCOMPARE(devices.size(), 2);
     QVERIFY(!devices[0].deviceId.isEmpty());
     QVERIFY(!devices[1].deviceId.isEmpty());
+}
+
+void EsiBrowserPluginTest::pluginIdentityIsUnique() {
+    EsiService service;
+    EsiBrowserPlugin plugin(&service);
+    QCOMPARE(plugin.id(), QString("esibrowser"));
+    QCOMPARE(plugin.displayName(), QString("ESI Browser"));
+    QCOMPARE(plugin.defaultOrder(), 22);
 }
 
 QTEST_MAIN(EsiBrowserPluginTest)

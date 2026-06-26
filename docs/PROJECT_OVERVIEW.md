@@ -19,7 +19,7 @@ NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代工程工�
 | **工程视角优先** | 按任务组织工作区，而非堆砌原始数据 |
 | **证据驱动** | SDO 写入前汇总多源证据，确保一致性 |
 | **危险边界清晰** | 本地操作不触发总线，在线操作需显式确认 |
-| **插件化架构** | 94 个插件目录，实验插件默认关闭 |
+| **插件化架构** | 90 个插件目录，实验插件默认关闭 |
 | **双后端模式** | 支持原生 IgH API 和 CLI 两种后端 |
 
 ---
@@ -53,7 +53,7 @@ Ethercat/
 │   │   ├── utils/            # 可复用工具（表格、文本、UI）
 │   │   ├── infra/            # TCP 客户端、共享类型、设置、i18n
 │   │   ├── workspaces/       # MainWindow 的 partial 实现（31 个文件）
-│   │   ├── plugins/          # 工作区插件（94 个目录，实验项默认关闭）
+│   │   ├── plugins/          # 工作区插件（90 个目录，实验项默认关闭）
 │   │   ├── services/         # 服务层（130+ 个服务）
 │   │   ├── themes/           # UI 主题（12 个 .qss 文件）
 │   │   └── translations/     # i18n 翻译文件（8 种语言）
@@ -209,7 +209,7 @@ flowchart TB
 | **源文件总数** | 3,389 | git 跟踪的 .cpp + .h 文件 |
 | **应用源文件** | ~1,000 | apps/ 目录下的 .cpp/.h |
 | **测试文件** | 361 | git 跟踪的测试源文件 |
-| **插件目录** | 94 | apps/ecat-studio/plugins/ |
+| **插件目录** | 90 | apps/ecat-studio/plugins/ |
 | **服务文件** | 260 | apps/ecat-studio/services/ |
 | **主题文件** | 12 | .qss 主题样式 |
 

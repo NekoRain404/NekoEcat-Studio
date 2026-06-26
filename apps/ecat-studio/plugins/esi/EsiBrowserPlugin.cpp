@@ -38,7 +38,7 @@ EsiBrowserPlugin::EsiBrowserPlugin(EsiService *esiService, QObject *parent)
             });
 }
 
-QString EsiBrowserPlugin::id() const { return "esi"; }
+QString EsiBrowserPlugin::id() const { return "esibrowser"; }
 QString EsiBrowserPlugin::displayName() const { return "ESI Browser"; }
 QString EsiBrowserPlugin::displayNameZh() const { return QStringLiteral("ESI 浏览器"); }
 QIcon EsiBrowserPlugin::icon() const { return QIcon::fromTheme("document-properties"); }
