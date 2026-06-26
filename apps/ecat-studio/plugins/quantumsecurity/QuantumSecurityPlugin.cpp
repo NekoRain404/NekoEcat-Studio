@@ -10,7 +10,6 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QRandomGenerator>
 
 QuantumSecurityPlugin::QuantumSecurityPlugin(QObject *parent) {
   if (parent) setParent(parent);
@@ -243,63 +242,35 @@ void QuantumSecurityPlugin::buildUi() {
   mainLayout->addWidget(statusLabel_);
 
   connect(addKeyBtn_, &QPushButton::clicked, this, [this]() {
-    QuantumKey k;
-    k.id = "qkey_" + QString::number(keys_.size());
-    k.algorithm = "BB84";
-    k.keySize = 256;
-    k.createdAt = QDateTime::currentDateTime();
-    k.expiresAt = QDateTime::currentDateTime().addDays(30);
-    k.active = true;
-    addKey(k);
+    statusLabel_->setText(tr("Quantum key generation requires a security backend"));
   });
   connect(removeKeyBtn_, &QPushButton::clicked, this, [this]() {
     int row = keyTable_->currentRow();
     if (row >= 0) removeKey(row);
   });
   connect(generateRandomBtn_, &QPushButton::clicked, this, [this]() {
-    QuantumRandom r;
-    r.id = "qrng_" + QString::number(randoms_.size());
-    r.bitLength = 256;
-    r.entropy = "quantum_vacuum_fluctuation";
-    r.generatedAt = QDateTime::currentDateTime();
-    r.source = "QRNG-Device";
-    addRandom(r);
+    statusLabel_->setText(tr("Quantum random generation requires a security backend"));
   });
   connect(removeRandomBtn_, &QPushButton::clicked, this, [this]() {
     int row = randomTable_->currentRow();
     if (row >= 0) removeRandom(row);
   });
   connect(addEncryptionBtn_, &QPushButton::clicked, this, [this]() {
-    QuantumEncryption e;
-    e.id = "qenc_" + QString::number(encryptions_.size());
-    e.algorithm = "AES-256-QKD";
-    e.inputHash = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    e.outputHash = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    e.timestamp = QDateTime::currentDateTime();
-    e.success = true;
-    addEncryption(e);
+    statusLabel_->setText(tr("Quantum encryption requires a security backend"));
   });
   connect(removeEncryptionBtn_, &QPushButton::clicked, this, [this]() {
     int row = encryptionTable_->currentRow();
     if (row >= 0) removeEncryption(row);
   });
   connect(addSignatureBtn_, &QPushButton::clicked, this, [this]() {
-    QuantumSignature s;
-    s.id = "qsig_" + QString::number(signatures_.size());
-    s.signer = "quantum_signer_0";
-    s.messageHash = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    s.signature = "0x" + QString::number(QRandomGenerator::global()->bounded(0xFFFFFF), 16).rightJustified(6, '0');
-    s.timestamp = QDateTime::currentDateTime();
-    s.verified = false;
-    addSignature(s);
+    statusLabel_->setText(tr("Quantum signature creation requires a security backend"));
   });
   connect(removeSignatureBtn_, &QPushButton::clicked, this, [this]() {
     int row = signatureTable_->currentRow();
     if (row >= 0) removeSignature(row);
   });
   connect(verifySignatureBtn_, &QPushButton::clicked, this, [this]() {
-    int row = signatureTable_->currentRow();
-    if (row >= 0) verifySignature(row);
+    statusLabel_->setText(tr("Quantum signature verification requires a security backend"));
   });
   connect(exportBtn_, &QPushButton::clicked, this, [this]() {
     exportReport();

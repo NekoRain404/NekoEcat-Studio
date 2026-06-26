@@ -21,6 +21,8 @@
 //   - Tab, table, and status label widget access
 //   - JSON report export
 //   - Signal emissions for keyGenerated and encryptionCompleted
+#include <QFile>
+#include <QPushButton>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -239,6 +241,42 @@ private slots:
     e.timestamp = QDateTime::currentDateTime(); e.success = true;
     plugin.addEncryption(e);
     QCOMPARE(spy.count(), 1);
+  }
+
+  void testUiButtonsDoNotSynthesizeSecurityMaterials() {
+    QuantumSecurityPlugin plugin;
+    QWidget *widget = plugin.widget();
+    const auto buttons = widget->findChildren<QPushButton *>();
+    for (QPushButton *button : buttons) {
+      if (button->text() == QStringLiteral("Add") ||
+          button->text() == QStringLiteral("Generate") ||
+          button->text() == QStringLiteral("Encrypt") ||
+          button->text() == QStringLiteral("Verify")) {
+        QTest::mouseClick(button, Qt::LeftButton);
+      }
+    }
+
+    QCOMPARE(plugin.keyCount(), 0);
+    QCOMPARE(plugin.randomCount(), 0);
+    QCOMPARE(plugin.encryptionCount(), 0);
+    QCOMPARE(plugin.signatureCount(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticQuantumGenerators() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/quantumsecurity/QuantumSecurityPlugin.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QRandomGenerator")),
+             "Quantum security must not synthesize hashes or signatures");
+    QVERIFY2(!text.contains(QStringLiteral("qkey_")),
+             "Quantum security must not synthesize keys from UI buttons");
+    QVERIFY2(!text.contains(QStringLiteral("qrng_")),
+             "Quantum security must not synthesize random entries from UI buttons");
+    QVERIFY2(!text.contains(QStringLiteral("qenc_")),
+             "Quantum security must not synthesize encryption entries from UI buttons");
+    QVERIFY2(!text.contains(QStringLiteral("qsig_")),
+             "Quantum security must not synthesize signature entries from UI buttons");
   }
 };
 

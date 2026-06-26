@@ -6388,6 +6388,7 @@ add_executable(quantumsecurity_plugin_test
 )
 target_link_libraries(quantumsecurity_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(quantumsecurity_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
+target_compile_definitions(quantumsecurity_plugin_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 set_target_properties(quantumsecurity_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME quantumsecurity_plugin_test COMMAND quantumsecurity_plugin_test)
 set_tests_properties(quantumsecurity_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
