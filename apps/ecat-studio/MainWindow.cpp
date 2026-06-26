@@ -110,12 +110,14 @@
 #include "plugins/visualizationstudio/VisualizationStudioPlugin.h"
 #include "plugins/reportdesigner/ReportDesignerPlugin.h"
 #include "plugins/documentationbrowser/DocumentationBrowserPlugin.h"
+#ifdef ECAT_EXPERIMENTAL_SERVICES
 #include "plugins/cloudmanager/CloudManagerPlugin.h"
 #include "plugins/edgecomputing/EdgeComputingPlugin.h"
 #include "plugins/aiassistant/AIAssistantPlugin.h"
 #include "plugins/digitaltwinstudio/DigitalTwinStudioPlugin.h"
 #include "plugins/blockchainexplorer/BlockchainExplorerPlugin.h"
 #include "plugins/quantumsecurity/QuantumSecurityPlugin.h"
+#endif
 #include "plugins/pdomapping/PdoMappingEditorPlugin.h"
 #include "plugins/pdomappingoptimization/PdoMappingOptimizationPlugin.h"
 #include "plugins/dcsyncprecision/DcSyncPrecisionPlugin.h"
@@ -358,12 +360,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   pluginRegistry_->registerPlugin(new VisualizationStudioPlugin(this));
   pluginRegistry_->registerPlugin(new ReportDesignerPlugin(this));
   pluginRegistry_->registerPlugin(new DocumentationBrowserPlugin(this));
+#ifdef ECAT_EXPERIMENTAL_SERVICES
   pluginRegistry_->registerPlugin(new CloudManagerPlugin(this));
   pluginRegistry_->registerPlugin(new EdgeComputingPlugin(this));
   pluginRegistry_->registerPlugin(new AIAssistantPlugin(this));
   pluginRegistry_->registerPlugin(new DigitalTwinStudioPlugin(this));
   pluginRegistry_->registerPlugin(new BlockchainExplorerPlugin(this));
   pluginRegistry_->registerPlugin(new QuantumSecurityPlugin(this));
+#endif
   pluginRegistry_->registerPlugin(new PdoMappingEditorPlugin(container_->pdoMapping(), this));
 
   pluginRegistry_->registerPlugin(new PdoMappingOptimizationPlugin(this));

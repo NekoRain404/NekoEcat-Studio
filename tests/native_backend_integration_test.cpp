@@ -59,18 +59,30 @@ void NativeBackendIntegrationTest::testSdoUploadPerformance() {
     QElapsedTimer timer;
 
     timer.start();
+    int nativeSuccesses = 0;
     for (int i = 0; i < iterations; ++i) {
         QString err;
-        native.upload("0", 0, "1000", "0", "uint32", &err);
+        const QString value = native.upload("0", 0, "1000", "0", "uint32", &err);
+        if (err.isEmpty() && !value.isEmpty()) {
+            ++nativeSuccesses;
+        }
     }
     qint64 nativeElapsed = timer.elapsed();
 
     timer.start();
+    int cliSuccesses = 0;
     for (int i = 0; i < iterations; ++i) {
         QString err;
-        cli.upload("0", 0, "1000", "0", "uint32", &err);
+        const QString value = cli.upload("0", 0, "1000", "0", "uint32", &err);
+        if (err.isEmpty() && !value.isEmpty()) {
+            ++cliSuccesses;
+        }
     }
     qint64 cliElapsed = timer.elapsed();
+
+    if (nativeSuccesses == 0 || cliSuccesses == 0) {
+        QSKIP("No readable SDO target available for performance comparison");
+    }
 
     qDebug() << "SDO upload performance (" << iterations << " iterations):";
     qDebug() << "  Native:" << nativeElapsed << "ms";

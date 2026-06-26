@@ -76,12 +76,6 @@ add_executable(ecat-studio
     plugins/visualizationstudio/VisualizationStudioPlugin.h plugins/visualizationstudio/VisualizationStudioPlugin.cpp
     plugins/reportdesigner/ReportDesignerPlugin.h plugins/reportdesigner/ReportDesignerPlugin.cpp
     plugins/documentationbrowser/DocumentationBrowserPlugin.h plugins/documentationbrowser/DocumentationBrowserPlugin.cpp
-    plugins/cloudmanager/CloudManagerPlugin.h plugins/cloudmanager/CloudManagerPlugin.cpp
-    plugins/edgecomputing/EdgeComputingPlugin.h plugins/edgecomputing/EdgeComputingPlugin.cpp
-    plugins/aiassistant/AIAssistantPlugin.h plugins/aiassistant/AIAssistantPlugin.cpp
-    plugins/digitaltwinstudio/DigitalTwinStudioPlugin.h plugins/digitaltwinstudio/DigitalTwinStudioPlugin.cpp
-    plugins/blockchainexplorer/BlockchainExplorerPlugin.h plugins/blockchainexplorer/BlockchainExplorerPlugin.cpp
-    plugins/quantumsecurity/QuantumSecurityPlugin.h plugins/quantumsecurity/QuantumSecurityPlugin.cpp
     plugins/pdomapping/PdoMappingEditorPlugin.h plugins/pdomapping/PdoMappingEditorPlugin.cpp
     plugins/pdomapping/PdoMappingCanvas.h plugins/pdomapping/PdoMappingCanvas.cpp
     plugins/pdomapping/PdoMappingValidator.h plugins/pdomapping/PdoMappingValidator.cpp
@@ -221,12 +215,6 @@ add_executable(ecat-studio
     services/EtherCATVisualizationService.h          services/EtherCATVisualizationService.cpp
     services/EtherCATReportingService.h              services/EtherCATReportingService.cpp
     services/EtherCATDocumentationService.h          services/EtherCATDocumentationService.cpp
-    services/EtherCATCloudService.h                services/EtherCATCloudService.cpp
-    services/EtherCATEdgeService.h                 services/EtherCATEdgeService.cpp
-    services/EtherCATAIService.h                   services/EtherCATAIService.cpp
-    services/EtherCATDigitalTwinService.h          services/EtherCATDigitalTwinService.cpp
-    services/EtherCATBlockchainService.h           services/EtherCATBlockchainService.cpp
-    services/EtherCATQuantumService.h              services/EtherCATQuantumService.cpp
     services/WorkflowOptimizationService.h         services/WorkflowOptimizationService.cpp
     services/WorkflowAutomationService.h           services/WorkflowAutomationService.cpp
     services/WorkflowSchedulingService.h           services/WorkflowSchedulingService.cpp
@@ -235,21 +223,11 @@ add_executable(ecat-studio
     services/WorkflowReportingService.h            services/WorkflowReportingService.cpp
     services/WorkflowIntegrationService.h          services/WorkflowIntegrationService.cpp
     services/WorkflowSecurityService.h             services/WorkflowSecurityService.cpp
-    services/WorkflowComplianceService.h           services/WorkflowComplianceService.cpp
-    services/WorkflowCertificationService.h        services/WorkflowCertificationService.cpp
-    services/WorkflowDeploymentService.h           services/WorkflowDeploymentService.cpp
     services/WorkflowUpdateService.h               services/WorkflowUpdateService.cpp
     services/WorkflowMaintenanceService.h          services/WorkflowMaintenanceService.cpp
     services/WorkflowIntegrationHubService.h       services/WorkflowIntegrationHubService.cpp
     services/WorkflowSyncService.h                 services/WorkflowSyncService.cpp
-    services/WorkflowReplicationService.h          services/WorkflowReplicationService.cpp
     services/WorkflowAnalyticsService.h            services/WorkflowAnalyticsService.cpp
-    services/WorkflowCloudService.h                services/WorkflowCloudService.cpp
-    services/WorkflowEdgeService.h                 services/WorkflowEdgeService.cpp
-    services/WorkflowAIService.h                   services/WorkflowAIService.cpp
-    services/WorkflowDigitalTwinService.h          services/WorkflowDigitalTwinService.cpp
-    services/WorkflowBlockchainService.h           services/WorkflowBlockchainService.cpp
-    services/WorkflowQuantumService.h              services/WorkflowQuantumService.cpp
     services/WorkflowVisualizationStudioService.h  services/WorkflowVisualizationStudioService.cpp
     services/WorkflowReportDesignerService.h       services/WorkflowReportDesignerService.cpp
     services/WorkflowDocumentationBrowserService.h services/WorkflowDocumentationBrowserService.cpp
@@ -468,8 +446,32 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/plugins/performancedashboard
 )
 # ── Experimental Services ─────────────────────────────────────────────
-option(ECAT_EXPERIMENTAL_SERVICES "Include experimental/stub services (blockchain, quantum, AI, etc.)" ON)
+option(ECAT_EXPERIMENTAL_SERVICES "Include experimental/stub services (blockchain, quantum, AI, etc.)" OFF)
 if(ECAT_EXPERIMENTAL_SERVICES)
+    target_sources(ecat-studio PRIVATE
+        plugins/cloudmanager/CloudManagerPlugin.h plugins/cloudmanager/CloudManagerPlugin.cpp
+        plugins/edgecomputing/EdgeComputingPlugin.h plugins/edgecomputing/EdgeComputingPlugin.cpp
+        plugins/aiassistant/AIAssistantPlugin.h plugins/aiassistant/AIAssistantPlugin.cpp
+        plugins/digitaltwinstudio/DigitalTwinStudioPlugin.h plugins/digitaltwinstudio/DigitalTwinStudioPlugin.cpp
+        plugins/blockchainexplorer/BlockchainExplorerPlugin.h plugins/blockchainexplorer/BlockchainExplorerPlugin.cpp
+        plugins/quantumsecurity/QuantumSecurityPlugin.h plugins/quantumsecurity/QuantumSecurityPlugin.cpp
+        services/EtherCATCloudService.h services/EtherCATCloudService.cpp
+        services/EtherCATEdgeService.h services/EtherCATEdgeService.cpp
+        services/EtherCATAIService.h services/EtherCATAIService.cpp
+        services/EtherCATDigitalTwinService.h services/EtherCATDigitalTwinService.cpp
+        services/EtherCATBlockchainService.h services/EtherCATBlockchainService.cpp
+        services/EtherCATQuantumService.h services/EtherCATQuantumService.cpp
+        services/WorkflowComplianceService.h services/WorkflowComplianceService.cpp
+        services/WorkflowCertificationService.h services/WorkflowCertificationService.cpp
+        services/WorkflowDeploymentService.h services/WorkflowDeploymentService.cpp
+        services/WorkflowReplicationService.h services/WorkflowReplicationService.cpp
+        services/WorkflowCloudService.h services/WorkflowCloudService.cpp
+        services/WorkflowEdgeService.h services/WorkflowEdgeService.cpp
+        services/WorkflowAIService.h services/WorkflowAIService.cpp
+        services/WorkflowDigitalTwinService.h services/WorkflowDigitalTwinService.cpp
+        services/WorkflowBlockchainService.h services/WorkflowBlockchainService.cpp
+        services/WorkflowQuantumService.h services/WorkflowQuantumService.cpp
+    )
     target_compile_definitions(ecat-studio PRIVATE ECAT_EXPERIMENTAL_SERVICES=1)
     message(STATUS "Experimental services: ENABLED")
 else()

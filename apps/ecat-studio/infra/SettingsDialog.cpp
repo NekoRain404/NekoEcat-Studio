@@ -529,8 +529,11 @@ protected:
             return;
         }
         /* Build the key sequence including held modifiers. */
-        int mods = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier |
-                                      Qt::AltModifier | Qt::Key_Meta);
+        const int mods = e->modifiers().toInt() &
+                         (static_cast<int>(Qt::ControlModifier) |
+                          static_cast<int>(Qt::ShiftModifier) |
+                          static_cast<int>(Qt::AltModifier) |
+                          static_cast<int>(Qt::MetaModifier));
         QKeySequence seq(mods | key);
         setKeySequence(seq);
         emit keySequenceChanged(seq);

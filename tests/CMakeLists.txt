@@ -8,6 +8,16 @@ target_link_libraries(ethercat_types_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(ethercat_types_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_types_test COMMAND ethercat_types_test)
 
+add_executable(product_boundary_test
+    product_boundary_test.cpp
+)
+target_compile_definitions(product_boundary_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
+target_link_libraries(product_boundary_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(product_boundary_test PROPERTIES AUTOMOC ON)
+add_test(NAME product_boundary_test COMMAND product_boundary_test)
+
 add_executable(sdo_evidence_model_test
     sdo_evidence_model_test.cpp
     ../apps/ecat-studio/models/SdoEvidenceModel.cpp
