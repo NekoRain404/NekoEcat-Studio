@@ -13,6 +13,8 @@
 #include <QTableWidget>
 #include <QTextEdit>
 #include <QLabel>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include "plugins/deploymentmanager/DeploymentManagerPlugin.h"
 
 class DeploymentManagerPluginTest : public QObject {
@@ -255,10 +257,16 @@ private slots:
     plugin.deploy(0, 0);
     QCOMPARE(plugin.historyTable()->item(0, 3)->text(), QString("Rejected"));
 
-    QString path = QDir::temp().absoluteFilePath("deploymentmanager_log_test.json");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("deploymentmanager_log_test.json");
     QVERIFY(plugin.exportLog(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportLog(QString()));
+    QVERIFY(!plugin.exportLog(dir.path()));
   }
 
   void testSourceDoesNotMintSyntheticDeploymentSuccess() {
