@@ -1,4 +1,4 @@
-# NekoEcat Studio v3.5.0 User Manual
+# NekoEcat Studio User Manual
 
 ## Overview
 

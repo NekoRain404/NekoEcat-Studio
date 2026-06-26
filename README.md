@@ -565,8 +565,8 @@ Project files are JSON-based `.ecatproj` files. New files use the `NekoEcatStudi
 
 ## 测试 / Testing
 
-测试套件包含 325+ 个注册测试，覆盖单元测试、集成测试、边界测试和性能测试。
-The test suite contains 325+ registered tests covering unit tests, integration tests, boundary tests, and performance tests.
+默认稳定构建当前注册 286 个 CTest；启用实验服务会增加额外测试。测试覆盖单元、集成、边界和性能场景。
+The stable default build currently registers 286 CTest entries; enabling experimental services adds extra tests. Coverage includes unit, integration, boundary, and performance scenarios.
 
 ### 测试分类 / Test Categories
 

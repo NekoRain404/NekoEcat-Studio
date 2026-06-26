@@ -15,6 +15,8 @@ private slots:
   void experimentalPluginsAreCompileGuarded();
   void readmeMarksExperimentalWorkspaces();
   void docsMarkExperimentalSurfaces();
+  void publicDocsDoNotUseStaleReleaseNumbers();
+  void publicDocsDoNotAdvertiseStaleProjectStats();
 
 private:
   static QString readTextFile(const QString &path);
@@ -307,6 +309,52 @@ void ProductBoundaryTest::docsMarkExperimentalSurfaces() {
       QVERIFY2(rowPattern.match(doc).hasMatch(),
                qPrintable(QStringLiteral("%1 must mark %2 as Experimental/opt-in.")
                               .arg(docPath, surfaceName)));
+    }
+  }
+}
+
+void ProductBoundaryTest::publicDocsDoNotUseStaleReleaseNumbers() {
+  const QStringList docPaths = {
+      QStringLiteral(SOURCE_ROOT "/docs/USER_MANUAL.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/INSTALLATION.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/DEVELOPER_GUIDE.md"),
+  };
+
+  for (const QString &docPath : docPaths) {
+    const QString doc = readTextFile(docPath);
+    QVERIFY2(!doc.contains(QStringLiteral("v3.5.0")),
+             qPrintable(QStringLiteral("%1 must not advertise stale v3.5.0 release artifacts.")
+                            .arg(docPath)));
+    QVERIFY2(!doc.contains(QStringLiteral("3.5.0")),
+             qPrintable(QStringLiteral("%1 must not advertise stale 3.5.0 release artifacts.")
+                            .arg(docPath)));
+  }
+}
+
+void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
+  const QStringList docPaths = {
+      QStringLiteral(SOURCE_ROOT "/README.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/PROJECT_OVERVIEW.md"),
+  };
+  const QStringList staleClaims = {
+      QStringLiteral("325+ registered tests"),
+      QStringLiteral("325+ 个注册测试"),
+      QStringLiteral("**Total registered** | **325+**"),
+      QStringLiteral("| **注册测试** | 325+ |"),
+      QStringLiteral("| **源文件总数** | 10,532 |"),
+      QStringLiteral("| **测试文件** | 281 |"),
+      QStringLiteral("测试套件（281 个文件）"),
+      QStringLiteral("97 个独立插件"),
+      QStringLiteral("插件（97 个）"),
+  };
+
+  for (const QString &docPath : docPaths) {
+    const QString doc = readTextFile(docPath);
+    for (const QString &staleClaim : staleClaims) {
+      QVERIFY2(!doc.contains(staleClaim),
+               qPrintable(QStringLiteral("%1 contains stale public project statistic: %2")
+                              .arg(docPath, staleClaim)));
     }
   }
 }

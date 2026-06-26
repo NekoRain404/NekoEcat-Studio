@@ -1,4 +1,4 @@
-# NekoEcat Studio v3.5.0 Developer Guide
+# NekoEcat Studio Developer Guide
 
 ## Architecture Overview
 
@@ -173,12 +173,12 @@ QTEST_MAIN(MyTest)
 
 ```bash
 # Create all packages
-bash scripts/package-linux.sh 3.5.0
-bash scripts/package-deb.sh 3.5.0
-bash scripts/package-source.sh 3.5.0
+bash scripts/package-linux.sh <version>
+bash scripts/package-deb.sh <version>
+bash scripts/package-source.sh <version>
 
 # Create release
-bash scripts/release.sh 3.5.0
+bash scripts/release.sh <version>
 ```
 
 ### Quality Checks

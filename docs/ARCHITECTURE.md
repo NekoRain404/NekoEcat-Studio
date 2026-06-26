@@ -1062,7 +1062,7 @@ tests/
 | Integration tests | ~15 | Plugin lifecycle, service integration, EventBus integration |
 | Performance tests | ~60 | SDO, topology, EventBus, state machine benchmarks |
 | UI tests | ~10 | Widget creation, lifecycle, and rendering |
-| **Total registered** | **325+** | **Registered in CMake; 100% pass rate** |
+| **Stable default registered** | **286** | **Default CMake configuration; experimental opt-in tests are additional** |
 
 ### Mock Strategy
 

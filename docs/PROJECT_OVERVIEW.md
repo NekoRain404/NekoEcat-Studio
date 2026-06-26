@@ -19,7 +19,7 @@ NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代工程工�
 | **工程视角优先** | 按任务组织工作区，而非堆砌原始数据 |
 | **证据驱动** | SDO 写入前汇总多源证据，确保一致性 |
 | **危险边界清晰** | 本地操作不触发总线，在线操作需显式确认 |
-| **插件化架构** | 97 个独立插件，便于扩展和维护 |
+| **插件化架构** | 94 个插件目录，实验插件默认关闭 |
 | **双后端模式** | 支持原生 IgH API 和 CLI 两种后端 |
 
 ---
@@ -53,7 +53,7 @@ Ethercat/
 │   │   ├── utils/            # 可复用工具（表格、文本、UI）
 │   │   ├── infra/            # TCP 客户端、共享类型、设置、i18n
 │   │   ├── workspaces/       # MainWindow 的 partial 实现（31 个文件）
-│   │   ├── plugins/          # 工作区插件（97 个）
+│   │   ├── plugins/          # 工作区插件（94 个目录，实验项默认关闭）
 │   │   ├── services/         # 服务层（130+ 个服务）
 │   │   ├── themes/           # UI 主题（12 个 .qss 文件）
 │   │   └── translations/     # i18n 翻译文件（8 种语言）
@@ -72,7 +72,7 @@ Ethercat/
 │   └── igh/                  # IgH EtherCAT Master 适配器
 │       ├── EthercatCliBackend.h/cpp    # CLI 后端实现
 │       └── EthercatNativeBackend.h/cpp # 原生 API 后端实现
-├── tests/                    # 测试套件（281 个文件）
+├── tests/                    # 测试套件（361 个测试源文件，286 个默认稳定 CTest）
 │   ├── CMakeLists.txt        # 测试构建配置
 │   ├── fixtures/             # 测试夹具
 │   ├── mocks/                # 模拟对象
@@ -206,10 +206,10 @@ flowchart TB
 
 | 类别 | 数量 | 说明 |
 |------|------|------|
-| **源文件总数** | 10,532 | .cpp + .h 文件 |
+| **源文件总数** | 3,389 | git 跟踪的 .cpp + .h 文件 |
 | **应用源文件** | ~1,000 | apps/ 目录下的 .cpp/.h |
-| **测试文件** | 281 | tests/ 目录下的测试 |
-| **插件目录** | 97 | apps/ecat-studio/plugins/ |
+| **测试文件** | 361 | git 跟踪的测试源文件 |
+| **插件目录** | 94 | apps/ecat-studio/plugins/ |
 | **服务文件** | 260 | apps/ecat-studio/services/ |
 | **主题文件** | 12 | .qss 主题样式 |
 
@@ -315,8 +315,8 @@ flowchart TB
 
 | 指标 | 数值 |
 |------|------|
-| **测试文件** | 281 |
-| **注册测试** | 325+ |
+| **测试源文件** | 361 |
+| **默认稳定注册测试** | 286 |
 | **通过率** | 100% |
 | **构建警告** | 0 |
 

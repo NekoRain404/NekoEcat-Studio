@@ -1,4 +1,4 @@
-# NekoEcat Studio v3.5.0 Installation Guide
+# NekoEcat Studio Installation Guide
 
 ## System Requirements
 
@@ -13,8 +13,8 @@
 
 ```bash
 # Download and extract
-tar -xzf NekoEcat-Studio-v3.5.0-linux-x86_64.tar.gz
-cd NekoEcat-Studio-v3.5.0-linux-x86_64
+tar -xzf NekoEcat-Studio-v<version>-linux-x86_64.tar.gz
+cd NekoEcat-Studio-v<version>-linux-x86_64
 
 # Run
 ./NekoEcat-Studio
@@ -24,7 +24,7 @@ cd NekoEcat-Studio-v3.5.0-linux-x86_64
 
 ```bash
 # Install
-sudo dpkg -i nekoecat-studio_3.5.0_amd64.deb
+sudo dpkg -i nekoecat-studio_<version>_amd64.deb
 
 # Fix dependencies if needed
 sudo apt-get install -f
@@ -37,8 +37,8 @@ ecat-studio
 
 ```bash
 # Extract source
-tar -xzf NekoEcat-Studio-3.5.0-src.tar.gz
-cd NekoEcat-Studio-3.5.0-src
+tar -xzf NekoEcat-Studio-<version>-src.tar.gz
+cd NekoEcat-Studio-<version>-src
 
 # Install dependencies (Arch Linux)
 sudo pacman -S qt6-base qt6-tools cmake gcc
