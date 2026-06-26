@@ -1,10 +1,9 @@
 #pragma once
 
-// EtherCATCloudService — cloud connectivity, synchronization, backup,
-// and monitoring for EtherCAT systems.
-//
-// Provides cloud-based management of EtherCAT configurations, telemetry,
-// and diagnostics with configurable endpoints and encryption.
+// EtherCATCloudService -- request facade for cloud connectivity,
+// synchronization, backup, and monitoring for EtherCAT systems. No cloud
+// client/backend is wired yet, so mutating requests fail closed instead of
+// publishing synthetic connected, synced, or backed-up state.
 //
 // Thread safety: main (GUI) thread only.
 

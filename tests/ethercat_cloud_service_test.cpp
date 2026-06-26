@@ -1,10 +1,9 @@
 // EtherCATCloudServiceTest — Tests for EtherCATCloudService
 //
 // Test coverage:
-//   - Cloud connection (valid, invalid config)
-//   - Sync and backup operations (connected + not connected)
-//   - Cloud monitoring and config persistence
-//   - Signal emission for connection, sync, and backup events
+//   - Cloud connection, sync, and backup fail closed without a cloud backend
+//   - Rejected cloud requests do not emit synthetic connection, sync, or backup signals
+//   - Cloud monitoring stays disconnected while config can be retained for later backend use
 
 #include <QTest>
 #include <QSignalSpy>
@@ -27,7 +26,7 @@ private slots:
     QVERIFY(st.error.isEmpty());
   }
 
-  // Connect with valid config and verify signal
+  // Connect with valid config fails closed without backend
   void testConnectToCloud() {
     EtherCATCloudService svc(nullptr);
     CloudConfig cfg;
@@ -36,9 +35,9 @@ private slots:
     cfg.region = QStringLiteral("us-east-1");
     QSignalSpy spy(&svc, &EtherCATCloudService::cloudConnected);
     bool ok = svc.connectToCloud(cfg);
-    QVERIFY(ok);
-    QVERIFY(svc.isConnected());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!ok);
+    QVERIFY(!svc.isConnected());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Connect with invalid config (missing endpoint or key)
@@ -53,7 +52,7 @@ private slots:
     QVERIFY(!svc.connectToCloud(cfg));
   }
 
-  // Sync data to cloud and verify record count
+  // Sync does not synthesize uploaded record counts without backend
   void testSyncToCloud() {
     EtherCATCloudService svc(nullptr);
     CloudConfig cfg;
@@ -62,9 +61,10 @@ private slots:
     svc.connectToCloud(cfg);
     QSignalSpy spy(&svc, &EtherCATCloudService::cloudSynced);
     bool ok = svc.syncToCloud();
-    QVERIFY(ok);
-    QVERIFY(svc.status().recordCount > 0);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!ok);
+    QCOMPARE(svc.status().recordCount, 0);
+    QCOMPARE(svc.status().lastSyncTime, 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Sync fails when not connected
@@ -73,7 +73,7 @@ private slots:
     QVERIFY(!svc.syncToCloud());
   }
 
-  // Backup to cloud and verify signal
+  // Backup does not synthesize success without backend
   void testBackupToCloud() {
     EtherCATCloudService svc(nullptr);
     CloudConfig cfg;
@@ -82,8 +82,9 @@ private slots:
     svc.connectToCloud(cfg);
     QSignalSpy spy(&svc, &EtherCATCloudService::cloudBackupCompleted);
     bool ok = svc.backupToCloud();
-    QVERIFY(ok);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!ok);
+    QCOMPARE(svc.status().lastBackupTime, 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Backup fails when not connected
@@ -92,7 +93,7 @@ private slots:
     QVERIFY(!svc.backupToCloud());
   }
 
-  // Monitor cloud reflects connection state
+  // Monitor cloud remains disconnected without backend
   void testMonitorCloud() {
     EtherCATCloudService svc(nullptr);
     CloudStatus st = svc.monitorCloud();
@@ -102,7 +103,7 @@ private slots:
     cfg.apiKey = QStringLiteral("key123");
     svc.connectToCloud(cfg);
     CloudStatus st2 = svc.monitorCloud();
-    QVERIFY(st2.connected);
+    QVERIFY(!st2.connected);
   }
 
   // Config persists after connection
@@ -113,7 +114,7 @@ private slots:
     cfg.apiKey = QStringLiteral("key123");
     cfg.region = QStringLiteral("eu-west-1");
     cfg.bucket = QStringLiteral("ethercat-data");
-    svc.connectToCloud(cfg);
+    QVERIFY(!svc.connectToCloud(cfg));
     CloudConfig stored = svc.config();
     QCOMPARE(stored.endpoint, cfg.endpoint);
     QCOMPARE(stored.apiKey, cfg.apiKey);
@@ -130,10 +131,10 @@ private slots:
     cfg.endpoint = QStringLiteral("https://cloud.example.com");
     cfg.apiKey = QStringLiteral("key123");
     svc.connectToCloud(cfg);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // cloudSynced signal carries record count
+  // cloudSynced signal is not emitted without backend
   void testCloudSyncedSignal() {
     EtherCATCloudService svc(nullptr);
     QSignalSpy spy(&svc, &EtherCATCloudService::cloudSynced);
@@ -143,12 +144,10 @@ private slots:
     cfg.apiKey = QStringLiteral("key123");
     svc.connectToCloud(cfg);
     svc.syncToCloud();
-    QCOMPARE(spy.count(), 1);
-    QList<QVariant> args = spy.takeFirst();
-    QVERIFY(args.at(0).toInt() > 0);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // cloudBackupCompleted signal carries success flag
+  // cloudBackupCompleted signal is not emitted without backend
   void testCloudBackupCompletedSignal() {
     EtherCATCloudService svc(nullptr);
     QSignalSpy spy(&svc, &EtherCATCloudService::cloudBackupCompleted);
@@ -158,9 +157,7 @@ private slots:
     cfg.apiKey = QStringLiteral("key123");
     svc.connectToCloud(cfg);
     svc.backupToCloud();
-    QCOMPARE(spy.count(), 1);
-    QList<QVariant> args = spy.takeFirst();
-    QVERIFY(args.at(0).toBool());
+    QCOMPARE(spy.count(), 0);
   }
 };
 
