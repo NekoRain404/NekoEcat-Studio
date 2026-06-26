@@ -2,11 +2,11 @@
 //
 // Test coverage:
 //   - Initial monitoring state
-//   - Start/stop monitoring
-//   - Idempotent start
+//   - Offline start does not synthesize an active monitoring session
+//   - Idempotent offline start
 //   - Topology change updates slave list
 //   - Status JSON contains slave information
-//   - Status changed signal fires during monitoring
+//   - Offline monitoring does not emit runtime status changes
 #include <QTest>
 #include <QSignalSpy>
 #include <QJsonObject>
@@ -33,28 +33,28 @@ private slots:
     QCOMPARE(status["monitoring"].toBool(), false);
   }
 
-  // Start and stop monitoring toggles state
-  void testStartStopMonitoring() {
+  // Offline start requests must not synthesize an active monitoring session.
+  void testStartMonitoringOfflineDoesNotActivate() {
     EventBus bus;
     EcatClient client;
     WatchdogService svc(&bus, &client);
 
     svc.startMonitoring(100);
-    QCOMPARE(svc.isMonitoring(), true);
+    QCOMPARE(svc.isMonitoring(), false);
 
     svc.stopMonitoring();
     QCOMPARE(svc.isMonitoring(), false);
   }
 
-  // Starting twice does not crash or duplicate
-  void testIdempotentStart() {
+  // Starting twice while offline remains inactive and idempotent.
+  void testIdempotentStartWhileOffline() {
     EventBus bus;
     EcatClient client;
     WatchdogService svc(&bus, &client);
 
     svc.startMonitoring(100);
     svc.startMonitoring(200);
-    QCOMPARE(svc.isMonitoring(), true);
+    QCOMPARE(svc.isMonitoring(), false);
     svc.stopMonitoring();
   }
 
@@ -106,8 +106,8 @@ private slots:
     QCOMPARE(arr[0].toObject()["watchdogOk"].toBool(), true);
   }
 
-  // Status changed signal fires during monitoring
-  void testStatusChangedSignal() {
+  // Offline monitoring does not emit synthetic runtime status changes.
+  void testOfflineStartDoesNotEmitStatusChangedSignal() {
     EventBus bus;
     EcatClient client;
     WatchdogService svc(&bus, &client);
@@ -119,7 +119,7 @@ private slots:
     QTest::qWait(120);
     svc.stopMonitoring();
 
-    QVERIFY(spy.count() >= 1);
+    QCOMPARE(spy.count(), 0);
   }
 };
 

@@ -2,8 +2,8 @@
 
 // WatchdogService — monitors EtherCAT watchdog status including timeout
 // counters, trigger counts, per-slave watchdog state, and last trigger
-// timestamps.  Connects to EventBus for topology changes and polls the
-// daemon for watchdog status.
+// timestamps. Connects to EventBus for topology changes and polls the
+// daemon for watchdog status only while a live daemon connection exists.
 //
 // This service provides comprehensive watchdog monitoring for the EtherCAT
 // network. It handles:
@@ -13,6 +13,7 @@
 //   - Last trigger timestamp recording
 //   - Topology change integration
 //   - Periodic status polling from daemon
+//   - Offline start requests remain inactive instead of synthesizing status
 //
 // Usage:
 //   ServiceContainer *container = ...;
@@ -55,7 +56,8 @@ public:
   explicit WatchdogService(EventBus *bus, EcatClient *client,
                            QObject *parent = nullptr);
 
-  // Start periodic watchdog monitoring.
+  // Start periodic watchdog monitoring when the daemon connection is live.
+  // Offline calls are ignored and leave the service inactive.
   // @param intervalMs  Polling interval in milliseconds (default: 1000ms)
   void startMonitoring(int intervalMs = 1000);
 
