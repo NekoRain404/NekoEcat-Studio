@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QSignalSpy>
 #include <QTabWidget>
+#include <QTcpServer>
 #include "plugins/freerunoptimization/FreeRunOptimizationPlugin.h"
 #include "plugins/freerunoptimization/CycleTimeOptimizerWidget.h"
 #include "plugins/freerunoptimization/DataMappingOptimizerWidget.h"
@@ -23,6 +24,15 @@
 
 class FreeRunOptimizationPluginTest : public QObject {
   Q_OBJECT
+private:
+  static bool waitForConnected(EcatClient &client) {
+    for (int i = 0; i < 50 && !client.isConnected(); ++i) {
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
+      QTest::qWait(10);
+    }
+    return client.isConnected();
+  }
+
 private slots:
   void testIdentity() {
     EcatClient client;
@@ -62,6 +72,29 @@ private slots:
     QVERIFY(spy.isValid());
 
     const FreeRunOptimizationResult result = svc.optimizeCycleTime();
+    QVERIFY(!svc.applyOptimization(result));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(svc.optimizationHistory().isEmpty());
+  }
+
+  void testServiceApplyOptimizationConnectedWithoutBackendAckFailsClosed() {
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(waitForConnected(client));
+
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &FreeRunOptimizationService::optimizationApplied);
+    QVERIFY(spy.isValid());
+
+    FreeRunOptimizationResult result;
+    result.category = QStringLiteral("Cycle Time");
+    result.description = QStringLiteral("Free Run cycle-time optimization");
+    result.after.insert(QStringLiteral("cycleTimeUs"), 500);
+
     QVERIFY(!svc.applyOptimization(result));
     QCOMPARE(spy.count(), 0);
     QVERIFY(svc.optimizationHistory().isEmpty());
@@ -145,6 +178,10 @@ private slots:
              "Free Run optimization must not retain synthetic PDO mapping baselines");
     QVERIFY2(!text.contains(QStringLiteral("before[\"errorRecoveryTimeMs\"] = 500")),
              "Free Run optimization must not retain synthetic error-handling baselines");
+    QVERIFY2(!text.contains(QStringLiteral("applied.applied = true")),
+             "Free Run optimization must not mark applied without backend acknowledgement");
+    QVERIFY2(!text.contains(QStringLiteral("emit optimizationApplied(applied)")),
+             "Free Run optimization must not emit applied success without backend acknowledgement");
   }
 
   void testCycleTimeOptimizerNotNull() {

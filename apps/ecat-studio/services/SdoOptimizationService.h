@@ -45,7 +45,7 @@ public:
   SdoOptimizationResult optimizeErrorHandling();
 
   // Apply an optimization to live SDO communication settings.
-  // Returns false while offline instead of recording a synthetic applied item.
+  // Returns false until a backend can confirm the change.
   bool applyOptimization(const SdoOptimizationResult &result);
 
   QVector<SdoOptimizationResult> optimizationHistory() const { return history_; }

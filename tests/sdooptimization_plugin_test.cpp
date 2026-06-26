@@ -14,6 +14,7 @@
 #include <QSignalSpy>
 #include <QTabWidget>
 #include <QFile>
+#include <QTcpServer>
 #include "plugins/sdooptimization/SdoOptimizationPlugin.h"
 #include "plugins/sdooptimization/CacheOptimizerWidget.h"
 #include "plugins/sdooptimization/BatchOptimizerWidget.h"
@@ -23,6 +24,15 @@
 
 class SdoOptimizationPluginTest : public QObject {
   Q_OBJECT
+private:
+  static bool waitForConnected(EcatClient &client) {
+    for (int i = 0; i < 50 && !client.isConnected(); ++i) {
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
+      QTest::qWait(10);
+    }
+    return client.isConnected();
+  }
+
 private slots:
   void testIdentity() {
     EcatClient client;
@@ -62,6 +72,29 @@ private slots:
     QVERIFY(spy.isValid());
 
     const SdoOptimizationResult result = svc.optimizeCache();
+    QVERIFY(!svc.applyOptimization(result));
+    QCOMPARE(spy.count(), 0);
+    QVERIFY(svc.optimizationHistory().isEmpty());
+  }
+
+  void testServiceApplyOptimizationConnectedWithoutBackendAckFailsClosed() {
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(waitForConnected(client));
+
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &SdoOptimizationService::optimizationApplied);
+    QVERIFY(spy.isValid());
+
+    SdoOptimizationResult result;
+    result.category = QStringLiteral("Cache");
+    result.description = QStringLiteral("SDO cache optimization");
+    result.after.insert(QStringLiteral("cacheSize"), 512);
+
     QVERIFY(!svc.applyOptimization(result));
     QCOMPARE(spy.count(), 0);
     QVERIFY(svc.optimizationHistory().isEmpty());
@@ -134,6 +167,10 @@ private slots:
              "SDO batch optimization must not synthesize improvement values.");
     QVERIFY2(!source.contains(QStringLiteral("300.0")),
              "SDO performance optimization must not synthesize improvement values.");
+    QVERIFY2(!source.contains(QStringLiteral("applied.applied = true")),
+             "SDO optimization must not mark applied without backend acknowledgement.");
+    QVERIFY2(!source.contains(QStringLiteral("emit optimizationApplied(applied)")),
+             "SDO optimization must not emit applied success without backend acknowledgement.");
   }
 
   void testCacheOptimizerNotNull() {

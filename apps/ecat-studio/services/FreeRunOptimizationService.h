@@ -45,7 +45,7 @@ public:
   FreeRunOptimizationResult optimizeErrorHandling();
 
   // Apply an optimization to live Free Run settings.
-  // Returns false while offline instead of recording a synthetic applied item.
+  // Returns false until a backend can confirm the change.
   bool applyOptimization(const FreeRunOptimizationResult &result);
 
   QVector<FreeRunOptimizationResult> optimizationHistory() const { return history_; }

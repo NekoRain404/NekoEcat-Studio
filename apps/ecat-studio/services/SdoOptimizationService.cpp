@@ -63,15 +63,8 @@ SdoOptimizationResult SdoOptimizationService::optimizeErrorHandling() {
 }
 
 bool SdoOptimizationService::applyOptimization(const SdoOptimizationResult &result) {
-  if (!client_ || !client_->isConnected())
-    return false;
-
-  SdoOptimizationResult applied = result;
-  applied.applied = true;
-  applied.timestamp = QDateTime::currentDateTime();
-  history_.append(applied);
-  emit optimizationApplied(applied);
-  return true;
+  Q_UNUSED(result);
+  return false;
 }
 
 void SdoOptimizationService::clearHistory() {
