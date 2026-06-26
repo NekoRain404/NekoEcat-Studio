@@ -16,6 +16,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QTreeWidget>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/visualizationstudio/VisualizationStudioPlugin.h"
@@ -157,8 +159,16 @@ void TestVisualizationStudioPlugin::exportImport() {
   plugin_->addDataSource("TestSource");
   plugin_->setPreviewText("test preview");
 
-  QString tmpPath = QDir::tempPath() + "/viz_studio_test_export.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("viz_studio_test_export.json");
   QVERIFY(plugin_->exportVisualization(tmpPath, "PNG"));
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportVisualization(QString(), "PNG"));
+  QVERIFY(!plugin_->importConfig(QString()));
+  QVERIFY(!plugin_->exportVisualization(dir.path(), "PNG"));
 
   plugin_->clearDataSources();
   plugin_->setPreviewText("");
@@ -167,7 +177,6 @@ void TestVisualizationStudioPlugin::exportImport() {
   QCOMPARE(plugin_->dataSourceCount(), 1);
   QCOMPARE(plugin_->previewText(), QString("test preview"));
 
-  QFile::remove(tmpPath);
   plugin_->clearDataSources();
 }
 
