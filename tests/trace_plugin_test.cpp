@@ -9,7 +9,10 @@
 
 #include <QTest>
 #include <QApplication>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include "services/TraceService.h"
 #include "plugins/trace/TracePlugin.h"
 
@@ -85,6 +88,25 @@ private slots:
     QVERIFY(service->getTraceData(id).isEmpty());
     service->stopTrace();
     QVERIFY(!service->isTracing());
+  }
+
+  void testExportTraceDataReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString path = dir.filePath("trace.csv");
+    QVERIFY(plugin->exportTraceDataToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Channel,Timestamp,Value,Quality\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin->exportTraceDataToFile(QString()));
+    QVERIFY(!plugin->exportTraceDataToFile(dir.path()));
   }
 
 private:

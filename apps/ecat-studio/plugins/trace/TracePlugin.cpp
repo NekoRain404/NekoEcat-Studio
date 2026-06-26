@@ -219,11 +219,20 @@ void TracePlugin::exportTraceData() {
       container_, tr("Export Trace Data"), QString(), tr("CSV Files (*.csv)"));
   if (fileName.isEmpty()) return;
 
-  QFile file(fileName);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+  if (!exportTraceDataToFile(fileName)) {
     QMessageBox::warning(container_, tr("Export Error"), tr("Cannot open file for writing."));
     return;
   }
+
+  QMessageBox::information(container_, tr("Export Complete"),
+                           tr("Trace data exported to %1").arg(fileName));
+}
+
+bool TracePlugin::exportTraceDataToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Channel,Timestamp,Value,Quality\n";
@@ -233,9 +242,7 @@ void TracePlugin::exportTraceData() {
       out << ch.name << "," << pt.timestamp << "," << pt.value << "," << pt.quality << "\n";
     }
   }
-  file.close();
-  QMessageBox::information(container_, tr("Export Complete"),
-                           tr("Trace data exported to %1").arg(fileName));
+  return out.status() == QTextStream::Ok && file.flush();
 }
 
 void TracePlugin::refreshDisplay() {

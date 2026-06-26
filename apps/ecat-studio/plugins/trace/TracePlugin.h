@@ -25,6 +25,8 @@ public:
   int defaultOrder() const override;
   bool visible() const override;
 
+  bool exportTraceDataToFile(const QString &path);
+
 private slots:
   void showAddChannelDialog();
   void removeSelectedChannel();
