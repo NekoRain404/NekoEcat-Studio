@@ -203,7 +203,7 @@ private slots:
     QVERIFY(!st.lastSync.isValid());
   }
 
-  // Replicate configuration to multiple targets
+  // Replicate configuration fails closed without a live backend.
   void testReplicateConfiguration() {
     EcatClient client;
     EventBus bus;
@@ -212,13 +212,13 @@ private slots:
     QSignalSpy startSpy(&svc, &EtherCATReplicationService::replicationStarted);
     QSignalSpy doneSpy(&svc, &EtherCATReplicationService::replicationCompleted);
     QStringList targets = {QStringLiteral("node1"), QStringLiteral("node2")};
-    QVERIFY(svc.replicateConfiguration(targets));
-    QCOMPARE(startSpy.count(), 2);
-    QCOMPARE(doneSpy.count(), 2);
-    QCOMPARE(svc.replicationHistory().size(), 2);
+    QVERIFY(!svc.replicateConfiguration(targets));
+    QCOMPARE(startSpy.count(), 0);
+    QCOMPARE(doneSpy.count(), 0);
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // Replicate data to a target
+  // Replicate data fails closed without a live backend.
   void testReplicateData() {
     EcatClient client;
     EventBus bus;
@@ -226,31 +226,30 @@ private slots:
 
     QSignalSpy doneSpy(&svc, &EtherCATReplicationService::replicationCompleted);
     QStringList targets = {QStringLiteral("node1")};
-    QVERIFY(svc.replicateData(targets));
-    QCOMPARE(doneSpy.count(), 1);
+    QVERIFY(!svc.replicateData(targets));
+    QCOMPARE(doneSpy.count(), 0);
   }
 
-  // Replicate state to a target
+  // Replicate state fails closed without a live backend.
   void testReplicateState() {
     EcatClient client;
     EventBus bus;
     EtherCATReplicationService svc(&bus, &client);
 
     QStringList targets = {QStringLiteral("node1")};
-    QVERIFY(svc.replicateState(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateState(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // Replicate backup to a target
+  // Replicate backup fails closed without a live backend.
   void testReplicateBackup() {
     EcatClient client;
     EventBus bus;
     EtherCATReplicationService svc(&bus, &client);
 
     QStringList targets = {QStringLiteral("backup1")};
-    QVERIFY(svc.replicateBackup(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
-    QCOMPARE(svc.replicationHistory().at(0).status, QStringLiteral("Success"));
+    QVERIFY(!svc.replicateBackup(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
   // Empty target list produces no replications

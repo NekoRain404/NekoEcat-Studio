@@ -8,7 +8,7 @@
 class EtherCATReplicationPerformanceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testConfigReplicationThroughput() {
+  void testConfigReplicationOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATReplicationService svc(&bus, &client);
@@ -23,15 +23,15 @@ private slots:
 
     const int count = 100;
     for (int i = 0; i < count; i++) {
-      svc.replicateConfiguration(targets);
+      QVERIFY(!svc.replicateConfiguration(targets));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "Config replication throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
+    qDebug() << "Config replication offline rejection throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
   }
 
-  void testDataReplicationThroughput() {
+  void testDataReplicationOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATReplicationService svc(&bus, &client);
@@ -46,15 +46,15 @@ private slots:
 
     const int count = 100;
     for (int i = 0; i < count; i++) {
-      svc.replicateData(targets);
+      QVERIFY(!svc.replicateData(targets));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "Data replication throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
+    qDebug() << "Data replication offline rejection throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
   }
 
-  void testStateReplicationThroughput() {
+  void testStateReplicationOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATReplicationService svc(&bus, &client);
@@ -69,15 +69,15 @@ private slots:
 
     const int count = 100;
     for (int i = 0; i < count; i++) {
-      svc.replicateState(targets);
+      QVERIFY(!svc.replicateState(targets));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "State replication throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
+    qDebug() << "State replication offline rejection throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
   }
 
-  void testBackupReplicationThroughput() {
+  void testBackupReplicationOfflineRejectionThroughput() {
     EventBus bus;
     EcatClient client;
     EtherCATReplicationService svc(&bus, &client);
@@ -92,12 +92,12 @@ private slots:
 
     const int count = 100;
     for (int i = 0; i < count; i++) {
-      svc.replicateBackup(targets);
+      QVERIFY(!svc.replicateBackup(targets));
     }
 
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 2000);
-    qDebug() << "Backup replication throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
+    qDebug() << "Backup replication offline rejection throughput:" << count << "runs with 10 targets in" << elapsed << "ms";
   }
 
   void testHistoryQueryPerformance() {

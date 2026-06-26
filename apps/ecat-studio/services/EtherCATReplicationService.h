@@ -1,7 +1,9 @@
 #pragma once
 
-// EtherCATReplicationService — manages replication of configuration,
-// data, state, and backups across EtherCAT network targets.
+// EtherCATReplicationService — replication request facade.
+//
+// Configuration, data, state, and backup replication fail closed until a live
+// replication backend is wired.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -43,4 +45,6 @@ private:
   EventBus *bus_;
   EcatClient *client_;
   QVector<ReplicationStatus> history_;
+
+  bool backendReady() const;
 };

@@ -1,11 +1,11 @@
 #include "EtherCATReplicationService.h"
 
-// EtherCATReplicationService.cpp — Configuration, data, and state replication to targets
+// EtherCATReplicationService.cpp — Configuration, data, and state replication facade
 //
 // Implementation notes:
 //   - Uses EventBus and EcatClient for replication orchestration
-//   - Iterates target list and emits replicationStarted/replicationCompleted per target
-//   - Maintains replication history with timestamps
+//   - Future backend success paths emit replicationStarted/replicationCompleted per target
+//   - Rejects offline replication attempts instead of synthesizing success history
 
 EtherCATReplicationService::EtherCATReplicationService(EventBus *bus,
                                                         EcatClient *client,
@@ -16,6 +16,11 @@ EtherCATReplicationService::EtherCATReplicationService(EventBus *bus,
 
 bool EtherCATReplicationService::replicateConfiguration(const QStringList &targets)
 {
+    if (targets.isEmpty())
+        return true;
+    if (!backendReady())
+        return false;
+
     for (const auto &target : targets) {
         emit replicationStarted(target);
         ReplicationStatus s;
@@ -31,6 +36,11 @@ bool EtherCATReplicationService::replicateConfiguration(const QStringList &targe
 
 bool EtherCATReplicationService::replicateData(const QStringList &targets)
 {
+    if (targets.isEmpty())
+        return true;
+    if (!backendReady())
+        return false;
+
     for (const auto &target : targets) {
         emit replicationStarted(target);
         ReplicationStatus s;
@@ -46,6 +56,11 @@ bool EtherCATReplicationService::replicateData(const QStringList &targets)
 
 bool EtherCATReplicationService::replicateState(const QStringList &targets)
 {
+    if (targets.isEmpty())
+        return true;
+    if (!backendReady())
+        return false;
+
     for (const auto &target : targets) {
         emit replicationStarted(target);
         ReplicationStatus s;
@@ -61,6 +76,11 @@ bool EtherCATReplicationService::replicateState(const QStringList &targets)
 
 bool EtherCATReplicationService::replicateBackup(const QStringList &targets)
 {
+    if (targets.isEmpty())
+        return true;
+    if (!backendReady())
+        return false;
+
     for (const auto &target : targets) {
         emit replicationStarted(target);
         ReplicationStatus s;
@@ -77,4 +97,10 @@ bool EtherCATReplicationService::replicateBackup(const QStringList &targets)
 QVector<ReplicationStatus> EtherCATReplicationService::replicationHistory() const
 {
     return history_;
+}
+
+bool EtherCATReplicationService::backendReady() const
+{
+    // No real replication backend is wired yet; keep success paths unreachable.
+    return false;
 }

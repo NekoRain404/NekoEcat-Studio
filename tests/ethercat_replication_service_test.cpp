@@ -1,10 +1,10 @@
 // EtherCATReplicationServiceTest — Tests for EtherCATReplicationService
 //
 // Test coverage:
-//   - Configuration, data, state, and backup replication
-//   - Replication history tracking
+//   - Configuration, data, state, and backup replication fail closed offline
+//   - Replication history is not synthesized without a live backend
 //   - Empty target list handling
-//   - Signal emission for replication start and completion
+//   - Success signals are not synthesized offline
 
 #include <QTest>
 #include <QSignalSpy>
@@ -13,50 +13,45 @@
 class EtherCATReplicationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Replicate configuration to multiple targets
-  // Replicate configuration to multiple targets
-  void testReplicateConfiguration() {
+  // Replicate configuration fails closed without a live backend.
+  void testReplicateConfigurationFailsClosedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QStringList targets = {QStringLiteral("node-01"), QStringLiteral("node-02")};
-    QVERIFY(svc.replicateConfiguration(targets));
-    QCOMPARE(svc.replicationHistory().size(), 2);
+    QVERIFY(!svc.replicateConfiguration(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // Replicate data to target nodes
-  // Replicate data to a single target
-  void testReplicateData() {
+  // Replicate data fails closed without a live backend.
+  void testReplicateDataFailsClosedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateData(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateData(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // Replicate state to target nodes
-  // Replicate state to a single target
-  void testReplicateState() {
+  // Replicate state fails closed without a live backend.
+  void testReplicateStateFailsClosedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateState(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateState(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // Replicate backup to target nodes
-  // Replicate backup to a single target
-  void testReplicateBackup() {
+  // Replicate backup fails closed without a live backend.
+  void testReplicateBackupFailsClosedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QStringList targets = {QStringLiteral("node-01")};
-    QVERIFY(svc.replicateBackup(targets));
-    QCOMPARE(svc.replicationHistory().size(), 1);
+    QVERIFY(!svc.replicateBackup(targets));
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // History accumulates across multiple replications
-  // Replication history accumulates across operations
-  void testReplicationHistoryCount() {
+  // Offline replication attempts do not synthesize history.
+  void testReplicationHistoryDoesNotAccumulateOfflineAttempts() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QStringList targets = {QStringLiteral("node-01"), QStringLiteral("node-02")};
     svc.replicateConfiguration(targets);
     svc.replicateData({QStringLiteral("node-03")});
-    QCOMPARE(svc.replicationHistory().size(), 3);
+    QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
   // Empty target list produces no history
@@ -67,22 +62,20 @@ private slots:
     QCOMPARE(svc.replicationHistory().size(), 0);
   }
 
-  // replicationStarted signal fires on start
-  // Verify replicationStarted signal emission
-  void testReplicationStartedSignal() {
+  // replicationStarted is not emitted for offline failure.
+  void testReplicationStartedSignalNotEmittedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATReplicationService::replicationStarted);
     svc.replicateConfiguration({QStringLiteral("node-01")});
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // replicationCompleted signal fires on completion
-  // Verify replicationCompleted signal emission
-  void testReplicationCompletedSignal() {
+  // replicationCompleted is not emitted for offline failure.
+  void testReplicationCompletedSignalNotEmittedWithoutBackend() {
     EtherCATReplicationService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATReplicationService::replicationCompleted);
     svc.replicateConfiguration({QStringLiteral("node-01")});
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 };
 
