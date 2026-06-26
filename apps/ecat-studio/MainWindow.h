@@ -95,7 +95,7 @@ struct WorkspaceTabBadgeTexts;
 ///   MainWindow owns:
 ///     - EcatClient (TCP link to ecatd daemon on 127.0.0.1:5877)
 ///     - Core services (EventBus and ServiceContainer-owned runtime services)
-///     - PluginRegistry holding all workspace plugins (50+ plugins)
+///     - PluginRegistry holding workspace plugins
 ///     - All UI widgets, workspace navigation state, and cached data
 ///
 /// Partial implementation files:

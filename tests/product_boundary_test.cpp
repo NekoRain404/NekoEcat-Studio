@@ -362,6 +362,8 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **默认稳定注册测试** | 286 |"),
       QStringLiteral("97 个独立插件"),
       QStringLiteral("插件（97 个）"),
+      QStringLiteral("50+ plugins"),
+      QStringLiteral("50+ workspace plugins"),
       QStringLiteral("322+ 测试"),
       QStringLiteral("106K+ 行代码"),
       QStringLiteral("| **总代码行数** | 106K+ |"),

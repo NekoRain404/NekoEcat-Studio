@@ -242,7 +242,7 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 /// 2. Create EventBus and ServiceContainer for shared runtime services
 /// 3. Build the main UI layout (tabs, toolbars, panels, metric cards)
 /// 4. Apply settings and custom keyboard shortcuts
-/// 5. Create PluginRegistry and register all 50+ workspace plugins:
+/// 5. Create PluginRegistry and register workspace plugins:
 ///    - Core plugins: ESI, BusStats, Oscilloscope, Protocol, Project, Alarm, Chart, Dashboard
 ///    - Automation: Scripting (if ECAT_SCRIPTING_ENABLED), Batch operations
 ///    - Network: NetworkDiagnostics, MasterManager, DC Sync, SDO Cache
@@ -252,7 +252,7 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 ///    - Reporting: Report, Dashboard Designer, Alarm Manager, Data Logger
 ///    - DevOps: Workflow Designer, Test Suite, Deployment, Config Editor
 ///    - Enterprise: Security, Compliance, Certification, Optimization, Monitoring, Analytics
-///    - Advanced: Cloud Manager, Edge Computing, AI Assistant, Digital Twin, Blockchain, Quantum
+///    - Experimental opt-in: Cloud Manager, Edge Computing, AI Assistant, Digital Twin, Blockchain, Quantum
 /// 6. Wire all signal/slot connections between UI widgets, client, and timers
 /// 7. Restore window geometry and state from QSettings
 /// 8. Start the embedded ecatd daemon process
