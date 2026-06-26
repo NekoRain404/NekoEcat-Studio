@@ -616,9 +616,9 @@ See the testing section in [`PLUGIN_GUIDE.md`](docs/PLUGIN_GUIDE.md) for details
 
 ## 当前状态 / Status
 
-NekoEcat Studio 当前定位为活跃开发中的工程工具，适合开发、实验室验证和主机 EtherCAT 环境已配置好的受控调试流程。它已经具备工程站雏形：不是玩具 UI，不是命令行皮肤，而是向真正现场软件演进的 EtherCAT 工程平台。
+NekoEcat Studio 当前定位为活跃开发中的工程工具，适合开发、实验室验证和主机 EtherCAT 环境已配置好的受控调试流程。它已经具备工程站雏形：不是玩具 UI，也不是单纯命令行皮肤；面向现场使用前，仍需要结合目标硬件、权限、实时内核和运行流程做发布前验证。
 
-NekoEcat Studio is an active engineering tool suitable for development, lab validation, and controlled commissioning workflows where the host EtherCAT environment is already configured. It is already shaped as a real workstation: not a toy UI, not a command-line skin, but an EtherCAT engineering platform moving toward practical field use.
+NekoEcat Studio is an active engineering tool suitable for development, lab validation, and controlled commissioning workflows where the host EtherCAT environment is already configured. It already has the shape of an engineering workstation, but field use still requires release-time validation against the target hardware, permissions, realtime kernel, and operating workflow.
 
 ## 许可证 / License
 
