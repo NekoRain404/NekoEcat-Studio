@@ -9,6 +9,7 @@
 //   - Export button
 
 #include <QTest>
+#include <QFile>
 #include <QLabel>
 #include <QPushButton>
 #include <QSignalSpy>
@@ -64,6 +65,86 @@ private slots:
     QVERIFY(!svc.applyOptimization(result));
     QCOMPARE(spy.count(), 0);
     QVERIFY(svc.optimizationHistory().isEmpty());
+  }
+
+  void testServiceOptimizeCycleTimeDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+
+    const FreeRunOptimizationResult result = svc.optimizeCycleTime();
+
+    QCOMPARE(result.category, QString("Cycle Time"));
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+    QVERIFY(!result.applied);
+  }
+
+  void testServiceOptimizeDataMappingDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+
+    const FreeRunOptimizationResult result = svc.optimizeDataMapping();
+
+    QCOMPARE(result.category, QString("Data Mapping"));
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+    QVERIFY(!result.applied);
+  }
+
+  void testServiceOptimizePerformanceDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+
+    const FreeRunOptimizationResult result = svc.optimizePerformance();
+
+    QCOMPARE(result.category, QString("Performance"));
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+    QVERIFY(!result.applied);
+  }
+
+  void testServiceDoesNotEmitCompletedWithoutBackend() {
+    EcatClient client;
+    EventBus bus;
+    FreeRunOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &FreeRunOptimizationService::optimizationCompleted);
+    QVERIFY(spy.isValid());
+
+    svc.optimizeCycleTime();
+    svc.optimizeDataMapping();
+    svc.optimizePerformance();
+    svc.optimizeErrorHandling();
+
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticOptimizationData() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/FreeRunOptimizationService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("emit optimizationCompleted(result)")),
+             "Free Run optimization must not report completion without backend evidence");
+    QVERIFY2(!text.contains(QStringLiteral("before[\"cycleTimeUs\"] = 1000")),
+             "Free Run optimization must not retain synthetic cycle-time baselines");
+    QVERIFY2(!text.contains(QStringLiteral("after[\"cycleTimeUs\"] = 500")),
+             "Free Run optimization must not retain synthetic cycle-time targets");
+    QVERIFY2(!text.contains(QStringLiteral("before[\"totalPdoBytes\"] = 256")),
+             "Free Run optimization must not retain synthetic PDO mapping baselines");
+    QVERIFY2(!text.contains(QStringLiteral("before[\"errorRecoveryTimeMs\"] = 500")),
+             "Free Run optimization must not retain synthetic error-handling baselines");
   }
 
   void testCycleTimeOptimizerNotNull() {

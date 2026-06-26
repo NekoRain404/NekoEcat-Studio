@@ -2,9 +2,9 @@
 
 // FreeRunOptimizationService — Free Run optimization for process data exchange.
 //
-// Provides cycle time optimization, data mapping optimization, performance
-// optimization, and error handling recommendations for EtherCAT Free Run mode.
-// Applying a recommendation requires a live daemon connection.
+// Provides Free Run optimization request surfaces. Until a real optimization
+// backend is wired, requests return backend-required recommendations instead of
+// synthetic measurements or success signals.
 //
 // Usage:
 //   FreeRunOptimizationService *svc = new FreeRunOptimizationService(client, bus, this);
@@ -56,12 +56,8 @@ signals:
   void optimizationApplied(const FreeRunOptimizationResult &result);
 
 private:
-  FreeRunOptimizationResult createResult(const QString &category,
-                                         const QString &description,
-                                         const QJsonObject &before,
-                                         const QJsonObject &after,
-                                         double improvement,
-                                         const QStringList &recommendations);
+  FreeRunOptimizationResult createRejectedResult(const QString &category,
+                                                 const QStringList &recommendations);
 
   EcatClient *client_;
   EventBus *bus_;

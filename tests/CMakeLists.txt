@@ -7528,6 +7528,10 @@ target_include_directories(freerunoptimization_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/src/core
 )
 
+target_compile_definitions(freerunoptimization_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
+
 target_link_libraries(freerunoptimization_plugin_test PRIVATE
     Qt6::Core
     Qt6::Network
