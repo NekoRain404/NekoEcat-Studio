@@ -11,6 +11,7 @@ private slots:
   void experimentalSourcesAreCompileGuarded();
   void experimentalIncludeDirsAreCompileGuarded();
   void experimentalTestsAreOptInByDefault();
+  void experimentalTestSourcesAreCompileGuarded();
   void experimentalPluginsAreCompileGuarded();
   void readmeMarksExperimentalWorkspaces();
 
@@ -134,6 +135,11 @@ void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
       QStringLiteral("digitaltwinstudio_plugin_test"),
       QStringLiteral("blockchainexplorer_plugin_test"),
       QStringLiteral("quantumsecurity_plugin_test"),
+      QStringLiteral("workflow_compliance_service_test"),
+      QStringLiteral("workflow_certification_service_test"),
+      QStringLiteral("workflow_deployment_service_test"),
+      QStringLiteral("workflow_deployment_performance_test"),
+      QStringLiteral("workflow_replication_service_test"),
       QStringLiteral("workflow_cloud_service_test"),
       QStringLiteral("workflow_edge_service_test"),
       QStringLiteral("workflow_ai_service_test"),
@@ -159,6 +165,55 @@ void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
              qPrintable(QStringLiteral("%1 must be inside "
                                        "ECAT_EXPERIMENTAL_SERVICES CMake guard")
                             .arg(testTarget)));
+  }
+}
+
+void ProductBoundaryTest::experimentalTestSourcesAreCompileGuarded() {
+  const QString cmake = readTextFile(
+      QStringLiteral(SOURCE_ROOT "/tests/CMakeLists.txt"));
+  const QStringList sourcePaths = {
+      QStringLiteral("../apps/ecat-studio/plugins/cloudmanager/CloudManagerPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/plugins/edgecomputing/EdgeComputingPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/plugins/aiassistant/AIAssistantPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/plugins/digitaltwinstudio/DigitalTwinStudioPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/plugins/blockchainexplorer/BlockchainExplorerPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/plugins/quantumsecurity/QuantumSecurityPlugin.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATCloudService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATEdgeService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATAIService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATBlockchainService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/EtherCATQuantumService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowComplianceService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowCertificationService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowDeploymentService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowReplicationService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowCloudService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowEdgeService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowAIService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowBlockchainService.cpp"),
+      QStringLiteral("../apps/ecat-studio/services/WorkflowQuantumService.cpp"),
+  };
+
+  for (const QString &sourcePath : sourcePaths) {
+    qsizetype sourceIndex = cmake.indexOf(sourcePath);
+    QVERIFY2(sourceIndex >= 0,
+             qPrintable(QStringLiteral("Missing test source entry for %1")
+                            .arg(sourcePath)));
+
+    while (sourceIndex >= 0) {
+      const qsizetype guardIndex = cmake.lastIndexOf(
+          QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), sourceIndex);
+      const qsizetype endGuardIndex =
+          cmake.lastIndexOf(QStringLiteral("endif()"), sourceIndex);
+      QVERIFY2(guardIndex > endGuardIndex,
+               qPrintable(QStringLiteral("%1 test source must be inside "
+                                         "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+                              .arg(sourcePath)));
+
+      sourceIndex = cmake.indexOf(sourcePath, sourceIndex + sourcePath.size());
+    }
   }
 }
 

@@ -1698,12 +1698,6 @@ add_executable(plugin_integration_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -1712,25 +1706,6 @@ add_executable(plugin_integration_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -1743,7 +1718,6 @@ add_executable(plugin_integration_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/services/EventBus.cpp
     ../apps/ecat-studio/services/EventBus.h
     ../apps/ecat-studio/services/SdoService.cpp
@@ -1888,18 +1862,6 @@ add_executable(plugin_integration_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/services/ProjectManagementService.cpp
     ../apps/ecat-studio/services/ProjectManagementService.h
     ../apps/ecat-studio/services/TaskManagementService.cpp
@@ -2105,18 +2067,6 @@ add_executable(service_integration_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/services/ProjectManagementService.cpp
     ../apps/ecat-studio/services/ProjectManagementService.h
     ../apps/ecat-studio/services/TaskManagementService.cpp
@@ -2143,12 +2093,6 @@ add_executable(service_integration_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -2157,25 +2101,6 @@ add_executable(service_integration_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -2188,7 +2113,6 @@ add_executable(service_integration_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -2490,18 +2414,6 @@ add_executable(ui_creation_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/services/ProjectManagementService.cpp
     ../apps/ecat-studio/services/ProjectManagementService.h
     ../apps/ecat-studio/services/TaskManagementService.cpp
@@ -2528,12 +2440,6 @@ add_executable(ui_creation_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -2542,25 +2448,6 @@ add_executable(ui_creation_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -2573,7 +2460,6 @@ add_executable(ui_creation_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -3148,12 +3034,6 @@ add_executable(plugin_lifecycle_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -3162,25 +3042,6 @@ add_executable(plugin_lifecycle_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -3193,7 +3054,6 @@ add_executable(plugin_lifecycle_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/services/EventBus.cpp
     ../apps/ecat-studio/services/EventBus.h
     ../apps/ecat-studio/services/SdoService.cpp
@@ -3340,18 +3200,6 @@ add_executable(plugin_lifecycle_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -3791,12 +3639,6 @@ add_executable(plugin_fixture_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -3805,25 +3647,6 @@ add_executable(plugin_fixture_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -3836,7 +3659,6 @@ add_executable(plugin_fixture_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/services/EventBus.cpp
     ../apps/ecat-studio/services/EventBus.h
     ../apps/ecat-studio/services/SdoService.cpp
@@ -3981,18 +3803,6 @@ add_executable(plugin_fixture_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -4071,12 +3881,6 @@ add_executable(service_fixture_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -4085,25 +3889,6 @@ add_executable(service_fixture_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -4116,7 +3901,6 @@ add_executable(service_fixture_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/services/EventBus.cpp
     ../apps/ecat-studio/services/EventBus.h
     ../apps/ecat-studio/services/SdoService.cpp
@@ -4261,18 +4045,6 @@ add_executable(service_fixture_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -4597,12 +4369,6 @@ add_executable(startup_optimizer_test
     ../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../apps/ecat-studio/services/WorkflowComplianceService.cpp
-    ../apps/ecat-studio/services/WorkflowComplianceService.h
-    ../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../apps/ecat-studio/services/WorkflowCertificationService.h
-    ../apps/ecat-studio/services/WorkflowDeploymentService.cpp
-    ../apps/ecat-studio/services/WorkflowDeploymentService.h
     ../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../apps/ecat-studio/services/WorkflowUpdateService.h
     ../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
@@ -4611,25 +4377,6 @@ add_executable(startup_optimizer_test
     ../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../apps/ecat-studio/services/WorkflowSyncService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.cpp
-    ../apps/ecat-studio/services/WorkflowDigitalTwinService.h
-    ../apps/ecat-studio/services/WorkflowBlockchainService.cpp
-    ../apps/ecat-studio/services/WorkflowBlockchainService.h
-    ../apps/ecat-studio/services/WorkflowQuantumService.cpp
-    ../apps/ecat-studio/services/WorkflowQuantumService.h
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -4642,7 +4389,6 @@ add_executable(startup_optimizer_test
     ../apps/ecat-studio/services/WorkflowComplianceManagerService.h
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.cpp
     ../apps/ecat-studio/services/WorkflowCertificationManagerService.h
-    ../apps/ecat-studio/services/WorkflowReplicationService.h
     ../apps/ecat-studio/services/EventBus.cpp
     ../apps/ecat-studio/services/EventBus.h
     ../apps/ecat-studio/services/SdoService.cpp
@@ -4787,18 +4533,6 @@ add_executable(startup_optimizer_test
     ../apps/ecat-studio/services/EtherCATReportingService.h
     ../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../apps/ecat-studio/services/EtherCATCloudService.cpp
-    ../apps/ecat-studio/services/EtherCATCloudService.h
-    ../apps/ecat-studio/services/EtherCATEdgeService.cpp
-    ../apps/ecat-studio/services/EtherCATEdgeService.h
-    ../apps/ecat-studio/services/EtherCATAIService.cpp
-    ../apps/ecat-studio/services/EtherCATAIService.h
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.cpp
-    ../apps/ecat-studio/services/EtherCATDigitalTwinService.h
-    ../apps/ecat-studio/services/EtherCATBlockchainService.cpp
-    ../apps/ecat-studio/services/EtherCATBlockchainService.h
-    ../apps/ecat-studio/services/EtherCATQuantumService.cpp
-    ../apps/ecat-studio/services/EtherCATQuantumService.h
     ../apps/ecat-studio/infra/EcatClient.cpp
     ../apps/ecat-studio/infra/EcatClient.h
 )
@@ -7112,6 +6846,8 @@ set_tests_properties(workflow_security_service_test PROPERTIES
     LABELS "unit;security"
 )
 
+# ── Experimental Workflow Enterprise/Cloud/AI/Digital-Twin Tests ───────
+if(ECAT_EXPERIMENTAL_SERVICES)
 # ── WorkflowComplianceService ──────────────────────────────────────────
 add_executable(workflow_compliance_service_test
     workflow_compliance_service_test.cpp
@@ -7351,18 +7087,6 @@ add_test(NAME workflow_sync_service_test COMMAND workflow_sync_service_test)
 add_executable(workflow_replication_service_test
     workflow_replication_service_test.cpp
     ../apps/ecat-studio/services/WorkflowReplicationService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
-    ../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../apps/ecat-studio/services/WorkflowCloudService.h
-    ../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../apps/ecat-studio/services/WorkflowEdgeService.h
-    ../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../apps/ecat-studio/services/WorkflowAIService.h
     ../apps/ecat-studio/services/WorkflowReplicationService.h
 )
 target_include_directories(workflow_replication_service_test PRIVATE
@@ -7373,8 +7097,6 @@ target_link_libraries(workflow_replication_service_test PRIVATE Qt6::Core Qt6::T
 set_target_properties(workflow_replication_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME workflow_replication_service_test COMMAND workflow_replication_service_test)
 
-# ── Experimental Workflow Cloud/AI/Digital-Twin Tests ───────────────
-if(ECAT_EXPERIMENTAL_SERVICES)
 # ── WorkflowCloudService Test ─────────────────────────────────
 add_executable(workflow_cloud_service_test
     workflow_cloud_service_test.cpp
