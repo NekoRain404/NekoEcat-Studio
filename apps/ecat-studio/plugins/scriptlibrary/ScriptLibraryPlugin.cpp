@@ -244,16 +244,20 @@ QString ScriptLibraryPlugin::documentation() const {
 }
 
 bool ScriptLibraryPlugin::exportScript(const QString &filePath, const QString &name) {
+  if (filePath.isEmpty()) return false;
+
   auto *scriptItem = findScriptItem(name);
   if (!scriptItem) return false;
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
-  file.write(scriptItem->data(0, Qt::UserRole).toString().toUtf8());
-  return true;
+  const QByteArray bytes = scriptItem->data(0, Qt::UserRole).toString().toUtf8();
+  return file.write(bytes) == bytes.size() && file.flush();
 }
 
 bool ScriptLibraryPlugin::importScript(const QString &filePath) {
+  if (filePath.isEmpty()) return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
   QString content = QString::fromUtf8(file.readAll());

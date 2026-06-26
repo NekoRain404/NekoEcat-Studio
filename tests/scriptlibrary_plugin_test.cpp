@@ -16,6 +16,7 @@
 #include <QFile>
 #include <QTextEdit>
 #include <QTreeWidget>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/scriptlibrary/ScriptLibraryPlugin.h"
@@ -181,6 +182,11 @@ void TestScriptLibraryPlugin::exportNamedScript() {
   QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
   QCOMPARE(QString::fromUtf8(file.readAll()), QString("print('selected')"));
 
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportScript(QString(), "ExportMe"));
+  QVERIFY(!plugin_->importScript(QString()));
+  QVERIFY(!plugin_->exportScript(dir.path(), "ExportMe"));
   QVERIFY(!plugin_->exportScript(dir.filePath("missing.py"), "MissingScript"));
 }
 
