@@ -69,8 +69,8 @@ public slots:
   void collectSample();
   void analyzeResults();
   void resetWizard();
-  void exportCalibrationData(const QString &path);
-  void exportHistory(const QString &path);
+  bool exportCalibrationData(const QString &path);
+  bool exportHistory(const QString &path);
 
 private:
   void buildUi();

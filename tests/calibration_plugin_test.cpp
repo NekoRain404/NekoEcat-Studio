@@ -10,11 +10,13 @@
 //   - Sample collection fails closed without backend evidence
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QTest>
 #include <QSignalSpy>
 #include <QStackedWidget>
 #include <QTableWidget>
 #include <QTextEdit>
+#include <QTemporaryDir>
 #include "plugins/calibration/CalibrationPlugin.h"
 
 class CalibrationPluginTest : public QObject {
@@ -223,6 +225,41 @@ private slots:
     plugin.nextStep();
     plugin.nextStep();
     QCOMPARE(stepSpy.count(), 2);
+  }
+
+  void testExportsReportPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    CalibrationPlugin plugin;
+    plugin.addHistoryEntry("Test", CalibrationPlugin::CalibrationType::Full,
+                           0.0, 1.0, 0.0);
+
+    const QString dataPath = dir.filePath("calibration_data.csv");
+    QVERIFY(plugin.exportCalibrationData(dataPath));
+    QVERIFY(QFile::exists(dataPath));
+
+    QFile dataFile(dataPath);
+    QVERIFY(dataFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString dataCsv = QString::fromUtf8(dataFile.readAll());
+    QVERIFY(dataCsv.startsWith(QStringLiteral("Sample,Raw Value,Reference Value,Error (%)\n")));
+
+    const QString historyPath = dir.filePath("calibration_history.csv");
+    QVERIFY(plugin.exportHistory(historyPath));
+    QVERIFY(QFile::exists(historyPath));
+
+    QFile historyFile(historyPath);
+    QVERIFY(historyFile.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString historyCsv = QString::fromUtf8(historyFile.readAll());
+    QVERIFY(historyCsv.startsWith(QStringLiteral("Time,Device,Type,Offset,Gain,Linearity (%)\n")));
+    QVERIFY(historyCsv.contains(QStringLiteral("Test")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportCalibrationData(QString()));
+    QVERIFY(!plugin.exportCalibrationData(dir.path()));
+    QVERIFY(!plugin.exportHistory(QString()));
+    QVERIFY(!plugin.exportHistory(dir.path()));
   }
 };
 

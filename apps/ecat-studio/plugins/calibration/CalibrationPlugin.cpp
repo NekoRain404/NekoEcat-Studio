@@ -387,9 +387,10 @@ void CalibrationPlugin::updateButtons() {
   resetBtn_->setVisible(s >= static_cast<int>(WizardStep::Results));
 }
 
-void CalibrationPlugin::exportCalibrationData(const QString &path) {
+bool CalibrationPlugin::exportCalibrationData(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
   QTextStream out(&file);
   out << "Sample,Raw Value,Reference Value,Error (%)\n";
   for (int r = 0; r < dataTable_->rowCount(); ++r) {
@@ -400,11 +401,13 @@ void CalibrationPlugin::exportCalibrationData(const QString &path) {
     }
     out << cols.join(",") << "\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }
 
-void CalibrationPlugin::exportHistory(const QString &path) {
+bool CalibrationPlugin::exportHistory(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
   QTextStream out(&file);
   out << "Time,Device,Type,Offset,Gain,Linearity (%)\n";
   for (int r = 0; r < historyTable_->rowCount(); ++r) {
@@ -415,4 +418,5 @@ void CalibrationPlugin::exportHistory(const QString &path) {
     }
     out << cols.join(",") << "\n";
   }
+  return out.status() == QTextStream::Ok && file.flush();
 }
