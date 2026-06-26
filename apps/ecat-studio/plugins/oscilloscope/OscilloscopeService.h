@@ -2,10 +2,8 @@
 
 // OscilloscopeService — acquisition backend for the Oscilloscope plugin.
 // Manages up to 8 channels, each bound to a slave SDO entry.
-// Emits waveformUpdated() on each acquisition tick.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+// Until a real acquisition backend is wired, startAcquisition() only tracks
+// acquisition state and does not synthesize waveform samples.
 
 #include <QObject>
 #include <QVector>
@@ -53,14 +51,10 @@ signals:
   void channelRemoved(int channelId);
 
 private:
-  void tick();
-
   QVector<OscChannelConfig> channels_;
-  QTimer *timer_ = nullptr;
   int nextId_ = 1;
   int timebaseMs_ = 100;
   OscTriggerMode triggerMode_ = OscTriggerMode::Auto;
   double triggerLevel_ = 0.0;
   bool acquiring_ = false;
-  int tickCount_ = 0;
 };

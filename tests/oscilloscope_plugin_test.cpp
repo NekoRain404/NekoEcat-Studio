@@ -6,10 +6,13 @@
 //   - Channel add/remove with max limit
 //   - Timebase and trigger mode configuration
 //   - Start/stop acquisition
+//   - Acquisition fails closed without synthetic samples
 //   - Widget creation and color constants
 
 #include <QTest>
 #include <QApplication>
+#include <QFile>
+#include <QSignalSpy>
 #include "plugins/oscilloscope/OscilloscopePlugin.h"
 #include "plugins/oscilloscope/OscilloscopeService.h"
 #include "plugins/oscilloscope/OscilloscopeWidget.h"
@@ -119,6 +122,36 @@ private slots:
     QVERIFY(svc.isAcquiring());
     svc.stopAcquisition();
     QVERIFY(!svc.isAcquiring());
+  }
+
+  // Acquisition state may run, but no waveform samples are synthesized without a backend
+  void testServiceAcquisitionDoesNotSynthesizeSamples() {
+    OscilloscopeService svc;
+    const int id = svc.addChannel(0, "0x6000", "0");
+    QVERIFY(id > 0);
+    QSignalSpy waveSpy(&svc, &OscilloscopeService::waveformUpdated);
+    QVERIFY(waveSpy.isValid());
+
+    svc.startAcquisition();
+    QTest::qWait(150);
+    svc.stopAcquisition();
+
+    QCOMPARE(waveSpy.count(), 0);
+    QCOMPARE(svc.channels().size(), 1);
+    QVERIFY(svc.channels().first().data.isEmpty());
+  }
+
+  void testSourceDoesNotContainSyntheticWaveformGenerator() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/oscilloscope/OscilloscopeService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("qSin")),
+             "Oscilloscope service must not synthesize sine waveforms");
+    QVERIFY2(!text.contains(QStringLiteral("QRandomGenerator")),
+             "Oscilloscope service must not synthesize noisy samples");
+    QVERIFY2(!text.contains(QStringLiteral("tick()")),
+             "Oscilloscope service must not keep a synthetic acquisition tick");
   }
 
   // Widget has minimum width requirement
