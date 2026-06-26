@@ -52,8 +52,8 @@ public:
   int searchResultCount() const;
 
   void importTemplate(const QString &path);
-  void exportTemplate(const QString &path);
-  void exportAllTemplates(const QString &path);
+  bool exportTemplate(const QString &path);
+  bool exportAllTemplates(const QString &path);
 
   QTableWidget *templateTable() const;
   QTableWidget *searchResultsTable() const;

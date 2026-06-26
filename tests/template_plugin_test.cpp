@@ -12,6 +12,9 @@
 //   - Preview refresh from editor content
 //   - Status label with search results
 //   - Export single and all templates
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -194,22 +197,50 @@ private slots:
   // Test exporting a single template to file
   void testExportTemplate() {
     TemplatePlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString unselectedPath = dir.filePath("template_unselected.txt");
+    QVERIFY(!plugin.exportTemplate(unselectedPath));
+    QVERIFY(!QFile::exists(unselectedPath));
 
     plugin.selectTemplate(0);
-    QString path = QDir::temp().absoluteFilePath("template_export_test.txt");
-    plugin.exportTemplate(path);
+    const QString path = dir.filePath("template_export_test.txt");
+    QVERIFY(plugin.exportTemplate(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("master")));
+    QVERIFY(text.contains(QStringLiteral("ecat0")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportTemplate(QString()));
+    QVERIFY(!plugin.exportTemplate(dir.path()));
   }
 
   // Test exporting all templates to file
   void testExportAllTemplates() {
     TemplatePlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("template_export_all_test.txt");
-    plugin.exportAllTemplates(path);
+    const QString path = dir.filePath("template_export_all_test.txt");
+    QVERIFY(plugin.exportAllTemplates(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("--- Default Network [Network] ---\n")));
+    QVERIFY(text.contains(QStringLiteral("--- Servo Drive [Drive] ---\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportAllTemplates(QString()));
+    QVERIFY(!plugin.exportAllTemplates(dir.path()));
   }
 };
 

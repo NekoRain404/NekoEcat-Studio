@@ -110,24 +110,28 @@ void TemplatePlugin::importTemplate(const QString &path) {
   }
 }
 
-void TemplatePlugin::exportTemplate(const QString &path) {
-  if (selectedIndex_ < 0 || selectedIndex_ >= templates_.size()) return;
+bool TemplatePlugin::exportTemplate(const QString &path) {
+  if (selectedIndex_ < 0 || selectedIndex_ >= templates_.size()) return false;
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << templates_[selectedIndex_].content;
-  }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << templates_[selectedIndex_].content;
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
-void TemplatePlugin::exportAllTemplates(const QString &path) {
+bool TemplatePlugin::exportAllTemplates(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &t : templates_) {
-      out << "--- " << t.name << " [" << t.category << "] ---\n";
-      out << t.content << "\n\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &t : templates_) {
+    out << "--- " << t.name << " [" << t.category << "] ---\n";
+    out << t.content << "\n\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *TemplatePlugin::templateTable() const { return templateTable_; }
