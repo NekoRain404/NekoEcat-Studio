@@ -14,6 +14,8 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QTextEdit>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/updatemanager/UpdateManagerPlugin.h"
@@ -182,11 +184,17 @@ void TestUpdateManagerPlugin::exportLog() {
   plugin_->addAvailableUpdate(e);
   plugin_->applyUpdate(0);
 
-  QString tmpPath = QDir::tempPath() + "/update_log.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("update_log.json");
   QVERIFY(plugin_->exportUpdateLog(tmpPath));
   QVERIFY(QFile::exists(tmpPath));
 
-  QFile::remove(tmpPath);
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportUpdateLog(QString()));
+  QVERIFY(!plugin_->exportUpdateLog(dir.path()));
+
   plugin_->removeAvailableUpdate(0);
   plugin_->clearHistory();
 }

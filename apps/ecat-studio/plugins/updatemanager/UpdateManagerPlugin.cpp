@@ -199,6 +199,8 @@ void UpdateManagerPlugin::clearHistory() {
 }
 
 bool UpdateManagerPlugin::exportUpdateLog(const QString &filePath) {
+  if (filePath.isEmpty()) return false;
+
   QJsonObject root;
   root["version"] = 1;
   root["totalUpdates"] = history_.size();
@@ -218,8 +220,8 @@ bool UpdateManagerPlugin::exportUpdateLog(const QString &filePath) {
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly)) return false;
-  file.write(QJsonDocument(root).toJson());
-  return true;
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  return file.write(bytes) == bytes.size() && file.flush();
 }
 
 void UpdateManagerPlugin::refreshStatus() {
