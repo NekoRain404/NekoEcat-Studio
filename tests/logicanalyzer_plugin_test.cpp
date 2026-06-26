@@ -3,9 +3,14 @@
 // Test coverage:
 //   - Plugin identity and default order
 //   - Widget creation and visibility
+//   - Start fails closed when TraceService has no capture backend
+//   - Source does not keep random synthetic-data dependencies
 
+#include <QFile>
 #include <QTest>
 #include <QApplication>
+#include <QLabel>
+#include <QPushButton>
 #include "services/TraceService.h"
 #include "plugins/logicanalyzer/LogicAnalyzerPlugin.h"
 
@@ -34,6 +39,43 @@ private slots:
   // Check widget is created
   void testWidgetNotNull() {
     QVERIFY(plugin->widget() != nullptr);
+  }
+
+  void testStartDoesNotShowRunningWithoutTraceBackend() {
+    QWidget *widget = plugin->widget();
+    auto *start = widget->findChild<QPushButton *>(QString(), Qt::FindDirectChildrenOnly);
+    const auto buttons = widget->findChildren<QPushButton *>();
+    for (QPushButton *button : buttons) {
+      if (button->text() == QStringLiteral("Start")) {
+        start = button;
+        break;
+      }
+    }
+    QVERIFY(start != nullptr);
+
+    QTest::mouseClick(start, Qt::LeftButton);
+
+    QVERIFY(!service->isTracing());
+    const auto labels = widget->findChildren<QLabel *>();
+    bool sawStoppedStatus = false;
+    for (const QLabel *label : labels) {
+      QVERIFY(label->text() != QStringLiteral("Status: Running"));
+      if (label->text().contains(QStringLiteral("Stopped")) ||
+          label->text().contains(QStringLiteral("backend"))) {
+        sawStoppedStatus = true;
+      }
+    }
+    QVERIFY(sawStoppedStatus);
+    QVERIFY(start->isEnabled());
+  }
+
+  void testSourceDoesNotContainSyntheticLogicDependencies() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/plugins/logicanalyzer/LogicAnalyzerPlugin.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QRandomGenerator")),
+             "Logic analyzer must not keep random synthetic capture dependencies");
   }
 
 private:

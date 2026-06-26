@@ -14,7 +14,6 @@
 #include <QSpinBox>
 #include <QTableWidget>
 #include <QVBoxLayout>
-#include <QRandomGenerator>
 
 LogicAnalyzerPlugin::LogicAnalyzerPlugin(TraceService *service, QObject *parent)
     : service_(service) {
@@ -166,9 +165,16 @@ void LogicAnalyzerPlugin::removeSelectedChannel() {
 
 void LogicAnalyzerPlugin::startCapture() {
   service_->startTrace();
-  statusLabel_->setText(tr("Status: Running"));
-  startBtn_->setEnabled(false);
-  stopBtn_->setEnabled(true);
+  if (service_->isTracing()) {
+    statusLabel_->setText(tr("Status: Running"));
+    startBtn_->setEnabled(false);
+    stopBtn_->setEnabled(true);
+    return;
+  }
+
+  statusLabel_->setText(tr("Status: Stopped - capture backend required"));
+  startBtn_->setEnabled(true);
+  stopBtn_->setEnabled(false);
 }
 
 void LogicAnalyzerPlugin::stopCapture() {
