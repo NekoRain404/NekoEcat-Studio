@@ -5296,6 +5296,9 @@ add_executable(testsuite_plugin_test
 target_link_libraries(testsuite_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(testsuite_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}/apps/ecat-studio)
 set_target_properties(testsuite_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(testsuite_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME testsuite_plugin_test COMMAND testsuite_plugin_test)
 set_tests_properties(testsuite_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 

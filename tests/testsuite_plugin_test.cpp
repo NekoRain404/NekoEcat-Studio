@@ -42,9 +42,9 @@ private slots:
   void addAndRemoveTests();
   // Clear all tests resets count and table
   void clearTests();
-  // Run single test emits signals and sets status
+  // Run single test fails closed without a test backend
   void runSingleTest();
-  // Run all tests emits allTestsFinished and updates counts
+  // Run all tests fails closed without a test backend
   void runAllTests();
   // Stop tests updates runner status
   void stopTests();
@@ -58,6 +58,8 @@ private slots:
   void exportReport();
   // All plugin signals fire on corresponding actions
   void signalEmissions();
+  // Source must not mint passed test results without a backend
+  void sourceDoesNotMintSyntheticPassedResults();
 
 private:
   TestSuitePlugin *plugin_ = nullptr;
@@ -144,11 +146,10 @@ void TestTestSuitePlugin::runSingleTest() {
 
   plugin_->runTest("test_1");
   QCOMPARE(startSpy.count(), 1);
-  QCOMPARE(finishSpy.count(), 1);
-  QCOMPARE(finishSpy.at(0).at(1).toString(), QString("Passed"));
+  QCOMPARE(finishSpy.count(), 0);
 
-  QCOMPARE(plugin_->testResults()->item(0, 1)->text(), QString("Passed"));
-  QCOMPARE(plugin_->testResults()->item(0, 2)->text(), QString("OK"));
+  QCOMPARE(plugin_->testResults()->item(0, 1)->text(), QString("Blocked"));
+  QVERIFY(plugin_->testResults()->item(0, 2)->text().contains("backend"));
 
   plugin_->clearTests();
 }
@@ -161,7 +162,9 @@ void TestTestSuitePlugin::runAllTests() {
   QSignalSpy allFinishedSpy(plugin_, &TestSuitePlugin::allTestsFinished);
   plugin_->runAllTests();
   QCOMPARE(allFinishedSpy.count(), 1);
-  QCOMPARE(plugin_->passedCount(), 2);
+  QCOMPARE(plugin_->passedCount(), 0);
+  QCOMPARE(plugin_->failedCount(), 0);
+  QCOMPARE(plugin_->skippedCount(), 2);
   QCOMPARE(plugin_->runnerStatus()->text().contains("Finished"), true);
 
   plugin_->clearTests();
@@ -246,12 +249,27 @@ void TestTestSuitePlugin::signalEmissions() {
 
   plugin_->runTest("test_1");
   QCOMPARE(startSpy.count(), 1);
-  QCOMPARE(finishSpy.count(), 1);
+  QCOMPARE(finishSpy.count(), 0);
 
   plugin_->removeTest("test_1");
   QCOMPARE(removeSpy.count(), 1);
 
   plugin_->clearTests();
+}
+
+void TestTestSuitePlugin::sourceDoesNotMintSyntheticPassedResults() {
+  QFile file(QStringLiteral(SOURCE_ROOT
+                            "/apps/ecat-studio/plugins/testsuite/TestSuitePlugin.cpp"));
+  QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+           qPrintable(file.errorString()));
+  const QString source = QString::fromUtf8(file.readAll());
+
+  QVERIFY2(!source.contains(QStringLiteral("tests_[i].status = \"Passed\"")),
+           "Test suite UI must not mark tests passed without a test backend");
+  QVERIFY2(!source.contains(QStringLiteral("tests_[i].result = \"OK\"")),
+           "Test suite UI must not synthesize OK results without a test backend");
+  QVERIFY2(!source.contains(QStringLiteral("emit testFinished(testId, \"Passed\")")),
+           "Test suite UI must not emit Passed without a test backend");
 }
 
 QTEST_MAIN(TestTestSuitePlugin)

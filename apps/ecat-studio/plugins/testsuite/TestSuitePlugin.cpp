@@ -213,13 +213,12 @@ void TestSuitePlugin::runAllTests() {
 
   if (running_) {
     for (int i = 0; i < tests_.size(); ++i) {
-      tests_[i].status = "Passed";
-      tests_[i].result = "OK";
-      tests_[i].durationMs = 10;
-      testResults_->item(i, 1)->setText(tr("Passed"));
-      testResults_->item(i, 2)->setText("OK");
-      testResults_->item(i, 3)->setText("10 ms");
-      emit testFinished(tests_[i].id, "Passed");
+      tests_[i].status = "Skipped";
+      tests_[i].result = tr("No test backend configured");
+      tests_[i].durationMs = 0;
+      testResults_->item(i, 1)->setText(tr("Skipped"));
+      testResults_->item(i, 2)->setText(tests_[i].result);
+      testResults_->item(i, 3)->setText("-");
     }
   }
 
@@ -238,13 +237,12 @@ void TestSuitePlugin::runTest(const QString &testId) {
       testResults_->item(i, 1)->setText(tr("Running"));
       emit testStarted(testId);
 
-      tests_[i].status = "Passed";
-      tests_[i].result = "OK";
-      tests_[i].durationMs = 10;
-      testResults_->item(i, 1)->setText(tr("Passed"));
-      testResults_->item(i, 2)->setText("OK");
-      testResults_->item(i, 3)->setText("10 ms");
-      emit testFinished(testId, "Passed");
+      tests_[i].status = "Blocked";
+      tests_[i].result = tr("No test backend configured");
+      tests_[i].durationMs = 0;
+      testResults_->item(i, 1)->setText(tr("Blocked"));
+      testResults_->item(i, 2)->setText(tests_[i].result);
+      testResults_->item(i, 3)->setText("-");
       updateStatsLabel();
       return;
     }
