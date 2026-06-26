@@ -217,6 +217,8 @@ void WorkflowOptimizerPlugin::refreshMetrics() {
 }
 
 bool WorkflowOptimizerPlugin::exportReport(const QString &filePath) {
+  if (filePath.isEmpty()) return false;
+
   QJsonObject root;
   root[QStringLiteral("version")] = 1;
   root[QStringLiteral("exportTime")] = QDateTime::currentDateTime().toString(Qt::ISODate);
@@ -254,7 +256,8 @@ bool WorkflowOptimizerPlugin::exportReport(const QString &filePath) {
 
   QFile file(filePath);
   if (!file.open(QIODevice::WriteOnly)) return false;
-  file.write(QJsonDocument(root).toJson());
+  const QByteArray bytes = QJsonDocument(root).toJson();
+  if (file.write(bytes) != bytes.size() || !file.flush()) return false;
 
   reportPreview_->setText(QString::fromUtf8(QJsonDocument(root).toJson(QJsonDocument::Compact)));
   statusLabel_->setText(tr("Report exported"));

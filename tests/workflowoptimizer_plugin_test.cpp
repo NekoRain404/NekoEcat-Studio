@@ -15,6 +15,8 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QTextEdit>
+#include <QTemporaryDir>
+#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/workflowoptimizer/WorkflowOptimizerPlugin.h"
@@ -126,10 +128,16 @@ void TestWorkflowOptimizerPlugin::exportReport() {
   plugin_->addSuggestion("wf_export", "High", "Test suggestion");
   plugin_->addExecutionRecord("wf_export", "Completed", 100.0);
 
-  QString tmpPath = QDir::tempPath() + "/optimizer_report_test.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("optimizer_report_test.json");
   QVERIFY(plugin_->exportReport(tmpPath));
   QVERIFY(QFile::exists(tmpPath));
-  QFile::remove(tmpPath);
+
+  QTest::failOnWarning(QRegularExpression(
+      QStringLiteral("QFSFileEngine::open: No file name specified")));
+  QVERIFY(!plugin_->exportReport(QString()));
+  QVERIFY(!plugin_->exportReport(dir.path()));
 }
 
 void TestWorkflowOptimizerPlugin::signalEmissions() {
@@ -139,10 +147,11 @@ void TestWorkflowOptimizerPlugin::signalEmissions() {
 
   plugin_->addWorkflow("wf_signal", "Signal Test");
 
-  QString tmpPath = QDir::tempPath() + "/optimizer_signal_test.json";
-  plugin_->exportReport(tmpPath);
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath("optimizer_signal_test.json");
+  QVERIFY(plugin_->exportReport(tmpPath));
   QCOMPARE(expSpy.count(), 1);
-  QFile::remove(tmpPath);
 }
 
 QTEST_MAIN(TestWorkflowOptimizerPlugin)
