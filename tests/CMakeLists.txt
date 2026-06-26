@@ -2925,7 +2925,10 @@ if(Qt6Qml_FOUND)
         Qt6::Test
         ecat_core
     )
-    target_compile_definitions(automation_plugin_test PRIVATE ECAT_SCRIPTING_ENABLED)
+    target_compile_definitions(automation_plugin_test PRIVATE
+        ECAT_SCRIPTING_ENABLED
+        SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+    )
 
     set_target_properties(automation_plugin_test PROPERTIES AUTOMOC ON)
 

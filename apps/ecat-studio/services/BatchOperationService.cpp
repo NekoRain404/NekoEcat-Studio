@@ -46,6 +46,11 @@ int BatchOperationService::progress() const { return progress_; }
 BatchResult BatchOperationService::executeReadSDO(const BatchOperation &op) {
   BatchResult r;
   r.totalItems = op.reads.size();
+  if (!client_ || !client_->isConnected() || !sdo_) {
+    r.error = QStringLiteral("EtherCAT daemon is not connected");
+    emit batchFailed(r.error);
+    return r;
+  }
 
   for (int i = 0; i < op.reads.size(); ++i) {
     if (cancelled_) {
@@ -54,22 +59,23 @@ BatchResult BatchOperationService::executeReadSDO(const BatchOperation &op) {
       return r;
     }
     const auto &item = op.reads[i];
-    if (client_->isConnected()) {
-      sdo_->upload(item.position, item.index, item.subIndex);
-    }
+    sdo_->upload(item.position, item.index, item.subIndex);
     r.completedItems = i + 1;
     progress_ = (i + 1) * 100 / r.totalItems;
     emit batchProgress(progress_);
   }
 
-  r.success = true;
-  emit batchCompleted(r);
   return r;
 }
 
 BatchResult BatchOperationService::executeWriteSDO(const BatchOperation &op) {
   BatchResult r;
   r.totalItems = op.writes.size();
+  if (!client_ || !client_->isConnected() || !sdo_) {
+    r.error = QStringLiteral("EtherCAT daemon is not connected");
+    emit batchFailed(r.error);
+    return r;
+  }
 
   for (int i = 0; i < op.writes.size(); ++i) {
     if (cancelled_) {
@@ -78,23 +84,24 @@ BatchResult BatchOperationService::executeWriteSDO(const BatchOperation &op) {
       return r;
     }
     const auto &item = op.writes[i];
-    if (client_->isConnected()) {
-      sdo_->download(item.position, item.index, item.subIndex, item.value,
-                     item.type);
-    }
+    sdo_->download(item.position, item.index, item.subIndex, item.value,
+                   item.type);
     r.completedItems = i + 1;
     progress_ = (i + 1) * 100 / r.totalItems;
     emit batchProgress(progress_);
   }
 
-  r.success = true;
-  emit batchCompleted(r);
   return r;
 }
 
 BatchResult BatchOperationService::executeSetState(const BatchOperation &op) {
   BatchResult r;
   r.totalItems = op.stateChanges.size();
+  if (!client_ || !client_->isConnected()) {
+    r.error = QStringLiteral("EtherCAT daemon is not connected");
+    emit batchFailed(r.error);
+    return r;
+  }
 
   for (int i = 0; i < op.stateChanges.size(); ++i) {
     if (cancelled_) {
@@ -103,16 +110,12 @@ BatchResult BatchOperationService::executeSetState(const BatchOperation &op) {
       return r;
     }
     const auto &item = op.stateChanges[i];
-    if (client_->isConnected()) {
-      client_->setState(item.position, item.state);
-    }
+    client_->setState(item.position, item.state);
     r.completedItems = i + 1;
     progress_ = (i + 1) * 100 / r.totalItems;
     emit batchProgress(progress_);
   }
 
-  r.success = true;
-  emit batchCompleted(r);
   return r;
 }
 
@@ -120,6 +123,11 @@ BatchResult
 BatchOperationService::executeScanTopology(const BatchOperation &op) {
   BatchResult r;
   r.totalItems = op.scanCount;
+  if (!client_ || !client_->isConnected() || !topology_) {
+    r.error = QStringLiteral("EtherCAT daemon is not connected");
+    emit batchFailed(r.error);
+    return r;
+  }
 
   for (int i = 0; i < op.scanCount; ++i) {
     if (cancelled_) {
@@ -127,15 +135,11 @@ BatchOperationService::executeScanTopology(const BatchOperation &op) {
       emit batchFailed(r.error);
       return r;
     }
-    if (client_->isConnected()) {
-      topology_->scan();
-    }
+    topology_->scan();
     r.completedItems = i + 1;
     progress_ = (i + 1) * 100 / r.totalItems;
     emit batchProgress(progress_);
   }
 
-  r.success = true;
-  emit batchCompleted(r);
   return r;
 }

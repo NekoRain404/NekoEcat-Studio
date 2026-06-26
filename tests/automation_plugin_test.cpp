@@ -134,7 +134,7 @@ private slots:
     QCOMPARE(result.toString(), QString("testObj"));
   }
 
-  // Verify batch operation signals and result
+  // Verify batch operation fails closed without daemon acknowledgement
   void testBatchOperationServiceSignals() {
     EcatClient client;
     SdoService sdo(&client);
@@ -144,6 +144,7 @@ private slots:
     QSignalSpy startSpy(&batch, &BatchOperationService::batchStarted);
     QSignalSpy progressSpy(&batch, &BatchOperationService::batchProgress);
     QSignalSpy completeSpy(&batch, &BatchOperationService::batchCompleted);
+    QSignalSpy failedSpy(&batch, &BatchOperationService::batchFailed);
 
     BatchOperation op;
     op.type = BatchType::ScanTopology;
@@ -151,9 +152,11 @@ private slots:
 
     BatchResult result = batch.executeBatch(op);
     QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(completeSpy.count(), 1);
-    QCOMPARE(result.success, true);
-    QCOMPARE(result.completedItems, 2);
+    QCOMPARE(completeSpy.count(), 0);
+    QCOMPARE(failedSpy.count(), 1);
+    QCOMPARE(result.success, false);
+    QCOMPARE(result.completedItems, 0);
+    QVERIFY(result.error.contains("connected"));
   }
 
   // Verify batch progress tracking
@@ -169,9 +172,10 @@ private slots:
     op.type = BatchType::ScanTopology;
     op.scanCount = 3;
 
-    batch.executeBatch(op);
-    QCOMPARE(progressSpy.count(), 3);
-    QCOMPARE(batch.progress(), 100);
+    BatchResult result = batch.executeBatch(op);
+    QCOMPARE(result.success, false);
+    QCOMPARE(progressSpy.count(), 0);
+    QCOMPARE(batch.progress(), 0);
   }
 
   // Verify batch cancel functionality
@@ -187,9 +191,22 @@ private slots:
 
     QSignalSpy progressSpy(&batch, &BatchOperationService::batchProgress);
     BatchResult result = batch.executeBatch(op);
-    QCOMPARE(result.success, true);
-    QCOMPARE(progressSpy.count(), 5);
-    QCOMPARE(batch.progress(), 100);
+    QCOMPARE(result.success, false);
+    QCOMPARE(progressSpy.count(), 0);
+    QCOMPARE(batch.progress(), 0);
+  }
+
+  void testBatchOperationServiceDoesNotMintBatchSuccess() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/services/BatchOperationService.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("r.success = true")),
+             "BatchOperationService must not mark a batch successful without per-item backend acknowledgements");
+    QVERIFY2(!source.contains(QStringLiteral("emit batchCompleted(r)")),
+             "BatchOperationService must not emit completion without per-item backend acknowledgements");
   }
 };
 
