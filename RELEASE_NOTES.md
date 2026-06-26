@@ -199,7 +199,7 @@ Final release preparation with comprehensive release packages, quality assurance
 
 ## Quality Assurance
 
-- **Test Coverage**: >90% line coverage
+- **Test Coverage**: Re-run coverage reporting for the target build
 - **Performance**: Startup, memory, and I/O benchmarks
 - **Memory Analysis**: Valgrind leak detection
 - **Code Quality**: cppcheck, clang-tidy, formatting checks
@@ -297,7 +297,7 @@ Final testing, optimization, and release preparation with three new workflow ser
 
 ## Highlights
 
-Final testing, optimization, and release preparation with comprehensive test coverage for all workflow services and plugins.
+Final testing, optimization, and release preparation with coverage to be revalidated for the target build.
 
 ## New Tests
 
@@ -331,7 +331,7 @@ Final testing, optimization, and release preparation with comprehensive test cov
 
 ## Highlights
 
-New workflow services for cloud, edge computing, and AI-powered optimization with comprehensive test coverage and performance benchmarks.
+New workflow services for cloud, edge computing, and AI-powered optimization with tests and performance checks to be revalidated for the target build.
 
 ## New Services
 
@@ -368,7 +368,7 @@ New workflow services for cloud, edge computing, and AI-powered optimization wit
 
 ## Highlights
 
-Major release with new workflow integration services, comprehensive test coverage, and performance optimizations.
+Major release with new workflow integration services, test coverage to revalidate for the target build, and performance optimizations.
 
 ## New Services
 
@@ -405,7 +405,7 @@ Major release with new workflow integration services, comprehensive test coverag
 
 ## Highlights
 
-Final testing, optimization, and release preparation with comprehensive quality assurance, all 264 tests passing, and release packaging.
+Final testing, optimization, and release preparation with quality checks and release packaging to revalidate for the target build.
 
 ## Quality Assurance
 
@@ -430,7 +430,7 @@ Final testing, optimization, and release preparation with comprehensive quality 
 
 ## Highlights
 
-Final release preparation with additional performance tests for workflow analytics and monitoring services, version bump, and comprehensive test coverage.
+Final release preparation with additional performance tests for workflow analytics and monitoring services, version bump, and coverage to revalidate for the target build.
 
 ## New Features
 
@@ -491,7 +491,7 @@ Comprehensive performance testing for workflow services, plugin integration test
 
 ## Highlights
 
-Digital Twin, Blockchain, and Quantum Security services with comprehensive unit, integration, and performance tests. Full test coverage for all new components.
+Digital Twin, Blockchain, and Quantum Security services with unit, integration, and performance tests to revalidate for the target build.
 
 ## New Features
 
@@ -544,7 +544,7 @@ Digital Twin, Blockchain, and Quantum Security services with comprehensive unit,
 
 ## Highlights
 
-Cloud Manager, Edge Computing, and AI Assistant plugins with comprehensive unit and performance tests. Full test coverage for all new components.
+Cloud Manager, Edge Computing, and AI Assistant plugins with unit and performance tests to revalidate for the target build.
 
 ## New Features
 
