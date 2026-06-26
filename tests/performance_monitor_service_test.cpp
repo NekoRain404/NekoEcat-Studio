@@ -2,8 +2,8 @@
 //
 // Test coverage:
 //   - Initial monitoring state and metric values
-//   - Start/stop monitoring
-//   - Double start idempotency
+//   - Offline start/stop monitoring remains inactive
+//   - Offline double start idempotency
 //   - Metrics updated signal (with disconnected client)
 //   - History ring buffer (empty, after monitoring, size bound)
 //   - DC sync update payload processing
@@ -63,17 +63,17 @@ private slots:
     QVERIFY(!m.value("startupComplete").toBool());
   }
 
-  void testStartStop() {
+  void testStartMonitoringOfflineDoesNotActivate() {
     svc_->startMonitoring(100);
-    QVERIFY(svc_->isMonitoring());
+    QVERIFY(!svc_->isMonitoring());
     svc_->stopMonitoring();
     QVERIFY(!svc_->isMonitoring());
   }
 
-  void testDoubleStartIsNoop() {
+  void testDoubleStartOfflineIsNoop() {
     svc_->startMonitoring(100);
     svc_->startMonitoring(200);
-    QVERIFY(svc_->isMonitoring());
+    QVERIFY(!svc_->isMonitoring());
     svc_->stopMonitoring();
   }
 

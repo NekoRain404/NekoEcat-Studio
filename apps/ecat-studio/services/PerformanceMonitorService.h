@@ -9,8 +9,10 @@
 //   - Bus metrics: cycle time, jitter, frame loss, PDO update rate
 //   - Memory usage: service, plugin, cache memory tracking
 //
-// Provides ring buffer history (1000 samples), periodic collection,
-// startup time reporting, and performance alerts.
+// Provides ring buffer history (1000 samples), periodic online collection,
+// startup time reporting, and performance alerts. Offline callers can still
+// record local startup, memory, and explicit operation timings, but periodic
+// monitoring only starts with a live daemon connection.
 //
 // Usage:
 //   PerformanceMonitorService *perf = new PerformanceMonitorService(bus, client);
@@ -41,6 +43,8 @@ public:
                                      QObject *parent = nullptr);
 
   // ── Monitoring Control ───────────────────────────────────────────
+  // Start periodic online metric collection when the daemon is connected.
+  // Offline calls are ignored and leave the service inactive.
   void startMonitoring(int intervalMs = 1000);
   void stopMonitoring();
   bool isMonitoring() const { return running_; }

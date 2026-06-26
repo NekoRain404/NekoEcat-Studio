@@ -32,6 +32,7 @@ PerformanceMonitorService::PerformanceMonitorService(EventBus *bus,
 
 void PerformanceMonitorService::startMonitoring(int intervalMs) {
   if (running_) return;
+  if (!client_ || !client_->isConnected()) return;
   running_ = true;
   timer_->setInterval(intervalMs);
   timer_->start();
