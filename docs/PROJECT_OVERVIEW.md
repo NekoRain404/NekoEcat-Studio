@@ -52,11 +52,11 @@ Ethercat/
 │   │   ├── detail/           # 详情面板文本构建器
 │   │   ├── utils/            # 可复用工具（表格、文本、UI）
 │   │   ├── infra/            # TCP 客户端、共享类型、设置、i18n
-│   │   ├── workspaces/       # MainWindow 的 partial 实现（31 个文件）
+│   │   ├── workspaces/       # MainWindow 的 partial 实现（以当前仓库为准）
 │   │   ├── plugins/          # 工作区插件（以当前仓库为准，实验项默认关闭）
 │   │   ├── services/         # 服务层（以当前注册代码为准）
-│   │   ├── themes/           # UI 主题（12 个 .qss 文件）
-│   │   └── translations/     # i18n 翻译文件（8 种语言）
+│   │   ├── themes/           # UI 主题（以当前仓库为准）
+│   │   └── translations/     # i18n 翻译文件（以 TranslationRegistry 为准）
 │   └── ecatd/                # 本地运行时 Daemon
 │       ├── main.cpp          # Daemon 入口点
 │       ├── EcatDaemon.h/cpp  # TCP 服务器、命令分发

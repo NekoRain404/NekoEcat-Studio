@@ -514,7 +514,7 @@ body { margin-left: 192px !important; }
 <a href="#safety">22. 安全清单</a>
 </div>
 <h1>NekoEcat Studio 使用说明书</h1>
-<p>NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代 EtherCAT 工程工作站。它把工程文件、主站选择、拓扑扫描、对象字典、SDO 读写、PDO 映射、Watch 监视、Startup SDO、Free Run 周期遥测、I/O 变量工程表、主机健康检查、ESI 仓库和运行日志组织在一个界面内，目标是在调试效率和现场排障能力上对齐并逐步超越传统工程软件。总览页只负责总线和当前从站上下文；主机环境检查、修复建议和诊断证据统一放在诊断页。</p>
+<p>NekoEcat Studio 是一个面向 Linux + IgH EtherCAT Master 的现代 EtherCAT 工程工作站。它把工程文件、主站选择、拓扑扫描、对象字典、SDO 读写、PDO 映射、Watch 监视、Startup SDO、Free Run 周期遥测、I/O 变量工程表、主机健康检查、ESI 仓库和运行日志组织在一个界面内，目标是在调试效率和现场排障能力上对齐传统工程软件的关键工作流，并突出 Linux + IgH 场景下的证据驱动审阅。总览页只负责总线和当前从站上下文；主机环境检查、修复建议和诊断证据统一放在诊断页。</p>
 <div class="toc" id="contents">
 <b>目录</b>
 <ol>
