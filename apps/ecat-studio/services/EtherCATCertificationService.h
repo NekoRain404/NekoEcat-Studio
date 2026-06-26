@@ -1,11 +1,11 @@
 #pragma once
 
 // EtherCATCertificationService — certification requirement management and
-// automated certification testing for EtherCAT devices and networks.
+// certification request facade for EtherCAT devices and networks.
 //
-// Provides requirement CRUD, individual requirement testing, and full
-// certification reports. Emits signals when requirements change or
-// certification completes.
+// Provides requirement CRUD plus rejected certification reports until a real
+// certification backend is available. It must not synthesize passing evidence
+// or valid certificates.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -77,5 +77,5 @@ signals:
 
 private:
     QVector<CertificationRequirement> requirements_;
-    CertificationResult createPassingCert(const QString &scope);
+    CertificationResult createRejectedCert(const QString &scope);
 };

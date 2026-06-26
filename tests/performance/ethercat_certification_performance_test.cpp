@@ -27,7 +27,9 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.runCertification();
+      CertificationReport report = svc.runCertification();
+      QVERIFY(!report.overallPass);
+      QCOMPARE(report.notTestedCount, report.totalRequirements);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
@@ -39,7 +41,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.testRequirement("CONF-001");
+      CertificationTestResult result = svc.testRequirement("CONF-001");
+      QCOMPARE(result.status, CertificationTestStatus::NotTested);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);

@@ -8,6 +8,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATCertificationService.h"
 
 class EtherCATCertificationServiceTest : public QObject {
@@ -37,19 +38,25 @@ private slots:
     QVERIFY(!svc.removeRequirement("NONEXISTENT"));
   }
 
-  // Run full certification and verify pass
-  void testRunCertification() {
+  // Run full certification must not synthesize passing evidence.
+  void testRunCertificationFailsClosedWithoutBackend() {
     EtherCATCertificationService svc;
+    QSignalSpy spy(&svc, &EtherCATCertificationService::certificationCompleted);
     CertificationReport report = svc.runCertification();
-    QVERIFY(report.overallPass);
-    QCOMPARE(report.passedCount, report.totalRequirements);
+    QVERIFY(!report.overallPass);
+    QCOMPARE(report.passedCount, 0);
+    QCOMPARE(report.failedCount, 0);
+    QCOMPARE(report.notTestedCount, report.totalRequirements);
+    QVERIFY(report.certificationLevel.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Test individual requirement passes
-  void testTestRequirement() {
+  // Individual requirement tests must not synthesize pass evidence.
+  void testRequirementNotTestedWithoutBackend() {
     EtherCATCertificationService svc;
     CertificationTestResult result = svc.testRequirement("CONF-001");
-    QCOMPARE(result.status, CertificationTestStatus::Pass);
+    QCOMPARE(result.status, CertificationTestStatus::NotTested);
+    QVERIFY(result.evidence.isEmpty());
   }
 
   // Test nonexistent requirement returns NotTested
@@ -65,73 +72,94 @@ private slots:
     QCOMPARE(svc.requirements().size(), 4);
   }
 
-  // Certify a device by position
-  void testCertifyDevice() {
+  // Certify a device by position fails closed without certification evidence.
+  void testCertifyDeviceFailsClosedWithoutBackend() {
     EtherCATCertificationService svc;
+    QSignalSpy spy(&svc, &EtherCATCertificationService::deviceCertified);
     CertificationResult result = svc.certifyDevice(1);
-    QVERIFY(result.valid);
+    QVERIFY(!result.valid);
     QCOMPARE(result.scope, QString("Device"));
+    QVERIFY(result.certificateId.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Certify the network
-  void testCertifyNetwork() {
+  // Certify the network fails closed without certification evidence.
+  void testCertifyNetworkFailsClosedWithoutBackend() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifyNetwork();
-    QVERIFY(result.valid);
+    QVERIFY(!result.valid);
     QCOMPARE(result.scope, QString("Network"));
   }
 
-  // Certify the system
-  void testCertifySystem() {
+  // Certify the system fails closed without certification evidence.
+  void testCertifySystemFailsClosedWithoutBackend() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifySystem();
-    QVERIFY(result.valid);
+    QVERIFY(!result.valid);
     QCOMPARE(result.scope, QString("System"));
   }
 
-  // Certify an operator by name
-  void testCertifyOperator() {
+  // Certify an operator fails closed without certification evidence.
+  void testCertifyOperatorFailsClosedWithoutBackend() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifyOperator("engineer1");
-    QVERIFY(result.valid);
+    QVERIFY(!result.valid);
     QCOMPARE(result.scope, QString("Operator"));
   }
 
-  // Certificate result has non-empty ID
-  void testCertResultCertificateId() {
+  // Rejected certificate result has no certificate ID.
+  void testRejectedCertResultHasNoCertificateId() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifyDevice(0);
-    QVERIFY(!result.certificateId.isEmpty());
+    QVERIFY(result.certificateId.isEmpty());
   }
 
-  // Certificate result has valid timestamp
+  // Rejected certificate result still records a request timestamp.
   void testCertResultTimestamp() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifyNetwork();
     QVERIFY(result.timestamp.isValid());
   }
 
-  // Certificate expiry is after timestamp
-  void testCertResultExpiry() {
+  // Rejected certificate result has no expiry.
+  void testRejectedCertResultHasNoExpiry() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifySystem();
-    QVERIFY(result.expiry.isValid());
-    QVERIFY(result.expiry > result.timestamp);
+    QVERIFY(!result.expiry.isValid());
   }
 
-  // Certificate has conditions attached
-  void testCertResultConditions() {
+  // Rejected certificate explains why no certificate was issued.
+  void testRejectedCertResultConditions() {
     EtherCATCertificationService svc;
     CertificationResult result = svc.certifyDevice(0);
     QVERIFY(result.conditions.size() > 0);
   }
 
-  // deviceCertified signal fires on certification
-  void testDeviceCertifiedSignal() {
+  // deviceCertified signal is not emitted for rejected certification requests.
+  void testDeviceCertifiedSignalNotEmittedWithoutBackend() {
     EtherCATCertificationService svc;
     QSignalSpy spy(&svc, &EtherCATCertificationService::deviceCertified);
     svc.certifyNetwork();
-    QCOMPARE(spy.size(), 1);
+    QCOMPARE(spy.size(), 0);
+  }
+
+  // Implementation must not keep synthetic pass/certificate paths.
+  void testImplementationDoesNotContainSyntheticCertificationSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATCertificationService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("CertificationTestStatus::Pass")),
+             "Certification tests must not synthesize passing results without evidence.");
+    QVERIFY2(!text.contains(QStringLiteral("overallPass = true")),
+             "Certification report must not synthesize overall pass.");
+    QVERIFY2(!text.contains(QStringLiteral("certificationLevel = QStringLiteral(\"Gold\")")),
+             "Certification report must not synthesize a certification level.");
+    QVERIFY2(!text.contains(QStringLiteral("valid = true")),
+             "Certification result must not synthesize valid certificates.");
+    QVERIFY2(!text.contains(QStringLiteral("emit deviceCertified(result)")),
+             "Certification service must not emit certificate success without evidence.");
   }
 };
 

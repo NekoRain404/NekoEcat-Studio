@@ -1,11 +1,11 @@
 #include "EtherCATCertificationService.h"
 
-// EtherCATCertificationService.cpp — EtherCAT device certification and compliance tracking
+// EtherCATCertificationService.cpp — EtherCAT certification request facade
 //
 // Implementation notes:
 //   - Pre-defines conformance, performance, safety, and interoperability requirements
 //   - Tracks certification status per requirement with mandatory/optional flags
-//   - Emits signals on requirement and status changes
+//   - Rejects certification checks until a real evidence-producing backend exists
 
 EtherCATCertificationService::EtherCATCertificationService(QObject *parent)
     : QObject(parent)
@@ -68,18 +68,16 @@ CertificationReport EtherCATCertificationService::runCertification()
     for (const auto &req : requirements_) {
         CertificationTestResult result;
         result.requirementId = req.requirementId;
-        result.status = CertificationTestStatus::Pass;
-        result.evidence = req.description + QStringLiteral(" — verified.");
-        result.notes = QStringLiteral("Automated check passed.");
+        result.status = CertificationTestStatus::NotTested;
+        result.notes = QStringLiteral("Certification requirement '%1' requires a real certification backend.")
+                           .arg(req.requirementId);
         report.results.append(result);
     }
     report.totalRequirements = report.results.size();
-    report.passedCount = report.results.size();
+    report.passedCount = 0;
     report.failedCount = 0;
-    report.notTestedCount = 0;
-    report.overallPass = true;
-    report.certificationLevel = QStringLiteral("Gold");
-    emit certificationCompleted(report);
+    report.notTestedCount = report.results.size();
+    report.overallPass = false;
     return report;
 }
 
@@ -89,9 +87,9 @@ CertificationTestResult EtherCATCertificationService::testRequirement(const QStr
         if (req.requirementId == reqId) {
             CertificationTestResult result;
             result.requirementId = reqId;
-            result.status = CertificationTestStatus::Pass;
-            result.evidence = req.description + QStringLiteral(" — verified.");
-            result.notes = QStringLiteral("Individual test passed.");
+            result.status = CertificationTestStatus::NotTested;
+            result.notes = QStringLiteral("Certification requirement '%1' requires a real certification backend.")
+                               .arg(req.requirementId);
             return result;
         }
     }
@@ -105,41 +103,31 @@ CertificationTestResult EtherCATCertificationService::testRequirement(const QStr
 CertificationResult EtherCATCertificationService::certifyDevice(int position)
 {
     Q_UNUSED(position);
-    CertificationResult result = createPassingCert(QStringLiteral("Device"));
-    emit deviceCertified(result);
-    return result;
+    return createRejectedCert(QStringLiteral("Device"));
 }
 
 CertificationResult EtherCATCertificationService::certifyNetwork()
 {
-    CertificationResult result = createPassingCert(QStringLiteral("Network"));
-    emit deviceCertified(result);
-    return result;
+    return createRejectedCert(QStringLiteral("Network"));
 }
 
 CertificationResult EtherCATCertificationService::certifySystem()
 {
-    CertificationResult result = createPassingCert(QStringLiteral("System"));
-    emit deviceCertified(result);
-    return result;
+    return createRejectedCert(QStringLiteral("System"));
 }
 
 CertificationResult EtherCATCertificationService::certifyOperator(const QString &operatorName)
 {
     Q_UNUSED(operatorName);
-    CertificationResult result = createPassingCert(QStringLiteral("Operator"));
-    emit deviceCertified(result);
-    return result;
+    return createRejectedCert(QStringLiteral("Operator"));
 }
 
-CertificationResult EtherCATCertificationService::createPassingCert(const QString &scope)
+CertificationResult EtherCATCertificationService::createRejectedCert(const QString &scope)
 {
     CertificationResult result;
-    result.certificateId = scope.left(3).toUpper() + QStringLiteral("-CERT-001");
     result.timestamp = QDateTime::currentDateTime();
-    result.valid = true;
-    result.expiry = result.timestamp.addYears(1);
+    result.valid = false;
     result.scope = scope;
-    result.conditions.append(QStringLiteral("Annual review required."));
+    result.conditions.append(QStringLiteral("Certification requires a real evidence-producing backend."));
     return result;
 }
