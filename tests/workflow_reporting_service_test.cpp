@@ -7,6 +7,7 @@
 //   - Resource report generation
 //   - Report ID format validation
 //   - Section and table content validation
+//   - Execution reports do not synthesize successful completion
 
 #include <QTest>
 #include <QSignalSpy>
@@ -85,6 +86,25 @@ private slots:
     for (const auto &table : report.tables) {
       QVERIFY(!table.headers.isEmpty());
       QVERIFY(!table.rows.isEmpty());
+    }
+  }
+
+  void executionReportDoesNotSynthesizeCompletion() {
+    WorkflowReportingService svc;
+    auto report = svc.generateExecutionReport("wf-001");
+    QVERIFY2(!report.summary.contains("completed successfully", Qt::CaseInsensitive),
+             "Execution reports must not claim successful completion without backend evidence.");
+    for (const auto &section : report.sections) {
+      QVERIFY2(!section.content.contains("completed successfully", Qt::CaseInsensitive),
+               "Execution sections must not synthesize successful completion.");
+      QVERIFY2(section.data.value("status").toString() != "completed",
+               "Execution report status must not be hard-coded to completed.");
+    }
+    for (const auto &table : report.tables) {
+      for (const auto &row : table.rows) {
+        QVERIFY2(!row.contains("Completed"),
+                 "Execution report tables must not synthesize Completed step rows.");
+      }
     }
   }
 };

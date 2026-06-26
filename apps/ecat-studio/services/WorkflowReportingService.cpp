@@ -15,26 +15,26 @@ WfReport WorkflowReportingService::generateExecutionReport(
     const QString &workflowId) {
   QVector<WfReportSection> sections;
   sections << makeSection("Execution Summary",
-                           "Workflow " + workflowId + " completed successfully.",
-                           {{"status", "completed"},
-                            {"duration_ms", 1250},
-                            {"steps_completed", 8}});
+                           "Workflow " + workflowId +
+                               " has no backend execution telemetry available.",
+                           {{"status", "unverified"},
+                            {"duration_ms", QJsonValue()},
+                            {"steps_completed", 0}});
   sections << makeSection("Step Details",
-                           "All 8 steps executed in order without errors.");
+                           "No acknowledged step execution records are available.");
 
   QStringList recs;
-  recs << "Consider parallelizing steps 3-5 for faster execution";
+  recs << "Connect a workflow execution backend before using this report for completion evidence";
 
   auto report = makeReport(workflowId, "Execution Report",
-                           "Workflow execution summary for " + workflowId,
+                           "Execution telemetry is unavailable for " + workflowId,
                            sections, recs);
 
   report.charts << makeChart("Execution Timeline", "line",
-                             {{"data_points", 8}, {"type", "timeline"}});
+                             {{"data_points", 0}, {"type", "timeline"}});
   report.tables << makeTable(
       "Step Summary", {"Step", "Status", "Duration"},
-      {{"Step 1", "Completed", "150ms"}, {"Step 2", "Completed", "200ms"},
-       {"Step 3", "Completed", "100ms"}, {"Step 4", "Completed", "300ms"}});
+      {});
 
   emit reportGenerated(report);
   return report;
