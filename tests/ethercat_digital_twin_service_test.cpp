@@ -1,11 +1,9 @@
 // EtherCATDigitalTwinServiceTest — Tests for EtherCATDigitalTwinService
 //
 // Test coverage:
-//   - Digital twin creation, lookup, and removal
-//   - Physical device synchronization
-//   - Scenario simulation (stress test, empty, multiple)
-//   - Behavior prediction with confidence scoring
-//   - Signal emission for twin lifecycle events
+//   - Digital twin creation, sync, simulation, and prediction fail closed without backend
+//   - Rejected twin requests do not emit synthetic lifecycle signals
+//   - Lookup and removal remain empty without created backend-backed twins
 
 #include <QTest>
 #include <QSignalSpy>
@@ -19,10 +17,11 @@ private slots:
     EtherCATDigitalTwinService svc;
     QSignalSpy spy(&svc, &EtherCATDigitalTwinService::digitalTwinCreated);
     DigitalTwin dt = svc.createDigitalTwin(1);
-    QCOMPARE(dt.position, 1);
-    QCOMPARE(dt.state, QString("Created"));
+    QCOMPARE(dt.position, 0);
+    QVERIFY(dt.model.isEmpty());
+    QVERIFY(dt.state.isEmpty());
     QCOMPARE(dt.syncStatus, TwinSyncStatus::Never);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Create multiple twins and verify count
@@ -30,7 +29,7 @@ private slots:
     EtherCATDigitalTwinService svc;
     svc.createDigitalTwin(1);
     svc.createDigitalTwin(2);
-    QCOMPARE(svc.allTwins().size(), 2);
+    QCOMPARE(svc.allTwins().size(), 0);
   }
 
   // Lookup twin by position
@@ -38,8 +37,8 @@ private slots:
     EtherCATDigitalTwinService svc;
     svc.createDigitalTwin(5);
     DigitalTwin dt = svc.twin(5);
-    QCOMPARE(dt.position, 5);
-    QVERIFY(!dt.model.isEmpty());
+    QCOMPARE(dt.position, 0);
+    QVERIFY(dt.model.isEmpty());
   }
 
   // Lookup nonexistent twin returns position 0
@@ -54,13 +53,11 @@ private slots:
     EtherCATDigitalTwinService svc;
     svc.createDigitalTwin(1);
     QSignalSpy spy(&svc, &EtherCATDigitalTwinService::syncCompleted);
-    QVERIFY(svc.syncWithPhysical(1));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
-    QVERIFY(spy.at(0).at(1).toBool());
+    QVERIFY(!svc.syncWithPhysical(1));
+    QCOMPARE(spy.count(), 0);
     DigitalTwin dt = svc.twin(1);
-    QCOMPARE(dt.syncStatus, TwinSyncStatus::Synced);
-    QCOMPARE(dt.state, QString("Synced"));
+    QCOMPARE(dt.syncStatus, TwinSyncStatus::Never);
+    QVERIFY(dt.state.isEmpty());
   }
 
   // Sync nonexistent twin fails
@@ -80,10 +77,12 @@ private slots:
     scenario.parameters["duration"] = 5000;
     TwinSimulationResult result = svc.simulateScenario(scenario);
     QCOMPARE(result.scenarioName, QString("stress_test"));
-    QCOMPARE(result.status, TwinSimulationStatus::Completed);
-    QVERIFY(result.success);
-    QVERIFY(result.outputs.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(result.status, TwinSimulationStatus::Failed);
+    QVERIFY(!result.success);
+    QVERIFY(result.outputs.isEmpty());
+    QVERIFY(!result.startTime.isValid());
+    QVERIFY(!result.endTime.isValid());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Simulate empty scenario succeeds with no outputs
@@ -92,7 +91,8 @@ private slots:
     TwinScenario scenario;
     scenario.name = "empty";
     TwinSimulationResult result = svc.simulateScenario(scenario);
-    QVERIFY(result.success);
+    QVERIFY(!result.success);
+    QCOMPARE(result.status, TwinSimulationStatus::Failed);
     QCOMPARE(result.outputs.size(), 0);
   }
 
@@ -107,24 +107,24 @@ private slots:
       data.append(dp);
     }
     TwinPrediction pred = svc.predictBehavior(data);
-    QCOMPARE(pred.model, QString("LinearRegression"));
-    QCOMPARE(pred.forecast.size(), 5);
-    QVERIFY(pred.confidence > 0.5);
+    QVERIFY(pred.model.isEmpty());
+    QCOMPARE(pred.forecast.size(), 0);
+    QCOMPARE(pred.confidence, 0.0);
   }
 
   // Predict with empty data uses default confidence
   void testPredictBehaviorEmpty() {
     EtherCATDigitalTwinService svc;
     TwinPrediction pred = svc.predictBehavior({});
-    QCOMPARE(pred.forecast.size(), 5);
-    QCOMPARE(pred.confidence, 0.5);
+    QCOMPARE(pred.forecast.size(), 0);
+    QCOMPARE(pred.confidence, 0.0);
   }
 
   // Remove existing twin
   void testRemoveTwin() {
     EtherCATDigitalTwinService svc;
     svc.createDigitalTwin(1);
-    QVERIFY(svc.removeTwin(1));
+    QVERIFY(!svc.removeTwin(1));
     QCOMPARE(svc.allTwins().size(), 0);
   }
 
@@ -141,7 +141,7 @@ private slots:
     svc.createDigitalTwin(1);
     svc.createDigitalTwin(2);
     svc.createDigitalTwin(3);
-    QCOMPARE(svc.allTwins().size(), 3);
+    QCOMPARE(svc.allTwins().size(), 0);
   }
 
   // digitalTwinCreated signal carries position
@@ -150,8 +150,7 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATDigitalTwinService::digitalTwinCreated);
     QVERIFY(spy.isValid());
     svc.createDigitalTwin(1);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // syncCompleted signal fires on sync
@@ -161,7 +160,7 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATDigitalTwinService::syncCompleted);
     QVERIFY(spy.isValid());
     svc.syncWithPhysical(1);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // simulationFinished signal fires on simulation
@@ -172,7 +171,7 @@ private slots:
     TwinScenario scenario;
     scenario.name = "test";
     svc.simulateScenario(scenario);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Sync updates twin state and lastSync timestamp
@@ -183,8 +182,8 @@ private slots:
     QCOMPARE(before.syncStatus, TwinSyncStatus::Never);
     svc.syncWithPhysical(1);
     DigitalTwin after = svc.twin(1);
-    QCOMPARE(after.syncStatus, TwinSyncStatus::Synced);
-    QVERIFY(after.lastSync.isValid());
+    QCOMPARE(after.syncStatus, TwinSyncStatus::Never);
+    QVERIFY(!after.lastSync.isValid());
   }
 
   // Run multiple simulations sequentially
@@ -194,7 +193,8 @@ private slots:
       TwinScenario scenario;
       scenario.name = QString("scenario_%1").arg(i);
       TwinSimulationResult result = svc.simulateScenario(scenario);
-      QVERIFY(result.success);
+      QVERIFY(!result.success);
+      QCOMPARE(result.status, TwinSimulationStatus::Failed);
     }
   }
 
@@ -208,7 +208,7 @@ private slots:
       shortData.append(dp);
     }
     TwinPrediction predShort = svc.predictBehavior(shortData);
-    QCOMPARE(predShort.confidence, 0.5);
+    QCOMPARE(predShort.confidence, 0.0);
 
     QVector<TwinDataPoint> longData;
     for (int i = 0; i < 10; i++) {
@@ -217,7 +217,7 @@ private slots:
       longData.append(dp);
     }
     TwinPrediction predLong = svc.predictBehavior(longData);
-    QVERIFY(predLong.confidence > 0.5);
+    QCOMPARE(predLong.confidence, 0.0);
   }
 };
 

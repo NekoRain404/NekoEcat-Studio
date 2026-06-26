@@ -1,39 +1,11 @@
 #pragma once
-// PLACEHOLDER IMPLEMENTATION
-// This is a template/stub for future development.
-// Not production ready.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
-
-// EtherCATDigitalTwinService — creates virtual digital replicas of physical
-// EtherCAT slaves for simulation, prediction, and what-if analysis.
-//
-// This service provides digital twin capabilities for the EtherCAT system:
-//   - Digital twin creation and lifecycle management per slave position
-//   - Synchronization of twin state with physical device
-//   - Scenario simulation with configurable parameters and duration
-//   - Behavioral prediction from historical time-series data
-//   - Simulation history tracking with bounded memory (kMaxSimHistory)
-//
-// Usage:
-//   ServiceContainer *container = ...;
-//   EtherCATDigitalTwinService *twin = container->digitalTwin();
-//   DigitalTwin dt = twin->createDigitalTwin(0);
-//   twin->syncWithPhysical(0);
-//   TwinScenario scenario{"load-test", "Heavy load", params, 2000};
-//   TwinSimulationResult result = twin->simulateScenario(scenario);
-//   TwinPrediction pred = twin->predictBehavior(dataPoints);
+// EtherCATDigitalTwinService -- request facade for backend-backed EtherCAT
+// device digital twins, physical sync, scenario simulation, and prediction.
+// No twin/model/simulation backend is wired yet, so requests fail closed
+// instead of creating synthetic twins, sync state, simulations, or forecasts.
 //
 // Thread safety:
 //   All methods must be called from the main (GUI) thread.
-//
-// Performance:
-//   - Twin creation is O(1)
-//   - Sync is O(1) per call
-//   - Simulation duration is bounded by TwinScenario::durationMs
-//   - Prediction is O(n) where n is number of input data points
-//   - Memory bounded by kMaxSimHistory (50 simulation results)
 
 #include <QObject>
 #include <QVector>
