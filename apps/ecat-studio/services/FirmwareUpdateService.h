@@ -1,34 +1,33 @@
 #pragma once
 
-// FirmwareUpdateService — manages firmware update workflow for EtherCAT slaves.
+// FirmwareUpdateService — firmware update facade for EtherCAT slaves.
 //
-// Handles update checking, staged upload with progress tracking, and
-// cancellation. Uses QTimer for progress simulation during updates.
+// Handles update checking and exposes the future update workflow boundary.
+// Firmware writes fail closed until the daemon exposes a real firmware-update
+// API; progress must not be simulated as successful device I/O.
 //
-// This service provides firmware update capabilities for EtherCAT slaves.
-// It handles:
+// This service currently handles:
 //   - Firmware update checking for specific slaves
-//   - Staged firmware upload with progress tracking
-//   - Update cancellation support
-//   - Progress reporting via signals
-//   - Error handling and recovery
+//   - Explicit rejection of unsupported offline firmware writes
+//   - Idle cancellation support
+//   - Future progress reporting signals
 //
 // Usage:
 //   ServiceContainer *container = ...;
 //   FirmwareUpdateService *firmware = container->firmwareUpdate();
 //   firmware->checkForUpdates(0);  // Check slave 0 for updates
+//   // Returns false until connected to a backend with real firmware support:
 //   firmware->startUpdate(0, "/path/to/firmware.bin");
 //   // Monitor progress
 //   connect(firmware, &FirmwareUpdateService::updateProgressChanged, ...);
 //   firmware->cancelUpdate();  // Cancel if needed
 //
 // Thread safety:
-//   All methods must be called from the main (GUI) thread. The service
-//   uses a QTimer for progress simulation, which runs on the main thread.
+//   All methods must be called from the main (GUI) thread.
 //
 // Performance:
 //   - Update checking is O(1) per slave
-//   - Firmware upload progress is simulated (not real I/O)
+//   - Unsupported firmware writes are rejected in O(1)
 //   - Cancellation is immediate
 
 #include <QObject>
@@ -49,7 +48,7 @@ public:
   // Start a firmware update for a specific slave.
   // @param position      Slave position on the bus
   // @param firmwarePath  Path to the firmware file
-  // @return true if update was started successfully
+  // @return true if update was started successfully; currently false without backend support
   bool startUpdate(int position, const QString &firmwarePath);
 
   // Cancel the current firmware update.
@@ -83,11 +82,11 @@ signals:
   void updateFailed(int position, const QString &error);
 
 private:
-  // Advance the progress simulation.
+  // Advance backend-driven progress once real firmware support exists.
   void advanceProgress();
 
   EcatClient *client_;              // TCP client to ecatd daemon
-  QTimer *progressTimer_ = nullptr; // Timer for progress simulation
+  QTimer *progressTimer_ = nullptr; // Timer reserved for backend progress polling
   bool updating_ = false;           // Whether update is in progress
   int targetPosition_ = -1;         // Target slave position
   int progress_ = 0;                // Current progress percentage

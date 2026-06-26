@@ -8,6 +8,8 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QTcpServer>
+#include <QThread>
 #include "infra/EcatClient.h"
 #include "services/FirmwareUpdateService.h"
 
@@ -16,6 +18,17 @@ class FirmwareUpdateServiceTest : public QObject {
 private:
   EcatClient *client_ = nullptr;
   FirmwareUpdateService *svc_ = nullptr;
+
+  bool connectClientToDummyDaemon(QTcpServer &server) {
+    if (!server.listen(QHostAddress::LocalHost, 0))
+      return false;
+    client_->connectToHost(QHostAddress::LocalHost, server.serverPort());
+    for (int i = 0; i < 50 && !client_->isConnected(); ++i) {
+      QCoreApplication::processEvents();
+      QThread::msleep(10);
+    }
+    return client_->isConnected();
+  }
 
 private slots:
   // Initialize service before each test
@@ -61,9 +74,20 @@ private slots:
     svc_->checkForUpdates(0);
   }
 
-  // Start firmware update on slave
-  void testStartUpdate() {
-    svc_->startUpdate(0, "/tmp/firmware.bin");
+  // Firmware updates must not be simulated by timer progress.
+  void testStartUpdateFailsClosedWithConnectedDaemonOnly() {
+    QTcpServer server;
+    QVERIFY(connectClientToDummyDaemon(server));
+    QSignalSpy startedSpy(svc_, &FirmwareUpdateService::updateStarted);
+    QSignalSpy progressSpy(svc_, &FirmwareUpdateService::updateProgressChanged);
+    QSignalSpy completedSpy(svc_, &FirmwareUpdateService::updateCompleted);
+
+    QVERIFY(!svc_->startUpdate(0, "/tmp/firmware.bin"));
+    QVERIFY(!svc_->isUpdating());
+    QCOMPARE(svc_->updateProgress(), 0);
+    QCOMPARE(startedSpy.count(), 0);
+    QCOMPARE(progressSpy.count(), 0);
+    QCOMPARE(completedSpy.count(), 0);
   }
 };
 
