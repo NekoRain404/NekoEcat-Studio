@@ -433,12 +433,12 @@ Connection change →  onConnectionChanged(true/false) on link state
 | `VisualizationStudioPlugin` | Complex | `(QObject*)` | Advanced data visualization |
 | `ReportDesignerPlugin` | Complex | `(QObject*)` | Custom report designer |
 | `DocumentationBrowserPlugin` | Medium | `(QObject*)` | Documentation browser |
-| `CloudManagerPlugin` | Complex | `(QObject*)` | Cloud connectivity management |
-| `EdgeComputingPlugin` | Complex | `(QObject*)` | Edge computing management |
-| `AIAssistantPlugin` | Complex | `(QObject*)` | AI-powered diagnostic assistant |
-| `DigitalTwinStudioPlugin` | Complex | `(QObject*)` | Digital twin modeling and management |
-| `BlockchainExplorerPlugin` | Complex | `(QObject*)` | Blockchain audit log explorer |
-| `QuantumSecurityPlugin` | Complex | `(QObject*)` | Quantum-resistant security management |
+| `CloudManagerPlugin` | Complex | `(QObject*)` | Experimental opt-in: Cloud connectivity management |
+| `EdgeComputingPlugin` | Complex | `(QObject*)` | Experimental opt-in: Edge computing management |
+| `AIAssistantPlugin` | Complex | `(QObject*)` | Experimental opt-in: AI-powered diagnostic assistant |
+| `DigitalTwinStudioPlugin` | Complex | `(QObject*)` | Experimental opt-in: Digital twin modeling and management |
+| `BlockchainExplorerPlugin` | Complex | `(QObject*)` | Experimental opt-in: Blockchain audit log explorer |
+| `QuantumSecurityPlugin` | Complex | `(QObject*)` | Experimental opt-in: Quantum-resistant security management |
 | `WorkflowOptimizerPlugin` | Complex | `(WorkflowAnalyticsService*, QObject*)` | Workflow optimization recommendations |
 | `WorkflowDashboardPlugin` | Complex | `(WorkflowMonitoringService*, QObject*)` | Workflow monitoring dashboard |
 | `PdoMappingEditorPlugin` | Complex | `(PdoMappingService*, QObject*)` | Visual PDO mapping with canvas, validator, and export |
@@ -492,8 +492,8 @@ Connection change →  onConnectionChanged(true/false) on link state
 | 190 | DeploymentManager, UpdateManager, MaintenanceScheduler |
 | 195 | IntegrationHub, SyncManager, ReplicationManager |
 | 200 | VisualizationStudio, ReportDesigner, DocumentationBrowser |
-| 205 | CloudManager, EdgeComputing, AIAssistant |
-| 210 | DigitalTwinStudio, BlockchainExplorer, QuantumSecurity |
+| 205 | Experimental opt-in: CloudManager, EdgeComputing, AIAssistant |
+| 210 | Experimental opt-in: DigitalTwinStudio, BlockchainExplorer, QuantumSecurity |
 | 215 | ThemeCustomizer, KeyboardShortcuts, UserPreferences |
 | 220 | WorkflowOptimizer, WorkflowDashboard |
 | 225 | PdoMappingEditor, DcSyncPrecision |

@@ -183,12 +183,12 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | VisualizationStudioPlugin | `visualizationstudio` | Advanced data visualization |
 | ReportDesignerPlugin | `reportdesigner` | Custom report designer |
 | DocumentationBrowserPlugin | `documentationbrowser` | Documentation browser |
-| CloudManagerPlugin | `cloudmanager` | Cloud connectivity management |
-| EdgeComputingPlugin | `edgecomputing` | Edge computing management |
-| AIAssistantPlugin | `aiassistant` | AI-powered diagnostic assistant |
-| DigitalTwinStudioPlugin | `digitaltwin` | Digital twin modeling and management |
-| BlockchainExplorerPlugin | `blockchainexplorer` | Blockchain audit log explorer |
-| QuantumSecurityPlugin | `quantumsecurity` | Quantum-resistant security management |
+| CloudManagerPlugin | `cloudmanager` | Experimental opt-in: Cloud connectivity management |
+| EdgeComputingPlugin | `edgecomputing` | Experimental opt-in: Edge computing management |
+| AIAssistantPlugin | `aiassistant` | Experimental opt-in: AI-powered diagnostic assistant |
+| DigitalTwinStudioPlugin | `digitaltwin` | Experimental opt-in: Digital twin modeling and management |
+| BlockchainExplorerPlugin | `blockchainexplorer` | Experimental opt-in: Blockchain audit log explorer |
+| QuantumSecurityPlugin | `quantumsecurity` | Experimental opt-in: Quantum-resistant security management |
 | WorkflowOptimizerPlugin | `workflowoptimizer` | Workflow optimization recommendations |
 | WorkflowDashboardPlugin | `workflowdashboard` | Workflow monitoring dashboard |
 | PdoMappingEditorPlugin | `pdomapping` | Visual PDO mapping editor with canvas, validator, and export |
@@ -324,12 +324,12 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `ecatVisualization()` | `EtherCATVisualizationService*` | Data visualization |
 | `ecatReporting()` | `EtherCATReportingService*` | Advanced reporting |
 | `ecatDocumentation()` | `EtherCATDocumentationService*` | Documentation generation |
-| `ecatCloud()` | `EtherCATCloudService*` | Cloud connectivity |
-| `ecatEdge()` | `EtherCATEdgeService*` | Edge computing |
-| `ecatAI()` | `EtherCATAIService*` | AI-powered diagnostics |
-| `ecatDigitalTwin()` | `EtherCATDigitalTwinService*` | Digital twin modeling |
-| `ecatBlockchain()` | `EtherCATBlockchainService*` | Blockchain audit logging |
-| `ecatQuantum()` | `EtherCATQuantumService*` | Quantum-resistant security |
+| `ecatCloud()` | `EtherCATCloudService*` | Experimental opt-in: Cloud connectivity |
+| `ecatEdge()` | `EtherCATEdgeService*` | Experimental opt-in: Edge computing |
+| `ecatAI()` | `EtherCATAIService*` | Experimental opt-in: AI-powered diagnostics |
+| `ecatDigitalTwin()` | `EtherCATDigitalTwinService*` | Experimental opt-in: Digital twin modeling |
+| `ecatBlockchain()` | `EtherCATBlockchainService*` | Experimental opt-in: Blockchain audit logging |
+| `ecatQuantum()` | `EtherCATQuantumService*` | Experimental opt-in: Quantum-resistant security |
 | `projectManagement()` | `ProjectManagementService*` | Project management |
 | `taskManagement()` | `TaskManagementService*` | Task management |
 | `resourceManagement()` | `ResourceManagementService*` | Resource management |
@@ -411,12 +411,12 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `ResourceManagementService` | `services/ResourceManagementService.h` | Resource management |
 | `TaskManagementService` | `services/TaskManagementService.h` | Task management |
 | `ProjectManagementService` | `services/ProjectManagementService.h` | Project management |
-| `EtherCATDigitalTwinService` | `services/EtherCATDigitalTwinService.h` | Digital twin modeling and simulation |
-| `EtherCATQuantumService` | `services/EtherCATQuantumService.h` | Quantum-resistant cryptography |
-| `EtherCATBlockchainService` | `services/EtherCATBlockchainService.h` | Blockchain audit logging |
-| `EtherCATAIService` | `services/EtherCATAIService.h` | AI-powered diagnostics and optimization |
-| `EtherCATEdgeService` | `services/EtherCATEdgeService.h` | Edge computing management |
-| `EtherCATCloudService` | `services/EtherCATCloudService.h` | Cloud connectivity and sync |
+| `EtherCATDigitalTwinService` | `services/EtherCATDigitalTwinService.h` | Experimental opt-in: Digital twin modeling and simulation |
+| `EtherCATQuantumService` | `services/EtherCATQuantumService.h` | Experimental opt-in: Quantum-resistant cryptography |
+| `EtherCATBlockchainService` | `services/EtherCATBlockchainService.h` | Experimental opt-in: Blockchain audit logging |
+| `EtherCATAIService` | `services/EtherCATAIService.h` | Experimental opt-in: AI-powered diagnostics and optimization |
+| `EtherCATEdgeService` | `services/EtherCATEdgeService.h` | Experimental opt-in: Edge computing management |
+| `EtherCATCloudService` | `services/EtherCATCloudService.h` | Experimental opt-in: Cloud connectivity and sync |
 | `EtherCATDocumentationService` | `services/EtherCATDocumentationService.h` | Documentation generation |
 | `EtherCATReportingService` | `services/EtherCATReportingService.h` | Advanced reporting |
 | `EtherCATVisualizationService` | `services/EtherCATVisualizationService.h` | Data visualization |

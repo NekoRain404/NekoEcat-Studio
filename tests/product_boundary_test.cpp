@@ -14,6 +14,7 @@ private slots:
   void experimentalTestSourcesAreCompileGuarded();
   void experimentalPluginsAreCompileGuarded();
   void readmeMarksExperimentalWorkspaces();
+  void docsMarkExperimentalSurfaces();
 
 private:
   static QString readTextFile(const QString &path);
@@ -269,6 +270,44 @@ void ProductBoundaryTest::readmeMarksExperimentalWorkspaces() {
              qPrintable(QStringLiteral("README workspace row for %1 must be marked "
                                        "Experimental/实验.")
                             .arg(workspaceName)));
+  }
+}
+
+void ProductBoundaryTest::docsMarkExperimentalSurfaces() {
+  const QStringList docPaths = {
+      QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/PLUGIN_GUIDE.md"),
+  };
+  const QStringList surfaceNames = {
+      QStringLiteral("CloudManagerPlugin"),
+      QStringLiteral("EdgeComputingPlugin"),
+      QStringLiteral("AIAssistantPlugin"),
+      QStringLiteral("DigitalTwinStudioPlugin"),
+      QStringLiteral("BlockchainExplorerPlugin"),
+      QStringLiteral("QuantumSecurityPlugin"),
+      QStringLiteral("EtherCATCloudService"),
+      QStringLiteral("EtherCATEdgeService"),
+      QStringLiteral("EtherCATAIService"),
+      QStringLiteral("EtherCATDigitalTwinService"),
+      QStringLiteral("EtherCATBlockchainService"),
+      QStringLiteral("EtherCATQuantumService"),
+  };
+
+  for (const QString &docPath : docPaths) {
+    const QString doc = readTextFile(docPath);
+    for (const QString &surfaceName : surfaceNames) {
+      if (!doc.contains(surfaceName)) {
+        continue;
+      }
+
+      const QRegularExpression rowPattern(
+          QStringLiteral(R"(^\|[^\n]*\b%1\b[^\n]*\b(Experimental|opt-in|实验)\b[^\n]*$)")
+              .arg(QRegularExpression::escape(surfaceName)),
+          QRegularExpression::MultilineOption);
+      QVERIFY2(rowPattern.match(doc).hasMatch(),
+               qPrintable(QStringLiteral("%1 must mark %2 as Experimental/opt-in.")
+                              .arg(docPath, surfaceName)));
+    }
   }
 }
 
