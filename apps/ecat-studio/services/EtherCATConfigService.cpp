@@ -1,6 +1,10 @@
 #include "EtherCATConfigService.h"
 
 #include <QDateTime>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 // EtherCATConfigService.cpp — Named configuration profiles with parameter management
 //
@@ -94,14 +98,96 @@ bool EtherCATConfigService::deleteProfile(const QString &name)
 
 bool EtherCATConfigService::exportProfile(const QString &name, const QString &path) const
 {
-    Q_UNUSED(name);
-    Q_UNUSED(path);
-    return true;
+    if (name.isEmpty() || path.isEmpty())
+        return false;
+
+    const ConfigProfile *profile = nullptr;
+    for (const ConfigProfile &p : savedProfiles_) {
+        if (p.name == name) {
+            profile = &p;
+            break;
+        }
+    }
+    if (!profile)
+        return false;
+
+    QJsonArray params;
+    for (const ConfigParameter &param : profile->parameters) {
+        QJsonObject obj;
+        obj[QStringLiteral("name")] = param.name;
+        obj[QStringLiteral("value")] = param.value;
+        obj[QStringLiteral("unit")] = param.unit;
+        obj[QStringLiteral("description")] = param.description;
+        obj[QStringLiteral("readOnly")] = param.readOnly;
+        params.append(obj);
+    }
+
+    QJsonObject root;
+    root[QStringLiteral("name")] = profile->name;
+    root[QStringLiteral("description")] = profile->description;
+    root[QStringLiteral("timestampMs")] = QString::number(profile->timestampMs);
+    root[QStringLiteral("parameters")] = params;
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        return false;
+
+    return file.write(QJsonDocument(root).toJson(QJsonDocument::Indented)) >= 0;
 }
 
 bool EtherCATConfigService::importProfile(const QString &path)
 {
-    Q_UNUSED(path);
+    if (path.isEmpty())
+        return false;
+
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QJsonParseError parseError;
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject())
+        return false;
+
+    const QJsonObject root = doc.object();
+    ConfigProfile profile;
+    profile.name = root.value(QStringLiteral("name")).toString();
+    profile.description = root.value(QStringLiteral("description")).toString();
+    const auto timestampValue = root.value(QStringLiteral("timestampMs"));
+    profile.timestampMs = timestampValue.isDouble()
+                              ? static_cast<qint64>(timestampValue.toDouble())
+                              : timestampValue.toString().toLongLong();
+
+    const QJsonArray params = root.value(QStringLiteral("parameters")).toArray();
+    for (const QJsonValue &value : params) {
+        const QJsonObject obj = value.toObject();
+        ConfigParameter param;
+        param.name = obj.value(QStringLiteral("name")).toString();
+        param.value = obj.value(QStringLiteral("value")).toString();
+        param.unit = obj.value(QStringLiteral("unit")).toString();
+        param.description = obj.value(QStringLiteral("description")).toString();
+        param.readOnly = obj.value(QStringLiteral("readOnly")).toBool(false);
+        profile.parameters.append(param);
+    }
+
+    const ConfigValidation validation = validateProfile(profile);
+    if (!validation.valid)
+        return false;
+
+    for (int i = 0; i < savedProfiles_.size(); ++i) {
+        if (savedProfiles_.at(i).name == profile.name) {
+            savedProfiles_[i] = profile;
+            profile_ = profile;
+            emit profileLoaded(profile.name);
+            emit configurationChanged(profile_);
+            return true;
+        }
+    }
+
+    savedProfiles_.append(profile);
+    profile_ = profile;
+    emit profileLoaded(profile.name);
+    emit configurationChanged(profile_);
     return true;
 }
 

@@ -7,6 +7,8 @@
 //   - Export and import of configuration profiles
 
 #include <QTest>
+#include <QTemporaryDir>
+#include <QFile>
 #include "services/EtherCATConfigService.h"
 
 class EtherCATConfigServiceTest : public QObject {
@@ -104,8 +106,43 @@ private slots:
   // Export and import profile round-trip
   void testExportImport() {
     EtherCATConfigService svc;
-    QVERIFY(svc.exportProfile("test", "/tmp/test.ecatcfg"));
-    QVERIFY(svc.importProfile("/tmp/test.ecatcfg"));
+    ConfigProfile p;
+    p.name = QStringLiteral("line");
+    p.description = QStringLiteral("Lab line profile");
+    ConfigParameter param;
+    param.name = QStringLiteral("cycle_time");
+    param.value = QStringLiteral("1000");
+    param.unit = QStringLiteral("us");
+    param.description = QStringLiteral("Cycle time");
+    p.parameters.append(param);
+    svc.setCurrentProfile(p);
+    QVERIFY(svc.saveProfile(QStringLiteral("line")));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath(QStringLiteral("line.ecatcfg"));
+    QVERIFY(svc.exportProfile(QStringLiteral("line"), path));
+    QVERIFY(QFile::exists(path));
+
+    EtherCATConfigService imported;
+    QVERIFY(imported.importProfile(path));
+    QCOMPARE(imported.savedProfiles().size(), 1);
+    QVERIFY(imported.loadProfile(QStringLiteral("line")));
+    QCOMPARE(imported.currentProfile().description, QStringLiteral("Lab line profile"));
+    QCOMPARE(imported.currentProfile().parameters.size(), 1);
+    QCOMPARE(imported.currentProfile().parameters.first().name, QStringLiteral("cycle_time"));
+    QCOMPARE(imported.currentProfile().parameters.first().value, QStringLiteral("1000"));
+    QCOMPARE(imported.currentProfile().parameters.first().unit, QStringLiteral("us"));
+  }
+
+  // Export/import profile failure instead of pretending persistence succeeded.
+  void testExportImportFailures() {
+    EtherCATConfigService svc;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(!svc.exportProfile(QStringLiteral("missing"),
+                               dir.filePath(QStringLiteral("missing.ecatcfg"))));
+    QVERIFY(!svc.importProfile(dir.filePath(QStringLiteral("missing.ecatcfg"))));
   }
 };
 

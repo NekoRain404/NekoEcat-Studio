@@ -1,14 +1,17 @@
 #pragma once
 
-// EtherCATConfigService — manages configuration profiles for EtherCAT
-// master and slave parameters with validation and persistence.
+// EtherCATConfigService — manages local configuration profiles for EtherCAT
+// master and slave parameters with validation and JSON persistence.
 //
 // This service provides configuration management capabilities:
 //   - Current profile management with parameter CRUD operations
 //   - Named profile save/load/delete with persistence
 //   - Profile validation with error and warning reporting
-//   - Import/export of profiles to/from external files
+//   - Import/export of local profiles to/from JSON files
 //   - Change notifications via Qt signals
+//
+// This service does not apply parameters to a live EtherCAT master. Runtime
+// application must go through an explicit backend-backed operation.
 //
 // Usage:
 //   ServiceContainer *container = ...;
