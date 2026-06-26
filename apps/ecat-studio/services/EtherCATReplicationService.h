@@ -46,5 +46,5 @@ private:
   EcatClient *client_;
   QVector<ReplicationStatus> history_;
 
-  bool backendReady() const;
+  bool rejectReplication(const QStringList &targets) const;
 };

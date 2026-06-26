@@ -16,82 +16,22 @@ EtherCATReplicationService::EtherCATReplicationService(EventBus *bus,
 
 bool EtherCATReplicationService::replicateConfiguration(const QStringList &targets)
 {
-    if (targets.isEmpty())
-        return true;
-    if (!backendReady())
-        return false;
-
-    for (const auto &target : targets) {
-        emit replicationStarted(target);
-        ReplicationStatus s;
-        s.target = target;
-        s.status = QStringLiteral("Success");
-        s.startTime = QDateTime::currentDateTime();
-        s.endTime = s.startTime;
-        history_.append(s);
-        emit replicationCompleted(target, true);
-    }
-    return true;
+    return rejectReplication(targets);
 }
 
 bool EtherCATReplicationService::replicateData(const QStringList &targets)
 {
-    if (targets.isEmpty())
-        return true;
-    if (!backendReady())
-        return false;
-
-    for (const auto &target : targets) {
-        emit replicationStarted(target);
-        ReplicationStatus s;
-        s.target = target;
-        s.status = QStringLiteral("Success");
-        s.startTime = QDateTime::currentDateTime();
-        s.endTime = s.startTime;
-        history_.append(s);
-        emit replicationCompleted(target, true);
-    }
-    return true;
+    return rejectReplication(targets);
 }
 
 bool EtherCATReplicationService::replicateState(const QStringList &targets)
 {
-    if (targets.isEmpty())
-        return true;
-    if (!backendReady())
-        return false;
-
-    for (const auto &target : targets) {
-        emit replicationStarted(target);
-        ReplicationStatus s;
-        s.target = target;
-        s.status = QStringLiteral("Success");
-        s.startTime = QDateTime::currentDateTime();
-        s.endTime = s.startTime;
-        history_.append(s);
-        emit replicationCompleted(target, true);
-    }
-    return true;
+    return rejectReplication(targets);
 }
 
 bool EtherCATReplicationService::replicateBackup(const QStringList &targets)
 {
-    if (targets.isEmpty())
-        return true;
-    if (!backendReady())
-        return false;
-
-    for (const auto &target : targets) {
-        emit replicationStarted(target);
-        ReplicationStatus s;
-        s.target = target;
-        s.status = QStringLiteral("Success");
-        s.startTime = QDateTime::currentDateTime();
-        s.endTime = s.startTime;
-        history_.append(s);
-        emit replicationCompleted(target, true);
-    }
-    return true;
+    return rejectReplication(targets);
 }
 
 QVector<ReplicationStatus> EtherCATReplicationService::replicationHistory() const
@@ -99,8 +39,8 @@ QVector<ReplicationStatus> EtherCATReplicationService::replicationHistory() cons
     return history_;
 }
 
-bool EtherCATReplicationService::backendReady() const
+bool EtherCATReplicationService::rejectReplication(
+    const QStringList &targets) const
 {
-    // No real replication backend is wired yet; keep success paths unreachable.
-    return false;
+    return targets.isEmpty();
 }

@@ -5862,6 +5862,9 @@ target_include_directories(ethercat_replication_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
     ${CMAKE_SOURCE_DIR}/src/core
 )
+target_compile_definitions(ethercat_replication_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 target_link_libraries(ethercat_replication_service_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
 set_target_properties(ethercat_replication_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_replication_service_test COMMAND ethercat_replication_service_test)

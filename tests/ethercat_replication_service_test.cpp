@@ -8,6 +8,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATReplicationService.h"
 
 class EtherCATReplicationServiceTest : public QObject {
@@ -76,6 +77,17 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATReplicationService::replicationCompleted);
     svc.replicateConfiguration({QStringLiteral("node-01")});
     QCOMPARE(spy.count(), 0);
+  }
+
+  void testImplementationDoesNotContainSyntheticSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATReplicationService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("status = QStringLiteral(\"Success\")")),
+             "Replication service must not contain hard-coded success history");
+    QVERIFY2(!text.contains(QStringLiteral("replicationCompleted(target, true)")),
+             "Replication service must not emit hard-coded successful completion");
   }
 };
 
