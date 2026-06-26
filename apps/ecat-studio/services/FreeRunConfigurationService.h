@@ -4,7 +4,8 @@
 //
 // Manages configuration for Free Run mode including process data layout,
 // cycle time, data mapping, and error handling policies. Configuration can be
-// staged offline; applying it requires a live daemon connection.
+// staged offline; applying it requires a backend API that acknowledges the
+// configuration was applied by the live daemon.
 //
 // Usage:
 //   FreeRunConfigurationService *svc = new FreeRunConfigurationService(client, eventBus, this);
@@ -58,7 +59,7 @@ public:
   bool configureErrorHandling(const ErrorHandlingConfig &config);
 
   // Apply the staged Free Run configuration to the live daemon.
-  // Returns false while offline instead of marking the configuration applied.
+  // Returns false until a backend acknowledgement path is wired.
   bool applyConfiguration();
 
   ProcessDataConfig processDataConfig() const { return pdConfig_; }

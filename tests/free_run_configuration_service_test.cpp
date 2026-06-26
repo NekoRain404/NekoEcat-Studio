@@ -138,6 +138,19 @@ private slots:
     QCOMPARE(spy.count(), 0);
   }
 
+  void testApplyConfigurationDoesNotSynthesizeBackendAck() {
+    QFile source(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/FreeRunConfigurationService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString code = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!code.contains(QStringLiteral("applied_ = true")),
+             "FreeRun configuration must not mark applied without daemon acknowledgement");
+    QVERIFY2(!code.contains(QStringLiteral("emit configurationApplied()")),
+             "FreeRun configuration must not emit applied without daemon acknowledgement");
+  }
+
   void testApplyWithoutConfigFails() {
     FreeRunConfigurationService svc(nullptr, nullptr);
     QVERIFY(!svc.applyConfiguration());

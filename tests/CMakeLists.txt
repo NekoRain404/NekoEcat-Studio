@@ -7883,6 +7883,9 @@ target_link_libraries(free_run_configuration_service_test PRIVATE
     Qt6::Core Qt6::Network Qt6::Test ecat_core
 )
 set_target_properties(free_run_configuration_service_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(free_run_configuration_service_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME free_run_configuration_service_test COMMAND free_run_configuration_service_test)
 
 # ── FreeRunMonitoringService Test ─────────────────────────────────────

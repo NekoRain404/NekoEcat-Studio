@@ -59,8 +59,8 @@ bool FreeRunConfigurationService::applyConfiguration() {
     return false;
   if (!client_ || !client_->isConnected())
     return false;
-
-  applied_ = true;
-  emit configurationApplied();
-  return true;
+  // Staging validation and daemon connectivity are not enough to prove the
+  // process-data layout was applied to the EtherCAT master. Keep failing closed
+  // until EcatClient exposes a request/acknowledgement path for this operation.
+  return false;
 }
