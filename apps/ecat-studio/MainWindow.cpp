@@ -239,8 +239,7 @@ QColor diagnosticsEventColorForKey(const QString &colorKey) {
 /// MainWindow constructor — full initialization sequence:
 ///
 /// 1. Load persisted settings (QSettings) and configure the EcatClient target
-/// 2. Create EventBus and ServiceContainer (SdoService, WatchService,
-///    TopologyService, and 80+ other services)
+/// 2. Create EventBus and ServiceContainer for shared runtime services
 /// 3. Build the main UI layout (tabs, toolbars, panels, metric cards)
 /// 4. Apply settings and custom keyboard shortcuts
 /// 5. Create PluginRegistry and register all 50+ workspace plugins:

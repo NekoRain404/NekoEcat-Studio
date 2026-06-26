@@ -343,6 +343,8 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
       QStringLiteral(SOURCE_ROOT "/docs/PROJECT_OVERVIEW.md"),
       QStringLiteral(SOURCE_ROOT "/docs/TWINCAT_BENCHMARK_REVIEW.md"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"),
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.h"),
   };
   const QStringList staleClaims = {
       QStringLiteral("325+ registered tests"),
@@ -366,6 +368,7 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("FoE 存根"),
       QStringLiteral("无法进行固件更新"),
       QStringLiteral("80+ 存根服务"),
+      QStringLiteral("80+ other services"),
       QStringLiteral("无原生 EtherCAT API"),
       QStringLiteral("实现原生 IgH API"),
       QStringLiteral("实现原生 IgH ecrt API"),
