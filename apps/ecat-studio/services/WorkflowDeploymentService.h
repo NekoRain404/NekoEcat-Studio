@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowDeploymentService -- deploys configuration, firmware, software,
-// and system updates to EtherCAT slaves in NekoEcat Studio.
+// WorkflowDeploymentService -- deployment request facade for configuration,
+// firmware, software, and system updates to EtherCAT slaves in NekoEcat Studio.
+// Until a real deployment backend is wired, validated requests fail closed and
+// do not emit synthetic started/progress/completed signals.
 //
 // Thread safety: main (GUI) thread only.
 

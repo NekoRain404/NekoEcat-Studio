@@ -1,14 +1,11 @@
 // WorkflowDeploymentServiceTest — Tests for Workflow Deployment Service
 //
 // Test coverage:
-//   - Configuration deployment with valid data
-//   - Firmware deployment with valid data
-//   - Software deployment with valid data
-//   - System deployment with valid data
+//   - Valid deployment payloads fail closed without a deployment backend
 //   - Empty payload rejection
 //   - Empty version rejection
 //   - Checksum validation
-//   - Signal emissions (started, progress, completed)
+//   - No synthetic deployment signal emissions while offline
 
 #include <QTest>
 #include <QSignalSpy>
@@ -17,7 +14,7 @@
 class WorkflowDeploymentServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testDeployConfiguration() {
+  void testDeployConfigurationFailsWithoutBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy startedSpy(&svc, &WorkflowDeploymentService::deploymentStarted);
       QSignalSpy progressSpy(&svc, &WorkflowDeploymentService::deploymentProgress);
@@ -27,16 +24,13 @@ private slots:
       data.configuration = QByteArray("config_data");
       data.version = QStringLiteral("1.0.0");
 
-      QVERIFY(svc.deployConfiguration(1, data));
-      QCOMPARE(startedSpy.count(), 1);
-      QCOMPARE(progressSpy.count(), 2);
-      QCOMPARE(completedSpy.count(), 1);
-      QCOMPARE(startedSpy.at(0).at(0).toInt(), 1);
-      QCOMPARE(startedSpy.at(0).at(1).toString(), QString("configuration"));
-      QCOMPARE(completedSpy.at(0).at(1).toBool(), true);
+      QVERIFY(!svc.deployConfiguration(1, data));
+      QCOMPARE(startedSpy.count(), 0);
+      QCOMPARE(progressSpy.count(), 0);
+      QCOMPARE(completedSpy.count(), 0);
   }
 
-  void testDeployFirmware() {
+  void testDeployFirmwareFailsWithoutBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy spy(&svc, &WorkflowDeploymentService::deploymentCompleted);
 
@@ -44,12 +38,11 @@ private slots:
       data.firmware = QByteArray("firmware_bin");
       data.version = QStringLiteral("2.0.0");
 
-      QVERIFY(svc.deployFirmware(2, data));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(0).toInt(), 2);
+      QVERIFY(!svc.deployFirmware(2, data));
+      QCOMPARE(spy.count(), 0);
   }
 
-  void testDeploySoftware() {
+  void testDeploySoftwareFailsWithoutBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy spy(&svc, &WorkflowDeploymentService::deploymentStarted);
 
@@ -57,12 +50,11 @@ private slots:
       data.software = QByteArray("software_pkg");
       data.version = QStringLiteral("3.0.0");
 
-      QVERIFY(svc.deploySoftware(3, data));
-      QCOMPARE(spy.count(), 1);
-      QCOMPARE(spy.at(0).at(1).toString(), QString("software"));
+      QVERIFY(!svc.deploySoftware(3, data));
+      QCOMPARE(spy.count(), 0);
   }
 
-  void testDeploySystem() {
+  void testDeploySystemFailsWithoutBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy spy(&svc, &WorkflowDeploymentService::deploymentCompleted);
 
@@ -70,9 +62,8 @@ private slots:
       data.system = QByteArray("system_img");
       data.version = QStringLiteral("4.0.0");
 
-      QVERIFY(svc.deploySystem(4, data));
-      QCOMPARE(spy.count(), 1);
-      QVERIFY(spy.at(0).at(1).toBool());
+      QVERIFY(!svc.deploySystem(4, data));
+      QCOMPARE(spy.count(), 0);
   }
 
   void testEmptyConfigurationReturnsFalse() {
@@ -110,7 +101,7 @@ private slots:
       QVERIFY(!svc.deployConfiguration(1, data));
   }
 
-  void testValidChecksum() {
+  void testValidChecksumStillRequiresBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy spy(&svc, &WorkflowDeploymentService::deploymentCompleted);
 
@@ -119,11 +110,11 @@ private slots:
       data.version = QStringLiteral("1.0.0");
       data.checksum = QStringLiteral("9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08");
 
-      svc.deployConfiguration(1, data);
-      QCOMPARE(spy.count(), 1);
+      QVERIFY(!svc.deployConfiguration(1, data));
+      QCOMPARE(spy.count(), 0);
   }
 
-  void testProgressSignalValues() {
+  void testNoSyntheticProgressWithoutBackend() {
       WorkflowDeploymentService svc;
       QSignalSpy spy(&svc, &WorkflowDeploymentService::deploymentProgress);
 
@@ -131,10 +122,8 @@ private slots:
       data.configuration = QByteArray("data");
       data.version = QStringLiteral("1.0.0");
 
-      svc.deployConfiguration(5, data);
-      QCOMPARE(spy.count(), 2);
-      QCOMPARE(spy.at(0).at(1).toInt(), 50);
-      QCOMPARE(spy.at(1).at(1).toInt(), 100);
+      QVERIFY(!svc.deployConfiguration(5, data));
+      QCOMPARE(spy.count(), 0);
   }
 };
 

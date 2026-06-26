@@ -59,9 +59,9 @@ bool WorkflowDeploymentService::executeDeployment(int position, const QString &t
                                                    const QByteArray &payload,
                                                    const QString &version)
 {
-    emit deploymentStarted(position, type);
-    emit deploymentProgress(position, 50);
-    emit deploymentProgress(position, 100);
-    emit deploymentCompleted(position, true);
-    return true;
+    Q_UNUSED(position)
+    Q_UNUSED(type)
+    Q_UNUSED(payload)
+    Q_UNUSED(version)
+    return false;
 }
