@@ -370,6 +370,8 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("实现原生 IgH API"),
       QStringLiteral("实现原生 IgH ecrt API"),
       QStringLiteral("实现原生 ecrt API"),
+      QStringLiteral("NekoEcat-Studio-v3.7.0-linux-x86_64"),
+      QStringLiteral("**版本**: 3.7.0"),
   };
 
   for (const QString &docPath : docPaths) {

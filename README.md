@@ -530,14 +530,15 @@ RELEASE_NOTES.md
 
 ```bash
 chmod +x scripts/package-linux.sh
-scripts/package-linux.sh 3.7.0
+VERSION=3.8.0
+scripts/package-linux.sh "$VERSION"
 ```
 
 解压后运行 / Run after extraction:
 
 ```bash
-tar -xzf dist/NekoEcat-Studio-v3.7.0-linux-x86_64.tar.gz -C dist
-dist/NekoEcat-Studio-v3.7.0-linux-x86_64/NekoEcat-Studio
+tar -xzf "dist/NekoEcat-Studio-v${VERSION}-linux-x86_64.tar.gz" -C dist
+"dist/NekoEcat-Studio-v${VERSION}-linux-x86_64/NekoEcat-Studio"
 ```
 
 ## 工程文件 / Project Files
