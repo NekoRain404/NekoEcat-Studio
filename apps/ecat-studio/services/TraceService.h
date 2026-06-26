@@ -1,11 +1,9 @@
 #pragma once
 
-// TraceService — multi-channel signal tracing backend.
-// Manages trace channels bound to slave SDO entries with configurable
-// sample rate, buffer size, and trigger modes.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
+// TraceService — multi-channel signal tracing configuration.
+// Manages trace channels bound to slave SDO entries with configurable sample
+// rate, buffer size, and trigger modes. No capture backend is wired yet, so
+// startTrace() fails closed instead of generating synthetic samples.
 //
 // This service provides multi-channel signal tracing capabilities for
 // the EtherCAT network. It handles:
@@ -13,7 +11,7 @@
 //   - Signal tracing with configurable sample rate
 //   - Buffer management with configurable size
 //   - Trigger modes (Auto, Normal, Single, Rising, Falling)
-//   - Trace data collection and retrieval
+//   - Trace data retrieval once a real capture backend is wired
 //   - Multi-channel synchronization
 //
 // Usage:
@@ -22,7 +20,7 @@
 //   trace.setSampleRate(1000);  // 1kHz sampling
 //   trace.setBufferSize(10000);  // 10k points buffer
 //   trace.setTriggerMode(TraceTriggerMode::Rising);
-//   trace.startTrace();
+//   trace.startTrace();  // no-op until a capture backend is wired
 //   QVector<TracePoint> data = trace.getTraceData(chId);
 //   trace.stopTrace();
 //
@@ -157,11 +155,9 @@ private:
 
   QVector<TraceChannelConfig> channels_;  // Trace channels
   QTimer *timer_ = nullptr;               // Timer for data collection
-  QElapsedTimer elapsed_;                 // Elapsed time tracker
   int nextId_ = 1;                        // Next channel ID
   int sampleRate_ = 1000;                 // Sample rate in Hz
   int bufferSize_ = kDefaultBufferSize;   // Buffer size
   TraceTriggerMode triggerMode_ = TraceTriggerMode::Auto;  // Trigger mode
   bool tracing_ = false;                  // Whether tracing is active
-  int tickCount_ = 0;                     // Tick counter
 };

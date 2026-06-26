@@ -9,6 +9,7 @@
 
 #include <QTest>
 #include <QApplication>
+#include <QSignalSpy>
 #include "services/TraceService.h"
 #include "plugins/trace/TracePlugin.h"
 
@@ -70,10 +71,18 @@ private slots:
   }
 
   // Start and stop trace toggles isTracing flag
-  void testTraceLifecycle() {
+  void testTraceLifecycleFailsClosedWithoutBackend() {
+    const int id = service->addChannel("Offline CH", 1, "0x6064", "0");
+    QSignalSpy startedSpy(service, &TraceService::traceStarted);
+    QSignalSpy dataSpy(service, &TraceService::traceDataUpdated);
+
     QVERIFY(!service->isTracing());
     service->startTrace();
-    QVERIFY(service->isTracing());
+    QVERIFY(!service->isTracing());
+    QCOMPARE(startedSpy.count(), 0);
+    QTest::qWait(20);
+    QCOMPARE(dataSpy.count(), 0);
+    QVERIFY(service->getTraceData(id).isEmpty());
     service->stopTrace();
     QVERIFY(!service->isTracing());
   }

@@ -1,18 +1,14 @@
 #include "TraceService.h"
-#include <QRandomGenerator>
-#include <QtMath>
 
-// TraceService.cpp — Multi-channel data tracing with configurable sample rate and triggers
+// TraceService.cpp — Multi-channel trace configuration with fail-closed capture.
 //
 // Implementation notes:
 //   - Supports up to kMaxChannels simultaneous trace channels with auto-naming
-//   - Timer-driven tick generates synthetic trace data (sine + noise) for demonstration
-//   - Ring buffer per channel capped at bufferSize; emits traceDataUpdated per tick
+//   - Capture is intentionally disabled until a real backend is wired
 
 TraceService::TraceService(QObject *parent)
     : QObject(parent), timer_(new QTimer(this)) {
   connect(timer_, &QTimer::timeout, this, &TraceService::tick);
-  elapsed_.start();
 }
 
 int TraceService::addChannel(const QString &name, int slave,
@@ -48,11 +44,6 @@ QVector<TraceChannelConfig> TraceService::channels() const {
 
 void TraceService::startTrace() {
   if (tracing_) return;
-  tracing_ = true;
-  tickCount_ = 0;
-  elapsed_.start();
-  timer_->start(1000 / sampleRate_);
-  emit traceStarted();
 }
 
 void TraceService::stopTrace() {
@@ -92,22 +83,5 @@ QVector<TracePoint> TraceService::getTraceData(int channelId) const {
 }
 
 void TraceService::tick() {
-  ++tickCount_;
-  const qint64 now = elapsed_.elapsed();
-
-  for (auto &ch : channels_) {
-    TracePoint pt;
-    pt.timestamp = now;
-    pt.channelId = ch.id;
-    pt.value = qSin(tickCount_ * 0.01 * (1.0 + ch.id * 0.3)) * 50.0
-               + (QRandomGenerator::global()->bounded(100) - 50) * 0.1;
-    pt.quality = 100 - (QRandomGenerator::global()->bounded(5));
-
-    ch.data.append(pt);
-    if (ch.data.size() > bufferSize_) {
-      ch.data.remove(0, ch.data.size() - bufferSize_);
-    }
-
-    emit traceDataUpdated(ch.id, ch.data);
-  }
+  if (!tracing_) return;
 }
