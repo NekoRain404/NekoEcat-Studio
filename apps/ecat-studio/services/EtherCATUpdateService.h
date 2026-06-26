@@ -2,9 +2,9 @@
 
 // EtherCATUpdateService — update request facade for EtherCAT slaves.
 //
-// Firmware/software update actions fail closed until a live update backend is
-// wired. Rejected requests return traceable result IDs but do not synthesize
-// progress, completion signals, or update history.
+// Firmware/software update actions fail closed. Rejected requests return
+// traceable result IDs but do not synthesize progress, completion signals, or
+// update history.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -63,7 +63,6 @@ private:
   UpdateResult makeResult(int position, const QString &version,
                           const QString &status, int progress,
                           const QString &log);
-  bool backendReady() const;
 
   EventBus *bus_;
   EcatClient *client_;

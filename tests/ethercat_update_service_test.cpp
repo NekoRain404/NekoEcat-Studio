@@ -8,6 +8,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATUpdateService.h"
 
 class EtherCATUpdateServiceTest : public QObject {
@@ -126,6 +127,25 @@ private slots:
     UpdateInfo u;
     u.version = "1.0";
     QVERIFY(!svc.rollbackUpdate(u));
+  }
+
+  // Implementation must not keep dead local success paths for future backends.
+  void testImplementationDoesNotContainSyntheticSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATUpdateService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"Available\")")),
+             "Update checks must not synthesize available firmware offline.");
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"Completed\")")),
+             "Update starts must not synthesize completed firmware updates.");
+    QVERIFY2(!text.contains(QStringLiteral("emit updateProgressChanged(100")),
+             "Update service must not emit completed progress without a real backend result.");
+    QVERIFY2(!text.contains(QStringLiteral("emit updateDownloaded(update)")),
+             "Update downloads must not synthesize download success.");
+    QVERIFY2(!text.contains(QStringLiteral("emit updateInstalled(update)")),
+             "Update installs must not synthesize install success.");
   }
 };
 

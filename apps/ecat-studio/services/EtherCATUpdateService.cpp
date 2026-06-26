@@ -33,39 +33,17 @@ UpdateResult EtherCATUpdateService::makeResult(int position,
 
 UpdateResult EtherCATUpdateService::checkForUpdates(int position)
 {
-    if (!backendReady()) {
-        return makeResult(position, QString(),
-                          QStringLiteral("Rejected"), 0,
-                          QStringLiteral("Update check requires a connected EtherCAT update backend"));
-    }
-
-    auto result = makeResult(position, QStringLiteral("2.1.0"),
-                             QStringLiteral("Available"), 0,
-                             QStringLiteral("Update available for slave at position %1")
-                                 .arg(position));
-    history_.append(result);
-    emit updateProgressChanged(0, QStringLiteral("Available"));
-    return result;
+    return makeResult(position, QString(),
+                      QStringLiteral("Rejected"), 0,
+                      QStringLiteral("Update check requires a connected EtherCAT update backend"));
 }
 
 UpdateResult EtherCATUpdateService::startUpdate(int position,
                                                 const QString &version)
 {
-    if (!backendReady()) {
-        return makeResult(position, version,
-                          QStringLiteral("Rejected"), 0,
-                          QStringLiteral("Firmware update requires a connected EtherCAT update backend"));
-    }
-
-    updating_ = true;
-    auto result = makeResult(position, version,
-                             QStringLiteral("Completed"), 100,
-                             QStringLiteral("Firmware update to '%1' for slave at position %2 completed")
-                                 .arg(version).arg(position));
-    history_.append(result);
-    updating_ = false;
-    emit updateProgressChanged(100, QStringLiteral("Completed"));
-    return result;
+    return makeResult(position, version,
+                      QStringLiteral("Rejected"), 0,
+                      QStringLiteral("Firmware update requires a connected EtherCAT update backend"));
 }
 
 bool EtherCATUpdateService::cancelUpdate()
@@ -90,34 +68,18 @@ QVector<UpdateInfo> EtherCATUpdateService::checkForUpdates()
 
 bool EtherCATUpdateService::downloadUpdate(const UpdateInfo &update)
 {
-    if (update.downloadUrl.isEmpty())
-        return false;
-    if (!backendReady())
-        return false;
-
-    emit updateDownloaded(update);
-    return true;
+    Q_UNUSED(update);
+    return false;
 }
 
 bool EtherCATUpdateService::installUpdate(const UpdateInfo &update)
 {
-    if (update.version.isEmpty())
-        return false;
-    if (!backendReady())
-        return false;
-
-    emit updateInstalled(update);
-    return true;
+    Q_UNUSED(update);
+    return false;
 }
 
 bool EtherCATUpdateService::rollbackUpdate(const UpdateInfo &update)
 {
     Q_UNUSED(update);
-    return backendReady();
-}
-
-bool EtherCATUpdateService::backendReady() const
-{
-    // No real update backend is wired yet; keep success paths unreachable.
     return false;
 }
