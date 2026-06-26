@@ -1,13 +1,8 @@
 #pragma once
-// PLACEHOLDER IMPLEMENTATION
-// This is a template/stub for future development.
-// Not production ready.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
-
-// WorkflowDigitalTwinService — creates virtual digital replicas of workflow
-// processes for simulation, prediction, and what-if analysis.
+// WorkflowDigitalTwinService -- request facade for backend-backed workflow
+// digital twins, physical sync, scenario simulation, and behavior prediction.
+// No twin/model/simulation backend is wired yet, so requests fail closed
+// instead of creating synthetic twins, sync state, simulations, or forecasts.
 
 #include <QObject>
 #include <QVector>

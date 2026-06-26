@@ -1,11 +1,9 @@
 // WorkflowDigitalTwinServiceTest — Tests for WorkflowDigitalTwinService
 //
 // Test coverage:
-//   - Digital twin creation, lookup, and removal
-//   - Physical device synchronization
-//   - Scenario simulation
-//   - Behavior prediction with confidence scoring
-//   - Signal emission for twin lifecycle events
+//   - Digital twin creation, sync, simulation, and prediction fail closed without backend
+//   - Rejected twin requests do not emit synthetic lifecycle signals
+//   - Lookup and removal remain empty without created backend-backed twins
 
 #include <QTest>
 #include <QSignalSpy>
@@ -18,25 +16,26 @@ private slots:
     WorkflowDigitalTwinService svc;
     QSignalSpy spy(&svc, &WorkflowDigitalTwinService::digitalTwinCreated);
     WfDigitalTwin dt = svc.createDigitalTwin(1);
-    QCOMPARE(dt.position, 1);
-    QCOMPARE(dt.state, QString("Created"));
+    QCOMPARE(dt.position, 0);
+    QVERIFY(dt.model.isEmpty());
+    QVERIFY(dt.state.isEmpty());
     QCOMPARE(dt.syncStatus, WfTwinSyncStatus::Never);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testCreateMultipleTwins() {
     WorkflowDigitalTwinService svc;
     svc.createDigitalTwin(1);
     svc.createDigitalTwin(2);
-    QCOMPARE(svc.allTwins().size(), 2);
+    QCOMPARE(svc.allTwins().size(), 0);
   }
 
   void testTwinLookup() {
     WorkflowDigitalTwinService svc;
     svc.createDigitalTwin(5);
     WfDigitalTwin dt = svc.twin(5);
-    QCOMPARE(dt.position, 5);
-    QVERIFY(!dt.model.isEmpty());
+    QCOMPARE(dt.position, 0);
+    QVERIFY(dt.model.isEmpty());
   }
 
   void testTwinNotFound() {
@@ -49,13 +48,11 @@ private slots:
     WorkflowDigitalTwinService svc;
     svc.createDigitalTwin(1);
     QSignalSpy spy(&svc, &WorkflowDigitalTwinService::syncCompleted);
-    QVERIFY(svc.syncWithPhysical(1));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
-    QVERIFY(spy.at(0).at(1).toBool());
+    QVERIFY(!svc.syncWithPhysical(1));
+    QCOMPARE(spy.count(), 0);
     WfDigitalTwin dt = svc.twin(1);
-    QCOMPARE(dt.syncStatus, WfTwinSyncStatus::Synced);
-    QCOMPARE(dt.state, QString("Synced"));
+    QCOMPARE(dt.syncStatus, WfTwinSyncStatus::Never);
+    QVERIFY(dt.state.isEmpty());
   }
 
   void testSyncWithPhysicalNotFound() {
@@ -73,10 +70,12 @@ private slots:
     scenario.parameters["duration"] = 5000;
     WfTwinSimulationResult result = svc.simulateScenario(scenario);
     QCOMPARE(result.scenarioName, QString("stress_test"));
-    QCOMPARE(result.status, WfTwinSimulationStatus::Completed);
-    QVERIFY(result.success);
-    QVERIFY(result.outputs.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(result.status, WfTwinSimulationStatus::Failed);
+    QVERIFY(!result.success);
+    QVERIFY(result.outputs.isEmpty());
+    QVERIFY(!result.startTime.isValid());
+    QVERIFY(!result.endTime.isValid());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testSimulateScenarioEmpty() {
@@ -84,7 +83,8 @@ private slots:
     WfTwinScenario scenario;
     scenario.name = "empty";
     WfTwinSimulationResult result = svc.simulateScenario(scenario);
-    QVERIFY(result.success);
+    QVERIFY(!result.success);
+    QCOMPARE(result.status, WfTwinSimulationStatus::Failed);
     QCOMPARE(result.outputs.size(), 0);
   }
 
@@ -98,22 +98,22 @@ private slots:
       data.append(dp);
     }
     WfTwinPrediction pred = svc.predictBehavior(data);
-    QCOMPARE(pred.model, QString("LinearRegression"));
-    QCOMPARE(pred.forecast.size(), 5);
-    QVERIFY(pred.confidence > 0.5);
+    QVERIFY(pred.model.isEmpty());
+    QCOMPARE(pred.forecast.size(), 0);
+    QCOMPARE(pred.confidence, 0.0);
   }
 
   void testPredictBehaviorEmpty() {
     WorkflowDigitalTwinService svc;
     WfTwinPrediction pred = svc.predictBehavior({});
-    QCOMPARE(pred.forecast.size(), 5);
-    QCOMPARE(pred.confidence, 0.5);
+    QCOMPARE(pred.forecast.size(), 0);
+    QCOMPARE(pred.confidence, 0.0);
   }
 
   void testRemoveTwin() {
     WorkflowDigitalTwinService svc;
     svc.createDigitalTwin(1);
-    QVERIFY(svc.removeTwin(1));
+    QVERIFY(!svc.removeTwin(1));
     QCOMPARE(svc.allTwins().size(), 0);
   }
 
@@ -128,7 +128,7 @@ private slots:
     svc.createDigitalTwin(1);
     svc.createDigitalTwin(2);
     svc.createDigitalTwin(3);
-    QCOMPARE(svc.allTwins().size(), 3);
+    QCOMPARE(svc.allTwins().size(), 0);
   }
 
   void testDigitalTwinCreatedSignal() {
@@ -136,8 +136,7 @@ private slots:
     QSignalSpy spy(&svc, &WorkflowDigitalTwinService::digitalTwinCreated);
     QVERIFY(spy.isValid());
     svc.createDigitalTwin(1);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testSyncCompletedSignal() {
@@ -146,7 +145,7 @@ private slots:
     QSignalSpy spy(&svc, &WorkflowDigitalTwinService::syncCompleted);
     QVERIFY(spy.isValid());
     svc.syncWithPhysical(1);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testSimulationFinishedSignal() {
@@ -156,7 +155,7 @@ private slots:
     WfTwinScenario scenario;
     scenario.name = "test";
     svc.simulateScenario(scenario);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testSyncUpdatesState() {
@@ -166,8 +165,8 @@ private slots:
     QCOMPARE(before.syncStatus, WfTwinSyncStatus::Never);
     svc.syncWithPhysical(1);
     WfDigitalTwin after = svc.twin(1);
-    QCOMPARE(after.syncStatus, WfTwinSyncStatus::Synced);
-    QVERIFY(after.lastSync.isValid());
+    QCOMPARE(after.syncStatus, WfTwinSyncStatus::Never);
+    QVERIFY(!after.lastSync.isValid());
   }
 
   void testMultipleSimulations() {
@@ -176,7 +175,8 @@ private slots:
       WfTwinScenario scenario;
       scenario.name = QString("scenario_%1").arg(i);
       WfTwinSimulationResult result = svc.simulateScenario(scenario);
-      QVERIFY(result.success);
+      QVERIFY(!result.success);
+      QCOMPARE(result.status, WfTwinSimulationStatus::Failed);
     }
   }
 
@@ -189,7 +189,7 @@ private slots:
       shortData.append(dp);
     }
     WfTwinPrediction predShort = svc.predictBehavior(shortData);
-    QCOMPARE(predShort.confidence, 0.5);
+    QCOMPARE(predShort.confidence, 0.0);
 
     QVector<WfTwinDataPoint> longData;
     for (int i = 0; i < 10; i++) {
@@ -198,7 +198,7 @@ private slots:
       longData.append(dp);
     }
     WfTwinPrediction predLong = svc.predictBehavior(longData);
-    QVERIFY(predLong.confidence > 0.5);
+    QCOMPARE(predLong.confidence, 0.0);
   }
 };
 
