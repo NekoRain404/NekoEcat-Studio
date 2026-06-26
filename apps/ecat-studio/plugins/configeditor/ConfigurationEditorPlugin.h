@@ -53,7 +53,7 @@ public:
   void validate();
   int errorCount() const;
 
-  void exportConfig(const QString &path);
+  bool exportConfig(const QString &path);
   void importConfig(const QString &path);
 
   QTreeWidget *configTree() const;

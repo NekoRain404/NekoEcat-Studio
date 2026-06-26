@@ -8,6 +8,9 @@
 //   - Config validation
 //   - Import/export functionality
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -161,10 +164,23 @@ private slots:
   // Verify export config creates file
   void testExportConfig() {
     ConfigurationEditorPlugin plugin;
-    QString path = QDir::temp().absoluteFilePath("config_export_test.txt");
-    plugin.exportConfig(path);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString path = dir.filePath("config_export_test.txt");
+    QVERIFY(plugin.exportConfig(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Network.master.name = ecat0\n")));
+    QVERIFY(text.contains(QStringLiteral("Timing.dc.sync0_cycle = 1000\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportConfig(QString()));
+    QVERIFY(!plugin.exportConfig(dir.path()));
   }
 
   // Verify import config adds entries

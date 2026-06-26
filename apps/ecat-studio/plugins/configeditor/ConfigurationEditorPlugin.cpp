@@ -93,14 +93,16 @@ void ConfigurationEditorPlugin::validate() {
 
 int ConfigurationEditorPlugin::errorCount() const { return errors_.size(); }
 
-void ConfigurationEditorPlugin::exportConfig(const QString &path) {
+bool ConfigurationEditorPlugin::exportConfig(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &c : configs_) {
-      out << c.category << "." << c.key << " = " << c.value << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &c : configs_) {
+    out << c.category << "." << c.key << " = " << c.value << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 void ConfigurationEditorPlugin::importConfig(const QString &path) {
