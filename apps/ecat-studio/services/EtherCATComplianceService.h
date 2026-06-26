@@ -1,10 +1,11 @@
 #pragma once
 
-// EtherCATComplianceService — compliance rule management and automated
-// compliance checking for EtherCAT network configurations.
+// EtherCATComplianceService — compliance rule management and compliance check
+// request facade for EtherCAT network configurations.
 //
-// Provides rule CRUD, per-category checks, and full compliance reports.
-// Emits signals when rules change or checks complete.
+// Provides rule CRUD plus rejected per-category and full compliance reports
+// until a real compliance backend is available. It must not synthesize passing
+// evidence or 100-point scores.
 //
 // Thread safety: main (GUI) thread only.
 

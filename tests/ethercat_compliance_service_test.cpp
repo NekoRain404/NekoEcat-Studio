@@ -8,6 +8,7 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATComplianceService.h"
 
 class EtherCATComplianceServiceTest : public QObject {
@@ -54,40 +55,63 @@ private slots:
     QCOMPARE(svc.rules().size(), 4);
   }
 
-  // Full compliance check passes all rules
-  void testRunComplianceCheck() {
+  // Full compliance check must not synthesize passing evidence.
+  void testRunComplianceCheckFailsClosedWithoutBackend() {
     EtherCATComplianceService svc;
+    QSignalSpy spy(&svc, &EtherCATComplianceService::checkCompleted);
     ComplianceReport report = svc.runComplianceCheck();
     QCOMPARE(report.totalRules, 4);
-    QCOMPARE(report.passedCount, 4);
-    QCOMPARE(report.failedCount, 0);
-    QCOMPARE(report.score, 100.0);
+    QCOMPARE(report.passedCount, 0);
+    QCOMPARE(report.failedCount, 4);
+    QCOMPARE(report.score, 0.0);
     QCOMPARE(report.results.size(), 4);
+    for (const auto &result : report.results) {
+      QVERIFY(!result.passed);
+      QVERIFY(result.details.contains(QStringLiteral("requires a real compliance backend")));
+    }
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Check single category
-  void testCheckCategory() {
+  // Category checks must not synthesize passing evidence.
+  void testCheckCategoryFailsClosedWithoutBackend() {
     EtherCATComplianceService svc;
     ComplianceReport report = svc.checkCategory("Safety");
     QCOMPARE(report.totalRules, 1);
-    QCOMPARE(report.passedCount, 1);
+    QCOMPARE(report.passedCount, 0);
+    QCOMPARE(report.failedCount, 1);
+    QCOMPARE(report.score, 0.0);
     QCOMPARE(report.results.at(0).ruleId, QString("SAFETY-001"));
+    QVERIFY(!report.results.at(0).passed);
   }
 
-  // checkCompleted signal fires on check
-  void testCheckCompletedSignal() {
+  // checkCompleted is not emitted for rejected offline checks.
+  void testCheckCompletedSignalNotEmittedWithoutBackend() {
     EtherCATComplianceService svc;
     QSignalSpy spy(&svc, &EtherCATComplianceService::checkCompleted);
     svc.runComplianceCheck();
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Compliance score is 100 when all pass
-  void testComplianceScore() {
+  // Compliance score is zero without evidence.
+  void testComplianceScoreWithoutBackend() {
     EtherCATComplianceService svc;
     ComplianceReport report = svc.runComplianceCheck();
-    QVERIFY(report.score > 0.0);
-    QCOMPARE(report.score, 100.0);
+    QCOMPARE(report.score, 0.0);
+  }
+
+  // Implementation must not keep synthetic compliance pass paths.
+  void testImplementationDoesNotContainSyntheticComplianceSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATComplianceService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("result.passed = true")),
+             "Compliance checks must not synthesize passing rule results.");
+    QVERIFY2(!text.contains(QStringLiteral("score = report.totalRules > 0 ? 100.0")),
+             "Compliance checks must not synthesize a 100 score.");
+    QVERIFY2(!text.contains(QStringLiteral("emit checkCompleted(report)")),
+             "Compliance checks must not emit completion for rejected offline checks.");
   }
 };
 

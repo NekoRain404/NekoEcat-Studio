@@ -27,7 +27,9 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.runComplianceCheck();
+      ComplianceReport report = svc.runComplianceCheck();
+      QCOMPARE(report.passedCount, 0);
+      QCOMPARE(report.score, 0.0);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);
@@ -39,7 +41,9 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; i++) {
-      svc.checkCategory("Safety");
+      ComplianceReport report = svc.checkCategory("Safety");
+      QCOMPARE(report.passedCount, 0);
+      QCOMPARE(report.score, 0.0);
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 1000);

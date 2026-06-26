@@ -1,11 +1,11 @@
 #include "EtherCATComplianceService.h"
 
-// EtherCATComplianceService.cpp — Compliance rule management and audit execution
+// EtherCATComplianceService.cpp — Compliance rule management and request facade
 //
 // Implementation notes:
 //   - Pre-defines safety, timing, configuration, and network compliance rules
 //   - Rules have severity levels (1-3) for prioritization
-//   - Audit scans active rules and emits ruleAdded/complianceAudited signals
+//   - Checks fail closed until a real evidence-producing backend exists
 
 EtherCATComplianceService::EtherCATComplianceService(QObject *parent)
     : QObject(parent)
@@ -70,16 +70,15 @@ ComplianceReport EtherCATComplianceService::runComplianceCheck()
             continue;
         ComplianceCheckResult result;
         result.ruleId = rule.ruleId;
-        result.passed = true;
-        result.details = rule.description + QStringLiteral(" — compliant.");
-        result.recommendation = QStringLiteral("No action required.");
+        result.passed = false;
+        result.details = rule.description + QStringLiteral(" — requires a real compliance backend.");
+        result.recommendation = QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
         report.results.append(result);
     }
     report.totalRules = report.results.size();
-    report.passedCount = report.results.size();
-    report.failedCount = 0;
-    report.score = report.totalRules > 0 ? 100.0 : 0.0;
-    emit checkCompleted(report);
+    report.passedCount = 0;
+    report.failedCount = report.results.size();
+    report.score = 0.0;
     return report;
 }
 
@@ -91,15 +90,14 @@ ComplianceReport EtherCATComplianceService::checkCategory(const QString &categor
             continue;
         ComplianceCheckResult result;
         result.ruleId = rule.ruleId;
-        result.passed = true;
-        result.details = rule.description + QStringLiteral(" — compliant.");
-        result.recommendation = QStringLiteral("No action required.");
+        result.passed = false;
+        result.details = rule.description + QStringLiteral(" — requires a real compliance backend.");
+        result.recommendation = QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
         report.results.append(result);
     }
     report.totalRules = report.results.size();
-    report.passedCount = report.results.size();
-    report.failedCount = 0;
-    report.score = report.totalRules > 0 ? 100.0 : 0.0;
-    emit checkCompleted(report);
+    report.passedCount = 0;
+    report.failedCount = report.results.size();
+    report.score = 0.0;
     return report;
 }
