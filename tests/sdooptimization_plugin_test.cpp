@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include <QSignalSpy>
 #include <QTabWidget>
+#include <QFile>
 #include "plugins/sdooptimization/SdoOptimizationPlugin.h"
 #include "plugins/sdooptimization/CacheOptimizerWidget.h"
 #include "plugins/sdooptimization/BatchOptimizerWidget.h"
@@ -64,6 +65,75 @@ private slots:
     QVERIFY(!svc.applyOptimization(result));
     QCOMPARE(spy.count(), 0);
     QVERIFY(svc.optimizationHistory().isEmpty());
+  }
+
+  void testServiceOptimizeCacheDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    const SdoOptimizationResult result = svc.optimizeCache();
+    QCOMPARE(result.category, QString("Cache"));
+    QVERIFY(result.description.contains(QStringLiteral("backend"),
+                                        Qt::CaseInsensitive));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+    QVERIFY(!result.applied);
+  }
+
+  void testServiceOptimizeBatchDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    const SdoOptimizationResult result = svc.optimizeBatch();
+    QCOMPARE(result.category, QString("Batch"));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+  }
+
+  void testServiceOptimizePerformanceDoesNotSynthesizeBackendData() {
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    const SdoOptimizationResult result = svc.optimizePerformance();
+    QCOMPARE(result.category, QString("Performance"));
+    QVERIFY(result.before.isEmpty());
+    QVERIFY(result.after.isEmpty());
+    QCOMPARE(result.improvement, 0.0);
+    QVERIFY(!result.recommendations.isEmpty());
+  }
+
+  void testServiceDoesNotEmitCompletedWithoutBackend() {
+    EcatClient client;
+    EventBus bus;
+    SdoOptimizationService svc(&client, &bus);
+    QSignalSpy spy(&svc, &SdoOptimizationService::optimizationCompleted);
+    QVERIFY(spy.isValid());
+
+    svc.optimizeCache();
+    svc.optimizeBatch();
+    svc.optimizePerformance();
+    svc.optimizeErrorHandling();
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticOptimizationData() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/services/SdoOptimizationService.cpp"));
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("emit optimizationCompleted(result)")),
+             "Offline SDO optimization must not emit completion.");
+    QVERIFY2(!source.contains(QStringLiteral("104.0")),
+             "SDO cache optimization must not synthesize improvement values.");
+    QVERIFY2(!source.contains(QStringLiteral("75.0")),
+             "SDO batch optimization must not synthesize improvement values.");
+    QVERIFY2(!source.contains(QStringLiteral("300.0")),
+             "SDO performance optimization must not synthesize improvement values.");
   }
 
   void testCacheOptimizerNotNull() {

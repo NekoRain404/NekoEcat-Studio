@@ -2,9 +2,9 @@
 
 // SdoOptimizationService — SDO communication optimization.
 //
-// Provides cache optimization, batch optimization, performance optimization,
-// and error handling optimization recommendations for EtherCAT SDO transfers.
-// Applying a recommendation requires a live daemon connection.
+// Provides SDO optimization request helpers. Until a live SDO optimization
+// backend is wired, requests return recommendations only and do not synthesize
+// before/after measurements or successful communication changes.
 //
 // Usage:
 //   SdoOptimizationService *svc = new SdoOptimizationService(client, bus, this);
@@ -56,12 +56,8 @@ signals:
   void optimizationApplied(const SdoOptimizationResult &result);
 
 private:
-  SdoOptimizationResult createResult(const QString &category,
-                                     const QString &description,
-                                     const QJsonObject &before,
-                                     const QJsonObject &after,
-                                     double improvement,
-                                     const QStringList &recommendations);
+  SdoOptimizationResult createRejectedResult(
+      const QString &category, const QStringList &recommendations);
 
   EcatClient *client_;
   EventBus *bus_;

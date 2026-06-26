@@ -7567,6 +7567,9 @@ target_include_directories(sdooptimization_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins/sdooptimization
     ${CMAKE_SOURCE_DIR}/src/core
 )
+target_compile_definitions(sdooptimization_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 
 target_link_libraries(sdooptimization_plugin_test PRIVATE
     Qt6::Core
