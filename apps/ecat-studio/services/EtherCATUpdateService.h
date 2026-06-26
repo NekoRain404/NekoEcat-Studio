@@ -1,10 +1,10 @@
 #pragma once
 
-// EtherCATUpdateService — manages firmware and software updates
-// for EtherCAT slaves.
+// EtherCATUpdateService — update request facade for EtherCAT slaves.
 //
-// Provides update checking, staged upload with progress tracking,
-// cancellation, and update history.
+// Firmware/software update actions fail closed until a live update backend is
+// wired. Rejected requests return traceable result IDs but do not synthesize
+// progress, completion signals, or update history.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -63,6 +63,7 @@ private:
   UpdateResult makeResult(int position, const QString &version,
                           const QString &status, int progress,
                           const QString &log);
+  bool backendReady() const;
 
   EventBus *bus_;
   EcatClient *client_;

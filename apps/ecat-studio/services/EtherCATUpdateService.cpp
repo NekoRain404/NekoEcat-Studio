@@ -1,12 +1,12 @@
 #include "EtherCATUpdateService.h"
 #include <QDateTime>
 
-// EtherCATUpdateService.cpp — Firmware update management for EtherCAT slaves
+// EtherCATUpdateService.cpp — Firmware/software update request facade
 //
 // Implementation notes:
 //   - Uses EventBus and EcatClient for update orchestration
 //   - Tracks update history with position, version, and progress
-//   - Supports check, start, and rollback operations with status signals
+//   - Rejects offline update actions instead of synthesizing success
 
 EtherCATUpdateService::EtherCATUpdateService(EventBus *bus, EcatClient *client,
                                              QObject *parent)
@@ -33,6 +33,12 @@ UpdateResult EtherCATUpdateService::makeResult(int position,
 
 UpdateResult EtherCATUpdateService::checkForUpdates(int position)
 {
+    if (!backendReady()) {
+        return makeResult(position, QString(),
+                          QStringLiteral("Rejected"), 0,
+                          QStringLiteral("Update check requires a connected EtherCAT update backend"));
+    }
+
     auto result = makeResult(position, QStringLiteral("2.1.0"),
                              QStringLiteral("Available"), 0,
                              QStringLiteral("Update available for slave at position %1")
@@ -45,6 +51,12 @@ UpdateResult EtherCATUpdateService::checkForUpdates(int position)
 UpdateResult EtherCATUpdateService::startUpdate(int position,
                                                 const QString &version)
 {
+    if (!backendReady()) {
+        return makeResult(position, version,
+                          QStringLiteral("Rejected"), 0,
+                          QStringLiteral("Firmware update requires a connected EtherCAT update backend"));
+    }
+
     updating_ = true;
     auto result = makeResult(position, version,
                              QStringLiteral("Completed"), 100,
@@ -80,6 +92,8 @@ bool EtherCATUpdateService::downloadUpdate(const UpdateInfo &update)
 {
     if (update.downloadUrl.isEmpty())
         return false;
+    if (!backendReady())
+        return false;
 
     emit updateDownloaded(update);
     return true;
@@ -89,6 +103,8 @@ bool EtherCATUpdateService::installUpdate(const UpdateInfo &update)
 {
     if (update.version.isEmpty())
         return false;
+    if (!backendReady())
+        return false;
 
     emit updateInstalled(update);
     return true;
@@ -97,5 +113,11 @@ bool EtherCATUpdateService::installUpdate(const UpdateInfo &update)
 bool EtherCATUpdateService::rollbackUpdate(const UpdateInfo &update)
 {
     Q_UNUSED(update);
-    return true;
+    return backendReady();
+}
+
+bool EtherCATUpdateService::backendReady() const
+{
+    // No real update backend is wired yet; keep success paths unreachable.
+    return false;
 }
