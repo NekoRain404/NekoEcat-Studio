@@ -7,7 +7,7 @@
 //   - Port status for out-of-range and negative indices
 //   - All port status on empty network
 //   - Monitoring signal validity
-//   - Start/stop monitoring with idempotency
+//   - Offline start/stop monitoring with idempotency
 
 #include <QTest>
 #include <QSignalSpy>
@@ -102,23 +102,23 @@ private slots:
     QVERIFY(errorSpy.isValid());
   }
 
-  // Test start and stop monitoring
-  void testStartStopMonitoring() {
+  // Offline start must not synthesize active monitoring.
+  void testStartStopMonitoringOffline() {
     EcatClient client;
     NetworkDiagnosticsService svc(&client);
     svc.startMonitoring(100);
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
     QVERIFY(!svc.isMonitoring());
   }
 
-  // Verify start monitoring is idempotent
-  void testStartMonitoringIdempotent() {
+  // Verify repeated offline start remains inactive.
+  void testStartMonitoringIdempotentOffline() {
     EcatClient client;
     NetworkDiagnosticsService svc(&client);
     svc.startMonitoring(100);
     svc.startMonitoring(100);
-    QVERIFY(svc.isMonitoring());
+    QVERIFY(!svc.isMonitoring());
     svc.stopMonitoring();
   }
 

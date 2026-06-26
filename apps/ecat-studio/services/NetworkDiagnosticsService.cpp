@@ -9,6 +9,7 @@
 //   - Timer-driven polling via QTimer at configurable interval
 //   - Tracks per-port error counters and bandwidth utilization
 //   - Health state derived from slave and error counter readings
+//   - Monitoring starts only when a live daemon connection exists
 
 NetworkDiagnosticsService::NetworkDiagnosticsService(EcatClient *client,
                                                      QObject *parent)
@@ -19,6 +20,7 @@ NetworkDiagnosticsService::NetworkDiagnosticsService(EcatClient *client,
 
 void NetworkDiagnosticsService::startMonitoring(int intervalMs) {
   if (pollTimer_->isActive()) return;
+  if (!client_ || !client_->isConnected()) return;
   pollTimer_->start(intervalMs);
 }
 

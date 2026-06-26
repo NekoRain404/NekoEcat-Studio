@@ -4,7 +4,8 @@
 //
 // Tracks link status, error counters (CRC, frame, lost, overrun), bandwidth
 // utilization, latency, and jitter. Provides per-port status queries and
-// periodic health updates via timer-based polling.
+// periodic health updates via timer-based polling. Offline start requests do
+// not synthesize an active diagnostics session.
 //
 // Integrates with EcatClient for daemon communication. Emits healthUpdated()
 // signals at a configurable interval (default 1s).
