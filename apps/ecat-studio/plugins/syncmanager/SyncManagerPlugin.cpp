@@ -14,29 +14,6 @@
 
 SyncManagerPlugin::SyncManagerPlugin(QObject *parent) {
   if (parent) setParent(parent);
-  auto now = QDateTime::currentDateTime();
-  statuses_ = {
-      {"s1", "DC Sync", "Distributed Clock", "Active", 100, now, "Clock synchronized"},
-      {"s2", "PDO Sync", "Process Data", "Active", 100, now, "All PDOs mapped"},
-      {"s3", "SDO Sync", "Service Data", "Idle", 0, now, "Pending configuration"},
-  };
-  history_ = {
-      {now, "s1", "DC Sync", "Success", 12, "Sync completed in 12ms"},
-      {now, "s2", "PDO Sync", "Success", 5, "8 PDOs synchronized"},
-      {now.addSecs(-3600), "s3", "SDO Sync", "Failed", 0, "Timeout after 5000ms"},
-  };
-  settings_ = {
-      {"set1", "Sync Interval", "Sync check interval in ms", "1000", "1000"},
-      {"set2", "Auto Reconnect", "Auto reconnect on sync failure", "true", "true"},
-      {"set3", "Max Retries", "Maximum retry count on failure", "3", "3"},
-      {"set4", "Timeout", "Sync timeout in ms", "5000", "5000"},
-  };
-  logs_ = {
-      {now, "DC Sync", "info", "Clock synchronization established"},
-      {now, "PDO Sync", "info", "PDO mapping updated"},
-      {now.addSecs(-3600), "SDO Sync", "error", "SDO sync timeout"},
-  };
-  filteredLogs_ = {0, 1, 2};
   buildUi();
 }
 

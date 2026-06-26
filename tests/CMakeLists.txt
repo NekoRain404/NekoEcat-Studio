@@ -5807,6 +5807,9 @@ target_include_directories(syncmanager_plugin_test PRIVATE
 )
 target_link_libraries(syncmanager_plugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 set_target_properties(syncmanager_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(syncmanager_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 add_test(NAME syncmanager_plugin_test COMMAND syncmanager_plugin_test)
 set_tests_properties(syncmanager_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"

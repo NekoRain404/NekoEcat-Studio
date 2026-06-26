@@ -3,7 +3,7 @@
 // Test coverage:
 //   - Plugin identity and metadata
 //   - Widget creation
-//   - Initial state (status, history, settings, log counts)
+//   - Empty fail-closed initial state
 //   - Status/history/settings/log table structure
 //   - Add/remove operations for status, history, settings, logs
 //   - Log filtering
@@ -38,10 +38,10 @@ private slots:
   void testInitialState() {
     SyncManagerPlugin plugin;
 
-    QCOMPARE(plugin.statusCount(), 3);
-    QCOMPARE(plugin.historyCount(), 3);
-    QCOMPARE(plugin.settingCount(), 4);
-    QCOMPARE(plugin.logCount(), 3);
+    QCOMPARE(plugin.statusCount(), 0);
+    QCOMPARE(plugin.historyCount(), 0);
+    QCOMPARE(plugin.settingCount(), 0);
+    QCOMPARE(plugin.logCount(), 0);
   }
 
   // Check status table has correct dimensions
@@ -50,7 +50,7 @@ private slots:
 
     QTableWidget *table = plugin.statusTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 7);
   }
 
@@ -60,7 +60,7 @@ private slots:
 
     QTableWidget *table = plugin.historyTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 6);
   }
 
@@ -70,7 +70,7 @@ private slots:
 
     QTableWidget *table = plugin.settingsTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 4);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 5);
   }
 
@@ -80,7 +80,7 @@ private slots:
 
     QTableWidget *table = plugin.logTable();
     QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 3);
+    QCOMPARE(table->rowCount(), 0);
     QCOMPARE(table->columnCount(), 4);
   }
 
@@ -94,8 +94,8 @@ private slots:
     s.id = "s_new";
     s.name = "Test Sync";
     s.type = "Custom";
-    s.state = "Active";
-    s.progress = 50;
+    s.state = "Pending";
+    s.progress = 0;
     s.lastSync = QDateTime::currentDateTime();
     s.message = "Syncing";
 
@@ -107,6 +107,13 @@ private slots:
   // Test removing a sync status entry
   void testRemoveStatus() {
     SyncManagerPlugin plugin;
+    SyncManagerPlugin::SyncStatusEntry s;
+    s.id = "remove";
+    s.name = "Remove Sync";
+    s.type = "Custom";
+    s.state = "Pending";
+    s.progress = 0;
+    plugin.addStatus(s);
     int initial = plugin.statusCount();
 
     plugin.removeStatus(0);
@@ -122,7 +129,7 @@ private slots:
     h.timestamp = QDateTime::currentDateTime();
     h.syncId = "s1";
     h.name = "Test";
-    h.result = "Success";
+    h.result = "Failed";
     h.duration = 10;
     h.details = "OK";
 
@@ -149,6 +156,13 @@ private slots:
   // Test updating a setting value
   void testUpdateSetting() {
     SyncManagerPlugin plugin;
+    SyncManagerPlugin::SyncSetting s;
+    s.id = "set1";
+    s.name = "Sync Interval";
+    s.description = "Sync check interval in ms";
+    s.value = "1000";
+    s.defaultValue = "1000";
+    plugin.addSetting(s);
 
     plugin.updateSetting(0, "2000");
     QCOMPARE(plugin.settingsTable()->item(0, 3)->text(), QString("2000"));
@@ -172,6 +186,12 @@ private slots:
   // Test filtering log entries by level
   void testFilterLogs() {
     SyncManagerPlugin plugin;
+    SyncManagerPlugin::SyncLog log;
+    log.timestamp = QDateTime::currentDateTime();
+    log.source = "test";
+    log.level = "error";
+    log.message = "test error";
+    plugin.addLog(log);
 
     plugin.filterLogs("error", "");
     QVERIFY(plugin.logTable()->rowCount() >= 1);
@@ -193,6 +213,23 @@ private slots:
     plugin.exportReport(path);
     QVERIFY(QFile::exists(path));
     QFile::remove(path);
+  }
+
+  void testSourceDoesNotMintSyntheticSyncResults() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/plugins/syncmanager/SyncManagerPlugin.cpp"));
+    QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(file.errorString()));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("\"DC Sync\", \"Distributed Clock\", \"Active\", 100")),
+             "Sync manager UI must not seed active DC sync status");
+    QVERIFY2(!source.contains(QStringLiteral("\"PDO Sync\", \"Process Data\", \"Active\", 100")),
+             "Sync manager UI must not seed active PDO sync status");
+    QVERIFY2(!source.contains(QStringLiteral("\"Success\", 12, \"Sync completed in 12ms\"")),
+             "Sync manager UI must not seed successful sync history");
+    QVERIFY2(!source.contains(QStringLiteral("\"Clock synchronization established\"")),
+             "Sync manager UI must not seed successful sync logs");
   }
 };
 
