@@ -12,32 +12,51 @@ private slots:
     QCOMPARE(svc.currentState(0), 0);
   }
 
-  void testRequestOpStateFromInit() {
+  void testRequestOpStateWithoutBackendDoesNotSimulateSuccess() {
+    OpStateService svc;
+    QSignalSpy spy(&svc, &OpStateService::opStateChanged);
+
+    QVERIFY(!svc.requestOpState(0));
+    QCOMPARE(svc.currentState(0), 0);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy[0][0].toInt(), 0);
+    QCOMPARE(spy[0][1].toBool(), false);
+
+    auto history = svc.transitionHistory(0);
+    QCOMPARE(history.size(), 1);
+    QCOMPARE(history[0].fromState, 0);
+    QCOMPARE(history[0].toState, 8);
+    QVERIFY(!history[0].success);
+    QVERIFY(!history[0].error.isEmpty());
+  }
+
+  void testRequestOpStateFromInitFailsClosed() {
     OpStateService svc;
     QCOMPARE(svc.currentState(0), 0);
 
     QSignalSpy spy(&svc, &OpStateService::opStateChanged);
-    QVERIFY(svc.requestOpState(0));
-    QCOMPARE(svc.currentState(0), 8);
+    QVERIFY(!svc.requestOpState(0));
+    QCOMPARE(svc.currentState(0), 0);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy[0][0].toInt(), 0);
-    QCOMPARE(spy[0][1].toBool(), true);
+    QCOMPARE(spy[0][1].toBool(), false);
   }
 
-  void testRequestOpStateAlreadyOp() {
+  void testRepeatedRequestDoesNotCreateLocalOpState() {
     OpStateService svc;
-    svc.requestOpState(0);
-    QVERIFY(svc.requestOpState(0));
-    QCOMPARE(svc.currentState(0), 8);
+    QVERIFY(!svc.requestOpState(0));
+    QVERIFY(!svc.requestOpState(0));
+    QCOMPARE(svc.currentState(0), 0);
+    QCOMPARE(svc.transitionHistory(0).size(), 2);
   }
 
-  void testCheckOpStateInOp() {
+  void testCheckOpStateAfterFailedRequest() {
     OpStateService svc;
     svc.requestOpState(0);
 
     auto status = svc.checkOpState(0);
     QCOMPARE(status.position, 0);
-    QCOMPARE(status.currentState, 8);
+    QCOMPARE(status.currentState, 0);
     QCOMPARE(status.targetState, 8);
     QVERIFY(status.error.isEmpty());
     QVERIFY(status.timestamp.isValid());
@@ -80,68 +99,35 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  void testRecoverFromOpState() {
+  void testRecoverWithoutKnownOnlineStateFailsClosed() {
     OpStateService svc;
     svc.requestOpState(0);
-    QCOMPARE(svc.currentState(0), 8);
+    QCOMPARE(svc.currentState(0), 0);
 
     QSignalSpy spy(&svc, &OpStateService::opStateChanged);
-    QVERIFY(svc.recoverFromError(0));
-    QCOMPARE(svc.currentState(0), 4);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy[0][1].toBool(), false);
-  }
-
-  void testRecoverFromSafeopState() {
-    OpStateService svc;
-    svc.requestOpState(0);
-    svc.recoverFromError(0);
-    QCOMPARE(svc.currentState(0), 4);
-
-    QVERIFY(svc.recoverFromError(0));
-    QCOMPARE(svc.currentState(0), 2);
-  }
-
-  void testRecoverFromPreopState() {
-    OpStateService svc;
-    svc.requestOpState(0);
-    svc.recoverFromError(0);
-    svc.recoverFromError(0);
-    QCOMPARE(svc.currentState(0), 2);
-
-    QVERIFY(svc.recoverFromError(0));
-    QCOMPARE(svc.currentState(0), 1);
-  }
-
-  void testRecoverFromInitState() {
-    OpStateService svc;
-    svc.requestOpState(0);
-    svc.recoverFromError(0);
-    svc.recoverFromError(0);
-    svc.recoverFromError(0);
-    QCOMPARE(svc.currentState(0), 1);
-
     QVERIFY(!svc.recoverFromError(0));
+    QCOMPARE(svc.currentState(0), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testRepeatedRecoverWithoutKnownOnlineStateFailsClosed() {
+    OpStateService svc;
+    svc.requestOpState(0);
+    QVERIFY(!svc.recoverFromError(0));
+    QVERIFY(!svc.recoverFromError(0));
+    QCOMPARE(svc.currentState(0), 0);
   }
 
   void testTransitionHistory() {
     OpStateService svc;
     svc.requestOpState(0);
-    svc.recoverFromError(0);
 
     auto history = svc.transitionHistory(0);
-    QCOMPARE(history.size(), 5);
+    QCOMPARE(history.size(), 1);
     QCOMPARE(history[0].fromState, 0);
-    QCOMPARE(history[0].toState, 1);
-    QVERIFY(history[0].success);
-    QCOMPARE(history[1].fromState, 1);
-    QCOMPARE(history[1].toState, 2);
-    QCOMPARE(history[2].fromState, 2);
-    QCOMPARE(history[2].toState, 4);
-    QCOMPARE(history[3].fromState, 4);
-    QCOMPARE(history[3].toState, 8);
-    QCOMPARE(history[4].fromState, 8);
-    QCOMPARE(history[4].toState, 4);
+    QCOMPARE(history[0].toState, 8);
+    QVERIFY(!history[0].success);
+    QVERIFY(!history[0].error.isEmpty());
   }
 
   void testErrorHistory() {
@@ -166,15 +152,14 @@ private slots:
 
   void testMultiplePositions() {
     OpStateService svc;
-    svc.requestOpState(0);
-    svc.requestOpState(1);
+    QVERIFY(!svc.requestOpState(0));
+    QVERIFY(!svc.requestOpState(1));
 
-    QCOMPARE(svc.currentState(0), 8);
-    QCOMPARE(svc.currentState(1), 8);
+    QCOMPARE(svc.currentState(0), 0);
+    QCOMPARE(svc.currentState(1), 0);
 
-    svc.recoverFromError(0);
-    QCOMPARE(svc.currentState(0), 4);
-    QCOMPARE(svc.currentState(1), 8);
+    QCOMPARE(svc.transitionHistory(0).size(), 1);
+    QCOMPARE(svc.transitionHistory(1).size(), 1);
   }
 
   void testOpStateStatusTimestamp() {
