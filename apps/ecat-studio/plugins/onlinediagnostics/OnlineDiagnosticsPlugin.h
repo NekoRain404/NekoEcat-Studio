@@ -43,6 +43,7 @@ public:
   OnlineDiagnosticsService *service() const { return service_; }
   BusMonitorWidget *busMonitor() const { return busMonitor_; }
   ErrorAnalyzerWidget *errorAnalyzer() const { return errorAnalyzer_; }
+  bool exportReportToFile(const QString &path);
 
 private:
   void buildUi();

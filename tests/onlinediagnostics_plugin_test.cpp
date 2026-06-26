@@ -17,7 +17,10 @@
 ///   - HealthStatus structure defaults
 
 #include <QTest>
+#include <QFile>
+#include <QRegularExpression>
 #include <QTabWidget>
+#include <QTemporaryDir>
 #include "infra/EcatClient.h"
 #include "services/OnlineDiagnosticsService.h"
 #include "plugins/onlinediagnostics/OnlineDiagnosticsPlugin.h"
@@ -151,6 +154,30 @@ private slots:
     QCOMPARE(h.opSlaves, 0);
     QCOMPARE(h.errorSlaves, 0);
     QVERIFY(h.watchdogOk);
+  }
+
+  void testExportReportReportsPersistenceOutcome() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    EcatClient client;
+    OnlineDiagnosticsService svc(&client);
+    OnlineDiagnosticsPlugin plugin(&svc);
+
+    const QString path = dir.filePath("online_diagnostics.csv");
+    QVERIFY(plugin.exportReportToFile(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.startsWith(QStringLiteral("Metric,Value\n")));
+    QVERIFY(csv.contains(QStringLiteral("Health Score")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReportToFile(QString()));
+    QVERIFY(!plugin.exportReportToFile(dir.path()));
   }
 };
 

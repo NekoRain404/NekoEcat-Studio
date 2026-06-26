@@ -119,8 +119,14 @@ void OnlineDiagnosticsPlugin::exportReport() {
       tr("CSV Files (*.csv);;All Files (*)"));
   if (path.isEmpty()) return;
 
+  exportReportToFile(path);
+}
+
+bool OnlineDiagnosticsPlugin::exportReportToFile(const QString &path) {
+  if (path.isEmpty()) return false;
+
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
 
   QTextStream out(&file);
   out << "Metric,Value\n";
@@ -146,4 +152,5 @@ void OnlineDiagnosticsPlugin::exportReport() {
   out << "Health Score," << h.score << "\n";
   out << "Total Slaves," << h.totalSlaves << "\n";
   out << "OP Slaves," << h.opSlaves << "\n";
+  return out.status() == QTextStream::Ok && file.flush();
 }
