@@ -8,6 +8,9 @@
 //   - Add/remove operations for status, history, settings, logs
 //   - Log filtering
 //   - Status label and report export
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -208,11 +211,33 @@ private slots:
   // Test exporting sync report to file
   void testExportReport() {
     SyncManagerPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("sync_report_test.txt");
-    plugin.exportReport(path);
+    plugin.addStatus({"s_export", "Export Sync", "Custom", "Pending", 25,
+                      QDateTime::currentDateTime(), "Waiting"});
+    plugin.addHistoryEntry({QDateTime::currentDateTime(), "s_export",
+                            "Export Sync", "Failed", 42, "Timeout"});
+    plugin.addSetting({"set_export", "Export Interval", "Interval",
+                       "1000", "500"});
+
+    const QString path = dir.filePath("sync_report_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Sync Manager Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Active Syncs: 1\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Sync [Custom] Pending 25%\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Sync Failed 42ms\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Interval: 1000 (default: 500)\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 
   void testSourceDoesNotMintSyntheticSyncResults() {

@@ -86,31 +86,33 @@ void SyncManagerPlugin::filterLogs(const QString &level, const QString &source) 
   rebuildLogTable();
 }
 
-void SyncManagerPlugin::exportReport(const QString &path) {
+bool SyncManagerPlugin::exportReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Sync Manager Report\n";
-    out << "====================\n\n";
-    out << "Active Syncs: " << statuses_.size() << "\n";
-    out << "History Entries: " << history_.size() << "\n";
-    out << "Settings: " << settings_.size() << "\n";
-    out << "Log Entries: " << logs_.size() << "\n\n";
-    out << "--- Sync Status ---\n";
-    for (const auto &s : statuses_) {
-      out << s.name << " [" << s.type << "] " << s.state << " "
-          << s.progress << "%\n";
-    }
-    out << "\n--- Sync History ---\n";
-    for (const auto &h : history_) {
-      out << h.timestamp.toString(Qt::ISODate) << " " << h.name << " "
-          << h.result << " " << h.duration << "ms\n";
-    }
-    out << "\n--- Settings ---\n";
-    for (const auto &s : settings_) {
-      out << s.name << ": " << s.value << " (default: " << s.defaultValue << ")\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Sync Manager Report\n";
+  out << "====================\n\n";
+  out << "Active Syncs: " << statuses_.size() << "\n";
+  out << "History Entries: " << history_.size() << "\n";
+  out << "Settings: " << settings_.size() << "\n";
+  out << "Log Entries: " << logs_.size() << "\n\n";
+  out << "--- Sync Status ---\n";
+  for (const auto &s : statuses_) {
+    out << s.name << " [" << s.type << "] " << s.state << " "
+        << s.progress << "%\n";
   }
+  out << "\n--- Sync History ---\n";
+  for (const auto &h : history_) {
+    out << h.timestamp.toString(Qt::ISODate) << " " << h.name << " "
+        << h.result << " " << h.duration << "ms\n";
+  }
+  out << "\n--- Settings ---\n";
+  for (const auto &s : settings_) {
+    out << s.name << ": " << s.value << " (default: " << s.defaultValue << ")\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *SyncManagerPlugin::statusTable() const { return statusTable_; }
