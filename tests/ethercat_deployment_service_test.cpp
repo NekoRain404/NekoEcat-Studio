@@ -8,28 +8,32 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/EtherCATDeploymentService.h"
 
 class EtherCATDeploymentServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Deploy configuration to target succeeds
-  void testDeployConfiguration() {
+  // Deploy configuration to a named target fails closed without a live backend.
+  void testDeployConfigurationFailsClosedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
+    QSignalSpy spy(&svc, &EtherCATDeploymentService::deploymentCompleted);
     auto result = svc.deployConfiguration("target-01", "config.xml");
     QCOMPARE(result.target, QStringLiteral("target-01"));
     QCOMPARE(result.config, QStringLiteral("config.xml"));
-    QCOMPARE(result.status, QStringLiteral("Success"));
+    QCOMPARE(result.status, QStringLiteral("Rejected"));
     QVERIFY(!result.id.isEmpty());
     QVERIFY(!result.timestamp.isEmpty());
+    QCOMPARE(svc.listDeployments().size(), 0);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Rollback a deployment changes status
-  void testRollbackDeployment() {
+  // Rollback cannot operate on a rejected offline deployment record.
+  void testRollbackRejectedDeploymentFails() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     auto deploy = svc.deployConfiguration("target-01", "config.xml");
     auto rollback = svc.rollbackDeployment(deploy.id);
-    QCOMPARE(rollback.status, QStringLiteral("RolledBack"));
+    QCOMPARE(rollback.status, QStringLiteral("Failed"));
     QCOMPARE(rollback.id, deploy.id);
   }
 
@@ -40,24 +44,21 @@ private slots:
     QCOMPARE(result.status, QStringLiteral("Failed"));
   }
 
-  // List deployments returns all deployed items
-  void testListDeployments() {
+  // List deployments does not accumulate rejected offline deployments.
+  void testListDeploymentsDoesNotAccumulateRejectedOfflineRequests() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     svc.deployConfiguration("target-01", "config-a.xml");
     svc.deployConfiguration("target-02", "config-b.xml");
     auto list = svc.listDeployments();
-    QCOMPARE(list.size(), 2);
-    QCOMPARE(list[0].target, QStringLiteral("target-01"));
-    QCOMPARE(list[1].target, QStringLiteral("target-02"));
+    QCOMPARE(list.size(), 0);
   }
 
-  // Get deployment status by ID
-  void testGetDeploymentStatus() {
+  // Get deployment status for a rejected offline request returns NotFound.
+  void testGetDeploymentStatusForRejectedOfflineRequest() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     auto deploy = svc.deployConfiguration("target-01", "config.xml");
     auto status = svc.getDeploymentStatus(deploy.id);
-    QCOMPARE(status.status, QStringLiteral("Success"));
-    QCOMPARE(status.target, QStringLiteral("target-01"));
+    QCOMPARE(status.status, QStringLiteral("NotFound"));
   }
 
   // Get status for nonexistent deployment
@@ -67,21 +68,21 @@ private slots:
     QCOMPARE(status.status, QStringLiteral("NotFound"));
   }
 
-  // deploymentCompleted signal fires on deploy
-  void testDeploymentSignal() {
+  // deploymentCompleted is not emitted for rejected offline deployments.
+  void testDeploymentSignalNotEmittedWithoutBackend() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &EtherCATDeploymentService::deploymentCompleted);
     svc.deployConfiguration("target-01", "config.xml");
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // deploymentCompleted signal fires on rollback
-  void testRollbackSignal() {
+  // deploymentCompleted is not emitted for rollback of rejected deployment.
+  void testRollbackSignalNotEmittedForRejectedDeployment() {
     EtherCATDeploymentService svc(nullptr, nullptr);
     auto deploy = svc.deployConfiguration("target-01", "config.xml");
     QSignalSpy spy(&svc, &EtherCATDeploymentService::deploymentCompleted);
     svc.rollbackDeployment(deploy.id);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Each deployment gets a unique ID
@@ -177,6 +178,21 @@ private slots:
     QSignalSpy progressSpy(&svc, &EtherCATDeploymentService::deploymentProgress);
     svc.deployConfiguration(1, d);
     QCOMPARE(progressSpy.count(), 0);
+  }
+
+  // Implementation must not keep dead local success paths.
+  void testImplementationDoesNotContainSyntheticSuccessPath() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EtherCATDeploymentService.cpp"));
+    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(source.errorString()));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"Success\")")),
+             "Deployment service must not synthesize successful deployment records.");
+    QVERIFY2(!text.contains(QStringLiteral("emit deploymentCompleted(result)")),
+             "Deployment service must not emit completion for rejected deployment requests.");
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"RolledBack\")")),
+             "Rollback success must not be synthesized from offline records.");
   }
 };
 

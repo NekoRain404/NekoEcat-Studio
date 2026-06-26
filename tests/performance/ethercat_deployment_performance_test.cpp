@@ -10,11 +10,13 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.deployConfiguration("target", "config");
+      auto result = svc.deployConfiguration("target", "config");
+      QCOMPARE(result.status, QStringLiteral("Rejected"));
     }
     qint64 elapsed = timer.elapsed();
+    QCOMPARE(svc.listDeployments().size(), 0);
     QVERIFY(elapsed < 500);
-    qDebug() << "1000 deploy calls:" << elapsed << "ms";
+    qDebug() << "1000 offline deploy rejections:" << elapsed << "ms";
   }
 
   void testListPerformance() {
@@ -22,6 +24,7 @@ private slots:
     for (int i = 0; i < 100; i++) {
       svc.deployConfiguration("target", "config");
     }
+    QCOMPARE(svc.listDeployments().size(), 0);
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
@@ -41,7 +44,8 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 1000; i++) {
-      svc.rollbackDeployment(deploys[i % deploys.size()].id);
+      auto result = svc.rollbackDeployment(deploys[i % deploys.size()].id);
+      QCOMPARE(result.status, QStringLiteral("Failed"));
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 500);

@@ -2,10 +2,10 @@
 
 // EtherCATDeploymentService — deployment records and device deployment facade.
 //
-// Provides deployment record, rollback, listing, and status tracking helpers.
-// Position-based device deployment APIs fail closed until wired to a live
-// EtherCAT backend capable of applying configuration/firmware/software/system
-// data to real slaves.
+// Provides rejected deployment request records for traceability plus listing
+// and status helpers for real deployment records. Device deployment APIs fail
+// closed until wired to a live EtherCAT backend capable of applying
+// configuration/firmware/software/system data to real slaves.
 //
 // Thread safety: main (GUI) thread only.
 

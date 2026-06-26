@@ -4,9 +4,9 @@
 // EtherCATDeploymentService.cpp — Deployment records and offline deployment facade
 //
 // Implementation notes:
-//   - Position-based device deployment fails closed without a live backend
+//   - Device deployment fails closed without a live backend
 //   - Generates unique deployment IDs via nextId_ counter
-//   - Supports rollback by deployment ID with history tracking
+//   - Does not synthesize deployment history or rollback success
 
 EtherCATDeploymentService::EtherCATDeploymentService(EventBus *bus,
                                                      EcatClient *client,
@@ -33,13 +33,10 @@ DeploymentResult EtherCATDeploymentService::deployConfiguration(
     const QString &target, const QString &config)
 {
     QString id = QStringLiteral("deploy_%1").arg(nextId_++);
-    auto result = makeResult(id, target, config,
-                             QStringLiteral("Success"),
-                             QStringLiteral("Configuration '%1' deployed to '%2' successfully")
-                                 .arg(config, target));
-    deployments_.append(result);
-    emit deploymentCompleted(result);
-    return result;
+    return makeResult(id, target, config,
+                      QStringLiteral("Rejected"),
+                      QStringLiteral("Deployment of configuration '%1' to '%2' requires a connected EtherCAT deployment backend")
+                          .arg(config, target));
 }
 
 DeploymentResult EtherCATDeploymentService::rollbackDeployment(
@@ -47,11 +44,10 @@ DeploymentResult EtherCATDeploymentService::rollbackDeployment(
 {
     for (auto &d : deployments_) {
         if (d.id == deploymentId) {
-            d.status = QStringLiteral("RolledBack");
-            d.log = QStringLiteral("Deployment '%1' rolled back").arg(deploymentId);
-            d.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
-            emit deploymentCompleted(d);
-            return d;
+            return makeResult(deploymentId, d.target, d.config,
+                              QStringLiteral("Failed"),
+                              QStringLiteral("Rollback for deployment '%1' requires a connected EtherCAT deployment backend")
+                                  .arg(deploymentId));
         }
     }
     return makeResult(deploymentId, QString(), QString(),
