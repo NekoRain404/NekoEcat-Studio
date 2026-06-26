@@ -22,6 +22,7 @@ private slots:
   void digitalTwinPluginHasSingleCanonicalPathAndId();
   void managerPluginsHaveSingleCanonicalPathAndId();
   void pluginIdsAreUniqueAcrossSourceTree();
+  void productPluginSourcesAreRegisteredOrExperimental();
 
 private:
   static QString readTextFile(const QString &path);
@@ -350,6 +351,10 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **源文件总数** | 10,532 |"),
       QStringLiteral("| **测试文件** | 281 |"),
       QStringLiteral("测试套件（281 个文件）"),
+      QStringLiteral("286 个 CTest"),
+      QStringLiteral("286 CTest entries"),
+      QStringLiteral("| **Stable default registered** | **286**"),
+      QStringLiteral("| **默认稳定注册测试** | 286 |"),
       QStringLiteral("97 个独立插件"),
       QStringLiteral("插件（97 个）"),
   };
@@ -433,6 +438,45 @@ void ProductBoundaryTest::pluginIdsAreUniqueAcrossSourceTree() {
                             .arg(id, path)));
     seenIds.insert(id);
   }
+}
+
+void ProductBoundaryTest::productPluginSourcesAreRegisteredOrExperimental() {
+  const QString cmake = readTextFile(
+      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/CMakeLists.txt"));
+  const QString mainWindow =
+      readTextFile(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"));
+  const QRegularExpression pluginSourcePattern(
+      QStringLiteral("plugins/[^\\s]+/([A-Za-z0-9_]+Plugin)\\.cpp"));
+  QRegularExpressionMatchIterator matches =
+      pluginSourcePattern.globalMatch(cmake);
+  int scannedPluginSources = 0;
+
+  while (matches.hasNext()) {
+    const QRegularExpressionMatch match = matches.next();
+    ++scannedPluginSources;
+    const QString sourcePath = match.captured(0);
+    const QString pluginClass = match.captured(1);
+    const qsizetype sourceIndex = cmake.indexOf(sourcePath);
+    QVERIFY2(sourceIndex >= 0,
+             qPrintable(QStringLiteral("Unable to locate plugin source %1")
+                            .arg(sourcePath)));
+
+    const qsizetype guardIndex = cmake.lastIndexOf(
+        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), sourceIndex);
+    const qsizetype endGuardIndex =
+        cmake.lastIndexOf(QStringLiteral("endif()"), sourceIndex);
+    if (guardIndex > endGuardIndex) {
+      continue;
+    }
+
+    const QString registration =
+        QStringLiteral("registerPlugin(new %1").arg(pluginClass);
+    QVERIFY2(mainWindow.contains(registration),
+             qPrintable(QStringLiteral("%1 is built into ecat-studio but is not registered in MainWindow.")
+                            .arg(pluginClass)));
+  }
+  QVERIFY2(scannedPluginSources > 0,
+           "Product plugin source scan did not find any plugin sources.");
 }
 
 QTEST_MAIN(ProductBoundaryTest)

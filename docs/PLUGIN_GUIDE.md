@@ -379,7 +379,7 @@ Connection change →  onConnectionChanged(true/false) on link state
 | Plugin | Complexity | Constructor | Key Features |
 |--------|-----------|-------------|--------------|
 | `NotesPlugin` | Simple | `(QObject*)` | Self-contained, no services, plain QPlainTextEdit |
-| `EsiPlugin` | Medium | `(EsiService*, QObject*)` | Fine-grained service injection, table display |
+| `EsiBrowserPlugin` | Medium | `(EsiService*, QObject*)` | Fine-grained service injection, ESI parser and matcher |
 | `BusStatsPlugin` | Medium | `(BusStatsService*, QObject*)` | Fine-grained injection, live stats via timer |
 | `TopologyPlugin` | Complex | `(EventBus*, QObject*)` | EventBus subscription, custom graph widget, layout modes |
 | `SignalPlugin` | Complex | `(SignalService*, QObject*)` | Real-time chart, channel management, data streaming |

@@ -2475,36 +2475,6 @@ set_target_properties(ui_creation_test PROPERTIES AUTOMOC ON)
 add_test(NAME ui_creation_test COMMAND ui_creation_test)
 set_tests_properties(ui_creation_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ── EsiPlugin + EsiService (GUI) ────────────────────────────────────
-add_executable(esi_plugin_test
-    esi_plugin_test.cpp
-    ../apps/ecat-studio/plugins/esi/EsiPlugin.cpp
-    ../apps/ecat-studio/plugins/esi/EsiPlugin.h
-    ../apps/ecat-studio/plugins/WorkspacePlugin.h
-    ../apps/ecat-studio/services/EsiService.cpp
-    ../apps/ecat-studio/services/EsiService.h
-)
-
-target_include_directories(esi_plugin_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
-)
-
-target_link_libraries(esi_plugin_test PRIVATE
-    Qt6::Core
-    Qt6::Widgets
-    Qt6::Test
-)
-
-set_target_properties(esi_plugin_test PROPERTIES AUTOMOC ON)
-
-add_test(NAME esi_plugin_test COMMAND esi_plugin_test)
-set_tests_properties(esi_plugin_test PROPERTIES
-    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
-)
-
 # ── BusStatsPlugin + BusStatsService (GUI) ──────────────────────────
 add_executable(busstats_plugin_test
     busstats_plugin_test.cpp

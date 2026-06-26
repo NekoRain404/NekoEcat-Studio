@@ -131,7 +131,6 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | SignalPlugin | `signal` | Multi-channel signal analyzer |
 | ExportPlugin | `export` | Data export |
 | NotesPlugin | `notes` | User notes |
-| EsiPlugin | `esi` | ESI XML repository |
 | EsiBrowserPlugin | `esibrowser` | ESI XML browser, parser, and device matcher |
 | BusStatsPlugin | `busstats` | Bus statistics monitoring |
 | DashboardPlugin | `dashboard` | Configurable dashboard with gauges, counters, sparklines |
@@ -1063,7 +1062,7 @@ tests/
 | Integration tests | ~15 | Plugin lifecycle, service integration, EventBus integration |
 | Performance tests | ~60 | SDO, topology, EventBus, state machine benchmarks |
 | UI tests | ~10 | Widget creation, lifecycle, and rendering |
-| **Stable default registered** | **286** | **Default CMake configuration; experimental opt-in tests are additional** |
+| **Stable default registered** | **285** | **Default CMake configuration; experimental opt-in tests are additional** |
 
 ### Mock Strategy
 

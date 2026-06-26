@@ -72,7 +72,7 @@ Ethercat/
 │   └── igh/                  # IgH EtherCAT Master 适配器
 │       ├── EthercatCliBackend.h/cpp    # CLI 后端实现
 │       └── EthercatNativeBackend.h/cpp # 原生 API 后端实现
-├── tests/                    # 测试套件（361 个测试源文件，286 个默认稳定 CTest）
+├── tests/                    # 测试套件（361 个测试源文件，285 个默认稳定 CTest）
 │   ├── CMakeLists.txt        # 测试构建配置
 │   ├── fixtures/             # 测试夹具
 │   ├── mocks/                # 模拟对象
@@ -260,7 +260,7 @@ flowchart TB
 | Signal Analyzer | `signal` | 实时多通道波形 | ✅ |
 | Network Adapter | `network` | IgH 网卡选择 | ✅ |
 | Topology Graph | `topology` | 图形化总线拓扑 | ✅ |
-| ESI Repository | `esi` | ESI XML 管理和浏览 | ✅ |
+| ESI Browser | `esibrowser` | ESI XML 管理、浏览、解析和匹配 | ✅ |
 | Bus Statistics | `busstats` | 实时总线性能指标 | ✅ |
 | Performance Monitor | `perfmon` | 系统性能监控 | ✅ |
 | RT Test | `rttest` | 实时时序测试 | ✅ |
@@ -316,7 +316,7 @@ flowchart TB
 | 指标 | 数值 |
 |------|------|
 | **测试源文件** | 361 |
-| **默认稳定注册测试** | 286 |
+| **默认稳定注册测试** | 285 |
 | **通过率** | 100% |
 | **构建警告** | 0 |
 

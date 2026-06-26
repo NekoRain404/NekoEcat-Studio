@@ -18,7 +18,6 @@ add_executable(ecat-studio
     plugins/signal/SignalPlugin.h              plugins/signal/SignalPlugin.cpp
     plugins/signal/SignalChartWidget.h         plugins/signal/SignalChartWidget.cpp
     plugins/WorkspacePlugin.h
-    plugins/esi/EsiPlugin.h                     plugins/esi/EsiPlugin.cpp
     plugins/esi/EsiBrowserPlugin.h              plugins/esi/EsiBrowserPlugin.cpp
     plugins/esi/EsiParser.h                     plugins/esi/EsiParser.cpp
     plugins/esi/EsiDeviceMatcher.h              plugins/esi/EsiDeviceMatcher.cpp
