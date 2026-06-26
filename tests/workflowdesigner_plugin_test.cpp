@@ -16,6 +16,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTableWidget>
+#include <QTemporaryDir>
 #include <QTextEdit>
 #include <QTreeWidget>
 #include <QtTest/QtTest>
@@ -63,6 +64,8 @@ private slots:
   // Export and import workflow definitions
   // Export and import workflow preserves nodes and connections
   void exportImport();
+  // Malformed workflow imports fail without clearing current state
+  void rejectInvalidImport();
   // Verify signal emissions on state changes
   // Signals emitted on node add/remove, connection, and status change
   void signalEmissions();
@@ -195,7 +198,9 @@ void TestWorkflowDesignerPlugin::exportImport() {
   plugin_->addConnection("node_1", "node_1", "self");
   plugin_->setExecutionStatus("TestStatus");
 
-  QString tmpPath = QDir::tempPath() + "/workflow_test_export.json";
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString tmpPath = dir.filePath(QStringLiteral("workflow_test_export.json"));
   QVERIFY(plugin_->exportWorkflow(tmpPath));
 
   plugin_->clearNodes();
@@ -206,7 +211,33 @@ void TestWorkflowDesignerPlugin::exportImport() {
   QCOMPARE(plugin_->connectionCount(), 1);
   QCOMPARE(plugin_->executionStatus(), QString("TestStatus"));
 
-  QFile::remove(tmpPath);
+  plugin_->clearNodes();
+}
+
+void TestWorkflowDesignerPlugin::rejectInvalidImport() {
+  plugin_->clearNodes();
+  plugin_->addNode("Test", "ExistingNode");
+  plugin_->addConnection("node_1", "node_1", "self");
+  plugin_->setExecutionStatus("KeepStatus");
+
+  QVERIFY(!plugin_->exportWorkflow(QString()));
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  QVERIFY(!plugin_->exportWorkflow(dir.path()));
+
+  const QString invalidPath = dir.filePath(QStringLiteral("invalid.json"));
+  QFile invalidFile(invalidPath);
+  QVERIFY(invalidFile.open(QIODevice::WriteOnly));
+  QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
+  invalidFile.close();
+
+  QVERIFY(!plugin_->importWorkflow(QString()));
+  QVERIFY(!plugin_->importWorkflow(invalidPath));
+  QCOMPARE(plugin_->nodeCount(), 1);
+  QCOMPARE(plugin_->connectionCount(), 1);
+  QCOMPARE(plugin_->executionStatus(), QString("KeepStatus"));
+
   plugin_->clearNodes();
 }
 
