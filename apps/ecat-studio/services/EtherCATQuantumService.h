@@ -1,13 +1,9 @@
 #pragma once
-// PLACEHOLDER IMPLEMENTATION
-// This is a template/stub for future development.
-// Not production ready.
-//
-// DEMO STUB — This service generates synthetic data for UI demonstration.
-// Replace with real hardware integration for production use.
-
-// EtherCATQuantumService — provides quantum key distribution, quantum random
-// number generation, quantum-safe encryption, and quantum-resistant signatures.
+// EtherCATQuantumService -- request facade for quantum key distribution,
+// quantum random number generation, quantum-safe encryption, and
+// quantum-resistant signatures. No quantum/cryptographic backend is wired yet,
+// so requests fail closed instead of generating synthetic keys, random data,
+// encryption output, or signatures.
 
 #include <QObject>
 #include <QVector>

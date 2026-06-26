@@ -1,11 +1,9 @@
 // EtherCATQuantumServiceTest — Tests for EtherCATQuantumService
 //
 // Test coverage:
-//   - Quantum key distribution (single, multiple, lookup, not found)
-//   - Quantum random number generation (zero, normal, large)
-//   - Quantum-safe encryption and signing
-//   - Key revocation and overwrite
-//   - Signal emission for key distribution and revocation
+//   - Quantum key distribution, random generation, encryption, and signatures fail closed without backend
+//   - Rejected quantum requests do not emit synthetic key lifecycle signals
+//   - Key lookup and revocation remain empty without distributed keys
 
 #include <QTest>
 #include <QSignalSpy>
@@ -22,11 +20,11 @@ private slots:
     QuantumKeys keys = svc.distributeQuantumKeys(1);
     QCOMPARE(keys.keyLength, 256);
     QCOMPARE(keys.algorithm, QuantumAlgorithm::BB84);
-    QVERIFY(keys.publicKey.size() > 0);
-    QVERIFY(keys.privateKey.size() > 0);
-    QVERIFY(keys.sharedSecret.size() > 0);
-    QVERIFY(keys.expiry.isValid());
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(keys.publicKey.isEmpty());
+    QVERIFY(keys.privateKey.isEmpty());
+    QVERIFY(keys.sharedSecret.isEmpty());
+    QVERIFY(!keys.expiry.isValid());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Distribute keys to multiple slaves
@@ -35,8 +33,8 @@ private slots:
     EtherCATQuantumService svc;
     svc.distributeQuantumKeys(1);
     svc.distributeQuantumKeys(2);
-    QCOMPARE(svc.keys(1).publicKey.size(), 32);
-    QCOMPARE(svc.keys(2).publicKey.size(), 32);
+    QVERIFY(svc.keys(1).publicKey.isEmpty());
+    QVERIFY(svc.keys(2).publicKey.isEmpty());
   }
 
   // Lookup keys by slave position
@@ -45,7 +43,7 @@ private slots:
     EtherCATQuantumService svc;
     svc.distributeQuantumKeys(5);
     QuantumKeys keys = svc.keys(5);
-    QCOMPARE(keys.keyLength, 256);
+    QVERIFY(keys.publicKey.isEmpty());
   }
 
   // Lookup nonexistent keys returns empty
@@ -61,11 +59,7 @@ private slots:
   void testGenerateQuantumRandom() {
     EtherCATQuantumService svc;
     QVector<int> random = svc.generateQuantumRandom(100);
-    QCOMPARE(random.size(), 100);
-    for (int val : random) {
-      QVERIFY(val >= 0);
-      QVERIFY(val < 256);
-    }
+    QVERIFY(random.isEmpty());
   }
 
   // Generate zero random numbers
@@ -81,7 +75,7 @@ private slots:
   void testGenerateQuantumRandomLarge() {
     EtherCATQuantumService svc;
     QVector<int> random = svc.generateQuantumRandom(10000);
-    QCOMPARE(random.size(), 10000);
+    QVERIFY(random.isEmpty());
   }
 
   // Encrypt data with quantum-safe algorithm
@@ -90,8 +84,7 @@ private slots:
     EtherCATQuantumService svc;
     QByteArray data("Hello, Quantum World!");
     QByteArray encrypted = svc.encryptQuantumSafe(data);
-    QVERIFY(encrypted != data);
-    QVERIFY(encrypted.endsWith("_QSA"));
+    QVERIFY(encrypted.isEmpty());
   }
 
   // Encrypt empty data still appends QSA suffix
@@ -99,7 +92,7 @@ private slots:
   void testEncryptQuantumSafeEmpty() {
     EtherCATQuantumService svc;
     QByteArray encrypted = svc.encryptQuantumSafe(QByteArray());
-    QVERIFY(encrypted.endsWith("_QSA"));
+    QVERIFY(encrypted.isEmpty());
   }
 
   // Sign data with quantum-resistant signature
@@ -108,8 +101,7 @@ private slots:
     EtherCATQuantumService svc;
     QByteArray data("Test data for signing");
     QByteArray signature = svc.signQuantumResistant(data);
-    QVERIFY(signature.size() > 0);
-    QCOMPARE(signature.size(), 64);
+    QVERIFY(signature.isEmpty());
   }
 
   // Same data produces consistent signature
@@ -119,16 +111,17 @@ private slots:
     QByteArray data("Consistent test");
     QByteArray sig1 = svc.signQuantumResistant(data);
     QByteArray sig2 = svc.signQuantumResistant(data);
+    QVERIFY(sig1.isEmpty());
     QCOMPARE(sig1, sig2);
   }
 
-  // Different data produces different signatures
-  // Different data produces different signatures
+  // Different data also fails closed without signatures
   void testSignQuantumResistantDifferent() {
     EtherCATQuantumService svc;
     QByteArray sig1 = svc.signQuantumResistant(QByteArray("data1"));
     QByteArray sig2 = svc.signQuantumResistant(QByteArray("data2"));
-    QVERIFY(sig1 != sig2);
+    QVERIFY(sig1.isEmpty());
+    QCOMPARE(sig1, sig2);
   }
 
   // Revoke keys and verify cleanup
@@ -137,9 +130,8 @@ private slots:
     EtherCATQuantumService svc;
     svc.distributeQuantumKeys(1);
     QSignalSpy spy(&svc, &EtherCATQuantumService::keysRevoked);
-    QVERIFY(svc.revokeKeys(1));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QVERIFY(!svc.revokeKeys(1));
+    QCOMPARE(spy.count(), 0);
     QuantumKeys keys = svc.keys(1);
     QVERIFY(keys.publicKey.isEmpty());
   }
@@ -158,8 +150,7 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATQuantumService::quantumKeysDistributed);
     QVERIFY(spy.isValid());
     svc.distributeQuantumKeys(1);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   // keysRevoked signal fires on revocation
@@ -170,18 +161,18 @@ private slots:
     QSignalSpy spy(&svc, &EtherCATQuantumService::keysRevoked);
     QVERIFY(spy.isValid());
     svc.revokeKeys(1);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
-  // Re-distributing keys overwrites previous keys
-  // Distributing keys twice overwrites with new keys
+  // Re-distributing keys still leaves no synthetic key material
   void testKeyOverwrite() {
     EtherCATQuantumService svc;
     svc.distributeQuantumKeys(1);
     QByteArray firstPub = svc.keys(1).publicKey;
     svc.distributeQuantumKeys(1);
     QByteArray secondPub = svc.keys(1).publicKey;
-    QVERIFY(firstPub != secondPub);
+    QVERIFY(firstPub.isEmpty());
+    QCOMPARE(firstPub, secondPub);
   }
 };
 
