@@ -451,6 +451,10 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("NekoEcat 更优"),
       QStringLiteral("架构设计超越 TwinCAT"),
       QStringLiteral("超越 TwinCAT 的模块系统"),
+      QStringLiteral("| **对象字典** | 完整 OD | OD 工作区 | ✅ |"),
+      QStringLiteral("| 指标 | TwinCAT | NekoEcat | 提升 |"),
+      QStringLiteral("| **SDO 操作** | ~10ms | ~50ms (CLI) / ~5ms (原生) | 10x |"),
+      QStringLiteral("| **拓扑扫描** | ~100ms | ~500ms (CLI) / ~100ms (原生) | 5x |"),
   };
 
   for (const QString &docPath : docPaths) {

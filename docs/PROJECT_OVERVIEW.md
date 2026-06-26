@@ -419,8 +419,8 @@ echo '{"id":"test","method":"getBackend","params":{}}' | nc 127.0.0.1 5877
 | **EtherCAT Master** | 内置 | IgH 适配 | ✅ |
 | **SDO 读写** | 原生 API | CLI/原生 API | ✅ |
 | **PDO 映射** | 可视化配置 | PDO Mapping Editor | ✅ |
-| **对象字典** | 完整 OD | OD 工作区 | ✅ |
-| **DC 同步** | 完整支持 | DC Sync + Precision | ✅ |
+| **对象字典** | OD 浏览器 | OD 工作区 + 语义过滤 | 部分覆盖 |
+| **DC 同步** | 完整 DC 支持 | DC Sync + Precision | 部分覆盖 |
 | **实时性能** | < 1µs 抖动 | ~10-100µs | ⚠️ |
 | **PLC 集成** | 完整 PLC | 无 | ❌ |
 | **运动控制** | NC/CNC | 无 | ❌ |
@@ -429,10 +429,10 @@ echo '{"id":"test","method":"getBackend","params":{}}' | nc 127.0.0.1 5877
 
 ### 10.2 性能对比
 
-| 指标 | TwinCAT | NekoEcat | 提升 |
+| 指标 | TwinCAT | NekoEcat | 备注 |
 |------|---------|----------|------|
-| **SDO 操作** | ~10ms | ~50ms (CLI) / ~5ms (原生) | 10x |
-| **拓扑扫描** | ~100ms | ~500ms (CLI) / ~100ms (原生) | 5x |
+| **SDO 操作** | 取决于运行时和现场配置 | 原生 IgH 后端覆盖核心读写，部分路径回退 CLI | 场景依赖 |
+| **拓扑扫描** | 取决于工程规模和设备状态 | 原生 IgH 后端覆盖从站扫描，ESI/字典路径仍有 fallback | 场景依赖 |
 | **周期时间** | 50µs | 1000µs | - |
 | **抖动** | < 1µs | ~10-100µs | - |
 
