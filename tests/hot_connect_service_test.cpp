@@ -3,9 +3,8 @@
 // Test coverage:
 //   - Initial state (empty groups)
 //   - Group creation and removal
-//   - Group activation and deactivation with signals
-//   - Redundant activate/deactivate calls
-//   - Group history tracking
+//   - Group activation/deactivation fail closed without a live backend
+//   - Group history is not synthesized from offline activation attempts
 //   - Group state change signal
 //   - Removing an active group
 
@@ -45,64 +44,70 @@ private slots:
     HotConnectService svc;
     QVERIFY(!svc.removeGroup(99));
   }
-  // Test activating a group and verifying signal
-  void testActivateGroup() {
+  // Verify activation cannot be simulated without a live backend.
+  void testActivateGroupFailsClosedWithoutBackend() {
     HotConnectService svc;
-    QSignalSpy spy(&svc, &HotConnectService::groupActivated);
+    QSignalSpy activatedSpy(&svc, &HotConnectService::groupActivated);
+    QSignalSpy stateSpy(&svc, &HotConnectService::groupStateChanged);
     int id = svc.createGroup("G1", {0});
-    QVERIFY(svc.activateGroup(id));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), id);
-    QVERIFY(svc.isGroupActive(id));
-    QCOMPARE(svc.activeGroupCount(), 1);
+    QVERIFY(!svc.activateGroup(id));
+    QCOMPARE(activatedSpy.count(), 0);
+    QCOMPARE(stateSpy.count(), 0);
+    QVERIFY(!svc.isGroupActive(id));
+    QCOMPARE(svc.activeGroupCount(), 0);
+    QCOMPARE(svc.groupHistory(id).size(), 0);
   }
-  // Test deactivating a group and verifying signal
-  void testDeactivateGroup() {
+
+  // Verify deactivation cannot be simulated without a live backend.
+  void testDeactivateGroupFailsClosedWithoutBackend() {
     HotConnectService svc;
-    QSignalSpy spy(&svc, &HotConnectService::groupDeactivated);
+    QSignalSpy deactivatedSpy(&svc, &HotConnectService::groupDeactivated);
+    QSignalSpy stateSpy(&svc, &HotConnectService::groupStateChanged);
     int id = svc.createGroup("G1", {0});
     svc.activateGroup(id);
-    QVERIFY(svc.deactivateGroup(id));
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(!svc.deactivateGroup(id));
+    QCOMPARE(deactivatedSpy.count(), 0);
+    QCOMPARE(stateSpy.count(), 0);
     QVERIFY(!svc.isGroupActive(id));
     QCOMPARE(svc.activeGroupCount(), 0);
   }
-  // Verify activating an already-active group succeeds
-  void testActivateAlreadyActive() {
+
+  // Verify repeated activation attempts still fail closed.
+  void testActivateRepeatedAttemptFailsClosed() {
     HotConnectService svc;
     int id = svc.createGroup("G1", {0});
-    svc.activateGroup(id);
-    QVERIFY(svc.activateGroup(id));
+    QVERIFY(!svc.activateGroup(id));
+    QVERIFY(!svc.activateGroup(id));
   }
-  // Verify deactivating an already-inactive group succeeds
-  void testDeactivateAlreadyInactive() {
+
+  // Verify deactivating an inactive group fails closed without a backend.
+  void testDeactivateAlreadyInactiveFailsClosed() {
     HotConnectService svc;
     int id = svc.createGroup("G1", {0});
-    QVERIFY(svc.deactivateGroup(id));
+    QVERIFY(!svc.deactivateGroup(id));
   }
-  // Test group history records
-  void testGroupHistory() {
+
+  // Verify offline activation/deactivation attempts do not synthesize history.
+  void testGroupHistoryNotSynthesizedOffline() {
     HotConnectService svc;
     int id = svc.createGroup("G1", {0});
     svc.activateGroup(id);
     svc.deactivateGroup(id);
     auto history = svc.groupHistory(id);
-    QCOMPARE(history.size(), 2);
-    QVERIFY(history[0].success);
-    QVERIFY(history[1].success);
+    QCOMPARE(history.size(), 0);
   }
-  // Verify groupStateChanged signal with correct state
-  void testGroupStateChangedSignal() {
+
+  // Verify offline activation does not emit a state change signal.
+  void testGroupStateChangedSignalNotEmittedOffline() {
     HotConnectService svc;
     QSignalSpy spy(&svc, &HotConnectService::groupStateChanged);
     int id = svc.createGroup("G1", {0});
     svc.activateGroup(id);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(1).value<HotConnectGroupState>(),
-             HotConnectGroupState::Active);
+    QCOMPARE(spy.count(), 0);
   }
-  // Test removing an active group deactivates it
-  void testRemoveActiveGroup() {
+
+  // Removing a group remains a local draft operation.
+  void testRemoveGroupAfterFailedActivation() {
     HotConnectService svc;
     int id = svc.createGroup("G1", {0});
     svc.activateGroup(id);

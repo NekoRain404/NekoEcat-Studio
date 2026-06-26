@@ -47,7 +47,7 @@ private slots:
     QVERIFY(elapsed < 100);
   }
 
-  void testHistoryPerformance() {
+  void testOfflineActivationDoesNotSynthesizeHistoryPerformance() {
     HotConnectService svc;
     int groupId = svc.createGroup("TestGroup", {0, 1, 2});
     QElapsedTimer timer;
@@ -58,7 +58,7 @@ private slots:
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 500);
-    QCOMPARE(svc.groupHistory(groupId).size(), 500);
+    QCOMPARE(svc.groupHistory(groupId).size(), 0);
   }
 };
 

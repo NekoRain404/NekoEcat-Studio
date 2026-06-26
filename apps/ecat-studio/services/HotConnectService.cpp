@@ -1,10 +1,10 @@
 #include "HotConnectService.h"
 
-// HotConnectService.cpp — Hot Connect group lifecycle management
+// HotConnectService.cpp — Hot Connect group draft management
 //
 // Implementation notes:
-//   - Groups track state (Active/Inactive) with timestamped event history
-//   - Activation/deactivation emit state-change signals and record events
+//   - Groups are offline drafts until wired to a live EtherCAT backend
+//   - Activation/deactivation fail closed instead of simulating slave presence
 //   - History per group capped at kMaxHistory entries
 
 HotConnectService::HotConnectService(QObject *parent) : QObject(parent) {}
@@ -31,58 +31,20 @@ bool HotConnectService::removeGroup(int groupId) {
   return true;
 }
 
-// Transitions group to Active, records event, emits groupActivated/groupStateChanged
+// Activating Hot Connect groups changes real slave topology and requires a
+// live EtherCAT backend. Do not synthesize Active state offline.
 bool HotConnectService::activateGroup(int groupId) {
   if (!groups_.contains(groupId))
     return false;
-  auto &group = groups_[groupId];
-  if (group.state == HotConnectGroupState::Active)
-    return true;
-
-  auto fromState = group.state;
-  group.state = HotConnectGroupState::Active;
-  group.lastStateChange = QDateTime::currentDateTime();
-
-  HotConnectEvent event;
-  event.groupId = groupId;
-  event.fromState = fromState;
-  event.toState = HotConnectGroupState::Active;
-  event.timestamp = group.lastStateChange;
-  event.success = true;
-  history_[groupId].append(event);
-  if (history_[groupId].size() > kMaxHistory)
-    history_[groupId].removeFirst();
-
-  emit groupActivated(groupId);
-  emit groupStateChanged(groupId, HotConnectGroupState::Active);
-  return true;
+  return false;
 }
 
-// Transitions group to Inactive, records event, emits groupDeactivated/groupStateChanged
+// Deactivation is also a real topology operation; without a backend there is no
+// authoritative active state to transition from.
 bool HotConnectService::deactivateGroup(int groupId) {
   if (!groups_.contains(groupId))
     return false;
-  auto &group = groups_[groupId];
-  if (group.state == HotConnectGroupState::Inactive)
-    return true;
-
-  auto fromState = group.state;
-  group.state = HotConnectGroupState::Inactive;
-  group.lastStateChange = QDateTime::currentDateTime();
-
-  HotConnectEvent event;
-  event.groupId = groupId;
-  event.fromState = fromState;
-  event.toState = HotConnectGroupState::Inactive;
-  event.timestamp = group.lastStateChange;
-  event.success = true;
-  history_[groupId].append(event);
-  if (history_[groupId].size() > kMaxHistory)
-    history_[groupId].removeFirst();
-
-  emit groupDeactivated(groupId);
-  emit groupStateChanged(groupId, HotConnectGroupState::Inactive);
-  return true;
+  return false;
 }
 
 HotConnectGroup HotConnectService::groupInfo(int groupId) const {

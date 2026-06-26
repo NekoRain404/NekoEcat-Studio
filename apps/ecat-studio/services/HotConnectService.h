@@ -1,38 +1,39 @@
 #pragma once
 
-// HotConnectService — manages hot connect groups for EtherCAT slaves.
+// HotConnectService — manages offline Hot Connect group drafts.
 //
-// Supports creating/removing groups, activating/deactivating them,
-// and tracking state change history.
+// Supports creating/removing group drafts and readback. Activation and
+// deactivation fail closed until wired to a live EtherCAT backend capable of
+// controlling real Hot Connect topology.
 //
-// This service provides Hot Connect group management for the EtherCAT
-// network. It handles:
-//   - Hot Connect group creation and removal
-//   - Group activation and deactivation
-//   - Group state tracking (Active, Inactive, Error)
-//   - Group state change history
+// This service currently handles:
+//   - Hot Connect group draft creation and removal
+//   - Explicit rejection of unsupported offline activation/deactivation
+//   - Group draft state tracking
 //   - Per-group slave position management
 //
 // Usage:
 //   HotConnectService hotConnect;
 //   QVector<int> positions = {0, 1, 2};
 //   int groupId = hotConnect.createGroup("Motor Group", positions);
+//   // Returns false until connected to a real backend:
 //   hotConnect.activateGroup(groupId);
 //   HotConnectGroup group = hotConnect.groupInfo(groupId);
 //   QVector<HotConnectGroup> allGroups = hotConnect.allGroups();
 //   QVector<HotConnectEvent> history = hotConnect.groupHistory(groupId);
 //   int activeCount = hotConnect.activeGroupCount();
 //   bool isActive = hotConnect.isGroupActive(groupId);
+//   // Returns false until connected to a real backend:
 //   hotConnect.deactivateGroup(groupId);
 //   hotConnect.removeGroup(groupId);
 //
 // Thread safety:
-//   All methods must be called from the main (GUI) thread. Group
+//   All methods must be called from the main (GUI) thread. Offline draft
 //   operations are synchronous and block the calling thread.
 //
 // Performance:
 //   - Group creation is O(n) where n is number of positions
-//   - Group activation/deactivation is O(1)
+//   - Offline activation/deactivation rejection is O(1)
 //   - Group lookup is O(1) by ID
 //   - History retrieval is O(n) where n is history size
 
@@ -84,12 +85,12 @@ public:
 
   // Activate a Hot Connect group.
   // @param groupId  Group ID to activate
-  // @return true if activation was successful
+  // @return true if activation was successful; currently false without backend
   bool activateGroup(int groupId);
 
   // Deactivate a Hot Connect group.
   // @param groupId  Group ID to deactivate
-  // @return true if deactivation was successful
+  // @return true if deactivation was successful; currently false without backend
   bool deactivateGroup(int groupId);
 
   // Get information about a specific group.
