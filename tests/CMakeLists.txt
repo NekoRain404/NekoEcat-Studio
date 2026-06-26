@@ -7347,6 +7347,7 @@ target_link_libraries(workflow_report_designer_service_test PRIVATE
     Qt6::Widgets
     Qt6::Test
 )
+target_compile_definitions(workflow_report_designer_service_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 set_target_properties(workflow_report_designer_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME workflow_report_designer_service_test COMMAND workflow_report_designer_service_test)
 set_tests_properties(workflow_report_designer_service_test PROPERTIES

@@ -1,3 +1,4 @@
+#include <QFile>
 #include <QTest>
 #include <QSignalSpy>
 #include <QJsonObject>
@@ -72,6 +73,11 @@ private slots:
     QVERIFY(!r.success);
   }
 
+  void testCustomReportDefaultsToFailure() {
+    WfCustomReport report;
+    QVERIFY(!report.success);
+  }
+
   void testAllReports() {
     WorkflowReportDesignerService svc;
     QCOMPARE(svc.allReports().size(), 0);
@@ -120,6 +126,15 @@ private slots:
     QCOMPARE(tuSpy.count(), 1);
     QCOMPARE(rgSpy.count(), 1);
     QCOMPARE(trSpy.count(), 1);
+  }
+
+  void noDefaultSyntheticSuccessInSource() {
+    QFile header(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/WorkflowReportDesignerService.h"));
+    QVERIFY2(header.open(QIODevice::ReadOnly | QIODevice::Text),
+             qPrintable(QStringLiteral("Unable to open %1").arg(header.fileName())));
+    const QString text = QString::fromUtf8(header.readAll());
+    QVERIFY2(!text.contains(QStringLiteral("bool success = true")),
+             "Custom report results must not default to success.");
   }
 };
 

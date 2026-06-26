@@ -32,7 +32,7 @@ struct WfCustomReport {
   QString summary;
   QVector<QPair<QString, QString>> sections;
   QDateTime generatedAt;
-  bool success = true;
+  bool success = false;
 };
 
 class WorkflowReportDesignerService : public QObject {

@@ -68,6 +68,7 @@ WfCustomReport WorkflowReportDesignerService::generateReport(const QString &temp
   report.title = tmpl.name + " Report";
   report.summary = "Generated from template: " + tmpl.name;
   report.generatedAt = QDateTime::currentDateTime();
+  report.success = true;
   for (const auto &section : tmpl.sections) {
     QString content = "Section: " + section;
     if (data.contains(section))
