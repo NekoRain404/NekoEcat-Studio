@@ -1,7 +1,9 @@
 #pragma once
 
-// WorkflowAIService — AI-powered predictive maintenance, anomaly detection,
-// performance optimization, and pattern recognition for workflow systems.
+// WorkflowAIService -- request facade for predictive maintenance, anomaly
+// detection, performance optimization, and pattern recognition. No AI model or
+// provider backend is wired yet, so requests fail closed instead of publishing
+// synthetic predictions, anomalies, optimizations, or patterns.
 //
 // Thread safety: main (GUI) thread only.
 

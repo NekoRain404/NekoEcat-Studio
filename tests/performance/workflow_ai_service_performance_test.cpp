@@ -24,7 +24,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.predictMaintenance(data);
+      QVERIFY(svc.predictMaintenance(data).component.isEmpty());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 10000);
@@ -36,7 +36,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.detectAnomalies(data);
+      QVERIFY(svc.detectAnomalies(data).isEmpty());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 10000);
@@ -52,7 +52,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 100000; ++i) {
-      svc.optimizePerformance(metrics);
+      QVERIFY(svc.optimizePerformance(metrics).target.isEmpty());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
@@ -64,7 +64,7 @@ private slots:
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 10000; ++i) {
-      svc.recognizePatterns(data);
+      QVERIFY(svc.recognizePatterns(data).isEmpty());
     }
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 10000);
@@ -80,7 +80,9 @@ private slots:
     auto patterns = svc.recognizePatterns(data);
     qint64 elapsed = timer.elapsed();
     QVERIFY(elapsed < 5000);
-    QVERIFY(!pred.component.isEmpty());
+    QVERIFY(pred.component.isEmpty());
+    QVERIFY(anomalies.isEmpty());
+    QVERIFY(patterns.isEmpty());
   }
 
   void testMemoryStability() {
@@ -89,10 +91,10 @@ private slots:
     WfAIPerformanceMetrics metrics;
     metrics.throughput = 500.0;
     for (int i = 0; i < 10000; ++i) {
-      svc.predictMaintenance(data);
-      svc.detectAnomalies(data);
-      svc.optimizePerformance(metrics);
-      svc.recognizePatterns(data);
+      QVERIFY(svc.predictMaintenance(data).component.isEmpty());
+      QVERIFY(svc.detectAnomalies(data).isEmpty());
+      QVERIFY(svc.optimizePerformance(metrics).target.isEmpty());
+      QVERIFY(svc.recognizePatterns(data).isEmpty());
     }
     QVERIFY(true);
   }

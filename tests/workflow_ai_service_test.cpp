@@ -17,10 +17,10 @@ private slots:
       data.append(dp);
     }
     auto pred = svc.predictMaintenance(data);
-    QCOMPARE(pred.component, QString("motor"));
-    QCOMPARE(pred.probability, 0.75);
-    QCOMPARE(pred.timeframeDays, 30);
-    QCOMPARE(spy.count(), 1);
+    QVERIFY(pred.component.isEmpty());
+    QCOMPARE(pred.probability, 0.0);
+    QCOMPARE(pred.timeframeDays, 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testPredictMaintenanceEmpty() {
@@ -38,8 +38,8 @@ private slots:
     dp.label = "sensor";
     data.append(dp);
     auto pred = svc.predictMaintenance(data);
-    QCOMPARE(pred.confidence, 0.85);
-    QVERIFY(!pred.recommendations.isEmpty());
+    QCOMPARE(pred.confidence, 0.0);
+    QVERIFY(pred.recommendations.isEmpty());
   }
 
   void testDetectAnomalies() {
@@ -55,8 +55,8 @@ private slots:
     outlier.value = 100.0;
     data.append(outlier);
     auto anomalies = svc.detectAnomalies(data);
-    QVERIFY(!anomalies.isEmpty());
-    QVERIFY(spy.count() >= 1);
+    QVERIFY(anomalies.isEmpty());
+    QCOMPARE(spy.count(), 0);
   }
 
   void testDetectAnomaliesEmpty() {
@@ -84,10 +84,10 @@ private slots:
     metrics.throughput = 1000.0;
     metrics.errorRate = 0.01;
     auto opt = svc.optimizePerformance(metrics);
-    QCOMPARE(opt.target, QString("throughput"));
-    QCOMPARE(opt.currentValue, 1000.0);
-    QVERIFY(opt.suggestedValue > opt.currentValue);
-    QCOMPARE(opt.expectedImprovement, 15.0);
+    QVERIFY(opt.target.isEmpty());
+    QCOMPARE(opt.currentValue, 0.0);
+    QCOMPARE(opt.suggestedValue, 0.0);
+    QCOMPARE(opt.expectedImprovement, 0.0);
   }
 
   void testRecognizePatterns() {
@@ -100,9 +100,7 @@ private slots:
       data.append(dp);
     }
     auto patterns = svc.recognizePatterns(data);
-    QCOMPARE(patterns.size(), 1);
-    QCOMPARE(patterns[0].name, QString("steady-state"));
-    QCOMPARE(patterns[0].confidence, 0.9);
+    QVERIFY(patterns.isEmpty());
   }
 
   void testRecognizePatternsEmpty() {
@@ -123,9 +121,7 @@ private slots:
     outlier.value = 200.0;
     data.append(outlier);
     auto anomalies = svc.detectAnomalies(data);
-    if (!anomalies.isEmpty()) {
-      QCOMPARE(anomalies[0].severity, WfAnomaly::Medium);
-    }
+    QVERIFY(anomalies.isEmpty());
   }
 
   void testOptimizationDescription() {
@@ -133,7 +129,7 @@ private slots:
     WfAIPerformanceMetrics metrics;
     metrics.throughput = 500.0;
     auto opt = svc.optimizePerformance(metrics);
-    QVERIFY(!opt.description.isEmpty());
+    QVERIFY(opt.description.isEmpty());
   }
 };
 
