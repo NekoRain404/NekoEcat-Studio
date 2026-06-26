@@ -342,12 +342,15 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral(SOURCE_ROOT "/README.md"),
       QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
       QStringLiteral(SOURCE_ROOT "/docs/PROJECT_OVERVIEW.md"),
+      QStringLiteral(SOURCE_ROOT "/docs/TWINCAT_BENCHMARK_REVIEW.md"),
   };
   const QStringList staleClaims = {
       QStringLiteral("325+ registered tests"),
       QStringLiteral("325+ 个注册测试"),
+      QStringLiteral("325+ 测试"),
       QStringLiteral("**Total registered** | **325+**"),
       QStringLiteral("| **注册测试** | 325+ |"),
+      QStringLiteral("| **测试数量** | 325+ |"),
       QStringLiteral("| **源文件总数** | 10,532 |"),
       QStringLiteral("| **测试文件** | 281 |"),
       QStringLiteral("测试套件（281 个文件）"),
@@ -357,6 +360,9 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral("| **默认稳定注册测试** | 286 |"),
       QStringLiteral("97 个独立插件"),
       QStringLiteral("插件（97 个）"),
+      QStringLiteral("322+ 测试"),
+      QStringLiteral("106K+ 行代码"),
+      QStringLiteral("| **总代码行数** | 106K+ |"),
   };
 
   for (const QString &docPath : docPaths) {
