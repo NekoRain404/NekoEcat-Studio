@@ -8,6 +8,7 @@
 #include "services/EtherCATOptimizerService.h"
 
 #include <QApplication>
+#include <QFile>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -63,10 +64,12 @@ private slots:
     QSignalSpy spy(&svc, &RealtimeOptimizerService::optimizationCompleted);
     auto result = svc.optimizeLatency();
     QCOMPARE(result.category, QString("Latency"));
-    QVERIFY(result.before > result.after);
-    QVERIFY(result.improvement > 0.0);
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QCOMPARE(result.before, 0.0);
+    QCOMPARE(result.after, 0.0);
+    QCOMPARE(result.improvement, 0.0);
     QVERIFY(result.recommendations.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testServiceOptimizeThroughput() {
@@ -74,10 +77,12 @@ private slots:
     QSignalSpy spy(&svc, &RealtimeOptimizerService::optimizationCompleted);
     auto result = svc.optimizeThroughput();
     QCOMPARE(result.category, QString("Throughput"));
-    QVERIFY(result.after > result.before);
-    QVERIFY(result.improvement > 0.0);
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QCOMPARE(result.before, 0.0);
+    QCOMPARE(result.after, 0.0);
+    QCOMPARE(result.improvement, 0.0);
     QVERIFY(result.recommendations.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testServiceOptimizeResources() {
@@ -85,10 +90,12 @@ private slots:
     QSignalSpy spy(&svc, &RealtimeOptimizerService::optimizationCompleted);
     auto result = svc.optimizeResources();
     QCOMPARE(result.category, QString("Resources"));
-    QVERIFY(result.before > result.after);
-    QVERIFY(result.improvement > 0.0);
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QCOMPARE(result.before, 0.0);
+    QCOMPARE(result.after, 0.0);
+    QCOMPARE(result.improvement, 0.0);
     QVERIFY(result.recommendations.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testServiceOptimizePriorities() {
@@ -96,10 +103,12 @@ private slots:
     QSignalSpy spy(&svc, &RealtimeOptimizerService::optimizationCompleted);
     auto result = svc.optimizePriorities();
     QCOMPARE(result.category, QString("Priorities"));
-    QVERIFY(result.after > result.before);
-    QVERIFY(result.improvement > 0.0);
+    QVERIFY(result.description.contains("backend", Qt::CaseInsensitive));
+    QCOMPARE(result.before, 0.0);
+    QCOMPARE(result.after, 0.0);
+    QCOMPARE(result.improvement, 0.0);
     QVERIFY(result.recommendations.size() > 0);
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testServiceApplyOptimizationFailsWithoutExecutionBackend() {
@@ -121,10 +130,7 @@ private slots:
     svc.optimizeResources();
 
     auto history = svc.optimizationHistory();
-    QCOMPARE(history.size(), 3);
-    QCOMPARE(history[0].category, QString("Latency"));
-    QCOMPARE(history[1].category, QString("Throughput"));
-    QCOMPARE(history[2].category, QString("Resources"));
+    QCOMPARE(history.size(), 0);
   }
 
   void testServiceClearHistory() {
@@ -166,7 +172,22 @@ private slots:
     svc.optimizeThroughput();
     svc.optimizeResources();
     svc.optimizePriorities();
-    QCOMPARE(spy.count(), 4);
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticRealtimeOptimizationData() {
+    QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/RealtimeOptimizerService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+
+    QVERIFY2(!text.contains(QStringLiteral("emit optimizationCompleted(result)")),
+             "Realtime optimizer must not report completion without backend evidence");
+    QVERIFY2(!text.contains(QStringLiteral("result.before = 150.0")),
+             "Realtime optimizer must not synthesize latency baselines");
+    QVERIFY2(!text.contains(QStringLiteral("result.after = 1450.0")),
+             "Realtime optimizer must not synthesize throughput targets");
+    QVERIFY2(!text.contains(QStringLiteral("result.improvement = 90.0")),
+             "Realtime optimizer must not synthesize priority improvement");
   }
 };
 

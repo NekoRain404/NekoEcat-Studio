@@ -3,10 +3,10 @@
 /// @brief Service for real-time performance optimization of the EtherCAT bus.
 ///
 /// @details Provides latency optimization, throughput optimization, resource
-/// optimization, and priority optimization. Analyzes current performance metrics
-/// and generates actionable optimization recommendations. Applying those
-/// recommendations requires a real privileged backend for scheduler, IRQ, CPU,
-/// and memory-lock configuration; this service does not synthesize success.
+/// optimization, and priority optimization request surfaces. Producing measured
+/// before/after data or applying recommendations requires a real privileged
+/// backend for scheduler, IRQ, CPU, and memory-lock configuration; this service
+/// does not synthesize success.
 
 #include "EtherCATOptimizerService.h"
 
@@ -35,5 +35,8 @@ signals:
   void optimizationApplied(const OptimizationResult &result);
 
 private:
+  OptimizationResult createRejectedResult(const QString &category,
+                                          const QStringList &recommendations) const;
+
   QVector<OptimizationResult> history_;
 };

@@ -7709,6 +7709,10 @@ target_include_directories(realtimeoptimizer_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/src/core
 )
 
+target_compile_definitions(realtimeoptimizer_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
+
 target_link_libraries(realtimeoptimizer_plugin_test PRIVATE
     Qt6::Core
     Qt6::Network

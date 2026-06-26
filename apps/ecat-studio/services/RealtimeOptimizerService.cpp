@@ -10,88 +10,50 @@ RealtimeOptimizerService::RealtimeOptimizerService(QObject *parent)
     : QObject(parent) {
 }
 
-OptimizationResult RealtimeOptimizerService::optimizeLatency() {
+OptimizationResult RealtimeOptimizerService::createRejectedResult(
+    const QString &category, const QStringList &recommendations) const {
   OptimizationResult result;
-  result.category = "Latency";
-  result.description = "Optimize EtherCAT bus latency for real-time performance";
-  result.before = 150.0;
-  result.after = 85.0;
-  result.improvement = 43.3;
-  result.recommendations = {
-    "Reduce cycle time to 1ms or less",
-    "Enable DC synchronization for precise timing",
-    "Minimize number of slaves in critical path",
-    "Use dedicated CPU core for EtherCAT master",
-    "Disable CPU power management (C-states)",
-    "Set IRQ affinity for network adapter"
-  };
-
-  history_.append(result);
-  emit optimizationCompleted(result);
+  result.category = category;
+  result.description =
+      QStringLiteral("%1 optimization requires a privileged realtime backend")
+          .arg(category);
+  result.before = 0.0;
+  result.after = 0.0;
+  result.improvement = 0.0;
+  result.recommendations = recommendations;
   return result;
+}
+
+OptimizationResult RealtimeOptimizerService::optimizeLatency() {
+  return createRejectedResult("Latency", {
+    "Collect live cycle-time, jitter, and scheduling latency evidence",
+    "Require backend validation before changing CPU or IRQ affinity",
+    "Keep current realtime latency settings unchanged until measured targets are available"
+  });
 }
 
 OptimizationResult RealtimeOptimizerService::optimizeThroughput() {
-  OptimizationResult result;
-  result.category = "Throughput";
-  result.description = "Maximize EtherCAT bus throughput and data efficiency";
-  result.before = 1000.0;
-  result.after = 1450.0;
-  result.improvement = 45.0;
-  result.recommendations = {
-    "Increase PDO mapping size for bulk transfers",
-    "Use logical ring commands for batch operations",
-    "Enable frame coalescing for multiple datagrams",
-    "Optimize process data word alignment",
-    "Use LRW (Logical Read Write) commands where possible",
-    "Reduce mailbox polling frequency"
-  };
-
-  history_.append(result);
-  emit optimizationCompleted(result);
-  return result;
+  return createRejectedResult("Throughput", {
+    "Collect live frame-rate, PDO size, and bus-utilization evidence",
+    "Require backend validation before changing datagram batching or process-data layout",
+    "Keep current throughput settings unchanged until measured targets are available"
+  });
 }
 
 OptimizationResult RealtimeOptimizerService::optimizeResources() {
-  OptimizationResult result;
-  result.category = "Resources";
-  result.description = "Optimize system resource allocation for EtherCAT";
-  result.before = 75.0;
-  result.after = 45.0;
-  result.improvement = 40.0;
-  result.recommendations = {
-    "Pin EtherCAT thread to isolated CPU core",
-    "Use memory-mapped I/O for register access",
-    "Pre-allocate buffers for process data",
-    "Enable kernel bypass for network I/O",
-    "Use huge pages for DMA buffers",
-    "Minimize context switches in critical path"
-  };
-
-  history_.append(result);
-  emit optimizationCompleted(result);
-  return result;
+  return createRejectedResult("Resources", {
+    "Collect live CPU, memory, IRQ, and context-switch evidence",
+    "Require privileged backend validation before changing resource allocation",
+    "Keep current host resource settings unchanged until measured targets are available"
+  });
 }
 
 OptimizationResult RealtimeOptimizerService::optimizePriorities() {
-  OptimizationResult result;
-  result.category = "Priorities";
-  result.description = "Optimize thread and interrupt priorities";
-  result.before = 50.0;
-  result.after = 95.0;
-  result.improvement = 90.0;
-  result.recommendations = {
-    "Set EtherCAT thread to SCHED_FIFO with priority 99",
-    "Configure network IRQ to highest priority",
-    "Use real-time preemption patch (PREEMPT_RT)",
-    "Disable unnecessary interrupts on isolated cores",
-    "Set memory lock limits (mlockall)",
-    "Configure CPU isolation (isolcpus) for RT cores"
-  };
-
-  history_.append(result);
-  emit optimizationCompleted(result);
-  return result;
+  return createRejectedResult("Priorities", {
+    "Collect live scheduler, thread-priority, and interrupt-priority evidence",
+    "Require privileged backend validation before changing SCHED_FIFO or IRQ priorities",
+    "Keep current priority settings unchanged until measured targets are available"
+  });
 }
 
 bool RealtimeOptimizerService::applyOptimization(
