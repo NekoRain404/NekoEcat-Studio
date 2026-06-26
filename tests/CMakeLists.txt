@@ -1470,6 +1470,9 @@ target_link_libraries(dcsyncoptimizer_plugin_test PRIVATE
 )
 
 set_target_properties(dcsyncoptimizer_plugin_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(dcsyncoptimizer_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 
 add_test(NAME dcsyncoptimizer_plugin_test COMMAND dcsyncoptimizer_plugin_test)
 set_tests_properties(dcsyncoptimizer_plugin_test PROPERTIES

@@ -58,10 +58,6 @@ private:
                                            const QString &description) const;
     bool hasDcTelemetry() const;
     QJsonObject collectSyncStatus() const;
-    QJsonObject analyzeSyncParameters(const QJsonObject &status) const;
-    QJsonObject analyzeDriftParameters(const QJsonObject &status) const;
-    QJsonObject analyzeJitterParameters(const QJsonObject &status) const;
-    QJsonObject analyzeConfiguration(const QJsonObject &status) const;
 
     EcatClient *client_;
     EventBus *eventBus_;

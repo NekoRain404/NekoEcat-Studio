@@ -14,6 +14,7 @@
 #include <QJsonObject>
 #include <QTabWidget>
 #include <QTcpServer>
+#include <QFile>
 
 #include "plugins/dcsyncoptimizer/DcSyncOptimizerPlugin.h"
 #include "plugins/dcsyncoptimizer/SyncOptimizerWidget.h"
@@ -131,6 +132,53 @@ private slots:
         QVERIFY(result.after.isEmpty());
         QCOMPARE(spy.count(), 0);
         QVERIFY(svc.pendingResults().isEmpty());
+    }
+
+    void testConnectedApplyWithoutBackendAckFailsClosed() {
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+        EcatClient client;
+        client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+        QVERIFY(waitForConnected(client));
+
+        EventBus bus;
+        DcSyncOptimizerService svc(&client, &bus);
+        DcSyncOptimizationResult result;
+        result.category = QStringLiteral("Sync");
+        result.description = QStringLiteral("Distributed Clock synchronization optimization");
+        result.after.insert(QStringLiteral("syncIntervalNs"), 500000);
+        result.timestamp = QDateTime::currentDateTime();
+
+        QSignalSpy appliedSpy(&svc, &DcSyncOptimizerService::optimizationApplied);
+        QSignalSpy errorSpy(&svc, &DcSyncOptimizerService::error);
+        QVERIFY(!svc.applyOptimization(result));
+        QCOMPARE(appliedSpy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
+        QVERIFY(svc.pendingResults().isEmpty());
+    }
+
+    void testImplementationDoesNotKeepSyntheticOptimizationSuccessPath() {
+        QFile source(QStringLiteral(SOURCE_ROOT
+                                    "/apps/ecat-studio/services/DcSyncOptimizerService.cpp"));
+        QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
+                 qPrintable(source.errorString()));
+        const QString text = QString::fromUtf8(source.readAll());
+
+        QVERIFY2(!text.contains(QStringLiteral("result.improvement = 50.0")),
+                 "DC sync optimizer must not retain synthetic sync improvement");
+        QVERIFY2(!text.contains(QStringLiteral("result.improvement = 40.0")),
+                 "DC sync optimizer must not retain synthetic drift improvement");
+        QVERIFY2(!text.contains(QStringLiteral("result.improvement = 35.0")),
+                 "DC sync optimizer must not retain synthetic jitter improvement");
+        QVERIFY2(!text.contains(QStringLiteral("result.improvement = 45.0")),
+                 "DC sync optimizer must not retain synthetic configuration improvement");
+        QVERIFY2(!text.contains(QStringLiteral("emit optimizationCompleted(result)")),
+                 "DC sync optimizer must not announce optimization completion without a backend result");
+        QVERIFY2(!text.contains(QStringLiteral("applied.applied = true")),
+                 "DC sync optimizer must not mark optimizations applied without backend acknowledgement");
+        QVERIFY2(!text.contains(QStringLiteral("emit optimizationApplied(applied)")),
+                 "DC sync optimizer must not emit applied success without backend acknowledgement");
     }
 
     void testClearResults() {
