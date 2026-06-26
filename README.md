@@ -29,25 +29,25 @@
 
 ## 软件介绍 / Introduction
 
-NekoEcat Studio 是一个面向真实 EtherCAT 调试现场的现代工程站。它不是简单包一层 `ethercat` 命令行，而是把拓扑扫描、从站证据、对象字典、SDO 读写、PDO 映射、Watch 监视、Startup SDO、Free Run 过程映像、I/O 变量工程表、状态机建议、诊断和工程文件管理组织成一套连续的工作流。
+NekoEcat Studio 是一个面向 Linux + IgH 生态的 EtherCAT 工程工作站。它不是简单包一层 `ethercat` 命令行，而是把拓扑扫描、从站证据、对象字典、SDO 读写、PDO 映射、Watch 监视、Startup SDO、Free Run 过程映像、I/O 变量工程表、状态机建议、诊断和工程文件管理组织成一套连续的受控调试工作流。
 
-NekoEcat Studio is a modern EtherCAT workstation for real commissioning work. It is not just a thin wrapper around the `ethercat` CLI; it organizes topology, slave evidence, Object Dictionary workflows, SDO read/write operations, PDO maps, Watch values, Startup SDOs, Free Run telemetry, I/O variable engineering, state guidance, diagnostics, and project persistence into one coherent workflow.
+NekoEcat Studio is an EtherCAT engineering workstation for the Linux + IgH ecosystem. It is not just a thin wrapper around the `ethercat` CLI; it organizes topology, slave evidence, Object Dictionary workflows, SDO read/write operations, PDO maps, Watch values, Startup SDOs, Free Run telemetry, I/O variable engineering, state guidance, diagnostics, and project persistence into one controlled debugging workflow.
 
-它的目标是做成更像工程师每天愿意打开的工具：信息密度足够高，危险操作边界足够清楚，常用动作足够靠前，证据链足够完整。你可以把它理解成面向 Linux + IgH 生态的现代化 EtherCAT Studio，服务于调试、定位、复核、交接和逐步上线。
+它的目标是做成更像工程师每天愿意打开的工具：信息密度足够高，危险操作边界足够清楚，常用动作足够靠前，证据链足够明确。你可以把它理解成面向 Linux + IgH 生态的现代化 EtherCAT Studio，服务于调试、定位、复核、交接和发布前验证。
 
-The product direction is straightforward: high information density, explicit safety boundaries, fast access to frequent operations, and a strong evidence trail. It aims to be a practical modern EtherCAT studio for the Linux + IgH ecosystem, useful for commissioning, triage, review, handoff, and controlled bring-up.
+The product direction is straightforward: high information density, explicit safety boundaries, fast access to frequent operations, and a strong evidence trail. It aims to be a practical modern EtherCAT studio for the Linux + IgH ecosystem, useful for debugging, triage, review, handoff, and release-time validation.
 
 ## 为什么它值得期待 / Why It Is Strong
 
 - **工程视角优先 / Engineering-first UI**: Overview、Object Dictionary、Watch、Startup、Free Run、I/O Variables 都按任务组织，而不是把原始文本堆给用户。
 - **证据驱动 / Evidence-driven**: OD、Watch、Startup、Bookmark、Target Trail、Free Run 和 I/O Variables 互相参与复核，写入前能看到本地证据是否一致。
 - **危险边界清晰 / Clear safety boundaries**: 本地查看、复制、跳转不会偷偷读写总线；读 SDO、写 SDO、切状态、Free Run、Host Diagnostics 都是显式动作。
-- **面向现场效率 / Built for field speed**: 高频 tab 靠前，命令面板、下一最佳动作、语义过滤、批量 Watch、批量 Startup 候选都减少重复点击。
+- **面向调试效率 / Built for debugging speed**: 高频 tab 靠前，命令面板、下一最佳动作、语义过滤、批量 Watch、批量 Startup 候选都减少重复点击。
 - **可持续架构 / Sustainable architecture**: GUI、daemon、IgH 适配层、共享协议层分离，后续可以逐步替换 CLI 解析、扩展原生 runtime 能力。
 - **插件系统 / Plugin Architecture**: WorkspacePlugin 接口 + EventBus 事件总线 + Service 服务层，每个工作区独立为插件，便于扩展和维护。
-- **硬件诊断 / Hardware Diagnostics**: DC Sync 分布式时钟监控、AL Event 应用层事件跟踪、网络适配器管理，对标 TwinCAT 级别的硬件调试能力。
+- **硬件诊断 / Hardware Diagnostics**: DC Sync 分布式时钟监控、AL Event 应用层事件跟踪、网络适配器管理，用于补齐 Linux + IgH 调试证据。
 - **实时信号分析 / Real-time Signal Analysis**: 多通道信号采集、QPainter 反锯齿滚动图表、10,000 点环形缓冲、统计分析。
-- **比传统调试面板更完整 / More than a debug panel**: 它已经具备工程文件、项目备注、ESI 仓库、诊断报告、I/O 变量规划和状态机辅助。
+- **工程上下文 / Engineering context**: 它已经具备工程文件、项目备注、ESI 仓库、诊断报告、I/O 变量规划和状态机辅助。
 
 ## 系统架构 / Architecture
 
