@@ -1,10 +1,10 @@
 #pragma once
 
-// MultiMasterService — manages multiple EtherCAT masters simultaneously.
+// MultiMasterService — manages offline multi-master inventory drafts.
 //
-// Provides master discovery, configuration, monitoring, and synchronization
-// across multiple EtherCAT masters. Each master is identified by a unique
-// masterId and tracked independently.
+// Provides local master discovery/configuration/monitoring metadata. Runtime
+// synchronization is rejected until this service is wired to a live multi-master
+// EtherCAT backend.
 
 #include <QObject>
 #include <QString>
@@ -65,6 +65,7 @@ public:
   QVector<MmMasterInfo> discoverMasters();
   bool configureMaster(int masterId, const MmMasterConfig &config);
   MmMasterStatus monitorMaster(int masterId);
+  // Returns false until real backend synchronization is implemented.
   bool synchronizeMasters(int sourceId, int targetId);
   bool addMaster(const MmMasterInfo &info);
   bool removeMaster(int masterId);

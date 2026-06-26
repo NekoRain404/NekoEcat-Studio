@@ -109,7 +109,7 @@ private slots:
     QCOMPARE(status.state, MultiMasterState::Unknown);
   }
 
-  void testSynchronizeMasters() {
+  void testSynchronizeMastersFailsClosedWithoutBackend() {
     MultiMasterService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &MultiMasterService::masterSyncCompleted);
 
@@ -123,13 +123,16 @@ private slots:
     dst.state = MultiMasterState::Active;
     svc.addMaster(dst);
 
-    QVERIFY(svc.synchronizeMasters(0, 1));
+    QVERIFY(!svc.synchronizeMasters(0, 1));
     QCOMPARE(spy.count(), 1);
 
     auto result = qvariant_cast<MmMasterSyncResult>(spy.at(0).at(0));
-    QVERIFY(result.success);
+    QVERIFY(!result.success);
     QCOMPARE(result.sourceId, 0);
     QCOMPARE(result.targetId, 1);
+    QCOMPARE(result.recordsSynced, 0);
+    QCOMPARE(svc.masterInfo(0).state, MultiMasterState::Active);
+    QCOMPARE(svc.masterInfo(1).state, MultiMasterState::Active);
   }
 
   void testSynchronizeInvalidMasters() {
@@ -342,7 +345,7 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  void testMasterSyncCompletedSignal() {
+  void testMasterSyncCompletedSignalCarriesOfflineFailure() {
     MultiMasterService svc(nullptr, nullptr);
     QSignalSpy spy(&svc, &MultiMasterService::masterSyncCompleted);
 
@@ -356,6 +359,9 @@ private slots:
 
     svc.synchronizeMasters(0, 1);
     QCOMPARE(spy.count(), 1);
+    auto result = qvariant_cast<MmMasterSyncResult>(spy.at(0).at(0));
+    QVERIFY(!result.success);
+    QVERIFY(result.message.contains(QStringLiteral("backend")));
   }
 
   void testMasterErrorSignal() {

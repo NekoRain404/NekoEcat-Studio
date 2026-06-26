@@ -108,27 +108,15 @@ bool MultiMasterService::synchronizeMasters(int sourceId, int targetId) {
     return false;
   }
 
-  for (auto &m : masters_) {
-    if (m.masterId == sourceId || m.masterId == targetId) {
-      m.state = MultiMasterState::Syncing;
-    }
-  }
-
   MmMasterSyncResult result;
-  result.success = true;
+  result.success = false;
   result.sourceId = sourceId;
   result.targetId = targetId;
   result.recordsSynced = 0;
-  result.message = "Synchronization completed";
-
-  for (auto &m : masters_) {
-    if (m.masterId == sourceId || m.masterId == targetId) {
-      m.state = MultiMasterState::Active;
-    }
-  }
+  result.message = "Multi-master synchronization requires a connected EtherCAT backend";
 
   emit masterSyncCompleted(result);
-  return true;
+  return false;
 }
 
 bool MultiMasterService::addMaster(const MmMasterInfo &info) {
