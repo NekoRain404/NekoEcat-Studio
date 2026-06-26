@@ -9,12 +9,13 @@
 
 #include <QTest>
 #include <QSignalSpy>
+#include <QFile>
 #include "services/WorkflowCertificationService.h"
 
 class WorkflowCertificationServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  void testCertifyProcessValid() {
+  void testCertifyProcessRequiresCertificationBackend() {
       WorkflowCertificationService svc;
       QSignalSpy spy(&svc, &WorkflowCertificationService::certificationCompleted);
       WfProcessConfig cfg;
@@ -22,11 +23,13 @@ private slots:
       cfg.steps << QStringLiteral("init") << QStringLiteral("config") << QStringLiteral("validate");
       cfg.requirements << QStringLiteral("doc-complete");
       auto r = svc.certifyProcess(cfg);
-      QVERIFY(r.valid);
-      QVERIFY(!r.certificateId.isEmpty());
+      QVERIFY(!r.valid);
+      QVERIFY(r.certificateId.isEmpty());
       QCOMPARE(r.scope, QStringLiteral("Commissioning"));
       QVERIFY(r.timestamp.isValid());
-      QVERIFY(r.expiry > r.timestamp);
+      QVERIFY(!r.expiry.isValid());
+      QVERIFY(r.conditions.join(QStringLiteral("\n")).contains(QStringLiteral("backend"),
+                                                               Qt::CaseInsensitive));
       QCOMPARE(spy.count(), 1);
   }
 
@@ -38,7 +41,7 @@ private slots:
       QVERIFY(!r.valid);
   }
 
-  void testCertifyQualityPass() {
+  void testCertifyQualityRequiresCertificationBackend() {
       WorkflowCertificationService svc;
       QSignalSpy spy(&svc, &WorkflowCertificationService::certificationCompleted);
       WfQualityConfig cfg;
@@ -46,8 +49,10 @@ private slots:
       cfg.minScore = 80.0;
       cfg.thresholds << QStringLiteral("accuracy>=95%");
       auto r = svc.certifyQuality(cfg);
-      QVERIFY(r.valid);
+      QVERIFY(!r.valid);
+      QVERIFY(r.certificateId.isEmpty());
       QCOMPARE(r.scope, QStringLiteral("ISO 9001"));
+      QVERIFY(!r.expiry.isValid());
       QCOMPARE(spy.count(), 1);
   }
 
@@ -60,7 +65,7 @@ private slots:
       QVERIFY(!r.valid);
   }
 
-  void testCertifySafetyValid() {
+  void testCertifySafetyRequiresCertificationBackend() {
       WorkflowCertificationService svc;
       QSignalSpy spy(&svc, &WorkflowCertificationService::certificationCompleted);
       WfSafetyConfig cfg;
@@ -68,8 +73,10 @@ private slots:
       cfg.silLevel = 2;
       cfg.mitigations << QStringLiteral("redundant-sensor");
       auto r = svc.certifySafety(cfg);
-      QVERIFY(r.valid);
+      QVERIFY(!r.valid);
+      QVERIFY(r.certificateId.isEmpty());
       QCOMPARE(r.scope, QStringLiteral("SIL2"));
+      QVERIFY(!r.expiry.isValid());
       QCOMPARE(spy.count(), 1);
   }
 
@@ -82,7 +89,7 @@ private slots:
       QVERIFY(!r.valid);
   }
 
-  void testCertifyComplianceValid() {
+  void testCertifyComplianceRequiresCertificationBackend() {
       WorkflowCertificationService svc;
       QSignalSpy spy(&svc, &WorkflowCertificationService::certificationCompleted);
       WfComplianceConfig cfg;
@@ -91,8 +98,10 @@ private slots:
       cfg.evidence << QStringLiteral("test-report.pdf");
       cfg.jurisdiction = QStringLiteral("EU");
       auto r = svc.certifyCompliance(cfg);
-      QVERIFY(r.valid);
+      QVERIFY(!r.valid);
+      QVERIFY(r.certificateId.isEmpty());
       QCOMPARE(r.scope, QStringLiteral("CE"));
+      QVERIFY(!r.expiry.isValid());
       QCOMPARE(spy.count(), 1);
   }
 
@@ -105,7 +114,7 @@ private slots:
       QVERIFY(!r.valid);
   }
 
-  void testUniqueCertificateIds() {
+  void testRejectedRequestsDoNotMintCertificateIds() {
       WorkflowCertificationService svc;
       WfProcessConfig cfg;
       cfg.processName = QStringLiteral("Test");
@@ -113,17 +122,18 @@ private slots:
       cfg.requirements << QStringLiteral("req1");
       auto r1 = svc.certifyProcess(cfg);
       auto r2 = svc.certifyProcess(cfg);
-      QVERIFY(r1.certificateId != r2.certificateId);
+      QVERIFY(r1.certificateId.isEmpty());
+      QVERIFY(r2.certificateId.isEmpty());
   }
 
-  void testExpiryIsOneYear() {
+  void testRejectedRequestsDoNotSetExpiry() {
       WorkflowCertificationService svc;
       WfProcessConfig cfg;
       cfg.processName = QStringLiteral("Test");
       cfg.steps << QStringLiteral("step1");
       cfg.requirements << QStringLiteral("req1");
       auto r = svc.certifyProcess(cfg);
-      QCOMPARE(r.timestamp.daysTo(r.expiry), 365);
+      QVERIFY(!r.expiry.isValid());
   }
 
   void testConditionsFromConfig() {
@@ -133,8 +143,27 @@ private slots:
       cfg.silLevel = 2;
       cfg.mitigations << QStringLiteral("m1") << QStringLiteral("m2");
       auto r = svc.certifySafety(cfg);
-      QCOMPARE(r.conditions.size(), 2);
-      QCOMPARE(r.conditions.at(0), QStringLiteral("m1"));
+      QVERIFY(r.conditions.join(QStringLiteral("\n")).contains(QStringLiteral("backend"),
+                                                               Qt::CaseInsensitive));
+  }
+
+  void testSourceDoesNotMintSyntheticCertificates() {
+      QFile file(QStringLiteral(SOURCE_ROOT
+                                "/apps/ecat-studio/services/WorkflowCertificationService.cpp"));
+      QVERIFY2(file.open(QIODevice::ReadOnly | QIODevice::Text),
+               qPrintable(file.errorString()));
+      const QString source = QString::fromUtf8(file.readAll());
+
+      QVERIFY2(!source.contains(QStringLiteral("QUuid::createUuid")),
+               "Workflow certification must not mint local certificate IDs without a backend");
+      QVERIFY2(!source.contains(QStringLiteral("addYears(1)")),
+               "Workflow certification must not synthesize certificate expiry dates without a backend");
+      QVERIFY2(!source.contains(QStringLiteral("r.valid = !config.steps.isEmpty()")),
+               "Workflow process certification must not pass from local completeness checks alone");
+      QVERIFY2(!source.contains(QStringLiteral("r.valid = config.minScore >= 70.0")),
+               "Workflow quality certification must not pass from local score checks alone");
+      QVERIFY2(!source.contains(QStringLiteral("r.valid = config.silLevel >= 1")),
+               "Workflow safety certification must not pass from local SIL labels alone");
   }
 };
 

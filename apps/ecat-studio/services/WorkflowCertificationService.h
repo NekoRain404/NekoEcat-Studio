@@ -71,4 +71,7 @@ public:
 
 signals:
   void certificationCompleted(const WfCertificationResult &result);
+
+private:
+  WfCertificationResult rejectedResult(const QString &scope) const;
 };
