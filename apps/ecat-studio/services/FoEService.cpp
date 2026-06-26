@@ -5,8 +5,8 @@
 //
 // Implementation notes:
 //   - readFirmware/writeFirmware delegate to EcatClient for daemon communication
-//   - readFile/writeFile/listFiles/fileInfo are stubs for future FoE mailbox support
-//   - Progress signals emitted at 0/50/100% for UI progress bars
+//   - readFile/writeFile/listFiles/fileInfo require daemon-backed FoE mailbox support
+//   - Operations do not emit success/progress signals until real daemon support exists
 
 FoEService::FoEService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {
@@ -25,36 +25,45 @@ FoEService::FoEService(EcatClient *client, QObject *parent)
 }
 
 void FoEService::readFile(int position, const QString &fileName) {
-    emit readProgress(position, 0);
-    QByteArray data;
-    data.fill(0, 256);
-    emit readProgress(position, 100);
-    emit fileReadComplete(position, fileName, data);
+    Q_UNUSED(position);
+    Q_UNUSED(fileName);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot read FoE file: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("FoE generic file read is not implemented by the daemon backend");
 }
 
 bool FoEService::writeFile(int position, const QString &fileName,
                             const QByteArray &data) {
+    Q_UNUSED(position);
+    Q_UNUSED(fileName);
     Q_UNUSED(data);
-    emit writeProgress(position, 0);
-    emit writeProgress(position, 50);
-    emit writeProgress(position, 100);
-    emit fileWriteComplete(position, fileName, true);
-    return true;
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot write FoE file: EtherCAT daemon is not connected");
+        return false;
+    }
+    emit error("FoE generic file write is not implemented by the daemon backend");
+    return false;
 }
 
 void FoEService::listFiles(int position) {
-    QStringList files;
-    files << "firmware.bin" << "config.dat" << "bootloader.bin";
-    emit fileListReceived(position, files);
+    Q_UNUSED(position);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot list FoE files: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("FoE file listing is not implemented by the daemon backend");
 }
 
 void FoEService::fileInfo(int position, const QString &fileName) {
-    FoEFileInfo info;
-    info.fileName = fileName;
-    info.fileSize = 131072;
-    info.lastModified = QDateTime::currentDateTime();
-    info.checksum = 0xABCD1234;
-    emit fileInfoReceived(position, info);
+    Q_UNUSED(position);
+    Q_UNUSED(fileName);
+    if (!client_ || !client_->isConnected()) {
+        emit error("Cannot query FoE file info: EtherCAT daemon is not connected");
+        return;
+    }
+    emit error("FoE file info query is not implemented by the daemon backend");
 }
 
 // Read firmware from a slave using FoE protocol via the daemon.

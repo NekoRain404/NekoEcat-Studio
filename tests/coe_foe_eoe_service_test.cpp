@@ -78,11 +78,11 @@ private slots:
         FoEService foe(&client);
         QSignalSpy progressSpy(&foe, &FoEService::readProgress);
         QSignalSpy completeSpy(&foe, &FoEService::fileReadComplete);
+        QSignalSpy errorSpy(&foe, &FoEService::error);
         foe.readFile(1, "firmware.bin");
-        QCOMPARE(completeSpy.count(), 1);
-        QCOMPARE(completeSpy.at(0).at(1).toString(), QString("firmware.bin"));
-        QCOMPARE(completeSpy.at(0).at(2).toByteArray().size(), 256);
-        QVERIFY(progressSpy.count() >= 2);
+        QCOMPARE(progressSpy.count(), 0);
+        QCOMPARE(completeSpy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify file write with progress signals
@@ -91,11 +91,12 @@ private slots:
         FoEService foe(&client);
         QSignalSpy progressSpy(&foe, &FoEService::writeProgress);
         QSignalSpy completeSpy(&foe, &FoEService::fileWriteComplete);
+        QSignalSpy errorSpy(&foe, &FoEService::error);
         bool result = foe.writeFile(1, "config.dat", QByteArray(128, 0xFF));
-        QVERIFY(result);
-        QCOMPARE(completeSpy.count(), 1);
-        QVERIFY(completeSpy.at(0).at(2).toBool());
-        QVERIFY(progressSpy.count() >= 2);
+        QVERIFY(!result);
+        QCOMPARE(progressSpy.count(), 0);
+        QCOMPARE(completeSpy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify file list retrieval
@@ -103,11 +104,10 @@ private slots:
         EcatClient client;
         FoEService foe(&client);
         QSignalSpy spy(&foe, &FoEService::fileListReceived);
+        QSignalSpy errorSpy(&foe, &FoEService::error);
         foe.listFiles(1);
-        QCOMPARE(spy.count(), 1);
-        auto files = spy.at(0).at(1).toStringList();
-        QVERIFY(files.contains("firmware.bin"));
-        QVERIFY(files.contains("config.dat"));
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
     }
 
     // Verify file info retrieval
@@ -115,12 +115,36 @@ private slots:
         EcatClient client;
         FoEService foe(&client);
         QSignalSpy spy(&foe, &FoEService::fileInfoReceived);
+        QSignalSpy errorSpy(&foe, &FoEService::error);
         foe.fileInfo(1, "firmware.bin");
-        QCOMPARE(spy.count(), 1);
-        auto info = spy.at(0).at(1).value<FoEFileInfo>();
-        QCOMPARE(info.fileName, QString("firmware.bin"));
-        QCOMPARE(info.fileSize, qint64(131072));
-        QCOMPARE(info.checksum, quint32(0xABCD1234));
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(errorSpy.count(), 1);
+    }
+
+    void testFoEDisconnectedClientDoesNotReportProtocolSuccess() {
+        EcatClient client;
+        QVERIFY(!client.isConnected());
+        FoEService foe(&client);
+        QSignalSpy readProgressSpy(&foe, &FoEService::readProgress);
+        QSignalSpy readCompleteSpy(&foe, &FoEService::fileReadComplete);
+        QSignalSpy writeProgressSpy(&foe, &FoEService::writeProgress);
+        QSignalSpy writeCompleteSpy(&foe, &FoEService::fileWriteComplete);
+        QSignalSpy listSpy(&foe, &FoEService::fileListReceived);
+        QSignalSpy infoSpy(&foe, &FoEService::fileInfoReceived);
+        QSignalSpy errorSpy(&foe, &FoEService::error);
+
+        foe.readFile(1, "firmware.bin");
+        QVERIFY(!foe.writeFile(1, "config.dat", QByteArray(128, 0xFF)));
+        foe.listFiles(1);
+        foe.fileInfo(1, "firmware.bin");
+
+        QCOMPARE(readProgressSpy.count(), 0);
+        QCOMPARE(readCompleteSpy.count(), 0);
+        QCOMPARE(writeProgressSpy.count(), 0);
+        QCOMPARE(writeCompleteSpy.count(), 0);
+        QCOMPARE(listSpy.count(), 0);
+        QCOMPARE(infoSpy.count(), 0);
+        QVERIFY(errorSpy.count() >= 4);
     }
 
     // ── EoEService tests ──────────────────────────────────────────────
