@@ -13,6 +13,7 @@
 //   - Signal emission
 #include <QTest>
 #include <QSignalSpy>
+#include <QTcpServer>
 #include "plugins/hardwareverification/HardwareVerificationPlugin.h"
 #include "plugins/hardwareverification/DeviceVerificationWidget.h"
 #include "plugins/hardwareverification/NetworkVerificationWidget.h"
@@ -21,6 +22,15 @@
 
 class HardwareVerificationPluginTest : public QObject {
   Q_OBJECT
+private:
+  static bool waitForConnected(EcatClient &client) {
+    for (int i = 0; i < 50 && !client.isConnected(); ++i) {
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
+      QTest::qWait(10);
+    }
+    return client.isConnected();
+  }
+
 private slots:
   void testPluginIdentity() {
     EcatClient client;
@@ -327,6 +337,24 @@ private slots:
       QCOMPARE(result.skipped, result.totalTests());
       QVERIFY(!result.recommendations.isEmpty());
     }
+  }
+
+  void testConnectedDaemonDoesNotReportHardwareVerifiedWithoutBackend() {
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(waitForConnected(client));
+
+    HardwareVerificationService service(&client);
+    auto result = service.verifyNetwork();
+    QVERIFY(!result.allPassed());
+    QCOMPARE(result.passed, 0);
+    QCOMPARE(result.failed, 0);
+    QCOMPARE(result.skipped, result.totalTests());
+    QCOMPARE(result.totalDurationMs, 0.0);
+    QVERIFY(!service.allResults().isEmpty());
   }
 };
 

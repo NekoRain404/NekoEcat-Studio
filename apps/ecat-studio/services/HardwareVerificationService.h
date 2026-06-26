@@ -3,7 +3,9 @@
 // HardwareVerificationService — verifies EtherCAT hardware devices and network.
 //
 // Provides device-level, network-wide, timing, and compliance verification
-// tests for EtherCAT hardware. Reports pass/fail results with recommendations.
+// requests for EtherCAT hardware. Until a real verification backend is wired,
+// requests fail closed as skipped checks even when the daemon socket is
+// connected.
 //
 // Thread safety: main (GUI) thread only.
 
@@ -78,6 +80,7 @@ private:
   VerificationResult offlineResult(const QString &verificationId,
                                    const QString &verificationName,
                                    const QVector<TestResult> &tests);
+  bool verificationBackendReady() const;
 
   EcatClient *client_;
   QVector<VerificationResult> results_;

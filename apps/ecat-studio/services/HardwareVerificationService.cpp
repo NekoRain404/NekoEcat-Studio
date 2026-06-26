@@ -11,7 +11,7 @@ VerificationResult HardwareVerificationService::verifyDevice(int position) {
   result.verificationName =
       QStringLiteral("Device Verification (Position %1)").arg(position);
 
-  if (!client_ || !client_->isConnected()) {
+  if (!verificationBackendReady()) {
     QVector<TestResult> tests = {
         runDeviceIdentification(position),
         runDeviceCapability(position),
@@ -55,7 +55,7 @@ VerificationResult HardwareVerificationService::verifyNetwork() {
   result.verificationId = QStringLiteral("network");
   result.verificationName = QStringLiteral("Network Verification");
 
-  if (!client_ || !client_->isConnected()) {
+  if (!verificationBackendReady()) {
     QVector<TestResult> tests = {
         runLinkQuality(),
         runCableQuality(),
@@ -99,7 +99,7 @@ VerificationResult HardwareVerificationService::verifyTiming() {
   result.verificationId = QStringLiteral("timing");
   result.verificationName = QStringLiteral("Timing Verification");
 
-  if (!client_ || !client_->isConnected()) {
+  if (!verificationBackendReady()) {
     QVector<TestResult> tests = {
         runDcSyncTiming(),
         runProcessDataTiming(),
@@ -143,7 +143,7 @@ VerificationResult HardwareVerificationService::verifyCompliance() {
   result.verificationId = QStringLiteral("compliance");
   result.verificationName = QStringLiteral("Compliance Verification");
 
-  if (!client_ || !client_->isConnected()) {
+  if (!verificationBackendReady()) {
     QVector<TestResult> tests = {
         runProtocolCompliance(),
         runStateMachineCompliance(),
@@ -188,6 +188,10 @@ QVector<VerificationResult> HardwareVerificationService::allResults() const {
 
 void HardwareVerificationService::clearResults() { results_.clear(); }
 
+bool HardwareVerificationService::verificationBackendReady() const {
+  return false;
+}
+
 VerificationResult HardwareVerificationService::offlineResult(
     const QString &verificationId, const QString &verificationName,
     const QVector<TestResult> &tests) {
@@ -195,16 +199,23 @@ VerificationResult HardwareVerificationService::offlineResult(
   result.verificationId = verificationId;
   result.verificationName = verificationName;
   result.recommendations.append(
-      QStringLiteral("Connect to the EtherCAT daemon before running hardware verification."));
+      client_ && client_->isConnected()
+          ? QStringLiteral("Hardware verification requires a real verification backend; daemon connectivity alone is not enough.")
+          : QStringLiteral("Connect to the EtherCAT daemon before running hardware verification."));
 
   emit verificationStarted(result.verificationId);
   for (TestResult test : tests) {
     test.passed = false;
     test.skipped = true;
     test.durationMs = 0.0;
-    test.details = QStringLiteral("Skipped: EtherCAT daemon is not connected.");
+    test.details =
+        client_ && client_->isConnected()
+            ? QStringLiteral("Skipped: hardware verification backend is not available.")
+            : QStringLiteral("Skipped: EtherCAT daemon is not connected.");
     test.recommendation =
-        QStringLiteral("Connect to the daemon and rerun this verification.");
+        client_ && client_->isConnected()
+            ? QStringLiteral("Wire a real hardware verification backend and rerun this verification.")
+            : QStringLiteral("Connect to the daemon and rerun this verification.");
     result.tests.append(test);
     ++result.skipped;
     emit verificationProgress(result.verificationId, result.tests.size(),
