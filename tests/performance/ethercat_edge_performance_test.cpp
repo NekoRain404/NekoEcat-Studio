@@ -17,7 +17,8 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.processAtEdge(data);
+      EdgeResult result = svc.processAtEdge(data);
+      QVERIFY(!result.success);
     }
 
     qint64 elapsed = timer.elapsed();
@@ -36,7 +37,8 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.analyzeAtEdge(data);
+      EdgeAnalysis analysis = svc.analyzeAtEdge(data);
+      QVERIFY(!analysis.success);
     }
 
     qint64 elapsed = timer.elapsed();
@@ -55,7 +57,7 @@ private slots:
 
     const int count = 1000;
     for (int i = 0; i < count; i++) {
-      svc.storeAtEdge(data);
+      QVERIFY(!svc.storeAtEdge(data));
     }
 
     qint64 elapsed = timer.elapsed();

@@ -6241,6 +6241,7 @@ target_include_directories(ethercat_edge_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
 )
 target_link_libraries(ethercat_edge_service_test PRIVATE Qt6::Core Qt6::Test)
+target_compile_definitions(ethercat_edge_service_test PRIVATE SOURCE_ROOT="${CMAKE_SOURCE_DIR}")
 set_target_properties(ethercat_edge_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_edge_service_test COMMAND ethercat_edge_service_test)
 

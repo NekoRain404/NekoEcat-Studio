@@ -1,4 +1,12 @@
 #include "EtherCATEdgeService.h"
+
+namespace {
+QString edgeBackendUnavailableMessage()
+{
+    return QStringLiteral("Edge backend is not available");
+}
+}
+
 EtherCATEdgeService::EtherCATEdgeService(QObject *parent)
     : QObject(parent)
 {
@@ -13,9 +21,7 @@ EdgeResult EtherCATEdgeService::processAtEdge(const EdgeData &data)
         return result;
     }
 
-    result.success = true;
-    result.output = data.data;
-    result.processingTime = 0.001 * data.size;
+    result.error = edgeBackendUnavailableMessage();
     emit edgeProcessed(result);
     return result;
 }
@@ -28,30 +34,6 @@ EdgeAnalysis EtherCATEdgeService::analyzeAtEdge(const EdgeData &data)
         return analysis;
     }
 
-    analysis.success = true;
-    analysis.sampleCount = data.data.size();
-    if (analysis.sampleCount > 0) {
-        double sum = 0;
-        double minVal = data.data[0];
-        double maxVal = data.data[0];
-        for (int i = 0; i < data.data.size(); ++i) {
-            double val = static_cast<unsigned char>(data.data[i]);
-            sum += val;
-            if (val < minVal) minVal = val;
-            if (val > maxVal) maxVal = val;
-        }
-        analysis.mean = sum / analysis.sampleCount;
-        analysis.min = minVal;
-        analysis.max = maxVal;
-
-        double varSum = 0;
-        for (int i = 0; i < data.data.size(); ++i) {
-            double diff = static_cast<unsigned char>(data.data[i]) - analysis.mean;
-            varSum += diff * diff;
-        }
-        analysis.variance = varSum / analysis.sampleCount;
-    }
-
     emit edgeAnalyzed(analysis);
     return analysis;
 }
@@ -60,8 +42,7 @@ bool EtherCATEdgeService::storeAtEdge(const EdgeData &data)
 {
     if (data.data.isEmpty())
         return false;
-    ++storedCount_;
-    return true;
+    return false;
 }
 
 bool EtherCATEdgeService::syncFromEdge()
