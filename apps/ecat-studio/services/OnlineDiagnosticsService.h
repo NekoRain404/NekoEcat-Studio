@@ -4,7 +4,8 @@
 //
 // Provides bus traffic monitoring, error rate tracking, performance metrics,
 // and health status assessment. Polls the ecatd daemon periodically and
-// emits signals for UI consumption.
+// emits signals for UI consumption. Offline start requests do not synthesize
+// an active online-diagnostics session.
 //
 // Reuses BusTraffic, ErrorRate, PerformanceMetrics, HealthStatus from
 // EtherCATMonitorService.h for consistency.

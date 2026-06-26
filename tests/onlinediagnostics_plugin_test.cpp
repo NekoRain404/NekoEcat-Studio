@@ -5,6 +5,7 @@
 ///
 /// @par Test Coverage
 ///   - Service default state (zero counters, monitoring off)
+///   - Service offline start does not synthesize active monitoring
 ///   - Plugin identity (id, displayName, displayNameZh, defaultOrder, visible)
 ///   - Widget construction and non-null checks
 ///   - BusMonitorWidget accessor
@@ -54,6 +55,15 @@ private slots:
     QCOMPARE(health.score, 100);
     QCOMPARE(health.totalSlaves, 0);
     QCOMPARE(health.opSlaves, 0);
+  }
+
+  void testServiceStartMonitoringOfflineDoesNotActivate() {
+    EcatClient client;
+    OnlineDiagnosticsService svc(&client);
+    svc.startMonitoring(100);
+    QVERIFY(!svc.isMonitoring());
+    svc.stopMonitoring();
+    QVERIFY(!svc.isMonitoring());
   }
 
   void testPluginIdentity() {

@@ -11,6 +11,7 @@ OnlineDiagnosticsService::OnlineDiagnosticsService(EcatClient *client, QObject *
 
 void OnlineDiagnosticsService::startMonitoring(int intervalMs) {
   if (pollTimer_->isActive()) return;
+  if (!client_ || !client_->isConnected()) return;
   pollTimer_->start(intervalMs);
 }
 
