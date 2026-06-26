@@ -21,6 +21,11 @@ int EsiService::parseHexOrDec(const QString &s) {
 }
 
 bool EsiService::importEsi(const QString &filePath) {
+  if (filePath.isEmpty()) {
+    emit error(QStringLiteral("ESI path is empty"));
+    return false;
+  }
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     emit error(QStringLiteral("Cannot open file: %1").arg(filePath));
@@ -36,6 +41,8 @@ bool EsiService::importEsi(const QString &filePath) {
   bool inSm = false;
   EsiPdoAssignment currentPdo;
   EsiPdoEntry currentEntry;
+  QVector<EsiDeviceInfo> parsedDevices;
+  QMap<QString, int> parsedIndex;
 
   while (!xml.atEnd()) {
     xml.readNext();
@@ -48,10 +55,10 @@ bool EsiService::importEsi(const QString &filePath) {
             QString key = QString("%1:%2")
                               .arg(current.vendorId, 8, 16, QChar('0'))
                               .arg(current.productCode, 8, 16, QChar('0'));
-            if (!deviceIndex_.contains(key)) {
+            if (!deviceIndex_.contains(key) && !parsedIndex.contains(key)) {
               current.deviceId = key;
-              deviceIndex_[key] = devices_.size();
-              devices_.append(current);
+              parsedIndex[key] = parsedDevices.size();
+              parsedDevices.append(current);
             }
           }
           current = EsiDeviceInfo();
@@ -139,6 +146,16 @@ bool EsiService::importEsi(const QString &filePath) {
     return false;
   }
 
+  if (parsedDevices.isEmpty()) {
+    emit error(QStringLiteral("No ESI devices found: %1").arg(filePath));
+    return false;
+  }
+
+  for (const auto &device : parsedDevices) {
+    deviceIndex_[device.deviceId] = devices_.size();
+    devices_.append(device);
+  }
+
   emit esiImported(devices_.size());
   return true;
 }
@@ -163,6 +180,7 @@ void EsiService::clear() {
 
 bool EsiService::exportEsi(const QString &deviceId,
                            const QString &outputPath) const {
+  if (outputPath.isEmpty()) return false;
   if (!deviceIndex_.contains(deviceId)) return false;
   const EsiDeviceInfo &dev = devices_[deviceIndex_[deviceId]];
 
@@ -214,5 +232,7 @@ bool EsiService::exportEsi(const QString &deviceId,
   out << "    </Device>\n";
   out << "  </Descriptions>\n";
   out << "</EtherCATInfo>\n";
+  out.flush();
+  if (out.status() != QTextStream::Ok || !file.flush()) return false;
   return true;
 }

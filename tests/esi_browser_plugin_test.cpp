@@ -1,4 +1,5 @@
 #include <QTest>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QFile>
 #include <QTextStream>
@@ -23,6 +24,7 @@ private slots:
     void matcherPartialMatchRevision();
     void parserClearResetsState();
     void serviceImportsAndMatches();
+    void serviceRejectsInvalidPersistence();
     void parserMatchByVendorProduct();
     void serviceListsDevices();
     void pluginIdentityIsUnique();
@@ -52,7 +54,8 @@ static QString writeToTempFile(const QByteArray &data) {
     static QTemporaryDir dir;
     QString path = dir.path() + "/esi_test.xml";
     QFile f(path);
-    f.open(QIODevice::WriteOnly);
+    if (!f.open(QIODevice::WriteOnly))
+        return QString();
     f.write(data);
     f.close();
     return path;
@@ -203,6 +206,41 @@ void EsiBrowserPluginTest::serviceImportsAndMatches() {
 
     EsiDeviceInfo noMatch = service.matchDevice(0x99, 0x99);
     QCOMPARE(noMatch.vendorId, 0);
+}
+
+void EsiBrowserPluginTest::serviceRejectsInvalidPersistence() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString validPath = dir.filePath("valid.xml");
+    QFile validFile(validPath);
+    QVERIFY(validFile.open(QIODevice::WriteOnly));
+    QVERIFY(validFile.write(kTestEsiXml) > 0);
+    validFile.close();
+
+    EsiService service;
+    QVERIFY(service.importEsi(validPath));
+    QCOMPARE(service.deviceCount(), 2);
+
+    QSignalSpy errorSpy(&service, &EsiService::error);
+    QSignalSpy importedSpy(&service, &EsiService::esiImported);
+    QVERIFY(!service.importEsi(QString()));
+
+    const QString noDevicePath = dir.filePath("no-device.xml");
+    QFile noDeviceFile(noDevicePath);
+    QVERIFY(noDeviceFile.open(QIODevice::WriteOnly));
+    QVERIFY(noDeviceFile.write(QByteArrayLiteral(
+                "<EtherCATInfo><Descriptions></Descriptions></EtherCATInfo>")) > 0);
+    noDeviceFile.close();
+
+    QVERIFY(!service.importEsi(noDevicePath));
+    QCOMPARE(service.deviceCount(), 2);
+    QCOMPARE(importedSpy.count(), 0);
+    QVERIFY(errorSpy.count() >= 2);
+
+    const QString deviceId = service.listDevices().first().deviceId;
+    QVERIFY(!service.exportEsi(deviceId, QString()));
+    QVERIFY(!service.exportEsi(deviceId, dir.path()));
 }
 
 void EsiBrowserPluginTest::parserMatchByVendorProduct() {
