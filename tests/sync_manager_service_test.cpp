@@ -14,18 +14,19 @@
 class SyncManagerServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Test configuring a sync manager emits signal
-  void testConfigureSyncManager() {
+  // Verify Sync Manager configuration fails closed without a live backend.
+  void testConfigureSyncManagerFailsClosedWithoutBackend() {
     SyncManagerService svc;
     SyncManagerConfig cfg;
     cfg.smIndex = 0;
     cfg.direction = SmDirection::Input;
     cfg.enable = true;
-    QSignalSpy spy(&svc, &SyncManagerService::syncManagerConfigured);
-    QVERIFY(svc.configureSyncManager(0, 0, cfg));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toInt(), 0);
-    QCOMPARE(spy.at(0).at(1).toInt(), 0);
+    QSignalSpy configuredSpy(&svc, &SyncManagerService::syncManagerConfigured);
+    QSignalSpy errorSpy(&svc, &SyncManagerService::error);
+    QVERIFY(!svc.configureSyncManager(0, 0, cfg));
+    QCOMPARE(configuredSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
+    QCOMPARE(svc.syncManagers(0).size(), 0);
   }
 
   // Verify invalid position emits error
@@ -46,17 +47,19 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  // Test assigning PDO to configured sync manager
-  void testAssignPdo() {
+  // Verify PDO assignment cannot be simulated without a backend.
+  void testAssignPdoFailsWithoutConfiguredBackend() {
     SyncManagerService svc;
     SyncManagerConfig cfg;
     cfg.smIndex = 0;
     svc.configureSyncManager(0, 0, cfg);
-    QSignalSpy spy(&svc, &SyncManagerService::syncManagerConfigured);
-    QVERIFY(svc.assignPdo(0, 0, 0x1600));
-    QCOMPARE(spy.count(), 1);
+    QSignalSpy configuredSpy(&svc, &SyncManagerService::syncManagerConfigured);
+    QSignalSpy errorSpy(&svc, &SyncManagerService::error);
+    QVERIFY(!svc.assignPdo(0, 0, 0x1600));
+    QCOMPARE(configuredSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
     SyncManagerConfig result = svc.syncManagerConfig(0, 0);
-    QCOMPARE(result.pdoIndex, 0x1600);
+    QCOMPARE(result.pdoIndex, 0);
   }
 
   // Verify PDO assignment to unconfigured position emits error
@@ -77,18 +80,20 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
-  // Test setting direction on configured sync manager
-  void testSetDirection() {
+  // Verify direction updates cannot be simulated without a backend.
+  void testSetDirectionFailsWithoutConfiguredBackend() {
     SyncManagerService svc;
     SyncManagerConfig cfg;
     cfg.smIndex = 1;
     svc.configureSyncManager(0, 1, cfg);
-    QSignalSpy spy(&svc, &SyncManagerService::syncManagerConfigured);
-    QVERIFY(svc.setDirection(0, 1, SmDirection::Output));
-    QCOMPARE(spy.count(), 1);
+    QSignalSpy configuredSpy(&svc, &SyncManagerService::syncManagerConfigured);
+    QSignalSpy errorSpy(&svc, &SyncManagerService::error);
+    QVERIFY(!svc.setDirection(0, 1, SmDirection::Output));
+    QCOMPARE(configuredSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
     SyncManagerConfig result = svc.syncManagerConfig(0, 1);
     QCOMPARE(static_cast<int>(result.direction),
-             static_cast<int>(SmDirection::Output));
+             static_cast<int>(SmDirection::Input));
   }
 
   // Verify setting direction on unconfigured SM fails
@@ -97,17 +102,19 @@ private slots:
     QVERIFY(!svc.setDirection(0, 0, SmDirection::Both));
   }
 
-  // Test setting watchdog timeout on configured sync manager
-  void testSetWatchdog() {
+  // Verify watchdog updates cannot be simulated without a backend.
+  void testSetWatchdogFailsWithoutConfiguredBackend() {
     SyncManagerService svc;
     SyncManagerConfig cfg;
     cfg.smIndex = 2;
     svc.configureSyncManager(0, 2, cfg);
-    QSignalSpy spy(&svc, &SyncManagerService::syncManagerConfigured);
-    QVERIFY(svc.setWatchdog(0, 2, 5000));
-    QCOMPARE(spy.count(), 1);
+    QSignalSpy configuredSpy(&svc, &SyncManagerService::syncManagerConfigured);
+    QSignalSpy errorSpy(&svc, &SyncManagerService::error);
+    QVERIFY(!svc.setWatchdog(0, 2, 5000));
+    QCOMPARE(configuredSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
     SyncManagerConfig result = svc.syncManagerConfig(0, 2);
-    QCOMPARE(result.watchdogTimeout, 5000);
+    QCOMPARE(result.watchdogTimeout, 0);
   }
 
   // Verify setting watchdog on unconfigured SM fails
@@ -124,7 +131,7 @@ private slots:
     svc.configureSyncManager(0, 1, cfg);
     svc.configureSyncManager(0, 2, cfg);
     QVector<int> sms = svc.syncManagers(0);
-    QCOMPARE(sms.size(), 3);
+    QCOMPARE(sms.size(), 0);
   }
 
   // Verify empty position returns no sync managers
@@ -153,8 +160,8 @@ private slots:
     SyncManagerConfig cfg;
     svc.configureSyncManager(0, 0, cfg);
     svc.configureSyncManager(1, 0, cfg);
-    QCOMPARE(svc.syncManagers(0).size(), 1);
-    QCOMPARE(svc.syncManagers(1).size(), 1);
+    QCOMPARE(svc.syncManagers(0).size(), 0);
+    QCOMPARE(svc.syncManagers(1).size(), 0);
   }
 };
 

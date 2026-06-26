@@ -1,18 +1,15 @@
 #pragma once
 
-// SyncManagerService — EtherCAT Sync Manager configuration and management.
+// SyncManagerService — EtherCAT Sync Manager configuration facade.
 //
-// Provides Sync Manager configuration, PDO assignment, direction setting,
-// and watchdog configuration for EtherCAT slaves.
+// Exposes the UI/service boundary for Sync Manager configuration. Write
+// operations fail closed until this service is wired to a live EtherCAT master
+// backend capable of applying SM/PDO/watchdog changes to real slaves.
 //
-// This service provides Sync Manager (SM) configuration capabilities
-// for the EtherCAT network. It handles:
-//   - Sync Manager configuration per slave
-//   - PDO assignment to Sync Managers
-//   - Direction setting (Input, Output, Both)
-//   - Watchdog timeout configuration
-//   - Sync Manager enable/disable
-//   - Virtual Sync Manager support
+// This service currently handles:
+//   - Parameter validation for Sync Manager write requests
+//   - Explicit errors for unsupported offline write operations
+//   - Empty/default readback state inspection
 //
 // Usage:
 //   SyncManagerService syncMgr;
@@ -22,6 +19,7 @@
 //   config.pdoIndex = 0x6000;
 //   config.watchdogTimeout = 1000;
 //   config.enable = true;
+//   // These calls return false until connected to a real backend:
 //   syncMgr.configureSyncManager(0, 0, config);
 //   syncMgr.assignPdo(0, 0, 0x6000);
 //   syncMgr.setDirection(0, 0, SmDirection::Output);
@@ -34,10 +32,7 @@
 //   operations are synchronous and block the calling thread.
 //
 // Performance:
-//   - Sync Manager configuration is O(1)
-//   - PDO assignment is O(1)
-//   - Direction setting is O(1)
-//   - Watchdog configuration is O(1)
+//   - Offline rejection is O(1)
 
 #include <QObject>
 #include <QString>
