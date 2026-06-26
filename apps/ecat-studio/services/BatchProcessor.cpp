@@ -56,6 +56,8 @@ QString BatchProcessor::startBatch(const QString &name, QVector<BatchItem> items
 
     if (state->cancelled.load()) {
       emit batchFailed(batchId, "Batch cancelled");
+    } else if (state->failed.load() > 0) {
+      emit batchFailed(batchId, QString("Batch failed: %1 item(s) failed").arg(state->failed.load()));
     } else {
       emit batchCompleted(batchId, state->items);
     }

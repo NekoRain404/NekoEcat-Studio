@@ -131,6 +131,41 @@ private slots:
     QTest::qWait(500);
     QCOMPARE(itemSpy.count(), 1);
   }
+
+  void testItemFailureFailsBatch() {
+    BatchProcessor bp;
+    QVector<BatchItem> items;
+    for (int i = 0; i < 2; ++i) {
+      BatchItem item;
+      item.id = QString::number(i);
+      item.type = "test";
+      item.params["fail"] = (i == 1);
+      items.append(item);
+    }
+
+    QSignalSpy completedSpy(&bp, &BatchProcessor::batchCompleted);
+    QSignalSpy failedSpy(&bp, &BatchProcessor::batchFailed);
+    QSignalSpy itemSpy(&bp, &BatchProcessor::itemCompleted);
+
+    bp.startBatch("test", items,
+        [](const QJsonObject &params, std::atomic<bool> &) -> QJsonObject {
+          if (params.value("fail").toBool()) {
+            throw std::runtime_error("item failed");
+          }
+          return QJsonObject{{"ok", true}};
+        });
+    QTest::qWait(500);
+
+    QCOMPARE(completedSpy.count(), 0);
+    QCOMPARE(failedSpy.count(), 1);
+    QCOMPARE(itemSpy.count(), 2);
+    bool sawFailedItem = false;
+    for (const auto &args : itemSpy) {
+      const BatchItem item = qvariant_cast<BatchItem>(args.at(1));
+      sawFailedItem = sawFailedItem || !item.success;
+    }
+    QVERIFY(sawFailedItem);
+  }
 };
 
 QTEST_MAIN(BatchProcessorTest)
