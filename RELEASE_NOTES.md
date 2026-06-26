@@ -595,7 +595,7 @@ Cloud Manager, Edge Computing, and AI Assistant plugins with unit and performanc
 
 ## Highlights
 
-New Documentation Browser plugin, comprehensive performance tests for visualization, reporting, and documentation services, and full test coverage for all new components.
+New Documentation Browser plugin with performance tests for visualization, reporting, and documentation services; coverage must be revalidated for the target build.
 
 ## New Features
 

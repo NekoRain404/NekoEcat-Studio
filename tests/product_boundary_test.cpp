@@ -367,6 +367,7 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral(">90% line coverage"),
       QStringLiteral("all 264 tests passing"),
       QStringLiteral("Full test coverage for all new components"),
+      QStringLiteral("full test coverage for all new components"),
       QStringLiteral("comprehensive quality assurance"),
       QStringLiteral("All service tests passing"),
       QStringLiteral("All major services"),
