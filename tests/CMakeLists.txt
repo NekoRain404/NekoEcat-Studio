@@ -3444,6 +3444,9 @@ target_include_directories(master_manager_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
     ${CMAKE_SOURCE_DIR}/src/core
 )
+target_compile_definitions(master_manager_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
 target_link_libraries(master_manager_plugin_test PRIVATE
     Qt6::Core
     Qt6::Network

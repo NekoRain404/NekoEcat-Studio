@@ -91,7 +91,7 @@ public:
 
   // Configure the master with new settings.
   // @param config  MasterMgrConfig structure
-  // @return true if configuration was successful
+  // @return true only after a backend-confirmed configuration is available.
   bool configureMaster(const MasterMgrConfig &config);
 
   // Run diagnostics on the master.
@@ -99,7 +99,7 @@ public:
   MasterMgrDiagnosticResult diagnoseMaster();
 
   // Restart the master.
-  // @return true if restart was initiated successfully
+  // @return true only after a backend-confirmed restart is available.
   bool restartMaster();
 
   // Get the current master information.

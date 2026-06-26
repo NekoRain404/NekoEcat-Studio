@@ -69,7 +69,7 @@ public:
   // @param slave  Slave position
   // @param sync0  Sync0 period in microseconds
   // @param sync1  Sync1 period in microseconds (0 to disable)
-  // @return true if configuration was successful
+  // @return true only after backend-confirmed DC configuration is available.
   bool configureSync(int slave, int sync0, int sync1);
 
   // Get the current drift status.

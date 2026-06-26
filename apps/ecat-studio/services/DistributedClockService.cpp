@@ -17,8 +17,10 @@ DistributedClockService::DistributedClockService(EcatClient *client,
 
 bool DistributedClockService::configureSync(int slave, int sync0, int sync1) {
   if (!client_ || !client_->isConnected()) return false;
-  emit syncChanged(slave, sync0, sync1);
-  return true;
+  Q_UNUSED(slave);
+  Q_UNUSED(sync0);
+  Q_UNUSED(sync1);
+  return false;
 }
 
 void DistributedClockService::requestUpdate() {

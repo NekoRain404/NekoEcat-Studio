@@ -10,6 +10,10 @@
 #include <QTest>
 #include <QApplication>
 #include <QSignalSpy>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QFile>
+#include <QRegularExpression>
 #include "infra/EcatClient.h"
 #include "services/MasterManagerService.h"
 #include "services/DistributedClockService.h"
@@ -21,6 +25,23 @@ private:
   EcatClient *client_ = nullptr;
   MasterManagerService *masterSvc_ = nullptr;
   DistributedClockService *dcSvc_ = nullptr;
+
+  bool connectToFakeDaemon(QTcpServer &server) {
+    if (!server.listen(QHostAddress::LocalHost, 0)) return false;
+
+    QSignalSpy clientConnected(client_, &EcatClient::connected);
+    client_->connectToHost(QHostAddress::LocalHost, server.serverPort());
+
+    if (!server.waitForNewConnection(1000)) return false;
+    QTcpSocket *socket = server.nextPendingConnection();
+    if (!socket) return false;
+    socket->setParent(&server);
+
+    if (clientConnected.isEmpty()) {
+      clientConnected.wait(1000);
+    }
+    return client_->isConnected();
+  }
 
 private slots:
   void init() {
@@ -118,6 +139,35 @@ private slots:
     QVERIFY(!masterSvc_->restartMaster());
   }
 
+  void testConfigureDoesNotSucceedWithoutBackendAck() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+
+    MasterMgrConfig config;
+    config.adapterName = "eth0";
+    QVERIFY(!masterSvc_->configureMaster(config));
+    QVERIFY(masterSvc_->masterInfo().adapterName != config.adapterName);
+    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
+  }
+
+  void testDiagnosticDoesNotPassWithoutMasterEvidence() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+
+    MasterMgrDiagnosticResult result = masterSvc_->diagnoseMaster();
+    QVERIFY(!result.success);
+    QVERIFY(result.summary.contains(QStringLiteral("evidence"),
+                                    Qt::CaseInsensitive));
+  }
+
+  void testRestartDoesNotSucceedWithoutBackendAck() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+
+    QVERIFY(!masterSvc_->restartMaster());
+    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
+  }
+
   // DC service has correct default values
   // Verify DC service default values
   void testDcServiceDefaults() {
@@ -132,6 +182,46 @@ private slots:
   // Test DC configure fails when disconnected
   void testDcConfigureWhenDisconnected() {
     QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
+  }
+
+  void testDcConfigureDoesNotSucceedWithoutBackendAck() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+
+    QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
+    QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testSourceDoesNotContainSyntheticMasterSuccess() {
+    QFile file(QStringLiteral(SOURCE_ROOT
+                              "/apps/ecat-studio/services/MasterManagerService.cpp"));
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("result.success = true")),
+             "Master diagnostics must not synthesize a passing result.");
+    QVERIFY2(!source.contains(QStringLiteral("Master operational")),
+             "Master diagnostics must not report operational without evidence.");
+    QVERIFY2(!source.contains(QRegularExpression(
+                 QStringLiteral(R"(client_->setAdapter\s*\()"))),
+             "Master configuration must not claim local setAdapter as success.");
+    QVERIFY2(!source.contains(QRegularExpression(
+                 QStringLiteral(R"(client_->rescan\s*\(\s*\))"))),
+             "Master restart must not claim rescan request as restart success.");
+  }
+
+  void testSourceDoesNotContainSyntheticDcConfigSuccess() {
+    QFile file(QStringLiteral(
+        SOURCE_ROOT "/apps/ecat-studio/services/DistributedClockService.cpp"));
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString source = QString::fromUtf8(file.readAll());
+
+    QVERIFY2(!source.contains(QStringLiteral("emit syncChanged")),
+             "DC syncChanged must not be emitted without backend acknowledgement.");
+    QVERIFY2(!source.contains(QRegularExpression(
+                 QStringLiteral(R"(configureSync[\s\S]*return\s+true\s*;)"))),
+             "DC configureSync must not return true without backend acknowledgement.");
   }
 
   // Master state changed signal not emitted on refresh when disconnected

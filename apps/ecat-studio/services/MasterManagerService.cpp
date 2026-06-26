@@ -30,15 +30,10 @@ MasterManagerService::MasterManagerService(EcatClient *client,
 bool MasterManagerService::configureMaster(const MasterMgrConfig &config) {
   if (!client_ || !client_->isConnected()) return false;
 
-  setState(MasterMgrState::Configuring);
-
-  if (!config.adapterName.isEmpty()) {
-    client_->setAdapter(config.adapterName);
-    info_.adapterName = config.adapterName;
-  }
-
-  setState(MasterMgrState::Idle);
-  return true;
+  Q_UNUSED(config);
+  emit masterError(QStringLiteral(
+      "Master configuration requires a backend acknowledgement"));
+  return false;
 }
 
 MasterMgrDiagnosticResult MasterManagerService::diagnoseMaster() {
@@ -50,8 +45,8 @@ MasterMgrDiagnosticResult MasterManagerService::diagnoseMaster() {
     return result;
   }
 
-  result.success = true;
-  result.summary = "Master operational";
+  result.success = false;
+  result.summary = "Master diagnostics require live master evidence";
   result.details.append(QString("State: %1").arg(static_cast<int>(state_)));
   result.details.append(QString("Adapter: %1").arg(info_.adapterName));
   result.details.append(QString("Slaves: %1").arg(info_.slaveCount));
@@ -62,9 +57,9 @@ MasterMgrDiagnosticResult MasterManagerService::diagnoseMaster() {
 bool MasterManagerService::restartMaster() {
   if (!client_ || !client_->isConnected()) return false;
 
-  setState(MasterMgrState::Configuring);
-  client_->rescan();
-  return true;
+  emit masterError(QStringLiteral(
+      "Master restart requires a backend acknowledgement"));
+  return false;
 }
 
 void MasterManagerService::refresh() {
