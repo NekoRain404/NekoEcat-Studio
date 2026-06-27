@@ -15,6 +15,8 @@ EsiService::EsiService(QObject *parent) : QObject(parent) {}
 
 int EsiService::parseHexOrDec(const QString &s) {
   QString trimmed = s.trimmed();
+  if (trimmed.startsWith("#x", Qt::CaseInsensitive))
+    return trimmed.mid(2).toInt(nullptr, 16);
   if (trimmed.startsWith("0x", Qt::CaseInsensitive))
     return trimmed.mid(2).toInt(nullptr, 16);
   return trimmed.toInt(nullptr, 16);

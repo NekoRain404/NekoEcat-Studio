@@ -25,6 +25,7 @@ private slots:
     void matcherPartialMatchRevision();
     void parserClearResetsState();
     void serviceImportsAndMatches();
+    void serviceImportsHashPrefixedHexIds();
     void serviceRejectsInvalidPersistence();
     void parserMatchByVendorProduct();
     void serviceListsDevices();
@@ -225,6 +226,29 @@ void EsiBrowserPluginTest::serviceImportsAndMatches() {
 
     EsiDeviceInfo noMatch = service.matchDevice(0x99, 0x99);
     QCOMPARE(noMatch.vendorId, 0);
+}
+
+void EsiBrowserPluginTest::serviceImportsHashPrefixedHexIds() {
+    static const char *hashPrefixedXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<EtherCATInfo>
+  <Descriptions>
+    <Device>
+      <Type ProductCode="#x00000021" RevisionNo="#x00000003" VendorId="#x00000013">HashDevice</Type>
+      <Name>Hash Prefix Device</Name>
+    </Device>
+  </Descriptions>
+</EtherCATInfo>
+)";
+
+    QString path = writeToTempFile(hashPrefixedXml);
+    EsiService service;
+    QVERIFY(service.importEsi(path));
+    QCOMPARE(service.deviceCount(), 1);
+
+    EsiDeviceInfo dev = service.matchDevice(0x13, 0x21);
+    QCOMPARE(dev.vendorId, 0x13);
+    QCOMPARE(dev.productCode, 0x21);
+    QCOMPARE(dev.revisionNo, 0x03);
 }
 
 void EsiBrowserPluginTest::serviceRejectsInvalidPersistence() {
