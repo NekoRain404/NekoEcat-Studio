@@ -83,6 +83,10 @@ signals:
   // @param message  Human-readable error description
   void error(const QString &message);
 
+  // Emitted when polling cannot be started due to invalid parameters.
+  // @param reason  Human-readable rejection reason
+  void pollingRejected(const QString &reason);
+
 private:
   EcatClient *client_;  // TCP client to ecatd daemon
   QTimer *pollTimer_;   // Timer for periodic polling

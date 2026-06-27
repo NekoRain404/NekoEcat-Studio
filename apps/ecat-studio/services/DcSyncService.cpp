@@ -12,6 +12,12 @@
 
 DcSyncService::DcSyncService(EcatClient *client, QObject *parent)
     : QObject(parent), client_(client) {
+  pollTimer_ = new QTimer(this);
+  connect(pollTimer_, &QTimer::timeout, this, &DcSyncService::requestUpdate);
+
+  if (!client_)
+    return;
+
   // Forward the EcatClient signal into our own signal so consumers
   // do not need direct access to EcatClient.
   connect(client_, &EcatClient::dcSyncStatusResult, this,
@@ -29,11 +35,13 @@ DcSyncService::DcSyncService(EcatClient *client, QObject *parent)
   connect(client_, &EcatClient::errorMessage, this,
           [this](const QString &msg) { emit error(msg); });
 
-  pollTimer_ = new QTimer(this);
-  connect(pollTimer_, &QTimer::timeout, this, &DcSyncService::requestUpdate);
 }
 
 void DcSyncService::startPolling(int intervalMs) {
+  if (intervalMs <= 0) {
+    emit pollingRejected(QStringLiteral("Invalid polling interval"));
+    return;
+  }
   pollTimer_->setInterval(intervalMs);
   pollTimer_->start();
   // Fire an immediate request so the UI is populated right away.

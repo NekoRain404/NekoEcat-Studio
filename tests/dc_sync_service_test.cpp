@@ -86,6 +86,35 @@ private slots:
     QCOMPARE(spy.count(), 0);
     svc_->stopPolling();
   }
+
+  void testNullClientDoesNotConnectOrPoll() {
+    DcSyncService svc(nullptr);
+    QSignalSpy updateSpy(&svc, &DcSyncService::dcSyncUpdate);
+    QSignalSpy rejectedSpy(&svc, &DcSyncService::pollingRejected);
+
+    svc.startPolling(50);
+    svc.requestUpdate();
+    svc.configure(0);
+    svc.activate(0);
+    svc.deactivate();
+    QTest::qWait(100);
+    svc.stopPolling();
+
+    QCOMPARE(updateSpy.count(), 0);
+    QCOMPARE(rejectedSpy.count(), 0);
+  }
+
+  void testRejectInvalidPollingInterval() {
+    QSignalSpy rejectedSpy(svc_, &DcSyncService::pollingRejected);
+
+    svc_->startPolling(0);
+    svc_->startPolling(-1);
+    QTest::qWait(50);
+
+    QCOMPARE(rejectedSpy.count(), 2);
+    for (const auto &args : rejectedSpy)
+      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid polling interval")));
+  }
 };
 
 // ── DcSyncPlugin tests ────────────────────────────────────────────────
