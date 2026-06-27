@@ -47,6 +47,31 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
+  void testRejectMismatchedConfigSmIndex() {
+    SyncManagerService svc;
+    SyncManagerConfig cfg;
+    cfg.smIndex = 1;
+    QSignalSpy spy(&svc, &SyncManagerService::error);
+
+    QVERIFY(!svc.configureSyncManager(0, 0, cfg));
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.takeFirst().at(0).toString().contains(QStringLiteral("SM index mismatch")));
+    QCOMPARE(svc.syncManagers(0).size(), 0);
+  }
+
+  void testRejectInvalidPdoIndexBeforeBackendLookup() {
+    SyncManagerService svc;
+    QSignalSpy spy(&svc, &SyncManagerService::error);
+
+    QVERIFY(!svc.assignPdo(0, 0, 0));
+    QVERIFY(!svc.assignPdo(0, 0, -1));
+    QVERIFY(!svc.assignPdo(0, 0, 0x10000));
+
+    QCOMPARE(spy.count(), 3);
+    for (const auto &args : spy)
+      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid PDO index")));
+  }
+
   // Verify PDO assignment cannot be simulated without a backend.
   void testAssignPdoFailsWithoutConfiguredBackend() {
     SyncManagerService svc;
@@ -102,6 +127,18 @@ private slots:
     QVERIFY(!svc.setDirection(0, 0, SmDirection::Both));
   }
 
+  void testRejectInvalidDirectionTargetBeforeLookup() {
+    SyncManagerService svc;
+    QSignalSpy spy(&svc, &SyncManagerService::error);
+
+    QVERIFY(!svc.setDirection(-1, 0, SmDirection::Input));
+    QVERIFY(!svc.setDirection(0, 4, SmDirection::Input));
+
+    QCOMPARE(spy.count(), 2);
+    for (const auto &args : spy)
+      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid position or SM index")));
+  }
+
   // Verify watchdog updates cannot be simulated without a backend.
   void testSetWatchdogFailsWithoutConfiguredBackend() {
     SyncManagerService svc;
@@ -121,6 +158,20 @@ private slots:
   void testSetWatchdogUnconfigured() {
     SyncManagerService svc;
     QVERIFY(!svc.setWatchdog(0, 0, 1000));
+  }
+
+  void testRejectInvalidWatchdogBeforeLookup() {
+    SyncManagerService svc;
+    QSignalSpy spy(&svc, &SyncManagerService::error);
+
+    QVERIFY(!svc.setWatchdog(-1, 0, 1000));
+    QVERIFY(!svc.setWatchdog(0, 4, 1000));
+    QVERIFY(!svc.setWatchdog(0, 0, -1));
+
+    QCOMPARE(spy.count(), 3);
+    QVERIFY(spy.at(0).at(0).toString().contains(QStringLiteral("Invalid position or SM index")));
+    QVERIFY(spy.at(1).at(0).toString().contains(QStringLiteral("Invalid position or SM index")));
+    QVERIFY(spy.at(2).at(0).toString().contains(QStringLiteral("Invalid watchdog timeout")));
   }
 
   // Test listing sync managers for a position

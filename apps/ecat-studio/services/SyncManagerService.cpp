@@ -9,10 +9,26 @@
 
 SyncManagerService::SyncManagerService(QObject *parent) : QObject(parent) {}
 
+namespace {
+bool validTarget(int position, int smIndex)
+{
+  return position >= 0 && smIndex >= 0 && smIndex <= 3;
+}
+
+bool validPdoIndex(int pdoIndex)
+{
+  return pdoIndex > 0 && pdoIndex <= 0xFFFF;
+}
+}
+
 bool SyncManagerService::configureSyncManager(int position, int smIndex,
                                               const SyncManagerConfig &config) {
-  if (position < 0 || smIndex < 0 || smIndex > 3) {
+  if (!validTarget(position, smIndex)) {
     emit error(QStringLiteral("Invalid position or SM index"));
+    return false;
+  }
+  if (config.smIndex != smIndex) {
+    emit error(QStringLiteral("SM index mismatch"));
     return false;
   }
   Q_UNUSED(config);
@@ -22,6 +38,15 @@ bool SyncManagerService::configureSyncManager(int position, int smIndex,
 }
 
 bool SyncManagerService::assignPdo(int position, int smIndex, int pdoIndex) {
+  if (!validTarget(position, smIndex)) {
+    emit error(QStringLiteral("Invalid position or SM index"));
+    return false;
+  }
+  if (!validPdoIndex(pdoIndex)) {
+    emit error(QStringLiteral("Invalid PDO index"));
+    return false;
+  }
+
   auto posIt = configs_.find(position);
   if (posIt == configs_.end()) {
     emit error(QStringLiteral("No configuration for position %1").arg(position));
@@ -39,6 +64,11 @@ bool SyncManagerService::assignPdo(int position, int smIndex, int pdoIndex) {
 
 bool SyncManagerService::setDirection(int position, int smIndex,
                                       SmDirection direction) {
+  if (!validTarget(position, smIndex)) {
+    emit error(QStringLiteral("Invalid position or SM index"));
+    return false;
+  }
+
   auto posIt = configs_.find(position);
   if (posIt == configs_.end()) {
     emit error(QStringLiteral("No configuration for position %1").arg(position));
@@ -56,6 +86,15 @@ bool SyncManagerService::setDirection(int position, int smIndex,
 }
 
 bool SyncManagerService::setWatchdog(int position, int smIndex, int timeout) {
+  if (!validTarget(position, smIndex)) {
+    emit error(QStringLiteral("Invalid position or SM index"));
+    return false;
+  }
+  if (timeout < 0) {
+    emit error(QStringLiteral("Invalid watchdog timeout"));
+    return false;
+  }
+
   auto posIt = configs_.find(position);
   if (posIt == configs_.end()) {
     emit error(QStringLiteral("No configuration for position %1").arg(position));
