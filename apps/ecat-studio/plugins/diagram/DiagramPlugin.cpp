@@ -200,19 +200,36 @@ bool DiagramPlugin::importFromJson(const QString &filePath) {
 
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly)) return false;
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-  if (doc.isNull() || !doc.isObject()) return false;
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
 
   QJsonObject root = doc.object();
-  if (root.contains("zoom")) setZoom(root["zoom"].toDouble());
-  if (root.contains("shapes")) {
-    shapeLibrary_->clear();
-    for (const auto &s : root["shapes"].toArray()) {
-      shapeLibrary_->addItem(s.toString());
-    }
+  if (!root.value("shapes").isArray()) return false;
+
+  const double importedZoom =
+      root.contains("zoom") ? root["zoom"].toDouble(1.0) : 1.0;
+  if (importedZoom <= 0.0) return false;
+
+  QStringList importedShapes;
+  for (const auto &s : root["shapes"].toArray()) {
+    if (!s.isString()) return false;
+    const QString shape = s.toString().trimmed();
+    if (shape.isEmpty()) return false;
+    importedShapes.append(shape);
   }
+  if (importedShapes.isEmpty()) return false;
+
+  const QString importedProperties =
+      root.contains("properties") ? root["properties"].toString() : QString();
+
+  setZoom(importedZoom);
+  shapeLibrary_->clear();
+  for (const auto &shape : importedShapes)
+    shapeLibrary_->addItem(shape);
+
   if (root.contains("properties")) {
-    propertyEditor_->setPlainText(root["properties"].toString());
+    propertyEditor_->setPlainText(importedProperties);
   }
   return true;
 }

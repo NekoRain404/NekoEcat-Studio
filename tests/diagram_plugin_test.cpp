@@ -172,6 +172,7 @@ void TestDiagramPlugin::rejectInvalidImport() {
   plugin_->clearShapes();
   plugin_->addShape("Test", "ExistingShape");
   plugin_->setPropertyText("keep me");
+  plugin_->setZoom(2.0);
 
   QVERIFY(!plugin_->exportToJson(QString()));
 
@@ -185,10 +186,34 @@ void TestDiagramPlugin::rejectInvalidImport() {
   QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
   invalidFile.close();
 
+  const QString emptyObjectPath = dir.filePath(QStringLiteral("empty-object.json"));
+  QFile emptyObjectFile(emptyObjectPath);
+  QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
+  QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
+  emptyObjectFile.close();
+
+  const QString emptyShapesPath = dir.filePath(QStringLiteral("empty-shapes.json"));
+  QFile emptyShapesFile(emptyShapesPath);
+  QVERIFY(emptyShapesFile.open(QIODevice::WriteOnly));
+  QVERIFY(emptyShapesFile.write(QByteArrayLiteral(
+              "{\"zoom\":0.5,\"shapes\":[],\"properties\":\"discard\"}")) > 0);
+  emptyShapesFile.close();
+
+  const QString missingShapesPath = dir.filePath(QStringLiteral("missing-shapes.json"));
+  QFile missingShapesFile(missingShapesPath);
+  QVERIFY(missingShapesFile.open(QIODevice::WriteOnly));
+  QVERIFY(missingShapesFile.write(QByteArrayLiteral(
+              "{\"zoom\":0.5,\"properties\":\"discard\"}")) > 0);
+  missingShapesFile.close();
+
   QVERIFY(!plugin_->importFromJson(QString()));
   QVERIFY(!plugin_->importFromJson(invalidPath));
+  QVERIFY(!plugin_->importFromJson(emptyObjectPath));
+  QVERIFY(!plugin_->importFromJson(emptyShapesPath));
+  QVERIFY(!plugin_->importFromJson(missingShapesPath));
   QCOMPARE(plugin_->shapeCount(), 1);
   QCOMPARE(plugin_->propertyText(), QString("keep me"));
+  QCOMPARE(plugin_->zoom(), 2.0);
 
   plugin_->clearShapes();
 }
