@@ -260,14 +260,26 @@ bool ReportDesignerPlugin::importTemplate(const QString &filePath) {
   if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
 
   QJsonObject root = doc.object();
-  if (root.contains("templates")) {
-    templates_->clear();
-    for (const auto &t : root["templates"].toArray()) {
-      templates_->addItem(t.toString());
-    }
+  if (!root.value("templates").isArray()) return false;
+
+  QStringList importedTemplates;
+  for (const auto &t : root["templates"].toArray()) {
+    if (!t.isString()) return false;
+    const QString name = t.toString().trimmed();
+    if (name.isEmpty()) return false;
+    importedTemplates.append(name);
   }
+  if (importedTemplates.isEmpty()) return false;
+
+  const QString importedPreview =
+      root.contains("preview") ? root["preview"].toString() : QString();
+
+  templates_->clear();
+  for (const auto &name : importedTemplates)
+    templates_->addItem(name);
+
   if (root.contains("preview")) {
-    previewPane_->setPlainText(root["preview"].toString());
+    previewPane_->setPlainText(importedPreview);
   }
   statusLabel_->setText(tr("Template imported"));
   return true;

@@ -51,6 +51,8 @@ private slots:
   void previewText();
   // Export report and import template, verify round-trip
   void exportImport();
+  // Invalid imports should not clear current templates or preview
+  void rejectInvalidImport();
   // Verify signals fire for template, binding, and preview changes
   void signalEmissions();
 
@@ -172,6 +174,34 @@ void TestReportDesignerPlugin::exportImport() {
 
   plugin_->clearTemplates();
   plugin_->clearDataBindings();
+}
+
+void TestReportDesignerPlugin::rejectInvalidImport() {
+  plugin_->clearTemplates();
+  plugin_->addTemplate("KeepTemplate");
+  plugin_->setPreviewText("keep preview");
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  const QString emptyObjectPath = dir.filePath("empty-object.json");
+  QFile emptyObjectFile(emptyObjectPath);
+  QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
+  QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
+  emptyObjectFile.close();
+
+  const QString emptyTemplatesPath = dir.filePath("empty-templates.json");
+  QFile emptyTemplatesFile(emptyTemplatesPath);
+  QVERIFY(emptyTemplatesFile.open(QIODevice::WriteOnly));
+  QVERIFY(emptyTemplatesFile.write(QByteArrayLiteral(
+              "{\"templates\":[],\"preview\":\"discard\"}")) > 0);
+  emptyTemplatesFile.close();
+
+  QVERIFY(!plugin_->importTemplate(emptyObjectPath));
+  QVERIFY(!plugin_->importTemplate(emptyTemplatesPath));
+  QCOMPARE(plugin_->templateCount(), 1);
+  QCOMPARE(plugin_->templates()->item(0)->text(), QString("KeepTemplate"));
+  QCOMPARE(plugin_->previewText(), QString("keep preview"));
 }
 
 void TestReportDesignerPlugin::signalEmissions() {
