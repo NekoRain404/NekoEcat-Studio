@@ -1,7 +1,7 @@
 // NetworkDiagnosticsServiceTest — Tests for NetworkDiagnosticsService
 //
 // Test coverage:
-//   - Default health state (ports, errors, bandwidth, latency)
+//   - Default unknown health state (ports, errors, bandwidth, latency)
 //   - Error counter defaults and reset
 //   - Bandwidth utilization default
 //   - Port status for out-of-range and negative indices
@@ -17,7 +17,7 @@
 class NetworkDiagnosticsServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Verify default health state values
+  // No port/link evidence must not be reported as a good network.
   void testDefaultState() {
     EcatClient client;
     NetworkDiagnosticsService svc(&client);
@@ -29,7 +29,7 @@ private slots:
     QCOMPARE(health.bandwidth, 0.0);
     QCOMPARE(health.latencyMs, 0.0);
     QCOMPARE(health.jitterMs, 0.0);
-    QCOMPARE(health.overall, NetworkHealth::Status::Good);
+    QCOMPARE(health.overall, NetworkHealth::Status::Unknown);
   }
 
   // Verify error counters default to zero

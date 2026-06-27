@@ -71,11 +71,12 @@ struct ErrorInfo {
 // Overall network health status.
 struct NetworkHealth {
   enum class Status { 
+    Unknown,    // No sampled port/link evidence
     Good,       // All ports healthy
     Degraded,   // Some ports have issues
     Critical    // Significant network problems
   };
-  Status overall = Status::Good;  // Overall health status
+  Status overall = Status::Unknown; // Overall health status
   int portCount = 0;              // Total number of ports
   int activePorts = 0;            // Number of active ports
   int errorCount = 0;             // Total error count

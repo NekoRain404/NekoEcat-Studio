@@ -74,7 +74,9 @@ void NetworkDiagnosticsService::poll() {
   health_.latencyMs = latencyMs_;
   health_.jitterMs = jitterMs_;
 
-  if (totalErrors > 10)
+  if (health_.portCount == 0)
+    health_.overall = NetworkHealth::Status::Unknown;
+  else if (totalErrors > 10)
     health_.overall = NetworkHealth::Status::Critical;
   else if (totalErrors > 0)
     health_.overall = NetworkHealth::Status::Degraded;

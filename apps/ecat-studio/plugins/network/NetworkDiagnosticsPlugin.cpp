@@ -159,6 +159,9 @@ void NetworkDiagnosticsPlugin::updateDisplay() {
 
   QString color;
   switch (health.overall) {
+  case NetworkHealth::Status::Unknown:
+    color = "#9ca3af";
+    break;
   case NetworkHealth::Status::Good:
     color = "#22c55e";
     break;
