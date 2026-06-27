@@ -14,6 +14,9 @@ TaskManagementService::TaskManagementService(QObject *parent)
 
 Task TaskManagementService::createTask(const TaskConfig &config)
 {
+    if (config.title.trimmed().isEmpty())
+        return {};
+
     Task t;
     t.id = nextTaskId_++;
     t.title = config.title;
@@ -112,6 +115,8 @@ bool TaskManagementService::addDependency(int taskId, int dependencyId)
 {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
+        return false;
+    if (dependencyId == taskId || !tasks_.contains(dependencyId))
         return false;
 
     if (!it->dependencies.contains(dependencyId))

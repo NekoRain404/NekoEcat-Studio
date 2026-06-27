@@ -38,6 +38,19 @@ private slots:
     QCOMPARE(t.tags.size(), 2);
   }
 
+  void testRejectEmptyTaskTitle() {
+    TaskManagementService svc;
+    QSignalSpy spy(&svc, &TaskManagementService::taskCreated);
+
+    TaskConfig cfg;
+    cfg.title = "   ";
+    Task t = svc.createTask(cfg);
+
+    QCOMPARE(t.id, 0);
+    QCOMPARE(svc.taskCount(), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
   // Test assigning a task updates assignee and emits signal
   void testAssignTask() {
     TaskManagementService svc;
@@ -107,6 +120,19 @@ private slots:
     Task fetched = svc.task(b.id);
     QCOMPARE(fetched.dependencies.size(), 1);
     QCOMPARE(fetched.dependencies[0], a.id);
+  }
+
+  void testRejectInvalidDependencies() {
+    TaskManagementService svc;
+    TaskConfig cfg;
+    cfg.title = "Task A";
+    Task a = svc.createTask(cfg);
+
+    QVERIFY(!svc.addDependency(a.id, a.id));
+    QVERIFY(!svc.addDependency(a.id, 999));
+
+    Task fetched = svc.task(a.id);
+    QCOMPARE(fetched.dependencies.size(), 0);
   }
 
   // Test adding and removing tags
