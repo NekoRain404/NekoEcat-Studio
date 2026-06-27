@@ -11,15 +11,26 @@
 DistributedClockService::DistributedClockService(EcatClient *client,
                                                  QObject *parent)
     : QObject(parent), client_(client) {
+  if (!client_)
+    return;
+
   connect(client_, &EcatClient::dcSyncStatusResult, this,
           [this](const QJsonObject &data) { processDcSyncData(data); });
 }
 
 bool DistributedClockService::configureSync(int slave, int sync0, int sync1) {
-  if (!client_ || !client_->isConnected()) return false;
+  if (slave < 0 || sync0 <= 0 || sync1 < 0) {
+    emit syncConfigRejected(slave, QStringLiteral("Invalid DC sync configuration"));
+    return false;
+  }
+  if (!client_ || !client_->isConnected()) {
+    emit syncConfigRejected(slave, QStringLiteral("DC sync configuration requires a connected backend"));
+    return false;
+  }
   Q_UNUSED(slave);
   Q_UNUSED(sync0);
   Q_UNUSED(sync1);
+  emit syncConfigRejected(slave, QStringLiteral("DC sync configuration requires backend acknowledgement"));
   return false;
 }
 

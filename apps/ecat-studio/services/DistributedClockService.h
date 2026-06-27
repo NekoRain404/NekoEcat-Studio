@@ -90,6 +90,11 @@ signals:
   // @param sync1  Sync1 period
   void syncChanged(int slave, int sync0, int sync1);
 
+  // Emitted when sync configuration is rejected before backend confirmation.
+  // @param slave   Slave position
+  // @param reason  Human-readable rejection reason
+  void syncConfigRejected(int slave, const QString &reason);
+
   // Emitted when drift is detected.
   // @param slave  Slave position
   // @param drift  Drift value in nanoseconds

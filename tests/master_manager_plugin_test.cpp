@@ -70,6 +70,20 @@ private slots:
     QCOMPARE(svc.masterState(), MasterMgrState::Unknown);
   }
 
+  void testDcServiceHandlesNullClient() {
+    DistributedClockService svc(nullptr);
+    QSignalSpy spy(&svc, &DistributedClockService::syncChanged);
+    QSignalSpy rejectedSpy(&svc, &DistributedClockService::syncConfigRejected);
+
+    QVERIFY(!svc.configureSync(0, 1000, 0));
+    svc.requestUpdate();
+
+    QCOMPARE(svc.referenceClock(), -1);
+    QCOMPARE(svc.jitterStatistics().sampleCount, 0);
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(rejectedSpy.count(), 1);
+  }
+
   // Verify plugin id, display names
   void testIdentity() {
     MasterManagerPlugin p(masterSvc_, dcSvc_);
@@ -235,6 +249,22 @@ private slots:
     QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
     QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
     QCOMPARE(spy.count(), 0);
+  }
+
+  void testRejectInvalidDcConfigBeforeBackendAck() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+    QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
+    QSignalSpy rejectedSpy(dcSvc_, &DistributedClockService::syncConfigRejected);
+
+    QVERIFY(!dcSvc_->configureSync(-1, 1000, 0));
+    QVERIFY(!dcSvc_->configureSync(0, 0, 0));
+    QVERIFY(!dcSvc_->configureSync(0, 1000, -1));
+
+    QCOMPARE(spy.count(), 0);
+    QCOMPARE(rejectedSpy.count(), 3);
+    for (const auto &args : rejectedSpy)
+      QVERIFY(args.at(1).toString().contains(QStringLiteral("Invalid DC sync configuration")));
   }
 
   void testSourceDoesNotContainSyntheticMasterSuccess() {
