@@ -14,6 +14,12 @@ ProjectTrackingService::ProjectTrackingService(QObject *parent)
 
 bool ProjectTrackingService::addProject(const ProjectTrackData &data)
 {
+    if (data.projectId <= 0 || data.totalTasks < 0 || data.completedTasks < 0)
+        return false;
+    if (data.completedTasks > data.totalTasks)
+        return false;
+    if (data.budgetedHours < 0.0 || data.budgetedCost < 0.0)
+        return false;
     if (projects_.contains(data.projectId))
         return false;
 
@@ -129,6 +135,8 @@ bool ProjectTrackingService::logTime(int projectId, const TimeEntry &entry)
     auto it = projects_.find(projectId);
     if (it == projects_.end())
         return false;
+    if (entry.hours < 0.0)
+        return false;
 
     it->timeEntries.append(entry);
     return true;
@@ -138,6 +146,8 @@ bool ProjectTrackingService::logCost(int projectId, const CostEntry &entry)
 {
     auto it = projects_.find(projectId);
     if (it == projects_.end())
+        return false;
+    if (entry.amount < 0.0)
         return false;
 
     it->costEntries.append(entry);
@@ -149,6 +159,8 @@ bool ProjectTrackingService::updateTaskCompletion(int projectId, int completedTa
     auto it = projects_.find(projectId);
     if (it == projects_.end())
         return false;
+    if (completedTasks < 0 || completedTasks > it->totalTasks)
+        return false;
 
     it->completedTasks = completedTasks;
     emit progressUpdated(trackProgress(projectId));
@@ -159,6 +171,8 @@ bool ProjectTrackingService::updateQualityMetric(int projectId, const QualityMet
 {
     auto it = projects_.find(projectId);
     if (it == projects_.end())
+        return false;
+    if (metric.name.trimmed().isEmpty() || metric.value < 0.0 || metric.target <= 0.0)
         return false;
 
     for (auto &m : it->qualityMetrics) {

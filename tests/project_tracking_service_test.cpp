@@ -40,6 +40,36 @@ private slots:
     QCOMPARE(status.status, ProjectTrackStatus::Behind);
   }
 
+  void testRejectInvalidProjectTrackData() {
+    ProjectTrackingService svc;
+
+    ProjectTrackData data;
+    data.projectId = 0;
+    data.totalTasks = 10;
+    QVERIFY(!svc.addProject(data));
+
+    data.projectId = 1;
+    data.totalTasks = -1;
+    QVERIFY(!svc.addProject(data));
+
+    data.totalTasks = 10;
+    data.completedTasks = -1;
+    QVERIFY(!svc.addProject(data));
+
+    data.completedTasks = 11;
+    QVERIFY(!svc.addProject(data));
+
+    data.completedTasks = 0;
+    data.budgetedHours = -1.0;
+    QVERIFY(!svc.addProject(data));
+
+    data.budgetedHours = 0.0;
+    data.budgetedCost = -1.0;
+    QVERIFY(!svc.addProject(data));
+
+    QCOMPARE(svc.projectCount(), 0);
+  }
+
   // Log time entry and verify time report totals
   // Test time tracking with log entries
   void testTrackTime() {
@@ -66,6 +96,23 @@ private slots:
     QVERIFY(report.generatedAt.isValid());
   }
 
+  void testRejectInvalidTimeEntries() {
+    ProjectTrackingService svc;
+
+    ProjectTrackData data;
+    data.projectId = 1;
+    svc.addProject(data);
+
+    TimeEntry entry;
+    entry.taskId = 1;
+    entry.hours = -1.0;
+    QVERIFY(!svc.logTime(1, entry));
+
+    TimeReport report = svc.trackTime(1);
+    QCOMPARE(report.entries.size(), 0);
+    QCOMPARE(report.totalHours, 0.0);
+  }
+
   // Log cost entry and verify cost report totals
   // Test cost tracking with log entries
   void testTrackCost() {
@@ -88,6 +135,23 @@ private slots:
     QCOMPARE(report.budgetedCost, 5000.0);
     QCOMPARE(report.remainingBudget, 3800.0);
     QCOMPARE(report.entries.size(), 1);
+  }
+
+  void testRejectInvalidCostEntries() {
+    ProjectTrackingService svc;
+
+    ProjectTrackData data;
+    data.projectId = 1;
+    svc.addProject(data);
+
+    CostEntry entry;
+    entry.category = "Hardware";
+    entry.amount = -1.0;
+    QVERIFY(!svc.logCost(1, entry));
+
+    CostReport report = svc.trackCost(1);
+    QCOMPARE(report.entries.size(), 0);
+    QCOMPARE(report.totalCost, 0.0);
   }
 
   // Update quality metrics and verify report metrics and overall score
@@ -138,6 +202,24 @@ private slots:
     QCOMPARE(status.progress, 50);
   }
 
+  void testRejectInvalidTaskCompletionUpdates() {
+    ProjectTrackingService svc;
+
+    ProjectTrackData data;
+    data.projectId = 1;
+    data.totalTasks = 10;
+    data.completedTasks = 2;
+    svc.addProject(data);
+
+    QSignalSpy spy(&svc, &ProjectTrackingService::progressUpdated);
+    QVERIFY(!svc.updateTaskCompletion(1, -1));
+    QVERIFY(!svc.updateTaskCompletion(1, 11));
+
+    ProgressStatus status = svc.trackProgress(1);
+    QCOMPARE(status.completedTasks, 2);
+    QCOMPARE(spy.count(), 0);
+  }
+
   // Verify logging time to nonexistent project fails
   // Verify logging time to nonexistent project fails
   void testLogTimeToNonexistent() {
@@ -154,6 +236,31 @@ private slots:
     CostEntry entry;
     entry.amount = 100.0;
     QVERIFY(!svc.logCost(999, entry));
+  }
+
+  void testRejectInvalidQualityMetrics() {
+    ProjectTrackingService svc;
+    ProjectTrackData data;
+    data.projectId = 1;
+    svc.addProject(data);
+
+    QualityMetric metric;
+    metric.name = "   ";
+    metric.value = 1.0;
+    metric.target = 1.0;
+    QVERIFY(!svc.updateQualityMetric(1, metric));
+
+    metric.name = "Coverage";
+    metric.value = -1.0;
+    QVERIFY(!svc.updateQualityMetric(1, metric));
+
+    metric.value = 1.0;
+    metric.target = 0.0;
+    QVERIFY(!svc.updateQualityMetric(1, metric));
+
+    QualityReport report = svc.trackQuality(1);
+    QCOMPARE(report.metrics.size(), 0);
+    QCOMPARE(report.overallScore, 0.0);
   }
 
   // Verify duplicate project ID is rejected
