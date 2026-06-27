@@ -11,7 +11,7 @@
 //
 // Test coverage:
 //   - Default state (not monitoring, empty master state)
-//   - Default health score, DC sync, AL event, and watchdog status
+//   - Default unknown health score, DC sync, AL event, and watchdog status
 //   - Slave state for out-of-range position
 //   - Monitoring signals and offline start/stop lifecycle
 //   - Idempotent offline start/stop monitoring
@@ -74,11 +74,12 @@ private slots:
     QVERIFY(!master.responsive);
   }
 
-  // Verify default health score is 100 with zero slave counts
-  // Verify default health score is 100 with zero slave counts
-  void testDefaultHealthScore() {
+  // No sampled bus evidence must not be reported as healthy.
+  void testDefaultHealthScoreIsUnknownWithoutEvidence() {
     auto health = svc_->overallHealth();
-    QCOMPARE(health.score, 100);
+    QCOMPARE(health.score, 0);
+    QCOMPARE(health.grade, QStringLiteral("Unknown"));
+    QCOMPARE(health.summary, QStringLiteral("No EtherCAT health evidence sampled"));
     QVERIFY(health.totalSlaves == 0);
     QCOMPARE(health.opSlaves, 0);
     QCOMPARE(health.safeOpSlaves, 0);

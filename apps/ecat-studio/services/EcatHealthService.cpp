@@ -70,6 +70,12 @@ void EcatHealthService::poll() {
   }
 
   int total = slaves_.size();
+  if (total == 0) {
+    health_ = {};
+    emit healthChanged(health_);
+    return;
+  }
+
   int score = 100;
   if (err > 0) score -= err * 10;
   if (init > 0) score -= init * 15;

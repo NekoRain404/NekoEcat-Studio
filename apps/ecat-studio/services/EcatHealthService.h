@@ -87,9 +87,9 @@ struct WatchdogStatus {
 
 // Overall health score with breakdown.
 struct HealthScore {
-  int score = 100;         // Health score (0-100)
-  QString grade;           // Letter grade (A, B, C, D, F)
-  QString summary;         // Human-readable health summary
+  int score = 0;           // Health score (0-100)
+  QString grade = QStringLiteral("Unknown"); // Health grade
+  QString summary = QStringLiteral("No EtherCAT health evidence sampled");
   int totalSlaves = 0;     // Total number of slaves
   int opSlaves = 0;        // Number of OP slaves
   int safeOpSlaves = 0;    // Number of SAFEOP slaves
