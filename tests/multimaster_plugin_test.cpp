@@ -13,6 +13,10 @@
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QTemporaryDir>
+#include <QHostAddress>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include "infra/EcatClient.h"
 #include "plugins/multimaster/MultiMasterPlugin.h"
 #include "plugins/multimaster/MasterComparisonWidget.h"
 #include "services/MultiMasterService.h"
@@ -24,6 +28,26 @@ private slots:
 
   void testServiceCreation() {
     MultiMasterService svc(nullptr, nullptr);
+    QCOMPARE(svc.masterCount(), 0);
+  }
+
+  void testDiscoverDoesNotSynthesizeMasterFromSocketConnection() {
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.enableAutoReconnect(false);
+    MultiMasterService svc(&client, nullptr);
+
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(server.waitForNewConnection(1000));
+    QTcpSocket *socket = server.nextPendingConnection();
+    QVERIFY(socket != nullptr);
+    socket->setParent(&server);
+    QTRY_VERIFY(client.isConnected());
+
+    const auto discovered = svc.discoverMasters();
+    QCOMPARE(discovered.size(), 0);
     QCOMPARE(svc.masterCount(), 0);
   }
 

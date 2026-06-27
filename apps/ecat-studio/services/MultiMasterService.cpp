@@ -18,38 +18,8 @@ MultiMasterService::MultiMasterService(EcatClient *client, EventBus *eventBus,
 QVector<MmMasterInfo> MultiMasterService::discoverMasters() {
   QVector<MmMasterInfo> discovered;
 
-  if (client_ && client_->isConnected()) {
-    MmMasterInfo primary;
-    primary.masterId = nextMasterId_++;
-    primary.adapterName = client_->masterTarget();
-    primary.state = MultiMasterState::Active;
-    primary.slaveCount = 0;
-
-    bool exists = false;
-    for (const auto &m : masters_) {
-      if (m.adapterName == primary.adapterName) {
-        exists = true;
-        break;
-      }
-    }
-    if (!exists) {
-      masters_.append(primary);
-      discovered.append(primary);
-      emit masterDiscovered(primary);
-    }
-  }
-
   for (const auto &m : masters_) {
-    bool alreadyFound = false;
-    for (const auto &d : discovered) {
-      if (d.masterId == m.masterId) {
-        alreadyFound = true;
-        break;
-      }
-    }
-    if (!alreadyFound) {
-      discovered.append(m);
-    }
+    discovered.append(m);
   }
 
   return discovered;
