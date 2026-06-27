@@ -73,9 +73,34 @@ private slots:
     svc_->process(data);
   }
 
+  void testProcessWithoutRunningPipelineDoesNotEmitCompletion() {
+    QSignalSpy finishSpy(svc_, &DataPipelineService::pipelineFinished);
+    QSignalSpy dataSpy(svc_, &DataPipelineService::dataProcessed);
+
+    const QByteArray result = svc_->process(QByteArray("raw"));
+
+    QCOMPARE(result, QByteArray("raw"));
+    QCOMPARE(finishSpy.count(), 0);
+    QCOMPARE(dataSpy.count(), 0);
+  }
+
+  void testProcessWithoutStagesDoesNotEmitCompletion() {
+    svc_->start();
+    QSignalSpy finishSpy(svc_, &DataPipelineService::pipelineFinished);
+    QSignalSpy dataSpy(svc_, &DataPipelineService::dataProcessed);
+
+    const QByteArray result = svc_->process(QByteArray("raw"));
+
+    QCOMPARE(result, QByteArray("raw"));
+    QCOMPARE(finishSpy.count(), 0);
+    QCOMPARE(dataSpy.count(), 0);
+  }
+
   // Verify processing with data does not crash
   void testProcessWithData() {
     QByteArray data("Hello, World!");
+    svc_->start();
+    svc_->addStage("transform", {{"offset", 1}});
     svc_->process(data);
   }
 

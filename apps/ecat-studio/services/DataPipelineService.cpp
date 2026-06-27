@@ -35,6 +35,8 @@ int DataPipelineService::stageCount() const { return stages_.size(); }
 // Runs input data through all configured stages sequentially, emitting per-stage results
 QByteArray DataPipelineService::process(const QByteArray &input) {
   QByteArray data = input;
+  if (!running_ || stages_.isEmpty()) return data;
+
   for (int i = 0; i < stages_.size(); ++i) {
     const auto &stage = stages_[i];
     if (stage.name == "filter") {
