@@ -19,6 +19,9 @@
 //   - Annotation add/remove and table
 //   - Search case insensitivity and results table
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -244,6 +247,71 @@ private slots:
     plugin.addAnnotation("doc2", "Note 3");
 
     QCOMPARE(plugin.annotationCount(), 3);
+  }
+
+  void testExportDocumentation() {
+    DocumentationPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const QString path = dir.filePath("documentation.txt");
+    QVERIFY(plugin.exportDocumentation(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Quick Start Guide\n")));
+    QVERIFY(text.contains(QStringLiteral("Welcome to NekoEcat Studio.")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportDocumentation(QString()));
+    QVERIFY(!plugin.exportDocumentation(dir.path()));
+  }
+
+  void testExportBookmarks() {
+    DocumentationPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    plugin.addBookmark("quickstart", "Quick Start Guide", "Getting Started");
+
+    const QString path = dir.filePath("bookmarks.csv");
+    QVERIFY(plugin.exportBookmarks(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.contains(QStringLiteral("quickstart,Quick Start Guide,Getting Started\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportBookmarks(QString()));
+    QVERIFY(!plugin.exportBookmarks(dir.path()));
+  }
+
+  void testExportAnnotations() {
+    DocumentationPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    plugin.addAnnotation("quickstart", "Review startup sequence");
+
+    const QString path = dir.filePath("annotations.csv");
+    QVERIFY(plugin.exportAnnotations(path));
+    QVERIFY(QFile::exists(path));
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString csv = QString::fromUtf8(file.readAll());
+    QVERIFY(csv.contains(QStringLiteral("quickstart,Review startup sequence\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportAnnotations(QString()));
+    QVERIFY(!plugin.exportAnnotations(dir.path()));
   }
 };
 

@@ -83,9 +83,9 @@ signals:
 
 public slots:
   void selectDocument(const QString &docId);
-  void exportDocumentation(const QString &path);
-  void exportBookmarks(const QString &path);
-  void exportAnnotations(const QString &path);
+  bool exportDocumentation(const QString &path);
+  bool exportBookmarks(const QString &path);
+  bool exportAnnotations(const QString &path);
 
 private:
   void buildUi();

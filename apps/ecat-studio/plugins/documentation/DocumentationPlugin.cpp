@@ -157,34 +157,40 @@ void DocumentationPlugin::selectDocument(const QString &docId) {
   emit documentSelected(docId);
 }
 
-void DocumentationPlugin::exportDocumentation(const QString &path) {
+bool DocumentationPlugin::exportDocumentation(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &doc : documents_) {
-      out << doc.title << "\n" << doc.content << "\n\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &doc : documents_) {
+    out << doc.title << "\n" << doc.content << "\n\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
-void DocumentationPlugin::exportBookmarks(const QString &path) {
+bool DocumentationPlugin::exportBookmarks(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &bm : bookmarks_) {
-      out << bm.docId << "," << bm.title << "," << bm.category << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &bm : bookmarks_) {
+    out << bm.docId << "," << bm.title << "," << bm.category << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
-void DocumentationPlugin::exportAnnotations(const QString &path) {
+bool DocumentationPlugin::exportAnnotations(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    for (const auto &ann : annotations_) {
-      out << ann.docId << "," << ann.text << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  for (const auto &ann : annotations_) {
+    out << ann.docId << "," << ann.text << "\n";
   }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 void DocumentationPlugin::buildUi() {
