@@ -77,7 +77,7 @@ public:
   int logCount() const;
   void filterLogs(const QString &level, const QString &source);
 
-  void exportReport(const QString &path);
+  bool exportReport(const QString &path);
 
   QTableWidget *connectionTable() const;
   QTableWidget *mappingTable() const;

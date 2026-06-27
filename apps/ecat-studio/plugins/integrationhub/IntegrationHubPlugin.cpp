@@ -117,30 +117,32 @@ void IntegrationHubPlugin::filterLogs(const QString &level, const QString &sourc
   rebuildLogTable();
 }
 
-void IntegrationHubPlugin::exportReport(const QString &path) {
+bool IntegrationHubPlugin::exportReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Integration Hub Report\n";
-    out << "======================\n\n";
-    out << "Connections: " << connections_.size() << "\n";
-    out << "Mappings: " << mappings_.size() << "\n";
-    out << "Log Entries: " << logs_.size() << "\n\n";
-    out << "--- Connections ---\n";
-    for (const auto &c : connections_) {
-      out << c.name << " [" << c.type << "] " << c.status << "\n";
-    }
-    out << "\n--- Data Mappings ---\n";
-    for (const auto &m : mappings_) {
-      out << m.source << " -> " << m.destination << " (" << m.transformation
-          << ") " << (m.enabled ? "enabled" : "disabled") << "\n";
-    }
-    out << "\n--- Integration Log ---\n";
-    for (const auto &e : logs_) {
-      out << e.timestamp.toString(Qt::ISODate) << " [" << e.level << "] "
-          << e.source << ": " << e.message << "\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Integration Hub Report\n";
+  out << "======================\n\n";
+  out << "Connections: " << connections_.size() << "\n";
+  out << "Mappings: " << mappings_.size() << "\n";
+  out << "Log Entries: " << logs_.size() << "\n\n";
+  out << "--- Connections ---\n";
+  for (const auto &c : connections_) {
+    out << c.name << " [" << c.type << "] " << c.status << "\n";
   }
+  out << "\n--- Data Mappings ---\n";
+  for (const auto &m : mappings_) {
+    out << m.source << " -> " << m.destination << " (" << m.transformation
+        << ") " << (m.enabled ? "enabled" : "disabled") << "\n";
+  }
+  out << "\n--- Integration Log ---\n";
+  for (const auto &e : logs_) {
+    out << e.timestamp.toString(Qt::ISODate) << " [" << e.level << "] "
+        << e.source << ": " << e.message << "\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *IntegrationHubPlugin::connectionTable() const { return connectionTable_; }

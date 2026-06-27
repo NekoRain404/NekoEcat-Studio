@@ -11,6 +11,9 @@
 //   - Log entry add and filter
 //   - Status label and export report
 
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -193,11 +196,26 @@ private slots:
   // Test exporting report to file
   void testExportReport() {
     IntegrationHubPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("integration_report_test.txt");
-    plugin.exportReport(path);
+    const QString path = dir.filePath("integration_report_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Integration Hub Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Connections: 3\n")));
+    QVERIFY(text.contains(QStringLiteral("PLC Gateway [OPC-UA] Connected\n")));
+    QVERIFY(text.contains(QStringLiteral("Slave1.PDO.Input -> PLC.DataBlock1.Word0 (Direct) enabled\n")));
+    QVERIFY(text.contains(QStringLiteral("[error] ERP Connector: Connection failed\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 };
 
