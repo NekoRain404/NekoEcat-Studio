@@ -139,6 +139,8 @@ PerformanceAnalysis EtherCATAnalyzerService::analyzePerformance(int durationMs)
     if (count > 0) {
         result.avgCycleTimeUs = sumCycle / count;
         result.avgThroughputMbps = sumThroughput / count;
+    } else {
+        return result;
     }
 
     if (result.maxJitterUs < 10.0)

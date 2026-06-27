@@ -11,6 +11,7 @@
 
 #include <QTest>
 #include <QDateTime>
+#include <QSignalSpy>
 #include "services/EtherCATAnalyzerService.h"
 
 class EtherCATAnalyzerServiceTest : public QObject {
@@ -36,6 +37,17 @@ private slots:
     EtherCATAnalyzerService svc(nullptr, nullptr);
     auto result = svc.analyzePerformance(5000);
     QCOMPARE(result.avgCycleTimeUs, 0.0);
+  }
+
+  void testDefaultPerformanceAnalysisDoesNotSynthesizeRating() {
+    EtherCATAnalyzerService svc(nullptr, nullptr);
+    QSignalSpy spy(&svc, &EtherCATAnalyzerService::performanceAnalysisCompleted);
+
+    auto result = svc.analyzePerformance(5000);
+
+    QVERIFY(result.samples.isEmpty());
+    QCOMPARE(result.rating, QString());
+    QCOMPARE(spy.count(), 0);
   }
 
   // Verify default trend analysis returns empty points
