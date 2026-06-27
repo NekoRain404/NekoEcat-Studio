@@ -95,19 +95,21 @@ void TemplatePlugin::search(const QString &query) {
 
 int TemplatePlugin::searchResultCount() const { return searchResults_.size(); }
 
-void TemplatePlugin::importTemplate(const QString &path) {
+bool TemplatePlugin::importTemplate(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    TemplateEntry t;
-    t.id = QFileInfo(path).baseName();
-    t.name = t.id;
-    t.category = "Imported";
-    t.content = QString::fromUtf8(f.readAll());
-    t.createdAt = QDateTime::currentDateTime();
-    t.modifiedAt = t.createdAt;
-    templates_.append(t);
-    rebuildTemplateTable();
-  }
+  if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+  TemplateEntry t;
+  t.id = QFileInfo(path).baseName();
+  t.name = t.id;
+  t.category = "Imported";
+  t.content = QString::fromUtf8(f.readAll());
+  t.createdAt = QDateTime::currentDateTime();
+  t.modifiedAt = t.createdAt;
+  templates_.append(t);
+  rebuildTemplateTable();
+  return true;
 }
 
 bool TemplatePlugin::exportTemplate(const QString &path) {

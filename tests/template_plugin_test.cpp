@@ -194,6 +194,30 @@ private slots:
     QVERIFY(label->text().contains("results"));
   }
 
+  void testImportTemplateReportsPersistenceOutcome() {
+    TemplatePlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+
+    const int initial = plugin.templateCount();
+    const QString path = dir.filePath("imported_template.txt");
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Text));
+    file.write("imported template content");
+    file.close();
+
+    QVERIFY(plugin.importTemplate(path));
+    QCOMPARE(plugin.templateCount(), initial + 1);
+    plugin.selectTemplate(plugin.templateCount() - 1);
+    QCOMPARE(plugin.editor()->toPlainText(), QString("imported template content"));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.importTemplate(QString()));
+    QVERIFY(!plugin.importTemplate(dir.path()));
+    QVERIFY(!plugin.importTemplate(dir.filePath("missing_template.txt")));
+  }
+
   // Test exporting a single template to file
   void testExportTemplate() {
     TemplatePlugin plugin;

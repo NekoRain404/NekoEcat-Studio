@@ -51,7 +51,7 @@ public:
   void search(const QString &query);
   int searchResultCount() const;
 
-  void importTemplate(const QString &path);
+  bool importTemplate(const QString &path);
   bool exportTemplate(const QString &path);
   bool exportAllTemplates(const QString &path);
 
