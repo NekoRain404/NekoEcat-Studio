@@ -55,7 +55,8 @@ private slots:
     QCOMPARE(perf.pdoUpdateRate, 0.0);
 
     auto health = svc.health();
-    QCOMPARE(health.score, 100);
+    QCOMPARE(health.score, 0);
+    QCOMPARE(health.grade, QStringLiteral("Unknown"));
     QCOMPARE(health.totalSlaves, 0);
     QCOMPARE(health.opSlaves, 0);
   }
@@ -149,11 +150,22 @@ private slots:
 
   void testHealthStatusDefaults() {
     HealthStatus h;
-    QCOMPARE(h.score, 100);
+    QCOMPARE(h.score, 0);
+    QCOMPARE(h.grade, QStringLiteral("Unknown"));
     QCOMPARE(h.totalSlaves, 0);
     QCOMPARE(h.opSlaves, 0);
     QCOMPARE(h.errorSlaves, 0);
-    QVERIFY(h.watchdogOk);
+    QVERIFY(!h.watchdogOk);
+  }
+
+  void testServiceSourceDoesNotSynthesizeHealthyWithoutEvidence() {
+    QFile source(QStringLiteral(
+        SOURCE_ROOT "/apps/ecat-studio/services/OnlineDiagnosticsService.cpp"));
+    QVERIFY(source.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(source.readAll());
+    QVERIFY2(!text.contains(QStringLiteral("QStringLiteral(\"Healthy\")")),
+             "Online diagnostics must not synthesize Healthy grade without "
+             "sampled health evidence.");
   }
 
   void testExportReportReportsPersistenceOutcome() {

@@ -1,7 +1,7 @@
 // EtherCATMonitorServiceTest — Tests for EtherCATMonitorService
 //
 // Test coverage:
-//   - Default state (monitoring off, zero traffic, health 100)
+//   - Default state (monitoring off, zero traffic, unknown health)
 //   - Offline start/stop monitoring rejection (including double start/stop)
 //   - Traffic, error rate, performance, and health updates
 //   - Signal emission and health grade defaults
@@ -13,14 +13,14 @@
 class EtherCATMonitorServiceTest : public QObject {
   Q_OBJECT
 private slots:
-  // Default state: not monitoring, zero traffic, health 100
-  // Verify default monitoring state is off with zero traffic and health 100
+  // Default state: not monitoring, zero traffic, unknown health
   void testDefaultState() {
     EtherCATMonitorService svc(nullptr, nullptr);
     QVERIFY(!svc.isMonitoring());
     QCOMPARE(svc.busTraffic().txFrames, static_cast<quint64>(0));
     QCOMPARE(svc.errorRate().rate, 0.0);
-    QCOMPARE(svc.health().score, 100);
+    QCOMPARE(svc.health().score, 0);
+    QCOMPARE(svc.health().grade, QStringLiteral("Unknown"));
   }
 
   // Offline start must not synthesize active monitoring.
@@ -112,12 +112,12 @@ private slots:
     svc.stopMonitoring();
   }
 
-  // Health defaults: score 100, watchdog OK, DC not in sync
-  // Verify default health grade values
+  // Health defaults must not claim watchdog/DC health before sampling evidence.
   void testHealthGradeDefaults() {
     EtherCATMonitorService svc(nullptr, nullptr);
-    QCOMPARE(svc.health().score, 100);
-    QVERIFY(svc.health().watchdogOk);
+    QCOMPARE(svc.health().score, 0);
+    QCOMPARE(svc.health().grade, QStringLiteral("Unknown"));
+    QVERIFY(!svc.health().watchdogOk);
     QVERIFY(!svc.health().dcInSync);
   }
 };

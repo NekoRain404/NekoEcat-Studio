@@ -47,8 +47,6 @@ void OnlineDiagnosticsService::poll() {
     health_.grade = QStringLiteral("Critical");
   } else if (currentErrors > 10) {
     health_.grade = QStringLiteral("Warning");
-  } else {
-    health_.grade = QStringLiteral("Healthy");
   }
 
   emit trafficUpdated(traffic_);

@@ -2548,6 +2548,10 @@ target_link_libraries(onlinediagnostics_plugin_test PRIVATE
     ecat_core
 )
 
+target_compile_definitions(onlinediagnostics_plugin_test PRIVATE
+    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
+)
+
 set_target_properties(onlinediagnostics_plugin_test PROPERTIES AUTOMOC ON)
 
 add_test(NAME onlinediagnostics_plugin_test COMMAND onlinediagnostics_plugin_test)

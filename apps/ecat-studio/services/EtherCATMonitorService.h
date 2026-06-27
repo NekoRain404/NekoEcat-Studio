@@ -44,14 +44,14 @@ struct PerformanceMetrics {
 };
 
 struct HealthStatus {
-  int score = 100;
-  QString grade;
+  int score = 0;
+  QString grade = QStringLiteral("Unknown");
   int totalSlaves = 0;
   int opSlaves = 0;
   int errorSlaves = 0;
   bool dcInSync = false;
   double dcDriftNs = 0.0;
-  bool watchdogOk = true;
+  bool watchdogOk = false;
 };
 
 class EtherCATMonitorService : public QObject {
