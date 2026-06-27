@@ -52,6 +52,8 @@ private slots:
   void signalEmissions();
   // Verify export writes the named script, not unrelated editor content
   void exportNamedScript();
+  // Verify import rejects empty or invalid script assets
+  void importScriptRejectsEmptyAssets();
 
 private:
   ScriptLibraryPlugin *plugin_ = nullptr;
@@ -188,6 +190,30 @@ void TestScriptLibraryPlugin::exportNamedScript() {
   QVERIFY(!plugin_->importScript(QString()));
   QVERIFY(!plugin_->exportScript(dir.path(), "ExportMe"));
   QVERIFY(!plugin_->exportScript(dir.filePath("missing.py"), "MissingScript"));
+}
+
+void TestScriptLibraryPlugin::importScriptRejectsEmptyAssets() {
+  plugin_->clearScripts();
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  const QString validPath = dir.filePath("valid.py");
+  QFile validFile(validPath);
+  QVERIFY(validFile.open(QIODevice::WriteOnly | QIODevice::Text));
+  QVERIFY(validFile.write(QByteArrayLiteral("print('ok')\n")) > 0);
+  validFile.close();
+
+  QVERIFY(plugin_->importScript(validPath));
+  QCOMPARE(plugin_->scriptCount(), 1);
+
+  const QString emptyPath = dir.filePath("empty.py");
+  QFile emptyFile(emptyPath);
+  QVERIFY(emptyFile.open(QIODevice::WriteOnly | QIODevice::Text));
+  emptyFile.close();
+
+  QVERIFY(!plugin_->importScript(emptyPath));
+  QVERIFY(!plugin_->importScript(dir.path()));
+  QCOMPARE(plugin_->scriptCount(), 1);
 }
 
 QTEST_MAIN(TestScriptLibraryPlugin)

@@ -258,10 +258,13 @@ bool ScriptLibraryPlugin::exportScript(const QString &filePath, const QString &n
 bool ScriptLibraryPlugin::importScript(const QString &filePath) {
   if (filePath.isEmpty()) return false;
 
+  QFileInfo fi(filePath);
+  if (fi.baseName().isEmpty()) return false;
+
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
   QString content = QString::fromUtf8(file.readAll());
-  QFileInfo fi(filePath);
+  if (content.trimmed().isEmpty()) return false;
   addScript(tr("Imported"), fi.baseName(), content);
   return true;
 }
