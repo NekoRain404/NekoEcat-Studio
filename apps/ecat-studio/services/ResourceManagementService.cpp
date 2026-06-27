@@ -14,6 +14,9 @@ ResourceManagementService::ResourceManagementService(QObject *parent)
 
 Resource ResourceManagementService::allocateResource(const ResourceConfig &config)
 {
+    if (config.name.trimmed().isEmpty() || config.capacity <= 0 || config.costPerHour < 0.0)
+        return {};
+
     Resource r;
     r.id = nextResourceId_++;
     r.name = config.name;
@@ -127,6 +130,8 @@ bool ResourceManagementService::allocateToProject(int resourceId, int projectId,
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return false;
+    if (projectId <= 0 || percent <= 0 || percent > 100)
+        return false;
 
     ResourceAllocationEntry entry;
     entry.resourceId = resourceId;
@@ -182,6 +187,8 @@ bool ResourceManagementService::updateLoad(int resourceId, int load)
 {
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
+        return false;
+    if (load < 0 || load > it->capacity)
         return false;
 
     it->currentLoad = load;

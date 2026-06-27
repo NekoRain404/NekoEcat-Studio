@@ -38,6 +38,30 @@ private slots:
     QCOMPARE(r.skills.size(), 2);
   }
 
+  void testRejectInvalidResourceConfig() {
+    ResourceManagementService svc;
+    QSignalSpy spy(&svc, &ResourceManagementService::resourceAllocated);
+
+    ResourceConfig cfg;
+    cfg.name = "   ";
+    Resource r = svc.allocateResource(cfg);
+    QCOMPARE(r.id, 0);
+    QCOMPARE(svc.resourceCount(), 0);
+    QCOMPARE(spy.count(), 0);
+
+    cfg.name = "Invalid capacity";
+    cfg.capacity = 0;
+    r = svc.allocateResource(cfg);
+    QCOMPARE(r.id, 0);
+    QCOMPARE(svc.resourceCount(), 0);
+
+    cfg.capacity = 100;
+    cfg.costPerHour = -1.0;
+    r = svc.allocateResource(cfg);
+    QCOMPARE(r.id, 0);
+    QCOMPARE(svc.resourceCount(), 0);
+  }
+
   // Track resource status and utilization
   void testTrackResource() {
     ResourceManagementService svc;
@@ -66,6 +90,25 @@ private slots:
     QCOMPARE(info.status, ResourceStatus::Allocated);
     QCOMPARE(info.currentLoad, 50);
     QCOMPARE(info.utilizationPercent, 50);
+  }
+
+  void testRejectInvalidProjectAllocation() {
+    ResourceManagementService svc;
+    ResourceConfig cfg;
+    cfg.name = "Invalid Alloc Test";
+    Resource r = svc.allocateResource(cfg);
+
+    QSignalSpy spy(&svc, &ResourceManagementService::resourceUpdated);
+    QVERIFY(!svc.allocateToProject(r.id, 0, 50));
+    QVERIFY(!svc.allocateToProject(r.id, 1, 0));
+    QVERIFY(!svc.allocateToProject(r.id, 1, -10));
+    QVERIFY(!svc.allocateToProject(r.id, 1, 101));
+
+    ResourceStatusInfo info = svc.trackResource(r.id);
+    QCOMPARE(info.status, ResourceStatus::Available);
+    QCOMPARE(info.currentLoad, 0);
+    QCOMPARE(svc.resourceAllocations(r.id).size(), 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Release resource from project and verify availability
@@ -133,6 +176,21 @@ private slots:
     QVERIFY(svc.updateResourceStatus(r.id, ResourceStatus::Maintenance));
     ResourceStatusInfo info = svc.trackResource(r.id);
     QCOMPARE(info.status, ResourceStatus::Maintenance);
+  }
+
+  void testRejectInvalidLoadUpdates() {
+    ResourceManagementService svc;
+    ResourceConfig cfg;
+    cfg.name = "Load Test";
+    cfg.capacity = 80;
+    Resource r = svc.allocateResource(cfg);
+
+    QVERIFY(!svc.updateLoad(r.id, -1));
+    QVERIFY(!svc.updateLoad(r.id, 81));
+
+    ResourceStatusInfo info = svc.trackResource(r.id);
+    QCOMPARE(info.currentLoad, 0);
+    QCOMPARE(info.utilizationPercent, 0);
   }
 
   // Filter resources by type
