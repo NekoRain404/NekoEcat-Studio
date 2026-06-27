@@ -271,46 +271,60 @@ bool WorkflowDesignerPlugin::importWorkflow(const QString &filePath) {
 
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly)) return false;
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-  if (doc.isNull() || !doc.isObject()) return false;
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
 
   QJsonObject root = doc.object();
+  if (!root.value("nodes").isArray() || !root.value("connections").isArray())
+    return false;
+
+  QVector<WorkflowNode> importedNodes;
+  QVector<WorkflowConnection> importedConnections;
+
+  for (const auto &n : root["nodes"].toArray()) {
+    if (!n.isObject()) return false;
+    QJsonObject nodeObj = n.toObject();
+    WorkflowNode node;
+    node.id = nodeObj["id"].toString();
+    node.name = nodeObj["name"].toString();
+    node.category = nodeObj["category"].toString();
+    node.description = nodeObj["description"].toString();
+    node.x = nodeObj["x"].toInt();
+    node.y = nodeObj["y"].toInt();
+    if (node.id.isEmpty() || node.name.isEmpty()) return false;
+    importedNodes.append(node);
+  }
+
+  for (const auto &c : root["connections"].toArray()) {
+    if (!c.isObject()) return false;
+    QJsonObject connObj = c.toObject();
+    WorkflowConnection conn;
+    conn.fromNodeId = connObj["from"].toString();
+    conn.toNodeId = connObj["to"].toString();
+    conn.label = connObj["label"].toString();
+    if (conn.fromNodeId.isEmpty() || conn.toNodeId.isEmpty()) return false;
+    importedConnections.append(conn);
+  }
+
+  const QString importedExecutionStatus =
+      root.contains("executionStatus") ? root["executionStatus"].toString() : QString();
+
   clearNodes();
 
-  if (root.contains("executionStatus")) {
-    setExecutionStatus(root["executionStatus"].toString());
+  if (root.contains("executionStatus"))
+    setExecutionStatus(importedExecutionStatus);
+
+  for (const auto &node : importedNodes) {
+    nodes_.append(node);
+    int row = executionMonitor_->rowCount();
+    executionMonitor_->insertRow(row);
+    executionMonitor_->setItem(row, 0, new QTableWidgetItem(node.name));
+    executionMonitor_->setItem(row, 1, new QTableWidgetItem(tr("Ready")));
+    executionMonitor_->setItem(row, 2, new QTableWidgetItem("-"));
   }
 
-  if (root.contains("nodes")) {
-    for (const auto &n : root["nodes"].toArray()) {
-      QJsonObject nodeObj = n.toObject();
-      WorkflowNode node;
-      node.id = nodeObj["id"].toString();
-      node.name = nodeObj["name"].toString();
-      node.category = nodeObj["category"].toString();
-      node.description = nodeObj["description"].toString();
-      node.x = nodeObj["x"].toInt();
-      node.y = nodeObj["y"].toInt();
-      nodes_.append(node);
-
-      int row = executionMonitor_->rowCount();
-      executionMonitor_->insertRow(row);
-      executionMonitor_->setItem(row, 0, new QTableWidgetItem(node.name));
-      executionMonitor_->setItem(row, 1, new QTableWidgetItem(tr("Ready")));
-      executionMonitor_->setItem(row, 2, new QTableWidgetItem("-"));
-    }
-  }
-
-  if (root.contains("connections")) {
-    for (const auto &c : root["connections"].toArray()) {
-      QJsonObject connObj = c.toObject();
-      WorkflowConnection conn;
-      conn.fromNodeId = connObj["from"].toString();
-      conn.toNodeId = connObj["to"].toString();
-      conn.label = connObj["label"].toString();
-      connections_.append(conn);
-    }
-  }
+  connections_ = importedConnections;
 
   return true;
 }

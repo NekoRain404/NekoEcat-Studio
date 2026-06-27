@@ -232,8 +232,15 @@ void TestWorkflowDesignerPlugin::rejectInvalidImport() {
   QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
   invalidFile.close();
 
+  const QString emptyObjectPath = dir.filePath(QStringLiteral("empty-object.json"));
+  QFile emptyObjectFile(emptyObjectPath);
+  QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
+  QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
+  emptyObjectFile.close();
+
   QVERIFY(!plugin_->importWorkflow(QString()));
   QVERIFY(!plugin_->importWorkflow(invalidPath));
+  QVERIFY(!plugin_->importWorkflow(emptyObjectPath));
   QCOMPARE(plugin_->nodeCount(), 1);
   QCOMPARE(plugin_->connectionCount(), 1);
   QCOMPARE(plugin_->executionStatus(), QString("KeepStatus"));
