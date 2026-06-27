@@ -53,14 +53,6 @@ void RealtimePerformanceService::setHistoryWindowSize(int samples) {
 
 void RealtimePerformanceService::poll() {
   if (!client_ || !client_->isConnected()) return;
-  measureLatency();
-  measureThroughput();
-  measureResources();
-  assessQuality();
-  emit latencyUpdated(latency_);
-  emit throughputUpdated(throughput_);
-  emit resourceUpdated(resources_);
-  emit qualityUpdated(quality_);
 }
 
 void RealtimePerformanceService::measureLatency() {

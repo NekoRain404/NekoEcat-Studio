@@ -10,8 +10,12 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QSignalSpy>
+#include <QHostAddress>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QTest>
 #include <QTemporaryDir>
+#include "infra/EcatClient.h"
 
 class RealtimePerformancePluginTest : public QObject {
   Q_OBJECT
@@ -114,6 +118,33 @@ private slots:
     svc.stopMonitoring();
     QCOMPARE(spy.count(), 0);
     QCOMPARE(svc.throughput().totalFrames, quint64(0));
+  }
+
+  void testConnectedDaemonWithoutTelemetryDoesNotCreateSamples() {
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.enableAutoReconnect(false);
+    RealtimePerformanceService svc(&client);
+    QSignalSpy latencySpy(&svc, &RealtimePerformanceService::latencyUpdated);
+    QSignalSpy qualitySpy(&svc, &RealtimePerformanceService::qualityUpdated);
+
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(server.waitForNewConnection(1000));
+    QTcpSocket *socket = server.nextPendingConnection();
+    QVERIFY(socket != nullptr);
+    socket->setParent(&server);
+    QTRY_VERIFY(client.isConnected());
+
+    svc.startMonitoring(10);
+    QTest::qWait(80);
+    svc.stopMonitoring();
+
+    QCOMPARE(latencySpy.count(), 0);
+    QCOMPARE(qualitySpy.count(), 0);
+    QCOMPARE(svc.latency().sampleCount, 0);
+    QCOMPARE(svc.quality().grade, QString());
   }
 
   void testLatencyMonitorAddSample() {
