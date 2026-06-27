@@ -40,7 +40,8 @@ bool ScriptingBuiltin::writeSDO(int position, const QString &index,
                                  const QString &type) {
   if (!client_->isConnected()) return false;
   sdo_->download(position, index, subIndex, value, type);
-  return true;
+  emit logMessage(QStringLiteral("writeSDO request queued; wait for SDO/daemon confirmation"));
+  return false;
 }
 
 QJSValue ScriptingBuiltin::scanTopology() {
@@ -61,7 +62,8 @@ QJSValue ScriptingBuiltin::scanTopology() {
 bool ScriptingBuiltin::setState(int position, const QString &state) {
   if (!client_->isConnected()) return false;
   client_->setState(position, state);
-  return true;
+  emit logMessage(QStringLiteral("setState request queued; wait for daemon confirmation"));
+  return false;
 }
 
 void ScriptingBuiltin::wait(int ms) {

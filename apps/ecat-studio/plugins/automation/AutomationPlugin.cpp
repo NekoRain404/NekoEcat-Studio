@@ -195,7 +195,8 @@ void AutomationPlugin::insertTemplate() {
   });
   menu->addAction(tr("Write SDO"), [this] {
     editor_->setPlainText(
-        QStringLiteral("writeSDO(0, '1000', '0', '1', 'uint32');\nlog('Written');\n"));
+        QStringLiteral("writeSDO(0, '1000', '0', '1', 'uint32');\n"
+                       "log('Write requested; wait for daemon confirmation');\n"));
   });
   menu->addAction(tr("Scan Topology"), [this] {
     editor_->setPlainText(
@@ -206,7 +207,8 @@ void AutomationPlugin::insertTemplate() {
   });
   menu->addAction(tr("Set All States"), [this] {
     editor_->setPlainText(
-        QStringLiteral("setState(0, 'OP');\nlog('State set to OP');\n"));
+        QStringLiteral("setState(0, 'OP');\n"
+                       "log('State request queued; wait for daemon confirmation');\n"));
   });
   menu->popup(QCursor::pos());
 }

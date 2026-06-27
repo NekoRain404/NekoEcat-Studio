@@ -15,12 +15,46 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include <QHostAddress>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include "plugins/automation/AutomationPlugin.h"
 #include "services/ScriptingService.h"
 #include "services/BatchOperationService.h"
 #include "services/SdoService.h"
 #include "services/TopologyService.h"
 #include "infra/EcatClient.h"
+
+class SilentDaemon : public QTcpServer {
+  Q_OBJECT
+public:
+  explicit SilentDaemon(QObject *parent = nullptr) : QTcpServer(parent) {
+    connect(this, &QTcpServer::newConnection, this, [this]() {
+      while (auto *socket = nextPendingConnection()) {
+        sockets_.append(socket);
+        connect(socket, &QTcpSocket::readyRead, this, [this, socket]() {
+          buffer_ += socket->readAll();
+          int newline = -1;
+          while ((newline = buffer_.indexOf('\n')) >= 0) {
+            const QByteArray line = buffer_.left(newline);
+            buffer_.remove(0, newline + 1);
+            const auto doc = QJsonDocument::fromJson(line);
+            if (doc.isObject()) methods_.append(doc.object().value("method").toString());
+          }
+        });
+      }
+    });
+  }
+
+  QStringList methods() const { return methods_; }
+
+private:
+  QList<QTcpSocket *> sockets_;
+  QByteArray buffer_;
+  QStringList methods_;
+};
 
 class AutomationPluginTest : public QObject {
   Q_OBJECT
@@ -159,6 +193,31 @@ private slots:
 
     QJSValue result = scripting.executeScript("myObj.objectName");
     QCOMPARE(result.toString(), QString("testObj"));
+  }
+
+  void testScriptingBuiltinsDoNotClaimAsyncBusSuccess() {
+    SilentDaemon daemon;
+    QVERIFY(daemon.listen(QHostAddress::LocalHost, 0));
+
+    EcatClient client;
+    client.enableAutoReconnect(false);
+    SdoService sdo(&client);
+    TopologyService topo(&client);
+    ScriptingService scripting(&client, &sdo, &topo);
+
+    client.connectToHost(QHostAddress::LocalHost, daemon.serverPort());
+    QTRY_VERIFY(client.isConnected());
+
+    QJSValue writeResult = scripting.executeScript(
+        "writeSDO(0, '0x2000', '0x00', '1', 'UINT8')");
+    QCOMPARE(writeResult.isBool(), true);
+    QCOMPARE(writeResult.toBool(), false);
+    QTRY_VERIFY(daemon.methods().contains(QStringLiteral("download")));
+
+    QJSValue stateResult = scripting.executeScript("setState(0, 'OP')");
+    QCOMPARE(stateResult.isBool(), true);
+    QCOMPARE(stateResult.toBool(), false);
+    QTRY_VERIFY(daemon.methods().contains(QStringLiteral("setState")));
   }
 
   // Verify batch operation fails closed without daemon acknowledgement

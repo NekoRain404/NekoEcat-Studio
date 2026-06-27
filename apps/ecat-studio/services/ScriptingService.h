@@ -73,7 +73,7 @@ public:
   // @param subIndex  SDO subindex in hex format
   // @param value     Value to write
   // @param type      Data type
-  // @return true if write was successful
+  // @return false because daemon acknowledgement is asynchronous.
   Q_INVOKABLE bool writeSDO(int position, const QString &index,
                              const QString &subIndex, const QString &value,
                              const QString &type);
@@ -85,7 +85,7 @@ public:
   // Set slave state.
   // @param position  Slave position
   // @param state     Target state (OP, PREOP, SAFEOP, INIT)
-  // @return true if state change was successful
+  // @return false because daemon acknowledgement is asynchronous.
   Q_INVOKABLE bool setState(int position, const QString &state);
 
   // Wait for specified milliseconds.
