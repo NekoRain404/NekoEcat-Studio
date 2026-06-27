@@ -245,17 +245,31 @@ bool VisualizationStudioPlugin::importConfig(const QString &filePath) {
   if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
 
   QJsonObject root = doc.object();
-  if (root.contains("dataSources")) {
-    dataSources_->clear();
-    for (const auto &s : root["dataSources"].toArray()) {
-      dataSources_->addItem(s.toString());
-    }
+  if (!root.value("dataSources").isArray()) return false;
+
+  QStringList importedSources;
+  for (const auto &s : root["dataSources"].toArray()) {
+    if (!s.isString()) return false;
+    const QString source = s.toString().trimmed();
+    if (source.isEmpty()) return false;
+    importedSources.append(source);
   }
+  if (importedSources.isEmpty()) return false;
+
+  const QString importedExportOptions =
+      root.contains("exportOptions") ? root["exportOptions"].toString() : QString();
+  const QString importedPreview =
+      root.contains("preview") ? root["preview"].toString() : QString();
+
+  dataSources_->clear();
+  for (const auto &source : importedSources)
+    dataSources_->addItem(source);
+
   if (root.contains("exportOptions")) {
-    exportOptions_->setPlainText(root["exportOptions"].toString());
+    exportOptions_->setPlainText(importedExportOptions);
   }
   if (root.contains("preview")) {
-    previewPane_->setPlainText(root["preview"].toString());
+    previewPane_->setPlainText(importedPreview);
   }
   statusLabel_->setText(tr("Configuration imported"));
   return true;

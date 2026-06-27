@@ -54,6 +54,8 @@ private slots:
   void previewText();
   // Export visualization and import config, verify round-trip
   void exportImport();
+  // Invalid imports should not clear current data sources or preview
+  void rejectInvalidImport();
   // Verify signals fire for data source, chart type, and preview changes
   void signalEmissions();
 
@@ -178,6 +180,34 @@ void TestVisualizationStudioPlugin::exportImport() {
   QCOMPARE(plugin_->previewText(), QString("test preview"));
 
   plugin_->clearDataSources();
+}
+
+void TestVisualizationStudioPlugin::rejectInvalidImport() {
+  plugin_->clearDataSources();
+  plugin_->addDataSource("KeepSource");
+  plugin_->setPreviewText("keep preview");
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  const QString emptyObjectPath = dir.filePath("empty-object.json");
+  QFile emptyObjectFile(emptyObjectPath);
+  QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
+  QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
+  emptyObjectFile.close();
+
+  const QString emptySourcesPath = dir.filePath("empty-sources.json");
+  QFile emptySourcesFile(emptySourcesPath);
+  QVERIFY(emptySourcesFile.open(QIODevice::WriteOnly));
+  QVERIFY(emptySourcesFile.write(QByteArrayLiteral(
+              "{\"dataSources\":[],\"preview\":\"discard\"}")) > 0);
+  emptySourcesFile.close();
+
+  QVERIFY(!plugin_->importConfig(emptyObjectPath));
+  QVERIFY(!plugin_->importConfig(emptySourcesPath));
+  QCOMPARE(plugin_->dataSourceCount(), 1);
+  QCOMPARE(plugin_->dataSources()->item(0)->text(), QString("KeepSource"));
+  QCOMPARE(plugin_->previewText(), QString("keep preview"));
 }
 
 void TestVisualizationStudioPlugin::signalEmissions() {
