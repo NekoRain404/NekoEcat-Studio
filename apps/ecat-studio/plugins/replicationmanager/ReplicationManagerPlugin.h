@@ -77,7 +77,7 @@ public:
   void updateSetting(int index, const QString &value);
   int settingCount() const;
 
-  void exportReport(const QString &path);
+  bool exportReport(const QString &path);
 
   QTableWidget *targetTable() const;
   QTableWidget *statusTable() const;

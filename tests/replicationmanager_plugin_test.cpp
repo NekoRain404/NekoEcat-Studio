@@ -7,6 +7,9 @@
 //   - Target/status/history/settings table structure
 //   - Add/remove/update operations for targets, status, history, settings
 //   - Status label and report export
+#include <QFile>
+#include <QRegularExpression>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
@@ -196,11 +199,34 @@ private slots:
   // Export report to file and verify file creation
   void testExportReport() {
     ReplicationManagerPlugin plugin;
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("replication_report_test.txt");
-    plugin.exportReport(path);
+    plugin.addTarget({"t_export", "Export Target", "192.168.1.250:5877",
+                      "Full", true, QDateTime::currentDateTime()});
+    plugin.updateStatus({"t_export", "Export Target", "Pending", 15,
+                         QDateTime::currentDateTime(), "Waiting"});
+    plugin.addHistoryEntry({QDateTime::currentDateTime(), "t_export",
+                            "Export Target", "Failed", 0,
+                            "No backend acknowledgement"});
+
+    const QString path = dir.filePath("replication_report_test.txt");
+    QVERIFY(plugin.exportReport(path));
     QVERIFY(QFile::exists(path));
-    QFile::remove(path);
+
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QString text = QString::fromUtf8(file.readAll());
+    QVERIFY(text.contains(QStringLiteral("Replication Manager Report\n")));
+    QVERIFY(text.contains(QStringLiteral("Targets: 1\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Target [Full] 192.168.1.250:5877 enabled\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Target: Pending 15%\n")));
+    QVERIFY(text.contains(QStringLiteral("Export Target Failed 0 objects\n")));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.exportReport(QString()));
+    QVERIFY(!plugin.exportReport(dir.path()));
   }
 
   void testSourceDoesNotMintSyntheticReplicationResults() {

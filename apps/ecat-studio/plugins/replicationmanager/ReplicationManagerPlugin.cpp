@@ -83,30 +83,32 @@ void ReplicationManagerPlugin::updateSetting(int index, const QString &value) {
 
 int ReplicationManagerPlugin::settingCount() const { return settings_.size(); }
 
-void ReplicationManagerPlugin::exportReport(const QString &path) {
+bool ReplicationManagerPlugin::exportReport(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    QTextStream out(&f);
-    out << "Replication Manager Report\n";
-    out << "==========================\n\n";
-    out << "Targets: " << targets_.size() << "\n";
-    out << "History Entries: " << history_.size() << "\n";
-    out << "Settings: " << settings_.size() << "\n\n";
-    out << "--- Replication Targets ---\n";
-    for (const auto &t : targets_) {
-      out << t.name << " [" << t.type << "] " << t.endpoint << " "
-          << (t.enabled ? "enabled" : "disabled") << "\n";
-    }
-    out << "\n--- Status ---\n";
-    for (const auto &s : statuses_) {
-      out << s.targetName << ": " << s.state << " " << s.progress << "%\n";
-    }
-    out << "\n--- History ---\n";
-    for (const auto &h : history_) {
-      out << h.timestamp.toString(Qt::ISODate) << " " << h.targetName << " "
-          << h.result << " " << h.objectsReplicated << " objects\n";
-    }
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+
+  QTextStream out(&f);
+  out << "Replication Manager Report\n";
+  out << "==========================\n\n";
+  out << "Targets: " << targets_.size() << "\n";
+  out << "History Entries: " << history_.size() << "\n";
+  out << "Settings: " << settings_.size() << "\n\n";
+  out << "--- Replication Targets ---\n";
+  for (const auto &t : targets_) {
+    out << t.name << " [" << t.type << "] " << t.endpoint << " "
+        << (t.enabled ? "enabled" : "disabled") << "\n";
   }
+  out << "\n--- Status ---\n";
+  for (const auto &s : statuses_) {
+    out << s.targetName << ": " << s.state << " " << s.progress << "%\n";
+  }
+  out << "\n--- History ---\n";
+  for (const auto &h : history_) {
+    out << h.timestamp.toString(Qt::ISODate) << " " << h.targetName << " "
+        << h.result << " " << h.objectsReplicated << " objects\n";
+  }
+  return out.status() == QTextStream::Ok && f.flush();
 }
 
 QTableWidget *ReplicationManagerPlugin::targetTable() const { return targetTable_; }
