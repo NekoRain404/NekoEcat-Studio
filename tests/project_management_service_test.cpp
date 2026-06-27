@@ -58,6 +58,56 @@ private slots:
     QVERIFY(p.deliverables[0].id > 0);
   }
 
+  void testRejectInvalidProjectConfig() {
+    ProjectManagementService svc;
+    QSignalSpy spy(&svc, &ProjectManagementService::projectCreated);
+
+    ProjectConfig cfg;
+    cfg.name = "   ";
+    Project p = svc.createProject(cfg);
+    QCOMPARE(p.id, 0);
+    QCOMPARE(svc.projectCount(), 0);
+
+    cfg.name = "Invalid range";
+    cfg.startDate = QDateTime::currentDateTime();
+    cfg.endDate = cfg.startDate.addSecs(-1);
+    p = svc.createProject(cfg);
+    QCOMPARE(p.id, 0);
+    QCOMPARE(svc.projectCount(), 0);
+
+    cfg.endDate = cfg.startDate.addDays(1);
+    ResourceAllocation resource;
+    resource.resourceName = "Engineer";
+    resource.allocationPercent = 0;
+    cfg.resources = {resource};
+    p = svc.createProject(cfg);
+    QCOMPARE(p.id, 0);
+    QCOMPARE(svc.projectCount(), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
+  void testRejectInvalidInitialMilestonesAndDeliverables() {
+    ProjectManagementService svc;
+
+    ProjectConfig cfg;
+    cfg.name = "Invalid child data";
+
+    Milestone m;
+    m.name = "   ";
+    cfg.milestones.append(m);
+    Project p = svc.createProject(cfg);
+    QCOMPARE(p.id, 0);
+    QCOMPARE(svc.projectCount(), 0);
+
+    cfg.milestones.clear();
+    Deliverable d;
+    d.name = "   ";
+    cfg.deliverables.append(d);
+    p = svc.createProject(cfg);
+    QCOMPARE(p.id, 0);
+    QCOMPARE(svc.projectCount(), 0);
+  }
+
   // Track project by ID and verify status and completion percent
   // Test tracking project status and completion
   void testTrackProject() {
@@ -107,6 +157,26 @@ private slots:
     QCOMPARE(history[0].user, QString("user1"));
   }
 
+  void testRejectInvalidCollaborationEntry() {
+    ProjectManagementService svc;
+    ProjectConfig cfg;
+    cfg.name = "Collab Boundary";
+    Project p = svc.createProject(cfg);
+
+    QSignalSpy spy(&svc, &ProjectManagementService::projectUpdated);
+    CollaborationEntry entry;
+    entry.user = "   ";
+    entry.action = "created";
+    QVERIFY(!svc.collaborate(p.id, entry));
+
+    entry.user = "user1";
+    entry.action = "   ";
+    QVERIFY(!svc.collaborate(p.id, entry));
+
+    QCOMPARE(svc.projectHistory(p.id).size(), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
   // Update project status and verify tracking reflects the change
   // Test project status update
   void testUpdateStatus() {
@@ -118,6 +188,22 @@ private slots:
     QVERIFY(svc.updateProjectStatus(p.id, ProjectStatus::InProgress));
     ProjectStatusInfo info = svc.trackProject(p.id);
     QCOMPARE(info.status, ProjectStatus::InProgress);
+  }
+
+  void testRejectInvalidAddedMilestone() {
+    ProjectManagementService svc;
+    ProjectConfig cfg;
+    cfg.name = "Milestone Boundary";
+    Project p = svc.createProject(cfg);
+
+    QSignalSpy spy(&svc, &ProjectManagementService::projectUpdated);
+    Milestone milestone;
+    milestone.name = "   ";
+    QVERIFY(!svc.addMilestone(p.id, milestone));
+
+    Project fetched = svc.project(p.id);
+    QCOMPARE(fetched.milestones.size(), 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Complete a milestone and verify completedMilestones count

@@ -7,6 +7,26 @@
 //   - Status tracking aggregates milestone/deliverable completion
 //   - Supports scope-based project filtering and progress reporting
 
+namespace {
+bool isValidResourceAllocation(const ResourceAllocation &resource)
+{
+    return !resource.resourceName.trimmed().isEmpty()
+           && resource.allocationPercent > 0
+           && resource.allocationPercent <= 100
+           && resource.costPerHour >= 0.0;
+}
+
+bool isValidMilestone(const Milestone &milestone)
+{
+    return !milestone.name.trimmed().isEmpty();
+}
+
+bool isValidDeliverable(const Deliverable &deliverable)
+{
+    return !deliverable.name.trimmed().isEmpty();
+}
+}
+
 ProjectManagementService::ProjectManagementService(QObject *parent)
     : QObject(parent)
 {
@@ -14,6 +34,23 @@ ProjectManagementService::ProjectManagementService(QObject *parent)
 
 Project ProjectManagementService::createProject(const ProjectConfig &config)
 {
+    if (config.name.trimmed().isEmpty())
+        return {};
+    if (config.startDate.isValid() && config.endDate.isValid() && config.endDate < config.startDate)
+        return {};
+    for (const auto &resource : config.resources) {
+        if (!isValidResourceAllocation(resource))
+            return {};
+    }
+    for (const auto &milestone : config.milestones) {
+        if (!isValidMilestone(milestone))
+            return {};
+    }
+    for (const auto &deliverable : config.deliverables) {
+        if (!isValidDeliverable(deliverable))
+            return {};
+    }
+
     Project p;
     p.id = nextProjectId_++;
     p.name = config.name;
@@ -100,6 +137,8 @@ bool ProjectManagementService::collaborate(int projectId, const CollaborationEnt
     auto it = projects_.find(projectId);
     if (it == projects_.end())
         return false;
+    if (collab.user.trimmed().isEmpty() || collab.action.trimmed().isEmpty())
+        return false;
 
     CollaborationEntry entry = collab;
     if (!entry.timestamp.isValid())
@@ -130,6 +169,8 @@ bool ProjectManagementService::addMilestone(int projectId, const Milestone &mile
 {
     auto it = projects_.find(projectId);
     if (it == projects_.end())
+        return false;
+    if (!isValidMilestone(milestone))
         return false;
 
     Milestone m = milestone;
