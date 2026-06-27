@@ -45,17 +45,18 @@ DiagnosticReport DiagnosticService::runPerformanceDiagnostics() {
 
   DiagnosticItem cycle;
   cycle.name = "Cycle Time";
-  cycle.status = DiagnosticStatus::Pass;
-  cycle.message = "Cycle time within limits";
+  cycle.status = DiagnosticStatus::Warn;
+  cycle.message = "No runtime cycle-time telemetry available";
   items.append(cycle);
 
   DiagnosticItem jitter;
   jitter.name = "Jitter";
-  jitter.status = DiagnosticStatus::Pass;
-  jitter.message = "Jitter within tolerance";
+  jitter.status = DiagnosticStatus::Warn;
+  jitter.message = "No runtime jitter telemetry available";
   items.append(jitter);
 
-  return makeReport(DiagnosticCategory::Performance, items, {});
+  return makeReport(DiagnosticCategory::Performance, items,
+                    {"Collect runtime telemetry before accepting performance diagnostics"});
 }
 
 DiagnosticReport DiagnosticService::runNetworkDiagnostics() {
@@ -90,18 +91,19 @@ DiagnosticReport DiagnosticService::runDeviceDiagnostics(int position) {
 
   DiagnosticItem state;
   state.name = "Device State";
-  state.status = DiagnosticStatus::Pass;
-  state.message = "Device responding";
+  state.status = DiagnosticStatus::Fail;
+  state.message = "No device response evidence available";
   state.details["position"] = position;
   items.append(state);
 
   DiagnosticItem alstatus;
   alstatus.name = "AL Status";
-  alstatus.status = DiagnosticStatus::Pass;
-  alstatus.message = "AL status code normal";
+  alstatus.status = DiagnosticStatus::Fail;
+  alstatus.message = "No AL status evidence available";
   items.append(alstatus);
 
-  return makeReport(DiagnosticCategory::Device, items, {});
+  return makeReport(DiagnosticCategory::Device, items,
+                    {"Scan the bus and collect slave diagnostics before accepting device status"});
 }
 
 DiagnosticReport

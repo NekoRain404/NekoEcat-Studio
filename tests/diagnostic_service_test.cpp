@@ -49,6 +49,16 @@ private slots:
     QVERIFY(!report.items.isEmpty());
   }
 
+  void testPerformanceDiagnosticsDoNotPassWithoutTelemetry() {
+    EventBus bus;
+    EcatClient client;
+    DiagnosticService svc(&bus, &client);
+    auto report = svc.runPerformanceDiagnostics();
+    QVERIFY(report.status != DiagnosticStatus::Pass);
+    QVERIFY(report.message.contains(QStringLiteral("warning"), Qt::CaseInsensitive) ||
+            report.message.contains(QStringLiteral("failure"), Qt::CaseInsensitive));
+  }
+
   // Verify network diagnostics category and items
   // Verify network diagnostics returns correct category
   void testNetworkDiagnostics() {
@@ -69,6 +79,15 @@ private slots:
     auto report = svc.runDeviceDiagnostics(0);
     QCOMPARE(report.category, DiagnosticCategory::Device);
     QVERIFY(!report.items.isEmpty());
+  }
+
+  void testDeviceDiagnosticsDoNotPassWithoutDeviceEvidence() {
+    EventBus bus;
+    EcatClient client;
+    DiagnosticService svc(&bus, &client);
+    auto report = svc.runDeviceDiagnostics(0);
+    QVERIFY(report.status != DiagnosticStatus::Pass);
+    QVERIFY(!report.recommendations.isEmpty());
   }
 
   // Verify system report fails without connection
