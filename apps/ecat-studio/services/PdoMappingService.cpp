@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 
 // PdoMappingService.cpp — Manages PDO mappings per slave with validation and JSON import/export
 //
@@ -11,6 +12,16 @@
 //   - Validates index, bit size (max 1500*8), and total mapped size per slave
 //   - Supports configure (upsert by index+subIndex), discover, import, and export
 //   - Export/import format: JSON object with position and mappings array
+
+namespace {
+bool isValidPosition(int position) { return position >= 0; }
+
+bool isHexAddress(const QString &value)
+{
+  static const QRegularExpression re(QStringLiteral("^0x[0-9A-Fa-f]+$"));
+  return re.match(value.trimmed()).hasMatch();
+}
+}
 
 PdoMappingService::PdoMappingService(QObject *parent)
     : QObject(parent) {}
@@ -21,6 +32,15 @@ QVector<PdoMapping> PdoMappingService::discoverMappings(int position) {
 
 bool PdoMappingService::configureMapping(int position,
                                           const PdoMapping &mapping) {
+  if (!isValidPosition(position)) {
+    emit error(QStringLiteral("Invalid slave position: %1").arg(position));
+    return false;
+  }
+  if (mapping.slavePosition != position) {
+    emit error(QStringLiteral("Mapping slave position does not match target position"));
+    return false;
+  }
+
   PdoValidationResult vr = validateMapping(mapping);
   if (!vr.valid) {
     emit error(vr.errorMessage);
@@ -45,9 +65,24 @@ PdoMappingService::validateMapping(const PdoMapping &mapping) const {
   PdoValidationResult r;
   r.maxBitSize = 1500 * 8;
 
-  if (mapping.index.isEmpty()) {
+  if (mapping.slavePosition < 0) {
+    r.valid = false;
+    r.errorMessage = QStringLiteral("Slave position must be non-negative");
+    return r;
+  }
+  if (mapping.index.trimmed().isEmpty()) {
     r.valid = false;
     r.errorMessage = QStringLiteral("Index cannot be empty");
+    return r;
+  }
+  if (!isHexAddress(mapping.index)) {
+    r.valid = false;
+    r.errorMessage = QStringLiteral("Index must be a hexadecimal address");
+    return r;
+  }
+  if (!mapping.subIndex.trimmed().isEmpty() && !isHexAddress(mapping.subIndex)) {
+    r.valid = false;
+    r.errorMessage = QStringLiteral("Sub-index must be a hexadecimal address");
     return r;
   }
   if (mapping.bitSize <= 0) {
@@ -76,7 +111,7 @@ PdoMappingService::validateMapping(const PdoMapping &mapping) const {
 
 bool PdoMappingService::exportMapping(int position,
                                        const QString &filePath) const {
-  if (filePath.isEmpty())
+  if (!isValidPosition(position) || filePath.isEmpty())
     return false;
 
   auto it = mappings_.constFind(position);
@@ -113,7 +148,7 @@ bool PdoMappingService::exportMapping(int position,
 
 bool PdoMappingService::importMapping(int position,
                                        const QString &filePath) {
-  if (filePath.isEmpty())
+  if (!isValidPosition(position) || filePath.isEmpty())
     return false;
 
   QFile file(filePath);
@@ -218,6 +253,11 @@ PdoValidationResult PdoMappingService::validateMappingLayout(const MappingLayout
 }
 
 bool PdoMappingService::applyMappingLayout(int position, const MappingLayout &layout) {
+  if (!isValidPosition(position)) {
+    emit error(QStringLiteral("Invalid slave position: %1").arg(position));
+    return false;
+  }
+
   auto vr = validateMappingLayout(layout);
   if (!vr.valid) {
     emit error(vr.errorMessage);
@@ -236,6 +276,11 @@ bool PdoMappingService::applyMappingLayout(int position, const MappingLayout &la
       m.direction = entry.direction;
       m.slavePosition = position;
       m.enabled = entry.enabled;
+      auto mappingValidation = validateMapping(m);
+      if (!mappingValidation.valid) {
+        emit error(mappingValidation.errorMessage);
+        return false;
+      }
       newMappings.append(m);
     }
   }

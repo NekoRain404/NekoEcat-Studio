@@ -7947,6 +7947,20 @@ target_link_libraries(pdo_configuration_service_test PRIVATE Qt6::Core Qt6::Test
 set_target_properties(pdo_configuration_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME pdo_configuration_service_test COMMAND pdo_configuration_service_test)
 
+# ── PdoMappingService Test ──────────────────────────────────────────
+add_executable(pdo_mapping_service_test
+    pdo_mapping_service_test.cpp
+    ../apps/ecat-studio/services/PdoMappingService.cpp
+    ../apps/ecat-studio/services/PdoMappingService.h
+)
+target_include_directories(pdo_mapping_service_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+)
+target_link_libraries(pdo_mapping_service_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(pdo_mapping_service_test PROPERTIES AUTOMOC ON)
+add_test(NAME pdo_mapping_service_test COMMAND pdo_mapping_service_test)
+
 # ── OpStateService Test ─────────────────────────────────────────────
 add_executable(op_state_service_test
     op_state_service_test.cpp

@@ -146,10 +146,11 @@ void SdoCachePluginTest::pluginSignals() {
 void SdoCachePluginTest::pdoMappingValidation() {
   PdoMappingService svc;
   PdoMapping m;
-  m.index = "1600";
-  m.subIndex = "01";
+  m.index = "0x1600";
+  m.subIndex = "0x01";
   m.bitSize = 16;
   m.direction = PdoDirection::Output;
+  m.slavePosition = 0;
   auto r = svc.validateMapping(m);
   QVERIFY(r.valid);
 
@@ -162,8 +163,8 @@ void SdoCachePluginTest::pdoMappingValidation() {
 void SdoCachePluginTest::pdoMappingExportImport() {
   PdoMappingService svc;
   PdoMapping m;
-  m.index = "1A00";
-  m.subIndex = "01";
+  m.index = "0x1A00";
+  m.subIndex = "0x01";
   m.name = "StatusWord";
   m.dataType = "UINT16";
   m.bitSize = 16;
@@ -181,8 +182,8 @@ void SdoCachePluginTest::pdoMappingExportImport() {
   QVERIFY(imported.importMapping(0, path));
   auto mappings = imported.currentMappings(0);
   QCOMPARE(mappings.size(), 1);
-  QCOMPARE(mappings.first().index, QStringLiteral("1A00"));
-  QCOMPARE(mappings.first().subIndex, QStringLiteral("01"));
+  QCOMPARE(mappings.first().index, QStringLiteral("0x1A00"));
+  QCOMPARE(mappings.first().subIndex, QStringLiteral("0x01"));
   QCOMPARE(mappings.first().name, QStringLiteral("StatusWord"));
   QCOMPARE(mappings.first().dataType, QStringLiteral("UINT16"));
   QCOMPARE(mappings.first().bitSize, 16);
@@ -193,8 +194,8 @@ void SdoCachePluginTest::pdoMappingExportImport() {
 void SdoCachePluginTest::pdoMappingImportRejectsInvalidJson() {
   PdoMappingService svc;
   PdoMapping m;
-  m.index = "1A00";
-  m.subIndex = "01";
+  m.index = "0x1A00";
+  m.subIndex = "0x01";
   m.name = "StatusWord";
   m.dataType = "UINT16";
   m.bitSize = 16;
@@ -219,7 +220,7 @@ void SdoCachePluginTest::pdoMappingImportRejectsInvalidJson() {
   QVERIFY(!svc.importMapping(0, invalidPath));
   auto mappings = svc.currentMappings(0);
   QCOMPARE(mappings.size(), 1);
-  QCOMPARE(mappings.first().index, QStringLiteral("1A00"));
+  QCOMPARE(mappings.first().index, QStringLiteral("0x1A00"));
 }
 
 static int argc = 1;
