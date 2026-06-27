@@ -186,17 +186,33 @@ private slots:
   // Verify import config adds entries
   void testImportConfig() {
     ConfigurationEditorPlugin plugin;
-    int initial = plugin.configCount();
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
 
-    QString path = QDir::temp().absoluteFilePath("config_import_test.txt");
+    const int initial = plugin.configCount();
+
+    const QString path = dir.filePath("config_import_test.txt");
     QFile f(path);
-    if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      QTextStream out(&f);
-      out << "imported.key = imported_value\n";
-    }
-    plugin.importConfig(path);
-    QVERIFY(plugin.configCount() > initial);
-    QFile::remove(path);
+    QVERIFY(f.open(QIODevice::WriteOnly | QIODevice::Text));
+    QTextStream out(&f);
+    out << "imported.key = imported_value\n";
+    f.close();
+
+    QVERIFY(plugin.importConfig(path));
+    QCOMPARE(plugin.configCount(), initial + 1);
+
+    const QString commentsOnlyPath = dir.filePath("comments_only.txt");
+    QFile commentsOnly(commentsOnlyPath);
+    QVERIFY(commentsOnly.open(QIODevice::WriteOnly | QIODevice::Text));
+    commentsOnly.write("# comment only\n\nmissing equals\n");
+    commentsOnly.close();
+    QVERIFY(!plugin.importConfig(commentsOnlyPath));
+
+    QTest::failOnWarning(QRegularExpression(
+        QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin.importConfig(QString()));
+    QVERIFY(!plugin.importConfig(dir.path()));
+    QVERIFY(!plugin.importConfig(dir.filePath("missing_config.txt")));
   }
 };
 

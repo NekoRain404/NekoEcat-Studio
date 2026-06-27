@@ -105,24 +105,28 @@ bool ConfigurationEditorPlugin::exportConfig(const QString &path) {
   return out.status() == QTextStream::Ok && f.flush();
 }
 
-void ConfigurationEditorPlugin::importConfig(const QString &path) {
+bool ConfigurationEditorPlugin::importConfig(const QString &path) {
+  if (path.isEmpty()) return false;
   QFile f(path);
-  if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QTextStream in(&f);
-    while (!in.atEnd()) {
-      QString line = in.readLine().trimmed();
-      if (line.isEmpty() || line.startsWith('#')) continue;
-      int eqIdx = line.indexOf('=');
-      if (eqIdx > 0) {
-        QString key = line.left(eqIdx).trimmed();
-        QString value = line.mid(eqIdx + 1).trimmed();
-        QStringList parts = key.split('.');
-        QString category = parts.isEmpty() ? "General" : parts.first();
-        configs_.append({category, key, value, "Imported"});
-      }
+  if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+  const int initialCount = configs_.size();
+  QTextStream in(&f);
+  while (!in.atEnd()) {
+    QString line = in.readLine().trimmed();
+    if (line.isEmpty() || line.startsWith('#')) continue;
+    int eqIdx = line.indexOf('=');
+    if (eqIdx > 0) {
+      QString key = line.left(eqIdx).trimmed();
+      QString value = line.mid(eqIdx + 1).trimmed();
+      QStringList parts = key.split('.');
+      QString category = parts.isEmpty() ? "General" : parts.first();
+      configs_.append({category, key, value, "Imported"});
     }
-    rebuildConfigTree();
   }
+  if (configs_.size() == initialCount) return false;
+  rebuildConfigTree();
+  return true;
 }
 
 QTreeWidget *ConfigurationEditorPlugin::configTree() const { return configTree_; }

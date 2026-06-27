@@ -54,7 +54,7 @@ public:
   int errorCount() const;
 
   bool exportConfig(const QString &path);
-  void importConfig(const QString &path);
+  bool importConfig(const QString &path);
 
   QTreeWidget *configTree() const;
   QTextEdit *configEditor() const;
