@@ -280,6 +280,14 @@ bool ProjectManagerService::readProjectFile(const QString &path) {
     }
 
     QJsonObject root = doc.object();
+    const int fileVersion = root["fileVersion"].toInt(0);
+    if (fileVersion > ProjectData::kCurrentVersion) {
+        emit projectError(QStringLiteral("Unsupported file version: %1 (max: %2)")
+                          .arg(fileVersion)
+                          .arg(ProjectData::kCurrentVersion));
+        return false;
+    }
+
     QString storedChecksum = root["checksum"].toString();
     if (!storedChecksum.isEmpty()) {
         QJsonObject checkObj = root;

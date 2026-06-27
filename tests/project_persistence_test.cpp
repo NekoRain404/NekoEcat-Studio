@@ -20,6 +20,7 @@ private slots:
     void serviceSaveAs();
     void serviceValidateProject();
     void serviceCorruptChecksum();
+    void serviceRejectsFutureProjectVersionOnOpen();
     void serviceMigrationOnLoad();
     void serviceDashboardConfigs();
     void servicePluginStates();
@@ -175,6 +176,33 @@ void ProjectPersistenceTest::serviceCorruptChecksum() {
     QCOMPARE(reader.projectName(), QString("Current Project"));
     QCOMPARE(errorSpy.count(), 1);
     QVERIFY(errorSpy.at(0).at(0).toString().contains("Checksum mismatch"));
+}
+
+void ProjectPersistenceTest::serviceRejectsFutureProjectVersionOnOpen() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/future.ecatproj";
+
+    QJsonObject root;
+    root["fileVersion"] = ProjectData::kCurrentVersion + 1;
+    root["name"] = "Future Project";
+    root["version"] = "99.0.0";
+    QJsonDocument doc(root);
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    QVERIFY(file.write(doc.toJson(QJsonDocument::Indented)) > 0);
+    file.close();
+
+    ProjectManagerService service;
+    QVERIFY(service.createProject("Current Project"));
+    QSignalSpy openedSpy(&service, &ProjectManagerService::projectOpened);
+    QSignalSpy errorSpy(&service, &ProjectManagerService::projectError);
+
+    QVERIFY(!service.openProject(path));
+    QCOMPARE(service.projectName(), QString("Current Project"));
+    QCOMPARE(openedSpy.count(), 0);
+    QCOMPARE(errorSpy.count(), 1);
+    QVERIFY(errorSpy.at(0).at(0).toString().contains("Unsupported file version"));
 }
 
 void ProjectPersistenceTest::serviceMigrationOnLoad() {
