@@ -46,6 +46,28 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
+  void testRejectInvalidMappingAddressAndPosition() {
+    PdoConfigurationService svc;
+    QSignalSpy spy(&svc, &PdoConfigurationService::configurationError);
+
+    PdoMappingConfig cfg;
+    cfg.index = "6000";
+    cfg.subIndex = "0x01";
+    cfg.bitSize = 16;
+    QVERIFY(!svc.configurePdoMapping(0, cfg));
+
+    cfg.index = "0x6000";
+    cfg.subIndex = "1";
+    QVERIFY(!svc.configurePdoMapping(0, cfg));
+
+    cfg.subIndex = "0x01";
+    QVERIFY(!svc.configurePdoMapping(-1, cfg));
+
+    QCOMPARE(svc.pdoMappings(0).size(), 0);
+    QCOMPARE(svc.pdoMappings(-1).size(), 0);
+    QCOMPARE(spy.count(), 3);
+  }
+
   void testConfigurePdoMappingUpsert() {
     PdoConfigurationService svc;
     PdoMappingConfig cfg;
@@ -98,6 +120,26 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
+  void testRejectInvalidPdoAssignmentIndices() {
+    PdoConfigurationService svc;
+    QSignalSpy spy(&svc, &PdoConfigurationService::configurationError);
+
+    PdoAssignmentConfig cfg;
+    cfg.smIndex = 3;
+    cfg.pdoIndices = {"0x6000", ""};
+    QVERIFY(!svc.configurePdoAssignment(0, cfg));
+
+    cfg.pdoIndices = {"0x6000", "6001"};
+    QVERIFY(!svc.configurePdoAssignment(0, cfg));
+
+    cfg.pdoIndices = {"0x6000", "0x6000"};
+    QVERIFY(!svc.configurePdoAssignment(0, cfg));
+
+    QVERIFY(!svc.configurePdoAssignment(-1, cfg));
+    QCOMPARE(svc.pdoAssignments(0).size(), 0);
+    QCOMPARE(spy.count(), 4);
+  }
+
   void testConfigureSyncManager() {
     PdoConfigurationService svc;
     PdoSyncManagerConfig cfg;
@@ -124,6 +166,27 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
+  void testRejectInvalidSyncManagerBounds() {
+    PdoConfigurationService svc;
+    QSignalSpy spy(&svc, &PdoConfigurationService::configurationError);
+
+    PdoSyncManagerConfig cfg;
+    cfg.smIndex = 3;
+    cfg.enable = true;
+    cfg.length = 0;
+    QVERIFY(!svc.configureSyncManager(0, cfg));
+
+    cfg.length = 64;
+    cfg.startAddress = -1;
+    QVERIFY(!svc.configureSyncManager(0, cfg));
+
+    cfg.startAddress = 0;
+    QVERIFY(!svc.configureSyncManager(-1, cfg));
+
+    QCOMPARE(svc.syncManagers(0).size(), 0);
+    QCOMPARE(spy.count(), 3);
+  }
+
   void testConfigureDcSync() {
     PdoConfigurationService svc;
     DcSyncConfig cfg;
@@ -134,6 +197,27 @@ private slots:
     auto dc = svc.dcSyncConfig(0);
     QVERIFY(dc.assignActivate);
     QCOMPARE(dc.sync0CycleTime, 1000000);
+  }
+
+  void testRejectInvalidDcSyncTiming() {
+    PdoConfigurationService svc;
+    QSignalSpy spy(&svc, &PdoConfigurationService::configurationError);
+
+    DcSyncConfig cfg;
+    cfg.assignActivate = true;
+    cfg.sync0CycleTime = -1;
+    QVERIFY(!svc.configureDcSync(0, cfg));
+
+    cfg.sync0CycleTime = 1000000;
+    cfg.sync1ShiftTime = -1;
+    QVERIFY(!svc.configureDcSync(0, cfg));
+
+    cfg.sync1ShiftTime = 0;
+    QVERIFY(!svc.configureDcSync(-1, cfg));
+
+    auto dc = svc.dcSyncConfig(0);
+    QVERIFY(!dc.assignActivate);
+    QCOMPARE(spy.count(), 3);
   }
 
   void testApplyConfiguration() {
@@ -197,6 +281,7 @@ private slots:
 
     PdoSyncManagerConfig sm;
     sm.smIndex = 3;
+    sm.length = 64;
     svc.configureSyncManager(0, sm);
 
     DcSyncConfig dc;
