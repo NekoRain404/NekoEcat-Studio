@@ -81,7 +81,28 @@ private slots:
     int d = svc.createDomain();
     QSignalSpy spy(&svc, &DomainService::error);
     QVERIFY(!svc.registerPdoEntry(d, -1, 0x6000, 1));
+    QVERIFY(!svc.registerPdoEntry(d, 0, 0, 1));
+    QVERIFY(!svc.registerPdoEntry(d, 0, 0x10000, 1));
+    QVERIFY(!svc.registerPdoEntry(d, 0, 0x6000, -1));
+    QVERIFY(!svc.registerPdoEntry(d, 0, 0x6000, 0x100));
+    QCOMPARE(spy.count(), 5);
+    DomainInfo info = svc.domainInfo(d);
+    QCOMPARE(info.pdoEntryCount, 0);
+    QCOMPARE(info.dataSize, 0);
+  }
+
+  void testRejectDuplicatePdoEntry() {
+    DomainService svc;
+    int d = svc.createDomain();
+    QVERIFY(svc.registerPdoEntry(d, 0, 0x6000, 1));
+
+    QSignalSpy spy(&svc, &DomainService::error);
+    QVERIFY(!svc.registerPdoEntry(d, 0, 0x6000, 1));
+
     QCOMPARE(spy.count(), 1);
+    DomainInfo info = svc.domainInfo(d);
+    QCOMPARE(info.pdoEntryCount, 1);
+    QCOMPARE(info.dataSize, 4);
   }
 
   // Verify processing a domain cannot be simulated without a live backend.

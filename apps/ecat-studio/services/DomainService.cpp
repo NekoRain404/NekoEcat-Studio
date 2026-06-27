@@ -26,9 +26,16 @@ bool DomainService::registerPdoEntry(int domain, int position, int index,
     emit error(QStringLiteral("Domain %1 does not exist").arg(domain));
     return false;
   }
-  if (position < 0 || index <= 0) {
+  if (position < 0 || index <= 0 || index > 0xFFFF || subIndex < 0 || subIndex > 0xFF) {
     emit error(QStringLiteral("Invalid PDO entry parameters"));
     return false;
+  }
+  for (const auto &existing : entries_[domain]) {
+    if (existing.position == position && existing.index == index
+        && existing.subIndex == subIndex) {
+      emit error(QStringLiteral("PDO entry already registered"));
+      return false;
+    }
   }
 
   PdoEntry entry;
