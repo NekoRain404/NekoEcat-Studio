@@ -58,6 +58,18 @@ private slots:
     client_ = nullptr;
   }
 
+  void testServiceHandlesNullClient() {
+    MasterManagerService svc(nullptr);
+    MasterMgrConfig config;
+    config.adapterName = "eth0";
+
+    QVERIFY(!svc.configureMaster(config));
+    QVERIFY(!svc.restartMaster());
+    MasterMgrDiagnosticResult result = svc.diagnoseMaster();
+    QVERIFY(!result.success);
+    QCOMPARE(svc.masterState(), MasterMgrState::Unknown);
+  }
+
   // Verify plugin id, display names
   void testIdentity() {
     MasterManagerPlugin p(masterSvc_, dcSvc_);
@@ -131,6 +143,38 @@ private slots:
     MasterMgrConfig config;
     config.adapterName = "eth0";
     QVERIFY(!masterSvc_->configureMaster(config));
+  }
+
+  void testRejectInvalidMasterConfigBeforeBackendAck() {
+    QTcpServer server;
+    QVERIFY(connectToFakeDaemon(server));
+
+    QSignalSpy spy(masterSvc_, &MasterManagerService::masterError);
+
+    MasterMgrConfig config;
+    config.adapterName = "   ";
+    QVERIFY(!masterSvc_->configureMaster(config));
+
+    config.adapterName = "eth0";
+    config.cycleTime = 0;
+    QVERIFY(!masterSvc_->configureMaster(config));
+
+    config.cycleTime = 1000;
+    config.sync0Time = -1;
+    QVERIFY(!masterSvc_->configureMaster(config));
+
+    config.sync0Time = 0;
+    config.watchdogTimeout = -1;
+    QVERIFY(!masterSvc_->configureMaster(config));
+
+    config.watchdogTimeout = 1000;
+    config.debugLevel = 4;
+    QVERIFY(!masterSvc_->configureMaster(config));
+
+    QCOMPARE(spy.count(), 5);
+    for (const auto &args : spy)
+      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid master configuration")));
+    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
   }
 
   // Restart fails when disconnected

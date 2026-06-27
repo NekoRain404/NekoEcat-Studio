@@ -11,6 +11,9 @@
 MasterManagerService::MasterManagerService(EcatClient *client,
                                            QObject *parent)
     : QObject(parent), client_(client) {
+  if (!client_)
+    return;
+
   connect(client_, &EcatClient::masterText, this,
           [this](const QString &text) { updateFromMasterText(text); });
 
@@ -28,6 +31,12 @@ MasterManagerService::MasterManagerService(EcatClient *client,
 }
 
 bool MasterManagerService::configureMaster(const MasterMgrConfig &config) {
+  if (config.adapterName.trimmed().isEmpty() || config.cycleTime <= 0
+      || config.sync0Time < 0 || config.watchdogTimeout < 0
+      || config.debugLevel < 0 || config.debugLevel > 3) {
+    emit masterError(QStringLiteral("Invalid master configuration"));
+    return false;
+  }
   if (!client_ || !client_->isConnected()) return false;
 
   Q_UNUSED(config);
