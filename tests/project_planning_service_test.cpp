@@ -50,23 +50,68 @@ private slots:
     QCOMPARE(m.dependencies.size(), 1);
   }
 
+  void testRejectEmptyMilestoneName() {
+    ProjectPlanningService svc;
+    QSignalSpy spy(&svc, &ProjectPlanningService::milestoneCreated);
+
+    MilestoneConfig cfg;
+    cfg.name = "   ";
+    PlannedMilestone m = svc.createMilestone(cfg);
+
+    QCOMPARE(m.id, 0);
+    QCOMPARE(svc.milestoneCount(), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
   // Create timeline and verify signal, name, and milestone IDs
   // Test creating a timeline with milestone references
   void testCreateTimeline() {
     ProjectPlanningService svc;
     QSignalSpy spy(&svc, &ProjectPlanningService::timelineCreated);
 
+    MilestoneConfig milestoneCfg;
+    milestoneCfg.name = "Milestone";
+    PlannedMilestone m1 = svc.createMilestone(milestoneCfg);
+    milestoneCfg.name = "Milestone 2";
+    PlannedMilestone m2 = svc.createMilestone(milestoneCfg);
+
     TimelineConfig cfg;
     cfg.name = "Sprint 1";
     cfg.startDate = QDateTime::currentDateTime();
     cfg.endDate = QDateTime::currentDateTime().addDays(14);
-    cfg.milestoneIds = {1, 2};
+    cfg.milestoneIds = {m1.id, m2.id};
     cfg.description = "First sprint";
 
     Timeline t = svc.createTimeline(cfg);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(t.name, QString("Sprint 1"));
     QCOMPARE(t.milestoneIds.size(), 2);
+  }
+
+  void testRejectInvalidTimelineConfig() {
+    ProjectPlanningService svc;
+    QSignalSpy spy(&svc, &ProjectPlanningService::timelineCreated);
+
+    TimelineConfig cfg;
+    cfg.name = "   ";
+    cfg.startDate = QDateTime::currentDateTime();
+    cfg.endDate = cfg.startDate.addDays(1);
+    Timeline t = svc.createTimeline(cfg);
+    QCOMPARE(t.id, 0);
+    QCOMPARE(svc.timelineCount(), 0);
+
+    cfg.name = "Invalid range";
+    cfg.endDate = cfg.startDate.addSecs(-1);
+    t = svc.createTimeline(cfg);
+    QCOMPARE(t.id, 0);
+    QCOMPARE(svc.timelineCount(), 0);
+
+    cfg.endDate = cfg.startDate.addDays(1);
+    cfg.milestoneIds = {999};
+    t = svc.createTimeline(cfg);
+    QCOMPARE(t.id, 0);
+    QCOMPARE(svc.timelineCount(), 0);
+    QCOMPARE(spy.count(), 0);
   }
 
   // Plan resources within allocation limits and verify success
@@ -105,6 +150,26 @@ private slots:
     plan.resourceNames = {"A", "B"};
     plan.allocationPercent = {50};
 
+    QVERIFY(!svc.planResources(plan));
+  }
+
+  void testRejectInvalidResourcePlanPercentages() {
+    ProjectPlanningService svc;
+
+    ResourcePlan plan;
+    plan.projectId = 0;
+    plan.resourceNames = {"A"};
+    plan.allocationPercent = {50};
+    QVERIFY(!svc.planResources(plan));
+
+    plan.projectId = 1;
+    plan.allocationPercent = {-10};
+    QVERIFY(!svc.planResources(plan));
+
+    plan.allocationPercent = {0};
+    QVERIFY(!svc.planResources(plan));
+
+    plan.allocationPercent = {101};
     QVERIFY(!svc.planResources(plan));
   }
 

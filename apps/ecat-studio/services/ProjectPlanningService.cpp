@@ -14,6 +14,9 @@ ProjectPlanningService::ProjectPlanningService(QObject *parent)
 
 PlannedMilestone ProjectPlanningService::createMilestone(const MilestoneConfig &config)
 {
+    if (config.name.trimmed().isEmpty())
+        return {};
+
     PlannedMilestone m;
     m.id = nextMilestoneId_++;
     m.name = config.name;
@@ -33,6 +36,15 @@ PlannedMilestone ProjectPlanningService::createMilestone(const MilestoneConfig &
 
 Timeline ProjectPlanningService::createTimeline(const TimelineConfig &config)
 {
+    if (config.name.trimmed().isEmpty())
+        return {};
+    if (config.startDate.isValid() && config.endDate.isValid() && config.endDate < config.startDate)
+        return {};
+    for (int milestoneId : config.milestoneIds) {
+        if (!milestones_.contains(milestoneId))
+            return {};
+    }
+
     Timeline t;
     t.id = nextTimelineId_++;
     t.name = config.name;
@@ -49,12 +61,17 @@ Timeline ProjectPlanningService::createTimeline(const TimelineConfig &config)
 
 bool ProjectPlanningService::planResources(const ResourcePlan &plan)
 {
+    if (plan.projectId <= 0)
+        return false;
     if (plan.resourceNames.size() != plan.allocationPercent.size())
         return false;
 
     int total = 0;
-    for (int pct : plan.allocationPercent)
+    for (int pct : plan.allocationPercent) {
+        if (pct <= 0 || pct > 100)
+            return false;
         total += pct;
+    }
 
     if (total > 100)
         return false;
