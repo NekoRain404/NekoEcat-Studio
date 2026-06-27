@@ -3,10 +3,21 @@
 WorkflowReportDesignerService::WorkflowReportDesignerService(QObject *parent)
     : QObject(parent) {}
 
+bool WorkflowReportDesignerService::isValidTemplateDefinition(
+    const QString &name, const QStringList &sections) {
+  if (name.trimmed().isEmpty() || sections.isEmpty()) return false;
+  for (const auto &section : sections) {
+    if (section.trimmed().isEmpty()) return false;
+  }
+  return true;
+}
+
 QString WorkflowReportDesignerService::createTemplate(const QString &name,
                                                        const QString &description,
                                                        const QStringList &sections,
                                                        const QStringList &dataFields) {
+  if (!isValidTemplateDefinition(name, sections)) return {};
+
   QString id = QString("tmpl_%1").arg(nextTemplateId_++);
   WfReportTemplate t;
   t.id = id;
@@ -34,6 +45,9 @@ bool WorkflowReportDesignerService::updateTemplate(const QString &templateId,
                                                     const QStringList &sections) {
   if (!templates_.contains(templateId))
     return false;
+  if (!isValidTemplateDefinition(name, sections))
+    return false;
+
   templates_[templateId].name = name;
   templates_[templateId].sections = sections;
   emit templateUpdated(templateId);

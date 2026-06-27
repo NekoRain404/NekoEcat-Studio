@@ -16,6 +16,18 @@ private slots:
     QCOMPARE(spy.count(), 1);
   }
 
+  void testRejectInvalidTemplateCreation() {
+    WorkflowReportDesignerService svc;
+    QSignalSpy spy(&svc, &WorkflowReportDesignerService::templateCreated);
+
+    QVERIFY(svc.createTemplate("", "No name", {"Summary"}, {}).isEmpty());
+    QVERIFY(svc.createTemplate("No Sections", "Empty", {}, {}).isEmpty());
+    QVERIFY(svc.createTemplate("Blank Section", "Empty", {""}, {}).isEmpty());
+
+    QCOMPARE(svc.templateCount(), 0);
+    QCOMPARE(spy.count(), 0);
+  }
+
   void testRemoveTemplate() {
     WorkflowReportDesignerService svc;
     QString id = svc.createTemplate("ToRemove", "Desc", {"S"}, {"D"});
@@ -34,6 +46,21 @@ private slots:
     WfReportTemplate t = svc.templateById(id);
     QCOMPARE(t.name, QString("New Name"));
     QCOMPARE(t.sections.size(), 2);
+  }
+
+  void testRejectInvalidTemplateUpdate() {
+    WorkflowReportDesignerService svc;
+    QString id = svc.createTemplate("Old Name", "Desc", {"S1"}, {"D"});
+    QSignalSpy spy(&svc, &WorkflowReportDesignerService::templateUpdated);
+
+    QVERIFY(!svc.updateTemplate(id, "", {"S1"}));
+    QVERIFY(!svc.updateTemplate(id, "New Name", {}));
+    QVERIFY(!svc.updateTemplate(id, "New Name", {""}));
+
+    WfReportTemplate t = svc.templateById(id);
+    QCOMPARE(t.name, QString("Old Name"));
+    QCOMPARE(t.sections.size(), 1);
+    QCOMPARE(spy.count(), 0);
   }
 
   void testTemplateLookup() {

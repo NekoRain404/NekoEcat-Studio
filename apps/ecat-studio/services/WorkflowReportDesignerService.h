@@ -61,6 +61,9 @@ signals:
   void reportGenerated(const QString &reportId);
 
 private:
+  static bool isValidTemplateDefinition(const QString &name,
+                                        const QStringList &sections);
+
   QMap<QString, WfReportTemplate> templates_;
   QVector<WfCustomReport> reports_;
   int nextTemplateId_ = 1;
