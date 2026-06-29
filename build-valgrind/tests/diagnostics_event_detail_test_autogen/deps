@@ -1,6 +1,0 @@
-diagnostics_event_detail_test_autogen/timestamp: \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/DiagnosticsEventDetail.cpp \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/DiagnosticsEventDetail.h \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/diagnostics_event_detail_test.cpp \
-	/usr/bin/cmake

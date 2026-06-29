@@ -1,18 +1,32 @@
-build/
+# Build directories
+build*/
+Testing/
+
+# Distribution / packaging
 dist/
 docs/build/
+
+# CMake generated
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 compile_commands.json
 CTestTestfile.cmake
-Testing/
+
+# IDE / editor
 *.user
 *.autosave
 *.log
 *.tmp
 *.swp
 *.swo
+
+# Tools & caches
 .cache/
 .worktrees/
 .DS_Store
+
+# AI dev artifacts
+.agents/
+.codex/
+AGENTS.md

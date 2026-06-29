@@ -1,7 +1,0 @@
-startup_sdo_row_detail_test_autogen/timestamp: \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/StartupSdoRowDetail.cpp \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/detail/StartupSdoRowDetail.h \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/apps/ecat-studio/models/WatchStartupModel.h \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/CMakeLists.txt \
-	/home/nekorain/Documents/LTSPICE/NEW/vibecoding/Ethercat/tests/startup_sdo_row_detail_test.cpp \
-	/usr/bin/cmake
