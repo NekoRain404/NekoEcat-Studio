@@ -1,8 +1,31 @@
-# NekoEcat Studio v3.8.0 Release Notes
+# NekoEcat Studio v1.0.0 Release Notes
 
-**Release Date**: June 21, 2026
+**Release Date**: June 29, 2026
 
 ## Highlights
+
+Official stable release with comprehensive documentation, project configuration, and cleanup of build artifacts.
+
+## What's New in v1.0.0
+
+### Documentation & Quality
+- Comprehensive Doxygen API documentation for core interfaces (`EcatService.h`, `EthercatTypes.h`, `JsonProtocol.h`, `EcatClient.h`)
+- Documentation added to 10 key service headers with class, method, and struct docs
+- Documentation added to 9 key plugin headers with class and method docs
+- Enhanced file-level documentation for 19 workspace partial files
+
+### Project Configuration
+- Added `.clang-format` for consistent code formatting (4-space indent, 120 col limit)
+- Added `.editorconfig` for cross-editor consistency
+- Added `.clang-tidy` for static analysis (bugprone-*, modernize-*, performance-*)
+
+### Cleanup
+- Removed 3.5 GB of build artifacts from git tracking (build-valgrind/)
+- Cleaned stale root files and AI development artifacts
+- Updated .gitignore to prevent future build artifact commits
+- Cleaned old release artifacts from dist/ directory
+
+## Previous Release (v3.8.0)
 
 Native IgH API backend, dual-backend mode switching, and test coverage that must be revalidated for the target build.
 

@@ -2,6 +2,31 @@
 
 All notable changes to NekoEcat Studio are documented in this file.
 
+## [1.0.0] - 2026-06-29
+
+### Added
+- **Project Configuration**: Added .clang-format, .editorconfig, .clang-tidy for code consistency
+- **Documentation**: Comprehensive Doxygen API documentation for core interfaces, services, and plugins
+  - `EcatService.h`: Full @brief/@param/@return on all 12 pure virtual methods
+  - `EthercatTypes.h`: Documentation on SlaveInfo fields and JSON serialization functions
+  - `JsonProtocol.h`: Wire format documentation and function docs
+  - `EcatClient.h`: @brief on all ~30 public methods with usage examples
+  - 10 key service headers with class, method, and struct documentation
+  - 9 key plugin headers with class and method documentation
+  - 19 workspace partial files with enhanced file-level documentation
+
+### Changed
+- Version bumped to 1.0.0 for official release
+- Default package version in scripts updated to 1.0.0
+- Doxyfile PROJECT_NUMBER synchronized to 1.0.0
+
+### Fixed
+- Removed 3.5 GB of build artifacts (build-valgrind/) from git tracking
+- Cleaned stale root files (CMakeFiles/, Testing/, .agents/, .codex/, HANDOFF.md)
+- Removed 11 AI development artifacts (AGENTS.md files)
+- Cleaned old release artifacts from dist/ (v0.1.0 through v3.5.0)
+- Updated .gitignore to use build*/ pattern and exclude AI tool artifacts
+
 ## [3.8.0] - 2026-06-21
 
 ### Added
