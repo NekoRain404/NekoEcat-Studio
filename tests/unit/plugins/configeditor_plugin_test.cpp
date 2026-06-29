@@ -29,7 +29,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Configuration Editor"));
     QCOMPARE(plugin.displayNameZh(), QString("配置编辑器"));
     QCOMPARE(plugin.defaultOrder(), 265);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

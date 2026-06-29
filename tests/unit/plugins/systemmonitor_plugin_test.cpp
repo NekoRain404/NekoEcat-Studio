@@ -27,7 +27,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("System Monitor"));
     QCOMPARE(plugin.displayNameZh(), QString("系统监视器"));
     QCOMPARE(plugin.defaultOrder(), 275);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

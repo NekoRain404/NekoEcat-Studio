@@ -28,7 +28,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Data Logger"));
     QCOMPARE(plugin.displayNameZh(), QString("数据记录器"));
     QCOMPARE(plugin.defaultOrder(), 245);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify main widget is created

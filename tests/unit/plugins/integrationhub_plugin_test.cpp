@@ -31,7 +31,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Integration Hub"));
     QCOMPARE(plugin.displayNameZh(), QString("集成中心"));
     QCOMPARE(plugin.defaultOrder(), 325);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Check widget is created

@@ -81,7 +81,7 @@ void TestTestSuitePlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Test Suite"));
   QCOMPARE(plugin_->displayNameZh(), QString("测试套件"));
   QCOMPARE(plugin_->defaultOrder(), 255);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestTestSuitePlugin::widgetNotNull() {

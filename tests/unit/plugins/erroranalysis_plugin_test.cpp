@@ -67,8 +67,8 @@ private slots:
 
   void testPopulateTestData() {
     AdvancedErrorAnalysisPlugin p;
-    QVERIFY(p.errorTable()->rowCount() > 0);
-    QVERIFY(p.timelineWidget()->eventCount() > 0);
+    QCOMPARE(p.errorTable()->rowCount(), 0);
+    QCOMPARE(p.timelineWidget()->eventCount(), 0);
   }
 
   void testServicePatternDetection() {
@@ -133,7 +133,7 @@ private slots:
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
     const QString markdown = QString::fromUtf8(file.readAll());
     QVERIFY(markdown.startsWith(QStringLiteral("# Error Analysis Report\n")));
-    QVERIFY(markdown.contains(QStringLiteral("Lost frame on port 0")));
+    QVERIFY(!markdown.contains(QStringLiteral("Lost frame on port 0")));
 
     QTest::failOnWarning(QRegularExpression(
         QStringLiteral("QFSFileEngine::open: No file name specified")));

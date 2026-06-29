@@ -74,7 +74,7 @@ void TestReportDesignerPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Report Designer"));
   QCOMPARE(plugin_->displayNameZh(), QString("报告设计器"));
   QCOMPARE(plugin_->defaultOrder(), 345);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestReportDesignerPlugin::widgetNotNull() {

@@ -69,7 +69,7 @@ void TestDiagramPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Diagram Editor"));
   QCOMPARE(plugin_->displayNameZh(), QString("图表编辑器"));
   QCOMPARE(plugin_->defaultOrder(), 190);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 // Verify main widget is created

@@ -28,7 +28,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Report Generator"));
     QCOMPARE(plugin.displayNameZh(), QString("报告生成器"));
     QCOMPARE(plugin.defaultOrder(), 230);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created and non-null

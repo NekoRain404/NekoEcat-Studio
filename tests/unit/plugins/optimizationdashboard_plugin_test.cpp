@@ -30,7 +30,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Optimization Dashboard"));
     QCOMPARE(plugin.displayNameZh(), QString("优化仪表盘"));
     QCOMPARE(plugin.defaultOrder(), 90);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Check widget is created

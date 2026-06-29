@@ -28,7 +28,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Compliance Checker"));
     QCOMPARE(plugin.displayNameZh(), QString("合规检查器"));
     QCOMPARE(plugin.defaultOrder(), 285);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

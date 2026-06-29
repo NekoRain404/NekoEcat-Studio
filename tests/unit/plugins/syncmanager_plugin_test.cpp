@@ -28,7 +28,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Sync Manager"));
     QCOMPARE(plugin.displayNameZh(), QString("同步管理器"));
     QCOMPARE(plugin.defaultOrder(), 330);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

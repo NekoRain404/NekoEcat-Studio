@@ -67,7 +67,7 @@ void TestUpdateManagerPlugin::identity() {
   QCOMPARE(plugin_->id(), QString("updatemanager"));
   QCOMPARE(plugin_->displayName(), QString("Update Manager"));
   QCOMPARE(plugin_->displayNameZh(), QString("更新管理器"));
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestUpdateManagerPlugin::widgetNotNull() {

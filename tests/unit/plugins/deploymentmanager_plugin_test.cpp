@@ -27,7 +27,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Deployment Manager"));
     QCOMPARE(plugin.displayNameZh(), QString("部署管理器"));
     QCOMPARE(plugin.defaultOrder(), 310);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify main widget is created

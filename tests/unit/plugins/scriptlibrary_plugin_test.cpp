@@ -73,7 +73,7 @@ void TestScriptLibraryPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Script Library"));
   QCOMPARE(plugin_->displayNameZh(), QString("脚本库"));
   QCOMPARE(plugin_->defaultOrder(), 200);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestScriptLibraryPlugin::widgetNotNull() {

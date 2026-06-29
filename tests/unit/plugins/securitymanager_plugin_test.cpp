@@ -28,7 +28,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Security Manager"));
     QCOMPARE(plugin.displayNameZh(), QString("安全管理器"));
     QCOMPARE(plugin.defaultOrder(), 280);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Widget should be created successfully

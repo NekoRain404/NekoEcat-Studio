@@ -26,7 +26,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Network Analyzer"));
     QCOMPARE(plugin.displayNameZh(), QString("网络分析器"));
     QCOMPARE(plugin.defaultOrder(), 270);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Widget is created and not null

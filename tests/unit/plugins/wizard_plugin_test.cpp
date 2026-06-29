@@ -33,7 +33,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Wizard"));
     QCOMPARE(plugin.displayNameZh(), QString("向导"));
     QCOMPARE(plugin.defaultOrder(), 220);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Widget should be created successfully

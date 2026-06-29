@@ -77,7 +77,7 @@ void TestVisualizationStudioPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Visualization Studio"));
   QCOMPARE(plugin_->displayNameZh(), QString("可视化工作室"));
   QCOMPARE(plugin_->defaultOrder(), 340);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestVisualizationStudioPlugin::widgetNotNull() {

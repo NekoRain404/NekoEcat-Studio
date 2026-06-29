@@ -42,7 +42,7 @@ private slots:
     QCOMPARE(plugin.id(), QString("simulation"));
     QCOMPARE(plugin.displayName(), QString("Simulation"));
     QCOMPARE(plugin.defaultOrder(), 205);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

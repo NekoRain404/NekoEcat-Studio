@@ -33,7 +33,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Templates"));
     QCOMPARE(plugin.displayNameZh(), QString("模板"));
     QCOMPARE(plugin.defaultOrder(), 225);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

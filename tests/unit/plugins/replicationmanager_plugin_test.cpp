@@ -27,7 +27,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Replication Manager"));
     QCOMPARE(plugin.displayNameZh(), QString("复制管理器"));
     QCOMPARE(plugin.defaultOrder(), 335);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Widget should be created successfully

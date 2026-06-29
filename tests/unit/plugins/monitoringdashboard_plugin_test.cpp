@@ -29,7 +29,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Monitoring Dashboard"));
     QCOMPARE(plugin.displayNameZh(), QString("监控仪表盘"));
     QCOMPARE(plugin.defaultOrder(), 91);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Check widget is created

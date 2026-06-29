@@ -56,7 +56,7 @@ void TestFormulaPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Formula Editor"));
   QCOMPARE(plugin_->displayNameZh(), QString("公式编辑器"));
   QCOMPARE(plugin_->defaultOrder(), 195);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestFormulaPlugin::widgetNotNull() {

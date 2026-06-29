@@ -88,7 +88,7 @@ void TestWorkflowDesignerPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Workflow Designer"));
   QCOMPARE(plugin_->displayNameZh(), QString("工作流设计器"));
   QCOMPARE(plugin_->defaultOrder(), 250);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestWorkflowDesignerPlugin::widgetNotNull() {

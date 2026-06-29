@@ -78,7 +78,7 @@ void TestDeploymentPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Deployment"));
   QCOMPARE(plugin_->displayNameZh(), QString("部署"));
   QCOMPARE(plugin_->defaultOrder(), 260);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestDeploymentPlugin::widgetNotNull() {

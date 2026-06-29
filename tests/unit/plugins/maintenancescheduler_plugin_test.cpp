@@ -60,7 +60,7 @@ void TestMaintenanceSchedulerPlugin::identity() {
   QCOMPARE(plugin_->id(), QString("maintenancescheduler"));
   QCOMPARE(plugin_->displayName(), QString("Maintenance Scheduler"));
   QCOMPARE(plugin_->displayNameZh(), QString("维护调度器"));
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestMaintenanceSchedulerPlugin::widgetNotNull() {

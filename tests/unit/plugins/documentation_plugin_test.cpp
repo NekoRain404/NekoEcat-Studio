@@ -39,7 +39,7 @@ private slots:
     QCOMPARE(plugin.id(), QString("documentation"));
     QCOMPARE(plugin.displayName(), QString("Documentation"));
     QCOMPARE(plugin.defaultOrder(), 215);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify main widget is created

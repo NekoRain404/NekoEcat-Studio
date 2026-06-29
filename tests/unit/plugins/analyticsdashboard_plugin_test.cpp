@@ -26,7 +26,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Analytics Dashboard"));
     QCOMPARE(plugin.displayNameZh(), QString("分析仪表盘"));
     QCOMPARE(plugin.defaultOrder(), 92);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

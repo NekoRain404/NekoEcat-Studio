@@ -29,7 +29,7 @@ private slots:
     QCOMPARE(plugin.id(), QString("calibration"));
     QCOMPARE(plugin.displayName(), QString("Calibration"));
     QCOMPARE(plugin.defaultOrder(), 210);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

@@ -26,7 +26,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Dashboard Designer"));
     QCOMPARE(plugin.displayNameZh(), QString("仪表盘设计器"));
     QCOMPARE(plugin.defaultOrder(), 235);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify main widget is created

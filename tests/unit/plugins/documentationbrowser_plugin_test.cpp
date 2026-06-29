@@ -75,7 +75,7 @@ void TestDocumentationBrowserPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Documentation Browser"));
   QCOMPARE(plugin_->displayNameZh(), QString("文档浏览器"));
   QCOMPARE(plugin_->defaultOrder(), 350);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 // Verify main widget is created
