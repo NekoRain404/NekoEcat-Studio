@@ -1,5 +1,12 @@
-// MainWindowSession.h — Session & commissioning method declarations (partial class fragment).
+// MainWindowSession.h — Session brief and commissioning workflow (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Manages the commissioning session lifecycle. The session brief summarizes
+// the current commissioning state, while the workflow steps guide the user
+// through each phase (topology discovery, SDO verification, I/O mapping,
+// consistency checks, etc.). Also covers the slave evidence matrix -- a per-
+// slave triage view that aggregates evidence from multiple sources and tracks
+// which issues have been reviewed.
 
 // ── Session Brief ─────────────────────────────────────────────
 void updateSessionBrief();

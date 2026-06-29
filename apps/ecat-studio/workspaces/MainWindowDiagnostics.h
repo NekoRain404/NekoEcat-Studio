@@ -1,5 +1,10 @@
-// MainWindowDiagnostics.h — Diagnostics method declarations (partial class fragment).
+// MainWindowDiagnostics.h — Diagnostics and host health workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Handles diagnostics event logging, host health monitoring, and diagnostic
+// report export. Methods update the diagnostics table, display per-slave
+// evidence summaries and drive status, style rows by severity, and provide
+// host-level diagnostic command execution and clipboard export.
 
 // ── Diagnostics Workspace ─────────────────────────────────────
 void filterDiagnosticsTable();

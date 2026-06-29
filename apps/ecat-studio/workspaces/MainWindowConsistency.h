@@ -1,5 +1,10 @@
-// MainWindowConsistency.h — Consistency method declarations (partial class fragment).
+// MainWindowConsistency.h — Consistency checking workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Evaluates cross-referenced consistency across SDO values, I/O variables,
+// topology, and evidence data. Provides a tabular view of consistency issues
+// (errors, warnings, infos) with filtering, detail display, and gate checks
+// that block commissioning operations until issues are resolved.
 
 // ── Consistency Workspace ─────────────────────────────────────
 void updateConsistencyView();

@@ -1,10 +1,14 @@
 #pragma once
 
-// Aggregated widget pointers for each workspace — keeps MainWindow.h lean.
-// Each struct groups the QTableWidget, filter, summary/detail labels, and
-// action buttons that belong to a single workspace tab.  MainWindow owns one
-// pointer to each struct; workspace partial-class files allocate and populate
-// them during buildUi().
+// WorkspaceWidgets.h — aggregated widget-pointer structs for each workspace.
+//
+// Keeps MainWindow.h lean by grouping the QTableWidget, filter controls,
+// summary/detail labels, and action buttons that belong to a single workspace
+// tab into its own struct. MainWindow owns one pointer to each struct; the
+// workspace partial-class .cpp files allocate and populate them during
+// buildUi(). Separate structs exist for the SDO/PDO dictionary, Watch,
+// Free Run, I/O variables, Consistency, Workflow, Session, Slave Evidence,
+// State Machine, Diagnostics, Bookmarks, SDO Inspector, and raw-text panels.
 
 #include <QVector>
 

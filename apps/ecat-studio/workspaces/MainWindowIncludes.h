@@ -1,12 +1,15 @@
 #pragma once
 
-// MainWindowIncludes — shared precompiled include header for all MainWindow
-// workspace partial implementations. Centralizes common repeated include
-// blocks that would otherwise be duplicated across workspace .cpp files.
+// MainWindowIncludes.h — shared include header for all MainWindow workspace
+// partial .cpp implementations (partial class fragment).
+//
+// Centralizes common repeated #include blocks that would otherwise be
+// duplicated across every workspace .cpp file. Pulls in all models, adapters,
+// detail panels, services, utilities, infrastructure, and Qt headers used
+// across workspace implementations.
 //
 // Include this header at the top of any workspace partial .cpp file that
-// implements MainWindow methods. It pulls in all model, adapter, detail,
-// utility, infra, and Qt headers used across workspace implementations.
+// implements MainWindow methods.
 
 // ── MainWindow ───────────────────────────────────────────────────────
 #include "MainWindow.h"

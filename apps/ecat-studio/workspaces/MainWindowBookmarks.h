@@ -1,5 +1,10 @@
-// MainWindowBookmarks.h — Object bookmark method declarations (partial class fragment).
+// MainWindowBookmarks.h — Object bookmark management (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Manages persistent bookmarks for SDO dictionary entries. Bookmarks let the
+// user pin frequently accessed objects for quick recall. Methods here handle
+// bookmark CRUD, selection, detail display, and bridging bookmarks to the
+// Watch and Startup SDO workspaces.
 
 // ── Object Bookmarks ──────────────────────────────────────────
 void ensureObjectBookmarkTable();

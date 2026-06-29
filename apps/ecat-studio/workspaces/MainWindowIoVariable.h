@@ -1,5 +1,11 @@
-// MainWindowIoVariable.h — I/O variable method declarations (partial class fragment).
+// MainWindowIoVariable.h — I/O variable workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Manages the I/O variable table that maps SDO objects to PLC symbols.
+// Handles display, filtering, metadata editing, bulk naming, PLC handoff
+// quality checks (duplicate symbol detection, issue review), and export to
+// CSV or structured text (ST) PLC declaration blocks. Also bridges
+// I/O variable rows into the Watch and Startup SDO workspaces.
 
 // ── I/O Variables Workspace ───────────────────────────────────
 void updateIoVariableTable();

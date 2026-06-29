@@ -1,5 +1,13 @@
-// MainWindowUi.h — UI construction, theme, command palette, RT test, help (partial class fragment).
+// MainWindowUi.h — UI construction, theming, command palette, RT test, and
+//   help (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Builds and rebuilds the entire MainWindow widget tree, applies the visual
+// theme and user settings, and manages the command palette overlay. Also
+// provides the RT stability test page (chart, telemetry, timeline), help
+// dialogs (manual, about), context menus for tables and topology, generic
+// table/metric-card helpers, custom keyboard shortcuts, and online-view
+// lifecycle (clear).
 
 // ── UI Construction ───────────────────────────────────────────
 void buildUi();

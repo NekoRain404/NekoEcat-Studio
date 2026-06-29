@@ -1,5 +1,14 @@
-// MainWindowSdo.h — SDO-related method declarations (partial class fragment).
+// MainWindowSdo.h — Service Data Object (SDO) workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Core of the object dictionary workspace. Covers SDO read/write operations,
+// the SDO inspector panel (target row, evidence candidates, write-delta
+// review, CIA 402 controlword helpers), SDO history tracking, target trail
+// management, table filtering and evidence updates. Also handles SDO
+// selection requests originating from every other workspace (Watch, PDO map,
+// Free Run, I/O variables, bookmarks, startup SDOs, history) and dispatches
+// SDO value responses back to the watch table, charts, and startup SDO
+// verification.
 
 // ── SDO Impact Preview ────────────────────────────────────────
 QStringList sdoWriteImpactDetails(int position, const QString &index,

@@ -1,5 +1,11 @@
-// MainWindowWatch.h — Watch-related method declarations (partial class fragment).
+// MainWindowWatch.h — Watch workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Manages the live SDO polling (Watch) list. Methods handle adding entries
+// from various sources (SDO dictionary, bookmarks, PDO map, history), bulk
+// read operations, value decoding, baseline snapshot for change detection,
+// delta tracking against startup SDOs, auto-refresh scheduling, CIA 402
+// watch presets, table filtering, and the watch detail panel.
 
 // ── Watch Workspace ───────────────────────────────────────────
 void ensureWatchTable();

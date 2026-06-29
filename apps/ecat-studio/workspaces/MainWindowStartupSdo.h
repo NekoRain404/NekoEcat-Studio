@@ -1,5 +1,12 @@
-// MainWindowStartupSdo.h — Startup SDO method declarations (partial class fragment).
+// MainWindowStartupSdo.h — Startup SDO workspace (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Manages the startup SDO list: the ordered set of SDO writes that will be
+// applied automatically when the EtherCAT master enters operational state.
+// Methods here handle adding rows from Watch/history/dictionary, reordering,
+// filtering, applying individual or batch writes, verifying written values
+// against the live device, detecting mismatches with the Watch baseline, and
+// preflight checks before commissioning.
 
 // ── Startup SDO Workspace ─────────────────────────────────────
 void addStartupSdoFromWatchRow(int row);

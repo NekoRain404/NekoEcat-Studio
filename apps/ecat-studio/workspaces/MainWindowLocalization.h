@@ -1,5 +1,12 @@
-// MainWindowLocalization.h — Localization & master selection (partial class fragment).
+// MainWindowLocalization.h — Localization, master selection, status bar, and
+//   text struct factories (partial class fragment).
 // Included inside the MainWindow class body in MainWindow.h.
+//
+// Provides bilingual (English/Chinese) UI text lookup, EtherCAT master
+// selection and refresh, status bar updates, logging, slave selection
+// helpers, workspace boundary and next-best-action logic, and factory
+// functions that build the localized text structs consumed by every detail
+// panel in the application.
 
 // ── Localization & Master Selection ───────────────────────────
 QString uiText(const QString &english, const QString &zh) const;
