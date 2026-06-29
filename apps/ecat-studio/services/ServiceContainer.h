@@ -74,8 +74,7 @@
 //   ├─────────────────────────────────────────────────────────────────────┤
 //   │ Workflow Services                                                   │
 //   │   WorkflowOptimizationService, WorkflowAutomationService,          │
-//   │   WorkflowSchedulingService, WorkflowMonitoringService,            │
-//   │   WorkflowCloudService, WorkflowEdgeService, WorkflowAIService    │
+//   │   WorkflowSchedulingService, WorkflowMonitoringService            │
 //   ├─────────────────────────────────────────────────────────────────────┤
 //   │ Extended EtherCAT Services                                          │
 //   │   EtherCATMonitorService, EtherCATAnalyzerService,                │
@@ -84,10 +83,6 @@
 //   │   EtherCATSimulationService, EtherCATTestingService,              │
 //   │   EtherCATValidationService, EtherCATSecurityService,             │
 //   │   EtherCATComplianceService, EtherCATCertificationService         │
-//   ├─────────────────────────────────────────────────────────────────────┤
-//   │ Advanced Services                                                   │
-//   │   EtherCATDigitalTwinService, EtherCATBlockchainService,          │
-//   │   EtherCATQuantumService                                          │
 //   └─────────────────────────────────────────────────────────────────────┘
 
 #include <QObject>
@@ -159,19 +154,9 @@ class EtherCATDeploymentService;
 class EtherCATUpdateService;
 class EtherCATMaintenanceService;
 class EtherCATIntegrationService;
-class EtherCATSyncService;
-class EtherCATReplicationService;
 class EtherCATVisualizationService;
 class EtherCATReportingService;
 class EtherCATDocumentationService;
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-class EtherCATCloudService;
-class EtherCATEdgeService;
-class EtherCATAIService;
-class EtherCATDigitalTwinService;
-class EtherCATBlockchainService;
-class EtherCATQuantumService;
-#endif
 class ProjectManagementService;
 class TaskManagementService;
 class ResourceManagementService;
@@ -193,16 +178,6 @@ class WorkflowDeploymentService;
 class WorkflowUpdateService;
 class WorkflowMaintenanceService;
 class WorkflowIntegrationHubService;
-class WorkflowSyncService;
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-class WorkflowReplicationService;
-class WorkflowCloudService;
-class WorkflowEdgeService;
-class WorkflowAIService;
-class WorkflowDigitalTwinService;
-class WorkflowBlockchainService;
-class WorkflowQuantumService;
-#endif
 class WorkflowVisualizationStudioService;
 class WorkflowReportDesignerService;
 class WorkflowDocumentationBrowserService;
@@ -315,19 +290,9 @@ public:
   EtherCATUpdateService *ecatUpdate() const { return ecatUpdate_; }
   EtherCATMaintenanceService *ecatMaintenance() const { return ecatMaintenance_; }
   EtherCATIntegrationService *ecatIntegration() const { return ecatIntegration_; }
-  EtherCATSyncService *ecatSync() const { return ecatSync_; }
-  EtherCATReplicationService *ecatReplication() const { return ecatReplication_; }
   EtherCATVisualizationService *ecatVisualization() const { return ecatVisualization_; }
   EtherCATReportingService *ecatReporting() const { return ecatReporting_; }
   EtherCATDocumentationService *ecatDocumentation() const { return ecatDocumentation_; }
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-  EtherCATCloudService *ecatCloud() const { return ecatCloud_; }
-  EtherCATEdgeService *ecatEdge() const { return ecatEdge_; }
-  EtherCATAIService *ecatAI() const { return ecatAI_; }
-  EtherCATDigitalTwinService *ecatDigitalTwin() const { return ecatDigitalTwin_; }
-  EtherCATBlockchainService *ecatBlockchain() const { return ecatBlockchain_; }
-  EtherCATQuantumService *ecatQuantum() const { return ecatQuantum_; }
-#endif
   ProjectManagementService *projectManagement() const { return projectManagement_; }
   TaskManagementService *taskManagement() const { return taskManagement_; }
   ResourceManagementService *resourceManagement() const { return resourceManagement_; }
@@ -349,16 +314,6 @@ public:
   WorkflowUpdateService *workflowUpdate() const { return workflowUpdate_; }
   WorkflowMaintenanceService *workflowMaintenance() const { return workflowMaintenance_; }
   WorkflowIntegrationHubService *workflowIntegrationHub() const { return workflowIntegrationHub_; }
-  WorkflowSyncService *workflowSync() const { return workflowSync_; }
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-  WorkflowReplicationService *workflowReplication() const { return workflowReplication_; }
-  WorkflowCloudService *workflowCloud() const { return workflowCloud_; }
-  WorkflowEdgeService *workflowEdge() const { return workflowEdge_; }
-  WorkflowAIService *workflowAI() const { return workflowAI_; }
-  WorkflowDigitalTwinService *workflowDigitalTwin() const { return workflowDigitalTwin_; }
-  WorkflowBlockchainService *workflowBlockchain() const { return workflowBlockchain_; }
-  WorkflowQuantumService *workflowQuantum() const { return workflowQuantum_; }
-#endif
   WorkflowVisualizationStudioService *workflowVisualizationStudio() const { return workflowVisualizationStudio_; }
   WorkflowReportDesignerService *workflowReportDesigner() const { return workflowReportDesigner_; }
   WorkflowDocumentationBrowserService *workflowDocumentationBrowser() const { return workflowDocumentationBrowser_; }
@@ -454,19 +409,9 @@ private:
   EtherCATUpdateService *ecatUpdate_ = nullptr;
   EtherCATMaintenanceService *ecatMaintenance_ = nullptr;
   EtherCATIntegrationService *ecatIntegration_ = nullptr;
-  EtherCATSyncService *ecatSync_ = nullptr;
-  EtherCATReplicationService *ecatReplication_ = nullptr;
   EtherCATVisualizationService *ecatVisualization_ = nullptr;
   EtherCATReportingService *ecatReporting_ = nullptr;
   EtherCATDocumentationService *ecatDocumentation_ = nullptr;
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-  EtherCATCloudService *ecatCloud_ = nullptr;
-  EtherCATEdgeService *ecatEdge_ = nullptr;
-  EtherCATAIService *ecatAI_ = nullptr;
-  EtherCATDigitalTwinService *ecatDigitalTwin_ = nullptr;
-  EtherCATBlockchainService *ecatBlockchain_ = nullptr;
-  EtherCATQuantumService *ecatQuantum_ = nullptr;
-#endif
   ProjectManagementService *projectManagement_ = nullptr;
   TaskManagementService *taskManagement_ = nullptr;
   ResourceManagementService *resourceManagement_ = nullptr;
@@ -488,16 +433,6 @@ private:
   WorkflowUpdateService *workflowUpdate_ = nullptr;
   WorkflowMaintenanceService *workflowMaintenance_ = nullptr;
   WorkflowIntegrationHubService *workflowIntegrationHub_ = nullptr;
-  WorkflowSyncService *workflowSync_ = nullptr;
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-  WorkflowReplicationService *workflowReplication_ = nullptr;
-  WorkflowCloudService *workflowCloud_ = nullptr;
-  WorkflowEdgeService *workflowEdge_ = nullptr;
-  WorkflowAIService *workflowAI_ = nullptr;
-  WorkflowDigitalTwinService *workflowDigitalTwin_ = nullptr;
-  WorkflowBlockchainService *workflowBlockchain_ = nullptr;
-  WorkflowQuantumService *workflowQuantum_ = nullptr;
-#endif
   WorkflowVisualizationStudioService *workflowVisualizationStudio_ = nullptr;
   WorkflowReportDesignerService *workflowReportDesigner_ = nullptr;
   WorkflowDocumentationBrowserService *workflowDocumentationBrowser_ = nullptr;

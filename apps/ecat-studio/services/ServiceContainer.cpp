@@ -101,19 +101,9 @@
 #include "EtherCATUpdateService.h"
 #include "EtherCATMaintenanceService.h"
 #include "EtherCATIntegrationService.h"
-#include "EtherCATSyncService.h"
-#include "EtherCATReplicationService.h"
 #include "EtherCATVisualizationService.h"
 #include "EtherCATReportingService.h"
 #include "EtherCATDocumentationService.h"
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-#include "EtherCATCloudService.h"
-#include "EtherCATEdgeService.h"
-#include "EtherCATAIService.h"
-#include "EtherCATDigitalTwinService.h"
-#include "EtherCATBlockchainService.h"
-#include "EtherCATQuantumService.h"
-#endif
 #include "ProjectManagementService.h"
 #include "TaskManagementService.h"
 #include "ResourceManagementService.h"
@@ -135,16 +125,6 @@
 #include "WorkflowUpdateService.h"
 #include "WorkflowMaintenanceService.h"
 #include "WorkflowIntegrationHubService.h"
-#include "WorkflowSyncService.h"
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-#include "WorkflowReplicationService.h"
-#include "WorkflowCloudService.h"
-#include "WorkflowEdgeService.h"
-#include "WorkflowAIService.h"
-#include "WorkflowDigitalTwinService.h"
-#include "WorkflowBlockchainService.h"
-#include "WorkflowQuantumService.h"
-#endif
 #include "WorkflowVisualizationStudioService.h"
 #include "WorkflowReportDesignerService.h"
 #include "WorkflowDocumentationBrowserService.h"
@@ -257,19 +237,9 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     ecatUpdate_ = new EtherCATUpdateService(eventBus_, client_, this);
     ecatMaintenance_ = new EtherCATMaintenanceService(eventBus_, client_, this);
     ecatIntegration_ = new EtherCATIntegrationService(eventBus_, client_, this);
-    ecatSync_ = new EtherCATSyncService(eventBus_, client_, this);
-    ecatReplication_ = new EtherCATReplicationService(eventBus_, client_, this);
     ecatVisualization_ = new EtherCATVisualizationService(eventBus_, client_, this);
     ecatReporting_ = new EtherCATReportingService(eventBus_, client_, this);
     ecatDocumentation_ = new EtherCATDocumentationService(eventBus_, client_, this);
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-    ecatCloud_ = new EtherCATCloudService(this);
-    ecatEdge_ = new EtherCATEdgeService(this);
-    ecatAI_ = new EtherCATAIService(this);
-    ecatDigitalTwin_ = new EtherCATDigitalTwinService(this);
-    ecatBlockchain_ = new EtherCATBlockchainService(this);
-    ecatQuantum_ = new EtherCATQuantumService(this);
-#endif
     projectManagement_ = new ProjectManagementService(this);
     taskManagement_ = new TaskManagementService(this);
     resourceManagement_ = new ResourceManagementService(this);
@@ -291,16 +261,6 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     workflowUpdate_ = new WorkflowUpdateService(this);
     workflowMaintenance_ = new WorkflowMaintenanceService(this);
     workflowIntegrationHub_ = new WorkflowIntegrationHubService(this);
-    workflowSync_ = new WorkflowSyncService(this);
-#ifdef ECAT_EXPERIMENTAL_SERVICES
-    workflowReplication_ = new WorkflowReplicationService(this);
-    workflowCloud_ = new WorkflowCloudService(this);
-    workflowEdge_ = new WorkflowEdgeService(this);
-    workflowAI_ = new WorkflowAIService(this);
-    workflowDigitalTwin_ = new WorkflowDigitalTwinService(this);
-    workflowBlockchain_ = new WorkflowBlockchainService(this);
-    workflowQuantum_ = new WorkflowQuantumService(this);
-#endif
     workflowVisualizationStudio_ = new WorkflowVisualizationStudioService(this);
     workflowReportDesigner_ = new WorkflowReportDesignerService(this);
     workflowDocumentationBrowser_ = new WorkflowDocumentationBrowserService(this);
