@@ -36,26 +36,31 @@ class QTableWidget;
 class EventBus;
 class DcSyncService;
 
+/// @brief Workspace plugin for Distributed Clock (DC) synchronization diagnostics.
 class DcSyncPlugin : public WorkspacePlugin {
   Q_OBJECT
 public:
+  /// Constructs the DC Sync plugin with fine-grained service injection.
+  /// @param bus      EventBus for receiving DC sync update signals
+  /// @param service  DcSyncService for DC synchronization data
+  /// @param parent   Qt parent object (typically MainWindow)
   explicit DcSyncPlugin(EventBus *bus, DcSyncService *service,
                         QObject *parent = nullptr);
 
   // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+  QString id() const override;           ///< Returns "dcsync"
+  QString displayName() const override;  ///< Returns "DC Sync"
+  QString displayNameZh() const override; ///< Returns "分布式时钟"
+  QWidget *widget() override;            ///< Returns the root container widget
+  int defaultOrder() const override;     ///< Returns 60
+  bool visible() const override;         ///< Returns true (always visible)
 
 private slots:
-  void handleDcSyncUpdate(const QJsonObject &data);
+  void handleDcSyncUpdate(const QJsonObject &data); ///< Handles incoming DC sync data from EventBus
 
 private:
-  void buildUi();
-  void populateTable(const QJsonObject &data);
+  void buildUi();  ///< Builds the DC sync status table layout
+  void populateTable(const QJsonObject &data); ///< Parses JSON and fills the table rows
 
   EventBus *bus_;
   DcSyncService *service_;
