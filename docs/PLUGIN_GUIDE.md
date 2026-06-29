@@ -433,12 +433,6 @@ Connection change →  onConnectionChanged(true/false) on link state
 | `VisualizationStudioPlugin` | Complex | `(QObject*)` | Advanced data visualization |
 | `ReportDesignerPlugin` | Complex | `(QObject*)` | Custom report designer |
 | `DocumentationBrowserPlugin` | Medium | `(QObject*)` | Documentation browser |
-| `CloudManagerPlugin` | Complex | `(QObject*)` | Experimental opt-in: Cloud connectivity management |
-| `EdgeComputingPlugin` | Complex | `(QObject*)` | Experimental opt-in: Edge computing management |
-| `AIAssistantPlugin` | Complex | `(QObject*)` | Experimental opt-in: AI-powered diagnostic assistant |
-| `DigitalTwinStudioPlugin` | Complex | `(QObject*)` | Experimental opt-in: Digital twin modeling and management |
-| `BlockchainExplorerPlugin` | Complex | `(QObject*)` | Experimental opt-in: Blockchain audit log explorer |
-| `QuantumSecurityPlugin` | Complex | `(QObject*)` | Experimental opt-in: Quantum-resistant security management |
 | `WorkflowOptimizerPlugin` | Complex | `(WorkflowAnalyticsService*, QObject*)` | Workflow optimization recommendations |
 | `WorkflowDashboardPlugin` | Complex | `(WorkflowMonitoringService*, QObject*)` | Workflow monitoring dashboard |
 | `PdoMappingEditorPlugin` | Complex | `(PdoMappingService*, QObject*)` | Visual PDO mapping with canvas, validator, and export |

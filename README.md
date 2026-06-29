@@ -156,8 +156,6 @@ The plugin system uses a layered architecture:
 
 ## 工作区一览 / Workspaces
 
-> Experimental note: AI, Blockchain, Quantum Security, Cloud, Edge, and Digital Twin surfaces are experimental/stub-backed unless the project is built with `-DECAT_EXPERIMENTAL_SERVICES=ON`. They are not part of the stable EtherCAT commissioning path.
-
 | 工作区 / Workspace | 作用 / Purpose | 典型动作 / Typical Actions |
 | --- | --- | --- |
 | Overview / 总览 | 调试驾驶舱和从站上下文 | Session Brief、证据矩阵、调试工作流、下一最佳动作 |
@@ -188,9 +186,6 @@ The plugin system uses a layered architecture:
 | Data Pipeline / 数据管道 | 数据管道管理 | 管道配置、阶段管理、监控 |
 | Device Manager / 设备管理 | 设备发现和管理 | 设备扫描、配置、状态监控 |
 | Master Manager / 主站管理 | EtherCAT 主站管理 | 主站信息、诊断、重启、日志查看 |
-| Digital Twin Studio / 数字孪生 | Experimental / 实验：数字孪生建模和管理 | Opt-in build only; not part of the stable commissioning path |
-| Blockchain Explorer / 区块链浏览器 | Experimental / 实验：区块链审计和浏览 | Opt-in build only; not part of the stable commissioning path |
-| Quantum Security / 量子安全 | Experimental / 实验：量子加密和安全管理 | Opt-in build only; not part of the stable commissioning path |
 | PDO Mapping Editor / PDO 映射编辑器 | 可视化 PDO 映射配置 | 画布拖拽、映射验证、SM/PDO 分配、导出 |
 | ESI Browser / ESI 浏览器 | ESI 设备描述浏览和管理 | 树形浏览、设备匹配、PDO 查找、多文件导入 |
 | Online Diagnostics / 在线诊断 | 实时总线监控和错误分析 | 总线监控、错误分析器、健康评分、修复建议 |
