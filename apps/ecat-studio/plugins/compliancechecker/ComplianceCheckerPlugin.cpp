@@ -25,7 +25,7 @@ QString ComplianceCheckerPlugin::displayName() const {
 }
 QString ComplianceCheckerPlugin::displayNameZh() const { return "合规检查器"; }
 int ComplianceCheckerPlugin::defaultOrder() const { return 285; }
-bool ComplianceCheckerPlugin::visible() const { return true; }
+bool ComplianceCheckerPlugin::visible() const { return false; }
 
 void ComplianceCheckerPlugin::activate() {}
 void ComplianceCheckerPlugin::deactivate() {}

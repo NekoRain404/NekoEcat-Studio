@@ -24,7 +24,7 @@ QString DeploymentManagerPlugin::displayName() const { return "Deployment Manage
 QString DeploymentManagerPlugin::displayNameZh() const { return QStringLiteral("部署管理器"); }
 QIcon DeploymentManagerPlugin::icon() const { return QIcon::fromTheme("system-software-install"); }
 int DeploymentManagerPlugin::defaultOrder() const { return 310; }
-bool DeploymentManagerPlugin::visible() const { return true; }
+bool DeploymentManagerPlugin::visible() const { return false; }
 void DeploymentManagerPlugin::activate() {}
 void DeploymentManagerPlugin::deactivate() {}
 

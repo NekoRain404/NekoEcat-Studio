@@ -22,7 +22,6 @@ AdvancedErrorAnalysisPlugin::AdvancedErrorAnalysisPlugin(QObject *parent) {
   setParent(parent);
   analysisService_ = new AdvancedErrorAnalysisService(this);
   buildUi();
-  populateTestData();
 }
 
 QString AdvancedErrorAnalysisPlugin::id() const {

@@ -27,7 +27,7 @@ QString DeploymentPlugin::displayName() const { return "Deployment"; }
 QString DeploymentPlugin::displayNameZh() const { return QStringLiteral("部署"); }
 QIcon DeploymentPlugin::icon() const { return QIcon::fromTheme("system-software-install"); }
 int DeploymentPlugin::defaultOrder() const { return 260; }
-bool DeploymentPlugin::visible() const { return true; }
+bool DeploymentPlugin::visible() const { return false; }
 
 void DeploymentPlugin::activate() {}
 void DeploymentPlugin::deactivate() {}

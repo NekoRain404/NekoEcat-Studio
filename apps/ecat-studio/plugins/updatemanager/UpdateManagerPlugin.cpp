@@ -24,7 +24,7 @@ QString UpdateManagerPlugin::displayName() const { return "Update Manager"; }
 QString UpdateManagerPlugin::displayNameZh() const { return QStringLiteral("更新管理器"); }
 QIcon UpdateManagerPlugin::icon() const { return QIcon::fromTheme("system-software-update"); }
 int UpdateManagerPlugin::defaultOrder() const { return 315; }
-bool UpdateManagerPlugin::visible() const { return true; }
+bool UpdateManagerPlugin::visible() const { return false; }
 void UpdateManagerPlugin::activate() {}
 void UpdateManagerPlugin::deactivate() {}
 

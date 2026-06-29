@@ -22,7 +22,7 @@ QString DataLoggerPlugin::id() const { return "datalogger"; }
 QString DataLoggerPlugin::displayName() const { return "Data Logger"; }
 QString DataLoggerPlugin::displayNameZh() const { return "数据记录器"; }
 int DataLoggerPlugin::defaultOrder() const { return 245; }
-bool DataLoggerPlugin::visible() const { return true; }
+bool DataLoggerPlugin::visible() const { return false; }
 
 void DataLoggerPlugin::activate() {}
 void DataLoggerPlugin::deactivate() {}

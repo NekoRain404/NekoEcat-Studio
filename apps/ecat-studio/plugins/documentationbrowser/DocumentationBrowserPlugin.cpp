@@ -25,7 +25,7 @@ QString DocumentationBrowserPlugin::displayName() const { return "Documentation 
 QString DocumentationBrowserPlugin::displayNameZh() const { return QStringLiteral("文档浏览器"); }
 QIcon DocumentationBrowserPlugin::icon() const { return QIcon::fromTheme("help-browser"); }
 int DocumentationBrowserPlugin::defaultOrder() const { return 350; }
-bool DocumentationBrowserPlugin::visible() const { return true; }
+bool DocumentationBrowserPlugin::visible() const { return false; }
 
 void DocumentationBrowserPlugin::activate() {}
 void DocumentationBrowserPlugin::deactivate() {}

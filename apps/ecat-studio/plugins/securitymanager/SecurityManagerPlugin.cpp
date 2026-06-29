@@ -51,7 +51,7 @@ QString SecurityManagerPlugin::id() const { return "securitymanager"; }
 QString SecurityManagerPlugin::displayName() const { return "Security Manager"; }
 QString SecurityManagerPlugin::displayNameZh() const { return "安全管理器"; }
 int SecurityManagerPlugin::defaultOrder() const { return 280; }
-bool SecurityManagerPlugin::visible() const { return true; }
+bool SecurityManagerPlugin::visible() const { return false; }
 
 void SecurityManagerPlugin::activate() {}
 void SecurityManagerPlugin::deactivate() {}

@@ -43,7 +43,7 @@ QString IntegrationHubPlugin::id() const { return "integrationhub"; }
 QString IntegrationHubPlugin::displayName() const { return "Integration Hub"; }
 QString IntegrationHubPlugin::displayNameZh() const { return "集成中心"; }
 int IntegrationHubPlugin::defaultOrder() const { return 325; }
-bool IntegrationHubPlugin::visible() const { return true; }
+bool IntegrationHubPlugin::visible() const { return false; }
 
 void IntegrationHubPlugin::activate() {}
 void IntegrationHubPlugin::deactivate() {}

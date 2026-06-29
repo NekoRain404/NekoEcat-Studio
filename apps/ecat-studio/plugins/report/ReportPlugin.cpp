@@ -37,7 +37,7 @@ QString ReportPlugin::id() const { return "report"; }
 QString ReportPlugin::displayName() const { return "Report Generator"; }
 QString ReportPlugin::displayNameZh() const { return "报告生成器"; }
 int ReportPlugin::defaultOrder() const { return 230; }
-bool ReportPlugin::visible() const { return true; }
+bool ReportPlugin::visible() const { return false; }
 
 void ReportPlugin::activate() {}
 void ReportPlugin::deactivate() {}

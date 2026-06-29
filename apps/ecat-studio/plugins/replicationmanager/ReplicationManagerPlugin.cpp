@@ -21,7 +21,7 @@ QString ReplicationManagerPlugin::id() const { return "replicationmanager"; }
 QString ReplicationManagerPlugin::displayName() const { return "Replication Manager"; }
 QString ReplicationManagerPlugin::displayNameZh() const { return "复制管理器"; }
 int ReplicationManagerPlugin::defaultOrder() const { return 335; }
-bool ReplicationManagerPlugin::visible() const { return true; }
+bool ReplicationManagerPlugin::visible() const { return false; }
 
 void ReplicationManagerPlugin::activate() {}
 void ReplicationManagerPlugin::deactivate() {}

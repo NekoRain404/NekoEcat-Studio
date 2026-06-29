@@ -21,7 +21,7 @@ QString SyncManagerPlugin::id() const { return "syncmanager"; }
 QString SyncManagerPlugin::displayName() const { return "Sync Manager"; }
 QString SyncManagerPlugin::displayNameZh() const { return "同步管理器"; }
 int SyncManagerPlugin::defaultOrder() const { return 330; }
-bool SyncManagerPlugin::visible() const { return true; }
+bool SyncManagerPlugin::visible() const { return false; }
 
 void SyncManagerPlugin::activate() {}
 void SyncManagerPlugin::deactivate() {}

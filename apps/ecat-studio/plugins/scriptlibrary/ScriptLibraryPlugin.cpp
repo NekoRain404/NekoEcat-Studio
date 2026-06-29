@@ -24,7 +24,7 @@ QString ScriptLibraryPlugin::displayName() const { return "Script Library"; }
 QString ScriptLibraryPlugin::displayNameZh() const { return QStringLiteral("脚本库"); }
 QIcon ScriptLibraryPlugin::icon() const { return QIcon::fromTheme("text-x-script"); }
 int ScriptLibraryPlugin::defaultOrder() const { return 200; }
-bool ScriptLibraryPlugin::visible() const { return true; }
+bool ScriptLibraryPlugin::visible() const { return false; }
 
 void ScriptLibraryPlugin::activate() {}
 void ScriptLibraryPlugin::deactivate() {}

@@ -24,7 +24,7 @@ QString MaintenanceSchedulerPlugin::displayName() const { return "Maintenance Sc
 QString MaintenanceSchedulerPlugin::displayNameZh() const { return QStringLiteral("维护调度器"); }
 QIcon MaintenanceSchedulerPlugin::icon() const { return QIcon::fromTheme("preferences-system-time"); }
 int MaintenanceSchedulerPlugin::defaultOrder() const { return 320; }
-bool MaintenanceSchedulerPlugin::visible() const { return true; }
+bool MaintenanceSchedulerPlugin::visible() const { return false; }
 void MaintenanceSchedulerPlugin::activate() {}
 void MaintenanceSchedulerPlugin::deactivate() {}
 

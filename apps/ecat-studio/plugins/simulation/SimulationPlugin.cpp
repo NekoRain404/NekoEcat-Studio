@@ -30,7 +30,7 @@ QString SimulationPlugin::displayName() const { return "Simulation"; }
 QString SimulationPlugin::displayNameZh() const { return QStringLiteral("仿真"); }
 QIcon SimulationPlugin::icon() const { return QIcon::fromTheme("media-playback-start"); }
 int SimulationPlugin::defaultOrder() const { return 205; }
-bool SimulationPlugin::visible() const { return true; }
+bool SimulationPlugin::visible() const { return false; }
 
 void SimulationPlugin::activate() {}
 void SimulationPlugin::deactivate() {}

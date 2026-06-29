@@ -35,7 +35,7 @@ QString TemplatePlugin::id() const { return "template"; }
 QString TemplatePlugin::displayName() const { return "Templates"; }
 QString TemplatePlugin::displayNameZh() const { return "模板"; }
 int TemplatePlugin::defaultOrder() const { return 225; }
-bool TemplatePlugin::visible() const { return true; }
+bool TemplatePlugin::visible() const { return false; }
 
 void TemplatePlugin::activate() {}
 void TemplatePlugin::deactivate() {}

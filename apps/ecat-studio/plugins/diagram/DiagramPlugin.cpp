@@ -26,7 +26,7 @@ QString DiagramPlugin::displayName() const { return "Diagram Editor"; }
 QString DiagramPlugin::displayNameZh() const { return QStringLiteral("图表编辑器"); }
 QIcon DiagramPlugin::icon() const { return QIcon::fromTheme("x-office-drawing"); }
 int DiagramPlugin::defaultOrder() const { return 190; }
-bool DiagramPlugin::visible() const { return true; }
+bool DiagramPlugin::visible() const { return false; }
 
 void DiagramPlugin::activate() {}
 void DiagramPlugin::deactivate() {}

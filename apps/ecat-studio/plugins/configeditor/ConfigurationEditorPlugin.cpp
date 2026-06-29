@@ -30,7 +30,7 @@ QString ConfigurationEditorPlugin::id() const { return "configeditor"; }
 QString ConfigurationEditorPlugin::displayName() const { return "Configuration Editor"; }
 QString ConfigurationEditorPlugin::displayNameZh() const { return "配置编辑器"; }
 int ConfigurationEditorPlugin::defaultOrder() const { return 265; }
-bool ConfigurationEditorPlugin::visible() const { return true; }
+bool ConfigurationEditorPlugin::visible() const { return false; }
 
 void ConfigurationEditorPlugin::activate() {}
 void ConfigurationEditorPlugin::deactivate() {}

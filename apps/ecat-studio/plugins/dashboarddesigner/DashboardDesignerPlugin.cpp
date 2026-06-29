@@ -21,7 +21,7 @@ QString DashboardDesignerPlugin::id() const { return "dashboarddesigner"; }
 QString DashboardDesignerPlugin::displayName() const { return "Dashboard Designer"; }
 QString DashboardDesignerPlugin::displayNameZh() const { return "仪表盘设计器"; }
 int DashboardDesignerPlugin::defaultOrder() const { return 235; }
-bool DashboardDesignerPlugin::visible() const { return true; }
+bool DashboardDesignerPlugin::visible() const { return false; }
 
 void DashboardDesignerPlugin::activate() {}
 void DashboardDesignerPlugin::deactivate() {}

@@ -32,7 +32,7 @@ QWidget *MonitoringDashboardPlugin::widget() {
 
 int MonitoringDashboardPlugin::defaultOrder() const { return 91; }
 
-bool MonitoringDashboardPlugin::visible() const { return true; }
+bool MonitoringDashboardPlugin::visible() const { return false; }
 
 void MonitoringDashboardPlugin::activate() {}
 

@@ -43,7 +43,7 @@ QString DocumentationPlugin::displayNameZh() const { return "文档"; }
 QIcon DocumentationPlugin::icon() const { return QIcon(); }
 
 int DocumentationPlugin::defaultOrder() const { return 215; }
-bool DocumentationPlugin::visible() const { return true; }
+bool DocumentationPlugin::visible() const { return false; }
 
 void DocumentationPlugin::activate() {}
 void DocumentationPlugin::deactivate() {}

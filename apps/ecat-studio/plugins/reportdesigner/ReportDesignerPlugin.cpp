@@ -25,7 +25,7 @@ QString ReportDesignerPlugin::displayName() const { return "Report Designer"; }
 QString ReportDesignerPlugin::displayNameZh() const { return QStringLiteral("报告设计器"); }
 QIcon ReportDesignerPlugin::icon() const { return QIcon::fromTheme("x-office-document"); }
 int ReportDesignerPlugin::defaultOrder() const { return 345; }
-bool ReportDesignerPlugin::visible() const { return true; }
+bool ReportDesignerPlugin::visible() const { return false; }
 
 void ReportDesignerPlugin::activate() {}
 void ReportDesignerPlugin::deactivate() {}

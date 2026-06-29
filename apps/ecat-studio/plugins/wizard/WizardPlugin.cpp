@@ -36,7 +36,7 @@ QString WizardPlugin::id() const { return "wizard"; }
 QString WizardPlugin::displayName() const { return "Wizard"; }
 QString WizardPlugin::displayNameZh() const { return "向导"; }
 int WizardPlugin::defaultOrder() const { return 220; }
-bool WizardPlugin::visible() const { return true; }
+bool WizardPlugin::visible() const { return false; }
 
 void WizardPlugin::activate() {}
 void WizardPlugin::deactivate() {}

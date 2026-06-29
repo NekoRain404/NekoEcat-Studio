@@ -27,7 +27,7 @@ QString WorkflowDesignerPlugin::displayName() const { return "Workflow Designer"
 QString WorkflowDesignerPlugin::displayNameZh() const { return QStringLiteral("工作流设计器"); }
 QIcon WorkflowDesignerPlugin::icon() const { return QIcon::fromTheme("system-run"); }
 int WorkflowDesignerPlugin::defaultOrder() const { return 250; }
-bool WorkflowDesignerPlugin::visible() const { return true; }
+bool WorkflowDesignerPlugin::visible() const { return false; }
 
 void WorkflowDesignerPlugin::activate() {}
 void WorkflowDesignerPlugin::deactivate() {}

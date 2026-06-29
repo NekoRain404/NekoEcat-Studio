@@ -22,7 +22,7 @@ QString CalibrationPlugin::displayName() const { return "Calibration"; }
 QString CalibrationPlugin::displayNameZh() const { return QStringLiteral("校准"); }
 QIcon CalibrationPlugin::icon() const { return QIcon::fromTheme("preferences-system"); }
 int CalibrationPlugin::defaultOrder() const { return 210; }
-bool CalibrationPlugin::visible() const { return true; }
+bool CalibrationPlugin::visible() const { return false; }
 
 void CalibrationPlugin::activate() {}
 void CalibrationPlugin::deactivate() {}

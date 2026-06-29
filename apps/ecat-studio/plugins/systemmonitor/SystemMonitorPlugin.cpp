@@ -24,7 +24,7 @@ QString SystemMonitorPlugin::id() const { return "systemmonitor"; }
 QString SystemMonitorPlugin::displayName() const { return "System Monitor"; }
 QString SystemMonitorPlugin::displayNameZh() const { return "系统监视器"; }
 int SystemMonitorPlugin::defaultOrder() const { return 275; }
-bool SystemMonitorPlugin::visible() const { return true; }
+bool SystemMonitorPlugin::visible() const { return false; }
 
 void SystemMonitorPlugin::activate() {}
 void SystemMonitorPlugin::deactivate() {}

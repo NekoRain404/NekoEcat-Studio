@@ -22,7 +22,7 @@ QString NetworkAnalyzerPlugin::id() const { return "networkanalyzer"; }
 QString NetworkAnalyzerPlugin::displayName() const { return "Network Analyzer"; }
 QString NetworkAnalyzerPlugin::displayNameZh() const { return "网络分析器"; }
 int NetworkAnalyzerPlugin::defaultOrder() const { return 270; }
-bool NetworkAnalyzerPlugin::visible() const { return true; }
+bool NetworkAnalyzerPlugin::visible() const { return false; }
 
 void NetworkAnalyzerPlugin::activate() {}
 void NetworkAnalyzerPlugin::deactivate() {}

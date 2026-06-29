@@ -26,7 +26,7 @@ QString TestSuitePlugin::displayName() const { return "Test Suite"; }
 QString TestSuitePlugin::displayNameZh() const { return QStringLiteral("测试套件"); }
 QIcon TestSuitePlugin::icon() const { return QIcon::fromTheme("system-run"); }
 int TestSuitePlugin::defaultOrder() const { return 255; }
-bool TestSuitePlugin::visible() const { return true; }
+bool TestSuitePlugin::visible() const { return false; }
 
 void TestSuitePlugin::activate() {}
 void TestSuitePlugin::deactivate() {}

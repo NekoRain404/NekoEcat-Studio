@@ -21,7 +21,7 @@ QString AlarmManagerPlugin::id() const { return "alarmmanager"; }
 QString AlarmManagerPlugin::displayName() const { return "Alarm Manager"; }
 QString AlarmManagerPlugin::displayNameZh() const { return "告警管理器"; }
 int AlarmManagerPlugin::defaultOrder() const { return 240; }
-bool AlarmManagerPlugin::visible() const { return true; }
+bool AlarmManagerPlugin::visible() const { return false; }
 
 void AlarmManagerPlugin::activate() {}
 void AlarmManagerPlugin::deactivate() {}

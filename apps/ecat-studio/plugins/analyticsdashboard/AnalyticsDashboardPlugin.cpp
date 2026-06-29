@@ -32,7 +32,7 @@ QWidget *AnalyticsDashboardPlugin::widget() {
 
 int AnalyticsDashboardPlugin::defaultOrder() const { return 92; }
 
-bool AnalyticsDashboardPlugin::visible() const { return true; }
+bool AnalyticsDashboardPlugin::visible() const { return false; }
 
 void AnalyticsDashboardPlugin::activate() {}
 

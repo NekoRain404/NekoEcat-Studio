@@ -29,7 +29,7 @@ QString CertificationManagerPlugin::displayNameZh() const {
   return "认证管理器";
 }
 int CertificationManagerPlugin::defaultOrder() const { return 290; }
-bool CertificationManagerPlugin::visible() const { return true; }
+bool CertificationManagerPlugin::visible() const { return false; }
 
 void CertificationManagerPlugin::activate() {}
 void CertificationManagerPlugin::deactivate() {}

@@ -22,7 +22,7 @@ QString FormulaPlugin::displayName() const { return "Formula Editor"; }
 QString FormulaPlugin::displayNameZh() const { return QStringLiteral("公式编辑器"); }
 QIcon FormulaPlugin::icon() const { return QIcon::fromTheme("accessories-calculator"); }
 int FormulaPlugin::defaultOrder() const { return 195; }
-bool FormulaPlugin::visible() const { return true; }
+bool FormulaPlugin::visible() const { return false; }
 
 void FormulaPlugin::activate() {}
 void FormulaPlugin::deactivate() {}

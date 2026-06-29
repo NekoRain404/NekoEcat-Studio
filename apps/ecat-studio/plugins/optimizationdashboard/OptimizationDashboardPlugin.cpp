@@ -32,7 +32,7 @@ QWidget *OptimizationDashboardPlugin::widget() {
 
 int OptimizationDashboardPlugin::defaultOrder() const { return 90; }
 
-bool OptimizationDashboardPlugin::visible() const { return true; }
+bool OptimizationDashboardPlugin::visible() const { return false; }
 
 void OptimizationDashboardPlugin::activate() {}
 

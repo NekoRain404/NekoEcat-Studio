@@ -25,7 +25,7 @@ QString VisualizationStudioPlugin::displayName() const { return "Visualization S
 QString VisualizationStudioPlugin::displayNameZh() const { return QStringLiteral("可视化工作室"); }
 QIcon VisualizationStudioPlugin::icon() const { return QIcon::fromTheme("preferences-desktop-display"); }
 int VisualizationStudioPlugin::defaultOrder() const { return 340; }
-bool VisualizationStudioPlugin::visible() const { return true; }
+bool VisualizationStudioPlugin::visible() const { return false; }
 
 void VisualizationStudioPlugin::activate() {}
 void VisualizationStudioPlugin::deactivate() {}
