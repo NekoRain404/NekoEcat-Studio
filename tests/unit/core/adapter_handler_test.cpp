@@ -10,7 +10,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "../apps/ecatd/handlers/AdapterHandler.h"
+#include "../../../apps/ecatd/handlers/AdapterHandler.h"
 
 class AdapterHandlerTest : public QObject {
   Q_OBJECT

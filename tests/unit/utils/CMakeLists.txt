@@ -72,6 +72,8 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/plugins/PluginRegistry.h
     ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
     ../../../apps/ecat-studio/services/SdoOptimizationService.h
     ../../../apps/ecat-studio/services/PdoMappingOptimizationService.cpp
@@ -289,6 +291,8 @@ add_executable(service_fixture_test
     ../../fixtures/ServiceTestFixture.cpp
     ../../fixtures/ServiceTestFixture.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
     ../../../apps/ecat-studio/services/SdoOptimizationService.h
     ../../../apps/ecat-studio/services/PdoMappingOptimizationService.cpp

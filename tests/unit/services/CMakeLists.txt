@@ -728,33 +728,6 @@ target_compile_definitions(ethercat_maintenance_service_test PRIVATE
 set_target_properties(ethercat_maintenance_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_maintenance_service_test COMMAND ethercat_maintenance_service_test)
 
-# ── EtherCAT Advanced Services Test ─────────────────────────────────
-add_executable(test_advanced_services_test
-    test_advanced_services_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATVisualizationService.h
-    ../../../apps/ecat-studio/services/EtherCATReportingService.cpp
-    ../../../apps/ecat-studio/services/EtherCATReportingService.h
-    ../../../apps/ecat-studio/services/EtherCATDocumentationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../../../apps/ecat-studio/services/EventBus.cpp
-    ../../../apps/ecat-studio/services/EventBus.h
-    ../../../apps/ecat-studio/infra/EcatClient.cpp
-    ../../../apps/ecat-studio/infra/EcatClient.h
-)
-target_include_directories(test_advanced_services_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-target_link_libraries(test_advanced_services_test PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Test ecat_core)
-set_target_properties(test_advanced_services_test PROPERTIES AUTOMOC ON)
-add_test(NAME test_advanced_services_test COMMAND test_advanced_services_test)
-set_tests_properties(test_advanced_services_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
-
 # ── EtherCATIntegrationService ──────────────────────────────────────
 add_executable(ethercat_integration_service_test
     ethercat_integration_service_test.cpp

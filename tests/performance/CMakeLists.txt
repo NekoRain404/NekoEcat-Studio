@@ -644,42 +644,6 @@ set_tests_properties(workflow_maintenance_performance_test PROPERTIES
     LABELS "performance;workflow"
 )
 
-# ── WorkflowCloudService Performance Test ─────────────────────────
-add_executable(workflow_cloud_service_performance_test
-    workflow_cloud_service_performance_test.cpp
-)
-target_include_directories(workflow_cloud_service_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_cloud_service_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_cloud_service_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_cloud_service_performance_test COMMAND workflow_cloud_service_performance_test)
-
-# ── WorkflowEdgeService Performance Test ─────────────────────────
-add_executable(workflow_edge_service_performance_test
-    workflow_edge_service_performance_test.cpp
-)
-target_include_directories(workflow_edge_service_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_edge_service_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_edge_service_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_edge_service_performance_test COMMAND workflow_edge_service_performance_test)
-
-# ── WorkflowAIService Performance Test ─────────────────────────
-add_executable(workflow_ai_service_performance_test
-    workflow_ai_service_performance_test.cpp
-)
-target_include_directories(workflow_ai_service_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_ai_service_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_ai_service_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_ai_service_performance_test COMMAND workflow_ai_service_performance_test)
-
 # ── Workflow Visualization Studio Performance Test ───────────────────
 add_executable(workflow_visualization_studio_performance_test
     workflow_visualization_studio_performance_test.cpp

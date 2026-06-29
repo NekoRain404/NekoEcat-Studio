@@ -10,7 +10,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "../apps/ecatd/handlers/AlEventHandler.h"
+#include "../../../apps/ecatd/handlers/AlEventHandler.h"
 
 class AlEventHandlerTest : public QObject {
     Q_OBJECT
