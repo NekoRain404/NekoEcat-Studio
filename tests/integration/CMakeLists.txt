@@ -119,8 +119,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../apps/ecat-studio/services/WorkflowSyncService.cpp
-    ../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -197,8 +195,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/OnlineDiagnosticsService.h
     ../../apps/ecat-studio/services/MultiMasterService.cpp
     ../../apps/ecat-studio/services/MultiMasterService.h
-    ../../apps/ecat-studio/services/SdoCacheService.cpp
-    ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/PdoMappingService.cpp
     ../../apps/ecat-studio/services/PdoMappingService.h
     ../../apps/ecat-studio/services/CoEService.cpp
@@ -261,10 +257,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
     ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -392,8 +384,6 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/OnlineDiagnosticsService.h
     ../../apps/ecat-studio/services/MultiMasterService.cpp
     ../../apps/ecat-studio/services/MultiMasterService.h
-    ../../apps/ecat-studio/services/SdoCacheService.cpp
-    ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/PdoMappingService.cpp
     ../../apps/ecat-studio/services/PdoMappingService.h
     ../../apps/ecat-studio/services/CoEService.cpp
@@ -456,10 +446,6 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
     ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -486,8 +472,6 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../apps/ecat-studio/services/WorkflowSyncService.cpp
-    ../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -596,8 +580,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../apps/ecat-studio/services/WorkflowSyncService.cpp
-    ../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -676,8 +658,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/OnlineDiagnosticsService.h
     ../../apps/ecat-studio/services/MultiMasterService.cpp
     ../../apps/ecat-studio/services/MultiMasterService.h
-    ../../apps/ecat-studio/services/SdoCacheService.cpp
-    ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/PdoMappingService.cpp
     ../../apps/ecat-studio/services/PdoMappingService.h
     ../../apps/ecat-studio/services/CoEService.cpp
@@ -740,10 +720,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
     ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp

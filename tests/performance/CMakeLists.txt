@@ -647,8 +647,6 @@ set_tests_properties(workflow_maintenance_performance_test PROPERTIES
 # ── WorkflowCloudService Performance Test ─────────────────────────
 add_executable(workflow_cloud_service_performance_test
     workflow_cloud_service_performance_test.cpp
-    ../../apps/ecat-studio/services/WorkflowCloudService.cpp
-    ../../apps/ecat-studio/services/WorkflowCloudService.h
 )
 target_include_directories(workflow_cloud_service_performance_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
@@ -661,8 +659,6 @@ add_test(NAME workflow_cloud_service_performance_test COMMAND workflow_cloud_ser
 # ── WorkflowEdgeService Performance Test ─────────────────────────
 add_executable(workflow_edge_service_performance_test
     workflow_edge_service_performance_test.cpp
-    ../../apps/ecat-studio/services/WorkflowEdgeService.cpp
-    ../../apps/ecat-studio/services/WorkflowEdgeService.h
 )
 target_include_directories(workflow_edge_service_performance_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
@@ -675,8 +671,6 @@ add_test(NAME workflow_edge_service_performance_test COMMAND workflow_edge_servi
 # ── WorkflowAIService Performance Test ─────────────────────────
 add_executable(workflow_ai_service_performance_test
     workflow_ai_service_performance_test.cpp
-    ../../apps/ecat-studio/services/WorkflowAIService.cpp
-    ../../apps/ecat-studio/services/WorkflowAIService.h
 )
 target_include_directories(workflow_ai_service_performance_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
@@ -793,3 +787,5 @@ target_include_directories(core_performance_test PRIVATE
 target_link_libraries(core_performance_test PRIVATE Qt6::Core Qt6::Test ecat_core)
 set_target_properties(core_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME core_performance_test COMMAND core_performance_test)
+
+endif() # ECAT_EXPERIMENTAL_SERVICES

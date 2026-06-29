@@ -34,8 +34,8 @@ set_tests_properties(table_helpers_test PROPERTIES
 # TestAutomation
 add_executable(test_automation_test
     test_automation_test.cpp
-    utils/TestAutomation.cpp
-    utils/TestAutomation.h
+    ../../utils/TestAutomation.cpp
+    ../../utils/TestAutomation.h
 )
 target_include_directories(test_automation_test PRIVATE
     ${CMAKE_SOURCE_DIR}/tests
@@ -49,8 +49,8 @@ add_test(NAME test_automation_test COMMAND test_automation_test)
 
 add_executable(test_data_generator_test
     test_data_generator_test.cpp
-    utils/TestDataGenerator.cpp
-    utils/TestDataGenerator.h
+    ../../utils/TestDataGenerator.cpp
+    ../../utils/TestDataGenerator.h
     ../../../src/core/EthercatTypes.cpp
     ../../../src/core/EthercatTypes.h
 )
@@ -66,8 +66,8 @@ add_test(NAME test_data_generator_test COMMAND test_data_generator_test)
 
 add_executable(plugin_fixture_test
     plugin_fixture_test.cpp
-    fixtures/PluginTestFixture.cpp
-    fixtures/PluginTestFixture.h
+    ../../fixtures/PluginTestFixture.cpp
+    ../../fixtures/PluginTestFixture.h
     ../../../apps/ecat-studio/plugins/PluginRegistry.cpp
     ../../../apps/ecat-studio/plugins/PluginRegistry.h
     ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
@@ -122,8 +122,6 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../../apps/ecat-studio/services/WorkflowSyncService.cpp
-    ../../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../../../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -200,8 +198,6 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/OnlineDiagnosticsService.h
     ../../../apps/ecat-studio/services/MultiMasterService.cpp
     ../../../apps/ecat-studio/services/MultiMasterService.h
-    ../../../apps/ecat-studio/services/SdoCacheService.cpp
-    ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/PdoMappingService.cpp
     ../../../apps/ecat-studio/services/PdoMappingService.h
     ../../../apps/ecat-studio/services/CoEService.cpp
@@ -264,10 +260,6 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/EtherCATMaintenanceService.h
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -294,8 +286,8 @@ set_tests_properties(plugin_fixture_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM
 
 add_executable(service_fixture_test
     service_fixture_test.cpp
-    fixtures/ServiceTestFixture.cpp
-    fixtures/ServiceTestFixture.h
+    ../../fixtures/ServiceTestFixture.cpp
+    ../../fixtures/ServiceTestFixture.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
     ../../../apps/ecat-studio/services/SdoOptimizationService.h
@@ -347,8 +339,6 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../../apps/ecat-studio/services/WorkflowSyncService.cpp
-    ../../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.h
     ../../../apps/ecat-studio/services/WorkflowReportDesignerService.cpp
@@ -425,8 +415,6 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/OnlineDiagnosticsService.h
     ../../../apps/ecat-studio/services/MultiMasterService.cpp
     ../../../apps/ecat-studio/services/MultiMasterService.h
-    ../../../apps/ecat-studio/services/SdoCacheService.cpp
-    ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/PdoMappingService.cpp
     ../../../apps/ecat-studio/services/PdoMappingService.h
     ../../../apps/ecat-studio/services/CoEService.cpp
@@ -489,10 +477,6 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/EtherCATMaintenanceService.h
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -519,8 +503,8 @@ set_tests_properties(service_fixture_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFOR
 
 add_executable(ui_fixture_test
     ui_fixture_test.cpp
-    fixtures/UITestFixture.cpp
-    fixtures/UITestFixture.h
+    ../../fixtures/UITestFixture.cpp
+    ../../fixtures/UITestFixture.h
 )
 target_include_directories(ui_fixture_test PRIVATE
     ${CMAKE_SOURCE_DIR}/tests

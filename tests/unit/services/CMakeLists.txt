@@ -733,10 +733,6 @@ add_executable(test_advanced_services_test
     test_advanced_services_test.cpp
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
     ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../../apps/ecat-studio/services/EtherCATSyncService.cpp
-    ../../../apps/ecat-studio/services/EtherCATSyncService.h
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATReplicationService.h
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -1384,3 +1380,5 @@ add_test(NAME performance_monitor_service_test COMMAND performance_monitor_servi
 set_tests_properties(performance_monitor_service_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+endif() # ECAT_EXPERIMENTAL_SERVICES
