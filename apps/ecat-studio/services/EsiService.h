@@ -34,90 +34,98 @@
 #include <QString>
 #include <QMap>
 
-// Represents a single PDO entry in ESI.
+/// @brief Represents a single PDO entry in an ESI descriptor.
 struct EsiPdoEntry {
-  QString index;       // PDO index in hex format
-  QString subIndex;    // PDO subindex in hex format
-  QString name;        // PDO entry name
-  QString type;        // Data type
-  int bitSize = 0;     // Bit size of the entry
+  QString index;       ///< PDO index in hex format.
+  QString subIndex;    ///< PDO subindex in hex format.
+  QString name;        ///< PDO entry name.
+  QString type;        ///< Data type (e.g., "UINT8", "INT16").
+  int bitSize = 0;     ///< Bit size of the entry.
 };
 
-// Represents a PDO assignment in ESI.
+/// @brief Represents a PDO assignment (mapping) in an ESI descriptor.
 struct EsiPdoAssignment {
-  QString index;                    // PDO index in hex format
-  QString name;                     // PDO name
-  QVector<EsiPdoEntry> entries;     // PDO entries
+  QString index;                    ///< PDO index in hex format.
+  QString name;                     ///< PDO name.
+  QVector<EsiPdoEntry> entries;     ///< PDO entries in this assignment.
 };
 
-// Represents a sync manager in ESI.
+/// @brief Represents a sync manager in an ESI descriptor.
 struct EsiSyncManager {
-  int index = 0;        // Sync manager index
-  QString name;         // Sync manager name
-  QString direction;    // Direction (input/output)
-  int pdos = 0;         // Number of PDOs assigned
+  int index = 0;        ///< Sync manager index.
+  QString name;         ///< Sync manager name.
+  QString direction;    ///< Direction ("input" or "output").
+  int pdos = 0;         ///< Number of PDOs assigned to this sync manager.
 };
 
-// Represents device information from ESI.
+/// @brief Represents device information parsed from an ESI XML file.
 struct EsiDeviceInfo {
-  QString deviceId;                           // Unique device identifier
-  QString name;                               // Device name
-  QString type;                               // Device type
-  QString description;                        // Device description
-  int vendorId = 0;                           // Vendor ID
-  int productCode = 0;                        // Product code
-  int revisionNo = 0;                         // Revision number
-  QVector<EsiPdoAssignment> rxPdos;           // Receive PDO assignments
-  QVector<EsiPdoAssignment> txPdos;           // Transmit PDO assignments
-  QVector<EsiSyncManager> syncManagers;       // Sync managers
+  QString deviceId;                           ///< Unique device identifier.
+  QString name;                               ///< Device name.
+  QString type;                               ///< Device type.
+  QString description;                        ///< Device description.
+  int vendorId = 0;                           ///< Vendor ID.
+  int productCode = 0;                        ///< Product code.
+  int revisionNo = 0;                         ///< Revision number.
+  QVector<EsiPdoAssignment> rxPdos;           ///< Receive PDO assignments.
+  QVector<EsiPdoAssignment> txPdos;           ///< Transmit PDO assignments.
+  QVector<EsiSyncManager> syncManagers;       ///< Sync managers.
 };
 
+/// @brief Manages the ESI (EtherCAT Slave Information) XML repository.
+///
+/// Parses ESI XML files, stores device information, and provides lookup,
+/// match, and export capabilities for EtherCAT slave device descriptors.
 class EsiService : public QObject {
   Q_OBJECT
 public:
+  /// @brief Construct the ESI service.
+  /// @param parent  Parent QObject.
   explicit EsiService(QObject *parent = nullptr);
 
-  // Import an ESI XML file.
-  // @param filePath  Path to the ESI XML file
-  // @return true if import was successful
+  /// @brief Import an ESI XML file into the repository.
+  /// @param filePath  Path to the ESI XML file.
+  /// @return true if import was successful.
   bool importEsi(const QString &filePath);
 
-  // Match a device by vendor ID and product code.
-  // @param vendorId     Vendor ID to match
-  // @param productCode  Product code to match
-  // @return EsiDeviceInfo structure (empty if not found)
+  /// @brief Match a device by vendor ID and product code.
+  /// @param vendorId     Vendor ID to match.
+  /// @param productCode  Product code to match.
+  /// @return EsiDeviceInfo structure (empty if not found).
   EsiDeviceInfo matchDevice(int vendorId, int productCode) const;
 
-  // List all imported devices.
-  // @return Vector of EsiDeviceInfo structures
+  /// @brief List all imported devices.
+  /// @return Vector of EsiDeviceInfo structures.
   QVector<EsiDeviceInfo> listDevices() const;
 
-  // Export a specific device's ESI to a file.
-  // @param deviceId    Device identifier to export
-  // @param outputPath  Output file path
-  // @return true if export was successful
+  /// @brief Export a specific device's ESI data to an XML file.
+  /// @param deviceId    Device identifier to export.
+  /// @param outputPath  Output file path.
+  /// @return true if export was successful.
   bool exportEsi(const QString &deviceId, const QString &outputPath) const;
 
-  // Get the number of imported devices.
-  // @return Number of devices
+  /// @brief Get the number of imported devices.
+  /// @return Number of devices in the repository.
   int deviceCount() const;
 
-  // Clear all imported ESI data.
+  /// @brief Clear all imported ESI data from the repository.
   void clear();
 
 signals:
-  // Emitted when ESI is successfully imported.
-  // @param deviceCount  Number of devices imported
+  /// @brief Emitted when ESI data is successfully imported.
+  /// @param deviceCount  Number of devices imported from the file.
   void esiImported(int deviceCount);
 
-  // Emitted when an error occurs.
-  // @param msg  Human-readable error message
+  /// @brief Emitted when an ESI operation error occurs.
+  /// @param msg  Human-readable error message.
   void error(const QString &msg);
 
 private:
-  // Parse a hex or decimal string to integer.
+  /// @brief Parse a hex (0x-prefixed) or decimal string to integer.
+  /// @param s  String to parse.
+  /// @return Parsed integer value.
   static int parseHexOrDec(const QString &s);
 
-  QVector<EsiDeviceInfo> devices_;      // Imported devices
-  QMap<QString, int> deviceIndex_;      // Device ID to index mapping
+  QVector<EsiDeviceInfo> devices_;      ///< Imported device descriptors.
+  QMap<QString, int> deviceIndex_;      ///< Device ID to index mapping for O(1) lookup.
 };

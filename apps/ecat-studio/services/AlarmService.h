@@ -35,99 +35,107 @@
 #include <QVector>
 #include <QDateTime>
 
-// Alarm severity levels.
-enum class AlarmLevel { 
-  Info,      // Informational message
-  Warning,   // Warning condition
-  Error,     // Error condition
-  Critical   // Critical failure
+/// @brief Alarm severity levels.
+enum class AlarmLevel {
+  Info,      ///< Informational message.
+  Warning,   ///< Warning condition.
+  Error,     ///< Error condition.
+  Critical   ///< Critical failure.
 };
 
-// Alarm categories for classification.
-enum class AlarmCategory { 
-  Communication,  // Network/communication issues
-  Device,         // Device-related issues
-  Network,        // Network infrastructure issues
-  Configuration   // Configuration issues
+/// @brief Alarm categories for classification.
+enum class AlarmCategory {
+  Communication,  ///< Network/communication issues.
+  Device,         ///< Device-related issues.
+  Network,        ///< Network infrastructure issues.
+  Configuration   ///< Configuration issues.
 };
 
-// Alarm lifecycle states.
-enum class AlarmState { 
-  Active,        // Alarm is active and unacknowledged
-  Acknowledged,  // Alarm has been acknowledged
-  Cleared        // Alarm has been cleared
+/// @brief Alarm lifecycle states.
+enum class AlarmState {
+  Active,        ///< Alarm is active and unacknowledged.
+  Acknowledged,  ///< Alarm has been acknowledged.
+  Cleared        ///< Alarm has been cleared.
 };
 
-// Represents a single alarm event.
+/// @brief Represents a single alarm event with full lifecycle tracking.
 struct Alarm {
-  int id = 0;                           // Unique alarm ID
-  AlarmLevel level = AlarmLevel::Info;  // Severity level
-  AlarmCategory category = AlarmCategory::Communication;  // Category
-  AlarmState state = AlarmState::Active;  // Lifecycle state
-  QString message;                      // Human-readable alarm message
-  QString source;                       // Source component that raised the alarm
-  QDateTime timestamp;                  // When the alarm was raised
-  QDateTime acknowledgedAt;             // When the alarm was acknowledged
-  QDateTime clearedAt;                  // When the alarm was cleared
+  int id = 0;                           ///< Unique alarm ID.
+  AlarmLevel level = AlarmLevel::Info;  ///< Severity level.
+  AlarmCategory category = AlarmCategory::Communication; ///< Alarm category.
+  AlarmState state = AlarmState::Active;  ///< Lifecycle state.
+  QString message;                      ///< Human-readable alarm message.
+  QString source;                       ///< Source component that raised the alarm.
+  QDateTime timestamp;                  ///< When the alarm was raised.
+  QDateTime acknowledgedAt;             ///< When the alarm was acknowledged.
+  QDateTime clearedAt;                  ///< When the alarm was cleared.
 };
 
+/// @brief Manages system alarms with severity levels, categories, and lifecycle states.
+///
+/// Provides alarm creation, acknowledgement, clearing, and history queries.
+/// Alarms follow a lifecycle: Active -> Acknowledged -> Cleared. Signals
+/// provide real-time notifications for alarm state changes.
 class AlarmService : public QObject {
   Q_OBJECT
 public:
+  /// @brief Construct the alarm service.
+  /// @param parent  Parent QObject.
   explicit AlarmService(QObject *parent = nullptr);
 
-  // Raise a new alarm.
-  // @param level     Severity level
-  // @param category  Alarm category
-  // @param message   Human-readable alarm message
-  // @param source    Source component (optional)
-  // @return Alarm ID for future reference
+  /// @brief Raise a new alarm.
+  /// @param level     Severity level (Info, Warning, Error, Critical).
+  /// @param category  Alarm category (Communication, Device, Network, Configuration).
+  /// @param message   Human-readable alarm message.
+  /// @param source    Source component that raised the alarm (optional).
+  /// @return Unique alarm ID for future reference.
   int raiseAlarm(AlarmLevel level, AlarmCategory category,
                  const QString &message, const QString &source = QString());
 
-  // Acknowledge an active alarm.
-  // @param alarmId  Alarm ID to acknowledge
-  // @return true if alarm was found and acknowledged
+  /// @brief Acknowledge an active alarm.
+  /// @param alarmId  Alarm ID to acknowledge.
+  /// @return true if alarm was found and acknowledged.
   bool acknowledgeAlarm(int alarmId);
 
-  // Clear an acknowledged alarm.
-  // @param alarmId  Alarm ID to clear
-  // @return true if alarm was found and cleared
+  /// @brief Clear an acknowledged alarm.
+  /// @param alarmId  Alarm ID to clear.
+  /// @return true if alarm was found and cleared.
   bool clearAlarm(int alarmId);
 
-  // Get all active (unacknowledged) alarms.
-  // @return Vector of active Alarm structures
+  /// @brief Get all active (unacknowledged) alarms.
+  /// @return Vector of active Alarm structures.
   QVector<Alarm> activeAlarms() const;
 
-  // Get alarm history with optional count limit.
-  // @param count  Maximum number of alarms to return (default: 100)
-  // @return Vector of Alarm structures, most recent first
+  /// @brief Get alarm history with optional count limit.
+  /// @param count  Maximum number of alarms to return (default: 100).
+  /// @return Vector of Alarm structures, most recent first.
   QVector<Alarm> alarmHistory(int count = 100) const;
 
-  // Get a specific alarm by ID.
-  // @param alarmId  Alarm ID to look up
-  // @return Alarm structure (empty if not found)
+  /// @brief Get a specific alarm by ID.
+  /// @param alarmId  Alarm ID to look up.
+  /// @return Alarm structure (empty if not found).
   Alarm alarmById(int alarmId) const;
 
-  // Get the count of active (unacknowledged) alarms.
-  // @return Number of active alarms
+  /// @brief Get the count of active (unacknowledged) alarms.
+  /// @return Number of active alarms.
   int activeAlarmCount() const;
 
 signals:
-  // Emitted when a new alarm is raised.
-  // @param alarm  The new Alarm structure
+  /// @brief Emitted when a new alarm is raised.
+  /// @param alarm  The new Alarm structure.
   void alarmRaised(const Alarm &alarm);
 
-  // Emitted when an alarm is acknowledged.
-  // @param alarmId  Alarm ID that was acknowledged
+  /// @brief Emitted when an alarm is acknowledged.
+  /// @param alarmId  Alarm ID that was acknowledged.
   void alarmAcknowledged(int alarmId);
 
-  // Emitted when an alarm is cleared.
-  // @param alarmId  Alarm ID that was cleared
+  /// @brief Emitted when an alarm is cleared.
+  /// @param alarmId  Alarm ID that was cleared.
   void alarmCleared(int alarmId);
 
 private:
-  QVector<Alarm> alarms_;  // All alarms (active, acknowledged, cleared)
-  int nextId_ = 1;         // Next alarm ID to assign
-  static constexpr int kMaxHistory = 1000;  // Maximum alarms in history
+  QVector<Alarm> alarms_;  ///< All alarms (active, acknowledged, cleared).
+  int nextId_ = 1;         ///< Next alarm ID to assign.
+  /// @brief Maximum number of alarms retained in history.
+  static constexpr int kMaxHistory = 1000;
 };
