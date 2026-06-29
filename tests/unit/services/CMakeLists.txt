@@ -374,32 +374,6 @@ target_compile_definitions(coe_foe_eoe_service_test PRIVATE SOURCE_ROOT="${CMAKE
 set_target_properties(coe_foe_eoe_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME coe_foe_eoe_service_test COMMAND coe_foe_eoe_service_test)
 
-# ── MasterApiService (unit) ────────────────────────────────────────
-add_executable(master_api_service_test
-    master_api_service_test.cpp
-    ../../../apps/ecat-studio/services/MasterApiService.cpp
-    ../../../apps/ecat-studio/services/MasterApiService.h
-    ../../../apps/ecat-studio/infra/EcatClient.cpp
-    ../../../apps/ecat-studio/infra/EcatClient.h
-)
-target_include_directories(master_api_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-target_compile_definitions(master_api_service_test PRIVATE
-    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
-)
-target_link_libraries(master_api_service_test PRIVATE
-    Qt6::Core
-    Qt6::Network
-    Qt6::Test
-    ecat_core
-)
-set_target_properties(master_api_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME master_api_service_test COMMAND master_api_service_test)
-
 # ── DomainService (unit) ───────────────────────────────────────────
 add_executable(domain_service_test
     domain_service_test.cpp
@@ -460,31 +434,6 @@ target_link_libraries(error_handling_service_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(error_handling_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME error_handling_service_test COMMAND error_handling_service_test)
 
-# ── DiagnosticService (unit) ────────────────────────────────────────
-add_executable(diagnostic_service_test
-    diagnostic_service_test.cpp
-    ../../../apps/ecat-studio/services/DiagnosticService.cpp
-    ../../../apps/ecat-studio/services/DiagnosticService.h
-    ../../../apps/ecat-studio/services/EventBus.cpp
-    ../../../apps/ecat-studio/services/EventBus.h
-    ../../../apps/ecat-studio/infra/EcatClient.cpp
-    ../../../apps/ecat-studio/infra/EcatClient.h
-)
-target_include_directories(diagnostic_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-target_link_libraries(diagnostic_service_test PRIVATE
-    Qt6::Core
-    Qt6::Network
-    Qt6::Test
-    ecat_core
-)
-set_target_properties(diagnostic_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME diagnostic_service_test COMMAND diagnostic_service_test)
-
 # ── HotConnectService Test ──────────────────────────────────────────
 add_executable(hot_connect_service_test
     hot_connect_service_test.cpp
@@ -510,19 +459,6 @@ target_include_directories(redundancy_service_test PRIVATE
 target_link_libraries(redundancy_service_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(redundancy_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME redundancy_service_test COMMAND redundancy_service_test)
-
-# ── CableDiagnosticsService Test ────────────────────────────────────
-add_executable(cable_diagnostics_service_test
-    cable_diagnostics_service_test.cpp
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.cpp
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.h
-)
-target_include_directories(cable_diagnostics_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(cable_diagnostics_service_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(cable_diagnostics_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME cable_diagnostics_service_test COMMAND cable_diagnostics_service_test)
 
 # ── EtherCATMonitorService Test ─────────────────────────────────────
 add_executable(ethercat_monitor_service_test
@@ -932,26 +868,6 @@ set_tests_properties(workflow_optimization_service_test PROPERTIES
     LABELS "unit;optimization"
 )
 
-add_executable(project_management_service_test
-    project_management_service_test.cpp
-    ../../../apps/ecat-studio/services/ProjectManagementService.cpp
-    ../../../apps/ecat-studio/services/ProjectManagementService.h
-)
-target_include_directories(project_management_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(project_management_service_test PRIVATE
-    Qt6::Core
-    Qt6::Test
-)
-set_target_properties(project_management_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME project_management_service_test COMMAND project_management_service_test)
-set_tests_properties(project_management_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;project"
-)
-
 add_executable(task_management_service_test
     task_management_service_test.cpp
     ../../../apps/ecat-studio/services/TaskManagementService.cpp
@@ -990,66 +906,6 @@ add_test(NAME resource_management_service_test COMMAND resource_management_servi
 set_tests_properties(resource_management_service_test PROPERTIES
     TIMEOUT 30
     LABELS "unit;resource"
-)
-
-add_executable(project_planning_service_test
-    project_planning_service_test.cpp
-    ../../../apps/ecat-studio/services/ProjectPlanningService.cpp
-    ../../../apps/ecat-studio/services/ProjectPlanningService.h
-)
-target_include_directories(project_planning_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(project_planning_service_test PRIVATE
-    Qt6::Core
-    Qt6::Test
-)
-set_target_properties(project_planning_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME project_planning_service_test COMMAND project_planning_service_test)
-set_tests_properties(project_planning_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;project"
-)
-
-add_executable(project_tracking_service_test
-    project_tracking_service_test.cpp
-    ../../../apps/ecat-studio/services/ProjectTrackingService.cpp
-    ../../../apps/ecat-studio/services/ProjectTrackingService.h
-)
-target_include_directories(project_tracking_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(project_tracking_service_test PRIVATE
-    Qt6::Core
-    Qt6::Test
-)
-set_target_properties(project_tracking_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME project_tracking_service_test COMMAND project_tracking_service_test)
-set_tests_properties(project_tracking_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;project"
-)
-
-add_executable(project_reporting_service_test
-    project_reporting_service_test.cpp
-    ../../../apps/ecat-studio/services/ProjectReportingService.cpp
-    ../../../apps/ecat-studio/services/ProjectReportingService.h
-)
-target_include_directories(project_reporting_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(project_reporting_service_test PRIVATE
-    Qt6::Core
-    Qt6::Test
-)
-set_target_properties(project_reporting_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME project_reporting_service_test COMMAND project_reporting_service_test)
-set_tests_properties(project_reporting_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;project"
 )
 
 # ── Workflow Automation Service ─────────────────────────────────────
@@ -1168,20 +1024,6 @@ target_include_directories(workflow_reporting_service_test PRIVATE
 target_link_libraries(workflow_reporting_service_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(workflow_reporting_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME workflow_reporting_service_test COMMAND workflow_reporting_service_test)
-
-# ── WorkflowIntegrationService Test ───────────────────────────────
-add_executable(workflow_integration_service_test
-    workflow_integration_service_test.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.h
-)
-target_include_directories(workflow_integration_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_integration_service_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_integration_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_integration_service_test COMMAND workflow_integration_service_test)
 
 # ── WorkflowSecurityService ────────────────────────────────────────────
 add_executable(workflow_security_service_test
@@ -1365,20 +1207,6 @@ set_tests_properties(workflow_maintenance_service_test PROPERTIES
     TIMEOUT 30
     LABELS "unit;maintenance"
 )
-
-# ── WorkflowIntegrationHubService Test ─────────────────────────────
-add_executable(workflow_integration_hub_service_test
-    workflow_integration_hub_service_test.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.h
-)
-target_include_directories(workflow_integration_hub_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_integration_hub_service_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_integration_hub_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_integration_hub_service_test COMMAND workflow_integration_hub_service_test)
 
 # ── Workflow Optimization Services Tests ───────────────────────────────
 add_executable(workflow_visualization_studio_service_test

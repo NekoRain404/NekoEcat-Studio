@@ -102,18 +102,10 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/RealtimeOptimizerService.h
     ../../../apps/ecat-studio/services/ScriptingService.cpp
     ../../../apps/ecat-studio/services/ScriptingService.h
-    ../../../apps/ecat-studio/services/ProjectManagementService.cpp
-    ../../../apps/ecat-studio/services/ProjectManagementService.h
     ../../../apps/ecat-studio/services/TaskManagementService.cpp
     ../../../apps/ecat-studio/services/TaskManagementService.h
     ../../../apps/ecat-studio/services/ResourceManagementService.cpp
     ../../../apps/ecat-studio/services/ResourceManagementService.h
-    ../../../apps/ecat-studio/services/ProjectPlanningService.cpp
-    ../../../apps/ecat-studio/services/ProjectPlanningService.h
-    ../../../apps/ecat-studio/services/ProjectTrackingService.cpp
-    ../../../apps/ecat-studio/services/ProjectTrackingService.h
-    ../../../apps/ecat-studio/services/ProjectReportingService.cpp
-    ../../../apps/ecat-studio/services/ProjectReportingService.h
     ../../../apps/ecat-studio/services/WorkflowAutomationService.cpp
     ../../../apps/ecat-studio/services/WorkflowAutomationService.h
     ../../../apps/ecat-studio/services/WorkflowSchedulingService.cpp
@@ -124,16 +116,12 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/WorkflowVisualizationService.h
     ../../../apps/ecat-studio/services/WorkflowReportingService.cpp
     ../../../apps/ecat-studio/services/WorkflowReportingService.h
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../../apps/ecat-studio/services/WorkflowSecurityService.h
     ../../../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../../../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
@@ -224,8 +212,6 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/EoEService.h
     ../../../apps/ecat-studio/services/TraceService.cpp
     ../../../apps/ecat-studio/services/TraceService.h
-    ../../../apps/ecat-studio/services/MasterApiService.cpp
-    ../../../apps/ecat-studio/services/MasterApiService.h
     ../../../apps/ecat-studio/services/DomainService.cpp
     ../../../apps/ecat-studio/services/DomainService.h
     ../../../apps/ecat-studio/services/SyncManagerService.cpp
@@ -234,14 +220,10 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/services/StateMachineService.h
     ../../../apps/ecat-studio/services/ErrorHandlingService.cpp
     ../../../apps/ecat-studio/services/ErrorHandlingService.h
-    ../../../apps/ecat-studio/services/DiagnosticService.cpp
-    ../../../apps/ecat-studio/services/DiagnosticService.h
     ../../../apps/ecat-studio/services/HotConnectService.cpp
     ../../../apps/ecat-studio/services/HotConnectService.h
     ../../../apps/ecat-studio/services/RedundancyService.cpp
     ../../../apps/ecat-studio/services/RedundancyService.h
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.cpp
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.h
     ../../../apps/ecat-studio/services/EtherCATMonitorService.cpp
     ../../../apps/ecat-studio/services/EtherCATMonitorService.h
     ../../../apps/ecat-studio/services/EtherCATAnalyzerService.cpp
@@ -345,18 +327,10 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/RealtimeOptimizerService.h
     ../../../apps/ecat-studio/services/ScriptingService.cpp
     ../../../apps/ecat-studio/services/ScriptingService.h
-    ../../../apps/ecat-studio/services/ProjectManagementService.cpp
-    ../../../apps/ecat-studio/services/ProjectManagementService.h
     ../../../apps/ecat-studio/services/TaskManagementService.cpp
     ../../../apps/ecat-studio/services/TaskManagementService.h
     ../../../apps/ecat-studio/services/ResourceManagementService.cpp
     ../../../apps/ecat-studio/services/ResourceManagementService.h
-    ../../../apps/ecat-studio/services/ProjectPlanningService.cpp
-    ../../../apps/ecat-studio/services/ProjectPlanningService.h
-    ../../../apps/ecat-studio/services/ProjectTrackingService.cpp
-    ../../../apps/ecat-studio/services/ProjectTrackingService.h
-    ../../../apps/ecat-studio/services/ProjectReportingService.cpp
-    ../../../apps/ecat-studio/services/ProjectReportingService.h
     ../../../apps/ecat-studio/services/WorkflowAutomationService.cpp
     ../../../apps/ecat-studio/services/WorkflowAutomationService.h
     ../../../apps/ecat-studio/services/WorkflowSchedulingService.cpp
@@ -367,16 +341,12 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/WorkflowVisualizationService.h
     ../../../apps/ecat-studio/services/WorkflowReportingService.cpp
     ../../../apps/ecat-studio/services/WorkflowReportingService.h
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationService.h
     ../../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../../apps/ecat-studio/services/WorkflowSecurityService.h
     ../../../apps/ecat-studio/services/WorkflowUpdateService.cpp
     ../../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.h
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.cpp
-    ../../../apps/ecat-studio/services/WorkflowIntegrationHubService.h
     ../../../apps/ecat-studio/services/WorkflowSyncService.cpp
     ../../../apps/ecat-studio/services/WorkflowSyncService.h
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
@@ -467,8 +437,6 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/EoEService.h
     ../../../apps/ecat-studio/services/TraceService.cpp
     ../../../apps/ecat-studio/services/TraceService.h
-    ../../../apps/ecat-studio/services/MasterApiService.cpp
-    ../../../apps/ecat-studio/services/MasterApiService.h
     ../../../apps/ecat-studio/services/DomainService.cpp
     ../../../apps/ecat-studio/services/DomainService.h
     ../../../apps/ecat-studio/services/SyncManagerService.cpp
@@ -477,14 +445,10 @@ add_executable(service_fixture_test
     ../../../apps/ecat-studio/services/StateMachineService.h
     ../../../apps/ecat-studio/services/ErrorHandlingService.cpp
     ../../../apps/ecat-studio/services/ErrorHandlingService.h
-    ../../../apps/ecat-studio/services/DiagnosticService.cpp
-    ../../../apps/ecat-studio/services/DiagnosticService.h
     ../../../apps/ecat-studio/services/HotConnectService.cpp
     ../../../apps/ecat-studio/services/HotConnectService.h
     ../../../apps/ecat-studio/services/RedundancyService.cpp
     ../../../apps/ecat-studio/services/RedundancyService.h
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.cpp
-    ../../../apps/ecat-studio/services/CableDiagnosticsService.h
     ../../../apps/ecat-studio/services/EtherCATMonitorService.cpp
     ../../../apps/ecat-studio/services/EtherCATMonitorService.h
     ../../../apps/ecat-studio/services/EtherCATAnalyzerService.cpp

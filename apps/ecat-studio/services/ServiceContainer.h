@@ -128,15 +128,12 @@ class CoEService;
 class FoEService;
 class EoEService;
 class TraceService;
-class MasterApiService;
 class DomainService;
 class SyncManagerService;
 class StateMachineService;
 class ErrorHandlingService;
-class DiagnosticService;
 class HotConnectService;
 class RedundancyService;
-class CableDiagnosticsService;
 class EtherCATMonitorService;
 class EtherCATAnalyzerService;
 class EtherCATOptimizerService;
@@ -157,18 +154,13 @@ class EtherCATIntegrationService;
 class EtherCATVisualizationService;
 class EtherCATReportingService;
 class EtherCATDocumentationService;
-class ProjectManagementService;
 class TaskManagementService;
 class ResourceManagementService;
-class ProjectPlanningService;
-class ProjectTrackingService;
-class ProjectReportingService;
 class WorkflowAutomationService;
 class WorkflowSchedulingService;
 class WorkflowMonitoringService;
 class WorkflowVisualizationService;
 class WorkflowReportingService;
-class WorkflowIntegrationService;
 class WorkflowSecurityService;
 #ifdef ECAT_EXPERIMENTAL_SERVICES
 class WorkflowComplianceService;
@@ -177,7 +169,6 @@ class WorkflowDeploymentService;
 #endif
 class WorkflowUpdateService;
 class WorkflowMaintenanceService;
-class WorkflowIntegrationHubService;
 class WorkflowVisualizationStudioService;
 class WorkflowReportDesignerService;
 class WorkflowDocumentationBrowserService;
@@ -264,15 +255,12 @@ public:
   FoEService *foe() const { return foe_; }
   EoEService *eoe() const { return eoe_; }
   TraceService *trace() const { return trace_; }
-  MasterApiService *masterApi() const { return masterApi_; }
   DomainService *domain() const { return domain_; }
   SyncManagerService *syncManager() const { return syncManager_; }
   StateMachineService *stateMachine() const { return stateMachine_; }
   ErrorHandlingService *errorHandling() const { return errorHandling_; }
-  DiagnosticService *diagnostic() const { return diagnostic_; }
   HotConnectService *hotConnect() const { return hotConnect_; }
   RedundancyService *redundancy() const { return redundancy_; }
-  CableDiagnosticsService *cableDiagnostics() const { return cableDiagnostics_; }
   EtherCATMonitorService *ecatMonitor() const { return ecatMonitor_; }
   EtherCATAnalyzerService *ecatAnalyzer() const { return ecatAnalyzer_; }
   EtherCATOptimizerService *ecatOptimizer() const { return ecatOptimizer_; }
@@ -293,18 +281,13 @@ public:
   EtherCATVisualizationService *ecatVisualization() const { return ecatVisualization_; }
   EtherCATReportingService *ecatReporting() const { return ecatReporting_; }
   EtherCATDocumentationService *ecatDocumentation() const { return ecatDocumentation_; }
-  ProjectManagementService *projectManagement() const { return projectManagement_; }
   TaskManagementService *taskManagement() const { return taskManagement_; }
   ResourceManagementService *resourceManagement() const { return resourceManagement_; }
-  ProjectPlanningService *projectPlanning() const { return projectPlanning_; }
-  ProjectTrackingService *projectTracking() const { return projectTracking_; }
-  ProjectReportingService *projectReporting() const { return projectReporting_; }
   WorkflowAutomationService *workflowAutomation() const { return workflowAutomation_; }
   WorkflowSchedulingService *workflowScheduling() const { return workflowScheduling_; }
   WorkflowMonitoringService *workflowMonitoring() const { return workflowMonitoring_; }
   WorkflowVisualizationService *workflowVisualization() const { return workflowVisualization_; }
   WorkflowReportingService *workflowReporting() const { return workflowReporting_; }
-  WorkflowIntegrationService *workflowIntegration() const { return workflowIntegration_; }
   WorkflowSecurityService *workflowSecurity() const { return workflowSecurity_; }
 #ifdef ECAT_EXPERIMENTAL_SERVICES
   WorkflowComplianceService *workflowCompliance() const { return workflowCompliance_; }
@@ -313,7 +296,6 @@ public:
 #endif
   WorkflowUpdateService *workflowUpdate() const { return workflowUpdate_; }
   WorkflowMaintenanceService *workflowMaintenance() const { return workflowMaintenance_; }
-  WorkflowIntegrationHubService *workflowIntegrationHub() const { return workflowIntegrationHub_; }
   WorkflowVisualizationStudioService *workflowVisualizationStudio() const { return workflowVisualizationStudio_; }
   WorkflowReportDesignerService *workflowReportDesigner() const { return workflowReportDesigner_; }
   WorkflowDocumentationBrowserService *workflowDocumentationBrowser() const { return workflowDocumentationBrowser_; }
@@ -383,15 +365,12 @@ private:
   FoEService *foe_ = nullptr;
   EoEService *eoe_ = nullptr;
   TraceService *trace_ = nullptr;
-  MasterApiService *masterApi_ = nullptr;
   DomainService *domain_ = nullptr;
   SyncManagerService *syncManager_ = nullptr;
   StateMachineService *stateMachine_ = nullptr;
   ErrorHandlingService *errorHandling_ = nullptr;
-  DiagnosticService *diagnostic_ = nullptr;
   HotConnectService *hotConnect_ = nullptr;
   RedundancyService *redundancy_ = nullptr;
-  CableDiagnosticsService *cableDiagnostics_ = nullptr;
   EtherCATMonitorService *ecatMonitor_ = nullptr;
   EtherCATAnalyzerService *ecatAnalyzer_ = nullptr;
   EtherCATOptimizerService *ecatOptimizer_ = nullptr;
@@ -412,18 +391,13 @@ private:
   EtherCATVisualizationService *ecatVisualization_ = nullptr;
   EtherCATReportingService *ecatReporting_ = nullptr;
   EtherCATDocumentationService *ecatDocumentation_ = nullptr;
-  ProjectManagementService *projectManagement_ = nullptr;
   TaskManagementService *taskManagement_ = nullptr;
   ResourceManagementService *resourceManagement_ = nullptr;
-  ProjectPlanningService *projectPlanning_ = nullptr;
-  ProjectTrackingService *projectTracking_ = nullptr;
-  ProjectReportingService *projectReporting_ = nullptr;
   WorkflowAutomationService *workflowAutomation_ = nullptr;
   WorkflowSchedulingService *workflowScheduling_ = nullptr;
   WorkflowMonitoringService *workflowMonitoring_ = nullptr;
   WorkflowVisualizationService *workflowVisualization_ = nullptr;
   WorkflowReportingService *workflowReporting_ = nullptr;
-  WorkflowIntegrationService *workflowIntegration_ = nullptr;
   WorkflowSecurityService *workflowSecurity_ = nullptr;
 #ifdef ECAT_EXPERIMENTAL_SERVICES
   WorkflowComplianceService *workflowCompliance_ = nullptr;
@@ -432,7 +406,6 @@ private:
 #endif
   WorkflowUpdateService *workflowUpdate_ = nullptr;
   WorkflowMaintenanceService *workflowMaintenance_ = nullptr;
-  WorkflowIntegrationHubService *workflowIntegrationHub_ = nullptr;
   WorkflowVisualizationStudioService *workflowVisualizationStudio_ = nullptr;
   WorkflowReportDesignerService *workflowReportDesigner_ = nullptr;
   WorkflowDocumentationBrowserService *workflowDocumentationBrowser_ = nullptr;

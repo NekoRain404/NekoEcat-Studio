@@ -70,26 +70,6 @@ target_link_libraries(device_manager_performance_test PRIVATE
 set_target_properties(device_manager_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME device_manager_performance_test COMMAND device_manager_performance_test)
 
-# ── MasterApiService Performance Test ──────────────────────────────
-add_executable(master_api_performance_test
-    master_api_performance_test.cpp
-    ../../apps/ecat-studio/services/MasterApiService.cpp
-    ../../apps/ecat-studio/services/MasterApiService.h
-    ../../apps/ecat-studio/infra/EcatClient.cpp
-    ../../apps/ecat-studio/infra/EcatClient.h
-    ../../src/core/EthercatTypes.cpp
-    ../../src/core/EthercatTypes.h
-)
-target_include_directories(master_api_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-target_link_libraries(master_api_performance_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
-set_target_properties(master_api_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME master_api_performance_test COMMAND master_api_performance_test)
-
 # ── DomainService Performance Test ─────────────────────────────────
 add_executable(domain_service_performance_test
     domain_service_performance_test.cpp
@@ -202,19 +182,6 @@ target_include_directories(redundancy_performance_test PRIVATE
 target_link_libraries(redundancy_performance_test PRIVATE Qt6::Core Qt6::Test)
 set_target_properties(redundancy_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME redundancy_performance_test COMMAND redundancy_performance_test)
-
-# ── CableDiagnosticsService Performance Test ────────────────────────
-add_executable(cable_diagnostics_performance_test
-    cable_diagnostics_performance_test.cpp
-    ../../apps/ecat-studio/services/CableDiagnosticsService.cpp
-    ../../apps/ecat-studio/services/CableDiagnosticsService.h
-)
-target_include_directories(cable_diagnostics_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(cable_diagnostics_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(cable_diagnostics_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME cable_diagnostics_performance_test COMMAND cable_diagnostics_performance_test)
 
 # ── EtherCATMonitorService Performance Test ────────────────────────
 add_executable(ethercat_monitor_performance_test

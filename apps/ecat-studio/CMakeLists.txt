@@ -178,15 +178,12 @@ add_executable(ecat-studio
     services/FoEService.h                      services/FoEService.cpp
     services/EoEService.h                      services/EoEService.cpp
     services/TraceService.h                    services/TraceService.cpp
-    services/MasterApiService.h                services/MasterApiService.cpp
     services/DomainService.h                   services/DomainService.cpp
     services/SyncManagerService.h              services/SyncManagerService.cpp
     services/StateMachineService.h             services/StateMachineService.cpp
     services/ErrorHandlingService.h            services/ErrorHandlingService.cpp
-    services/DiagnosticService.h               services/DiagnosticService.cpp
     services/HotConnectService.h               services/HotConnectService.cpp
     services/RedundancyService.h               services/RedundancyService.cpp
-    services/CableDiagnosticsService.h               services/CableDiagnosticsService.cpp
     services/EtherCATMonitorService.h                services/EtherCATMonitorService.cpp
     services/EtherCATAnalyzerService.h               services/EtherCATAnalyzerService.cpp
     services/EtherCATOptimizerService.h              services/EtherCATOptimizerService.cpp
@@ -213,11 +210,9 @@ add_executable(ecat-studio
     services/WorkflowMonitoringService.h           services/WorkflowMonitoringService.cpp
     services/WorkflowVisualizationService.h        services/WorkflowVisualizationService.cpp
     services/WorkflowReportingService.h            services/WorkflowReportingService.cpp
-    services/WorkflowIntegrationService.h          services/WorkflowIntegrationService.cpp
     services/WorkflowSecurityService.h             services/WorkflowSecurityService.cpp
     services/WorkflowUpdateService.h               services/WorkflowUpdateService.cpp
     services/WorkflowMaintenanceService.h          services/WorkflowMaintenanceService.cpp
-    services/WorkflowIntegrationHubService.h       services/WorkflowIntegrationHubService.cpp
     services/WorkflowAnalyticsService.h            services/WorkflowAnalyticsService.cpp
     services/WorkflowVisualizationStudioService.h  services/WorkflowVisualizationStudioService.cpp
     services/WorkflowReportDesignerService.h       services/WorkflowReportDesignerService.cpp
@@ -227,12 +222,8 @@ add_executable(ecat-studio
     services/WorkflowCertificationManagerService.h    services/WorkflowCertificationManagerService.cpp
     plugins/workflowoptimizer/WorkflowOptimizerPlugin.h plugins/workflowoptimizer/WorkflowOptimizerPlugin.cpp
     plugins/workflowdashboard/WorkflowDashboardPlugin.h plugins/workflowdashboard/WorkflowDashboardPlugin.cpp
-    services/ProjectManagementService.h              services/ProjectManagementService.cpp
     services/TaskManagementService.h                 services/TaskManagementService.cpp
     services/ResourceManagementService.h             services/ResourceManagementService.cpp
-    services/ProjectPlanningService.h                services/ProjectPlanningService.cpp
-    services/ProjectTrackingService.h                services/ProjectTrackingService.cpp
-    services/ProjectReportingService.h               services/ProjectReportingService.cpp
     services/ExportService.h                         services/ExportService.cpp
     services/DataPipelineService.h                   services/DataPipelineService.cpp
     services/DeviceManagerService.h                  services/DeviceManagerService.cpp
