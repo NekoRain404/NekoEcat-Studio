@@ -15,6 +15,7 @@
 //   const auto &lang = LanguageManager::instance();
 //   if (lang.isCurrentLanguage(Language::Japanese)) { ... }
 
+#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVector>
@@ -39,7 +40,8 @@ struct LanguageInfo {
     bool rtl = false;       // Right-to-left script flag (future Arabic/Hebrew)
 };
 
-class LanguageManager {
+class LanguageManager : public QObject {
+    Q_OBJECT
 public:
     // Singleton access — the language list is compile-time constant.
     static LanguageManager &instance();
@@ -64,8 +66,11 @@ public:
     void setCurrentLanguage(Language lang);
     void setCurrentLanguage(const QString &displayName);
 
+signals:
+    void languageChanged(Language lang);
+
 private:
-    LanguageManager();
+    explicit LanguageManager(QObject *parent = nullptr);
     QVector<LanguageInfo> languages_;
     Language current_ = Language::English;
 };

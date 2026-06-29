@@ -4,6 +4,7 @@
 #include "MainWindowIncludes.h"
 
 #include "infra/SettingsDialog.h"
+#include "infra/TranslationRegistry.h"
 #include "utils/ConfirmDialogBuilder.h"
 
 #include <QFileInfo>
@@ -261,8 +262,8 @@ void MainWindow::openSettings() {
   saveSettings();
 
   if (settings_.language != previousLanguage) {
-    rebuildUi();
     applySettings();
+    rebuildUi();
     applyCustomShortcuts();
     QMessageBox::information(this, uiText("Settings", "设置"),
                              uiText("Language was applied.", "语言已应用。"));
@@ -275,7 +276,12 @@ void MainWindow::openSettings() {
 }
 
 QString MainWindow::uiText(const QString &english, const QString & /*zh*/) const {
-  return english;
+  const Language lang = LanguageManager::instance().currentLanguage();
+  if (lang == Language::English) {
+    return english;
+  }
+  const QString translated = TranslationRegistry::instance().translate(english, lang);
+  return translated.isEmpty() ? english : translated;
 }
 
 QString MainWindow::activeMasterName() const {

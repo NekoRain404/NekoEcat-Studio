@@ -7,7 +7,8 @@ LanguageManager &LanguageManager::instance()
     return mgr;
 }
 
-LanguageManager::LanguageManager()
+LanguageManager::LanguageManager(QObject *parent)
+    : QObject(parent)
 {
     languages_ = {
         {Language::English,           QStringLiteral("English"),    QStringLiteral("en"),    false},
@@ -77,11 +78,14 @@ Language LanguageManager::currentLanguage() const
 // Switches the active language and emits a change signal
 void LanguageManager::setCurrentLanguage(Language lang)
 {
-    current_ = lang;
+    if (current_ != lang) {
+        current_ = lang;
+        emit languageChanged(lang);
+    }
 }
 
 // Switches the active language and emits a change signal
 void LanguageManager::setCurrentLanguage(const QString &displayName)
 {
-    current_ = fromDisplayName(displayName);
+    setCurrentLanguage(fromDisplayName(displayName));
 }
