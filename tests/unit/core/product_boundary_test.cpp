@@ -51,7 +51,7 @@ void ProductBoundaryTest::experimentalServicesAreOptInByDefault() {
 void ProductBoundaryTest::experimentalSourcesAreCompileGuarded() {
   const QString cmake = readTextFile(
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/CMakeLists.txt"));
-  const QStringList sourcePaths = {
+  const QStringList deletedSourcePaths = {
       QStringLiteral("plugins/cloudmanager/CloudManagerPlugin.cpp"),
       QStringLiteral("plugins/edgecomputing/EdgeComputingPlugin.cpp"),
       QStringLiteral("plugins/aiassistant/AIAssistantPlugin.cpp"),
@@ -76,19 +76,9 @@ void ProductBoundaryTest::experimentalSourcesAreCompileGuarded() {
       QStringLiteral("services/WorkflowQuantumService.cpp"),
   };
 
-  for (const QString &sourcePath : sourcePaths) {
-    const qsizetype sourceIndex = cmake.indexOf(sourcePath);
-    QVERIFY2(sourceIndex >= 0,
-             qPrintable(QStringLiteral("Missing source entry for %1")
-                            .arg(sourcePath)));
-
-    const qsizetype guardIndex = cmake.lastIndexOf(
-        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), sourceIndex);
-    const qsizetype endGuardIndex =
-        cmake.lastIndexOf(QStringLiteral("endif()"), sourceIndex);
-    QVERIFY2(guardIndex > endGuardIndex,
-             qPrintable(QStringLiteral("%1 must be inside "
-                                       "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+  for (const QString &sourcePath : deletedSourcePaths) {
+    QVERIFY2(!cmake.contains(sourcePath),
+             qPrintable(QStringLiteral("Deleted source %1 must not appear in CMakeLists.txt")
                             .arg(sourcePath)));
   }
 }
@@ -96,7 +86,7 @@ void ProductBoundaryTest::experimentalSourcesAreCompileGuarded() {
 void ProductBoundaryTest::experimentalIncludeDirsAreCompileGuarded() {
   const QString cmake = readTextFile(
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/CMakeLists.txt"));
-  const QStringList includeDirs = {
+  const QStringList deletedIncludeDirs = {
       QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/cloudmanager"),
       QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/edgecomputing"),
       QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/aiassistant"),
@@ -105,19 +95,9 @@ void ProductBoundaryTest::experimentalIncludeDirsAreCompileGuarded() {
       QStringLiteral("${CMAKE_CURRENT_SOURCE_DIR}/plugins/quantumsecurity"),
   };
 
-  for (const QString &includeDir : includeDirs) {
-    const qsizetype includeIndex = cmake.indexOf(includeDir);
-    QVERIFY2(includeIndex >= 0,
-             qPrintable(QStringLiteral("Missing include entry for %1")
-                            .arg(includeDir)));
-
-    const qsizetype guardIndex = cmake.lastIndexOf(
-        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), includeIndex);
-    const qsizetype endGuardIndex =
-        cmake.lastIndexOf(QStringLiteral("endif()"), includeIndex);
-    QVERIFY2(guardIndex > endGuardIndex,
-             qPrintable(QStringLiteral("%1 must be inside "
-                                       "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+  for (const QString &includeDir : deletedIncludeDirs) {
+    QVERIFY2(!cmake.contains(includeDir),
+             qPrintable(QStringLiteral("Deleted include dir %1 must not appear in CMakeLists.txt")
                             .arg(includeDir)));
   }
 }
@@ -125,7 +105,7 @@ void ProductBoundaryTest::experimentalIncludeDirsAreCompileGuarded() {
 void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
   const QString cmake = readTextFile(
       QStringLiteral(SOURCE_ROOT "/tests/CMakeLists.txt"));
-  const QStringList testTargets = {
+  const QStringList deletedTestTargets = {
       QStringLiteral("cloudmanager_plugin_test"),
       QStringLiteral("edgecomputing_plugin_test"),
       QStringLiteral("aiassistant_plugin_test"),
@@ -160,19 +140,10 @@ void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
       QStringLiteral("workflow_quantum_service_test"),
   };
 
-  for (const QString &testTarget : testTargets) {
+  for (const QString &testTarget : deletedTestTargets) {
     const QString declaration = QStringLiteral("add_executable(%1").arg(testTarget);
-    const qsizetype targetIndex = cmake.indexOf(declaration);
-    QVERIFY2(targetIndex >= 0,
-             qPrintable(QStringLiteral("Missing test target %1").arg(testTarget)));
-
-    const qsizetype guardIndex = cmake.lastIndexOf(
-        QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), targetIndex);
-    const qsizetype endGuardIndex =
-        cmake.lastIndexOf(QStringLiteral("endif()"), targetIndex);
-    QVERIFY2(guardIndex > endGuardIndex,
-             qPrintable(QStringLiteral("%1 must be inside "
-                                       "ECAT_EXPERIMENTAL_SERVICES CMake guard")
+    QVERIFY2(!cmake.contains(declaration),
+             qPrintable(QStringLiteral("Deleted test target %1 must not appear in tests/CMakeLists.txt")
                             .arg(testTarget)));
   }
 }
@@ -180,7 +151,7 @@ void ProductBoundaryTest::experimentalTestsAreOptInByDefault() {
 void ProductBoundaryTest::experimentalTestSourcesAreCompileGuarded() {
   const QString cmake = readTextFile(
       QStringLiteral(SOURCE_ROOT "/tests/CMakeLists.txt"));
-  const QStringList sourcePaths = {
+  const QStringList deletedSourcePaths = {
       QStringLiteral("../apps/ecat-studio/plugins/cloudmanager/CloudManagerPlugin.cpp"),
       QStringLiteral("../apps/ecat-studio/plugins/edgecomputing/EdgeComputingPlugin.cpp"),
       QStringLiteral("../apps/ecat-studio/plugins/aiassistant/AIAssistantPlugin.cpp"),
@@ -205,31 +176,17 @@ void ProductBoundaryTest::experimentalTestSourcesAreCompileGuarded() {
       QStringLiteral("../apps/ecat-studio/services/WorkflowQuantumService.cpp"),
   };
 
-  for (const QString &sourcePath : sourcePaths) {
-    qsizetype sourceIndex = cmake.indexOf(sourcePath);
-    QVERIFY2(sourceIndex >= 0,
-             qPrintable(QStringLiteral("Missing test source entry for %1")
+  for (const QString &sourcePath : deletedSourcePaths) {
+    QVERIFY2(!cmake.contains(sourcePath),
+             qPrintable(QStringLiteral("Deleted test source %1 must not appear in tests/CMakeLists.txt")
                             .arg(sourcePath)));
-
-    while (sourceIndex >= 0) {
-      const qsizetype guardIndex = cmake.lastIndexOf(
-          QStringLiteral("if(ECAT_EXPERIMENTAL_SERVICES)"), sourceIndex);
-      const qsizetype endGuardIndex =
-          cmake.lastIndexOf(QStringLiteral("endif()"), sourceIndex);
-      QVERIFY2(guardIndex > endGuardIndex,
-               qPrintable(QStringLiteral("%1 test source must be inside "
-                                         "ECAT_EXPERIMENTAL_SERVICES CMake guard")
-                              .arg(sourcePath)));
-
-      sourceIndex = cmake.indexOf(sourcePath, sourceIndex + sourcePath.size());
-    }
   }
 }
 
 void ProductBoundaryTest::experimentalPluginsAreCompileGuarded() {
   const QString mainWindow = readTextFile(
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"));
-  const QStringList pluginTypes = {
+  const QStringList deletedPluginTypes = {
       QStringLiteral("CloudManagerPlugin"),
       QStringLiteral("EdgeComputingPlugin"),
       QStringLiteral("AIAssistantPlugin"),
@@ -238,45 +195,29 @@ void ProductBoundaryTest::experimentalPluginsAreCompileGuarded() {
       QStringLiteral("QuantumSecurityPlugin"),
   };
 
-  for (const QString &pluginType : pluginTypes) {
+  for (const QString &pluginType : deletedPluginTypes) {
     const QString registration =
         QStringLiteral("registerPlugin(new %1").arg(pluginType);
-    const qsizetype registrationIndex = mainWindow.indexOf(registration);
-    QVERIFY2(registrationIndex >= 0,
-             qPrintable(QStringLiteral("Missing registration for %1")
-                            .arg(pluginType)));
-
-    const qsizetype guardIndex = mainWindow.lastIndexOf(
-        QStringLiteral("#ifdef ECAT_EXPERIMENTAL_SERVICES"), registrationIndex);
-    const qsizetype endGuardIndex =
-        mainWindow.lastIndexOf(QStringLiteral("#endif"), registrationIndex);
-    QVERIFY2(guardIndex > endGuardIndex,
-             qPrintable(QStringLiteral("%1 registration must be inside "
-                                       "ECAT_EXPERIMENTAL_SERVICES guard")
+    QVERIFY2(!mainWindow.contains(registration),
+             qPrintable(QStringLiteral("Deleted plugin %1 must not have registerPlugin call in MainWindow.cpp")
                             .arg(pluginType)));
   }
 }
 
 void ProductBoundaryTest::readmeMarksExperimentalWorkspaces() {
   const QString readme = readTextFile(QStringLiteral(SOURCE_ROOT "/README.md"));
-  QVERIFY2(readme.contains(QStringLiteral("Experimental note:")),
-           "README must explicitly state that AI/Blockchain/Quantum/Cloud/"
-           "Edge/Digital Twin surfaces are experimental and opt-in.");
-
-  const QStringList workspaceNames = {
+  const QStringList deletedWorkspaceNames = {
       QStringLiteral("Digital Twin Studio"),
       QStringLiteral("Blockchain Explorer"),
       QStringLiteral("Quantum Security"),
+      QStringLiteral("Cloud Manager"),
+      QStringLiteral("Edge Computing"),
+      QStringLiteral("AI Assistant"),
   };
 
-  for (const QString &workspaceName : workspaceNames) {
-    const QRegularExpression rowPattern(QStringLiteral(
-        R"(^\|\s*%1\b[^\n]*\b(Experimental|实验)\b[^\n]*$)")
-                                            .arg(QRegularExpression::escape(workspaceName)),
-                                        QRegularExpression::MultilineOption);
-    QVERIFY2(rowPattern.match(readme).hasMatch(),
-             qPrintable(QStringLiteral("README workspace row for %1 must be marked "
-                                       "Experimental/实验.")
+  for (const QString &workspaceName : deletedWorkspaceNames) {
+    QVERIFY2(!readme.contains(workspaceName),
+             qPrintable(QStringLiteral("README must no longer reference deleted experimental workspace: %1")
                             .arg(workspaceName)));
   }
 }
@@ -286,7 +227,7 @@ void ProductBoundaryTest::docsMarkExperimentalSurfaces() {
       QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
       QStringLiteral(SOURCE_ROOT "/docs/PLUGIN_GUIDE.md"),
   };
-  const QStringList surfaceNames = {
+  const QStringList deletedSurfaceNames = {
       QStringLiteral("CloudManagerPlugin"),
       QStringLiteral("EdgeComputingPlugin"),
       QStringLiteral("AIAssistantPlugin"),
@@ -303,17 +244,9 @@ void ProductBoundaryTest::docsMarkExperimentalSurfaces() {
 
   for (const QString &docPath : docPaths) {
     const QString doc = readTextFile(docPath);
-    for (const QString &surfaceName : surfaceNames) {
-      if (!doc.contains(surfaceName)) {
-        continue;
-      }
-
-      const QRegularExpression rowPattern(
-          QStringLiteral(R"(^\|[^\n]*\b%1\b[^\n]*\b(Experimental|opt-in|实验)\b[^\n]*$)")
-              .arg(QRegularExpression::escape(surfaceName)),
-          QRegularExpression::MultilineOption);
-      QVERIFY2(rowPattern.match(doc).hasMatch(),
-               qPrintable(QStringLiteral("%1 must mark %2 as Experimental/opt-in.")
+    for (const QString &surfaceName : deletedSurfaceNames) {
+      QVERIFY2(!doc.contains(surfaceName),
+               qPrintable(QStringLiteral("%1 must no longer reference deleted experimental surface: %2")
                               .arg(docPath, surfaceName)));
     }
   }
@@ -338,6 +271,14 @@ void ProductBoundaryTest::publicDocsDoNotUseStaleReleaseNumbers() {
 }
 
 void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
+  // Verify that deleted AGENTS.md files no longer exist
+  QVERIFY2(!QFile::exists(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/AGENTS.md")),
+           "Deleted apps/ecat-studio/AGENTS.md must not exist.");
+  QVERIFY2(!QFile::exists(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/infra/AGENTS.md")),
+           "Deleted apps/ecat-studio/infra/AGENTS.md must not exist.");
+  QVERIFY2(!QFile::exists(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/AGENTS.md")),
+           "Deleted apps/ecat-studio/workspaces/AGENTS.md must not exist.");
+
   const QStringList docPaths = {
       QStringLiteral(SOURCE_ROOT "/README.md"),
       QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"),
@@ -346,9 +287,6 @@ void ProductBoundaryTest::publicDocsDoNotAdvertiseStaleProjectStats() {
       QStringLiteral(SOURCE_ROOT "/docs/TWINCAT_BENCHMARK_REVIEW.md"),
       QStringLiteral(SOURCE_ROOT "/CHANGELOG.md"),
       QStringLiteral(SOURCE_ROOT "/RELEASE_NOTES.md"),
-      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/AGENTS.md"),
-      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/infra/AGENTS.md"),
-      QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/AGENTS.md"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.cpp"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/MainWindow.h"),
       QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/workspaces/MainWindowManual.cpp"),
@@ -530,11 +468,19 @@ void ProductBoundaryTest::digitalTwinPluginHasSingleCanonicalPathAndId() {
   QVERIFY2(!QFile::exists(QStringLiteral(
                SOURCE_ROOT "/apps/ecat-studio/plugins/digitaltwin/DigitalTwinStudioPlugin.h")),
            "Legacy apps/ecat-studio/plugins/digitaltwin duplicate must not exist.");
+  QVERIFY2(!QFile::exists(QStringLiteral(
+               SOURCE_ROOT "/apps/ecat-studio/plugins/digitaltwinstudio/DigitalTwinStudioPlugin.cpp")),
+           "Deleted apps/ecat-studio/plugins/digitaltwinstudio must not exist.");
+  QVERIFY2(!QFile::exists(QStringLiteral(
+               SOURCE_ROOT "/apps/ecat-studio/plugins/digitaltwinstudio/DigitalTwinStudioPlugin.h")),
+           "Deleted apps/ecat-studio/plugins/digitaltwinstudio must not exist.");
 
   const QString architecture =
       readTextFile(QStringLiteral(SOURCE_ROOT "/docs/ARCHITECTURE.md"));
   QVERIFY2(!architecture.contains(QStringLiteral("| DigitalTwinStudioPlugin | `digitaltwin` |")),
            "Docs must use the canonical digitaltwinstudio plugin id.");
+  QVERIFY2(!architecture.contains(QStringLiteral("DigitalTwinStudioPlugin")),
+           "Docs must no longer reference deleted DigitalTwinStudioPlugin.");
 }
 
 void ProductBoundaryTest::managerPluginsHaveSingleCanonicalPathAndId() {
