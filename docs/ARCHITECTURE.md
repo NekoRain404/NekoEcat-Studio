@@ -183,12 +183,6 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 | VisualizationStudioPlugin | `visualizationstudio` | Advanced data visualization |
 | ReportDesignerPlugin | `reportdesigner` | Custom report designer |
 | DocumentationBrowserPlugin | `documentationbrowser` | Documentation browser |
-| CloudManagerPlugin | `cloudmanager` | Experimental opt-in: Cloud connectivity management |
-| EdgeComputingPlugin | `edgecomputing` | Experimental opt-in: Edge computing management |
-| AIAssistantPlugin | `aiassistant` | Experimental opt-in: AI-powered diagnostic assistant |
-| DigitalTwinStudioPlugin | `digitaltwinstudio` | Experimental opt-in: Digital twin modeling and management |
-| BlockchainExplorerPlugin | `blockchainexplorer` | Experimental opt-in: Blockchain audit log explorer |
-| QuantumSecurityPlugin | `quantumsecurity` | Experimental opt-in: Quantum-resistant security management |
 | WorkflowOptimizerPlugin | `workflowoptimizer` | Workflow optimization recommendations |
 | WorkflowDashboardPlugin | `workflowdashboard` | Workflow monitoring dashboard |
 | PdoMappingEditorPlugin | `pdomapping` | Visual PDO mapping editor with canvas, validator, and export |
@@ -291,15 +285,12 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `foe()` | `FoEService*` | File over EtherCAT protocol |
 | `eoe()` | `EoEService*` | Ethernet over EtherCAT protocol |
 | `trace()` | `TraceService*` | EtherCAT frame tracing |
-| `masterApi()` | `MasterApiService*` | Low-level master API (ecrt) |
 | `domain()` | `DomainService*` | Domain/process data management |
 | `syncManager()` | `SyncManagerService*` | Sync manager configuration |
 | `stateMachine()` | `StateMachineService*` | Slave state machine control |
 | `errorHandling()` | `ErrorHandlingService*` | Error detection and recovery |
-| `diagnostic()` | `DiagnosticService*` | System/performance/network diagnostics |
 | `hotConnect()` | `HotConnectService*` | Hot connect group management |
 | `redundancy()` | `RedundancyService*` | EtherCAT redundancy management |
-| `cableDiagnostics()` | `CableDiagnosticsService*` | Cable diagnostics and testing |
 | `ecatMonitor()` | `EtherCATMonitorService*` | Real-time bus traffic monitoring |
 | `ecatAnalyzer()` | `EtherCATAnalyzerService*` | Protocol analysis |
 | `ecatOptimizer()` | `EtherCATOptimizerService*` | Performance optimization |
@@ -319,29 +310,14 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `ecatUpdate()` | `EtherCATUpdateService*` | Firmware/software updates |
 | `ecatMaintenance()` | `EtherCATMaintenanceService*` | Maintenance scheduling |
 | `ecatIntegration()` | `EtherCATIntegrationService*` | Third-party integration |
-| `ecatSync()` | `EtherCATSyncService*` | Multi-device synchronization |
-| `ecatReplication()` | `EtherCATReplicationService*` | Configuration replication |
 | `ecatVisualization()` | `EtherCATVisualizationService*` | Data visualization |
 | `ecatReporting()` | `EtherCATReportingService*` | Advanced reporting |
 | `ecatDocumentation()` | `EtherCATDocumentationService*` | Documentation generation |
-| `ecatCloud()` | `EtherCATCloudService*` | Experimental opt-in: Cloud connectivity |
-| `ecatEdge()` | `EtherCATEdgeService*` | Experimental opt-in: Edge computing |
-| `ecatAI()` | `EtherCATAIService*` | Experimental opt-in: AI-powered diagnostics |
-| `ecatDigitalTwin()` | `EtherCATDigitalTwinService*` | Experimental opt-in: Digital twin modeling |
-| `ecatBlockchain()` | `EtherCATBlockchainService*` | Experimental opt-in: Blockchain audit logging |
-| `ecatQuantum()` | `EtherCATQuantumService*` | Experimental opt-in: Quantum-resistant security |
-| `projectManagement()` | `ProjectManagementService*` | Project management |
-| `taskManagement()` | `TaskManagementService*` | Task management |
-| `resourceManagement()` | `ResourceManagementService*` | Resource management |
-| `projectPlanning()` | `ProjectPlanningService*` | Project planning |
-| `projectTracking()` | `ProjectTrackingService*` | Project tracking |
-| `projectReporting()` | `ProjectReportingService*` | Project reporting |
 | `workflowAutomation()` | `WorkflowAutomationService*` | Workflow automation |
 | `workflowScheduling()` | `WorkflowSchedulingService*` | Workflow scheduling |
 | `workflowMonitoring()` | `WorkflowMonitoringService*` | Workflow monitoring |
 | `workflowVisualization()` | `WorkflowVisualizationService*` | Workflow visualization |
 | `workflowReporting()` | `WorkflowReportingService*` | Workflow reporting |
-| `workflowIntegration()` | `WorkflowIntegrationService*` | Workflow integration |
 | `pdoMapping()` | `PdoMappingService*` | PDO mapping discovery and validation |
 | `dcSyncPrecision()` | `DcSyncPrecisionService*` | DC sync precision analysis |
 | `onlineDiagnostics()` | `OnlineDiagnosticsService*` | Real-time bus monitoring and diagnostics |
@@ -370,7 +346,6 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `EsiService` | `services/EsiService.h` | ESI XML import/parse, device matching by vendor/product, PDO mapping lookup |
 | `BusStatsService` | `services/BusStatsService.h` | Bus frame counts, error counts, bandwidth, frame rate |
 | `EventBus` | `services/EventBus.h` | Central inter-plugin signal hub (8 event types) |
-| `CacheService` | `services/CacheService.h` | Generic LRU cache with TTL expiration for SDO, topology, PDO, ESI data |
 | `AsyncOperationManager` | `services/AsyncOperationManager.h` | Priority-queued async operations with timeout, progress tracking, and cancellation |
 | `WatchdogService` | `services/WatchdogService.h` | Watchdog timeout monitoring, per-slave status tracking, EventBus integration |
 | `SafetyController` | `services/SafetyController.h` | Safety boundary validation for state transitions, SDO writes, and Free Run |
@@ -391,37 +366,21 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `ReportGeneratorService` | `services/ReportGeneratorService.h` | Report generation |
 | `MasterManagerService` | `services/MasterManagerService.h` | EtherCAT master management |
 | `DistributedClockService` | `services/DistributedClockService.h` | Distributed clock management |
-| `ConnectionPool` | `services/ConnectionPool.h` | TCP connection pooling for daemon communication |
-| `StartupOptimizer` | `services/StartupOptimizer.h` | Startup time optimization with lazy/parallel initialization |
-| `DataCache` | `services/DataCache.h` | Specialized SDO/PDO data cache with batch operations and prefetching |
-| `BatchProcessor` | `services/BatchProcessor.h` | Batch operations for multiple SDO/state requests with progress tracking |
-| `CableDiagnosticsService` | `services/CableDiagnosticsService.h` | EtherCAT cable diagnostics and testing |
 | `RedundancyService` | `services/RedundancyService.h` | EtherCAT redundancy management |
 | `HotConnectService` | `services/HotConnectService.h` | Hot connect group management |
-| `DiagnosticService` | `services/DiagnosticService.h` | General diagnostic service |
 | `ErrorHandlingService` | `services/ErrorHandlingService.h` | Error handling and recovery |
 | `StateMachineService` | `services/StateMachineService.h` | State machine management |
 | `SyncManagerService` | `services/SyncManagerService.h` | Sync manager configuration |
 | `DomainService` | `services/DomainService.h` | EtherCAT domain management |
-| `MasterApiService` | `services/MasterApiService.h` | Master API operations |
 | `TraceService` | `services/TraceService.h` | EtherCAT frame tracing |
 | `EoEService` | `services/EoEService.h` | Ethernet over EtherCAT |
 | `FoEService` | `services/FoEService.h` | File over EtherCAT |
 | `WorkflowOptimizationService` | `services/WorkflowOptimizationService.h` | Workflow optimization |
 | `ResourceManagementService` | `services/ResourceManagementService.h` | Resource management |
 | `TaskManagementService` | `services/TaskManagementService.h` | Task management |
-| `ProjectManagementService` | `services/ProjectManagementService.h` | Project management |
-| `EtherCATDigitalTwinService` | `services/EtherCATDigitalTwinService.h` | Experimental opt-in: Digital twin modeling and simulation |
-| `EtherCATQuantumService` | `services/EtherCATQuantumService.h` | Experimental opt-in: Quantum-resistant cryptography |
-| `EtherCATBlockchainService` | `services/EtherCATBlockchainService.h` | Experimental opt-in: Blockchain audit logging |
-| `EtherCATAIService` | `services/EtherCATAIService.h` | Experimental opt-in: AI-powered diagnostics and optimization |
-| `EtherCATEdgeService` | `services/EtherCATEdgeService.h` | Experimental opt-in: Edge computing management |
-| `EtherCATCloudService` | `services/EtherCATCloudService.h` | Experimental opt-in: Cloud connectivity and sync |
 | `EtherCATDocumentationService` | `services/EtherCATDocumentationService.h` | Documentation generation |
 | `EtherCATReportingService` | `services/EtherCATReportingService.h` | Advanced reporting |
 | `EtherCATVisualizationService` | `services/EtherCATVisualizationService.h` | Data visualization |
-| `EtherCATReplicationService` | `services/EtherCATReplicationService.h` | Configuration replication |
-| `EtherCATSyncService` | `services/EtherCATSyncService.h` | Multi-device synchronization |
 | `EtherCATIntegrationService` | `services/EtherCATIntegrationService.h` | Third-party integration |
 | `EtherCATMaintenanceService` | `services/EtherCATMaintenanceService.h` | Maintenance scheduling |
 | `EtherCATDeploymentService` | `services/EtherCATDeploymentService.h` | Device deployment |
@@ -446,16 +405,11 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `CoEService` | `services/CoEService.h` | CANopen over EtherCAT protocol (SDO info, dictionary upload, emergency objects) |
 | `ImpactAnalysisService` | `services/ImpactAnalysisService.h` | Impact analysis data aggregation for Free Run and state transitions |
 | `PdoMappingService` | `services/PdoMappingService.h` | PDO mapping discovery, validation, configuration, and export |
-| `ProjectPlanningService` | `services/ProjectPlanningService.h` | Project milestone, timeline, resource, and risk planning |
-| `ProjectReportingService` | `services/ProjectReportingService.h` | Project status, progress, performance, and financial reports |
-| `ProjectTrackingService` | `services/ProjectTrackingService.h` | Project progress, time, cost, and quality tracking |
 | `SdoCacheService` | `services/SdoCacheService.h` | Per-slave SDO dictionary/value cache with TTL and eviction policies |
 | `WorkflowAutomationService` | `services/WorkflowAutomationService.h` | Automated task execution, testing, deployment, and monitoring workflows |
-| `WorkflowIntegrationService` | `services/WorkflowIntegrationService.h` | Workflow integration with CI/CD, issue trackers, and communication platforms |
 | `WorkflowReportingService` | `services/WorkflowReportingService.h` | Workflow execution, performance, error, and resource utilization reports |
 | `WorkflowSchedulingService` | `services/WorkflowSchedulingService.h` | Cron-based, event-based, dependency-based, and priority-based workflow scheduling |
 | `WorkflowVisualizationService` | `services/WorkflowVisualizationService.h` | Workflow flowcharts, Gantt charts, dependency graphs, and resource timelines |
-| `PdoMappingService` | `services/PdoMappingService.h` | PDO mapping discovery, validation, configuration, and export |
 | `DcSyncPrecisionService` | `services/DcSyncPrecisionService.h` | DC sync precision analysis with drift monitoring and jitter statistics |
 | `OnlineDiagnosticsService` | `services/OnlineDiagnosticsService.h` | Real-time bus monitoring, error analysis, and health scoring |
 | `MultiMasterService` | `services/MultiMasterService.h` | Multi-master management and cross-master coordination |
@@ -776,26 +730,6 @@ cmake --build build --target release-smoke   # run release smoke tests
 
 ## Performance Considerations
 
-### Caching Strategy
-
-`CacheService` provides a generic LRU cache with TTL expiration. Different cache
-types are configured independently:
-
-| Cache Type | Default TTL | Purpose |
-|-----------|-------------|---------|
-| SDO | 30s | SDO read values |
-| Topology | 60s | Slave scan results |
-| PDO | 10s | PDO mapping data |
-| ESI | 300s | ESI XML descriptions |
-
-The cache is thread-safe via `QReadWriteLock` and supports per-key invalidation.
-
-`DataCache` provides specialized caching for SDO/PDO data with:
-- Batch operations for multiple keys
-- Prefetching with custom loaders
-- Access statistics (hits, misses, evictions, prefetches)
-- LRU eviction with configurable max entries
-
 ### Async Operations
 
 `AsyncOperationManager` provides priority-queued async execution with:
@@ -805,12 +739,6 @@ The cache is thread-safe via `QReadWriteLock` and supports per-key invalidation.
 - Cancellation support with atomic flag checking
 - Progress tracking and completion signals
 
-`BatchProcessor` handles batch operations for multiple SDO/state requests:
-- Asynchronous execution in separate threads
-- Progress tracking per item and overall
-- Cancellation support
-- Error aggregation
-
 ### Memory Management
 
 `MemoryPool<T>` provides fixed-size object pooling for frequent allocations:
@@ -818,22 +746,6 @@ The cache is thread-safe via `QReadWriteLock` and supports per-key invalidation.
 - Falls back to heap allocation on pool exhaustion
 - Thread-safe via `QMutex`
 - Tracks statistics: peak usage, overflow count, allocation/deallocation counts
-
-### Connection Pooling
-
-`ConnectionPool` manages TCP connections to ecatd daemon:
-- Connection reuse with configurable max connections (default 4)
-- Health checking at configurable intervals
-- Automatic reconnection on connection loss
-- Thread-safe acquire/release operations
-
-### Startup Optimization
-
-`StartupOptimizer` optimizes application startup time:
-- Lazy initialization of services
-- Parallel initialization of plugins
-- Preloading of frequently used data
-- Startup metrics tracking
 
 ### EventBus Optimization
 
