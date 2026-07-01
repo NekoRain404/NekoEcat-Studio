@@ -93,6 +93,8 @@ signals:
 
 private:
   void buildUi();
+  void updateStateCell(int position, int state);
+  QString stateToString(int state) const;
 
   ServiceContainer *container_;
   QWidget *containerWidget_ = nullptr;

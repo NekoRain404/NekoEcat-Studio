@@ -10,6 +10,7 @@
 #include <QItemSelectionModel>
 #include <QModelIndexList>
 #include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QTextStream>
 #include <QtGlobal>
 
@@ -288,4 +289,22 @@ void writeMarkdownTable(QTextStream &out, QTableWidget *table) {
     out << "\n";
   }
   out << "\n";
+}
+
+// Populates a table widget with headers and rows.
+void populateTable(QTableWidget *table, const QStringList &headers,
+                   const QList<QStringList> &rows) {
+  table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  table->horizontalHeader()->setStretchLastSection(true);
+  table->setColumnCount(headers.size());
+  table->setHorizontalHeaderLabels(headers);
+  table->setRowCount(rows.size());
+  for (int r = 0; r < rows.size(); ++r) {
+    const QStringList &cols = rows[r];
+    for (int c = 0; c < cols.size() && c < headers.size(); ++c) {
+      table->setItem(r, c, new QTableWidgetItem(cols[c]));
+    }
+  }
+  table->resizeColumnsToContents();
 }

@@ -1,4 +1,5 @@
 #include "OdPlugin.h"
+#include "services/SdoCacheService.h"
 #include "services/ServiceContainer.h"
 
 #include <QComboBox>
@@ -16,6 +17,21 @@ OdPlugin::OdPlugin(ServiceContainer *container, QObject *parent)
     : container_(container) {
   if (parent) setParent(parent);
   buildUi();
+
+  auto *cache = container_->sdoCache();
+  connect(cache, &SdoCacheService::cacheUpdated,
+          this, [this](int position) {
+    updateSdoInspectorLabel(
+        tr("Dictionary cache updated for slave %1").arg(position),
+        QStringLiteral("ok"));
+  });
+
+  connect(cache, &SdoCacheService::cacheInvalidated,
+          this, [this](int position) {
+    updateSdoTargetTrailRowDetail(
+        tr("Cache invalidated for slave %1").arg(position),
+        QStringLiteral("warning"), QString());
+  });
 }
 
 // ── Identity ──────────────────────────────────────────────────────────

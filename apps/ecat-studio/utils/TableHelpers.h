@@ -11,6 +11,14 @@
 class QTableWidget;
 class QTextStream;
 
+// Populates a QTableWidget with headers and rows in one call.
+// Sets NoEditTriggers, SelectRows, and stretches the last section.
+// @param table       Target table (must not be null)
+// @param headers     Column header labels
+// @param rows        Row data; each inner list length should match headers
+void populateTable(QTableWidget *table, const QStringList &headers,
+                   const QList<QStringList> &rows);
+
 // Escapes and quotes text for safe CSV output.
 QString csvCell(QString text);
 // Escapes text for safe markdown table cells.

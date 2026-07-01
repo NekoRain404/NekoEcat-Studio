@@ -1,6 +1,8 @@
 #include "SessionPlugin.h"
+#include "infra/EcatClient.h"
 #include "services/ServiceContainer.h"
 
+#include <QColor>
 #include <QHeaderView>
 #include <QIcon>
 #include <QLabel>
@@ -12,6 +14,43 @@ SessionPlugin::SessionPlugin(ServiceContainer *container, QObject *parent)
     : container_(container) {
   if (parent) setParent(parent);
   buildUi();
+
+  auto *client = container_->client();
+  connect(client, &EcatClient::connectionStateChanged,
+          this, [this](ConnectionState state) {
+    QStringList headers = {tr("Area"), tr("Status"), tr("Detail"), tr("Next")};
+    QList<QStringList> rows;
+    QString stateText;
+    QColor color;
+    switch (state) {
+      case ConnectionState::Connected:
+        stateText = tr("Connected");
+        color = QColor(Qt::darkGreen);
+        break;
+      case ConnectionState::Connecting:
+        stateText = tr("Connecting...");
+        color = QColor(Qt::darkYellow);
+        break;
+      case ConnectionState::Disconnected:
+        stateText = tr("Disconnected");
+        color = QColor(Qt::red);
+        break;
+      case ConnectionState::Reconnecting:
+        stateText = tr("Reconnecting...");
+        color = QColor(Qt::darkYellow);
+        break;
+    }
+    rows << QStringList{tr("Connection"), stateText, QString(), QString()};
+    updateSessionBrief(headers, rows, {color});
+  });
+
+  connect(client, &EcatClient::connected, this, [this]() {
+    onConnectionChanged(true);
+  });
+
+  connect(client, &EcatClient::disconnected, this, [this]() {
+    onConnectionChanged(false);
+  });
 }
 
 // ── Identity ──────────────────────────────────────────────────────────

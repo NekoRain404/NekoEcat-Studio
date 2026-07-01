@@ -59,7 +59,7 @@ void EoEPlugin::buildUi() {
 
     // Slave list.
     slaveTable_ = new QTableWidget(0, 3);
-    slaveTable_->setHorizontalHeaderLabels({"Pos", "Name", "State"});
+    slaveTable_->setHorizontalHeaderLabels({tr("Pos"), tr("Name"), tr("State")});
     slaveTable_->horizontalHeader()->setStretchLastSection(true);
     slaveTable_->setSelectionBehavior(QAbstractItemView::SelectRows);
     slaveTable_->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -95,11 +95,11 @@ void EoEPlugin::buildUi() {
     ipLayout->addWidget(subnetEdit_, 0, 3);
     ipLayout->addWidget(new QLabel(tr("Gateway:")), 1, 0);
     gatewayEdit_ = new QLineEdit;
-    gatewayEdit_->setPlaceholderText("optional");
+    gatewayEdit_->setPlaceholderText(tr("optional"));
     ipLayout->addWidget(gatewayEdit_, 1, 1);
     ipLayout->addWidget(new QLabel(tr("DNS:")), 1, 2);
     dnsEdit_ = new QLineEdit;
-    dnsEdit_->setPlaceholderText("optional");
+    dnsEdit_->setPlaceholderText(tr("optional"));
     ipLayout->addWidget(dnsEdit_, 1, 3);
 
     configIpBtn_ = new QPushButton(tr("Configure IP"));

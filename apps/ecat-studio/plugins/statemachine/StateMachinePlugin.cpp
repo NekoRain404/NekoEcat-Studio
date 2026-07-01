@@ -1,10 +1,12 @@
 #include "StateMachinePlugin.h"
 #include "services/ServiceContainer.h"
+#include "services/StateMachineService.h"
 
 #include <QHeaderView>
 #include <QIcon>
 #include <QLabel>
 #include <QTableWidget>
+#include <QTimer>
 #include <QVBoxLayout>
 
 StateMachinePlugin::StateMachinePlugin(ServiceContainer *container,
@@ -12,6 +14,19 @@ StateMachinePlugin::StateMachinePlugin(ServiceContainer *container,
     : container_(container) {
   if (parent) setParent(parent);
   buildUi();
+
+  // Live data: connect to StateMachineService for auto-updates
+  auto *sm = container_->stateMachine();
+  if (sm) {
+    connect(sm, &StateMachineService::stateChanged, this, [this](int pos, int state) {
+      updateStateCell(pos, state);
+    });
+    connect(sm, &StateMachineService::stateTransitionFailed, this,
+            [this](int pos, int from, int to, const QString &reason) {
+      setDetail(QString(tr("Slave %1: %2 → %3 failed — %4"))
+                    .arg(pos).arg(from).arg(to).arg(reason), kWarningColor);
+    });
+  }
 }
 
 // ── Identity ──────────────────────────────────────────────────────────
@@ -64,6 +79,40 @@ void StateMachinePlugin::setRows(const QStringList &headers,
     }
   }
   table_->resizeColumnsToContents();
+}
+
+// ── Live state update ──────────────────────────────────────────────────
+void StateMachinePlugin::updateStateCell(int position, int state) {
+  // Find the row for this slave position and update the state column.
+  for (int r = 0; r < table_->rowCount(); ++r) {
+    auto *item = table_->item(r, 0);
+    if (item && item->text().toInt() == position) {
+      if (table_->columnCount() > 1)
+        table_->item(r, 1)->setText(stateToString(state));
+      // Highlight updated row briefly
+      for (int c = 0; c < table_->columnCount(); ++c) {
+        auto *cell = table_->item(r, c);
+        if (cell) cell->setBackground(QColor(kInfoColor).lighter(180));
+      }
+      QTimer::singleShot(500, this, [this, r]() {
+        for (int c = 0; c < table_->columnCount(); ++c) {
+          auto *cell = table_->item(r, c);
+          if (cell) cell->setBackground(QColor(Qt::transparent));
+        }
+      });
+      break;
+    }
+  }
+}
+
+QString StateMachinePlugin::stateToString(int state) const {
+  switch (state) {
+  case 1:  return tr("INIT");
+  case 2:  return tr("PREOP");
+  case 4:  return tr("SAFEOP");
+  case 8:  return tr("OP");
+  default: return tr("UNKNOWN");
+  }
 }
 
 // ── Summary label ─────────────────────────────────────────────────────

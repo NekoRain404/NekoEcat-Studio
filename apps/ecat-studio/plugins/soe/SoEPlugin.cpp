@@ -49,7 +49,7 @@ void SoEPlugin::buildUi() {
     form->addRow(tr("Drive (0-7):"), driveSpin_);
 
     idnEdit_ = new QLineEdit;
-    idnEdit_->setPlaceholderText("P-0-0150 or S-0-1000 or 0x0150");
+    idnEdit_->setPlaceholderText(tr("P-0-0150 or S-0-1000 or 0x0150"));
     form->addRow(tr("IDN:"), idnEdit_);
 
     typeCombo_ = new QComboBox;

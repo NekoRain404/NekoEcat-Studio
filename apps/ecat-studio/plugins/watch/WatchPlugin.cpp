@@ -1,5 +1,6 @@
 #include "WatchPlugin.h"
 #include "services/ServiceContainer.h"
+#include "services/WatchService.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -14,6 +15,36 @@ WatchPlugin::WatchPlugin(ServiceContainer *container, QObject *parent)
     : container_(container) {
   if (parent) setParent(parent);
   buildUi();
+
+  auto *watchSvc = container_->watch();
+  connect(watchSvc, &WatchService::entryUpdated,
+          this, [this](int row, const WatchEntry &entry) {
+    const QStringList columns = {
+        QString(),                                  // Time (acquired separately)
+        QString::number(entry.position),            // Slave
+        entry.index,                                // Index
+        entry.subIndex,                             // Sub
+        entry.value,                                // Value
+        QString(),                                  // Decoded (not available here)
+        entry.type,                                 // Type
+        QString(),                                  // Mode
+        entry.previousValue,                        // Baseline
+        entry.changed ? tr("Changed") : tr("Same"), // Delta
+        QString(),                                  // Startup
+        QString()                                   // Startup Delta
+    };
+    if (row < rowCount()) {
+      updateWatchRow(row, columns);
+    } else {
+      insertWatchRow(row, columns);
+    }
+  });
+
+  connect(watchSvc, &WatchService::refreshComplete,
+          this, [this](int requested, int succeeded) {
+    setSummary(tr("Watch: %1 entries | %2 OK").arg(requested).arg(succeeded));
+    emit watchModified();
+  });
 }
 
 // ── Identity ──────────────────────────────────────────────────────────

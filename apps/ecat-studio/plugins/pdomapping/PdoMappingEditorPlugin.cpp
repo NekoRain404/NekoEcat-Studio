@@ -140,18 +140,18 @@ void PdoMappingEditorPlugin::buildUi() {
   toolbarLayout->setContentsMargins(0, 0, 0, 0);
 
   slaveCombo_ = new QComboBox;
-  slaveCombo_->addItem("Slave 0", 0);
-  slaveCombo_->addItem("Slave 1", 1);
-  slaveCombo_->addItem("Slave 2", 2);
-  slaveCombo_->addItem("Slave 3", 3);
-  toolbarLayout->addWidget(new QLabel("Slave:"));
+  slaveCombo_->addItem(tr("Slave 0"), 0);
+  slaveCombo_->addItem(tr("Slave 1"), 1);
+  slaveCombo_->addItem(tr("Slave 2"), 2);
+  slaveCombo_->addItem(tr("Slave 3"), 3);
+  toolbarLayout->addWidget(new QLabel(tr("Slave:")));
   toolbarLayout->addWidget(slaveCombo_);
 
-  addEntryBtn_ = new QPushButton("Add Entry");
-  removeEntryBtn_ = new QPushButton("Remove Entry");
-  validateBtn_ = new QPushButton("Validate");
-  exportBtn_ = new QPushButton("Export");
-  importBtn_ = new QPushButton("Import");
+  addEntryBtn_ = new QPushButton(tr("Add Entry"));
+  removeEntryBtn_ = new QPushButton(tr("Remove Entry"));
+  validateBtn_ = new QPushButton(tr("Validate"));
+  exportBtn_ = new QPushButton(tr("Export"));
+  importBtn_ = new QPushButton(tr("Import"));
   toolbarLayout->addWidget(addEntryBtn_);
   toolbarLayout->addWidget(removeEntryBtn_);
   toolbarLayout->addStretch();
@@ -163,7 +163,7 @@ void PdoMappingEditorPlugin::buildUi() {
   mainSplitter_ = new QSplitter(Qt::Horizontal);
 
   pdoTree_ = new QTreeWidget;
-  pdoTree_->setHeaderLabels({"PDO Entry", "Index", "Size"});
+  pdoTree_->setHeaderLabels({tr("PDO Entry"), tr("Index"), tr("Size")});
   pdoTree_->setMinimumWidth(200);
   mainSplitter_->addWidget(pdoTree_);
 
@@ -176,24 +176,24 @@ void PdoMappingEditorPlugin::buildUi() {
 
   propertyTable_ = new QTableWidget;
   propertyTable_->setColumnCount(2);
-  propertyTable_->setHorizontalHeaderLabels({"Property", "Value"});
+  propertyTable_->setHorizontalHeaderLabels({tr("Property"), tr("Value")});
   propertyTable_->horizontalHeader()->setStretchLastSection(true);
   propertyTable_->setMinimumHeight(150);
-  rightLayout->addWidget(new QLabel("Properties"));
+  rightLayout->addWidget(new QLabel(tr("Properties")));
   rightLayout->addWidget(propertyTable_);
 
   validationPanel_ = new QTextEdit;
   validationPanel_->setReadOnly(true);
   validationPanel_->setMaximumHeight(150);
-  validationPanel_->setPlaceholderText("Click 'Validate' to check mapping...");
-  rightLayout->addWidget(new QLabel("Validation"));
+  validationPanel_->setPlaceholderText(tr("Click 'Validate' to check mapping..."));
+  rightLayout->addWidget(new QLabel(tr("Validation")));
   rightLayout->addWidget(validationPanel_);
 
   mainSplitter_->addWidget(rightPanel);
   mainSplitter_->setSizes({200, 400, 250});
   mainLayout->addWidget(mainSplitter_);
 
-  statusLabel_ = new QLabel("Ready");
+  statusLabel_ = new QLabel(tr("Ready"));
   mainLayout->addWidget(statusLabel_);
 
   rebuildPdoTree();
@@ -204,17 +204,17 @@ void PdoMappingEditorPlugin::buildUi() {
   });
   connect(validateBtn_, &QPushButton::clicked, this, &PdoMappingEditorPlugin::validateMapping);
   connect(exportBtn_, &QPushButton::clicked, this, [this]() {
-    QString path = QFileDialog::getSaveFileName(containerWidget_, "Export PDO Mapping", "",
-                                                 "JSON Files (*.json)");
+    QString path = QFileDialog::getSaveFileName(containerWidget_, tr("Export PDO Mapping"), "",
+                                                 tr("JSON Files (*.json)"));
     if (!path.isEmpty()) exportMapping(path);
   });
   connect(importBtn_, &QPushButton::clicked, this, [this]() {
-    QString path = QFileDialog::getOpenFileName(containerWidget_, "Import PDO Mapping", "",
-                                                 "JSON Files (*.json)");
+    QString path = QFileDialog::getOpenFileName(containerWidget_, tr("Import PDO Mapping"), "",
+                                                 tr("JSON Files (*.json)"));
     if (!path.isEmpty()) importMapping(path);
   });
   connect(addEntryBtn_, &QPushButton::clicked, this, [this]() {
-    addPdoEntry(2, "0x6000", "0x00", "New Entry", "UINT16", 16, false);
+    addPdoEntry(2, "0x6000", "0x00", tr("New Entry"), "UINT16", 16, false);
   });
   connect(removeEntryBtn_, &QPushButton::clicked, this, [this]() {
     int sm = canvas_->selectedSmIndex();
@@ -230,19 +230,19 @@ void PdoMappingEditorPlugin::buildUi() {
               if (sm.index == smIdx && entryIdx >= 0 && entryIdx < sm.entries.size()) {
                 const auto &e = sm.entries[entryIdx];
                 propertyTable_->setRowCount(6);
-                propertyTable_->setItem(0, 0, new QTableWidgetItem("Index"));
+                propertyTable_->setItem(0, 0, new QTableWidgetItem(tr("Index")));
                 propertyTable_->setItem(0, 1, new QTableWidgetItem(e.index));
-                propertyTable_->setItem(1, 0, new QTableWidgetItem("SubIndex"));
+                propertyTable_->setItem(1, 0, new QTableWidgetItem(tr("SubIndex")));
                 propertyTable_->setItem(1, 1, new QTableWidgetItem(e.subIndex));
-                propertyTable_->setItem(2, 0, new QTableWidgetItem("Name"));
+                propertyTable_->setItem(2, 0, new QTableWidgetItem(tr("Name")));
                 propertyTable_->setItem(2, 1, new QTableWidgetItem(e.name));
-                propertyTable_->setItem(3, 0, new QTableWidgetItem("Data Type"));
+                propertyTable_->setItem(3, 0, new QTableWidgetItem(tr("Data Type")));
                 propertyTable_->setItem(3, 1, new QTableWidgetItem(e.dataType));
-                propertyTable_->setItem(4, 0, new QTableWidgetItem("Bit Size"));
+                propertyTable_->setItem(4, 0, new QTableWidgetItem(tr("Bit Size")));
                 propertyTable_->setItem(4, 1, new QTableWidgetItem(QString::number(e.bitSize)));
-                propertyTable_->setItem(5, 0, new QTableWidgetItem("Direction"));
+                propertyTable_->setItem(5, 0, new QTableWidgetItem(tr("Direction")));
                 propertyTable_->setItem(5, 1, new QTableWidgetItem(
-                    e.direction == PdoEntryDirection::Input ? "Input" : "Output"));
+                    e.direction == PdoEntryDirection::Input ? tr("Input") : tr("Output")));
                 break;
               }
             }
@@ -255,8 +255,8 @@ void PdoMappingEditorPlugin::rebuildPdoTree() {
   auto sms = canvas_->syncManagers();
   for (const auto &sm : sms) {
     auto *smItem = new QTreeWidgetItem(pdoTree_);
-    QString dirLabel = sm.direction == PdoEntryDirection::Input ? "IN" : "OUT";
-    smItem->setText(0, QString("SM%1 [%2] %3").arg(sm.index).arg(dirLabel, sm.name));
+    QString dirLabel = sm.direction == PdoEntryDirection::Input ? tr("IN") : tr("OUT");
+    smItem->setText(0, tr("SM%1 [%2] %3").arg(sm.index).arg(dirLabel, sm.name));
     smItem->setExpanded(true);
     int totalBits = 0;
     for (const auto &entry : sm.entries) {
@@ -282,20 +282,20 @@ void PdoMappingEditorPlugin::updateValidationDisplay() {
 
   QString text;
   if (report.valid) {
-    text = "✓ Validation passed\n";
+    text = tr("✓ Validation passed\n");
   } else {
-    text = QString("✗ %1 error(s) found:\n").arg(report.errors.size());
+    text = tr("✗ %1 error(s) found:\n").arg(report.errors.size());
     for (const auto &err : report.errors) {
       text += "  • " + PdoMappingValidator::errorString(err) + "\n";
     }
   }
-  text += QString("\nInput: %1 bits | Output: %2 bits")
+  text += tr("\nInput: %1 bits | Output: %2 bits")
               .arg(report.totalInputBits)
               .arg(report.totalOutputBits);
   validationPanel_->setText(text);
 
   if (statusLabel_) {
-    statusLabel_->setText(report.valid ? "Mapping valid" : QString("%1 errors").arg(report.errors.size()));
+    statusLabel_->setText(report.valid ? tr("Mapping valid") : tr("%1 errors").arg(report.errors.size()));
   }
 }
 
@@ -306,38 +306,38 @@ void PdoMappingEditorPlugin::populateSampleData() {
 
   SyncManagerBlock sm0;
   sm0.index = 0;
-  sm0.name = "Mailbox Out";
+  sm0.name = tr("Mailbox Out");
   sm0.direction = PdoEntryDirection::Output;
   sm0.enabled = true;
 
   SyncManagerBlock sm1;
   sm1.index = 1;
-  sm1.name = "Mailbox In";
+  sm1.name = tr("Mailbox In");
   sm1.direction = PdoEntryDirection::Input;
   sm1.enabled = true;
 
   SyncManagerBlock sm2;
   sm2.index = 2;
-  sm2.name = "RxPDO";
+  sm2.name = tr("RxPDO");
   sm2.direction = PdoEntryDirection::Output;
   sm2.enabled = true;
   sm2.entries = {
-      {"0x6040", "0x00", "Control Word", "UINT16", 16, PdoEntryDirection::Output, 2, true, false, false},
-      {"0x607A", "0x00", "Target Position", "INT32", 32, PdoEntryDirection::Output, 2, true, false, false},
-      {"0x60FF", "0x00", "Target Velocity", "INT32", 32, PdoEntryDirection::Output, 2, true, false, false},
-      {"0x6071", "0x00", "Target Torque", "INT16", 16, PdoEntryDirection::Output, 2, true, false, false},
+      {"0x6040", "0x00", tr("Control Word"), "UINT16", 16, PdoEntryDirection::Output, 2, true, false, false},
+      {"0x607A", "0x00", tr("Target Position"), "INT32", 32, PdoEntryDirection::Output, 2, true, false, false},
+      {"0x60FF", "0x00", tr("Target Velocity"), "INT32", 32, PdoEntryDirection::Output, 2, true, false, false},
+      {"0x6071", "0x00", tr("Target Torque"), "INT16", 16, PdoEntryDirection::Output, 2, true, false, false},
   };
 
   SyncManagerBlock sm3;
   sm3.index = 3;
-  sm3.name = "TxPDO";
+  sm3.name = tr("TxPDO");
   sm3.direction = PdoEntryDirection::Input;
   sm3.enabled = true;
   sm3.entries = {
-      {"0x6041", "0x00", "Status Word", "UINT16", 16, PdoEntryDirection::Input, 3, true, false, false},
-      {"0x6064", "0x00", "Position Actual", "INT32", 32, PdoEntryDirection::Input, 3, true, false, false},
-      {"0x606C", "0x00", "Velocity Actual", "INT32", 32, PdoEntryDirection::Input, 3, true, false, false},
-      {"0x6077", "0x00", "Torque Actual", "INT16", 16, PdoEntryDirection::Input, 3, true, false, false},
+      {"0x6041", "0x00", tr("Status Word"), "UINT16", 16, PdoEntryDirection::Input, 3, true, false, false},
+      {"0x6064", "0x00", tr("Position Actual"), "INT32", 32, PdoEntryDirection::Input, 3, true, false, false},
+      {"0x606C", "0x00", tr("Velocity Actual"), "INT32", 32, PdoEntryDirection::Input, 3, true, false, false},
+      {"0x6077", "0x00", tr("Torque Actual"), "INT16", 16, PdoEntryDirection::Input, 3, true, false, false},
   };
 
   sms = {sm0, sm1, sm2, sm3};

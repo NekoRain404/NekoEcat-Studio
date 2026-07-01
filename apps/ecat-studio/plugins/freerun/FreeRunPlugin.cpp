@@ -1,4 +1,5 @@
 #include "FreeRunPlugin.h"
+#include "services/FreeRunMonitoringService.h"
 #include "services/ServiceContainer.h"
 
 #include <QCheckBox>
@@ -13,6 +14,42 @@ FreeRunPlugin::FreeRunPlugin(ServiceContainer *container, QObject *parent)
     : container_(container) {
   if (parent) setParent(parent);
   buildUi();
+
+  auto *frMon = container_->freeRunMonitor();
+  connect(frMon, &FreeRunMonitoringService::processDataUpdated,
+          this, [this](const FreeRunProcessData &data) {
+    QStringList headers = {tr("Offset"), tr("Input (hex)"), tr("Output (hex)")};
+    QList<QStringList> rows;
+    const int maxLen = qMax(data.inputs.size(), data.outputs.size());
+    for (int i = 0; i < maxLen; ++i) {
+      QStringList row;
+      row << QStringLiteral("0x%1").arg(i, 4, 16, QChar('0'));
+      row << (i < data.inputs.size()
+                  ? QString::number(data.inputs[i], 16).rightJustified(2, QChar('0'))
+                  : QString());
+      row << (i < data.outputs.size()
+                  ? QString::number(data.outputs[i], 16).rightJustified(2, QChar('0'))
+                  : QString());
+      rows << row;
+    }
+    setEntryRows(headers, rows);
+    setSummary(tr("%1 entries | cycle %2 | err %3")
+                  .arg(maxLen).arg(data.cycleCount).arg(data.errorCount));
+  });
+
+  connect(frMon, &FreeRunMonitoringService::statusChanged,
+          this, [this](const FreeRunStatus &status) {
+    setSummary(tr("State: %1 | uptime %2 ms | active %3 slaves")
+                  .arg(status.stateString).arg(status.uptimeMs)
+                  .arg(status.activeSlaves));
+    setFreeRunEnabled(status.state == FreeRunState::Running);
+    setLastStatus(status.stateString);
+  });
+
+  connect(frMon, &FreeRunMonitoringService::errorOccurred,
+          this, [this](const FreeRunErrorInfo &error) {
+    setDetail(tr("Error [%1]: %2").arg(error.code, error.message));
+  });
 }
 
 // ── Identity ──────────────────────────────────────────────────────────
