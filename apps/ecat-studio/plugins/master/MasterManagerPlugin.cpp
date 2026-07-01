@@ -43,7 +43,7 @@ QIcon MasterManagerPlugin::icon() const {
   return QIcon::fromTheme("network-server");
 }
 int MasterManagerPlugin::defaultOrder() const { return 155; }
-bool MasterManagerPlugin::visible() const { return true; }
+bool MasterManagerPlugin::visible() const { return false; }
 
 void MasterManagerPlugin::activate() { updateMasterInfo(); }
 void MasterManagerPlugin::deactivate() {}

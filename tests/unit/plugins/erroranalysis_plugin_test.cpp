@@ -37,7 +37,7 @@ private slots:
 
   void testVisible() {
     AdvancedErrorAnalysisPlugin p;
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
 
   void testWidgetNotNull() {

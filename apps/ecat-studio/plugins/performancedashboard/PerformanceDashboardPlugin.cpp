@@ -55,7 +55,7 @@ QString PerformanceDashboardPlugin::displayNameZh() const {
   return QStringLiteral("性能监控");
 }
 int PerformanceDashboardPlugin::defaultOrder() const { return 135; }
-bool PerformanceDashboardPlugin::visible() const { return true; }
+bool PerformanceDashboardPlugin::visible() const { return false; }
 QWidget *PerformanceDashboardPlugin::widget() { return container_; }
 
 void PerformanceDashboardPlugin::activate() {

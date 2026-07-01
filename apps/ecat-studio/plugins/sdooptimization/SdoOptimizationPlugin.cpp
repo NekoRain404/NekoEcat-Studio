@@ -38,7 +38,7 @@ QString SdoOptimizationPlugin::displayNameZh() const {
   return QStringLiteral("SDO 优化");
 }
 int SdoOptimizationPlugin::defaultOrder() const { return 48; }
-bool SdoOptimizationPlugin::visible() const { return true; }
+bool SdoOptimizationPlugin::visible() const { return false; }
 QWidget *SdoOptimizationPlugin::widget() { return containerWidget_; }
 
 void SdoOptimizationPlugin::activate() {}

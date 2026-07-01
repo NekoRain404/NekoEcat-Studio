@@ -37,7 +37,7 @@ private slots:
   void testVisible() {
     RealtimePerformanceService svc(nullptr);
     RealtimePerformancePlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   void testWidgetNotNull() {

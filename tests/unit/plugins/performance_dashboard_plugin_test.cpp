@@ -64,7 +64,7 @@ private slots:
   }
 
   void testVisible() {
-    QVERIFY(plugin_->visible());
+    QVERIFY(!plugin_->visible());
   }
 
   // ── Widget ───────────────────────────────────────────────────────

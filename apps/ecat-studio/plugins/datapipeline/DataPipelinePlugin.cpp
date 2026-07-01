@@ -29,7 +29,7 @@ QIcon DataPipelinePlugin::icon() const {
   return QIcon::fromTheme("view-sort-ascending");
 }
 int DataPipelinePlugin::defaultOrder() const { return 90; }
-bool DataPipelinePlugin::visible() const { return true; }
+bool DataPipelinePlugin::visible() const { return false; }
 
 void DataPipelinePlugin::activate() {}
 void DataPipelinePlugin::deactivate() {}

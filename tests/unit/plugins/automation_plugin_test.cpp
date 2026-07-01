@@ -71,7 +71,7 @@ private slots:
     QCOMPARE(plugin.id(), QString("automation"));
     QCOMPARE(plugin.displayName(), QString("Automation"));
     QCOMPARE(plugin.defaultOrder(), 120);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   // Verify widget is created

@@ -63,7 +63,7 @@ QIcon RealtimeOptimizerPlugin::icon() const {
   return QIcon::fromTheme("system-run");
 }
 int RealtimeOptimizerPlugin::defaultOrder() const { return 38; }
-bool RealtimeOptimizerPlugin::visible() const { return true; }
+bool RealtimeOptimizerPlugin::visible() const { return false; }
 
 void RealtimeOptimizerPlugin::activate() {}
 void RealtimeOptimizerPlugin::deactivate() {}

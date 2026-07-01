@@ -37,7 +37,7 @@ private slots:
   void testPluginVisible() {
     ProtocolAnalyzerService svc;
     ProtocolAnalyzerPlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   // Verify plugin widget is non-null

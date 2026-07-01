@@ -71,7 +71,7 @@ void TestWorkflowOptimizerPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Workflow Optimizer"));
   QCOMPARE(plugin_->displayNameZh(), QString("工作流优化器"));
   QCOMPARE(plugin_->defaultOrder(), 385);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestWorkflowOptimizerPlugin::widgetNotNull() {

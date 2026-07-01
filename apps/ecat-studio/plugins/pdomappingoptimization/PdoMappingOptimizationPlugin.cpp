@@ -35,7 +35,7 @@ QString PdoMappingOptimizationPlugin::displayNameZh() const {
   return QStringLiteral("PDO 映射优化");
 }
 int PdoMappingOptimizationPlugin::defaultOrder() const { return 46; }
-bool PdoMappingOptimizationPlugin::visible() const { return true; }
+bool PdoMappingOptimizationPlugin::visible() const { return false; }
 QWidget *PdoMappingOptimizationPlugin::widget() { return containerWidget_; }
 
 void PdoMappingOptimizationPlugin::activate() {}

@@ -31,7 +31,7 @@ QString UserPreferencesPlugin::displayName() const { return "User Preferences"; 
 QString UserPreferencesPlugin::displayNameZh() const { return QStringLiteral("用户偏好"); }
 QIcon UserPreferencesPlugin::icon() const { return QIcon::fromTheme("preferences-system"); }
 int UserPreferencesPlugin::defaultOrder() const { return 175; }
-bool UserPreferencesPlugin::visible() const { return true; }
+bool UserPreferencesPlugin::visible() const { return false; }
 QWidget *UserPreferencesPlugin::widget() { return container_; }
 
 void UserPreferencesPlugin::activate() {}

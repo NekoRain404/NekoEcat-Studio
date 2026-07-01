@@ -76,7 +76,7 @@ QIcon RealtimePerformancePlugin::icon() const {
   return QIcon::fromTheme("utilities-system-monitor");
 }
 int RealtimePerformancePlugin::defaultOrder() const { return 32; }
-bool RealtimePerformancePlugin::visible() const { return true; }
+bool RealtimePerformancePlugin::visible() const { return false; }
 
 void RealtimePerformancePlugin::activate() {}
 void RealtimePerformancePlugin::deactivate() {}

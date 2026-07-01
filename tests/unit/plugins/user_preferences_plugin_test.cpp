@@ -28,7 +28,7 @@ private slots:
   // Plugin is visible by default
   void testVisible() {
     UserPreferencesPlugin p;
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
   // Widget is created and non-null
   void testWidgetNotNull() {

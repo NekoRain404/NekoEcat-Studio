@@ -33,7 +33,7 @@ QIcon SdoCachePlugin::icon() const {
   return QIcon::fromTheme("drive-harddisk");
 }
 int SdoCachePlugin::defaultOrder() const { return 160; }
-bool SdoCachePlugin::visible() const { return true; }
+bool SdoCachePlugin::visible() const { return false; }
 
 void SdoCachePlugin::activate() { updateStats(); updateEntries(); }
 void SdoCachePlugin::deactivate() {}

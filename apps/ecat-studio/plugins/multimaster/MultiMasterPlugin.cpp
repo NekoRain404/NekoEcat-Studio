@@ -55,7 +55,7 @@ QIcon MultiMasterPlugin::icon() const {
   return QIcon::fromTheme("network-server");
 }
 int MultiMasterPlugin::defaultOrder() const { return 30; }
-bool MultiMasterPlugin::visible() const { return true; }
+bool MultiMasterPlugin::visible() const { return false; }
 
 void MultiMasterPlugin::activate() { refreshMasterList(); }
 void MultiMasterPlugin::deactivate() {}

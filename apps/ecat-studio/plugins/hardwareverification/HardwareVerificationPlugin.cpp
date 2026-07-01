@@ -42,7 +42,7 @@ QWidget *HardwareVerificationPlugin::widget() { return containerWidget_; }
 
 int HardwareVerificationPlugin::defaultOrder() const { return 36; }
 
-bool HardwareVerificationPlugin::visible() const { return true; }
+bool HardwareVerificationPlugin::visible() const { return false; }
 
 void HardwareVerificationPlugin::activate() {}
 

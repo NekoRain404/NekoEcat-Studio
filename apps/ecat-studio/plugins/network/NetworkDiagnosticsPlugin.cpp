@@ -32,7 +32,7 @@ QIcon NetworkDiagnosticsPlugin::icon() const {
   return QIcon::fromTheme("network-wired");
 }
 int NetworkDiagnosticsPlugin::defaultOrder() const { return 135; }
-bool NetworkDiagnosticsPlugin::visible() const { return true; }
+bool NetworkDiagnosticsPlugin::visible() const { return false; }
 
 void NetworkDiagnosticsPlugin::activate() {}
 void NetworkDiagnosticsPlugin::deactivate() {}

@@ -38,7 +38,7 @@ QString FreeRunOptimizationPlugin::displayNameZh() const {
   return QStringLiteral("自由运行优化");
 }
 int FreeRunOptimizationPlugin::defaultOrder() const { return 44; }
-bool FreeRunOptimizationPlugin::visible() const { return true; }
+bool FreeRunOptimizationPlugin::visible() const { return false; }
 QWidget *FreeRunOptimizationPlugin::widget() { return containerWidget_; }
 
 void FreeRunOptimizationPlugin::activate() {}

@@ -74,7 +74,7 @@ void TestWorkflowDashboardPlugin::identity() {
   QCOMPARE(plugin_->displayName(), QString("Workflow Dashboard"));
   QCOMPARE(plugin_->displayNameZh(), QString("工作流仪表盘"));
   QCOMPARE(plugin_->defaultOrder(), 390);
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void TestWorkflowDashboardPlugin::widgetNotNull() {

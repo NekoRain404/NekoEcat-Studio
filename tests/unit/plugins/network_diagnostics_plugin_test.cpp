@@ -99,7 +99,7 @@ private slots:
     EcatClient client;
     NetworkDiagnosticsService svc(&client);
     NetworkDiagnosticsPlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   // Widget is created and not null

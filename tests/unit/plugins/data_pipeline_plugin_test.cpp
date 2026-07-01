@@ -40,7 +40,7 @@ private slots:
   // Verify plugin is visible
   void testVisible() {
     DataPipelinePlugin p(svc_);
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
 
   // Verify main widget is created

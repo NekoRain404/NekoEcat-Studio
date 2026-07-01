@@ -219,7 +219,7 @@ QString RtTestPlugin::id() const { return "rttest"; }
 QString RtTestPlugin::displayName() const { return "RT Test"; }
 QString RtTestPlugin::displayNameZh() const { return QStringLiteral("实时测试"); }
 int RtTestPlugin::defaultOrder() const { return 75; }
-bool RtTestPlugin::visible() const { return true; }
+bool RtTestPlugin::visible() const { return false; }
 
 QIcon RtTestPlugin::icon() const { return QIcon::fromTheme("appointment-soon"); }
 

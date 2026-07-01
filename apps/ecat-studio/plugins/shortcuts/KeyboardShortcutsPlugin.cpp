@@ -26,7 +26,7 @@ QString KeyboardShortcutsPlugin::displayName() const { return "Keyboard Shortcut
 QString KeyboardShortcutsPlugin::displayNameZh() const { return QStringLiteral("键盘快捷键"); }
 QIcon KeyboardShortcutsPlugin::icon() const { return QIcon::fromTheme("input-keyboard"); }
 int KeyboardShortcutsPlugin::defaultOrder() const { return 170; }
-bool KeyboardShortcutsPlugin::visible() const { return true; }
+bool KeyboardShortcutsPlugin::visible() const { return false; }
 QWidget *KeyboardShortcutsPlugin::widget() { return container_; }
 
 void KeyboardShortcutsPlugin::activate() { refreshTable(); }

@@ -212,7 +212,7 @@ private slots:
     QCOMPARE(plugin.displayName(), QString("Multi-Master"));
     QCOMPARE(plugin.displayNameZh(), QString("多主站"));
     QCOMPARE(plugin.defaultOrder(), 30);
-    QCOMPARE(plugin.visible(), true);
+    QCOMPARE(plugin.visible(), false);
   }
 
   void testWidgetCreation() {

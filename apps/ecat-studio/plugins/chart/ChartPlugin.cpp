@@ -27,7 +27,7 @@ QString ChartPlugin::id() const { return "chart"; }
 QString ChartPlugin::displayName() const { return "Charts"; }
 QString ChartPlugin::displayNameZh() const { return QStringLiteral("图表"); }
 int ChartPlugin::defaultOrder() const { return 125; }
-bool ChartPlugin::visible() const { return true; }
+bool ChartPlugin::visible() const { return false; }
 QWidget *ChartPlugin::widget() { return container_; }
 
 // ── UI construction ───────────────────────────────────────────────────

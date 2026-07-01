@@ -27,7 +27,7 @@ QString ExportPlugin::displayNameZh() const {
   return QStringLiteral("导出");
 }
 int ExportPlugin::defaultOrder() const { return 85; }
-bool ExportPlugin::visible() const { return true; }
+bool ExportPlugin::visible() const { return false; }
 
 QIcon ExportPlugin::icon() const { return QIcon::fromTheme("document-save-as"); }
 

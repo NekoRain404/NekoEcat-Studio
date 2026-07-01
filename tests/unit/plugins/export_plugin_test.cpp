@@ -48,7 +48,7 @@ private slots:
   // Plugin is visible by default
   void testVisible() {
     ExportPlugin p(container_);
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
 
   // Plugin widget is not null

@@ -28,7 +28,7 @@ QString ThemeCustomizerPlugin::displayName() const { return "Theme Customizer"; 
 QString ThemeCustomizerPlugin::displayNameZh() const { return QStringLiteral("主题定制器"); }
 QIcon ThemeCustomizerPlugin::icon() const { return QIcon::fromTheme("preferences-desktop-theme"); }
 int ThemeCustomizerPlugin::defaultOrder() const { return 165; }
-bool ThemeCustomizerPlugin::visible() const { return true; }
+bool ThemeCustomizerPlugin::visible() const { return false; }
 QWidget *ThemeCustomizerPlugin::widget() { return container_; }
 
 void ThemeCustomizerPlugin::activate() { updatePreview(); }

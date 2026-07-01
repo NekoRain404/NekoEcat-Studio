@@ -50,7 +50,7 @@ private slots:
   void testPluginVisible() {
     ChartService svc;
     DashboardPlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   // Test that widget() returns a non-null QWidget.

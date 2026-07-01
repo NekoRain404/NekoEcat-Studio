@@ -131,7 +131,7 @@ void SdoCachePluginTest::pluginIdentity() {
   QCOMPARE(plugin.id(), QString("sdocache"));
   QCOMPARE(plugin.displayName(), QString("SDO Cache"));
   QCOMPARE(plugin.defaultOrder(), 160);
-  QVERIFY(plugin.visible());
+  QVERIFY(!plugin.visible());
   QVERIFY(plugin.widget() != nullptr);
 }
 

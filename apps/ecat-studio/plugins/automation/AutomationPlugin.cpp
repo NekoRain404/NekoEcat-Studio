@@ -33,7 +33,7 @@ QString AutomationPlugin::displayNameZh() const {
   return QStringLiteral("\xe8\x87\xaa\xe5\x8a\xa8\xe5\x8c\x96");
 }
 int AutomationPlugin::defaultOrder() const { return 120; }
-bool AutomationPlugin::visible() const { return true; }
+bool AutomationPlugin::visible() const { return false; }
 
 QWidget *AutomationPlugin::widget() { return container_; }
 

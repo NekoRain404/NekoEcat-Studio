@@ -29,7 +29,7 @@ QString WorkflowDashboardPlugin::displayName() const { return "Workflow Dashboar
 QString WorkflowDashboardPlugin::displayNameZh() const { return QStringLiteral("工作流仪表盘"); }
 QIcon WorkflowDashboardPlugin::icon() const { return QIcon::fromTheme("utilities-system-monitor"); }
 int WorkflowDashboardPlugin::defaultOrder() const { return 390; }
-bool WorkflowDashboardPlugin::visible() const { return true; }
+bool WorkflowDashboardPlugin::visible() const { return false; }
 
 void WorkflowDashboardPlugin::activate() {}
 void WorkflowDashboardPlugin::deactivate() {}

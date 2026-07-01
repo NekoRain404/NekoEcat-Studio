@@ -35,7 +35,7 @@ QString ProtocolAnalyzerPlugin::displayNameZh() const {
   return QStringLiteral("协议分析器");
 }
 int ProtocolAnalyzerPlugin::defaultOrder() const { return 105; }
-bool ProtocolAnalyzerPlugin::visible() const { return true; }
+bool ProtocolAnalyzerPlugin::visible() const { return false; }
 
 QWidget *ProtocolAnalyzerPlugin::widget() { return container_; }
 

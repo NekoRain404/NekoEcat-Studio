@@ -56,7 +56,7 @@ private slots:
     EcatClient client;
     EventBus bus;
     FreeRunOptimizationPlugin p(&client, &bus);
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
 
   void testWidgetNotNull() {

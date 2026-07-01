@@ -96,7 +96,7 @@ private slots:
   void testPluginVisible() {
     ChartService svc;
     ChartPlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   void testPluginWidgetNotNull() {

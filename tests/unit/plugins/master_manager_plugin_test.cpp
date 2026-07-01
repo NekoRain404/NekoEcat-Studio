@@ -103,7 +103,7 @@ private slots:
   // Verify plugin is visible
   void testVisible() {
     MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
 
   // Widget is created and not null

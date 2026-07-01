@@ -29,7 +29,7 @@ private slots:
   // Verify plugin is visible
   void testVisible() {
     KeyboardShortcutsPlugin p;
-    QVERIFY(p.visible());
+    QVERIFY(!p.visible());
   }
   // Widget is created and not null
   // Check widget is created

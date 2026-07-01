@@ -37,7 +37,7 @@ QIcon AdvancedErrorAnalysisPlugin::icon() const {
   return QIcon::fromTheme("dialog-error");
 }
 int AdvancedErrorAnalysisPlugin::defaultOrder() const { return 34; }
-bool AdvancedErrorAnalysisPlugin::visible() const { return true; }
+bool AdvancedErrorAnalysisPlugin::visible() const { return false; }
 
 void AdvancedErrorAnalysisPlugin::activate() {}
 void AdvancedErrorAnalysisPlugin::deactivate() {}

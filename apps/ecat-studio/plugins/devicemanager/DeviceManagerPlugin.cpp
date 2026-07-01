@@ -28,7 +28,7 @@ QIcon DeviceManagerPlugin::icon() const {
   return QIcon::fromTheme("computer");
 }
 int DeviceManagerPlugin::defaultOrder() const { return 95; }
-bool DeviceManagerPlugin::visible() const { return true; }
+bool DeviceManagerPlugin::visible() const { return false; }
 
 void DeviceManagerPlugin::activate() {}
 void DeviceManagerPlugin::deactivate() {}

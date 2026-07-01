@@ -34,7 +34,7 @@ private slots:
   void testVisible() {
     RealtimeOptimizerService svc;
     RealtimeOptimizerPlugin plugin(&svc);
-    QVERIFY(plugin.visible());
+    QVERIFY(!plugin.visible());
   }
 
   void testWidgetNotNull() {

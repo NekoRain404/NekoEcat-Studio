@@ -31,7 +31,7 @@ QString WorkflowOptimizerPlugin::displayName() const { return "Workflow Optimize
 QString WorkflowOptimizerPlugin::displayNameZh() const { return QStringLiteral("工作流优化器"); }
 QIcon WorkflowOptimizerPlugin::icon() const { return QIcon::fromTheme("system-run"); }
 int WorkflowOptimizerPlugin::defaultOrder() const { return 385; }
-bool WorkflowOptimizerPlugin::visible() const { return true; }
+bool WorkflowOptimizerPlugin::visible() const { return false; }
 
 void WorkflowOptimizerPlugin::activate() {}
 void WorkflowOptimizerPlugin::deactivate() {}

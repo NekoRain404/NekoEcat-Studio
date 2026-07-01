@@ -391,3 +391,52 @@ target_include_directories(daemon_handler_test PRIVATE
 target_link_libraries(daemon_handler_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_igh ethercat)
 set_target_properties(daemon_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME daemon_handler_test COMMAND daemon_handler_test)
+
+# ── EniGenerator Test ──────────────────────────────────────────────────
+add_executable(eni_generator_test
+    eni_generator_test.cpp
+    ../../../src/core/EniGenerator.cpp
+    ../../../src/core/EniGenerator.h
+)
+target_include_directories(eni_generator_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(eni_generator_test PRIVATE Qt6::Core Qt6::Test ecat_core)
+set_target_properties(eni_generator_test PROPERTIES AUTOMOC ON)
+add_test(NAME eni_generator_test COMMAND eni_generator_test)
+
+# ── New Handlers Test (EoE, Redundancy, OnlineChange) ─────────────────
+add_executable(new_handlers_test
+    new_handlers_test.cpp
+    ../../../apps/ecatd/handlers/EoEHandler.cpp
+    ../../../apps/ecatd/handlers/EoEHandler.h
+    ../../../apps/ecatd/handlers/RedundancyHandler.cpp
+    ../../../apps/ecatd/handlers/RedundancyHandler.h
+    ../../../apps/ecatd/handlers/OnlineChangeHandler.cpp
+    ../../../apps/ecatd/handlers/OnlineChangeHandler.h
+    ../../../apps/ecatd/CommandDispatcher.cpp
+    ../../../apps/ecatd/CommandDispatcher.h
+)
+target_include_directories(new_handlers_test PRIVATE
+    ../../../apps/ecatd
+    ../../../src/core
+)
+target_link_libraries(new_handlers_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
+set_target_properties(new_handlers_test PROPERTIES AUTOMOC ON)
+add_test(NAME new_handlers_test COMMAND new_handlers_test)
+
+# ── SoE Handler Test ──────────────────────────────────────────────────
+add_executable(soe_handler_test
+    soe_handler_test.cpp
+    ../../../apps/ecatd/handlers/SoEHandler.cpp
+    ../../../apps/ecatd/handlers/SoEHandler.h
+    ../../../apps/ecatd/CommandDispatcher.cpp
+    ../../../apps/ecatd/CommandDispatcher.h
+)
+target_include_directories(soe_handler_test PRIVATE
+    ../../../apps/ecatd
+    ../../../src/core
+)
+target_link_libraries(soe_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
+set_target_properties(soe_handler_test PROPERTIES AUTOMOC ON)
+add_test(NAME soe_handler_test COMMAND soe_handler_test)

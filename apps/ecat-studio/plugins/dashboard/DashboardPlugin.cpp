@@ -28,7 +28,7 @@ QString DashboardPlugin::displayNameZh() const {
   return QStringLiteral("仪表盘");
 }
 int DashboardPlugin::defaultOrder() const { return 130; }
-bool DashboardPlugin::visible() const { return true; }
+bool DashboardPlugin::visible() const { return false; }
 QWidget *DashboardPlugin::widget() { return container_; }
 
 int DashboardPlugin::gaugeCount() const { return gauges_.size(); }

@@ -162,7 +162,7 @@ void PdoMappingOptimizationPluginTest::testPluginIdentity() {
 }
 
 void PdoMappingOptimizationPluginTest::testPluginVisible() {
-  QVERIFY(plugin_->visible());
+  QVERIFY(!plugin_->visible());
 }
 
 void PdoMappingOptimizationPluginTest::testPluginDefaultOrder() {
