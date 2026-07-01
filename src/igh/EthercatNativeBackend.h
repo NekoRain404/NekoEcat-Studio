@@ -69,6 +69,10 @@ public:
     // Keeping temporarily for backward compatibility.
     bool isNative() const override { return true; }
 
+    // CLI fallback tracking — ecrt API has gaps vs the CLI tool.
+    bool lastOperationWasFallback() const override { return lastFallback_; }
+    QString lastFallbackReason() const override { return lastFallbackReason_; }
+
 private:
 #ifdef HAVE_IGH
     MasterGuard acquireMaster(const QString &master) const;
@@ -82,6 +86,10 @@ private:
 #endif
 
     mutable EthercatCliBackend cliFallback_;
+
+    // CLI fallback tracking flags (mutable because all operations are const).
+    mutable bool lastFallback_ = false;
+    mutable QString lastFallbackReason_;
 
     static constexpr int SDO_TIMEOUT_MS = 5000;
     static constexpr size_t MAX_SDO_DATA_SIZE = 4096;

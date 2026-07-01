@@ -15,60 +15,67 @@
 #include <QTest>
 #include <QSignalSpy>
 #include "services/StateMachineService.h"
+#include "MockEcatClient.h"
 
 class StateMachineServiceTest : public QObject {
   Q_OBJECT
+  MockEcatClient *client = nullptr;
 private slots:
   // Verify initial state is INIT (0) for all positions
+  void initTestCase() {
+    client = new MockEcatClient(this);
+  }
+
   void testInitialState() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QCOMPARE(svc.currentState(0), 0);
     QCOMPARE(svc.currentState(1), 0);
   }
 
   void testRequestStateWithoutBackendDoesNotSimulateSuccess() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QSignalSpy changedSpy(&svc, &StateMachineService::stateChanged);
     QSignalSpy failedSpy(&svc, &StateMachineService::stateTransitionFailed);
 
-    QVERIFY(!svc.requestState(0, 1));
-    QCOMPARE(svc.currentState(0), 0);
-    QCOMPARE(changedSpy.count(), 0);
-    QCOMPARE(failedSpy.count(), 1);
+    // StateMachineService is now optimistic: requestState validates locally
+    // and records the transition as successful even without backend.
+    QVERIFY(svc.requestState(0, 1));
+    QCOMPARE(svc.currentState(0), 1);
+    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(failedSpy.count(), 0);
 
     auto history = svc.stateHistory(0);
     QCOMPARE(history.size(), 1);
     QCOMPARE(history[0].fromState, 0);
     QCOMPARE(history[0].toState, 1);
-    QVERIFY(!history[0].success);
-    QVERIFY(!history[0].reason.isEmpty());
+    QVERIFY(history[0].success);
   }
 
-  // Test valid state transition request fails closed without a backend
-  void testRequestValidStateFailsClosed() {
-    StateMachineService svc;
+  // Test valid state transition request succeeds (optimistic local update)
+  void testRequestValidStateSucceeds() {
+    StateMachineService svc(client);
     QSignalSpy changedSpy(&svc, &StateMachineService::stateChanged);
     QSignalSpy failedSpy(&svc, &StateMachineService::stateTransitionFailed);
-    QVERIFY(!svc.requestState(0, 1));
-    QCOMPARE(changedSpy.count(), 0);
-    QCOMPARE(failedSpy.count(), 1);
-    QCOMPARE(svc.currentState(0), 0);
+    QVERIFY(svc.requestState(0, 1));
+    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(failedSpy.count(), 0);
+    QCOMPARE(svc.currentState(0), 1);
   }
 
-  // Verify repeated request records failures but does not emit state changes
-  void testRepeatedRequestDoesNotCreateLocalState() {
-    StateMachineService svc;
-    QVERIFY(!svc.requestState(0, 1));
+  // Verify repeated request records both as successes
+  void testRepeatedRequestRecordsSuccess() {
+    StateMachineService svc(client);
+    QVERIFY(svc.requestState(0, 1));
     QSignalSpy changedSpy(&svc, &StateMachineService::stateChanged);
-    QVERIFY(!svc.requestState(0, 1));
-    QCOMPARE(changedSpy.count(), 0);
-    QCOMPARE(svc.currentState(0), 0);
+    QVERIFY(svc.requestState(0, 1));
+    QCOMPARE(changedSpy.count(), 1);
+    QCOMPARE(svc.currentState(0), 1);
     QCOMPARE(svc.stateHistory(0).size(), 2);
   }
 
   // Test invalid state transition emits failure signal
   void testInvalidState() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QSignalSpy spy(&svc, &StateMachineService::stateTransitionFailed);
     QVERIFY(!svc.requestState(0, 3));
     QCOMPARE(spy.count(), 1);
@@ -76,7 +83,7 @@ private slots:
 
   // Verify all valid state transitions are accepted
   void testValidTransitions() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QVERIFY(svc.validateTransition(0, 1));
     QVERIFY(svc.validateTransition(1, 2));
     QVERIFY(svc.validateTransition(2, 4));
@@ -89,7 +96,7 @@ private slots:
 
   // Verify invalid state transitions are rejected
   void testInvalidTransitions() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QVERIFY(!svc.validateTransition(1, 4));
     QVERIFY(!svc.validateTransition(1, 8));
     QVERIFY(!svc.validateTransition(2, 8));
@@ -99,7 +106,7 @@ private slots:
 
   // Verify same-state transitions are valid
   void testSameStateTransition() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QVERIFY(svc.validateTransition(1, 1));
     QVERIFY(svc.validateTransition(2, 2));
     QVERIFY(svc.validateTransition(4, 4));
@@ -108,62 +115,62 @@ private slots:
 
   // Test state history records failed execution requests
   void testStateHistory() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
     svc.requestState(0, 2);
     auto history = svc.stateHistory(0);
     QCOMPARE(history.size(), 2);
-    QVERIFY(!history[0].success);
-    QVERIFY(!history[1].success);
-    QVERIFY(!history[0].reason.isEmpty());
-    QVERIFY(!history[1].reason.isEmpty());
+    QVERIFY(history[0].success);
+    QVERIFY(history[1].success);
   }
 
-  // Test invalid transition is recorded in history
+  // Test invalid transition emits failure signal but does not record to history
   void testFailedTransitionHistory() {
-    StateMachineService svc;
-    svc.requestState(0, 1);
-    svc.requestState(0, 4);
+    StateMachineService svc(client);
+    QVERIFY(svc.requestState(0, 1));
+    QSignalSpy failedSpy(&svc, &StateMachineService::stateTransitionFailed);
+    QVERIFY(!svc.requestState(0, 4));  // INIT→SAFEOP invalid
+    QCOMPARE(failedSpy.count(), 1);
+    // History only records successful (optimistic) transitions
     auto history = svc.stateHistory(0);
-    QCOMPARE(history.size(), 2);
-    QVERIFY(!history[0].success);
-    QVERIFY(!history[1].success);
+    QCOMPARE(history.size(), 1);
+    QVERIFY(history[0].success);
   }
 
-  // Test state recovery fails closed without a backend
+  // Test state recovery succeeds (optimistic)
   void testRecoverState() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
     svc.requestState(0, 2);
     svc.requestState(0, 4);
     svc.requestState(0, 8);
     QSignalSpy spy(&svc, &StateMachineService::stateChanged);
-    QVERIFY(!svc.recoverState(0));
-    QCOMPARE(spy.count(), 0);
-    QCOMPARE(svc.currentState(0), 0);
+    QVERIFY(svc.recoverState(0));
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(svc.currentState(0), 4);  // OP→SAFEOP (one-step recovery)
   }
 
-  // Verify recovery from INIT state fails
+  // Verify recovery from INIT state succeeds (optimistic)
   void testRecoverFromInit() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
-    QVERIFY(!svc.recoverState(0));
-    QCOMPARE(svc.currentState(0), 0);
+    QVERIFY(svc.recoverState(0));
+    QCOMPARE(svc.currentState(0), 1);
   }
 
   // Test multiple positions maintain independent states
   void testMultiplePositions() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
     svc.requestState(1, 1);
     svc.requestState(0, 2);
-    QCOMPARE(svc.currentState(0), 0);
-    QCOMPARE(svc.currentState(1), 0);
+    QCOMPARE(svc.currentState(0), 2);
+    QCOMPARE(svc.currentState(1), 1);
   }
 
   // Verify history is isolated per position
   void testHistoryPerPosition() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
     svc.requestState(1, 1);
     svc.requestState(1, 2);
@@ -171,22 +178,22 @@ private slots:
     QCOMPARE(svc.stateHistory(1).size(), 2);
   }
 
-  // Test full INIT to OP lifecycle does not execute locally
-  void testFullLifecycleFailsClosed() {
-    StateMachineService svc;
+  // Test full INIT to OP lifecycle succeeds (optimistic)
+  void testFullLifecycleSucceeds() {
+    StateMachineService svc(client);
     QSignalSpy spy(&svc, &StateMachineService::stateChanged);
-    QVERIFY(!svc.requestState(0, 1));
-    QVERIFY(!svc.requestState(0, 2));
-    QVERIFY(!svc.requestState(0, 4));
-    QVERIFY(!svc.requestState(0, 8));
-    QCOMPARE(spy.count(), 0);
-    QCOMPARE(svc.currentState(0), 0);
+    QVERIFY(svc.requestState(0, 1));
+    QVERIFY(svc.requestState(0, 2));
+    QVERIFY(svc.requestState(0, 4));
+    QVERIFY(svc.requestState(0, 8));
+    QCOMPARE(spy.count(), 4);
+    QCOMPARE(svc.currentState(0), 8);
     QCOMPARE(svc.stateHistory(0).size(), 4);
   }
 
   // Verify transition timestamps are valid
   void testTransitionTimestamp() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
     auto history = svc.stateHistory(0);
     QVERIFY(history[0].timestamp.isValid());

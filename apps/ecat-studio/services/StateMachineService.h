@@ -11,7 +11,7 @@
 //   - Transition validation (INIT → PREOP → SAFEOP → OP)
 //
 // Usage:
-//   StateMachineService stateMachine;
+//   StateMachineService stateMachine(client);
 //   stateMachine.requestState(0, 8);  // Request OP state for slave 0
 //   int currentState = stateMachine.currentState(0);
 //   bool valid = stateMachine.validateTransition(1, 8);  // INIT → OP
@@ -33,6 +33,8 @@
 #include <QDateTime>
 #include <QHash>
 
+class EcatClient;
+
 // Represents a state transition event.
 struct StateTransition {
   int position = -1;      // Slave position
@@ -46,7 +48,7 @@ struct StateTransition {
 class StateMachineService : public QObject {
   Q_OBJECT
 public:
-  explicit StateMachineService(QObject *parent = nullptr);
+  explicit StateMachineService(EcatClient *client, QObject *parent = nullptr);
 
   // Request a state transition for a slave.
   // @param position  Slave position
@@ -81,6 +83,11 @@ signals:
   // @param state     New state
   void stateChanged(int position, int state);
 
+  // Emitted when a state transition is requested via the daemon client.
+  // @param position  Slave position
+  // @param state     Requested target state
+  void stateChangeRequested(int position, int state);
+
   // Emitted when a state transition fails.
   // @param position  Slave position
   // @param from      Source state
@@ -93,9 +100,13 @@ private:
   // Check if a state value is valid.
   static bool isValidState(int state);
 
+  // Convert internal integer state to daemon state string.
+  static QString stateToString(int state);
+
   // Get the recovery target state for a given state.
   static int recoveryTargetState(int currentState);
 
+  EcatClient *client_ = nullptr;
   QHash<int, int> currentStates_;                      // Current state per slave
   QHash<int, QVector<StateTransition>> history_;       // Transition history per slave
   static constexpr int kMaxHistory = 500;              // Maximum history entries

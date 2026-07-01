@@ -1,7 +1,6 @@
 # Unit Tests - infra
 # Auto-generated from monolithic tests/CMakeLists.txt
 
-
 add_executable(native_backend_test
     native_backend_test.cpp
 )
@@ -283,22 +282,10 @@ add_executable(ui_creation_test
     ../../../apps/ecat-studio/services/EtherCATOptimizerService.h
     ../../../apps/ecat-studio/services/EtherCATConfigService.cpp
     ../../../apps/ecat-studio/services/EtherCATConfigService.h
-    ../../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../../apps/ecat-studio/services/EtherCATBackupService.h
     ../../../apps/ecat-studio/services/EtherCATRecoveryService.cpp
     ../../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../../apps/ecat-studio/services/EtherCATTestingService.h
-    ../../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATValidationService.h
-    ../../../apps/ecat-studio/services/EtherCATSecurityService.cpp
-    ../../../apps/ecat-studio/services/EtherCATSecurityService.h
-    ../../../apps/ecat-studio/services/EtherCATComplianceService.cpp
-    ../../../apps/ecat-studio/services/EtherCATComplianceService.h
-    ../../../apps/ecat-studio/services/EtherCATCertificationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -307,24 +294,16 @@ add_executable(ui_creation_test
     ../../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../../apps/ecat-studio/services/EtherCATAnalyticsService.cpp
     ../../../apps/ecat-studio/services/EtherCATAnalyticsService.h
-    ../../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../../apps/ecat-studio/services/EtherCATDeploymentService.h
     ../../../apps/ecat-studio/services/EtherCATUpdateService.cpp
     ../../../apps/ecat-studio/services/EtherCATUpdateService.h
     ../../../apps/ecat-studio/services/EtherCATMaintenanceService.cpp
     ../../../apps/ecat-studio/services/EtherCATMaintenanceService.h
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../../apps/ecat-studio/services/EtherCATReportingService.cpp
     ../../../apps/ecat-studio/services/EtherCATReportingService.h
     ../../../apps/ecat-studio/services/EtherCATDocumentationService.cpp
     ../../../apps/ecat-studio/services/EtherCATDocumentationService.h
-    ../../../apps/ecat-studio/services/TaskManagementService.cpp
-    ../../../apps/ecat-studio/services/TaskManagementService.h
-    ../../../apps/ecat-studio/services/ResourceManagementService.cpp
-    ../../../apps/ecat-studio/services/ResourceManagementService.h
     ../../../apps/ecat-studio/services/WorkflowAutomationService.cpp
     ../../../apps/ecat-studio/services/WorkflowAutomationService.h
     ../../../apps/ecat-studio/services/WorkflowSchedulingService.cpp
@@ -337,8 +316,6 @@ add_executable(ui_creation_test
     ../../../apps/ecat-studio/services/WorkflowReportingService.h
     ../../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../../apps/ecat-studio/services/WorkflowMaintenanceService.h
     ../../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp

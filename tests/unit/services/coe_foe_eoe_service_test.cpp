@@ -14,6 +14,7 @@
 #include "services/CoEService.h"
 #include "services/FoEService.h"
 #include "services/EoEService.h"
+#include "services/SdoCacheService.h"
 #include "infra/EcatClient.h"
 
 class CoEFoEEoEServiceTest : public QObject {
@@ -23,7 +24,8 @@ private slots:
     // Verify SDO info upload returns correct vendor/product data
     void testCoESdoInfo() {
         EcatClient client;
-        CoEService coe(&client);
+        SdoCacheService sdoCache;
+        CoEService coe(&client, &sdoCache);
         QSignalSpy spy(&coe, &CoEService::sdoInfoReceived);
         QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadSdoInfo(1);
@@ -34,7 +36,8 @@ private slots:
     // Verify dictionary upload returns correct entries
     void testCoEDictionary() {
         EcatClient client;
-        CoEService coe(&client);
+        SdoCacheService sdoCache;
+        CoEService coe(&client, &sdoCache);
         QSignalSpy spy(&coe, &CoEService::dictionaryReceived);
         QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadDictionary(1);
@@ -45,7 +48,8 @@ private slots:
     // Verify segment upload returns correct data size
     void testCoESegmentUpload() {
         EcatClient client;
-        CoEService coe(&client);
+        SdoCacheService sdoCache;
+        CoEService coe(&client, &sdoCache);
         QSignalSpy spy(&coe, &CoEService::segmentReceived);
         QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.uploadSegment(1, "0x1000", 0, 64);
@@ -56,7 +60,8 @@ private slots:
     // Verify segment download succeeds
     void testCoESegmentDownload() {
         EcatClient client;
-        CoEService coe(&client);
+        SdoCacheService sdoCache;
+        CoEService coe(&client, &sdoCache);
         QSignalSpy spy(&coe, &CoEService::segmentDownloaded);
         QSignalSpy errorSpy(&coe, &CoEService::error);
         coe.downloadSegment(1, "0x1000", 0, QByteArray(64, 0));
@@ -67,8 +72,9 @@ private slots:
 
     void testCoEDisconnectedClientDoesNotReportProtocolSuccess() {
         EcatClient client;
+        SdoCacheService sdoCache;
         QVERIFY(!client.isConnected());
-        CoEService coe(&client);
+        CoEService coe(&client, &sdoCache);
         QSignalSpy sdoInfoSpy(&coe, &CoEService::sdoInfoReceived);
         QSignalSpy dictionarySpy(&coe, &CoEService::dictionaryReceived);
         QSignalSpy segmentSpy(&coe, &CoEService::segmentReceived);
@@ -213,10 +219,9 @@ private slots:
     void testEoELearnedMacs() {
         EcatClient client;
         EoEService eoe(&client);
-        QSignalSpy spy(&eoe, &EoEService::macListReceived);
+        // macListReceived was removed — learnedMacs() only emits error
         QSignalSpy errorSpy(&eoe, &EoEService::error);
         eoe.learnedMacs(1);
-        QCOMPARE(spy.count(), 0);
         QCOMPARE(errorSpy.count(), 1);
     }
 
@@ -227,7 +232,6 @@ private slots:
         QSignalSpy frameSentSpy(&eoe, &EoEService::frameSent);
         QSignalSpy frameReceivedSpy(&eoe, &EoEService::frameReceived);
         QSignalSpy ipSpy(&eoe, &EoEService::ipConfigured);
-        QSignalSpy macSpy(&eoe, &EoEService::macListReceived);
         QSignalSpy errorSpy(&eoe, &EoEService::error);
 
         QVERIFY(!eoe.sendEthernetFrame(1, QByteArray(64, 0xFF)));
@@ -239,7 +243,6 @@ private slots:
         QVERIFY(!frameSentSpy.at(0).at(1).toBool());
         QCOMPARE(frameReceivedSpy.count(), 0);
         QCOMPARE(ipSpy.count(), 0);
-        QCOMPARE(macSpy.count(), 0);
         QVERIFY(errorSpy.count() >= 4);
     }
 

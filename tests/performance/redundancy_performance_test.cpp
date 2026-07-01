@@ -1,12 +1,20 @@
 #include <QTest>
 #include <QElapsedTimer>
 #include "services/RedundancyService.h"
+#include "MockEcatClient.h"
 
 class RedundancyPerformanceTest : public QObject {
   Q_OBJECT
+private:
+  MockEcatClient *client = nullptr;
+
 private slots:
+  void initTestCase() {
+    client = new MockEcatClient(this);
+  }
+
   void testEnableDisablePerformance() {
-    RedundancyService svc;
+    RedundancyService svc(client);
     svc.setPrimaryPath(10);
     svc.setSecondaryPath(10);
     QElapsedTimer timer;
@@ -20,7 +28,7 @@ private slots:
   }
 
   void testFailoverPerformance() {
-    RedundancyService svc;
+    RedundancyService svc(client);
     svc.setPrimaryPath(10);
     svc.setSecondaryPath(10);
     svc.enableRedundancy();
@@ -35,7 +43,7 @@ private slots:
   }
 
   void testHistoryPerformance() {
-    RedundancyService svc;
+    RedundancyService svc(client);
     svc.setPrimaryPath(10);
     svc.setSecondaryPath(10);
     QElapsedTimer timer;
@@ -51,7 +59,7 @@ private slots:
   }
 
   void testQueryPerformance() {
-    RedundancyService svc;
+    RedundancyService svc(client);
     svc.setPrimaryPath(10);
     svc.setSecondaryPath(10);
     svc.enableRedundancy();

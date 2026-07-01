@@ -1,13 +1,21 @@
 #include <QTest>
 #include <QSignalSpy>
 #include <QElapsedTimer>
+#include <QScopedPointer>
 #include "services/StateMachineService.h"
+#include "MockEcatClient.h"
 
 class StateMachinePerformanceTest : public QObject {
   Q_OBJECT
+private:
+  MockEcatClient *client = nullptr;
+
 private slots:
+  void initTestCase() {
+    client = new MockEcatClient(this);
+  }
   void testRequestStateThroughput() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QElapsedTimer timer;
     timer.start();
 
@@ -22,7 +30,7 @@ private slots:
   }
 
   void testValidateTransitionThroughput() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     QElapsedTimer timer;
     timer.start();
 
@@ -40,7 +48,7 @@ private slots:
   }
 
   void testCurrentStateQueryLatency() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     svc.requestState(0, 1);
 
     QElapsedTimer timer;
@@ -60,7 +68,7 @@ private slots:
   }
 
   void testHistoryQueryLatency() {
-    StateMachineService svc;
+    StateMachineService svc(client);
     for (int i = 0; i < 100; i++) {
       svc.requestState(0, 1);
       svc.requestState(0, 2);
@@ -83,7 +91,7 @@ private slots:
 
   void testMemoryStability() {
     for (int round = 0; round < 100; round++) {
-      StateMachineService svc;
+      StateMachineService svc(client);
       for (int i = 0; i < 1000; i++) {
         svc.requestState(i % 100, 1);
         svc.requestState(i % 100, 2);

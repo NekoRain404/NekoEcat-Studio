@@ -1,45 +1,30 @@
 #pragma once
 
-// RedundancyService — manages offline EtherCAT redundancy drafts.
-// Runtime redundancy operations fail closed until wired to a live backend.
+// RedundancyService — manages EtherCAT cable redundancy.
 //
-// This service currently handles:
-//   - Primary/secondary path draft metadata
-//   - Redundancy state readback
-//   - Explicit rejection of unsupported offline enable/failover/failback
-//   - Redundancy event history readback
+// Provides redundancy status monitoring, failover/failback control,
+// and event history tracking. Communicates with the ecatd daemon
+// via EcatClient for runtime redundancy operations.
 //
 // Usage:
-//   RedundancyService redundancy;
-//   redundancy.setPrimaryPath(10);  // 10 slaves on primary
-//   redundancy.setSecondaryPath(10);  // 10 slaves on secondary
-//   // Returns false until connected to a real backend:
-//   redundancy.enableRedundancy();
-//   RedundancyState state = redundancy.currentState();
-//   RedundancyPath primary = redundancy.primaryPath();
-//   RedundancyPath secondary = redundancy.secondaryPath();
-//   // Return false until connected to a real backend:
-//   redundancy.failover();
-//   redundancy.failback();
-//   QVector<RedundancyEvent> history = redundancy.redundancyHistory();
-//   bool isRedundant = redundancy.isRedundant();
+//   RedundancyService redundancy(client);
+//   redundancy.queryStatus();         // Emits statusReceived()
+//   redundancy.enableRedundancy();    // Emits commandResult()
+//   redundancy.failover();            // Emits commandResult()
+//   redundancy.queryHistory();        // Emits historyReceived()
 //
 // Thread safety:
-//   All methods must be called from the main (GUI) thread. Offline draft
-//   operations are synchronous and block the calling thread.
-//
-// Performance:
-//   - Path management is O(1)
-//   - Offline enable/failover/failback rejection is O(1)
-//   - State monitoring is O(1)
-//   - History retrieval is O(n) where n is history size
+//   All methods must be called from the main (GUI) thread.
 
 #include <QObject>
 #include <QVector>
 #include <QDateTime>
+#include <QJsonObject>
+
+class EcatClient;
 
 // Redundancy state enumeration.
-enum class RedundancyState { 
+enum class RedundancyState {
   SinglePath,  // Only primary path active
   DualPath,    // Both paths active
   Failover,    // Failover to secondary path
@@ -47,7 +32,7 @@ enum class RedundancyState {
 };
 
 // Path state enumeration.
-enum class PathState { 
+enum class PathState {
   Active,   // Path is active
   Standby,  // Path is in standby
   Failed,   // Path has failed
@@ -76,71 +61,80 @@ struct RedundancyEvent {
 class RedundancyService : public QObject {
   Q_OBJECT
 public:
-  explicit RedundancyService(QObject *parent = nullptr);
+  explicit RedundancyService(EcatClient *client, QObject *parent = nullptr);
 
-  // Set the primary path configuration.
-  // @param slaveCount  Number of slaves on primary path
+  // Set the primary path configuration (offline draft).
   void setPrimaryPath(int slaveCount);
 
-  // Set the secondary path configuration.
-  // @param slaveCount  Number of slaves on secondary path
+  // Set the secondary path configuration (offline draft).
   void setSecondaryPath(int slaveCount);
 
-  // Enable redundancy.
-  // @return true if redundancy was enabled successfully; currently false without backend
+  // Query redundancy status from daemon.
+  // Emits statusReceived() with the result.
+  void queryStatus();
+
+  // Enable redundancy (runtime operation).
+  // Emits commandResult() with the result.
   bool enableRedundancy();
 
-  // Disable redundancy.
-  // @return true if redundancy was disabled successfully; currently false without backend
+  // Disable redundancy (runtime operation).
+  // Emits commandResult() with the result.
   bool disableRedundancy();
 
   // Perform failover to secondary path.
-  // @return true if failover was successful; currently false without backend
+  // Emits commandResult() with the result.
   bool failover();
 
   // Perform failback to primary path.
-  // @return true if failback was successful; currently false without backend
+  // Emits commandResult() with the result.
   bool failback();
 
-  // Get the current redundancy state.
-  // @return RedundancyState enumeration
+  // Query redundancy event history from daemon.
+  // Emits historyReceived() with the result.
+  void queryHistory(int limit = 100);
+
+  // Get the current redundancy state (cached from last query).
   RedundancyState currentState() const;
 
-  // Get the primary path information.
-  // @return RedundancyPath structure
+  // Get the primary path information (cached from last query).
   RedundancyPath primaryPath() const;
 
-  // Get the secondary path information.
-  // @return RedundancyPath structure
+  // Get the secondary path information (cached from last query).
   RedundancyPath secondaryPath() const;
 
-  // Get redundancy event history.
-  // @return Vector of RedundancyEvent structures
+  // Get redundancy event history (cached from last query).
   QVector<RedundancyEvent> redundancyHistory() const;
 
-  // Check if redundancy is enabled.
-  // @return true if redundancy is enabled
+  // Check if redundancy is enabled (cached from last query).
   bool isRedundant() const;
 
 signals:
+  // Emitted when redundancy status query completes.
+  void statusReceived(const QJsonObject &data);
+
+  // Emitted when a redundancy command completes.
+  void commandResult(const QString &command, bool success, const QString &message);
+
+  // Emitted when history query completes.
+  void historyReceived(const QJsonObject &data);
+
   // Emitted when redundancy state changes.
-  // @param state  New redundancy state
   void redundancyStateChanged(RedundancyState state);
 
   // Emitted when failover occurs.
-  // @param fromPath  Source path ID
-  // @param toPath    Target path ID
   void failoverOccurred(int fromPath, int toPath);
 
   // Emitted when a path state changes.
-  // @param pathId  Path ID
-  // @param state   New path state
   void pathStateChanged(int pathId, PathState state);
 
+  // Emitted on error.
+  void error(const QString &message);
+
 private:
-  RedundancyState state_ = RedundancyState::SinglePath;  // Current state
-  RedundancyPath primaryPath_;    // Primary path
-  RedundancyPath secondaryPath_;  // Secondary path
-  QVector<RedundancyEvent> history_;  // Event history
-  static constexpr int kMaxHistory = 500;  // Maximum history entries
+  EcatClient *client_;
+  RedundancyState state_ = RedundancyState::SinglePath;
+  RedundancyPath primaryPath_;
+  RedundancyPath secondaryPath_;
+  QVector<RedundancyEvent> history_;
+  static constexpr int kMaxHistory = 500;
 };

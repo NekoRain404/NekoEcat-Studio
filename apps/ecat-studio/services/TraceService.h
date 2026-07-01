@@ -35,9 +35,12 @@
 
 #include <QObject>
 #include <QVector>
+#include <QHash>
 #include <QString>
 #include <QTimer>
 #include <QElapsedTimer>
+
+class EcatClient;
 
 // Trigger mode enumeration.
 enum class TraceTriggerMode { 
@@ -69,7 +72,7 @@ struct TraceChannelConfig {
 class TraceService : public QObject {
   Q_OBJECT
 public:
-  explicit TraceService(QObject *parent = nullptr);
+  explicit TraceService(EcatClient *client, QObject *parent = nullptr);
 
   // Add a new trace channel.
   // @param name      Channel name
@@ -153,6 +156,9 @@ private:
   // Collect trace data (called by timer).
   void tick();
 
+  // Handle SDO upload result from EcatClient.
+  void onSdoValue(int position, const QString &index, const QString &subIndex, const QString &value);
+
   QVector<TraceChannelConfig> channels_;  // Trace channels
   QTimer *timer_ = nullptr;               // Timer for data collection
   int nextId_ = 1;                        // Next channel ID
@@ -160,4 +166,6 @@ private:
   int bufferSize_ = kDefaultBufferSize;   // Buffer size
   TraceTriggerMode triggerMode_ = TraceTriggerMode::Auto;  // Trigger mode
   bool tracing_ = false;                  // Whether tracing is active
+  EcatClient *client_ = nullptr;          // Client for daemon communication
+  QHash<QString, int> pendingRequests_;   // Tracks upload → channel mapping
 };

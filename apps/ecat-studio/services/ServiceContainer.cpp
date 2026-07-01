@@ -85,19 +85,14 @@
 #include "EtherCATAnalyzerService.h"
 #include "EtherCATOptimizerService.h"
 #include "EtherCATConfigService.h"
-#include "EtherCATBackupService.h"
 #include "EtherCATRecoveryService.h"
 #include "EtherCATSimulationService.h"
-#include "EtherCATTestingService.h"
-#include "EtherCATValidationService.h"
 #include "EtherCATSecurityService.h"
 #include "EtherCATComplianceService.h"
 #include "EtherCATCertificationService.h"
 #include "EtherCATAnalyticsService.h"
-#include "EtherCATDeploymentService.h"
 #include "EtherCATUpdateService.h"
 #include "EtherCATMaintenanceService.h"
-#include "EtherCATIntegrationService.h"
 #include "EtherCATVisualizationService.h"
 #include "EtherCATReportingService.h"
 #include "EtherCATDocumentationService.h"
@@ -111,10 +106,8 @@
 #include "WorkflowSecurityService.h"
 #ifdef ECAT_EXPERIMENTAL_SERVICES
 #include "WorkflowComplianceService.h"
-#include "WorkflowCertificationService.h"
 #include "WorkflowDeploymentService.h"
 #endif
-#include "WorkflowUpdateService.h"
 #include "WorkflowMaintenanceService.h"
 #include "WorkflowVisualizationStudioService.h"
 #include "WorkflowReportDesignerService.h"
@@ -198,33 +191,28 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     dcSyncOptimizer_ = new DcSyncOptimizerService(client_, eventBus_, this);
     sdoCache_ = new SdoCacheService(this);
     pdoMapping_ = new PdoMappingService(this);
-    coe_ = new CoEService(client_, this);
+    coe_ = new CoEService(client_, sdoCache_, this);
     foe_ = new FoEService(client_, this);
     eoe_ = new EoEService(client_, this);
-    trace_ = new TraceService(this);
+    trace_ = new TraceService(client_, this);
     domain_ = new DomainService(this);
     syncManager_ = new SyncManagerService(this);
-    stateMachine_ = new StateMachineService(this);
+    stateMachine_ = new StateMachineService(client_, this);
     errorHandling_ = new ErrorHandlingService(this);
     hotConnect_ = new HotConnectService(this);
-    redundancy_ = new RedundancyService(this);
+    redundancy_ = new RedundancyService(client_, this);
     ecatMonitor_ = new EtherCATMonitorService(eventBus_, client_, this);
     ecatAnalyzer_ = new EtherCATAnalyzerService(eventBus_, client_, this);
     ecatOptimizer_ = new EtherCATOptimizerService(eventBus_, client_, this);
     ecatConfig_ = new EtherCATConfigService(this);
-    ecatBackup_ = new EtherCATBackupService(this);
     ecatRecovery_ = new EtherCATRecoveryService(this);
     ecatSimulation_ = new EtherCATSimulationService(this);
-    ecatTesting_ = new EtherCATTestingService(this);
-    ecatValidation_ = new EtherCATValidationService(this);
     ecatSecurity_ = new EtherCATSecurityService(this);
     ecatCompliance_ = new EtherCATComplianceService(this);
     ecatCertification_ = new EtherCATCertificationService(this);
     ecatAnalytics_ = new EtherCATAnalyticsService(eventBus_, client_, this);
-    ecatDeployment_ = new EtherCATDeploymentService(eventBus_, client_, this);
     ecatUpdate_ = new EtherCATUpdateService(eventBus_, client_, this);
     ecatMaintenance_ = new EtherCATMaintenanceService(eventBus_, client_, this);
-    ecatIntegration_ = new EtherCATIntegrationService(eventBus_, client_, this);
     ecatVisualization_ = new EtherCATVisualizationService(eventBus_, client_, this);
     ecatReporting_ = new EtherCATReportingService(eventBus_, client_, this);
     ecatDocumentation_ = new EtherCATDocumentationService(eventBus_, client_, this);
@@ -238,10 +226,8 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     workflowSecurity_ = new WorkflowSecurityService(this);
 #ifdef ECAT_EXPERIMENTAL_SERVICES
     workflowCompliance_ = new WorkflowComplianceService(this);
-    workflowCertification_ = new WorkflowCertificationService(this);
     workflowDeployment_ = new WorkflowDeploymentService(this);
 #endif
-    workflowUpdate_ = new WorkflowUpdateService(this);
     workflowMaintenance_ = new WorkflowMaintenanceService(this);
     workflowVisualizationStudio_ = new WorkflowVisualizationStudioService(this);
     workflowReportDesigner_ = new WorkflowReportDesignerService(this);

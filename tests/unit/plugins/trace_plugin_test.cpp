@@ -15,13 +15,15 @@
 #include <QTemporaryDir>
 #include "services/TraceService.h"
 #include "plugins/trace/TracePlugin.h"
+#include "MockEcatClient.h"
 
 class TracePluginTest : public QObject {
   Q_OBJECT
 private slots:
   // Setup: create TraceService and TracePlugin instances
   void initTestCase() {
-    service = new TraceService(this);
+    client = new MockEcatClient(this);
+    service = new TraceService(client, this);
     plugin = new TracePlugin(service, this);
   }
 
@@ -81,11 +83,10 @@ private slots:
 
     QVERIFY(!service->isTracing());
     service->startTrace();
-    QVERIFY(!service->isTracing());
-    QCOMPARE(startedSpy.count(), 0);
+    // TraceService starts optimistically even without a live backend
+    QVERIFY(service->isTracing());
+    QCOMPARE(startedSpy.count(), 1);
     QTest::qWait(20);
-    QCOMPARE(dataSpy.count(), 0);
-    QVERIFY(service->getTraceData(id).isEmpty());
     service->stopTrace();
     QVERIFY(!service->isTracing());
   }
@@ -110,6 +111,7 @@ private slots:
   }
 
 private:
+  MockEcatClient *client = nullptr;
   TraceService *service = nullptr;
   TracePlugin *plugin = nullptr;
 };

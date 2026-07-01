@@ -535,6 +535,159 @@ void EcatClient::getBackendMode() {
   });
 }
 
+// ─── SoE (Servo over EtherCAT) ────────────────────────────────────────────
+
+// Read an SoE IDN from a slave.
+void EcatClient::soeRead(int position, const QString &idn, int drive, const QString &type) {
+  QJsonObject params;
+  params["position"] = position;
+  params["idn"] = idn;
+  params["drive"] = drive;
+  if (!type.isEmpty()) params["type"] = type;
+  send("soeRead", params,
+       [this, position, idn](const QJsonObject &result) {
+         emit soeReadResult(position, idn, result.value("value").toString());
+       });
+}
+
+// Write an SoE IDN to a slave.
+void EcatClient::soeWrite(int position, const QString &idn, const QString &value,
+                          int drive, const QString &type) {
+  QJsonObject params;
+  params["position"] = position;
+  params["idn"] = idn;
+  params["value"] = value;
+  params["drive"] = drive;
+  if (!type.isEmpty()) params["type"] = type;
+  send("soeWrite", params,
+       [this, position, idn](const QJsonObject &result) {
+         emit soeWriteResult(position, idn);
+         emit commandSucceeded(result.value("message").toString());
+       });
+}
+
+// ─── EoE (Ethernet over EtherCAT) ─────────────────────────────────────────
+
+// Query EoE support status for a slave.
+void EcatClient::eoeStatus(int position) {
+  send("eoeStatus", {{"position", position}},
+       [this, position](const QJsonObject &result) {
+         emit eoeStatusResult(position, result);
+       });
+}
+
+// Configure IP address for an EoE-capable slave.
+void EcatClient::eoeConfigureIp(int position, const QString &ip, const QString &subnet,
+                                 const QString &gateway, const QString &dns) {
+  QJsonObject params;
+  params["position"] = position;
+  params["ip"] = ip;
+  params["subnet"] = subnet;
+  if (!gateway.isEmpty()) params["gateway"] = gateway;
+  if (!dns.isEmpty()) params["dns"] = dns;
+  send("eoeConfigureIp", params,
+       [this, position, ip](const QJsonObject &result) {
+         emit eoeIpConfigured(position, ip);
+         emit commandSucceeded(result.value("message").toString());
+       });
+}
+
+// Read current IP configuration from an EoE slave.
+void EcatClient::eoeGetIp(int position) {
+  send("eoeGetIp", {{"position", position}},
+       [this, position](const QJsonObject &result) {
+         emit eoeIpResult(position, result);
+       });
+}
+
+// Get EoE statistics for a slave.
+void EcatClient::eoeStats(int position) {
+  send("eoeStats", {{"position", position}},
+       [this, position](const QJsonObject &result) {
+         emit eoeStatsResult(position, result);
+       });
+}
+
+// ─── Redundancy ───────────────────────────────────────────────────────────
+
+// Query redundancy status.
+void EcatClient::redundancyStatus() {
+  send("redundancyStatus", {},
+       [this](const QJsonObject &result) {
+         emit redundancyStatusResult(result);
+       });
+}
+
+// Enable cable redundancy.
+void EcatClient::redundancyEnable() {
+  send("redundancyEnable", {},
+       [this](const QJsonObject &result) {
+         bool success = result.value("success").toBool();
+         emit redundancyCommandResult("enable", success, result.value("message").toString());
+       });
+}
+
+// Disable cable redundancy.
+void EcatClient::redundancyDisable() {
+  send("redundancyDisable", {},
+       [this](const QJsonObject &result) {
+         bool success = result.value("success").toBool();
+         emit redundancyCommandResult("disable", success, result.value("message").toString());
+       });
+}
+
+// Perform failover to secondary path.
+void EcatClient::redundancyFailover() {
+  send("redundancyFailover", {},
+       [this](const QJsonObject &result) {
+         bool success = result.value("success").toBool();
+         emit redundancyCommandResult("failover", success, result.value("message").toString());
+       });
+}
+
+// Perform failback to primary path.
+void EcatClient::redundancyFailback() {
+  send("redundancyFailback", {},
+       [this](const QJsonObject &result) {
+         bool success = result.value("success").toBool();
+         emit redundancyCommandResult("failback", success, result.value("message").toString());
+       });
+}
+
+// Get redundancy event history.
+void EcatClient::redundancyHistory(int limit) {
+  send("redundancyHistory", {{"limit", limit}},
+       [this](const QJsonObject &result) {
+         emit redundancyHistoryResult(result);
+       });
+}
+
+// ─── Online Change ────────────────────────────────────────────────────────
+
+// Preview an online change without applying it.
+void EcatClient::onlineChangePreview(const QJsonArray &changes) {
+  send("onlineChangePreview", {{"changes", changes}},
+       [this](const QJsonObject &result) {
+         emit onlineChangePreviewResult(result);
+       });
+}
+
+// Apply an online change.
+void EcatClient::onlineChangeApply(const QJsonArray &changes, const QString &targetState) {
+  send("onlineChangeApply", {{"changes", changes}, {"targetState", targetState}},
+       [this](const QJsonObject &result) {
+         emit onlineChangeApplyResult(result);
+       });
+}
+
+// Query online change status.
+void EcatClient::onlineChangeStatus() {
+  send("onlineChangeStatus", {},
+       [this](const QJsonObject &result) {
+         emit onlineChangeStatusResult(result);
+       });
+}
+
 // ─── Auto-reconnect ────────────────────────────────────────────────────────
 
 // Enable or disable the automatic reconnect mechanism.

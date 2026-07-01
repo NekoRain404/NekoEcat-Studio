@@ -21,7 +21,7 @@ class FreeRunController : public QObject {
     // Discovers slave topology via CLI, configures the PDO domain via ecrt,
     // and runs a ~1 kHz receive/process/queue/send loop in a dedicated thread.
 public:
-    explicit FreeRunController(QObject *parent = nullptr);
+    explicit FreeRunController(uint32_t cycleNsec = 1000000, QObject *parent = nullptr);
     ~FreeRunController() override;
 
     bool start(uint32_t masterIndex = 0, QString *error = nullptr);
@@ -118,9 +118,13 @@ private:
     uint32_t activeMasterIndex_ = 0;
     QString status_ = "Stopped";
     // Protects masterState_ and domainState_ which are written by the RT thread.
-    mutable std::mutex telemetryMutex_;
+    mutable std::mutex stateMutex_;
     ec_master_state_t masterState_ {};
     ec_domain_state_t domainState_ {};
+    mutable std::mutex startStopMutex_;
+    uint32_t cycleNsec_;
+    mutable std::mutex statusMutex_;
+    QString lastWarning_;
 
     // IgH master/domain handles; nullptr when not running.
     ec_master_t *master_ = nullptr;

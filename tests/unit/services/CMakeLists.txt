@@ -355,6 +355,8 @@ add_executable(coe_foe_eoe_service_test
     ../../../apps/ecat-studio/services/FoEService.h
     ../../../apps/ecat-studio/services/EoEService.cpp
     ../../../apps/ecat-studio/services/EoEService.h
+    ../../../apps/ecat-studio/services/SdoCacheService.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/infra/EcatClient.cpp
     ../../../apps/ecat-studio/infra/EcatClient.h
 )
@@ -413,11 +415,18 @@ add_executable(state_machine_service_test
     state_machine_service_test.cpp
     ../../../apps/ecat-studio/services/StateMachineService.cpp
     ../../../apps/ecat-studio/services/StateMachineService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../mocks/MockEcatClient.cpp
+    ../../mocks/MockEcatClient.h
 )
 target_include_directories(state_machine_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
-target_link_libraries(state_machine_service_test PRIVATE Qt6::Core Qt6::Test)
+target_link_libraries(state_machine_service_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
 set_target_properties(state_machine_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME state_machine_service_test COMMAND state_machine_service_test)
 
@@ -452,11 +461,18 @@ add_executable(redundancy_service_test
     redundancy_service_test.cpp
     ../../../apps/ecat-studio/services/RedundancyService.cpp
     ../../../apps/ecat-studio/services/RedundancyService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../mocks/MockEcatClient.cpp
+    ../../mocks/MockEcatClient.h
 )
 target_include_directories(redundancy_service_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
-target_link_libraries(redundancy_service_test PRIVATE Qt6::Core Qt6::Test)
+target_link_libraries(redundancy_service_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
 set_target_properties(redundancy_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME redundancy_service_test COMMAND redundancy_service_test)
 
@@ -542,22 +558,6 @@ target_include_directories(ethercat_config_service_test PRIVATE
 set_target_properties(ethercat_config_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_config_service_test COMMAND ethercat_config_service_test)
 
-# ── EtherCATBackupService (unit) ────────────────────────────────────
-add_executable(ethercat_backup_service_test
-    ethercat_backup_service_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../../apps/ecat-studio/services/EtherCATBackupService.h
-)
-target_link_libraries(ethercat_backup_service_test PRIVATE Qt6::Core Qt6::Test)
-target_include_directories(ethercat_backup_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_compile_definitions(ethercat_backup_service_test PRIVATE
-    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
-)
-set_target_properties(ethercat_backup_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_backup_service_test COMMAND ethercat_backup_service_test)
-
 # ── EtherCATRecoveryService (unit) ──────────────────────────────────
 add_executable(ethercat_recovery_service_test
     ethercat_recovery_service_test.cpp
@@ -583,35 +583,6 @@ target_include_directories(ethercat_simulation_service_test PRIVATE
 )
 set_target_properties(ethercat_simulation_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_simulation_service_test COMMAND ethercat_simulation_service_test)
-
-# ── EtherCATTestingService Test ────────────────────────────────────
-add_executable(ethercat_testing_service_test
-    ethercat_testing_service_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../../apps/ecat-studio/services/EtherCATTestingService.h
-)
-target_link_libraries(ethercat_testing_service_test PRIVATE Qt6::Core Qt6::Test)
-target_include_directories(ethercat_testing_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-set_target_properties(ethercat_testing_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_testing_service_test COMMAND ethercat_testing_service_test)
-
-# ── EtherCATValidationService Test ─────────────────────────────────
-add_executable(ethercat_validation_service_test
-    ethercat_validation_service_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATValidationService.h
-)
-target_link_libraries(ethercat_validation_service_test PRIVATE Qt6::Core Qt6::Test)
-target_include_directories(ethercat_validation_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_compile_definitions(ethercat_validation_service_test PRIVATE
-    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
-)
-set_target_properties(ethercat_validation_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_validation_service_test COMMAND ethercat_validation_service_test)
 
 # ── EtherCATSecurityService Test ────────────────────────────────────
 add_executable(ethercat_security_service_test
@@ -680,22 +651,6 @@ target_link_libraries(ethercat_analytics_service_test PRIVATE
 set_target_properties(ethercat_analytics_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_analytics_service_test COMMAND ethercat_analytics_service_test)
 
-# ── EtherCATDeploymentService ─────────────────────────────────────────
-add_executable(ethercat_deployment_service_test
-    ethercat_deployment_service_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../../apps/ecat-studio/services/EtherCATDeploymentService.h
-)
-target_include_directories(ethercat_deployment_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(ethercat_deployment_service_test PRIVATE Qt6::Core Qt6::Test)
-target_compile_definitions(ethercat_deployment_service_test PRIVATE
-    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
-)
-set_target_properties(ethercat_deployment_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_deployment_service_test COMMAND ethercat_deployment_service_test)
-
 # ── EtherCATUpdateService ─────────────────────────────────────────────
 add_executable(ethercat_update_service_test
     ethercat_update_service_test.cpp
@@ -727,19 +682,6 @@ target_compile_definitions(ethercat_maintenance_service_test PRIVATE
 )
 set_target_properties(ethercat_maintenance_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_maintenance_service_test COMMAND ethercat_maintenance_service_test)
-
-# ── EtherCATIntegrationService ──────────────────────────────────────
-add_executable(ethercat_integration_service_test
-    ethercat_integration_service_test.cpp
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../../apps/ecat-studio/services/EtherCATIntegrationService.h
-)
-target_include_directories(ethercat_integration_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(ethercat_integration_service_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(ethercat_integration_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_integration_service_test COMMAND ethercat_integration_service_test)
 
 # ── EtherCATVisualizationService ────────────────────────────────────
 add_executable(ethercat_visualization_service_test
@@ -1033,26 +975,6 @@ set_tests_properties(workflow_compliance_service_test PROPERTIES
     LABELS "unit;compliance"
 )
 
-# ── WorkflowCertificationService ───────────────────────────────────────
-add_executable(workflow_certification_service_test
-    workflow_certification_service_test.cpp
-    ../../../apps/ecat-studio/services/WorkflowCertificationService.cpp
-    ../../../apps/ecat-studio/services/WorkflowCertificationService.h
-)
-target_include_directories(workflow_certification_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_certification_service_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_certification_service_test PROPERTIES AUTOMOC ON)
-target_compile_definitions(workflow_certification_service_test PRIVATE
-    SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
-)
-add_test(NAME workflow_certification_service_test COMMAND workflow_certification_service_test)
-set_tests_properties(workflow_certification_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;certification"
-)
 
 # ── WorkflowSecurityManagerService ───────────────────────────────────
 add_executable(workflow_security_manager_service_test
@@ -1132,26 +1054,6 @@ set_tests_properties(workflow_deployment_service_test PROPERTIES
     LABELS "unit;deployment"
 )
 
-# ── Workflow Update Service ─────────────────────────────────────────
-add_executable(workflow_update_service_test
-    workflow_update_service_test.cpp
-    ../../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../../apps/ecat-studio/services/WorkflowUpdateService.h
-)
-target_include_directories(workflow_update_service_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_update_service_test PRIVATE
-    Qt6::Core
-    Qt6::Test
-)
-set_target_properties(workflow_update_service_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_update_service_test COMMAND workflow_update_service_test)
-set_tests_properties(workflow_update_service_test PROPERTIES
-    TIMEOUT 30
-    LABELS "unit;update"
-)
 
 # ── Workflow Maintenance Service ────────────────────────────────────
 add_executable(workflow_maintenance_service_test

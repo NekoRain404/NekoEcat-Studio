@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include <cerrno>
+#include <pthread.h>
 #include <sched.h>
 #include <sys/mman.h>
 #include <thread>
@@ -27,9 +28,10 @@ uint64_t monotonicNsec()
 }
 }
 
-FreeRunController::FreeRunController(QObject *parent)
+FreeRunController::FreeRunController(uint32_t cycleNsec, QObject *parent)
     // The controller starts idle; call start() to acquire an IgH master.
     : QObject(parent)
+    , cycleNsec_(cycleNsec)
 {
 }
 
@@ -53,6 +55,8 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         }
         return false;
     }
+
+    std::lock_guard<std::mutex> lock(startStopMutex_);
 
     std::vector<SlaveSpec> slaves;
     if (!buildConfiguration(masterIndex, &slaves, error)) {
@@ -83,7 +87,7 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         return false;
     }
 
-    ecrt_master_set_send_interval(master_, 1000000);
+    ecrt_master_set_send_interval(master_, cycleNsec_ / 1000);
 
     runtimeSlaves_.clear();
     registrations_.clear();
@@ -209,10 +213,10 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         return false;
     }
 
-    running_ = true;
     activeMasterIndex_ = masterIndex;
     cycleCount_ = 0;
     wcErrorCount_ = 0;
+    lastWarning_.clear();
     {
         std::lock_guard<std::mutex> lock(cycleMutex_);
         minCycleNsec_ = INT64_MAX;
@@ -220,16 +224,19 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         totalCycleNsec_ = 0;
     }
     {
-        std::lock_guard<std::mutex> lock(telemetryMutex_);
+        std::lock_guard<std::mutex> lock(statusMutex_);
         status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
     }
+    running_ = true;
     thread_ = std::thread(&FreeRunController::loop, this);
+    pthread_setname_np(thread_.native_handle(), "ecatd_free_run");
     return true;
 }
 
 void FreeRunController::stop()
 {
     // Signal the cycle thread to exit and release all ecrt resources.
+    std::lock_guard<std::mutex> lock(startStopMutex_);
     if (running_) {
         running_ = false;
         if (thread_.joinable()) {
@@ -238,7 +245,7 @@ void FreeRunController::stop()
     }
     cleanup();
     {
-        std::lock_guard<std::mutex> lock(telemetryMutex_);
+        std::lock_guard<std::mutex> sLock(statusMutex_);
         status_ = "Stopped";
     }
 }
@@ -251,7 +258,7 @@ bool FreeRunController::running() const
 // Thread-safe status string for display.
 QString FreeRunController::status() const
 {
-    std::lock_guard<std::mutex> lock(telemetryMutex_);
+    std::lock_guard<std::mutex> lock(statusMutex_);
     return status_;
 }
 
@@ -259,7 +266,28 @@ QString FreeRunController::status() const
 // because the real-time thread writes masterState_/domainState_ concurrently.
 QJsonObject FreeRunController::telemetry() const
 {
-    std::lock_guard<std::mutex> lock(telemetryMutex_);
+    // Capture state under mutex, then format entries outside it
+    // (IgH process data buffer is safe for concurrent reads).
+    int slavesResponding = 0;
+    unsigned int alStates = 0;
+    bool linkUp = false;
+    int workingCounter = 0;
+    ec_wc_state_t wcState = EC_WC_ZERO;
+    int redundancyActive = 0;
+    QString statusLocal;
+    {
+        std::lock_guard<std::mutex> lock(stateMutex_);
+        slavesResponding = static_cast<int>(masterState_.slaves_responding);
+        alStates = masterState_.al_states;
+        linkUp = static_cast<bool>(masterState_.link_up);
+        workingCounter = static_cast<int>(domainState_.working_counter);
+        wcState = domainState_.wc_state;
+        redundancyActive = static_cast<int>(domainState_.redundancy_active);
+    }
+    {
+        std::lock_guard<std::mutex> lock(statusMutex_);
+        statusLocal = status_;
+    }
     std::lock_guard<std::mutex> cycleLock(cycleMutex_);
     const auto cycles = cycleCount_.load();
     int64_t minNs = minCycleNsec_, maxNs = maxCycleNsec_, avgNs = 0, jitterNs = 0;
@@ -270,22 +298,22 @@ QJsonObject FreeRunController::telemetry() const
     }
     return {
         {"running", running_.load()},
-        {"status", status_},
+        {"status", statusLocal},
         {"master", static_cast<int>(activeMasterIndex_)},
         {"cycles", QString::number(cycleCount_.load())},
-        {"slavesResponding", static_cast<int>(masterState_.slaves_responding)},
-        {"alStates", static_cast<int>(masterState_.al_states)},
-        {"alStateText", alStateText(masterState_.al_states)},
-        {"linkUp", static_cast<bool>(masterState_.link_up)},
-        {"workingCounter", static_cast<int>(domainState_.working_counter)},
-        {"wcState", static_cast<int>(domainState_.wc_state)},
-        {"wcStateText", wcStateText(domainState_.wc_state)},
+        {"slavesResponding", slavesResponding},
+        {"alStates", static_cast<int>(alStates)},
+        {"alStateText", alStateText(alStates)},
+        {"linkUp", linkUp},
+        {"workingCounter", workingCounter},
+        {"wcState", static_cast<int>(wcState)},
+        {"wcStateText", wcStateText(wcState)},
         {"wcErrors", static_cast<qint64>(wcErrorCount_.load())},
         {"minCycleUsec", static_cast<double>(minNs) / 1000.0},
         {"maxCycleUsec", static_cast<double>(maxNs) / 1000.0},
         {"avgCycleUsec", static_cast<double>(avgNs) / 1000.0},
         {"jitterUsec", static_cast<double>(jitterNs) / 1000.0},
-        {"redundancyActive", static_cast<int>(domainState_.redundancy_active)},
+        {"redundancyActive", redundancyActive},
         {"pdoEntries", static_cast<int>(registrations_.empty() ? 0 : registrations_.size() - 1)},
         {"configuredSlaves", static_cast<int>(runtimeSlaves_.size())},
         {"entries", entryTelemetryLocked()},
@@ -491,18 +519,25 @@ void FreeRunController::loop()
     // Elevate to real-time scheduling — failure is non-fatal, just means less deterministic timing.
     struct sched_param param{};
     param.sched_priority = 80;
-    sched_setscheduler(0, SCHED_FIFO, &param);
+    if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
+        lastWarning_ = "SCHED_FIFO not granted — cycle timing may be degraded";
+    }
 
     // Lock all current and future memory pages to prevent page faults during the RT loop.
-    mlockall(MCL_CURRENT | MCL_FUTURE);
+    if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
+        if (!lastWarning_.isEmpty()) {
+            lastWarning_ += " | ";
+        }
+        lastWarning_ += "mlockall failed — page faults may occur";
+    }
 
-    constexpr uint64_t cycleNsec = 1000000ULL; // 1 ms
+    const uint64_t cycleTarget = cycleNsec_;
     uint64_t wakeupTime = monotonicNsec();
     uint64_t prevTime = wakeupTime;
 
     while (running_) {
         // Schedule next wake-up using absolute time to avoid drift accumulation.
-        wakeupTime += cycleNsec;
+        wakeupTime += cycleTarget;
 
         // Sleep until next cycle — clock_nanosleep with TIMER_ABSTIME avoids drift.
         struct timespec wake{};
@@ -534,26 +569,28 @@ void FreeRunController::loop()
         ecrt_master_receive(master_);
         ecrt_domain_process(domain_);
         {
-            std::lock_guard<std::mutex> lock(telemetryMutex_);
+            std::lock_guard<std::mutex> lock(stateMutex_);
             ecrt_master_state(master_, &masterState_);
             ecrt_domain_state(domain_, &domainState_);
-            // Track consecutive WC errors for diagnostics.
-            if (domainState_.wc_state != EC_WC_COMPLETE) {
-                ++wcErrorCount_;
-                // Update status when WC errors exceed threshold.
-                if (wcErrorCount_ == kWcErrorThreshold) {
-                    status_ = QString("WARNING: %1 consecutive WC errors — check bus wiring")
-                                  .arg(wcErrorCount_.load());
-                }
-            } else {
-                if (wcErrorCount_ > 0) {
-                    // Recovered from WC errors — restore normal status.
-                    status_ = QString("Running on master %1 — WC recovered after %2 errors")
-                                  .arg(activeMasterIndex_)
-                                  .arg(wcErrorCount_.load());
-                }
-                wcErrorCount_ = 0;
+        }
+        // Track consecutive WC errors for diagnostics.
+        if (domainState_.wc_state != EC_WC_COMPLETE) {
+            ++wcErrorCount_;
+            // Update status when WC errors exceed threshold.
+            if (wcErrorCount_ == kWcErrorThreshold) {
+                std::lock_guard<std::mutex> sLock(statusMutex_);
+                status_ = QString("WARNING: %1 consecutive WC errors — check bus wiring")
+                              .arg(wcErrorCount_.load());
             }
+        } else {
+            if (wcErrorCount_ > 0) {
+                // Recovered from WC errors — restore normal status.
+                std::lock_guard<std::mutex> sLock(statusMutex_);
+                status_ = QString("Running on master %1 — WC recovered after %2 errors")
+                              .arg(activeMasterIndex_)
+                              .arg(wcErrorCount_.load());
+            }
+            wcErrorCount_ = 0;
         }
         ecrt_domain_queue(domain_);
         ecrt_master_send(master_);
@@ -604,7 +641,7 @@ QString FreeRunController::wcStateText(ec_wc_state_t state) const
 QJsonArray FreeRunController::entryTelemetryLocked() const
 {
     // Build JSON array of all registered PDO entries with live values read from
-    // the shared process data image. Called with telemetryMutex_ held.
+    // the shared process data image. IgH process data buffer is safe for concurrent reads.
     QJsonArray array;
     for (const auto &entry : runtimeEntries_) {
         array.append(QJsonObject{
@@ -715,7 +752,7 @@ QString FreeRunController::readEntryDecodedValue(const RuntimeEntry &entry) cons
 void FreeRunController::cleanup()
 {
     // Release the IgH master/domain and reset all runtime state to idle.
-    running_ = false;  // Ensure the RT thread will exit even if stop() was not called.
+    // running_ is cleared by stop() before calling cleanup().
     if (thread_.joinable()) {
         thread_.join();
     }
@@ -732,7 +769,9 @@ void FreeRunController::cleanup()
     bitPositions_.clear();
     activeMasterIndex_ = 0;
     cycleCount_ = 0;
-    std::lock_guard<std::mutex> lock(telemetryMutex_);
-    masterState_ = {};
-    domainState_ = {};
+    {
+        std::lock_guard<std::mutex> lock(stateMutex_);
+        masterState_ = {};
+        domainState_ = {};
+    }
 }

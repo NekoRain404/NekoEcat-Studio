@@ -1,14 +1,23 @@
 #include "TraceService.h"
+#include "infra/EcatClient.h"
 
-// TraceService.cpp — Multi-channel trace configuration with fail-closed capture.
+#include <QDateTime>
+
+// TraceService.cpp — Multi-channel trace data collection via SDO upload.
 //
 // Implementation notes:
 //   - Supports up to kMaxChannels simultaneous trace channels with auto-naming
-//   - Capture is intentionally disabled until a real backend is wired
+//   - Data collection uses periodic SDO upload requests via EcatClient
+//   - Each trace channel is bound to a slave SDO entry (position/index/subIndex)
+//   - Buffer wraps around when full, discarding oldest samples
 
-TraceService::TraceService(QObject *parent)
-    : QObject(parent), timer_(new QTimer(this)) {
+TraceService::TraceService(EcatClient *client, QObject *parent)
+    : QObject(parent), timer_(new QTimer(this)), client_(client) {
   connect(timer_, &QTimer::timeout, this, &TraceService::tick);
+  if (client_) {
+    connect(client_, &EcatClient::sdoValue,
+            this, &TraceService::onSdoValue);
+  }
 }
 
 int TraceService::addChannel(const QString &name, int slave,
@@ -44,6 +53,10 @@ QVector<TraceChannelConfig> TraceService::channels() const {
 
 void TraceService::startTrace() {
   if (tracing_) return;
+  tracing_ = true;
+  int interval = 1000 / qMax(1, sampleRate_);
+  timer_->start(interval);
+  emit traceStarted();
 }
 
 void TraceService::stopTrace() {
@@ -83,5 +96,53 @@ QVector<TracePoint> TraceService::getTraceData(int channelId) const {
 }
 
 void TraceService::tick() {
+  if (!tracing_ || !client_) return;
+
+  pendingRequests_.clear();
+  for (const auto &ch : channels_) {
+    QString key = QStringLiteral("%1:%2:%3")
+                      .arg(ch.slave)
+                      .arg(ch.index)
+                      .arg(ch.subIndex);
+    pendingRequests_.insert(key, ch.id);
+    client_->upload(ch.slave, ch.index, ch.subIndex);
+  }
+}
+
+void TraceService::onSdoValue(int position, const QString &index,
+                               const QString &subIndex, const QString &value) {
   if (!tracing_) return;
+
+  QString key = QStringLiteral("%1:%2:%3")
+                    .arg(position)
+                    .arg(index)
+                    .arg(subIndex);
+  auto it = pendingRequests_.find(key);
+  if (it == pendingRequests_.end()) return;
+
+  int channelId = it.value();
+  pendingRequests_.erase(it);
+
+  // Find the matching channel and append the data point.
+  for (auto &ch : channels_) {
+    if (ch.id != channelId) continue;
+    if (ch.slave != position || ch.index != index || ch.subIndex != subIndex)
+      continue;
+
+    TracePoint pt;
+    pt.timestamp = QDateTime::currentMSecsSinceEpoch();
+    pt.value = value.toDouble();
+    pt.channelId = channelId;
+    pt.quality = 100;
+
+    ch.data.append(pt);
+
+    // Trim oldest samples when buffer exceeds the configured size.
+    while (ch.data.size() > bufferSize_) {
+      ch.data.removeFirst();
+    }
+
+    emit traceDataUpdated(ch.id, ch.data);
+    return;
+  }
 }

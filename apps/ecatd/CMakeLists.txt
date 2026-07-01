@@ -14,6 +14,14 @@ add_executable(ecatd
     handlers/DcSyncHandler.h
     handlers/FoEHandler.h
     handlers/FoEHandler.cpp
+    handlers/SoEHandler.h
+    handlers/SoEHandler.cpp
+    handlers/EoEHandler.h
+    handlers/EoEHandler.cpp
+    handlers/RedundancyHandler.h
+    handlers/RedundancyHandler.cpp
+    handlers/OnlineChangeHandler.h
+    handlers/OnlineChangeHandler.cpp
     handlers/SignalHandler.h
     handlers/SignalHandler.cpp
     handlers/DcSyncHandler.cpp

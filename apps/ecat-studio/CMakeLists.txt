@@ -27,6 +27,9 @@ add_executable(ecat-studio
     plugins/oscilloscope/OscilloscopeService.h  plugins/oscilloscope/OscilloscopeService.cpp
     plugins/protocol/ProtocolAnalyzerPlugin.h   plugins/protocol/ProtocolAnalyzerPlugin.cpp
     plugins/protocol/ProtocolAnalyzerService.h  plugins/protocol/ProtocolAnalyzerService.cpp
+    plugins/eoe/EoEPlugin.h                    plugins/eoe/EoEPlugin.cpp
+    plugins/soe/SoEPlugin.h                    plugins/soe/SoEPlugin.cpp
+    plugins/eni/EniExportPlugin.h              plugins/eni/EniExportPlugin.cpp
     plugins/project/ProjectPlugin.h             plugins/project/ProjectPlugin.cpp
     plugins/alarm/AlarmPlugin.h                 plugins/alarm/AlarmPlugin.cpp
     plugins/automation/AutomationPlugin.h       plugins/automation/AutomationPlugin.cpp
@@ -188,19 +191,14 @@ add_executable(ecat-studio
     services/EtherCATAnalyzerService.h               services/EtherCATAnalyzerService.cpp
     services/EtherCATOptimizerService.h              services/EtherCATOptimizerService.cpp
     services/EtherCATConfigService.h                 services/EtherCATConfigService.cpp
-    services/EtherCATBackupService.h                 services/EtherCATBackupService.cpp
     services/EtherCATRecoveryService.h               services/EtherCATRecoveryService.cpp
     services/EtherCATSimulationService.h             services/EtherCATSimulationService.cpp
-    services/EtherCATTestingService.h                services/EtherCATTestingService.cpp
-    services/EtherCATValidationService.h             services/EtherCATValidationService.cpp
     services/EtherCATSecurityService.h               services/EtherCATSecurityService.cpp
     services/EtherCATComplianceService.h             services/EtherCATComplianceService.cpp
     services/EtherCATCertificationService.h          services/EtherCATCertificationService.cpp
     services/EtherCATAnalyticsService.h              services/EtherCATAnalyticsService.cpp
-    services/EtherCATDeploymentService.h             services/EtherCATDeploymentService.cpp
     services/EtherCATUpdateService.h                 services/EtherCATUpdateService.cpp
     services/EtherCATMaintenanceService.h            services/EtherCATMaintenanceService.cpp
-    services/EtherCATIntegrationService.h            services/EtherCATIntegrationService.cpp
     services/EtherCATVisualizationService.h          services/EtherCATVisualizationService.cpp
     services/EtherCATReportingService.h              services/EtherCATReportingService.cpp
     services/EtherCATDocumentationService.h          services/EtherCATDocumentationService.cpp
@@ -211,7 +209,6 @@ add_executable(ecat-studio
     services/WorkflowVisualizationService.h        services/WorkflowVisualizationService.cpp
     services/WorkflowReportingService.h            services/WorkflowReportingService.cpp
     services/WorkflowSecurityService.h             services/WorkflowSecurityService.cpp
-    services/WorkflowUpdateService.h               services/WorkflowUpdateService.cpp
     services/WorkflowMaintenanceService.h          services/WorkflowMaintenanceService.cpp
     services/WorkflowAnalyticsService.h            services/WorkflowAnalyticsService.cpp
     services/WorkflowVisualizationStudioService.h  services/WorkflowVisualizationStudioService.cpp
@@ -426,7 +423,6 @@ option(ECAT_EXPERIMENTAL_SERVICES "Include experimental/stub services" OFF)
 if(ECAT_EXPERIMENTAL_SERVICES)
     target_sources(ecat-studio PRIVATE
         services/WorkflowComplianceService.h services/WorkflowComplianceService.cpp
-        services/WorkflowCertificationService.h services/WorkflowCertificationService.cpp
         services/WorkflowDeploymentService.h services/WorkflowDeploymentService.cpp
     )
     target_compile_definitions(ecat-studio PRIVATE ECAT_EXPERIMENTAL_SERVICES=1)

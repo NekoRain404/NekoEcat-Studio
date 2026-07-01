@@ -371,6 +371,14 @@ add_executable(daemon_handler_test
     ../../../apps/ecatd/handlers/SignalHandler.h
     ../../../apps/ecatd/handlers/FoEHandler.cpp
     ../../../apps/ecatd/handlers/FoEHandler.h
+    ../../../apps/ecatd/handlers/SoEHandler.cpp
+    ../../../apps/ecatd/handlers/SoEHandler.h
+    ../../../apps/ecatd/handlers/EoEHandler.cpp
+    ../../../apps/ecatd/handlers/EoEHandler.h
+    ../../../apps/ecatd/handlers/RedundancyHandler.cpp
+    ../../../apps/ecatd/handlers/RedundancyHandler.h
+    ../../../apps/ecatd/handlers/OnlineChangeHandler.cpp
+    ../../../apps/ecatd/handlers/OnlineChangeHandler.h
     ../../../src/core/JsonProtocol.cpp
     ../../../src/core/JsonProtocol.h
     ../../../src/core/EthercatTypes.cpp

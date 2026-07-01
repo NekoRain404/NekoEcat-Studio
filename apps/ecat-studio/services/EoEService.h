@@ -3,36 +3,37 @@
 // EoEService — Ethernet over EtherCAT protocol support.
 //
 // Provides Ethernet frame tunneling, IP address configuration,
-// and MAC address learning for EtherCAT slaves that support EoE.
+// and status monitoring for EtherCAT slaves that support EoE.
 //
-// This service provides Ethernet over EtherCAT (EoE) protocol support.
-// It handles:
-//   - Ethernet frame tunneling through EtherCAT
-//   - IP address configuration for slaves
-//   - MAC address learning from slaves
-//   - Frame send/receive operations
+// This service handles:
+//   - EoE status queries (slave EoE capability detection)
+//   - IP address configuration via standard EoE SDO objects (0x8000+)
+//   - IP address readback
+//   - EoE frame statistics monitoring
+//   - Frame send/receive (requires TAP/TUN daemon backend — planned)
 //
 // Usage:
 //   ServiceContainer *container = ...;
 //   EoEService *eoe = container->eoe();
-//   eoe->sendEthernetFrame(0, frameData);  // Send frame to slave 0
-//   eoe->receiveEthernetFrame(0);  // Receive frame from slave 0
-//   eoe->configureIp(0, "192.168.1.100", "255.255.255.0");  // Configure IP
-//   eoe->learnedMacs(0);  // Get learned MACs from slave 0
+//   eoe->queryStatus(0);           // Check slave 0 EoE support
+//   eoe->configureIp(0, "192.168.1.100", "255.255.255.0");
+//   eoe->queryIp(0);               // Read back current IP
+//   eoe->queryStats(0);            // Get frame statistics
 //
 // Thread safety:
 //   All methods must be called from the main (GUI) thread. The service
 //   marshals daemon communication to the main thread internally.
 //
 // Performance:
-//   - Frame send/receive is O(n) where n is frame size
-//   - IP configuration is O(1)
-//   - MAC learning is O(1) for request, O(n) for response
+//   - Status/IP queries are O(1) round-trip to daemon
+//   - IP configuration is O(1) SDO writes
+//   - Frame send/receive is O(n) where n is frame size (when implemented)
 
 #include <QObject>
 #include <QString>
 #include <QByteArray>
 #include <QStringList>
+#include <QJsonObject>
 
 class EcatClient;
 
@@ -44,25 +45,60 @@ public:
     // Send an Ethernet frame to a slave.
     // @param position  Slave position
     // @param frame     Ethernet frame data
-    // @return true if frame was sent successfully
+    // @return true if frame was sent successfully (currently always false)
     bool sendEthernetFrame(int position, const QByteArray &frame);
 
     // Receive an Ethernet frame from a slave.
     // @param position  Slave position
     void receiveEthernetFrame(int position);
 
-    // Configure IP address for a slave.
+    // Configure IP address for a slave via EoE SDO.
     // @param position  Slave position
-    // @param ip        IP address
-    // @param subnet    Subnet mask
-    // @return true if configuration was successful
+    // @param ip        IP address (e.g. "192.168.1.100")
+    // @param subnet    Subnet mask (e.g. "255.255.255.0")
+    // @return true if request was sent successfully
     bool configureIp(int position, const QString &ip, const QString &subnet);
 
     // Get learned MAC addresses from a slave.
     // @param position  Slave position
     void learnedMacs(int position);
 
+    // Query EoE support status for a slave.
+    // Emits statusReceived() with the result.
+    // @param position  Slave position
+    void queryStatus(int position);
+
+    // Read current IP configuration from a slave.
+    // Emits ipReadback() with the result.
+    // @param position  Slave position
+    void queryIp(int position);
+
+    // Query EoE frame statistics for a slave.
+    // Emits statsReceived() with the result.
+    // @param position  Slave position
+    void queryStats(int position);
+
 signals:
+    // Emitted when EoE status query completes.
+    // @param position  Slave position
+    // @param data      Status JSON: { supported, hasIpConfig, currentIp }
+    void statusReceived(int position, const QJsonObject &data);
+
+    // Emitted when IP configuration succeeds.
+    // @param position  Slave position
+    // @param ip        Configured IP address
+    void ipConfigured(int position, const QString &ip);
+
+    // Emitted when IP readback query completes.
+    // @param position  Slave position
+    // @param data      IP config JSON: { ip, subnet, gateway, dns }
+    void ipReadback(int position, const QJsonObject &data);
+
+    // Emitted when EoE statistics query completes.
+    // @param position  Slave position
+    // @param data      Stats JSON: { txFrames, rxFrames, txErrors, rxErrors }
+    void statsReceived(int position, const QJsonObject &data);
+
     // Emitted when a frame is sent.
     // @param position  Slave position
     // @param success   Whether send was successful
@@ -72,16 +108,6 @@ signals:
     // @param position  Slave position
     // @param frame     Ethernet frame data
     void frameReceived(int position, const QByteArray &frame);
-
-    // Emitted when IP is configured.
-    // @param position  Slave position
-    // @param ip        Configured IP address
-    void ipConfigured(int position, const QString &ip);
-
-    // Emitted when MAC list is received.
-    // @param position  Slave position
-    // @param macs      List of learned MAC addresses
-    void macListReceived(int position, const QStringList &macs);
 
     // Emitted when an error occurs.
     // @param message  Human-readable error message

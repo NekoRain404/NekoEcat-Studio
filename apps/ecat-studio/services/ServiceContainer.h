@@ -79,9 +79,9 @@
 //   │ Extended EtherCAT Services                                          │
 //   │   EtherCATMonitorService, EtherCATAnalyzerService,                │
 //   │   EtherCATOptimizerService, EtherCATConfigService,                │
-//   │   EtherCATBackupService, EtherCATRecoveryService,                 │
-//   │   EtherCATSimulationService, EtherCATTestingService,              │
-//   │   EtherCATValidationService, EtherCATSecurityService,             │
+//   │   EtherCATRecoveryService,               │
+//   │   EtherCATSimulationService,             │
+//   │   EtherCATSecurityService,               │
 //   │   EtherCATComplianceService, EtherCATCertificationService         │
 //   └─────────────────────────────────────────────────────────────────────┘
 
@@ -138,19 +138,14 @@ class EtherCATMonitorService;
 class EtherCATAnalyzerService;
 class EtherCATOptimizerService;
 class EtherCATConfigService;
-class EtherCATBackupService;
 class EtherCATRecoveryService;
 class EtherCATSimulationService;
-class EtherCATTestingService;
-class EtherCATValidationService;
 class EtherCATSecurityService;
 class EtherCATComplianceService;
 class EtherCATCertificationService;
 class EtherCATAnalyticsService;
-class EtherCATDeploymentService;
 class EtherCATUpdateService;
 class EtherCATMaintenanceService;
-class EtherCATIntegrationService;
 class EtherCATVisualizationService;
 class EtherCATReportingService;
 class EtherCATDocumentationService;
@@ -164,10 +159,8 @@ class WorkflowReportingService;
 class WorkflowSecurityService;
 #ifdef ECAT_EXPERIMENTAL_SERVICES
 class WorkflowComplianceService;
-class WorkflowCertificationService;
 class WorkflowDeploymentService;
 #endif
-class WorkflowUpdateService;
 class WorkflowMaintenanceService;
 class WorkflowVisualizationStudioService;
 class WorkflowReportDesignerService;
@@ -265,19 +258,14 @@ public:
   EtherCATAnalyzerService *ecatAnalyzer() const { return ecatAnalyzer_; }
   EtherCATOptimizerService *ecatOptimizer() const { return ecatOptimizer_; }
   EtherCATConfigService *ecatConfig() const { return ecatConfig_; }
-  EtherCATBackupService *ecatBackup() const { return ecatBackup_; }
   EtherCATRecoveryService *ecatRecovery() const { return ecatRecovery_; }
   EtherCATSimulationService *ecatSimulation() const { return ecatSimulation_; }
-  EtherCATTestingService *ecatTesting() const { return ecatTesting_; }
-  EtherCATValidationService *ecatValidation() const { return ecatValidation_; }
   EtherCATSecurityService *ecatSecurity() const { return ecatSecurity_; }
   EtherCATComplianceService *ecatCompliance() const { return ecatCompliance_; }
   EtherCATCertificationService *ecatCertification() const { return ecatCertification_; }
   EtherCATAnalyticsService *ecatAnalytics() const { return ecatAnalytics_; }
-  EtherCATDeploymentService *ecatDeployment() const { return ecatDeployment_; }
   EtherCATUpdateService *ecatUpdate() const { return ecatUpdate_; }
   EtherCATMaintenanceService *ecatMaintenance() const { return ecatMaintenance_; }
-  EtherCATIntegrationService *ecatIntegration() const { return ecatIntegration_; }
   EtherCATVisualizationService *ecatVisualization() const { return ecatVisualization_; }
   EtherCATReportingService *ecatReporting() const { return ecatReporting_; }
   EtherCATDocumentationService *ecatDocumentation() const { return ecatDocumentation_; }
@@ -290,11 +278,11 @@ public:
   WorkflowReportingService *workflowReporting() const { return workflowReporting_; }
   WorkflowSecurityService *workflowSecurity() const { return workflowSecurity_; }
 #ifdef ECAT_EXPERIMENTAL_SERVICES
+  #ifdef ECAT_EXPERIMENTAL_SERVICES
   WorkflowComplianceService *workflowCompliance() const { return workflowCompliance_; }
-  WorkflowCertificationService *workflowCertification() const { return workflowCertification_; }
   WorkflowDeploymentService *workflowDeployment() const { return workflowDeployment_; }
 #endif
-  WorkflowUpdateService *workflowUpdate() const { return workflowUpdate_; }
+#endif
   WorkflowMaintenanceService *workflowMaintenance() const { return workflowMaintenance_; }
   WorkflowVisualizationStudioService *workflowVisualizationStudio() const { return workflowVisualizationStudio_; }
   WorkflowReportDesignerService *workflowReportDesigner() const { return workflowReportDesigner_; }
@@ -375,19 +363,14 @@ private:
   EtherCATAnalyzerService *ecatAnalyzer_ = nullptr;
   EtherCATOptimizerService *ecatOptimizer_ = nullptr;
   EtherCATConfigService *ecatConfig_ = nullptr;
-  EtherCATBackupService *ecatBackup_ = nullptr;
   EtherCATRecoveryService *ecatRecovery_ = nullptr;
   EtherCATSimulationService *ecatSimulation_ = nullptr;
-  EtherCATTestingService *ecatTesting_ = nullptr;
-  EtherCATValidationService *ecatValidation_ = nullptr;
   EtherCATSecurityService *ecatSecurity_ = nullptr;
   EtherCATComplianceService *ecatCompliance_ = nullptr;
   EtherCATCertificationService *ecatCertification_ = nullptr;
   EtherCATAnalyticsService *ecatAnalytics_ = nullptr;
-  EtherCATDeploymentService *ecatDeployment_ = nullptr;
   EtherCATUpdateService *ecatUpdate_ = nullptr;
   EtherCATMaintenanceService *ecatMaintenance_ = nullptr;
-  EtherCATIntegrationService *ecatIntegration_ = nullptr;
   EtherCATVisualizationService *ecatVisualization_ = nullptr;
   EtherCATReportingService *ecatReporting_ = nullptr;
   EtherCATDocumentationService *ecatDocumentation_ = nullptr;
@@ -400,11 +383,11 @@ private:
   WorkflowReportingService *workflowReporting_ = nullptr;
   WorkflowSecurityService *workflowSecurity_ = nullptr;
 #ifdef ECAT_EXPERIMENTAL_SERVICES
+  #ifdef ECAT_EXPERIMENTAL_SERVICES
   WorkflowComplianceService *workflowCompliance_ = nullptr;
-  WorkflowCertificationService *workflowCertification_ = nullptr;
   WorkflowDeploymentService *workflowDeployment_ = nullptr;
 #endif
-  WorkflowUpdateService *workflowUpdate_ = nullptr;
+#endif
   WorkflowMaintenanceService *workflowMaintenance_ = nullptr;
   WorkflowVisualizationStudioService *workflowVisualizationStudio_ = nullptr;
   WorkflowReportDesignerService *workflowReportDesigner_ = nullptr;

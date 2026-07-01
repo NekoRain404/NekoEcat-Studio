@@ -1,14 +1,16 @@
 #include "StateMachineService.h"
+#include "infra/EcatClient.h"
 
 // StateMachineService.cpp — Per-slave EtherCAT state machine with transition validation
 //
 // Implementation notes:
 //   - Validates transitions against the EtherCAT state diagram
-//   - Does not mutate slave state locally without a daemon-backed transition
+//   - Sends validated state change requests to the ecatd daemon via EcatClient
+//   - Updates local state optimistically on successful send
 //   - Transition history capped at kMaxHistory per position
 
-StateMachineService::StateMachineService(QObject *parent)
-    : QObject(parent) {}
+StateMachineService::StateMachineService(EcatClient *client, QObject *parent)
+    : QObject(parent), client_(client) {}
 
 bool StateMachineService::requestState(int position, int state) {
   if (!isValidState(state)) {
@@ -18,30 +20,37 @@ bool StateMachineService::requestState(int position, int state) {
   }
 
   int from = currentStates_.value(position, 0);
-  QString reason;
   if (!validateTransition(from, state)) {
-    reason = QString("Transition from state %1 to %2 is not allowed")
-                 .arg(from)
-                 .arg(state);
-  } else {
-    reason = QStringLiteral(
-        "State transition requires a connected EtherCAT backend");
+    QString reason = QString("Transition from state %1 to %2 is not allowed")
+                         .arg(from)
+                         .arg(state);
+    emit stateTransitionFailed(position, from, state, reason);
+    return false;
   }
 
-  StateTransition tr;
-  tr.position = position;
-  tr.fromState = from;
-  tr.toState = state;
-  tr.timestamp = QDateTime::currentDateTime();
-  tr.success = false;
-  tr.reason = reason;
-  auto &h = history_[position];
-  h.append(tr);
-  if (h.size() > kMaxHistory)
-    h.removeFirst();
+  // Validation passed: send the state change to the daemon.
+  client_->setState(position, stateToString(state));
 
-  emit stateTransitionFailed(position, from, state, reason);
-  return false;
+  // Record the transition in history as successful.
+  {
+    StateTransition tr;
+    tr.position = position;
+    tr.fromState = from;
+    tr.toState = state;
+    tr.timestamp = QDateTime::currentDateTime();
+    tr.success = true;
+    auto &h = history_[position];
+    h.append(tr);
+    if (h.size() > kMaxHistory)
+      h.removeFirst();
+  }
+
+  // Optimistically update local state tracking.
+  currentStates_[position] = state;
+
+  emit stateChangeRequested(position, state);
+  emit stateChanged(position, state);
+  return true;
 }
 
 int StateMachineService::currentState(int position) const {
@@ -76,12 +85,35 @@ QVector<StateTransition> StateMachineService::stateHistory(int position) const {
 }
 
 bool StateMachineService::recoverState(int position) {
-  Q_UNUSED(position);
-  return false;
+  int current = currentStates_.value(position, 0);
+  if (!isValidState(current)) {
+    emit stateTransitionFailed(position, current, current,
+                               "No known state to recover from");
+    return false;
+  }
+
+  int target = recoveryTargetState(current);
+  if (target == current) {
+    // Already at the lowest state; nothing to recover.
+    emit stateChanged(position, current);
+    return true;
+  }
+
+  return requestState(position, target);
 }
 
 bool StateMachineService::isValidState(int state) {
   return state == 1 || state == 2 || state == 4 || state == 8;
+}
+
+QString StateMachineService::stateToString(int state) {
+  switch (state) {
+  case 1:  return QStringLiteral("INIT");
+  case 2:  return QStringLiteral("PREOP");
+  case 4:  return QStringLiteral("SAFEOP");
+  case 8:  return QStringLiteral("OP");
+  default: return QStringLiteral("INIT");
+  }
 }
 
 int StateMachineService::recoveryTargetState(int current) {

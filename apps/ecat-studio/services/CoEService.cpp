@@ -1,9 +1,11 @@
 #include "CoEService.h"
 #include "EcatClient.h"
+#include "SdoCacheService.h"
 
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QTimer>
 
 // CoEService.cpp — CANopen over EtherCAT (CoE) SDO dictionary, segment I/O,
@@ -87,10 +89,16 @@ quint64 parseValue(const QString &str, bool *ok = nullptr) {
 
 } // anonymous namespace
 
-CoEService::CoEService(EcatClient *client, QObject *parent)
-    : QObject(parent), client_(client) {
+CoEService::CoEService(EcatClient *client, SdoCacheService *sdoCache, QObject *parent)
+    : QObject(parent), client_(client), sdoCache_(sdoCache) {
     connect(client_, &EcatClient::errorMessage, this,
             [this](const QString &msg) { emit error(msg); });
+
+    // Connect slaveTextResult to our parser; reorder args to match slot signature.
+    connect(client_, &EcatClient::slaveTextResult, this,
+            [this](const QString &title, int position, const QString &text) {
+                onSdoText(position, title, text);
+            });
 }
 
 void CoEService::uploadSdoInfo(int position) {
@@ -103,12 +111,77 @@ void CoEService::uploadSdoInfo(int position) {
 }
 
 void CoEService::uploadDictionary(int position) {
-    Q_UNUSED(position);
     if (!client_ || !client_->isConnected()) {
         emit error("Cannot upload CoE dictionary: EtherCAT daemon is not connected");
         return;
     }
-    emit error("CoE dictionary upload requires daemon backend support");
+    emit error(QString("Fetching SDO dictionary from slave %1...").arg(position));
+    client_->sdos(position);
+}
+
+// ─── SDO text result parser (IgH ethercat sdos format) ─────────────────────
+void CoEService::onSdoText(int position, const QString &title, const QString &text) {
+    if (title != "SDO") {
+        return;
+    }
+
+    // IgH format examples:
+    //   0x1000:01  Device type        uint32  ro
+    //   0x1000    Device type        uint32  ro
+    //   0x1600:00  Receive PDO 1      uint8   ro
+    static const QRegularExpression re(
+        R"(^(0x[0-9a-fA-F]+)(?::(0x[0-9a-fA-F]+))?\s+(.+?)\s+(uint\d+|int\d+|octet_string|visible_string|BOOL|BIT\d+)\s+(ro|wo|rw)\s*$)");
+
+    QVector<SdoDictionaryEntry> dict;
+    QList<CoESdoDictionary> entries;
+
+    const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QRegularExpressionMatch match = re.match(line);
+        if (!match.hasMatch()) {
+            continue;
+        }
+
+        const QString index    = match.captured(1);
+        QString subIndex       = match.captured(2);
+        const QString name     = match.captured(3).trimmed();
+        const QString dataType = match.captured(4);
+        const QString access   = match.captured(5);
+
+        // Lines without a subindex specify the top-level index entry (subindex 0x00).
+        if (subIndex.isEmpty()) {
+            subIndex = QStringLiteral("0x00");
+        }
+
+        // Build cache entry.
+        SdoDictionaryEntry cacheEntry;
+        cacheEntry.index      = index;
+        cacheEntry.subIndex   = subIndex;
+        cacheEntry.name       = name;
+        cacheEntry.dataType   = dataType;
+        cacheEntry.accessType = access;
+        dict.append(cacheEntry);
+
+        // Build signal entry.
+        CoESdoDictionary sdoEntry;
+        sdoEntry.index      = index;
+        sdoEntry.name       = name;
+        sdoEntry.type       = dataType;
+        sdoEntry.bitSize    = 0;  // IgH format doesn't convey bit size directly
+        sdoEntry.accessType = (access == QStringLiteral("ro") ? 1 :
+                               access == QStringLiteral("wo") ? 2 : 3);
+        entries.append(sdoEntry);
+    }
+
+    if (dict.isEmpty()) {
+        emit error(QString("Failed to parse SDO dictionary for slave %1: "
+                           "no entries matched the IgH ethercat sdos format")
+                       .arg(position));
+        return;
+    }
+
+    sdoCache_->cacheDictionary(position, dict);
+    emit dictionaryReceived(position, entries);
 }
 
 void CoEService::uploadSegment(int position, const QString &index,

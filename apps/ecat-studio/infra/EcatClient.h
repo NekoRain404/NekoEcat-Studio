@@ -215,6 +215,82 @@ public:
   /// @param password FoE password (default 0).
   void foeWrite(int position, const QString &filePath, quint32 password = 0);
 
+  // -- SoE (Servo over EtherCAT) --
+
+  /// @brief Read an SoE IDN from a slave.
+  /// @param position Slave bus position.
+  /// @param idn IDN string (e.g. "P-0-0150") or numeric.
+  /// @param drive Drive number (0-7, default 0).
+  /// @param type Data type hint (optional, e.g. "uint16").
+  void soeRead(int position, const QString &idn, int drive = 0, const QString &type = QString());
+
+  /// @brief Write an SoE IDN to a slave.
+  /// @param position Slave bus position.
+  /// @param idn IDN string or numeric.
+  /// @param value Value to write.
+  /// @param drive Drive number (0-7, default 0).
+  /// @param type Data type (optional).
+  void soeWrite(int position, const QString &idn, const QString &value,
+                int drive = 0, const QString &type = QString());
+
+  // -- EoE (Ethernet over EtherCAT) --
+
+  /// @brief Query EoE support status for a slave.
+  /// @param position Slave bus position.
+  void eoeStatus(int position);
+
+  /// @brief Configure IP address for an EoE-capable slave.
+  /// @param position Slave bus position.
+  /// @param ip IP address (e.g. "192.168.1.100").
+  /// @param subnet Subnet mask (e.g. "255.255.255.0").
+  /// @param gateway Default gateway (optional).
+  /// @param dns DNS server (optional).
+  void eoeConfigureIp(int position, const QString &ip, const QString &subnet,
+                      const QString &gateway = QString(), const QString &dns = QString());
+
+  /// @brief Read current IP configuration from an EoE slave.
+  /// @param position Slave bus position.
+  void eoeGetIp(int position);
+
+  /// @brief Get EoE frame statistics for a slave.
+  /// @param position Slave bus position.
+  void eoeStats(int position);
+
+  // -- Redundancy --
+
+  /// @brief Query redundancy status.
+  void redundancyStatus();
+
+  /// @brief Enable cable redundancy.
+  void redundancyEnable();
+
+  /// @brief Disable cable redundancy.
+  void redundancyDisable();
+
+  /// @brief Perform failover to secondary path.
+  void redundancyFailover();
+
+  /// @brief Perform failback to primary path.
+  void redundancyFailback();
+
+  /// @brief Get redundancy event history.
+  /// @param limit Maximum number of events (default 100).
+  void redundancyHistory(int limit = 100);
+
+  // -- Online Change (runtime reconfiguration) --
+
+  /// @brief Preview an online change without applying it.
+  /// @param changes Array of {position, index, subIndex, value, type} objects.
+  void onlineChangePreview(const QJsonArray &changes);
+
+  /// @brief Apply an online change (transition affected slaves, write SDOs, restore).
+  /// @param changes Array of {position, index, subIndex, value, type} objects.
+  /// @param targetState State to restore affected slaves to (default "OP").
+  void onlineChangeApply(const QJsonArray &changes, const QString &targetState = "OP");
+
+  /// @brief Query whether an online change is in progress.
+  void onlineChangeStatus();
+
   // -- Configuration --
 
   /// @brief Set the request timeout in milliseconds.
@@ -272,6 +348,26 @@ signals:
   // -- FoE signals --
   void foeReadResult(int position, const QString &filePath, qint64 fileSize);  ///< FoE read complete.
   void foeWriteResult(int position, qint64 bytesWritten);                      ///< FoE write complete.
+
+  // -- SoE signals --
+  void soeReadResult(int position, const QString &idn, const QString &value);  ///< SoE IDN read result.
+  void soeWriteResult(int position, const QString &idn);                       ///< SoE IDN write complete.
+
+  // -- EoE signals --
+  void eoeStatusResult(int position, const QJsonObject &data);    ///< EoE status query result.
+  void eoeIpConfigured(int position, const QString &ip);          ///< EoE IP configured.
+  void eoeIpResult(int position, const QJsonObject &data);        ///< EoE IP readback result.
+  void eoeStatsResult(int position, const QJsonObject &data);     ///< EoE statistics result.
+
+  // -- Redundancy signals --
+  void redundancyStatusResult(const QJsonObject &data);           ///< Redundancy status.
+  void redundancyCommandResult(const QString &command, bool success, const QString &message); ///< Redundancy command result.
+  void redundancyHistoryResult(const QJsonObject &data);          ///< Redundancy event history.
+
+  // -- Online change signals --
+  void onlineChangePreviewResult(const QJsonObject &data);        ///< Online change preview.
+  void onlineChangeApplyResult(const QJsonObject &data);          ///< Online change apply result.
+  void onlineChangeStatusResult(const QJsonObject &data);         ///< Online change status.
 
 private slots:
   void attemptReconnect();

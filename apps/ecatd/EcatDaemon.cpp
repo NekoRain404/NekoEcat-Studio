@@ -37,10 +37,15 @@ bool requestedMasterIndex(const QJsonObject &params, uint32_t *index, QString *e
 
 // Wire incoming TCP connections to the per-client read handler.
 EcatDaemon::EcatDaemon(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), eoeHandler_(nullptr), redundancyHandler_(nullptr),
+      onlineChangeHandler_(nullptr)
 {
     uptimeTimer_.start();
     backend_ = new EthercatCliBackend(this);
+    dcSyncHandler_.setBackend(backend_);
+    eoeHandler_ = EoEHandler(backend_);
+    redundancyHandler_ = RedundancyHandler(backend_);
+    onlineChangeHandler_ = OnlineChangeHandler(backend_);
     connect(&server_, &QTcpServer::newConnection, this, &EcatDaemon::acceptClient);
     setupHandlers();
 
@@ -157,9 +162,15 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("rescan", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_->rescan(requestedMaster(params), &error)
-            ? CommandDispatcher::success(id)
-            : CommandDispatcher::failure(id, error);
+        if (backend_->rescan(requestedMaster(params), &error)) {
+            QJsonObject resp = CommandDispatcher::success(id);
+            if (backend_->isNative() && backend_->lastOperationWasFallback()) {
+                resp["backend"] = QStringLiteral("cli_fallback");
+                resp["reason"] = backend_->lastFallbackReason();
+            }
+            return resp;
+        }
+        return CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("slaveInfo", [this](const QString &id, const QJsonObject &params) {
@@ -181,17 +192,29 @@ void EcatDaemon::setupHandlers() {
     dispatcher_.registerHandler("sdos", [this](const QString &id, const QJsonObject &params) {
         QString error;
         const QString text = backend_->sdos(requestedMaster(params), params.value("position").toInt(), &error);
-        return error.isEmpty()
-            ? CommandDispatcher::success(id, {{"text", text}})
-            : CommandDispatcher::failure(id, error);
+        if (error.isEmpty()) {
+            QJsonObject resp = CommandDispatcher::success(id, {{"text", text}});
+            if (backend_->isNative() && backend_->lastOperationWasFallback()) {
+                resp["backend"] = QStringLiteral("cli_fallback");
+                resp["reason"] = backend_->lastFallbackReason();
+            }
+            return resp;
+        }
+        return CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("xml", [this](const QString &id, const QJsonObject &params) {
         QString error;
         const QString text = backend_->slaveXml(requestedMaster(params), params.value("position").toInt(), &error);
-        return error.isEmpty()
-            ? CommandDispatcher::success(id, {{"text", text}})
-            : CommandDispatcher::failure(id, error);
+        if (error.isEmpty()) {
+            QJsonObject resp = CommandDispatcher::success(id, {{"text", text}});
+            if (backend_->isNative() && backend_->lastOperationWasFallback()) {
+                resp["backend"] = QStringLiteral("cli_fallback");
+                resp["reason"] = backend_->lastFallbackReason();
+            }
+            return resp;
+        }
+        return CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("upload", [this](const QString &id, const QJsonObject &params) {
@@ -260,17 +283,29 @@ void EcatDaemon::setupHandlers() {
 
     dispatcher_.registerHandler("setState", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_->setState(requestedMaster(params), params.value("position").toInt(),
-                                 params.value("state").toString(), &error)
-            ? CommandDispatcher::success(id)
-            : CommandDispatcher::failure(id, error);
+        if (backend_->setState(requestedMaster(params), params.value("position").toInt(),
+                               params.value("state").toString(), &error)) {
+            QJsonObject resp = CommandDispatcher::success(id);
+            if (backend_->isNative() && backend_->lastOperationWasFallback()) {
+                resp["backend"] = QStringLiteral("cli_fallback");
+                resp["reason"] = backend_->lastFallbackReason();
+            }
+            return resp;
+        }
+        return CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("setAllStates", [this](const QString &id, const QJsonObject &params) {
         QString error;
-        return backend_->setAllStates(requestedMaster(params), params.value("state").toString(), &error)
-            ? CommandDispatcher::success(id)
-            : CommandDispatcher::failure(id, error);
+        if (backend_->setAllStates(requestedMaster(params), params.value("state").toString(), &error)) {
+            QJsonObject resp = CommandDispatcher::success(id);
+            if (backend_->isNative() && backend_->lastOperationWasFallback()) {
+                resp["backend"] = QStringLiteral("cli_fallback");
+                resp["reason"] = backend_->lastFallbackReason();
+            }
+            return resp;
+        }
+        return CommandDispatcher::failure(id, error);
     });
 
     dispatcher_.registerHandler("freeRunStart", [this](const QString &id, const QJsonObject &params) {
@@ -350,6 +385,59 @@ void EcatDaemon::setupHandlers() {
         return foeHandler_.handleFoeWrite(id, params);
     });
 
+    // Servo over EtherCAT (SoE) IDN operations.
+    dispatcher_.registerHandler("soeRead", [this](const QString &id, const QJsonObject &params) {
+        return soeHandler_.handleSoeRead(id, params);
+    });
+    dispatcher_.registerHandler("soeWrite", [this](const QString &id, const QJsonObject &params) {
+        return soeHandler_.handleSoeWrite(id, params);
+    });
+
+    // Ethernet over EtherCAT (EoE) protocol operations.
+    dispatcher_.registerHandler("eoeStatus", [this](const QString &id, const QJsonObject &params) {
+        return eoeHandler_.handleEoeStatus(id, params);
+    });
+    dispatcher_.registerHandler("eoeConfigureIp", [this](const QString &id, const QJsonObject &params) {
+        return eoeHandler_.handleEoeConfigureIp(id, params);
+    });
+    dispatcher_.registerHandler("eoeGetIp", [this](const QString &id, const QJsonObject &params) {
+        return eoeHandler_.handleEoeGetIp(id, params);
+    });
+    dispatcher_.registerHandler("eoeStats", [this](const QString &id, const QJsonObject &params) {
+        return eoeHandler_.handleEoeStats(id, params);
+    });
+
+    // Cable redundancy operations.
+    dispatcher_.registerHandler("redundancyStatus", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleStatus(id, params);
+    });
+    dispatcher_.registerHandler("redundancyEnable", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleEnable(id, params);
+    });
+    dispatcher_.registerHandler("redundancyDisable", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleDisable(id, params);
+    });
+    dispatcher_.registerHandler("redundancyFailover", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleFailover(id, params);
+    });
+    dispatcher_.registerHandler("redundancyFailback", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleFailback(id, params);
+    });
+    dispatcher_.registerHandler("redundancyHistory", [this](const QString &id, const QJsonObject &params) {
+        return redundancyHandler_.handleHistory(id, params);
+    });
+
+    // Online change (runtime reconfiguration) operations.
+    dispatcher_.registerHandler("onlineChangePreview", [this](const QString &id, const QJsonObject &params) {
+        return onlineChangeHandler_.handlePreview(id, params);
+    });
+    dispatcher_.registerHandler("onlineChangeApply", [this](const QString &id, const QJsonObject &params) {
+        return onlineChangeHandler_.handleApply(id, params);
+    });
+    dispatcher_.registerHandler("onlineChangeStatus", [this](const QString &id, const QJsonObject &params) {
+        return onlineChangeHandler_.handleStatus(id, params);
+    });
+
     dispatcher_.registerHandler("setBackend", [this](const QString &id, const QJsonObject &params) {
         QString mode = params.value("mode").toString("auto");
         setBackendMode(mode);
@@ -393,6 +481,10 @@ void EcatDaemon::setBackendMode(const QString &mode) {
         if (backend_->isNative()) {
             delete backend_;
             backend_ = new EthercatCliBackend(this);
+            dcSyncHandler_.setBackend(backend_);
+            eoeHandler_ = EoEHandler(backend_);
+            redundancyHandler_ = RedundancyHandler(backend_);
+            onlineChangeHandler_ = OnlineChangeHandler(backend_);
             qDebug() << "Switched to CLI backend";
         }
     } else if (mode == "native") {
@@ -400,6 +492,10 @@ void EcatDaemon::setBackendMode(const QString &mode) {
 #ifdef HAVE_IGH
             delete backend_;
             backend_ = new EthercatNativeBackend(this);
+            dcSyncHandler_.setBackend(backend_);
+            eoeHandler_ = EoEHandler(backend_);
+            redundancyHandler_ = RedundancyHandler(backend_);
+            onlineChangeHandler_ = OnlineChangeHandler(backend_);
             qDebug() << "Switched to native backend";
 #else
             qWarning() << "Native backend not available, keeping CLI";
@@ -414,6 +510,10 @@ void EcatDaemon::setBackendMode(const QString &mode) {
         if (error.isEmpty()) {
             delete backend_;
             backend_ = native;
+            dcSyncHandler_.setBackend(backend_);
+            eoeHandler_ = EoEHandler(backend_);
+            redundancyHandler_ = RedundancyHandler(backend_);
+            onlineChangeHandler_ = OnlineChangeHandler(backend_);
             qDebug() << "Auto-selected native backend";
         } else {
             delete native;

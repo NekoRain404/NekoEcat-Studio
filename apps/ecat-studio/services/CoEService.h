@@ -38,6 +38,7 @@
 #include <QStringList>
 
 class EcatClient;
+class SdoCacheService;
 
 // SDO information structure.
 struct SdoInfo {
@@ -62,7 +63,7 @@ Q_DECLARE_METATYPE(CoESdoDictionary)
 class CoEService : public QObject {
     Q_OBJECT
 public:
-    explicit CoEService(EcatClient *client, QObject *parent = nullptr);
+    explicit CoEService(EcatClient *client, SdoCacheService *sdoCache, QObject *parent = nullptr);
 
     // Upload SDO information from a slave.
     // @param position  Slave position
@@ -146,4 +147,8 @@ signals:
 
 private:
     EcatClient *client_;  // TCP client to ecatd daemon
+    SdoCacheService *sdoCache_ = nullptr;  // SDO dictionary/value cache
+
+private slots:
+    void onSdoText(int position, const QString &title, const QString &text);
 };

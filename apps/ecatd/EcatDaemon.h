@@ -13,6 +13,10 @@
 #include "handlers/DcSyncHandler.h"
 #include "handlers/AdapterHandler.h"
 #include "handlers/FoEHandler.h"
+#include "handlers/SoEHandler.h"
+#include "handlers/EoEHandler.h"
+#include "handlers/RedundancyHandler.h"
+#include "handlers/OnlineChangeHandler.h"
 #include "handlers/SignalHandler.h"
 
 #include <QHash>
@@ -57,6 +61,14 @@ private:
     AdapterHandler adapterHandler_;
     // File over EtherCAT (FoE) firmware read/write handler.
     FoEHandler foeHandler_;
+    // Servo over EtherCAT (SoE) IDN read/write handler.
+    SoEHandler soeHandler_;
+    // Ethernet over EtherCAT (EoE) protocol handler.
+    EoEHandler eoeHandler_;
+    // Cable redundancy handler.
+    RedundancyHandler redundancyHandler_;
+    // Online change (runtime reconfiguration) handler.
+    OnlineChangeHandler onlineChangeHandler_;
     // Multi-channel signal acquisition handler for real-time monitoring.
     SignalHandler signalHandler_;
     // Periodic timer that polls slave AL status every second.

@@ -43,7 +43,7 @@ set_target_properties(protocol_integration_test PROPERTIES AUTOMOC ON)
 
 add_test(NAME protocol_integration_test COMMAND protocol_integration_test)
 
-# ── EventBus Integration Test ─────────────────────────────────────────
+# -- EventBus Integration Test -----------------------------------------
 add_executable(event_bus_integration_test
     event_bus_integration_test.cpp
     ../../apps/ecat-studio/services/EventBus.cpp
@@ -58,7 +58,7 @@ set_target_properties(event_bus_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME event_bus_integration_test COMMAND event_bus_integration_test)
 set_tests_properties(event_bus_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ── Plugin Integration Test ─────────────────────────────────────────
+# -- Plugin Integration Test -----------------------------------------
 add_executable(plugin_integration_test
     plugin_integration_test.cpp
     ../../apps/ecat-studio/plugins/PluginRegistry.cpp
@@ -117,8 +117,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/WorkflowReportingService.h
     ../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
@@ -227,16 +225,10 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/EtherCATOptimizerService.h
     ../../apps/ecat-studio/services/EtherCATConfigService.cpp
     ../../apps/ecat-studio/services/EtherCATConfigService.h
-    ../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../apps/ecat-studio/services/EtherCATBackupService.h
     ../../apps/ecat-studio/services/EtherCATRecoveryService.cpp
     ../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../apps/ecat-studio/services/EtherCATTestingService.h
-    ../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../apps/ecat-studio/services/EtherCATValidationService.h
     ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -251,14 +243,10 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.cpp
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.h
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.h
     ../../apps/ecat-studio/services/EtherCATUpdateService.cpp
     ../../apps/ecat-studio/services/EtherCATUpdateService.h
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.cpp
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -284,7 +272,7 @@ set_target_properties(plugin_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME plugin_integration_test COMMAND plugin_integration_test)
 set_tests_properties(plugin_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ── Service Integration Test ─────────────────────────────────────────
+# -- Service Integration Test -----------------------------------------
 add_executable(service_integration_test
     service_integration_test.cpp
     ../../apps/ecat-studio/services/ServiceContainer.cpp
@@ -418,16 +406,10 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/EtherCATOptimizerService.h
     ../../apps/ecat-studio/services/EtherCATConfigService.cpp
     ../../apps/ecat-studio/services/EtherCATConfigService.h
-    ../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../apps/ecat-studio/services/EtherCATBackupService.h
     ../../apps/ecat-studio/services/EtherCATRecoveryService.cpp
     ../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../apps/ecat-studio/services/EtherCATTestingService.h
-    ../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../apps/ecat-studio/services/EtherCATValidationService.h
     ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -442,14 +424,10 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.cpp
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.h
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.h
     ../../apps/ecat-studio/services/EtherCATUpdateService.cpp
     ../../apps/ecat-studio/services/EtherCATUpdateService.h
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.cpp
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -472,8 +450,6 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/WorkflowReportingService.h
     ../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
@@ -503,7 +479,7 @@ set_target_properties(service_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME service_integration_test COMMAND service_integration_test)
 set_tests_properties(service_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ── Daemon Lifecycle Test (integration) ──────────────────────────────
+# -- Daemon Lifecycle Test (integration) ------------------------------
 add_executable(daemon_lifecycle_test
     daemon_lifecycle_test.cpp
     ../../apps/ecat-studio/infra/EcatClient.cpp
@@ -525,7 +501,7 @@ target_link_libraries(daemon_lifecycle_test PRIVATE Qt6::Core Qt6::Network Qt6::
 set_target_properties(daemon_lifecycle_test PROPERTIES AUTOMOC ON)
 add_test(NAME daemon_lifecycle_test COMMAND daemon_lifecycle_test)
 
-# ── Plugin Lifecycle Test (integration) ──────────────────────────────
+# -- Plugin Lifecycle Test (integration) ------------------------------
 add_executable(plugin_lifecycle_test
     plugin_lifecycle_test.cpp
     ../../apps/ecat-studio/plugins/PluginRegistry.cpp
@@ -582,8 +558,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/WorkflowReportingService.h
     ../../apps/ecat-studio/services/WorkflowSecurityService.cpp
     ../../apps/ecat-studio/services/WorkflowSecurityService.h
-    ../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../apps/ecat-studio/services/WorkflowUpdateService.h
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.cpp
     ../../apps/ecat-studio/services/WorkflowMaintenanceService.h
     ../../apps/ecat-studio/services/WorkflowVisualizationStudioService.cpp
@@ -694,16 +668,10 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/EtherCATOptimizerService.h
     ../../apps/ecat-studio/services/EtherCATConfigService.cpp
     ../../apps/ecat-studio/services/EtherCATConfigService.h
-    ../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../apps/ecat-studio/services/EtherCATBackupService.h
     ../../apps/ecat-studio/services/EtherCATRecoveryService.cpp
     ../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../apps/ecat-studio/services/EtherCATTestingService.h
-    ../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../apps/ecat-studio/services/EtherCATValidationService.h
     ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -718,14 +686,10 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.cpp
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.h
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.h
     ../../apps/ecat-studio/services/EtherCATUpdateService.cpp
     ../../apps/ecat-studio/services/EtherCATUpdateService.h
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.cpp
     ../../apps/ecat-studio/services/EtherCATMaintenanceService.h
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.h
     ../../apps/ecat-studio/services/EtherCATVisualizationService.cpp
     ../../apps/ecat-studio/services/EtherCATVisualizationService.h
     ../../apps/ecat-studio/services/EtherCATReportingService.cpp
@@ -747,7 +711,7 @@ set_target_properties(plugin_lifecycle_test PROPERTIES AUTOMOC ON)
 add_test(NAME plugin_lifecycle_test COMMAND plugin_lifecycle_test)
 set_tests_properties(plugin_lifecycle_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
-# ── New Plugin Integration Test ─────────────────────────────────────
+# -- New Plugin Integration Test -------------------------------------
 add_executable(plugin_new_integration_test
     plugin_new_integration_test.cpp
     ../../apps/ecat-studio/plugins/diagram/DiagramPlugin.cpp
@@ -770,7 +734,7 @@ set_tests_properties(plugin_new_integration_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
-# ── Workflow Optimizer Plugin Integration ────────────────────────────
+# -- Workflow Optimizer Plugin Integration ----------------------------
 add_executable(workflow_optimizer_plugin_integration_test
     workflow_optimizer_plugin_integration_test.cpp
     ../../apps/ecat-studio/plugins/workflowdesigner/WorkflowDesignerPlugin.cpp
@@ -799,7 +763,7 @@ set_tests_properties(workflow_optimizer_plugin_integration_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
-# ── Workflow Dashboard Plugin Integration ────────────────────────────
+# -- Workflow Dashboard Plugin Integration ----------------------------
 add_executable(workflow_dashboard_plugin_integration_test
     workflow_dashboard_plugin_integration_test.cpp
     ../../apps/ecat-studio/plugins/optimizationdashboard/OptimizationDashboardPlugin.cpp
@@ -828,7 +792,7 @@ set_tests_properties(workflow_dashboard_plugin_integration_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
-# ── GUI-Daemon Integration Test ──────────────────────────────────────
+# -- GUI-Daemon Integration Test --------------------------------------
 add_executable(gui_daemon_integration_test
     gui_daemon_integration_test.cpp
     ../../apps/ecat-studio/infra/EcatClient.cpp

@@ -251,6 +251,8 @@ QString EthercatNativeBackend::slaveXml(const QString &master, int position,
 #ifdef HAVE_IGH
     // Native ecrt API does not expose ESI XML.
     // Fall back to CLI for this operation.
+    lastFallback_ = true;
+    lastFallbackReason_ = "ecrt API does not expose ESI XML";
     return cliFallback_.slaveXml(master, position, error);
 #else
     Q_UNUSED(master)
@@ -338,6 +340,8 @@ QString EthercatNativeBackend::sdos(const QString &master, int position,
 #ifdef HAVE_IGH
     // Native ecrt API does not support SDO dictionary enumeration.
     // Fall back to CLI for this operation.
+    lastFallback_ = true;
+    lastFallbackReason_ = "ecrt API does not support SDO dictionary enumeration";
     return cliFallback_.sdos(master, position, error);
 #else
     Q_UNUSED(master)
@@ -550,6 +554,8 @@ bool EthercatNativeBackend::setState(const QString &master, int position,
 #ifdef HAVE_IGH
     // Native ecrt API doesn't support AL state transitions.
     // Fall back to CLI for this operation.
+    lastFallback_ = true;
+    lastFallbackReason_ = "ecrt API does not support AL state transitions";
     return cliFallback_.setState(master, position, state, error);
 #else
     Q_UNUSED(master)
@@ -566,6 +572,8 @@ bool EthercatNativeBackend::setAllStates(const QString &master,
 #ifdef HAVE_IGH
     // Native ecrt API doesn't support AL state transitions.
     // Fall back to CLI for this operation.
+    lastFallback_ = true;
+    lastFallbackReason_ = "ecrt API does not support AL state transitions";
     return cliFallback_.setAllStates(master, state, error);
 #else
     Q_UNUSED(master)
@@ -582,6 +590,8 @@ bool EthercatNativeBackend::rescan(const QString &master,
 #ifdef HAVE_IGH
     // Native ecrt API doesn't have a direct rescan API.
     // Fall back to CLI for this operation.
+    lastFallback_ = true;
+    lastFallbackReason_ = "ecrt API does not have a rescan API";
     return cliFallback_.rescan(master, error);
 #else
     Q_UNUSED(master)

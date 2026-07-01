@@ -3,6 +3,8 @@ add_library(ecat_core STATIC
     EthercatTypes.h
     JsonProtocol.cpp
     JsonProtocol.h
+    EniGenerator.cpp
+    EniGenerator.h
 )
 
 target_link_libraries(ecat_core PUBLIC Qt6::Core)

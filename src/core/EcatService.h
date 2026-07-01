@@ -117,4 +117,12 @@ public:
     /// @brief Whether this backend uses the native ecrt API (vs CLI).
     /// @return true for native backend, false for CLI backend.
     virtual bool isNative() const { return false; }
+
+    /// @brief Whether the last operation fell back to CLI due to ecrt API limitations.
+    /// @return true if the last operation used CLI fallback.
+    virtual bool lastOperationWasFallback() const { return false; }
+
+    /// @brief Human-readable reason for the last CLI fallback.
+    /// @return Explanation string, empty if no fallback occurred.
+    virtual QString lastFallbackReason() const { return {}; }
 };

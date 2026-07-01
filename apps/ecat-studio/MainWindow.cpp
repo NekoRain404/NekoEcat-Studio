@@ -66,6 +66,9 @@
 #include "plugins/protocol/ProtocolAnalyzerPlugin.h"
 #include "plugins/project/ProjectPlugin.h"
 #include "plugins/alarm/AlarmPlugin.h"
+#include "plugins/eoe/EoEPlugin.h"
+#include "plugins/soe/SoEPlugin.h"
+#include "plugins/eni/EniExportPlugin.h"
 #include "plugins/chart/ChartPlugin.h"
 #include "plugins/dashboard/DashboardPlugin.h"
 #include "plugins/automation/AutomationPlugin.h"
@@ -295,6 +298,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   pluginRegistry_->registerPlugin(new BusStatsPlugin(container_->busStats(), this));
   pluginRegistry_->registerPlugin(new OscilloscopePlugin(container_->oscilloscope(), this));
   pluginRegistry_->registerPlugin(new ProtocolAnalyzerPlugin(container_->protocolAnalyzer(), this));
+  pluginRegistry_->registerPlugin(new EoEPlugin(container_->eoe(), container_->eventBus(), this));
+  pluginRegistry_->registerPlugin(new SoEPlugin(container_->client(), container_->eventBus(), this));
+  pluginRegistry_->registerPlugin(new EniExportPlugin(container_->client(), container_->eventBus(), this));
 
   pluginRegistry_->registerPlugin(new ProjectPlugin(container_->projectManager(), container_->configuration(), this));
   pluginRegistry_->registerPlugin(new AlarmPlugin(container_->alarm(), container_->logging(), this));

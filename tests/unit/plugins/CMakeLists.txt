@@ -716,18 +716,27 @@ add_executable(trace_plugin_test
     ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
     ../../../apps/ecat-studio/services/TraceService.cpp
     ../../../apps/ecat-studio/services/TraceService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../mocks/MockEcatClient.cpp
+    ../../mocks/MockEcatClient.h
 )
 
 target_include_directories(trace_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
 
 target_link_libraries(trace_plugin_test PRIVATE
     Qt6::Core
+    Qt6::Network
     Qt6::Widgets
     Qt6::Test
+    ecat_core
 )
 
 set_target_properties(trace_plugin_test PROPERTIES AUTOMOC ON)
@@ -745,12 +754,19 @@ add_executable(logicanalyzer_plugin_test
     ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
     ../../../apps/ecat-studio/services/TraceService.cpp
     ../../../apps/ecat-studio/services/TraceService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../mocks/MockEcatClient.cpp
+    ../../mocks/MockEcatClient.h
 )
 
 target_include_directories(logicanalyzer_plugin_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
 
 target_compile_definitions(logicanalyzer_plugin_test PRIVATE
@@ -759,8 +775,10 @@ target_compile_definitions(logicanalyzer_plugin_test PRIVATE
 
 target_link_libraries(logicanalyzer_plugin_test PRIVATE
     Qt6::Core
+    Qt6::Network
     Qt6::Widgets
     Qt6::Test
+    ecat_core
 )
 
 set_target_properties(logicanalyzer_plugin_test PROPERTIES AUTOMOC ON)

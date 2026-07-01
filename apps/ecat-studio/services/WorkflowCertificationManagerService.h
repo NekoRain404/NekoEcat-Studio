@@ -1,8 +1,8 @@
 #pragma once
 
 // WorkflowCertificationManagerService — high-level certification requirement
-// management for workflow operations. Builds on WorkflowCertificationService
-// to provide requirement CRUD, status tracking, and renewal management.
+// management for workflow operations. Provides requirement CRUD, status
+// tracking, and renewal management.
 //
 // Thread safety: main (GUI) thread only.
 

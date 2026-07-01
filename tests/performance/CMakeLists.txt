@@ -103,11 +103,18 @@ add_executable(state_machine_performance_test
     state_machine_performance_test.cpp
     ../../apps/ecat-studio/services/StateMachineService.cpp
     ../../apps/ecat-studio/services/StateMachineService.h
+    ../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../apps/ecat-studio/infra/EcatClient.h
+    ../mocks/MockEcatClient.cpp
+    ../mocks/MockEcatClient.h
 )
 target_include_directories(state_machine_performance_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
-target_link_libraries(state_machine_performance_test PRIVATE Qt6::Core Qt6::Test)
+target_link_libraries(state_machine_performance_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
 set_target_properties(state_machine_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME state_machine_performance_test COMMAND state_machine_performance_test)
 
@@ -175,11 +182,18 @@ add_executable(redundancy_performance_test
     redundancy_performance_test.cpp
     ../../apps/ecat-studio/services/RedundancyService.cpp
     ../../apps/ecat-studio/services/RedundancyService.h
+    ../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../apps/ecat-studio/infra/EcatClient.h
+    ../mocks/MockEcatClient.cpp
+    ../mocks/MockEcatClient.h
 )
 target_include_directories(redundancy_performance_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/tests/mocks
 )
-target_link_libraries(redundancy_performance_test PRIVATE Qt6::Core Qt6::Test)
+target_link_libraries(redundancy_performance_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
 set_target_properties(redundancy_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME redundancy_performance_test COMMAND redundancy_performance_test)
 
@@ -263,18 +277,6 @@ set_target_properties(ethercat_config_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_config_performance_test COMMAND ethercat_config_performance_test)
 
 # ── EtherCATBackupService Performance Test ─────────────────────────
-add_executable(ethercat_backup_performance_test
-    ethercat_backup_performance_test.cpp
-    ../../apps/ecat-studio/services/EtherCATBackupService.cpp
-    ../../apps/ecat-studio/services/EtherCATBackupService.h
-)
-target_include_directories(ethercat_backup_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(ethercat_backup_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(ethercat_backup_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_backup_performance_test COMMAND ethercat_backup_performance_test)
-
 # ── EtherCATRecoveryService Performance Test ───────────────────────
 add_executable(ethercat_recovery_performance_test
     ethercat_recovery_performance_test.cpp
@@ -302,31 +304,7 @@ set_target_properties(ethercat_simulation_performance_test PROPERTIES AUTOMOC ON
 add_test(NAME ethercat_simulation_performance_test COMMAND ethercat_simulation_performance_test)
 
 # ── EtherCATTestingService Performance Test ────────────────────────
-add_executable(ethercat_testing_performance_test
-    ethercat_testing_performance_test.cpp
-    ../../apps/ecat-studio/services/EtherCATTestingService.cpp
-    ../../apps/ecat-studio/services/EtherCATTestingService.h
-)
-target_include_directories(ethercat_testing_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(ethercat_testing_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(ethercat_testing_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_testing_performance_test COMMAND ethercat_testing_performance_test)
-
 # ── EtherCATValidationService Performance Test ─────────────────────
-add_executable(ethercat_validation_performance_test
-    ethercat_validation_performance_test.cpp
-    ../../apps/ecat-studio/services/EtherCATValidationService.cpp
-    ../../apps/ecat-studio/services/EtherCATValidationService.h
-)
-target_include_directories(ethercat_validation_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-)
-target_link_libraries(ethercat_validation_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(ethercat_validation_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_validation_performance_test COMMAND ethercat_validation_performance_test)
-
 # ── EtherCATSecurityService Performance Test ────────────────────────
 add_executable(ethercat_security_performance_test
     ethercat_security_performance_test.cpp
@@ -367,19 +345,6 @@ set_target_properties(ethercat_certification_performance_test PROPERTIES AUTOMOC
 add_test(NAME ethercat_certification_performance_test COMMAND ethercat_certification_performance_test)
 
 # ── EtherCATDeploymentService Performance ────────────────────────────
-add_executable(ethercat_deployment_performance_test
-    ethercat_deployment_performance_test.cpp
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.cpp
-    ../../apps/ecat-studio/services/EtherCATDeploymentService.h
-)
-target_include_directories(ethercat_deployment_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(ethercat_deployment_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(ethercat_deployment_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_deployment_performance_test COMMAND ethercat_deployment_performance_test)
-
 # ── EtherCATUpdateService Performance ────────────────────────────────
 add_executable(ethercat_update_performance_test
     ethercat_update_performance_test.cpp
@@ -409,25 +374,6 @@ set_target_properties(ethercat_maintenance_performance_test PROPERTIES AUTOMOC O
 add_test(NAME ethercat_maintenance_performance_test COMMAND ethercat_maintenance_performance_test)
 
 # ── EtherCATIntegrationService Performance ──────────────────────────
-add_executable(ethercat_integration_performance_test
-    ethercat_integration_performance_test.cpp
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.cpp
-    ../../apps/ecat-studio/services/EtherCATIntegrationService.h
-    ../../apps/ecat-studio/services/EventBus.cpp
-    ../../apps/ecat-studio/services/EventBus.h
-    ../../apps/ecat-studio/infra/EcatClient.cpp
-    ../../apps/ecat-studio/infra/EcatClient.h
-)
-target_include_directories(ethercat_integration_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-    ${CMAKE_SOURCE_DIR}/src/core
-)
-target_link_libraries(ethercat_integration_performance_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_core)
-set_target_properties(ethercat_integration_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME ethercat_integration_performance_test COMMAND ethercat_integration_performance_test)
-
 # ── EtherCATVisualizationService Performance ────────────────────────
 add_executable(ethercat_visualization_performance_test
     ethercat_visualization_performance_test.cpp
@@ -609,23 +555,6 @@ set_tests_properties(workflow_deployment_performance_test PROPERTIES
 )
 
 # ── Workflow Update Performance ─────────────────────────────────────
-add_executable(workflow_update_performance_test
-    workflow_update_performance_test.cpp
-    ../../apps/ecat-studio/services/WorkflowUpdateService.cpp
-    ../../apps/ecat-studio/services/WorkflowUpdateService.h
-)
-target_include_directories(workflow_update_performance_test PRIVATE
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
-    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
-)
-target_link_libraries(workflow_update_performance_test PRIVATE Qt6::Core Qt6::Test)
-set_target_properties(workflow_update_performance_test PROPERTIES AUTOMOC ON)
-add_test(NAME workflow_update_performance_test COMMAND workflow_update_performance_test)
-set_tests_properties(workflow_update_performance_test PROPERTIES
-    TIMEOUT 60
-    LABELS "performance;workflow"
-)
-
 # ── Workflow Maintenance Performance ────────────────────────────────
 add_executable(workflow_maintenance_performance_test
     workflow_maintenance_performance_test.cpp
