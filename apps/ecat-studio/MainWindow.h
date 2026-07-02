@@ -48,6 +48,7 @@ class ServiceContainer;
 class QLabel;
 class QJsonObject;
 class QCheckBox;
+class QTranslator;
 class QComboBox;
 class QFrame;
 class QLineEdit;
@@ -339,4 +340,7 @@ private:
   bool freeRun_ = false;
   bool consistencyFresh_ = false;
   bool selectedSdoWritable_ = true;
+
+  // ── Language ──────────────────────────────────────────────────
+  QTranslator *translator_ = nullptr;
 };

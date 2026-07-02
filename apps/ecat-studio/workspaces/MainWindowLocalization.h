@@ -10,6 +10,8 @@
 
 // ── Localization & Master Selection ───────────────────────────
 QString uiText(const QString &english, const QString &zh) const;
+void applyLanguage(const QString &localeCode);
+void rebuildWorkbench();
 QString activeMasterName() const;
 void refreshMasterSelector();
 void setActiveMaster(const QString &target);
