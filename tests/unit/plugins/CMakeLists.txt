@@ -1525,7 +1525,321 @@ set_tests_properties(sdooptimization_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
-# ── Test Optimization Settings ──────────────────────────────────────
+# ── OverviewPlugin (unit) ────────────────────────────────────────────
+add_executable(overview_plugin_test
+    overview_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/overview/OverviewPlugin.cpp
+    ../../../apps/ecat-studio/plugins/overview/OverviewPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(overview_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(overview_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(overview_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME overview_plugin_test COMMAND overview_plugin_test)
+set_tests_properties(overview_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── WatchPlugin (unit) ───────────────────────────────────────────────
+add_executable(watch_plugin_test
+    watch_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/watch/WatchPlugin.cpp
+    ../../../apps/ecat-studio/plugins/watch/WatchPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/services/WatchService.cpp
+    ../../../apps/ecat-studio/services/WatchService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(watch_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(watch_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(watch_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME watch_plugin_test COMMAND watch_plugin_test)
+set_tests_properties(watch_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── StateMachinePlugin (unit) ───────────────────────────────────────
+add_executable(statemachine_plugin_test
+    statemachine_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
+    ../../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/services/StateMachineService.cpp
+    ../../../apps/ecat-studio/services/StateMachineService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(statemachine_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(statemachine_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(statemachine_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME statemachine_plugin_test COMMAND statemachine_plugin_test)
+set_tests_properties(statemachine_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── SessionPlugin (unit) ────────────────────────────────────────────
+add_executable(session_plugin_test
+    session_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/session/SessionPlugin.cpp
+    ../../../apps/ecat-studio/plugins/session/SessionPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(session_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(session_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(session_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME session_plugin_test COMMAND session_plugin_test)
+set_tests_properties(session_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── IoVariablePlugin (unit) ─────────────────────────────────────────
+add_executable(iovariable_plugin_test
+    iovariable_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/iovariable/IoVariablePlugin.cpp
+    ../../../apps/ecat-studio/plugins/iovariable/IoVariablePlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(iovariable_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(iovariable_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(iovariable_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME iovariable_plugin_test COMMAND iovariable_plugin_test)
+set_tests_properties(iovariable_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── FreeRunPlugin (unit) ────────────────────────────────────────────
+add_executable(freerun_plugin_test
+    freerun_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/freerun/FreeRunPlugin.cpp
+    ../../../apps/ecat-studio/plugins/freerun/FreeRunPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/services/FreeRunMonitoringService.cpp
+    ../../../apps/ecat-studio/services/FreeRunMonitoringService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(freerun_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(freerun_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(freerun_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME freerun_plugin_test COMMAND freerun_plugin_test)
+set_tests_properties(freerun_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── OdPlugin (unit) ─────────────────────────────────────────────────
+add_executable(od_plugin_test
+    od_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/od/OdPlugin.cpp
+    ../../../apps/ecat-studio/plugins/od/OdPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/services/SdoCacheService.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(od_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(od_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(od_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME od_plugin_test COMMAND od_plugin_test)
+set_tests_properties(od_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── ConsistencyPlugin + ConsistencyTableAdapter (unit) ──────────────
+add_executable(consistency_plugin_test
+    consistency_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/consistency/ConsistencyPlugin.cpp
+    ../../../apps/ecat-studio/plugins/consistency/ConsistencyPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../../../apps/ecat-studio/adapters/ConsistencyTableAdapter.cpp
+    ../../../apps/ecat-studio/adapters/ConsistencyTableAdapter.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/services/SdoCacheService.cpp
+    ../../../apps/ecat-studio/services/SdoCacheService.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../../apps/ecat-studio/utils/TableHelpers.cpp
+    ../../../apps/ecat-studio/utils/TableHelpers.h
+    ../../../apps/ecat-studio/utils/TextHelpers.cpp
+    ../../../apps/ecat-studio/models/ConsistencyModel.cpp
+    ../../../apps/ecat-studio/models/ConsistencyModel.h
+)
+target_include_directories(consistency_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/adapters
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(consistency_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(consistency_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME consistency_plugin_test COMMAND consistency_plugin_test)
+set_tests_properties(consistency_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── TopologyPlugin + TopologyGraphWidget + SlaveNodeItem (unit) ─────
+add_executable(topology_plugin_test
+    topology_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+)
+target_include_directories(topology_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins/topology
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(topology_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(topology_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME topology_plugin_test COMMAND topology_plugin_test)
+set_tests_properties(topology_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+	# ── Test Optimization Settings ──────────────────────────────────────
 # Parallel test execution (CTest -jN)
 set(CTEST_PARALLEL_LEVEL "4" CACHE STRING "Number of parallel tests")
 
