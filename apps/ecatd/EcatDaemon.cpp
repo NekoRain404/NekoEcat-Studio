@@ -9,6 +9,15 @@
 #include <QJsonObject>
 #include <QTcpSocket>
 
+// Reads subIndex from a JSON object, trying camelCase first then lowercase.
+// The daemon historically used "subIndex" but some callers send "subindex".
+static QJsonValue subIndexFromJson(const QJsonObject &obj) {
+    QJsonValue v = obj.value("subIndex");
+    if (v.isUndefined() || v.toString().isEmpty())
+        v = obj.value("subindex");
+    return v;
+}
+
 #include <QTimer>
 namespace {
 
@@ -222,7 +231,7 @@ void EcatDaemon::setupHandlers() {
         const QString text = backend_->upload(requestedMaster(params),
                                              params.value("position").toInt(),
                                              params.value("index").toString(),
-                                             params.value("subIndex").toString(),
+                                             subIndexFromJson(params).toString(),
                                              params.value("type").toString(),
                                              &error);
         return error.isEmpty()
@@ -235,7 +244,7 @@ void EcatDaemon::setupHandlers() {
         return backend_->download(requestedMaster(params),
                                  params.value("position").toInt(),
                                  params.value("index").toString(),
-                                 params.value("subIndex").toString(),
+                                 subIndexFromJson(params).toString(),
                                  params.value("value").toString(),
                                  params.value("type").toString(),
                                  &error)
@@ -254,7 +263,7 @@ void EcatDaemon::setupHandlers() {
             if (backend_->download(master,
                                   item.value("position").toInt(),
                                   item.value("index").toString(),
-                                  item.value("subIndex").toString(),
+                                  subIndexFromJson(item).toString(),
                                   item.value("value").toString(),
                                   item.value("type").toString(),
                                   &itemError)) {
@@ -262,7 +271,7 @@ void EcatDaemon::setupHandlers() {
                 results.append(QJsonObject{{"row", row}, {"ok", true},
                     {"position", item.value("position").toInt()},
                     {"index", item.value("index").toString()},
-                    {"subIndex", item.value("subIndex").toString()}});
+                    {"subIndex", subIndexFromJson(item).toString()}});
             } else {
                 ++failed;
                 QJsonObject fail{{"row", row},
@@ -457,7 +466,7 @@ void EcatDaemon::setupHandlers() {
         int ch = signalHandler_.subscribe(p.value("name").toString(),
                                            p.value("slave").toInt(),
                                            p.value("index").toString(),
-                                           p.value("subIndex").toString());
+                                           subIndexFromJson(p).toString());
         return CommandDispatcher::success(id, {{"channelId", ch}});
     });
     dispatcher_.registerHandler("signalUnsubscribe", [this](const QString &id, const QJsonObject &p) {
