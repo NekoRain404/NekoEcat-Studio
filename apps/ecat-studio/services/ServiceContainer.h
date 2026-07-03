@@ -184,6 +184,14 @@ class OscilloscopeService;
 class ProtocolAnalyzerService;
 class WorkflowAnalyticsService;
 
+/// @brief Central dependency injection container for NekoEcat Studio services.
+///
+/// @details Owns all service instances as QObject children, providing a single
+/// source of truth for service lifetimes and the primary dependency injection
+/// mechanism for plugins. All services are created during construction in
+/// dependency order. Qt's parent-child tree handles automatic deletion.
+/// The container is passed to WorkspacePlugin constructors, keeping plugins
+/// decoupled from MainWindow. All access is expected from the main (GUI) thread.
 class ServiceContainer : public QObject {
   Q_OBJECT
 public:
@@ -210,109 +218,203 @@ public:
 
   /// Central event bus for inter-plugin communication (pub/sub).
   EventBus *eventBus() const { return eventBus_; }
+  /// CoE SDO upload/download operations.
   SdoService *sdo() const { return sdo_; }
+  /// CoE watchdog monitoring and configuration.
   WatchService *watch() const { return watch_; }
+  /// EtherCAT bus topology discovery and management.
   TopologyService *topology() const { return topology_; }
+  /// Distributed clock synchronization configuration and monitoring.
   DcSyncService *dcSync() const { return dcSync_; }
+  /// AL event monitoring and notification.
   AlEventService *alEvent() const { return alEvent_; }
+  /// Signal management and routing.
   SignalService *signal() const { return signal_; }
+  /// Performance monitoring and metrics collection.
   PerformanceMonitorService *perfMonitor() const { return perfMonitor_; }
+  /// ESI file parsing, validation, and device database management.
   EsiService *esi() const { return esi_; }
+  /// EtherCAT bus statistics collection.
   BusStatsService *busStats() const { return busStats_; }
+  /// Watchdog timer configuration and monitoring.
   WatchdogService *watchdog() const { return watchdog_; }
+  /// Functional safety (FSoE) controller interface.
   SafetyController *safety() const { return safety_; }
+  /// Diagnostic report generation and management.
   DiagnosticReportService *diagnosticReport() const { return diagnosticReport_; }
+  /// Project file save/load and lifecycle management.
   ProjectManagerService *projectManager() const { return projectManager_; }
+  /// Application-wide configuration storage and retrieval.
   ConfigurationService *configuration() const { return configuration_; }
+  /// Alarm management and notification.
   AlarmService *alarm() const { return alarm_; }
+  /// Application logging service.
   LoggingService *logging() const { return logging_; }
+  /// Chart and plot generation service.
   ChartService *chart() const { return chart_; }
 #ifdef ECAT_SCRIPTING_ENABLED
+  /// Lua/Python scripting engine (compile-time optional).
   ScriptingService *scripting() const { return scripting_; }
 #endif
+  /// Batch operation execution and queuing.
   BatchOperationService *batch() const { return batch_; }
+  /// Network diagnostics and link quality monitoring.
   NetworkDiagnosticsService *networkDiagnostics() const { return networkDiagnostics_; }
+  /// EtherCAT network health monitoring.
   EcatHealthService *ecatHealth() const { return ecatHealth_; }
+  /// Data export to file or external formats.
   ExportService *exportService() const { return exportService_; }
+  /// Data pipeline processing and transformation.
   DataPipelineService *dataPipeline() const { return dataPipeline_; }
+  /// Device manager for slave configuration.
   DeviceManagerService *deviceManager() const { return deviceManager_; }
+  /// Firmware update via FoE or vendor protocol.
   FirmwareUpdateService *firmwareUpdate() const { return firmwareUpdate_; }
+  /// Report generation service.
   ReportGeneratorService *reportGenerator() const { return reportGenerator_; }
+  /// Master manager for multi-master configurations.
   MasterManagerService *masterManager() const { return masterManager_; }
+  /// Distributed clock configuration and status.
   DistributedClockService *distributedClock() const { return distributedClock_; }
+  /// DC synchronization precision monitoring.
   DcSyncPrecisionService *dcSyncPrecision() const { return dcSyncPrecision_; }
+  /// DC synchronization optimization.
   DcSyncOptimizerService *dcSyncOptimizer() const { return dcSyncOptimizer_; }
+  /// SDO cache service for optimized repeated access.
   SdoCacheService *sdoCache() const { return sdoCache_; }
+  /// PDO mapping configuration and validation.
   PdoMappingService *pdoMapping() const { return pdoMapping_; }
+  /// CoE (CANopen over EtherCAT) protocol service.
   CoEService *coe() const { return coe_; }
+  /// FoE (File over EtherCAT) protocol service.
   FoEService *foe() const { return foe_; }
+  /// EoE (Ethernet over EtherCAT) protocol service.
   EoEService *eoe() const { return eoe_; }
+  /// Trace service for diagnostic tracing.
   TraceService *trace() const { return trace_; }
+  /// Domain management for process data domains.
   DomainService *domain() const { return domain_; }
+  /// Sync manager configuration service.
   SyncManagerService *syncManager() const { return syncManager_; }
+  /// State machine management (bus state transitions).
   StateMachineService *stateMachine() const { return stateMachine_; }
+  /// Error handling and recovery service.
   ErrorHandlingService *errorHandling() const { return errorHandling_; }
+  /// Hot-connect (plug-and-play) support.
   HotConnectService *hotConnect() const { return hotConnect_; }
+  /// Redundancy (cable/redundant master) management.
   RedundancyService *redundancy() const { return redundancy_; }
+  /// EtherCAT bus monitoring service.
   EtherCATMonitorService *ecatMonitor() const { return ecatMonitor_; }
+  /// EtherCAT protocol analyzer.
   EtherCATAnalyzerService *ecatAnalyzer() const { return ecatAnalyzer_; }
+  /// EtherCAT network optimization.
   EtherCATOptimizerService *ecatOptimizer() const { return ecatOptimizer_; }
+  /// EtherCAT configuration management.
   EtherCATConfigService *ecatConfig() const { return ecatConfig_; }
+  /// EtherCAT error recovery service.
   EtherCATRecoveryService *ecatRecovery() const { return ecatRecovery_; }
+  /// EtherCAT network simulation.
   EtherCATSimulationService *ecatSimulation() const { return ecatSimulation_; }
+  /// EtherCAT security service.
   EtherCATSecurityService *ecatSecurity() const { return ecatSecurity_; }
+  /// EtherCAT compliance checking.
   EtherCATComplianceService *ecatCompliance() const { return ecatCompliance_; }
+  /// EtherCAT certification support.
   EtherCATCertificationService *ecatCertification() const { return ecatCertification_; }
+  /// EtherCAT analytics and telemetry.
   EtherCATAnalyticsService *ecatAnalytics() const { return ecatAnalytics_; }
+  /// EtherCAT update/firmware management.
   EtherCATUpdateService *ecatUpdate() const { return ecatUpdate_; }
+  /// EtherCAT maintenance service.
   EtherCATMaintenanceService *ecatMaintenance() const { return ecatMaintenance_; }
+  /// EtherCAT visualization service.
   EtherCATVisualizationService *ecatVisualization() const { return ecatVisualization_; }
+  /// EtherCAT reporting service.
   EtherCATReportingService *ecatReporting() const { return ecatReporting_; }
+  /// EtherCAT documentation service.
   EtherCATDocumentationService *ecatDocumentation() const { return ecatDocumentation_; }
+  /// Task management for scheduled operations.
   TaskManagementService *taskManagement() const { return taskManagement_; }
+  /// Resource management for bus resources.
   ResourceManagementService *resourceManagement() const { return resourceManagement_; }
+  /// Workflow automation service.
   WorkflowAutomationService *workflowAutomation() const { return workflowAutomation_; }
+  /// Workflow scheduling service.
   WorkflowSchedulingService *workflowScheduling() const { return workflowScheduling_; }
+  /// Workflow monitoring service.
   WorkflowMonitoringService *workflowMonitoring() const { return workflowMonitoring_; }
+  /// Workflow visualization service.
   WorkflowVisualizationService *workflowVisualization() const { return workflowVisualization_; }
+  /// Workflow reporting service.
   WorkflowReportingService *workflowReporting() const { return workflowReporting_; }
+  /// Workflow security service.
   WorkflowSecurityService *workflowSecurity() const { return workflowSecurity_; }
 #ifdef ECAT_EXPERIMENTAL_SERVICES
   #ifdef ECAT_EXPERIMENTAL_SERVICES
+  /// Workflow compliance checking (experimental).
   WorkflowComplianceService *workflowCompliance() const { return workflowCompliance_; }
+  /// Workflow deployment service (experimental).
   WorkflowDeploymentService *workflowDeployment() const { return workflowDeployment_; }
 #endif
 #endif
+  /// Workflow maintenance service.
   WorkflowMaintenanceService *workflowMaintenance() const { return workflowMaintenance_; }
+  /// Workflow visualization studio service.
   WorkflowVisualizationStudioService *workflowVisualizationStudio() const { return workflowVisualizationStudio_; }
+  /// Workflow report designer service.
   WorkflowReportDesignerService *workflowReportDesigner() const { return workflowReportDesigner_; }
+  /// Workflow documentation browser service.
   WorkflowDocumentationBrowserService *workflowDocumentationBrowser() const { return workflowDocumentationBrowser_; }
+  /// Workflow security manager service.
   WorkflowSecurityManagerService *workflowSecurityManager() const { return workflowSecurityManager_; }
+  /// Workflow compliance manager service.
   WorkflowComplianceManagerService *workflowComplianceManager() const { return workflowComplianceManager_; }
+  /// Workflow certification manager service.
   WorkflowCertificationManagerService *workflowCertificationManager() const { return workflowCertificationManager_; }
+  /// Online diagnostics service.
   OnlineDiagnosticsService *onlineDiagnostics() const { return onlineDiagnostics_; }
+  /// Multi-master coordination service.
   MultiMasterService *multiMaster() const { return multiMaster_; }
+  /// Realtime performance monitoring.
   RealtimePerformanceService *realtimePerformance() const { return realtimePerformance_; }
+  /// Realtime performance optimization.
   RealtimeOptimizerService *realtimeOptimizer() const { return realtimeOptimizer_; }
+  /// Hardware verification service.
   HardwareVerificationService *hardwareVerification() const { return hardwareVerification_; }
+  /// FreeRun optimization service.
   FreeRunOptimizationService *freeRunOptimization() const { return freeRunOptimization_; }
+  /// SDO optimization service.
   SdoOptimizationService *sdoOptimization() const { return sdoOptimization_; }
+  /// FreeRun configuration service.
   FreeRunConfigurationService *freeRunConfig() const { return freeRunConfig_; }
+  /// FreeRun monitoring service.
   FreeRunMonitoringService *freeRunMonitor() const { return freeRunMonitor_; }
+  /// PDO configuration service.
   PdoConfigurationService *pdoConfiguration() const { return pdoConfiguration_; }
+  /// PDO mapping optimization service.
   PdoMappingOptimizationService *pdoMappingOptimization() const { return pdoMappingOptimization_; }
+  /// Operational state service.
   OpStateService *opState() const { return opState_; }
+  /// Oscilloscope service for signal capture.
   OscilloscopeService *oscilloscope() const { return oscilloscope_; }
+  /// Protocol analyzer service.
   ProtocolAnalyzerService *protocolAnalyzer() const { return protocolAnalyzer_; }
+  /// Workflow analytics service.
   WorkflowAnalyticsService *workflowAnalytics() const { return workflowAnalytics_; }
 
 signals:
-  // Emitted when a service fails to initialize.
-  // @param serviceName  Name of the service that failed
-  // @param reason       Description of the failure
+  /// Emitted when a service fails to initialize.
+  /// @param serviceName  Name of the service that failed
+  /// @param reason       Description of the failure
   void serviceInitFailed(const QString &serviceName, const QString &reason);
 
 private:
+  /// @name Service Instance Pointers
+  /// Non-owning pointers to all created service instances.
+  /// Owned as QObject children; Qt handles their lifetime via the parent-child
+  /// tree. Each pointer corresponds to the public accessor above it.
+  ///@{
   EcatClient *client_ = nullptr;
   EventBus *eventBus_ = nullptr;
   SdoService *sdo_ = nullptr;
@@ -410,9 +512,15 @@ private:
   OscilloscopeService *oscilloscope_ = nullptr;
   ProtocolAnalyzerService *protocolAnalyzer_ = nullptr;
   WorkflowAnalyticsService *workflowAnalytics_ = nullptr;
+  ///@}
 
   // ── Initialization Tracking ──────────────────────────────────────
+  /// Flag indicating whether all critical services initialized successfully.
   bool initialized_ = false;
+  /// List of human-readable error messages from services that failed to init.
   QStringList initErrors_;
+  /// Checks whether @p service was created non-null; records errors if not.
+  /// @param service  The newly-constructed service pointer to validate.
+  /// @param name     Human-readable name of the service (for error messages).
   void validateService(QObject *service, const QString &name);
 };

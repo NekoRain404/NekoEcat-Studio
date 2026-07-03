@@ -2,7 +2,7 @@
 #include <QSignalSpy>
 #include "plugins/PluginRegistry.h"
 #include "plugins/WorkspacePlugin.h"
-#include "plugins/notes/NotesPlugin.h"
+#include "plugins/topology/TopologyPlugin.h"
 #include "plugins/statemachine/StateMachinePlugin.h"
 #include "services/ServiceContainer.h"
 #include "services/EventBus.h"
@@ -13,28 +13,31 @@ class PluginLifecycleTest : public QObject {
   Q_OBJECT
 private:
   EcatClient *client_ = nullptr;
+  EventBus *bus_ = nullptr;
   ServiceContainer *container_ = nullptr;
 
 private slots:
   void init() {
     client_ = new EcatClient(this);
-    container_ = new ServiceContainer(client_, new EventBus(this), this);
+    bus_ = new EventBus(this);
+    container_ = new ServiceContainer(client_, bus_, this);
   }
   void cleanup() {
     delete container_;
     container_ = nullptr;
+    bus_ = nullptr;
   }
 
   void testPluginRegistration() {
     PluginRegistry registry;
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
     StateMachinePlugin sm(container_);
 
     QCOMPARE(registry.count(), 0);
 
-    registry.registerPlugin(&notes);
+    registry.registerPlugin(&topo);
     QCOMPARE(registry.count(), 1);
-    QVERIFY(registry.findById("notes") == &notes);
+    QVERIFY(registry.findById("topology") == &topo);
 
     registry.registerPlugin(&sm);
     QCOMPARE(registry.count(), 2);
@@ -42,32 +45,32 @@ private slots:
   }
 
   void testPluginActivationDeactivation() {
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
     StateMachinePlugin sm(container_);
 
-    notes.activate();
-    notes.deactivate();
+    topo.activate();
+    topo.deactivate();
     sm.activate();
     sm.deactivate();
   }
 
   void testPluginSettingsChanges() {
-    NotesPlugin notes;
-    notes.onSettingsChanged(AppSettings{});
+    TopologyPlugin topo(bus_);
+    topo.onSettingsChanged(AppSettings{});
   }
 
   void testPluginConnectionChanges() {
-    NotesPlugin notes;
-    notes.onConnectionChanged(true);
-    notes.onConnectionChanged(false);
+    TopologyPlugin topo(bus_);
+    topo.onConnectionChanged(true);
+    topo.onConnectionChanged(false);
   }
 
   void testPluginRegistryOrdering() {
     PluginRegistry registry;
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
     StateMachinePlugin sm(container_);
 
-    registry.registerPlugin(&notes);
+    registry.registerPlugin(&topo);
     registry.registerPlugin(&sm);
 
     auto plugins = registry.visiblePlugins();
@@ -77,34 +80,34 @@ private slots:
 
   void testPluginRegistryDuplicateRegistration() {
     PluginRegistry registry;
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
 
-    registry.registerPlugin(&notes);
+    registry.registerPlugin(&topo);
     QCOMPARE(registry.count(), 1);
 
-    registry.registerPlugin(&notes);
+    registry.registerPlugin(&topo);
     QCOMPARE(registry.count(), 1);
   }
 
   void testPluginWidgetCreation() {
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
     StateMachinePlugin sm(container_);
 
-    QVERIFY(notes.widget() != nullptr);
+    QVERIFY(topo.widget() != nullptr);
     QVERIFY(sm.widget() != nullptr);
   }
 
   void testPluginIdentity() {
-    NotesPlugin notes;
+    TopologyPlugin topo(bus_);
     StateMachinePlugin sm(container_);
 
-    QCOMPARE(notes.id(), QString("notes"));
+    QCOMPARE(topo.id(), QString("topology"));
     QCOMPARE(sm.id(), QString("statemachine"));
 
-    QVERIFY(!notes.displayName().isEmpty());
+    QVERIFY(!topo.displayName().isEmpty());
     QVERIFY(!sm.displayName().isEmpty());
 
-    QVERIFY(!notes.displayNameZh().isEmpty());
+    QVERIFY(!topo.displayNameZh().isEmpty());
     QVERIFY(!sm.displayNameZh().isEmpty());
   }
 

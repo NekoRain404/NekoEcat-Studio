@@ -163,35 +163,53 @@ private:
   // Settings & Actions (kept here — core lifecycle)
   // ════════════════════════════════════════════════════════════════════
 
+  /// Loads saved application settings from persistent storage.
   void loadSettings();
+  /// Saves current application settings to persistent storage.
   void saveSettings();
+  /// Opens the settings configuration dialog.
   void openSettings();
 
   // ════════════════════════════════════════════════════════════════════
   // Workspace Navigation (kept here — core window management)
   // ════════════════════════════════════════════════════════════════════
 
+  /// Activates a workspace tab by its index in the tab bar.
   bool activateWorkspaceTab(int index);
+  /// Activates the given workspace page widget, switching to its containing tab.
   bool activateWorkspacePage(QWidget *page);
+  /// Activates the object dictionary pane corresponding to the given widget.
   bool activateObjectDictionaryPaneFor(QWidget *widget);
+  /// Returns the workspace boundary kind for the given page widget.
   WorkspaceBoundaryKind workspaceBoundaryKindForPage(const QWidget *page) const;
+  /// Records the current workspace index in the navigation history.
   void recordWorkspaceHistory(int index);
+  /// Navigates to the previous workspace in the back-stack history.
   void goWorkspaceBack();
+  /// Navigates to the next workspace in the forward-stack history.
   void goWorkspaceForward();
+  /// Enables or disables the back/forward navigation actions based on stack depth.
   void updateWorkspaceNavigationActions();
 
   // ════════════════════════════════════════════════════════════════════
   // Member Variables — organized by functional group
   // ════════════════════════════════════════════════════════════════════
 
-  // ── EcatClient & Daemon ───────────────────────────────────────
+  /// @name EcatClient & Daemon
+  /// TCP connection to ecatd, the daemon process itself, timers for periodic
+  /// refresh, and the current slave list cache.
+  ///@{
   EcatClient client_;
   QProcess daemon_;
   QTimer *refreshTimer_ = nullptr;
   QTimer *watchRefreshTimer_ = nullptr;
   QVector<SlaveInfo> slaves_;
+  ///@}
 
-  // ── UI Widgets ────────────────────────────────────────────────
+  /// @name UI Widgets
+  /// Status-bar labels, combo-box, topology tree, and metrics table displayed
+  /// in the main window frame.
+  ///@{
   QLabel *connectionLabel_ = nullptr;
   QLabel *masterStateLabel_ = nullptr;
   QLabel *slaveCountLabel_ = nullptr;
@@ -208,8 +226,12 @@ private:
   QComboBox *masterCombo_ = nullptr;
   QTreeWidget *topologyTree_ = nullptr;
   QTableWidget *metricTable_ = nullptr;
+  ///@}
 
-  // ── Workspace Widget Aggregates ───────────────────────────────
+  /// @name Workspace Widget Aggregates
+  /// Aggregated widget structures owned by each workspace tab.
+  /// Each struct bundles the labels, tables, and controls for that workspace.
+  ///@{
   SessionWorkspaceWidgets *session_ = nullptr;
   StateMachineWorkspaceWidgets *stateMachine_ = nullptr;
   ConsistencyWorkspaceWidgets *consistency_ = nullptr;
@@ -223,8 +245,11 @@ private:
   BookmarkWorkspaceWidgets *bookmark_ = nullptr;
   SdoInspectorWidgets *sdoInspector_ = nullptr;
   RawTextWidgets *rawText_ = nullptr;
+  ///@}
 
-  // ── Standalone Table/Label Widgets ────────────────────────────
+  /// @name Standalone Table/Label Widgets
+  /// Secondary tables and detail labels that are embedded inside workspace pages.
+  ///@{
   QTableWidget *identityTable_ = nullptr;
   QTableWidget *portTable_ = nullptr;
   QTableWidget *mailboxTable_ = nullptr;
@@ -236,12 +261,18 @@ private:
   QTableWidget *hostHealthTable_ = nullptr;
   QTableWidget *esiTable_ = nullptr;
   QTableWidget *startupSdoTable_ = nullptr;
+  ///@}
 
-  // ── Tab Containers ───────────────────────────────────────────
+  /// @name Tab Containers
+  /// The main tab widget and the nested SDO mode sub-tabs.
+  ///@{
   QTabWidget *tabs_ = nullptr;
   QTabWidget *sdoModeTabs_ = nullptr;
+  ///@}
 
-  // ── Workspace Page Widgets ────────────────────────────────────
+  /// @name Workspace Page Widgets
+  /// Top-level page widgets for each workspace, used as tab pages in tabs_.
+  ///@{
   QWidget *overviewPage_ = nullptr;
   QWidget *objectDictionaryPage_ = nullptr;
   QWidget *pdoMapPage_ = nullptr;
@@ -260,8 +291,11 @@ private:
   QWidget *slaveRawPage_ = nullptr;
   QWidget *pdoRawPage_ = nullptr;
   QWidget *sdoRawPage_ = nullptr;
+  ///@}
 
-  // ── Workspace Navigation State ────────────────────────────────
+  /// @name Workspace Navigation State
+  /// Back/forward navigation stacks and cached tab indices for each workspace.
+  ///@{
   QVector<QWidget *> workspaceBackStack_;
   QVector<QWidget *> workspaceForwardStack_;
   bool suppressWorkspaceHistory_ = false;
@@ -283,19 +317,30 @@ private:
   int slaveRawTabIndex_ = -1;
   int pdoRawTabIndex_ = -1;
   int sdoRawTabIndex_ = -1;
+  ///@}
 
-  // ── Status Bar ────────────────────────────────────────────────
+  /// @name Status Bar
+  /// Status-bar widgets for summary text, workspace-boundary hints, and the
+  /// "next best action" suggestion button.
+  ///@{
   QLabel *statusSummaryLabel_ = nullptr;
   QLabel *workspaceBoundaryLabel_ = nullptr;
   QPushButton *nextBestActionButton_ = nullptr;
+  ///@}
 
-  // ── RT Test & Charts ──────────────────────────────────────────
+  /// @name RT Test & Charts
+  /// Real-time test widgets, running-state flag, and open chart dialogs.
+  ///@{
   RtTestWidgets *rtTest_ = nullptr;
   bool rtTestRunning_ = false;
   QVector<RealtimeChartDialog *> openCharts_;
   QVector<QShortcut *> tabSwitchShortcuts_;
+  ///@}
 
-  // ── Cached State ──────────────────────────────────────────────
+  /// @name Cached State
+  /// Text and scroll-position caches for raw-data views (master, slave, PDO,
+  /// SDO, XML) and FreeRun entry/object display values.
+  ///@{
   QString lastMasterText_;
   QString lastSlaveInfoText_;
   QString lastPdoText_;
@@ -309,8 +354,12 @@ private:
   QHash<QString, QString> freeRunEntryNames_;
   QHash<QString, QString> freeRunObjectNames_;
   QHash<QString, QString> freeRunEntryValues_;
+  ///@}
 
-  // ── Watch & SDO Data ──────────────────────────────────────────
+  /// @name Watch & SDO Data
+  /// Live watch values, SDO evidence, I/O variable metadata, and pending
+  /// read/write/verification queues for SDO operations.
+  ///@{
   QHash<QString, QString> watchValues_;
   QHash<QString, QStringList> sdoEvidence_;
   QHash<QString, QStringList> ioVariableMetadata_;
@@ -321,26 +370,44 @@ private:
   QHash<QString, QVector<int>> pendingStartupSdoChecks_;
   QSet<QString> watchChangedKeys_;
   QSet<QString> rememberedSdoTargetTrailKeys_;
+  ///@}
 
-  // ── Topology & Project ────────────────────────────────────────
+  /// @name Topology & Project
+  /// Baseline topology snapshot, project file path/name, and recent-projects
+  /// tracking for the File menu.
+  ///@{
   QVector<SlaveInfo> topologyBaseline_;
   QString projectPath_;
   QString projectName_ = "Untitled";
   QStringList recentProjectPaths_;
   QMenu *recentProjectsMenu_ = nullptr;
   static constexpr int kMaxRecentProjects = 10;
+  ///@}
 
-  // ── Services ──────────────────────────────────────────────────
+  /// @name Services
+  /// Core service singletons owned by this window's lifecycle.
+  ///@{
+  /// Central pub/sub event bus for inter-component communication.
   EventBus *eventBus_ = nullptr;
+  /// Dependency-injection container holding all domain services.
   ServiceContainer *container_ = nullptr;
+  /// Registry of all loaded workspace plugins.
   PluginRegistry *pluginRegistry_ = nullptr;
+  /// Persistent application settings (window geometry, preferences, etc.).
   AppSettings settings_;
+  ///@}
 
-  // ── State Flags ───────────────────────────────────────────────
+  /// @name State Flags
+  /// Runtime state flags that affect UI behaviour.
+  ///@{
   bool freeRun_ = false;
   bool consistencyFresh_ = false;
   bool selectedSdoWritable_ = true;
+  ///@}
 
-  // ── Language ──────────────────────────────────────────────────
+  /// @name Language
+  /// Active QTranslator for runtime language switching.
+  ///@{
   QTranslator *translator_ = nullptr;
+  ///@}
 };

@@ -17,7 +17,7 @@ QString NotesPlugin::displayName() const { return "Notes"; }
 QString NotesPlugin::displayNameZh() const { return "备注"; }
 QWidget *NotesPlugin::widget() { return container_; }
 int NotesPlugin::defaultOrder() const { return 100; }
-bool NotesPlugin::visible() const { return true; }
+bool NotesPlugin::visible() const { return false; }
 
 QString NotesPlugin::notesText() const { return editor_->toPlainText(); }
 void NotesPlugin::setNotesText(const QString &text) { editor_->setPlainText(text); }

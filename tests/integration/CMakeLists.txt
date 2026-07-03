@@ -64,8 +64,12 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/plugins/PluginRegistry.cpp
     ../../apps/ecat-studio/plugins/PluginRegistry.h
     ../../apps/ecat-studio/plugins/WorkspacePlugin.h
-    ../../apps/ecat-studio/plugins/notes/NotesPlugin.cpp
-    ../../apps/ecat-studio/plugins/notes/NotesPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
@@ -507,8 +511,12 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/plugins/PluginRegistry.cpp
     ../../apps/ecat-studio/plugins/PluginRegistry.h
     ../../apps/ecat-studio/plugins/WorkspacePlugin.h
-    ../../apps/ecat-studio/plugins/notes/NotesPlugin.cpp
-    ../../apps/ecat-studio/plugins/notes/NotesPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
@@ -723,6 +731,12 @@ add_executable(plugin_new_integration_test
     ../../apps/ecat-studio/plugins/scriptlibrary/ScriptLibraryPlugin.cpp
     ../../apps/ecat-studio/plugins/scriptlibrary/ScriptLibraryPlugin.h
     ../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
 )
 target_include_directories(plugin_new_integration_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecat-studio
@@ -740,6 +754,12 @@ add_executable(workflow_optimizer_plugin_integration_test
     ../../apps/ecat-studio/plugins/workflowdesigner/WorkflowDesignerPlugin.cpp
     ../../apps/ecat-studio/plugins/workflowdesigner/WorkflowDesignerPlugin.h
     ../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
     ../../apps/ecat-studio/services/WorkflowOptimizationService.cpp
     ../../apps/ecat-studio/services/WorkflowOptimizationService.h
     ../../apps/ecat-studio/services/WorkflowSchedulingService.cpp
@@ -769,6 +789,12 @@ add_executable(workflow_dashboard_plugin_integration_test
     ../../apps/ecat-studio/plugins/optimizationdashboard/OptimizationDashboardPlugin.cpp
     ../../apps/ecat-studio/plugins/optimizationdashboard/OptimizationDashboardPlugin.h
     ../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyPlugin.h
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.cpp
+    ../../apps/ecat-studio/plugins/topology/TopologyGraphWidget.h
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.cpp
+    ../../apps/ecat-studio/plugins/topology/SlaveNodeItem.h
     ../../apps/ecat-studio/services/WorkflowOptimizationService.cpp
     ../../apps/ecat-studio/services/WorkflowOptimizationService.h
     ../../apps/ecat-studio/services/WorkflowMonitoringService.cpp
