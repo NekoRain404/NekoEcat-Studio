@@ -72,15 +72,29 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_CONTACT "NekoRain <nekorain@example.com>")
 
 # Linux archive generator (works out of the box, no extra tools)
-set(CPACK_GENERATOR "TGZ")
+set(CPACK_GENERATOR "TGZ;DEB;RPM")
 set(CPACK_SOURCE_GENERATOR "TGZ")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY ON)
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x64")
+
+# DEB package settings
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6core6 (>= 6.5), libqt6network6, libqt6widgets6, libethercat")
+set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}_amd64.deb")
+
+# RPM package settings
+set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt6-core >= 6.5, qt6-network, qt6-widgets, ethercat")
+set(CPACK_RPM_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.x86_64.rpm")
 
 # Install rules
 install(TARGETS ecatd ecat-studio DESTINATION bin)
 install(DIRECTORY translations/ DESTINATION share/nekoecat/translations)
 install(FILES README.md LICENSE CHANGELOG.md ARCHITECTURE.md
         DESTINATION share/doc/nekoecat)
+
+set(CPACK_STRIP_FILES TRUE)
 
 include(CPack)

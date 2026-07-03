@@ -2,116 +2,222 @@
 
 ## Overview
 
-NekoEcat Studio is a modern EtherCAT engineering workstation for Linux, built on the IgH EtherCAT Master stack. It provides comprehensive tools for EtherCAT commissioning, diagnostics, and monitoring.
+NekoEcat Studio is a modern EtherCAT engineering workstation for Linux. It provides
+a graphical environment for commissioning, diagnostics, monitoring, and maintenance
+of EtherCAT networks using the IgH EtherCAT Master stack.
 
-## Getting Started
+The application is split into two processes:
+
+- **ecatd** -- the background daemon that communicates with the IgH EtherCAT Master
+  via the native ecrt API (with CLI fallback for operations the API does not cover).
+- **ecat-studio** -- the Qt6-based GUI frontend that connects to ecatd over TCP
+  (localhost, port 5877) using a JSON-over-TCP protocol.
+
+The GUI is built on a plugin-based architecture with ServiceContainer dependency
+injection. Each workspace tab is a self-contained plugin that registers its widget,
+icon, and display name with the PluginRegistry.
+
+## Installation
+
+See `INSTALLATION.md` in the project root for build prerequisites, dependencies,
+and step-by-step compilation instructions.
+
+## Quick Start
 
 ### First Launch
 
-1. Start NekoEcat Studio: `ecat-studio`
-2. Select your EtherCAT network adapter from the toolbar
-3. Click "Connect" to scan the bus
+1. Ensure the IgH EtherCAT Master is loaded and your network adapter is bound to
+   the kernel driver (run `sudo ethercat master` to verify).
+2. Start the daemon: `ecatd` (run as root or with appropriate capabilities).
+3. Start the GUI: `ecat-studio`.
+4. The GUI auto-connects to ecatd on localhost:5877. When connected, the status
+   bar shows the bus state.
+5. Click the "Scan Bus" button or use `Ctrl+R` to scan the EtherCAT bus and
+   populate the topology.
 
-### Main Interface
+> **Tip:** The daemon supports three backend modes: `auto` (default), `native`
+> (ecrt API only), and `cli` (ethercat CLI commands only). Set the mode via
+> `ecatd --backend <mode>`.
 
-The interface is organized into workspaces:
+### Project Files
 
-- **Overview**: Bus topology and slave status
-- **Object Dictionary**: Browse and edit OD entries
-- **SDO/PDO**: SDO read/write and PDO mapping
-- **Watch**: Monitor real-time values
-- **Startup SDO**: Configure startup SDO sequences
-- **Free Run**: Process image I/O testing
-- **Diagnostics**: Error analysis and health monitoring
-- **I/O Variables**: Variable engineering table
+Save your workspace layout, connection settings, and notes as a `.ecatproj`
+project file (`Ctrl+S`). Reopen with `Ctrl+O` to resume where you left off.
 
-## Core Features
+## Workspace Reference
 
-### Topology View
+NekoEcat Studio has 28 workspace tabs organized into functional groups. Use the
+tab bar at the top or the View -> Workspaces menu to navigate.
 
-- Visual bus topology with slave status indicators
-- Drag-and-drop slave rearrangement
-- Real-time state machine monitoring
+### Home
 
-### Object Dictionary
+| Tab | Description |
+|-----|-------------|
+| **Overview** | Dashboard showing bus topology summary, slave count, master state, and quick-access links to other workspaces. |
 
-- Hierarchical OD browser with search
-- SDO read/write with evidence tracking
-- Bookmark frequently used entries
-- Target trail for tracking access history
+### Topology / Slaves
 
-### Watch Workspace
+| Tab | Description |
+|-----|-------------|
+| **Topology** | Graphical bus topology with slave status indicators, drag-and-drop rearrangement, and state machine controls for individual slaves. |
+| **ESI Browser** | Browse the ESI (EtherCAT Slave Information) database. Search by vendor, device name, or revision. |
+| **Bus Statistics** | Real-time bus health metrics: frame rate, error counters, lost frames, and jitter. |
+| **I/O Variables** | Engineering table of process data variables. Add aliases, set default values, and export variable lists. |
 
-- Add multiple SDO targets for monitoring
-- Batch read/write operations
-- Value change highlighting
-- Export watch data to CSV
+### Dictionary / SDO
 
-### Free Run Workspace
+| Tab | Description |
+|-----|-------------|
+| **Object Dictionary** | Hierarchical OD browser with search, SDO read/write with evidence tracking, bookmarks, access trail, and history. |
+| **Startup SDO** | Configure SDO sequences that are written automatically on bus startup. Manage lists per slave. |
+| **PDO Mapping** | View and edit PDO assignment and mapping for each slave. Add or remove PDO entries and configure sync managers. |
 
-- Process image I/O testing
-- Real-time value visualization
-- Oscilloscope-style signal display
-- Data logging and export
+### Monitoring
+
+| Tab | Description |
+|-----|-------------|
+| **Watch** | Add multiple SDO/PDO targets for real-time monitoring. Batch read/write, value-change highlighting, CSV export. |
+| **Signal Analyzer** | Live signal visualization with zoom, pan, and measurement cursors. |
+| **Oscilloscope** | Multi-channel oscilloscope-style display for analog and digital signals. Trigger modes and persistence. |
+| **Signal Trace** | High-speed trace recording for post-capture analysis. Configurable trigger conditions and buffer depth. |
+| **Logic Analyzer** | Digital logic analysis with protocol decoding, pattern triggers, and export. |
+
+### DC (Distributed Clocks)
+
+| Tab | Description |
+|-----|-------------|
+| **DC Sync** | Overview of distributed clock synchronization status per slave. |
+| **DC Sync Precision** | Detailed jitter and drift measurements with statistical distribution charts. |
+| **DC Sync Optimizer** | Guided tool for optimizing DC sync parameters (shift times, cycle offsets) across the network. |
+
+### Runtime
+
+| Tab | Description |
+|-----|-------------|
+| **Free Run** | Process image I/O testing in a real-time loop (SCHED_FIFO, ~1 kHz). Toggle outputs, monitor inputs, log data. |
+| **State Machine** | Master- and slave-level EtherCAT state machine control (Init, Pre-Op, Safe-Op, Op). |
 
 ### Diagnostics
 
-- Error history and correlation
-- AL Event monitoring
-- DC Sync status and jitter analysis
-- Network health dashboard
+| Tab | Description |
+|-----|-------------|
+| **Online Diagnostics** | Real-time health dashboard with live slave status, error rates, and link quality. |
+| **Diagnostics** | Historical error analysis, correlated events, and trend charts. |
+| **Consistency** | Cross-check OD, PDO, and DC configuration against the ESI definitions. Flag mismatches and unsupported entries. |
+| **AL Events** | Real-time AL (Application Layer) event log from the bus. |
+| **Alarms** | User-configurable alarm rules with severity levels, notifications, and logging. |
 
-### Project Management
+### Protocols
 
-- Save/load project files (.ecatproj)
-- Project notes and metadata
-- Session management
-- Export/import configurations
+| Tab | Description |
+|-----|-------------|
+| **EoE** | Ethernet over EtherCAT management: configure virtual network interfaces, monitor tunnel traffic. |
+| **SoE Drive** | Servo Drive over EtherCAT (SoE) access: drive parameters, homing, and motion commands. |
+| **ENI Export** | Export the current bus configuration as an ENI (EtherCAT Network Information) XML file for compatible runtime tools. |
 
-## Keyboard Shortcuts
+### System
 
-| Shortcut | Action |
-|----------|--------|
-| Ctrl+N | New project |
-| Ctrl+O | Open project |
-| Ctrl+S | Save project |
-| Ctrl+F | Search OD |
-| F5 | Refresh topology |
-| Ctrl+D | Disconnect |
+| Tab | Description |
+|-----|-------------|
+| **Session** | Multi-session management: save and switch between bus configurations without relaunching. |
+| **Notes** | Free-form notes attached to the project. Supports Markdown and inline images. |
 
-## Configuration
+## Connection to Daemon and Bus
 
-### Settings Dialog
+### Architecture
 
-Access via `Tools > Settings`:
+```
+ecat-studio (GUI)  --JSON/TCP-->  ecatd (daemon)  --ecrt/CLI-->  IgH EtherCAT Master
+                                      |
+                                  FreeRunController
+                                   (real-time loop)
+```
 
-- **Connection**: Adapter selection, timeout settings
-- **Display**: Language, theme, font size
-- **Logging**: Log level, file output
-- **Advanced**: Debug options, performance tuning
+The GUI connects to the daemon automatically on startup. If ecatd is not
+running, the status bar shows "Disconnected." Reconnection uses exponential
+backoff (2 s -> 4 s -> 8 s -> 16 s -> 30 s capping).
 
-### Language Support
+### Daemon Backend Modes
 
-NekoEcat Studio supports multiple languages:
+| Mode  | Behavior |
+|-------|----------|
+| auto  | Try native ecrt API first; fall back to CLI for operations ecrt cannot do (SDO enumeration, ESI XML, AL state transitions, rescan). |
+| native| Use ecrt API only. Falls back to CLI only for the five unsupported operations, marking each response with `"backend": "cli_fallback"`. |
+| cli   | Always shell out to the `ethercat` command-line tool. Most compatible but slower. |
 
-- English (default)
-- Chinese (Simplified/Traditional)
-- Japanese, Korean, German, French, Spanish
+The GUI can interrogate the `lastOperationWasFallback()` flag on each response
+to show which backend was used.
+
+### Free Run Mode
+
+The Free Run workspace starts a dedicated real-time thread in ecatd. The thread
+opens the IgH master directly (`ecrt_request_master`), creates a PDO domain,
+configures slaves, and runs a cyclic exchange at approximately 1 kHz. This path
+is independent of the normal CLI or native backend.
+
+## Language Switching
+
+NekoEcat Studio supports 8 languages. Switch via `Tools -> Settings -> Display
+-> Language` (restart required):
+
+| Language              | Display Name |
+|-----------------------|--------------|
+| English               | English      |
+| Chinese (Simplified)  | 简体中文     |
+| Japanese              | 日本語       |
+| German                | Deutsch      |
+| Korean                | 한국어       |
+| Chinese (Traditional) | 繁體中文     |
+| French                | Français     |
+| Spanish               | Español      |
+
+After changing the language, the workspace tabs are rebuilt automatically via
+the PluginRegistry, which reloads each plugin's localized display name and icon.
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **No slaves found**: Check cable connection and master service
-2. **SDO timeout**: Increase timeout in settings
-3. **Permission error**: Run with appropriate permissions
-4. **Display issues**: Check Qt6 theme settings
+1. **"Disconnected" in the status bar** -- ecatd is not running. Start it with
+   `sudo ecatd` and check the daemon logs.
+2. **No slaves found after scan** -- Verify the network cable and that the IgH
+   master is loaded (`sudo ethercat master`). Check that your NIC is bound to
+   the ecat driver (`sudo ethercat slaves`).
+3. **SDO read/write timeout** -- Increase the timeout value in
+   `Tools -> Settings -> Connection`. Heavily loaded buses may need 5-10 s.
+4. **Permission denied** -- The daemon requires root (or CAP_NET_ADMIN +
+   CAP_SYS_NICE). The GUI does not need elevated privileges.
+5. **Free Run won't start** -- Ensure ecatd has real-time scheduling
+   capabilities (mlockall, SCHED_FIFO). Check `ulimit -l` and `chrt`
+   permissions.
+6. **CLI fallback warnings** -- These are expected for SDO enumeration, ESI
+   XML, AL state transitions, and rescan. The native ecrt API does not expose
+   these operations.
 
 ### Log Files
 
-Logs are stored in `~/.config/NekoEcatStudio/logs/`
+- **Daemon logs**: `~/.config/NekoEcatStudio/logs/ecatd.log`
+- **GUI logs**: `~/.config/NekoEcatStudio/logs/ecat-studio.log`
 
-## Support
+Set the log level in `Tools -> Settings -> Logging`.
 
-- GitHub Issues: https://github.com/NekoRain404/NekoEcat-Studio
-- Documentation: docs/ directory in source package
+### Keyboard Shortcuts
+
+| Shortcut   | Action              |
+|------------|---------------------|
+| Ctrl+N     | New project         |
+| Ctrl+O     | Open project        |
+| Ctrl+S     | Save project        |
+| Ctrl+R     | Scan bus            |
+| Ctrl+F     | Search OD           |
+| F5         | Refresh topology    |
+| Ctrl+D     | Disconnect / connect|
+
+### Tests
+
+The project includes 247 unit and integration tests covering core services,
+handlers, and performance benchmarks. Run them from the build directory:
+
+```bash
+ctest --output-on-failure
+```
