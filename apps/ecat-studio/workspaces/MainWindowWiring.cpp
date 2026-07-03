@@ -121,7 +121,7 @@ void MainWindow::wireMenuActions() {
   connect(findAction("manualAction"), &QAction::triggered, this,
           &MainWindow::showManual);
   connect(findAction("aboutAction"), &QAction::triggered, this,
-          &MainWindow::showAbout);
+          &MainWindow::showAboutDialog);
   connect(findAction("showLogAction"), &QAction::triggered, this, [this] {
     if (auto *dock = findChild<QDockWidget *>("runtimeLogDock")) {
       dock->show();

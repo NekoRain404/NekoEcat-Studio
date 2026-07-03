@@ -36,6 +36,9 @@ void updateNextBestAction();
 void updateTabBadges();
 void runNextBestAction();
 
+// ── About Dialog ─────────────────────────────────────────────
+void showAboutDialog();
+
 // ── Text Structs ──────────────────────────────────────────────
 WorkflowStepDetailTexts workflowStepDetailTexts() const;
 CommissioningWorkflowTexts commissioningWorkflowTexts() const;

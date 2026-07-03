@@ -291,6 +291,7 @@ add_executable(ecat-studio
     MainWindow.h
     workspaces/MainWindowIncludes.h
     MainWindow.cpp
+    workspaces/MainWindowAbout.cpp
     workspaces/MainWindowStateMachine.cpp                workspaces/MainWindowTopologyUi.cpp
     workspaces/MainWindowCommandPalette.cpp
     workspaces/MainWindowConsistency.cpp

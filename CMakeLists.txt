@@ -60,3 +60,27 @@ add_subdirectory(apps/ecat-studio) # Qt6 desktop GUI
 # Tests
 enable_testing()
 add_subdirectory(tests)
+
+# ── Packaging ─────────────────────────────────────────────────────────
+set(CPACK_PACKAGE_NAME "NekoEcatStudio")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "EtherCAT commissioning and diagnostics workstation")
+set(CPACK_PACKAGE_VENDOR "NekoRain")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/NekoRain/NekoEcatStudio")
+set(CPACK_PACKAGE_LICENSE "GPL-3.0")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_CONTACT "NekoRain <nekorain@example.com>")
+
+# Linux archive generator (works out of the box, no extra tools)
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY ON)
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x64")
+
+# Install rules
+install(TARGETS ecatd ecat-studio DESTINATION bin)
+install(DIRECTORY translations/ DESTINATION share/nekoecat/translations)
+install(FILES README.md LICENSE CHANGELOG.md ARCHITECTURE.md
+        DESTINATION share/doc/nekoecat)
+
+include(CPack)

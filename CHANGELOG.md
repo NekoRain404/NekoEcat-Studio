@@ -1,527 +1,241 @@
 # Changelog
 
-All notable changes to NekoEcat Studio are documented in this file.
-
-## [1.0.0] - 2026-06-29
+## [1.0.0-beta] — 2026-07-03
 
 ### Added
-- **Project Configuration**: Added .clang-format, .editorconfig, .clang-tidy for code consistency
-- **Documentation**: Comprehensive Doxygen API documentation for core interfaces, services, and plugins
-  - `EcatService.h`: Full @brief/@param/@return on all 12 pure virtual methods
-  - `EthercatTypes.h`: Documentation on SlaveInfo fields and JSON serialization functions
-  - `JsonProtocol.h`: Wire format documentation and function docs
-  - `EcatClient.h`: @brief on all ~30 public methods with usage examples
-  - 10 key service headers with class, method, and struct documentation
-  - 9 key plugin headers with class and method documentation
-  - 19 workspace partial files with enhanced file-level documentation
+
+- Add Linux release packaging
+- Bilingual release notes
+- RT stability test workspace for EtherCAT bus timing analysis
+- Increase RT test sampling density 4x
+- 6x denser chart (3000 bins) with full daemon data transmission
+- Custom cycle time input to RT test
+- Real-time scrolling chart with fixed 2000-point window
+- Replace QtCharts with QPainter for 10-100x faster chart rendering
+- CommandDispatcher — string-keyed dispatch table for daemon commands
+- Request timeout + explicit ConnectionState to EcatClient
+- LanguageManager — centralized language registry for i18n
+- 8-language support (en, zh-CN, ja, de, ko, zh-TW, fr, es)
+- Expand translations for 6 new languages (ja/de/ko/zh-TW/fr/es)
+- Complete zh-TW translations and clean up translation registry
+- Complete 8-language translation coverage (100%)
+- Expand settings, shared include header, manual with TOC
+- 12 themes with proper QSS syntax
+- Live theme preview + overview tab reorder
+- Data export submenu — PDO, SDO, ESI, Watch, Startup, Topology, Host Health
+- Raw text exports — PDO/SDO/Master/Slave Raw
+- Free Run real-time chart — independent multi-window
+- Real-time Monitor translations
+- MRU projects, OD real-time monitor, Watch bulk read, tab shortcuts, 684 i18n entries
+- Keyboard shortcut customization in Settings
+- WorkspacePlugin interface + 4 unit tests
+- EventBus with 8 event types + 8 unit tests
+- PluginRegistry with ordering/lookup/visibility + 7 unit tests
+- NotesPlugin — first proof-of-concept plugin with 5 tests
+- .ts/.qm translation system alongside TranslationRegistry
+- Extract SdoService, WatchService, TopologyService from MainWindow
+- Daemon AL Event handler with CLI-based polling
+- Daemon DC Sync handler with CLI + ecrt API enrichment
+- Week 2 — daemon handlers + GUI plugins + auto-reconnect
+- Week 3 Tasks 18-19 — Signal Handler + Signal Analyzer Plugin
+- v1.0.0 release preparation
+- Comprehensive EtherCAT protocol improvements and code quality fixes
+- WC error tracking to FreeRunController
+- Daemon diagnostic metrics to ping response
+- WC error threshold monitoring to FreeRunController
+- Cycle time jitter tracking to FreeRunController
+- Major cleanup, build fix, and test restoration (81 files)
+- Wire live data, add tr() i18n, add populateTable helper, update translations
+- Extract 11 themes to .qss files, add ThemeManager
+- Comprehensive API documentation for core interfaces, services, and plugins
+- Language switching with QTranslator hot-reload
+
+### Fixed
+
+- Restore SDO dictionary filter logic and anti-flicker guards
+- RT test chart rendering and layout compactness
+- Chart Y-axis snap + right-align data
+- Lifecycle test — use connectToHost(port) instead of connectToDaemon()
+- Move workspace struct allocations after reset in buildUi()
+- Repair broken SdoWorkspace split and complete SDO file decomposition
+- QFrame black background in all themes
+- Real-time chart now feeds live values from Free Run polling
+- Chart now plots data immediately without needing Start
+- Axis-linked window control in RealtimeChartDialog
+- 2-space indent in WorkspacePlugin.h, add offscreen env to test
+- Strengthen EventBus test assertions, add PluginRegistry out-of-range test
+- Keep experimental modules opt-in
+- Clean Qt build warnings
+- Remove duplicate translation messages
+- Tighten experimental product boundary
+- Keep experimental tests opt-in
+- Remove experimental sources from default tests
+- Remove duplicate digital twin plugin
+- Remove duplicate manager plugins
+- Enforce unique plugin ids
+- Remove unregistered esi plugin
+- Skip hardware verification when offline
+- Dynamic language switching with QTranslator hot-reload
+- Repair language switching (5 bugs)
+- Remove stale test targets and fix CMakeLists paths
+- Resolve build errors from deleted services cleanup
+- Update plugin tests to match hidden plugin visibility
+- Update product_boundary_test to reflect removed experimental plugins
+- Remove stale experimental plugin references from docs and tests
+- Avoid simulated test pass results across EoE, FoE, CoE, state machine, Free Run, PDO, sync manager, domain, hot connect, redundancy, firmware, deployment, recovery, multi-master, EtherCAT sync/replication/update/maintenance/integration, master API, device manager, monitoring services, optimization services, cable diagnostics, hardware verification, and workflow operations
+- Avoid synthetic data for trace capture, DC sync, backup, deployment, certification, compliance, maintenance, validation, master management, PDO/SDO/Free Run optimization, protocol analyzer frames, oscilloscope samples, dashboard metrics, calibration, logic analyzer, blockchain explorer, quantum security, workflow certificates/execution/reports, certification manager, compliance checker, replication manager, batch operations, maintenance scheduler, edge service, and test suite passes
+- Require backend ack for optimization apply and Free Run config apply
+- Fail batches with failed items
+- Avoid unfinished logic analyzer decode text and protocol backend wording
+- Persist config profile imports and exports
+- Write reporting exports to files
+- Confine saved automation scripts
+- Export selected script library entries
+- Validate all export paths for report generator, export service, diagram JSON, workflow designer, PDO mapping, configuration, ESI, log, diagnostic, automation scripts, maintenance reports, update logs, deployment logs, report designer, workflow optimizer, documentation, test suite, visualization studio, workflow dashboard, script library, simulation results, trace data, alarm history, multi-master reports, error analysis reports, and all optimizer exports
+- Validate all import paths for templates, configuration, workflow, report template, visualization, diagram, script, ESI, and project files
+- Import hash-prefixed ESI hex ids
+- Reject future project versions
+- Avoid scripting false bus success
+- Avoid synthetic multi-master discovery
+- Fail diagnostics without evidence
+- Stop synthetic realtime samples
+- Avoid empty performance analysis success
+- Gate pipeline completion on execution
+- Validate workflow report templates, task creation dependencies
+- Validate resource allocation, project planning, project tracking, project management inputs
+- Validate PDO configuration, PDO mapping, sync manager, domain PDO entries, master manager, distributed clock config, and DC sync polling inputs
+- Avoid healthy score without ecat evidence
+- Mark network health unknown without evidence
+- Avoid monitor healthy defaults without evidence
 
 ### Changed
+
+- Restructure project: organize into models/adapters/ui_state/helpers/infra/workspaces subdirectories
+- Redesign RT test workspace with QtCharts latency graph and higher cycle rates
+- Replace EcatDaemon if/else chain with CommandDispatcher dispatch table
+- Extract EcatService interface, daemon uses pointer
+- Aggregate RT test widgets into workspace-local struct
+- Remove unused Qt6::Charts dependency — charts use QPainter directly
+- Extract SessionWorkspaceWidgets from MainWindow
+- Extract StateMachineWorkspaceWidgets from MainWindow
+- Extract ConsistencyWorkspaceWidgets from MainWindow
+- Extract DiagnosticsWorkspaceWidgets from MainWindow
+- Extract IoVariableWorkspaceWidgets from MainWindow
+- Extract WatchWorkspaceWidgets from MainWindow
+- Extract SdoWorkspaceWidgets from MainWindow
+- Extract WorkflowWorkspaceWidgets from MainWindow
+- Extract SlaveEvidenceWorkspaceWidgets from MainWindow
+- Extract FreeRunWorkspaceWidgets from MainWindow
+- Extract BookmarkWorkspaceWidgets from MainWindow
+- Extract freeRunTable_ to FreeRunWorkspaceWidgets
+- Extract SdoInspectorWidgets and RawTextWidgets from MainWindow
+- Decompose MainWindowSdoWorkspace.cpp (4877 to 3 files)
+- Decompose MainWindow.cpp (4677 to 3 files)
+- Decompose WatchWorkspace and ConsistencyCommissioning
+- Decompose IoVariableWorkspace (1390 to 2 files)
+- Rename ui_state/ to detail/ with cleaner naming
+- Rename helpers/ to utils/ and remove Studio prefix
+- Consolidate small model files into logical groups
+- Include request ID in EcatClient error messages
+- EcatClient now invokes handlers on daemon errors
+- Add error checks to setState/setAllStates/download handlers
+- Track docs/ in git — ignore only docs/build/
+- Remove duplicate includes from 15 workspace files
+- Remove unused chrono include from FreeRunController
+- Ignore local worktrees
 - Version bumped to 1.0.0 for official release
 - Default package version in scripts updated to 1.0.0
-- Doxyfile PROJECT_NUMBER synchronized to 1.0.0
-
-### Fixed
-- Removed 3.5 GB of build artifacts (build-valgrind/) from git tracking
-- Cleaned stale root files (CMakeFiles/, Testing/, .agents/, .codex/, HANDOFF.md)
-- Removed 11 AI development artifacts (AGENTS.md files)
-- Cleaned old release artifacts from dist/ (v0.1.0 through v3.5.0)
-- Updated .gitignore to use build*/ pattern and exclude AI tool artifacts
-
-## [3.8.0] - 2026-06-21
-
-### Added
-- **Native IgH API Backend**: Direct ecrt API integration; performance must be measured on the target build and hardware
-  - `EthercatNativeBackend` class implementing `EcatService` interface using ecrt API
-  - `MasterGuard` RAII class for safe master lifecycle management with mutex protection
-  - Type-aware SDO upload/download with hex index parsing
-  - PDO information retrieval via sync manager enumeration
-  - Slave information retrieval via `ecrt_master_get_slave()`
-- **Dual-Backend Mode**: Runtime backend switching between Native API and CLI
-  - Three modes: Auto (recommended), Native API, CLI
-  - Settings UI with combo box in EtherCAT tab
-  - `setBackend`/`getBackend` JSON-RPC commands
-  - Runtime switching without daemon restart
-- **Unit Tests**: 9 new tests for native backend (8 pass, 1 skip)
-- **Integration Tests**: 4 new tests comparing native vs CLI backend performance
-- **Documentation**: Comprehensive project overview and TwinCAT benchmark review
-
-### Changed
-- Version bumped to 3.8.0
-- Default backend mode: Auto (try native, fallback to CLI)
-- Default registered tests: see the corresponding build output; rerun validation before release
-- Updated README.md, ARCHITECTURE.md, PROJECT_OVERVIEW.md
-
-### Performance
-- SDO operations: native backend reduces CLI process overhead; measure on target hardware
-- Topology scanning: native backend reduces CLI process overhead; measure on target hardware
-
-## [3.7.0] - 2026-06-20
-
-### Added
-- **Boundary Tests**: Empty data boundary tests, large data boundary tests for robustness verification
-- **Integration Tests**: Plugin integration tests, service integration tests, EventBus integration tests
-- **Concurrent Access Tests**: Thread-safety verification for ServiceContainer and shared services
-- **Error Recovery Tests**: Validation of error detection, classification, and recovery workflows
-- **UI Creation Tests**: Widget instantiation and lifecycle verification tests
-- **Architecture Documentation**: ServiceContainer single-client design, error handling architecture, performance monitoring architecture
-
-### Fixed
-- **ServiceContainer**: Fixed concurrent access issues in multi-threaded test scenarios
-- **Test Infrastructure**: Improved test isolation and fixture reliability
-
-### Changed
-- Version bumped to 3.7.0
-- Default registered tests: see the corresponding build output; rerun validation before release
-- ServiceContainer service count is defined by the corresponding source tree
-- Plugin count is defined by the corresponding source tree
-- Updated README.md, ARCHITECTURE.md, CHANGELOG.md, RELEASE_NOTES.md
-
-## [3.6.0] - 2026-06-20
-
-### Added
-- **New Features**:
-  - **DC Sync Optimization** (`dcsyncoptimization`): DC distributed clock synchronization optimization with sync, drift, jitter, and configuration optimization via SyncOptimizationWidget and DriftOptimizationWidget
-  - **Free Run Optimization** (`freerunoptimization`): Free Run process data exchange optimization with cycle time, data mapping, performance, and error handling optimization via CycleTimeOptimizerWidget and DataMappingOptimizerWidget
-  - **PDO Mapping Optimization** (`pdomappingoptimization`): PDO mapping configuration optimization with mapping, size, alignment, and performance optimization via MappingOptimizerWidget and SizeOptimizerWidget
-  - **SDO Optimization** (`sdooptimization`): SDO communication optimization with cache, batch, performance, and error handling optimization via CacheOptimizerWidget and BatchOptimizerWidget
-- **New Services**: DcSyncOptimizationService, DcSyncOptimizerService, FreeRunOptimizationService, PdoMappingOptimizationService, SdoOptimizationService, RealtimeOptimizerService
-- **New Plugins**: 6 new workspace plugins for the optimization features above
-- **Documentation**: Comprehensive update to README.md, ARCHITECTURE.md, CHANGELOG.md, and RELEASE_NOTES.md
-
-### Changed
-- Version bumped to 3.6.0
-- ServiceContainer service count is defined by the corresponding source tree
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.5.0] - 2026-06-20
-
-### Added
-- **Release Packages**: Linux tar.gz, DEB, RPM, AppImage, and source code packages
-- **Release Documentation**: Release notes, installation guide, user manual, developer guide
-- **Quality Reports**: Test coverage, performance, memory usage, and code quality reports
-- **Final Verification**: Re-run build, tests, and package validation for the target release
-
-### Changed
-- Version bumped to 3.5.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.4.0] - 2026-06-20
-
-### Added
-- **New Features**:
-  - **PDO Mapping Editor** (`pdomapping`): Visual PDO mapping configuration with canvas-based drag-and-drop, mapping validator, SM/PDO assignment, and export
-  - **ESI Browser** (`esi`): Enhanced ESI repository with tree-based device browsing, PDO mapping lookup, and multi-file ESI XML import
-  - **Online Diagnostics** (`onlinediagnostics`): Real-time bus monitoring with BusMonitorWidget, ErrorAnalyzerWidget, health scoring, and reviewable diagnostic suggestions
-  - **DC Sync Precision** (`dcsyncprecision`): Extended DC sync diagnostics with DriftMonitorWidget, JitterAnalysisWidget, and per-slave synchronization precision assessment
-  - **Multi-Master Support** (`multimaster`): Multi-master management with MasterComparisonWidget for side-by-side diagnostics and cross-master slave management
-  - **Real-time Performance Monitor** (`realtimeperf`): Latency and throughput monitoring with LatencyMonitorWidget, ThroughputMonitorWidget, and 1000-sample ring buffers
-  - **Advanced Error Analysis** (`erroranalysis`): Error timeline with ErrorTimelineWidget, error correlation with ErrorCorrelationWidget, and cross-slave pattern recognition
-  - **Hardware Verification** (`hardwareverification`): Pre-commissioning device and network verification with DeviceVerificationWidget and NetworkVerificationWidget
-- **New Services**: WorkflowSecurityManagerService, WorkflowComplianceManagerService, WorkflowCertificationManagerService, PdoMappingService, DcSyncPrecisionService, OnlineDiagnosticsService, MultiMasterService, RealtimePerformanceService, AdvancedErrorAnalysisService, HardwareVerificationService
-- **New Plugins**: 8 new workspace plugins for the features above
-- **Unit Tests**: 3 new service unit tests for WorkflowSecurityManagerService (12 cases), WorkflowComplianceManagerService (12 cases), WorkflowCertificationManagerService (13 cases)
-- **Documentation**: Comprehensive update to README.md, ARCHITECTURE.md, PLUGIN_GUIDE.md, and CHANGELOG.md
-- **Release Preparation**: Version bump to 3.4.0, comprehensive testing, optimization, and release packaging
-
-### Fixed
-- **Build Fix**: Added missing WorkflowSecurityManagerService, WorkflowComplianceManagerService, WorkflowCertificationManagerService source files referenced by ServiceContainer
-
-### Changed
-- Version bumped to 3.4.0
-- ServiceContainer service count is defined by the corresponding source tree
-- Plugin count is defined by the corresponding source tree
-- registered tests and test files as reported by the corresponding build output
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.3.0] - 2026-06-20
-
-### Added
-- **New Services**: WorkflowVisualizationStudioService, WorkflowReportDesignerService, WorkflowDocumentationBrowserService
-- **Unit Tests**: 3 new service unit tests for WorkflowVisualizationStudioService (14 cases), WorkflowReportDesignerService (12 cases), WorkflowDocumentationBrowserService (14 cases)
-- **Performance Tests**: 3 new performance tests for VisualizationStudio (4 cases), ReportDesigner (4 cases), DocumentationBrowser (4 cases)
-- **Release Preparation**: Version bump to 3.3.0, comprehensive testing, optimization, and release packaging
-
-### Changed
-- Version bumped to 3.3.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.2.0] - 2026-06-19
-
-### Added
-- **Unit Tests**: 6 new service unit tests for WorkflowDigitalTwinService, WorkflowBlockchainService, WorkflowQuantumService, WorkflowCloudService, WorkflowEdgeService, WorkflowAIService
-- **Integration Tests**: 2 new plugin integration tests for WorkflowOptimizerPlugin, WorkflowDashboardPlugin
-- **Performance Tests**: 6 new performance test cases for DigitalTwin, Blockchain, Quantum, Cloud, Edge, and AI services
-- **Release Preparation**: Version bump to 3.2.0, updated CHANGELOG, RELEASE_NOTES, build and test validation
-
-### Changed
-- Version bumped to 3.2.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.1.0] - 2026-06-19
-
-### Added
-- **New Services**: WorkflowCloudService, WorkflowEdgeService, WorkflowAIService
-- **Unit Tests**: 33 new test cases for WorkflowCloudService (9), WorkflowEdgeService (12), WorkflowAIService (12)
-- **Performance Tests**: 18 new performance test cases for cloud (6), edge (6), and AI (6) services
-- **Release Preparation**: Version bump to 3.1.0, updated CHANGELOG, RELEASE_NOTES
-
-### Changed
-- Version bumped to 3.1.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [3.0.0] - 2026-06-19
-
-### Added
-- **New Services**: WorkflowIntegrationHubService, WorkflowSyncService, WorkflowReplicationService
-- **Unit Tests**: 36 new test cases for WorkflowIntegrationHubService, WorkflowSyncService, WorkflowReplicationService
-- **Performance Tests**: 9 new performance test cases for integration hub, sync, and replication services
-- **Release Preparation**: Version bump to 3.0.0, updated CHANGELOG, RELEASE_NOTES
-
-### Changed
-- Version bumped to 3.0.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [2.9.0] - 2026-06-19
-
-### Added
-- **Performance Tests**: WorkflowDeploymentService performance test (6 test cases), WorkflowUpdateService performance test (6 test cases), WorkflowMaintenanceService performance test (6 test cases)
-- **Release Preparation**: Version bump to 2.9.0, updated CHANGELOG, RELEASE_NOTES
-
-### Changed
-- Version bumped to 2.9.0
-- Test results: see the corresponding build output; rerun validation before release
-
-## [2.8.0] - 2026-06-19
-
-### Added
-- **Final Release Preparation**: Comprehensive testing, optimization, and release packaging for v2.8.0
-- **Quality Assurance**: Test, coverage, performance, and memory reports should be regenerated for the target release build
-
-### Changed
-- Version bumped to 2.8.0
-
-## [2.7.0] - 2026-06-19
-
-### Added
-- **Performance Tests**: WorkflowAnalyticsService performance test (6 test cases), WorkflowMonitoringService performance test (6 test cases)
-- **Release Preparation**: Version bump to 2.7.0, updated CHANGELOG, RELEASE_NOTES
-
-### Changed
-- Version bumped to 2.7.0
-
-## [2.6.0] - 2026-06-19
-
-### Added
-- **Performance Tests**: WorkflowAutomationService (6), WorkflowOptimizationService (8), WorkflowSchedulingService (7) performance tests
-- **Integration Tests**: WorkflowOptimizerPlugin integration test (9 test cases), WorkflowDashboardPlugin integration test (10 test cases)
-- **Performance Optimization**: Lazy service initialization, parallel plugin loading, connection pooling, data caching, async operations, batch processing, object pooling, memory arenas
-
-### Changed
-- Version bumped to 2.6.0
-
-## [2.5.0] - 2026-06-19
-
-### Added
-- **Digital Twin Service**: EtherCATDigitalTwinService for digital twin modeling, node management, connection tracking, and snapshot capabilities
-- **Blockchain Service**: EtherCATBlockchainService for blockchain-based configuration audit, immutable logging, and distributed verification
-- **Quantum Service**: EtherCATQuantumService for quantum-resistant encryption, key management, and secure communication
-- **Digital Twin Studio Plugin**: DigitalTwinStudioPlugin for digital twin visualization and management workspace
-- **Blockchain Explorer Plugin**: BlockchainExplorerPlugin for blockchain chain exploration and audit log management
-- **Quantum Security Plugin**: QuantumSecurityPlugin for quantum key management and security audit workspace
-- **Unit Tests**: EtherCATDigitalTwinService (18), EtherCATBlockchainService (14), EtherCATQuantumService (14) unit tests
-- **Integration Tests**: DigitalTwinStudioPlugin (14), BlockchainExplorerPlugin (12), QuantumSecurityPlugin (12) integration tests
-- **Performance Tests**: EtherCATDigitalTwinService (4), EtherCATBlockchainService (4), EtherCATQuantumService (4) performance tests
-
-### Changed
-- Version bumped to 2.5.0
-- ServiceContainer expanded to 52 services
-
-## [2.4.0] - 2026-06-19
-
-### Added
-- **Cloud Manager Plugin**: CloudManagerPlugin for cloud connectivity, sync, backup, and monitoring
-- **Edge Computing Plugin**: EdgeComputingPlugin for edge data processing, analysis, and storage
-- **AI Assistant Plugin**: AIAssistantPlugin for predictive maintenance, anomaly detection, optimization, and pattern recognition
-- **Unit Tests**: EtherCATCloudService (12), EtherCATEdgeService (10), EtherCATAIService (17), CloudManagerPlugin (13), EdgeComputingPlugin (9), AIAssistantPlugin (10) unit tests
-- **Performance Tests**: EtherCATCloudService, EtherCATEdgeService, EtherCATAIService performance tests (11 test cases)
-
-### Changed
-- Version bumped to 2.4.0
-
-## [2.3.0] - 2026-06-19
-
-### Added
-- **Documentation Browser Plugin**: DocumentationBrowserPlugin for browsing, searching, and bookmarking documentation
-- **Performance Tests**: Performance tests for EtherCATVisualizationService, EtherCATReportingService, and EtherCATDocumentationService (15 test cases)
-- **Unit Tests**: DocumentationBrowserPlugin unit tests (16 test cases)
-
-### Changed
-- Version bumped to 2.3.0
-
-## [2.2.0] - 2026-06-19
-
-### Added
-- **Integration Hub Plugin**: EtherCATIntegrationService for PLC, SCADA, MES, and ERP connectivity
-- **Sync Manager Plugin**: EtherCATSyncService for time, data, state, and configuration synchronization
-- **Replication Manager Plugin**: EtherCATReplicationService for multi-target configuration, data, state, and backup replication
-- **Performance Tests**: Performance tests for EtherCATIntegrationService, EtherCATSyncService, and EtherCATReplicationService (15 test cases)
-- **Performance Optimizations**: Throughput and latency improvements across integration, sync, and replication services
-
-### Changed
-- Version bumped to 2.2.0
-
-## [2.1.0] - 2026-06-19
-
-### Added
-- **New Services**: EtherCATDeploymentService, EtherCATUpdateService, EtherCATMaintenanceService for deployment management, firmware updates, and maintenance scheduling
-- **New Plugins**: UpdateManagerPlugin, MaintenanceSchedulerPlugin workspace plugins
-- **Unit Tests**: Unit tests for all new services (25+ test cases)
-- **Integration Tests**: Integration tests for all new plugins (20+ test cases)
-- **Performance Tests**: Performance tests for all new services (9 test cases)
-- **Version Bump**: Version bumped to 2.1.0
-
-### Changed
-- Version bumped to 2.1.0
-
-## [2.0.0] - 2026-06-19
-
-### Added
-- **New Plugins**: OptimizationDashboardPlugin, MonitoringDashboardPlugin, AnalyticsDashboardPlugin workspace plugins
-- **Integration Tests**: Integration tests for all new dashboard plugins
-- **Performance Optimization**: Lazy initialization, parallel plugin initialization, cached UI initialization
-- **Memory Optimization**: Object pooling, memory arenas, reference counting, weak references
-
-### Changed
-- Version bumped to 2.0.0
-
-## [1.9.0] - 2026-06-19
-
-### Added
-- **New Services**: EtherCATSecurityService for security policy management and auditing, EtherCATComplianceService for compliance rule management and checking, EtherCATCertificationService for certification requirement management and testing
-- **New Plugins**: SecurityManagerPlugin, ComplianceCheckerPlugin, CertificationManagerPlugin workspace plugins
-- **Unit Tests**: Unit tests for all new services
-- **Integration Tests**: Integration tests for all new plugins
-- **Performance Tests**: Performance tests for all new services
-- **Startup Optimization**: Lazy initialization for faster startup
-- **Connection Pooling**: Connection pooling for daemon communication
-- **Data Caching**: Data caching for SDO/PDO data
-
-### Changed
-- Version bumped to 1.9.0
-
-## [1.8.0] - 2026-06-19
-
-### Added
-- **New Plugins**: ConfigurationEditorPlugin, NetworkAnalyzerPlugin, SystemMonitorPlugin for visual configuration editing, network analysis, and system monitoring
-- **Unit Tests**: 3 new unit tests for EtherCATSimulationService, EtherCATTestingService, EtherCATValidationService (35+ test cases)
-- **Integration Tests**: 3 new integration tests for ConfigurationEditorPlugin, NetworkAnalyzerPlugin, SystemMonitorPlugin
-- **Performance Tests**: 3 new performance tests for simulation, testing, and validation services
-
-### Changed
-- Version bump to 1.8.0
-- Expanded test suite to 220+ tests total
-
-## [1.7.0] - 2026-06-19
-
-### Added
-- **New Services**: EtherCATConfigService, EtherCATBackupService, EtherCATRecoveryService for configuration management, backup/restore, and error recovery
-- **New Plugins**: WorkflowDesignerPlugin, TestSuitePlugin, DeploymentPlugin for visual workflow design, test suite management, and deployment management
-- **Unit Tests**: 38+ new unit tests for all new and existing services
-- **Integration Tests**: 3 new integration tests for WorkflowDesignerPlugin, TestSuitePlugin, DeploymentPlugin
-- **Performance Tests**: 15+ new performance tests for configuration, backup, recovery, and monitoring services
-
-### Changed
-- Version bump to 1.7.0
-- Improved test coverage across all service and plugin layers
-
-## [1.6.0] - 2026-06-19
-
-### Added
-
-#### New Services
-- **EtherCATOptimizerService** — runtime optimization for EtherCAT operations with batch execution, data caching, prefetching, and warmup support.
-
-#### New Service Unit Tests
-- **EtherCATMonitorService** — 12 unit tests covering initial state, monitoring start/stop, signal emissions, and polling behavior.
-- **EtherCATAnalyzerService** — 12 unit tests covering frame analysis, error analysis, performance analysis, trend analysis, and signal emissions.
-- **EtherCATOptimizerService** — 14 unit tests covering configuration, batch execution, cache operations, prefetch, invalidation, and warmup.
-
-#### New Performance Tests
-- **EtherCATMonitorService performance** — start/stop, polling, query, and monitoring overhead throughput tests.
-- **EtherCATAnalyzerService performance** — frame, error, performance, trend, and mixed analysis throughput tests.
-- **EtherCATOptimizerService performance** — batch execution, cache, prefetch, invalidation, mixed operations, and warmup throughput tests.
-
-### Changed
-- Updated version to 1.6.0
-
-## [1.5.0] - 2026-06-19
-
-### Added
-
-#### New Services
-- **HotConnectService** — manages hot-connect groups for EtherCAT slaves with dynamic addition/removal during runtime.
-- **RedundancyService** — manages EtherCAT network redundancy with primary/secondary path monitoring and failover.
-- **CableDiagnosticsService** — performs cable diagnostics on EtherCAT network testing cable quality, length, and fault detection.
-
-#### New Service Unit Tests
-- **HotConnectService** — 14 unit tests covering group creation, activation, deactivation, history, and signals.
-- **RedundancyService** — 13 unit tests covering redundancy enable/disable, failover, failback, and history.
-- **CableDiagnosticsService** — 10 unit tests covering port testing, all ports testing, history, and clearing.
-
-#### New Performance Tests
-- **HotConnectService performance** — group creation, activation/deactivation, query, and history throughput tests.
-- **RedundancyService performance** — enable/disable, failover, history, and query throughput tests.
-- **CableDiagnosticsService performance** — single port, all ports, history, and query throughput tests.
-
-### Changed
-- Updated version to 1.5.0
-
-## [1.4.0] - 2026-06-19
-
-### Added
-
-#### New Service Unit Tests
-- **StateMachineService** — 14 unit tests covering state transitions, validation, history, and recovery.
-- **ErrorHandlingService** — 13 unit tests covering error detection, classification, recovery, and history.
-
-#### New Plugin Integration Tests
-- **SimulationPlugin** — 16 integration tests for EtherCAT bus simulation plugin.
-- **CalibrationPlugin** — 17 integration tests for device calibration wizard plugin.
-- **DocumentationPlugin** — 19 integration tests for documentation browsing and search plugin.
-
-#### New Performance Tests
-- **StateMachineService performance** — throughput, latency, and memory stability tests.
-- **ErrorHandlingService performance** — throughput, latency, and memory stability tests.
-- **DiagnosticReportService performance** — throughput, latency, and memory stability tests.
-
-### Changed
-- Updated version to 1.4.0
-
-## [1.3.0] - 2026-06-19
-
-### Added
-
-#### New Services (Unit Tested)
-- **MasterApiService** — EtherCAT master lifecycle management (create, activate, deactivate) with state tracking and slave configuration.
-- **DomainService** — EtherCAT domain management with PDO entry registration, domain processing, and data access.
-- **SyncManagerService** — Sync Manager configuration with PDO assignment, direction control, and watchdog settings.
-
-#### New Plugins
-- **DiagramPlugin** — Network topology diagram visualization using QPainter with node management and antialiased rendering.
-- **FormulaPlugin** — Mathematical formula calculator with expression parser supporting +, -, *, /, and parentheses.
-- **ScriptLibraryPlugin** — Script library manager with pre-loaded EtherCAT scripts, list navigation, and editor.
-
-#### Performance Tests
-- MasterApiService performance tests (throughput, latency, signal emission)
-- DomainService performance tests (creation, PDO registration, processing, queries)
-- SyncManagerService performance tests (configuration, PDO assignment, queries)
-
-#### New Unit Tests
-- MasterApiService unit tests (creation, activation, deactivation, error handling)
-- DomainService unit tests (domain creation, PDO registration, processing, data access)
-- SyncManagerService unit tests (configuration, PDO assignment, direction, watchdog)
-- ConnectionPool unit tests (acquire, release, health, exhaustion)
-- StartupOptimizer unit tests (lazy init, metrics, service registration)
-- DataCache unit tests (get/put, batch operations, eviction, prefetch, stats)
-- BatchProcessor unit tests (start, cancel, progress, results)
-
-### Changed
-- Updated version to 1.3.0
-
-## [1.2.0] - 2026-06-19
-
-### Added
-
-#### Performance Optimization Services
-
-- **ConnectionPool** — TCP connection pooling for daemon communication with health checking and automatic reconnection.
-- **StartupOptimizer** — Lazy initialization, parallel initialization, and preloading of frequently used data.
-- **DataCache** — Specialized cache for SDO/PDO data with batch operations, prefetching, and statistics.
-- **BatchProcessor** — Batch operations for multiple SDO/state requests with progress tracking and cancellation.
-
-#### Release Preparation
-
-- Updated version to 1.2.0 in CMakeLists.txt
-- Added DEB package generation script
-- Added RPM package generation script
-- Added AppImage generation script
-- Added source code package generation script
-
-### Changed
-
-- Enhanced CacheService with batch operations and prefetching capabilities
-- Improved AsyncOperationManager with better error handling and progress tracking
-- Optimized MemoryPool with better allocation strategies
-
-### Testing
-
-- 118 tests covering models, adapters, plugins, services, integration, and boundary cases
-- 15 release smoke tests that must pass before packaging
-- Test categories: model tests, adapter tests, UI state tests, integration tests, performance tests
-- Offscreen Qt platform for headless CI testing
-
-## [Unreleased]
-
-### Added
-
-#### New Services
-
-- **CacheService** — Generic LRU cache with TTL expiration for SDO, topology, PDO, and ESI data. Thread-safe via `QReadWriteLock` with per-cache-type configuration.
-- **AsyncOperationManager** — Priority-queued async operations with configurable concurrency (default 4), timeout handling (default 30s), cancellation support, and progress tracking.
-- **WatchdogService** — EtherCAT watchdog monitoring with per-slave status tracking, timeout/trigger counters, and EventBus integration for topology changes.
-- **SafetyController** — Safety boundary validation for state transitions, SDO writes during Free Run, and Free Run start conditions. Prevents dangerous operations without explicit confirmation.
-- **DiagnosticReportService** — Comprehensive diagnostic reports covering topology, slave status, performance metrics, DC sync, and watchdog status. Export in Markdown and CSV formats.
-- **ProjectManagerService** — Project lifecycle management (create/open/save/export/import) with `.ecatproj` JSON files, recent projects list, and unsaved-change tracking.
-- **ConfigurationService** — Structured configuration management for master, slave, network, timing, and safety settings with JSON serialization and validation.
-- **AlarmService** — System alarm management with severity levels (Info/Warning/Error/Critical), categories (Communication/Device/Network/Configuration), and lifecycle states (Active/Acknowledged/Cleared).
-- **LoggingService** — Centralized logging with file rotation (10MB max per file, 10 files), level filtering (Debug through Fatal), and category-based organization.
-- **ChartService** — Chart data management for DashboardPlugin and ChartPlugin with support for line, bar, pie, scatter, and gauge chart types.
-- **BatchOperationService** — Batch SDO read/write, state change, and topology scan operations with progress tracking and cancellation.
-- **ScriptingService** — Embedded JavaScript scripting engine (optional, requires `Qt6::Qml` and `ECAT_SCRIPTING_ENABLED`) with access to SDO, topology, and state operations.
-
-#### New Plugins
-
-- **DashboardPlugin** — Configurable dashboard with gauges, counters, and sparkline charts in a grid layout. Uses ChartService for data visualization.
-- **ChartPlugin** — Data visualization workspace with line, bar, pie, scatter, and gauge charts. Supports data source selection and chart export.
-- **AutomationPlugin** — JavaScript script editor with syntax highlighting, script management, output console, and execution controls. Uses ScriptingService.
-- **ProtocolAnalyzerPlugin** — EtherCAT protocol analysis with frame capture, protocol decode (EtherCAT/CoE/EoE/FoE/SoE), filtering, statistics, and PCAP export.
-- **ProjectPlugin** — Project management workspace with tree-based navigation, configuration pages, and import/export capabilities.
-- **AlarmPlugin** — System alarm display with filtering by level/category/state, acknowledge/clear actions, and alarm history export.
-- **OscilloscopePlugin** — Real-time multi-channel waveform display with configurable timebase, trigger modes, cursor measurements, and FFT analysis.
-- **DataPipelinePlugin** — Data pipeline management with pipeline configuration, stage management, and monitoring UI.
-- **DeviceManagerPlugin** — Device discovery, configuration, and status monitoring UI.
-- **MasterManagerPlugin** — EtherCAT master management with master info display, diagnostics, restart, and log viewer.
-
-#### New Utilities
-
-- **MemoryPool\<T\>** — Fixed-size object pool for frequent allocations. Thread-safe, with overflow fallback to heap allocation and statistics tracking (peak usage, overflow count).
-- **ConfirmDialogBuilder** — Fluent builder for confirmation dialogs with impact details and safety labels.
-- **ActionAvailabilityHelper** — Central guard for enabling/disabling actions based on selection and connection state.
-
-#### Architecture
-
-- **Plugin System** — WorkspacePlugin interface with PluginRegistry for lifecycle management, EventBus for inter-plugin communication, and ServiceContainer for dependency injection.
-- **Service Layer** — Service coverage spans SDO, topology, watch, DC sync, AL events, signals, performance monitoring, ESI, bus statistics, caching, async operations, watchdog, safety, diagnostics, project management, configuration, alarms, logging, charts, batch operations, scripting, export, data pipeline, device management, firmware update, report generation, master management, distributed clock, PDO mapping, DC sync precision, online diagnostics, multi-master, real-time performance, error analysis, and hardware verification.
-- **Safety Model** — Explicit safety boundaries with local-only review paths, confirmation dialogs for dangerous operations, and SafetyController validation.
-
-### Changed
-
-- MainWindow refactored into 31 partial `.cpp` files in `workspaces/` for maintainability
-- ServiceContainer service count is defined by the corresponding source tree
-- EventBus maintained 8 event types with type-safe emit methods
-- PluginRegistry supports null/empty/duplicate id guards
-- All service headers include comprehensive documentation comments
-- Plugin count is defined by the corresponding source tree
-- Registered tests across unit, integration, performance, and boundary categories are defined by the corresponding build output
-
-### Fixed
-
-- **AsyncOperationManager** — Fixed SEGFAULT in destructor by waiting for thread pool to complete before deleting operations
-
-### Testing
-
-- Registered tests covering models, adapters, plugins, services, integration, and boundary cases are defined by the corresponding build output
-- Test files on disk are defined by the corresponding source tree
-- Release smoke coverage should be regenerated for the target packaging build
-- Test categories: model tests, adapter tests, UI state tests, integration tests, performance tests
-- Offscreen Qt platform for headless CI testing
+- Clean stale root files and fix .gitignore
+- Remove AI development artifacts (AGENTS.md)
+- Add .clang-format, .editorconfig, .clang-tidy
+- Remove 8 duplicate service pairs, 5 dead services, 6 experimental plugins
+- Remove 47 orphaned tests and reorganize test directory
+- Split tests/CMakeLists.txt into per-directory files
+- Remove helper script used for CMakeLists.txt split
+- Remove 9 zero-reference dead services (~2100 lines)
+- Hide 37 stub plugins for production release (84 to 47 visible tabs)
+- Reduce UI noise (54 to 28 visible tabs), wire up 3 orphaned tests
+- Week 1 verification — 52/52 tests pass, GUI smoke test OK
+
+### Removed
+
+- Unused Qt6::Charts dependency
+- Duplicate includes from 15 workspace files
+- Unused chrono include from FreeRunController
+- 8 duplicate service pairs, 5 dead services, 6 experimental plugins
+- 47 orphaned tests
+- 9 zero-reference dead services (~2100 lines)
+- Helper script used for CMakeLists.txt split
+- 37 stub plugins from production visibility
+- AI development artifacts (AGENTS.md)
+- Stale root files and build artifacts from git tracking
+- Stale experimental plugin references
+
+### Documentation
+
+- Restructure project with inline comments across all 28 workspace files
+- Add modern inline comments across all source files
+- Add one-month comprehensive development plan
+- Add file-level purpose comments to 15 workspace files
+- Add method-level comments to MainWindow, EcatClient, EcatDaemon, EthercatCliBackend
+- Add 28 section comments to MainWindowUiBuild.cpp
+- Add 24 section comments to MainWindowCommandPalette.cpp
+- Add section comments to MainWindowTheme.cpp
+- Add section comments to SdoTargetPanel and SdoBookmarks workspace files
+- Add section comments to Manual, ContextMenus, and Theme files
+- Add method-level comments to MainWindowStateMachine and MainWindowTopologyUi
+- Add section markers and inline comments to workspace files
+- Massively expand comment density across all source files
+- Add QSS and struct field comments to Theme, Manual, Texts
+- Add context menu and command palette comments
+- Add method-level comments to low-coverage workspace files
+- Update AGENTS.md for infra and workspaces directories
+- Update AGENTS.md to reflect new directory structure
+- Add phase 4 design spec and implementation plan
+- Add API documentation to core interfaces (EcatService.h, EthercatTypes.h, JsonProtocol.h, EcatClient.h)
+- Add API documentation to 10 key service headers
+- Add API documentation to 9 key plugin headers
+- Enhance 19 workspace partial file-level documentation
+- V2 plugin architecture design — 4-week refactor + feature expansion
+- 4-week v2 implementation plan — 27 tasks, plugin arch + daemon migration + features
+- V2 comprehensive design — plugin activation + topology + DC + ESI + bus stats
+- V2 month plan — 28 tasks, 4 weeks, plugin activation + topology + DC + ESI + bus stats
+- Handoff document for mimoCode transition
+- Foundation hardening design
+- Foundation hardening plan
+- Mark experimental surfaces opt-in
+- Align public project facts
+- Align TwinCAT benchmark facts
+- Tighten EtherCAT gap facts
+- Clarify native backend coverage
+- Align release package version
+- Remove stale service count comments
+- Remove stale plugin count comments
+- Contextualize quality claims
+- Remove stale service count claims
+- Remove remaining service count claims
+- Avoid static plugin and test source counts
+- Align plugin guide CMake requirement
+- Soften unverifiable TwinCAT scoring
+- Remove remaining TwinCAT percentage scores
+- Avoid static language coverage counts
+- Temper absolute product positioning
+- Temper TwinCAT superiority claims
+- Avoid static localization and layout counts
+- Temper benchmark quality ratings
+- Qualify field readiness status
+- Temper README commissioning claims
+- Qualify release and native backend claims
+- Avoid static ctest count claims
+- Avoid static test source counts
+- Qualify TwinCAT performance comparison
+- Qualify TwinCAT parity claims
+- Qualify TwinCAT workflow parity
+- Temper benchmark advantage claims
+- Avoid static release quality claims
+- Qualify release performance claims
+- Avoid stale release quality claims
+- Avoid absolute release coverage claims
+- Cover lowercase full coverage claim
+- Update architecture documentation with new features
+- Remove deleted service references from ARCHITECTURE.md
