@@ -73,6 +73,8 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -280,6 +282,8 @@ set_tests_properties(plugin_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLAT
 add_executable(service_integration_test
     service_integration_test.cpp
     ../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -520,6 +524,8 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
+    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp

@@ -152,6 +152,7 @@ add_executable(ui_creation_test
     ../../../apps/ecat-studio/utils/TextHelpers.cpp
     ../../../apps/ecat-studio/utils/TextHelpers.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
+    ../../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
