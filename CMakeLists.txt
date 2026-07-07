@@ -29,25 +29,29 @@ find_package(Qt6 REQUIRED COMPONENTS Core Network Widgets Test LinguistTools)
 find_package(Qt6 COMPONENTS Qml QUIET)
 
 # ── open62541 (OPC UA) ───────────────────────────────────────────────
-# Currently unused — no code includes open62541 headers.
-# Uncomment the block below when OPC UA client/server support is implemented.
-# include(FetchContent)
-# FetchContent_Declare(
-#     open62541
-#     GIT_REPOSITORY https://github.com/open62541/open62541.git
-#     GIT_TAG        v1.4.10
-#     GIT_SHALLOW    TRUE
-# )
-# set(UA_ENABLE_AMALGAMATION OFF CACHE BOOL "" FORCE)
-# set(UA_ENABLE_METHODCALLS ON CACHE BOOL "" FORCE)
-# set(UA_ENABLE_SUBSCRIPTIONS ON CACHE BOOL "" FORCE)
-# set(UA_ENABLE_SUBSCRIPTIONS_EVENTS ON CACHE BOOL "" FORCE)
-# set(UA_ENABLE_HISTORIZING OFF CACHE BOOL "" FORCE)
-# set(UA_ENABLE_ENCRYPTION OFF CACHE BOOL "" FORCE)
-# set(UA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-# set(UA_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-# set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-# FetchContent_MakeAvailable(open62541)
+# Uses a pre-built amalgamated open62541 library.
+# To rebuild: cd _deps/open62541-src && mkdir build && cd build &&
+#   cmake .. -DUA_ENABLE_AMALGAMATION=ON -DBUILD_SHARED_LIBS=OFF \
+#            -DUA_BUILD_EXAMPLES=OFF -DUA_BUILD_UNIT_TESTS=OFF && make -j
+set(OPEN62541_DIR "${CMAKE_SOURCE_DIR}/build/_deps/open62541-src/build")
+if(EXISTS "${OPEN62541_DIR}/bin/libopen62541.a")
+    message(STATUS "Using pre-built open62541: ${OPEN62541_DIR}")
+    add_library(open62541 STATIC IMPORTED GLOBAL)
+    set_target_properties(open62541 PROPERTIES
+        IMPORTED_LOCATION "${OPEN62541_DIR}/bin/libopen62541.a"
+    )
+    set(open62541_SOURCE_DIR "${OPEN62541_DIR}/..")
+    set(open62541_BINARY_DIR "${OPEN62541_DIR}")
+    target_include_directories(open62541 INTERFACE
+        "${OPEN62541_DIR}"  # for open62541.h (amalgamated)
+    )
+else()
+    message(WARNING "open62541 not found — OPC UA support disabled. "
+            "Run the rebuild command above in _deps/open62541-src/")
+    add_library(open62541 INTERFACE)  # dummy target
+    set(open62541_SOURCE_DIR "")
+    set(open62541_BINARY_DIR "")
+endif()
 
 # Shared libraries
 add_subdirectory(src/core)    # EthercatTypes, JsonProtocol

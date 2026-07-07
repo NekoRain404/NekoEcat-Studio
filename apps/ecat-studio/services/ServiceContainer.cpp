@@ -247,6 +247,7 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     pdoConfiguration_ = new PdoConfigurationService(this);
     pdoMappingOptimization_ = new PdoMappingOptimizationService(this);
     opState_ = new OpStateService(this);
+    opcUaServer_ = new OpcUaServer(client_, this);
     oscilloscope_ = new OscilloscopeService(this);
     protocolAnalyzer_ = new ProtocolAnalyzerService(this);
     workflowAnalytics_ = new WorkflowAnalyticsService(this);

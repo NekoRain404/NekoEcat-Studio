@@ -176,6 +176,7 @@ add_executable(ecat-studio
     services/DcSyncPrecisionService.h         services/DcSyncPrecisionService.cpp
     services/DcSyncOptimizerService.h        services/DcSyncOptimizerService.cpp
     services/SdoCacheService.h                 services/SdoCacheService.cpp
+    services/OpcUaServer.h                         services/OpcUaServer.cpp
     services/PdoMappingService.h               services/PdoMappingService.cpp
     services/CoEService.h                      services/CoEService.cpp
     services/FoEService.h                      services/FoEService.cpp
@@ -438,7 +439,7 @@ if(Qt6Qml_FOUND)
     target_compile_definitions(ecat-studio PRIVATE ECAT_SCRIPTING_ENABLED)
 endif()
 
-target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core)
+target_link_libraries(ecat-studio PRIVATE Qt6::Core Qt6::Network Qt6::Widgets ecat_core open62541)
 
 # ── Precompiled Headers ──────────────────────────────────────────────
 target_precompile_headers(ecat-studio PRIVATE pch.h)

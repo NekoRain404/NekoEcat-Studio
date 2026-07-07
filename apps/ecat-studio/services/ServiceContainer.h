@@ -180,6 +180,7 @@ class FreeRunMonitoringService;
 class PdoConfigurationService;
 class PdoMappingOptimizationService;
 class OpStateService;
+class OpcUaServer;
 class OscilloscopeService;
 class ProtocolAnalyzerService;
 class WorkflowAnalyticsService;
@@ -396,6 +397,8 @@ public:
   PdoMappingOptimizationService *pdoMappingOptimization() const { return pdoMappingOptimization_; }
   /// Operational state service.
   OpStateService *opState() const { return opState_; }
+  /// OPC UA server exposing EtherCAT data.
+  OpcUaServer *opcUaServer() const { return opcUaServer_; }
   /// Oscilloscope service for signal capture.
   OscilloscopeService *oscilloscope() const { return oscilloscope_; }
   /// Protocol analyzer service.
@@ -509,6 +512,7 @@ private:
   PdoConfigurationService *pdoConfiguration_ = nullptr;
   PdoMappingOptimizationService *pdoMappingOptimization_ = nullptr;
   OpStateService *opState_ = nullptr;
+  OpcUaServer *opcUaServer_ = nullptr;
   OscilloscopeService *oscilloscope_ = nullptr;
   ProtocolAnalyzerService *protocolAnalyzer_ = nullptr;
   WorkflowAnalyticsService *workflowAnalytics_ = nullptr;
