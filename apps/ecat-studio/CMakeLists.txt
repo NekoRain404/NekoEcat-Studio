@@ -331,6 +331,7 @@ target_include_directories(ecat-studio PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/models
     ${CMAKE_CURRENT_SOURCE_DIR}/adapters
+    ${open62541_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/detail
     ${CMAKE_CURRENT_SOURCE_DIR}/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/infra

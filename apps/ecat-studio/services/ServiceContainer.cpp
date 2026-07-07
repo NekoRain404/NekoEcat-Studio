@@ -127,6 +127,7 @@
 #include "PdoConfigurationService.h"
 #include "PdoMappingOptimizationService.h"
 #include "OpStateService.h"
+#include "OpcUaServer.h"
 #include "plugins/oscilloscope/OscilloscopeService.h"
 #include "plugins/protocol/ProtocolAnalyzerService.h"
 #include "WorkflowAnalyticsService.h"
