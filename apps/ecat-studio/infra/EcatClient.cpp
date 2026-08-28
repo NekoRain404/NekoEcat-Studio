@@ -19,8 +19,10 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
     if (connectTimeoutTimer_) connectTimeoutTimer_->stop();
     setConnectionState(ConnectionState::Connected);
     consecutiveFailures_ = 0;
+    connectFailures_ = 0;
     pendingPing_ = false;
     reconnectIntervalMs_ = 2000;
+    if (requestSweepTimer_) requestSweepTimer_->start(2000);
     emit connected();
     emit reconnected();
     if (autoReconnectEnabled_) setupAutoReconnect();
@@ -37,33 +39,54 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
       it.value()(error);
     }
     emit disconnected();
+    // Distinguish connection loss from per-request failures so consumers can
+    // flush connection-scoped state without reacting to individual errors.
+    emit connectionLost();
+    // No requests can be in flight while disconnected; stop the sweep timer.
+    if (requestSweepTimer_) requestSweepTimer_->stop();
     // Start auto-reconnect if enabled.
-    if (autoReconnectEnabled_ && !reconnectTimer_->isActive()) {
-      reconnectTimer_->start(reconnectIntervalMs_);
-    }
+    scheduleReconnect();
   });
   connect(&socket_, &QTcpSocket::readyRead, this, &EcatClient::readSocket);
   connect(&socket_, &QTcpSocket::errorOccurred, this,
           [this](QAbstractSocket::SocketError error) {
             if (connectTimeoutTimer_) connectTimeoutTimer_->stop();
+
+            // Only count transport failures that happen while a connect is
+            // being attempted (initial or reconnect); errors on an established
+            // connection are followed by the disconnected signal instead.
+            const bool connectAttemptFailed =
+                (connectionState_ == ConnectionState::Connecting ||
+                 connectionState_ == ConnectionState::Reconnecting);
+            if (connectAttemptFailed) {
+              ++connectFailures_;
+            }
+
             if (error == QAbstractSocket::ConnectionRefusedError) {
-              consecutiveFailures_++;
-              emit errorMessage(QString("Connection refused (attempt %1)").arg(consecutiveFailures_));
+              emit errorMessage(QString("Connection refused (attempt %1)").arg(connectFailures_));
             } else if (error == QAbstractSocket::SocketTimeoutError) {
               emit errorMessage("Connection timed out");
             } else {
               emit errorMessage(socket_.errorString());
             }
-            if (connectionState_ == ConnectionState::Connecting) {
+
+            if (connectAttemptFailed) {
               setConnectionState(ConnectionState::Disconnected);
+              if (connectFailures_ >= kMaxConnectAttempts) {
+                emit reconnectFailed(kMaxConnectAttempts);
+              } else {
+                // A failed initial connect never fires the disconnected
+                // signal, so the reconnect timer must be started here.
+                scheduleReconnect();
+              }
             }
           });
 
-  // Request timeout sweep — evicts stale handlers every 2s.
+  // Request timeout sweep — evicts stale handlers every 2s.  Only active
+  // while connected (no requests can be in flight otherwise).
   requestSweepTimer_ = new QTimer(this);
   requestSweepTimer_->setInterval(2000);
   connect(requestSweepTimer_, &QTimer::timeout, this, &EcatClient::sweepTimedOutRequests);
-  requestSweepTimer_->start();
 
   // Initialize auto-reconnect timer (single-shot, started on disconnect).
   reconnectTimer_ = new QTimer(this);
@@ -79,7 +102,7 @@ void EcatClient::connectToDaemon() {
   }
   setConnectionState(ConnectionState::Connecting);
   setupConnectTimeout();
-  socket_.connectToHost(QHostAddress::LocalHost, 5877);
+  socket_.connectToHost(host_, port_);
 }
 
 // Current connection state (Disconnected → Connecting → Connected → Reconnecting).
@@ -101,9 +124,12 @@ void EcatClient::connectToHost(const QHostAddress &address, quint16 port) {
       connectionState_ == ConnectionState::Connecting) {
     return;
   }
+  // Remember the target so auto-reconnect dials the SAME host/port.
+  host_ = address;
+  port_ = port;
   setConnectionState(ConnectionState::Connecting);
   setupConnectTimeout();
-  socket_.connectToHost(address, port);
+  socket_.connectToHost(host_, port_);
 }
 
 // Set up connection timeout timer — aborts if connect hangs beyond kConnectTimeoutMs.
@@ -112,10 +138,17 @@ void EcatClient::setupConnectTimeout() {
     connectTimeoutTimer_ = new QTimer(this);
     connectTimeoutTimer_->setSingleShot(true);
     connect(connectTimeoutTimer_, &QTimer::timeout, this, [this]() {
-      if (connectionState_ == ConnectionState::Connecting) {
+      if (connectionState_ == ConnectionState::Connecting ||
+          connectionState_ == ConnectionState::Reconnecting) {
         socket_.abort();
         setConnectionState(ConnectionState::Disconnected);
+        ++connectFailures_;
         emit errorMessage(QString("Connection timed out after %1ms").arg(kConnectTimeoutMs));
+        if (connectFailures_ >= kMaxConnectAttempts) {
+          emit reconnectFailed(kMaxConnectAttempts);
+        } else {
+          scheduleReconnect();
+        }
       }
     });
   }
@@ -391,6 +424,14 @@ void EcatClient::send(const QString &method, const QJsonObject &params,
   // the response handler, and write the newline-delimited JSON frame.
   if (!isConnected()) {
     emit errorMessage("ecatd is not connected");
+    // Fail the caller's handler so pending entries are not left orphaned.
+    if (handler) {
+      QJsonObject errorResult;
+      errorResult["error"] = true;
+      errorResult["errorMessage"] = "ecatd is not connected";
+      errorResult["errorCode"] = -1;
+      handler(errorResult);
+    }
     return;
   }
 
@@ -697,6 +738,7 @@ void EcatClient::enableAutoReconnect(bool enable) {
     if (reconnectTimer_) reconnectTimer_->stop();
     if (heartbeatTimer_) heartbeatTimer_->stop();
     consecutiveFailures_ = 0;
+    connectFailures_ = 0;
   } else if (connectionState_ == ConnectionState::Connected) {
     setupAutoReconnect();
   }
@@ -727,8 +769,18 @@ void EcatClient::setupAutoReconnect() {
           pendingPing_ = false;
           consecutiveFailures_++;
           if (consecutiveFailures_ >= kMaxConsecutiveFailures) {
+            // The TCP link is alive but the daemon is unreachable. Declare the
+            // connection dead and abort the socket so the normal disconnect
+            // path runs (handler flush, disconnected/connectionLost signals,
+            // reconnect scheduling) instead of leaving a permanent phantom
+            // Disconnected state.  State is set first so the reconnect cannot
+            // be skipped even if no disconnected event is delivered.
             setConnectionState(ConnectionState::Disconnected);
-            emit reconnectFailed(kMaxConsecutiveFailures);
+            socket_.abort();
+            // Belt-and-suspenders in case the socket was already dead:
+            // make sure a reconnect is armed even if no disconnected event
+            // was delivered.
+            scheduleReconnect();
           }
         }
       });
@@ -746,28 +798,39 @@ void EcatClient::setupAutoReconnect() {
   reconnectIntervalMs_ = 2000;
 }
 
-// Attempt to reconnect to the daemon with exponential backoff.
+// Capture whether a reconnect should be armed, avoiding double-starts when a
+// disconnect is signalled by more than one path (socket disconnected vs. heartbeat).
+void EcatClient::scheduleReconnect() {
+  if (!autoReconnectEnabled_) return;
+  if (!reconnectTimer_) return;
+  if (reconnectTimer_->isActive()) return;
+  reconnectTimer_->start(reconnectIntervalMs_);
+}
+
+// Attempt to reconnect to the configured daemon host with exponential backoff.
 void EcatClient::attemptReconnect() {
   if (!autoReconnectEnabled_) return;
   if (connectionState_ == ConnectionState::Connected) return;
 
-  if (consecutiveFailures_ >= kMaxConsecutiveFailures) {
-    emit reconnectFailed(kMaxConsecutiveFailures);
+  if (connectFailures_ >= kMaxConnectAttempts) {
+    emit reconnectFailed(kMaxConnectAttempts);
     return;
   }
 
-  consecutiveFailures_++;
-  emit reconnecting(consecutiveFailures_, reconnectIntervalMs_);
+  emit reconnecting(connectFailures_ + 1, reconnectIntervalMs_);
   setConnectionState(ConnectionState::Reconnecting);
   setupConnectTimeout();
-  socket_.connectToHost(QHostAddress::LocalHost, 5877);
+  socket_.connectToHost(host_, port_);
 
-  // Schedule next attempt if this one doesn't succeed within 5s.
+  // Schedule next attempt if this one doesn't succeed within 5s.  The
+  // connect-failure accounting and the reconnectFailed signal live in
+  // errorOccurred / setupConnectTimeout, so a failed attempt is counted
+  // exactly once.  Here we only advance the backoff and re-arm the timer.
   QTimer::singleShot(5000, this, [this]() {
-    if (connectionState_ != ConnectionState::Connected && autoReconnectEnabled_) {
+    if (connectionState_ != ConnectionState::Connected && autoReconnectEnabled_ && connectFailures_ < kMaxConnectAttempts) {
       // Exponential backoff: 2s → 4s → 8s → 16s → 30s (cap).
       reconnectIntervalMs_ = qMin(reconnectIntervalMs_ * 2, kMaxReconnectMs);
-      reconnectTimer_->start(reconnectIntervalMs_);
+      scheduleReconnect();
     }
   });
 }

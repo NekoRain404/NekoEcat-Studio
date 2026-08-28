@@ -55,6 +55,11 @@ public:
     // Find language by locale code.  Returns English if not found.
     Language fromLocaleCode(const QString &code) const;
 
+    // Qt .ts/.qm basename suffix for a language (e.g. "zh", "zh_TW").  These
+    // follow the translation-file naming under translations/, which differs
+    // from the BCP-47 localeCode (e.g. "zh-CN").
+    QString translationFileSuffix(Language lang) const;
+
     // Display name for a language enum.
     QString displayName(Language lang) const;
 

@@ -184,6 +184,9 @@ private:
   WorkspaceBoundaryKind workspaceBoundaryKindForPage(const QWidget *page) const;
   /// Records the current workspace index in the navigation history.
   void recordWorkspaceHistory(int index);
+  /// Marks every pending SDO read/write/verification as failed.  Called on
+  /// connection loss — NOT on individual request errors.
+  void flushPendingSdoState(const QString &reason);
   /// Navigates to the previous workspace in the back-stack history.
   void goWorkspaceBack();
   /// Navigates to the next workspace in the forward-stack history.

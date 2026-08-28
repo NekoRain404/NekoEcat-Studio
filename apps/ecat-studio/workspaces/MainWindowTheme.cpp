@@ -36,11 +36,20 @@ void MainWindow::applySettings()
 
 /* ── Dynamic language switching ─────────────────────────────────────
    Unloads the old .qm, loads the new one, and triggers a full workspace
-   rebuild so every plugin picks up the new tr() translations. */
-void MainWindow::applyLanguage(const QString &localeCode)
+   rebuild so every plugin picks up the new tr() translations.
+
+   The argument is the persisted language value, which is the display name
+   (e.g. "简体中文") as stored by the settings dialog.  It is resolved to a
+   Language enum, and the BCP-47/translation-file suffix is derived from the
+   enum so both the LanguageManager and the .qm basename use the right code. */
+void MainWindow::applyLanguage(const QString &displayName)
 {
-    // Map locale code to Language enum
-    Language lang = LanguageManager::instance().fromLocaleCode(localeCode);
+    // Map display name (or a legacy persisted locale code) to Language enum.
+    const auto &mgr = LanguageManager::instance();
+    Language lang = mgr.fromDisplayName(displayName);
+    if (lang == Language::English && displayName != QStringLiteral("English")) {
+        lang = mgr.fromLocaleCode(displayName);
+    }
 
     // Remove old translator
     if (translator_) {
@@ -52,8 +61,8 @@ void MainWindow::applyLanguage(const QString &localeCode)
     // Load new .qm if not English
     if (lang != Language::English) {
         translator_ = new QTranslator(this);
-        QString qmFile = QStringLiteral("nekoecat_%1").arg(localeCode);
-        if (translator_->load(qmFile, QStringLiteral(":/translations"))) {
+        QString qmFile = QStringLiteral("nekoecat_%1").arg(mgr.translationFileSuffix(lang));
+        if (translator_->load(qmFile, QStringLiteral(":/i18n"))) {
             qApp->installTranslator(translator_);
         } else {
             delete translator_;

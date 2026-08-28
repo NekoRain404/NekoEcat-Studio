@@ -428,6 +428,7 @@ signals:
   void connected();                                  ///< Emitted when TCP connection is established.
   void connectionStateChanged(ConnectionState state); ///< Emitted on every state transition.
   void disconnected();                               ///< Emitted when connection is lost.
+  void connectionLost();                             ///< Emitted when an established connection is dropped (distinct from per-request failures).
   void errorMessage(const QString &message);         ///< Emitted on protocol or transport errors.
   void reconnected();                                ///< Emitted after successful auto-reconnect.
   void reconnecting(int attempt, int intervalMs);    ///< Emitted before each reconnect attempt.
@@ -497,6 +498,7 @@ private:
 
   void send(const QString &method, const QJsonObject &params, Handler handler);
   void handleLine(const QByteArray &line);
+  void scheduleReconnect();
 
   QTcpSocket socket_;
   QByteArray buffer_;
@@ -514,14 +516,18 @@ private:
   void sweepTimedOutRequests();
 
   // Auto-reconnect state.
+  QHostAddress host_ = QHostAddress::LocalHost;  // Configured daemon host.
+  quint16 port_ = 5877;                          // Configured daemon port.
   bool autoReconnectEnabled_ = true;
   QTimer *heartbeatTimer_ = nullptr;    // Pings daemon every 5s.
   QTimer *reconnectTimer_ = nullptr;    // Fires at increasing intervals.
-  int consecutiveFailures_ = 0;         // Reset on successful ping.
+  int consecutiveFailures_ = 0;         // Missed heartbeat pings; reset on pong.
+  int connectFailures_ = 0;             // Consecutive failed TCP connects; reset on connect.
   bool pendingPing_ = false;            // True while awaiting pong response.
   int reconnectIntervalMs_ = 2000;      // Exponential backoff: 2->4->8->16->30s.
   static constexpr int kMaxReconnectMs = 30000;
-  static constexpr int kMaxConsecutiveFailures = 3;
+  static constexpr int kMaxConsecutiveFailures = 3;  // Heartbeat misses before declaring the link dead.
+  static constexpr int kMaxConnectAttempts = 3;      // TCP connect attempts before giving up.
   void setupAutoReconnect();
 
   // Connection timeout tracking.

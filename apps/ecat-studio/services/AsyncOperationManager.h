@@ -156,5 +156,11 @@ private:
   int runningCount_ = 0;                    // Currently running operations
 
   QMap<QString, Operation *> operations_;   // All operations by ID
-  QQueue<QString> queue_;                   // Pending operation queue
+  QQueue<QString> queue_;                   // Pending operation queue (FIFO; processQueue picks the highest priority entry)
+
+  // Retention bound for finished operations.  Finished operations are kept so
+  // callers can still query result()/progress() shortly after completion, but
+  // they are evicted oldest-first so the map cannot grow without bound.
+  static constexpr int kMaxRetainedOperations = 64;
+  QList<QString> finishedOrder_;            // Finish order, oldest-first, for eviction
 };

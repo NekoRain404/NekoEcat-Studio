@@ -886,6 +886,7 @@ void MainWindow::wireClientSignals() {
     repolish(connectionLabel_);
     log("Connected to ecatd");
     updateDiagnostics("Info", "Runtime", "Connected to ecatd");
+    if (refreshTimer_) refreshTimer_->start();
     updateActionAvailability();
     updateWatchAutoRefresh();
     updateStatusBar();
@@ -898,6 +899,7 @@ void MainWindow::wireClientSignals() {
     repolish(connectionLabel_);
     log("Runtime disconnected");
     updateDiagnostics("Warning", "Runtime", "Disconnected");
+    if (refreshTimer_) refreshTimer_->stop();
     updateWatchAutoRefresh();
     updateActionAvailability();
     updateStatusBar();
@@ -919,65 +921,31 @@ void MainWindow::wireClientSignals() {
   connect(&client_, &EcatClient::reconnected, this, [this] {
     updateDiagnostics("Info", "Runtime", "Reconnected to ecatd");
   });
-  connect(
-      &client_, &EcatClient::errorMessage, this,
-      [this](const QString &message) {
-        log("ERROR: " + message);
-        updateDiagnostics("Error", "Runtime", message);
-        if (!pendingSdoReads_.isEmpty()) {
-          for (auto it = pendingSdoReads_.cbegin();
-               it != pendingSdoReads_.cend(); ++it) {
-            const QStringList parts = it.key().split('|');
-            if (parts.size() == 3) {
-              updateSdoTableEvidence(
-                  parts.value(0).toInt(), parts.value(1), parts.value(2),
-                  QString(), uiText("Failed", "失败"),
-                  uiText("Runtime error while SDO read was pending: %1",
-                         "SDO 读取待返回时发生运行时错误：%1")
-                      .arg(message));
-            }
-          }
-          appendSdoHistory(
-              uiText("Read", "读取"), -1, QString(), QString(), QString(),
-              QString(), uiText("Failed", "失败"),
-              uiText("Runtime error while SDO request(s) were pending: %1",
-                     "SDO 请求待返回时发生运行时错误：%1")
-                  .arg(message));
-          pendingSdoReads_.clear();
-          pendingSdoReadTypes_.clear();
-        }
-        if (!pendingSdoWrites_.isEmpty()) {
-          for (const auto &pending : std::as_const(pendingSdoWrites_)) {
-            appendSdoHistory(uiText("Write", "写入"), pending.value(0).toInt(),
-                             pending.value(1), pending.value(2),
-                             pending.value(3), pending.value(4),
-                             uiText("Failed", "失败"), message);
-            updateSdoTableEvidence(
-                pending.value(0).toInt(), pending.value(1), pending.value(2),
-                pending.value(4), uiText("Failed", "失败"),
-                uiText("SDO write failed before read-back verification: %1",
-                       "SDO 写入在读回校验前失败：%1")
-                    .arg(message));
-          }
-          pendingSdoWrites_.clear();
-        }
-        if (!pendingSdoVerifications_.isEmpty()) {
-          for (const auto &pending : std::as_const(pendingSdoVerifications_)) {
-            appendSdoHistory(
-                uiText("Verify", "校验"), pending.value(0).toInt(),
-                pending.value(1), pending.value(2), pending.value(3),
-                pending.value(4), uiText("Failed", "失败"),
-                uiText("Read-back failed: %1", "读回失败：%1").arg(message));
-            updateSdoTableEvidence(
-                pending.value(0).toInt(), pending.value(1), pending.value(2),
-                pending.value(4), uiText("Failed", "失败"),
-                uiText("Automatic read-back failed after SDO write: %1",
-                       "SDO 写入后的自动读回失败：%1")
-                    .arg(message));
-          }
-          pendingSdoVerifications_.clear();
-        }
-      });
+  connect(&client_, &EcatClient::errorMessage, this, [this](const QString &message) {
+    // Individual request failures (timeouts, runtime errors) affect only their
+    // own request.  Pending SDO state is flushed only on connection loss via
+    // connectionLost() — never for a single unrelated request failure.
+    log("ERROR: " + message);
+    updateDiagnostics("Error", "Runtime", message);
+  });
+  connect(&client_, &EcatClient::connectionLost, this,
+          [this] {
+            flushPendingSdoState(uiText("Connection lost", "连接已断开"));
+          });
+  connect(&client_, &EcatClient::reconnectFailed, this,
+          [this](int maxAttempts) {
+            connectionLabel_->setText(uiText("Reconnect failed (check runtime)",
+                                             "重连失败（请检查运行时）"));
+            connectionLabel_->setProperty("state", "error");
+            repolish(connectionLabel_);
+            log(QString("Reconnect failed after %1 attempt(s)").arg(maxAttempts));
+            updateDiagnostics(
+                "Error", "Runtime",
+                uiText("Reconnect failed after %1 attempt(s)",
+                       "重连失败：%1 次尝试后放弃")
+                    .arg(maxAttempts));
+            updateStatusBar();
+          });
   connect(&client_, &EcatClient::daemonInfo, this, [this](const QString &text) {
     log("Runtime: " + text);
     updateStatusBar();
@@ -1169,10 +1137,72 @@ void MainWindow::wireTimers() {
   refreshTimer_ = new QTimer(this);
   refreshTimer_->setInterval(3000);
   connect(refreshTimer_, &QTimer::timeout, this, &MainWindow::requestRefresh);
-  refreshTimer_->start();
+  // Only run the refresh timer while connected; requestRefresh() no-ops
+  // otherwise.  The connected/disconnected handlers start and stop it.
+  if (client_.isConnected()) {
+    refreshTimer_->start();
+  }
 
   watchRefreshTimer_ = new QTimer(this);
   connect(watchRefreshTimer_, &QTimer::timeout, this,
           [this] { refreshWatchList(true); });
   updateWatchAutoRefresh();
+}
+
+// Mark every pending SDO read/write/verification as failed.  Called only on
+// connection loss — never for individual request errors.
+void MainWindow::flushPendingSdoState(const QString &reason) {
+  if (!pendingSdoReads_.isEmpty()) {
+    for (auto it = pendingSdoReads_.cbegin(); it != pendingSdoReads_.cend(); ++it) {
+      const QStringList parts = it.key().split('|');
+      if (parts.size() == 3) {
+        updateSdoTableEvidence(
+            parts.value(0).toInt(), parts.value(1), parts.value(2), QString(),
+            uiText("Failed", "失败"),
+            uiText("Connection lost while SDO read was pending: %1",
+                   "连接中断，SDO 读取未完成：%1")
+                .arg(reason));
+      }
+    }
+    appendSdoHistory(uiText("Read", "读取"), -1, QString(), QString(),
+                     QString(), QString(), uiText("Failed", "失败"),
+                     uiText("Connection lost while SDO request(s) were pending: %1",
+                            "连接中断，SDO 请求未完成：%1")
+                         .arg(reason));
+    pendingSdoReads_.clear();
+    pendingSdoReadTypes_.clear();
+  }
+  if (!pendingSdoWrites_.isEmpty()) {
+    for (const auto &pending : std::as_const(pendingSdoWrites_)) {
+      appendSdoHistory(uiText("Write", "写入"), pending.value(0).toInt(),
+                       pending.value(1), pending.value(2), pending.value(3),
+                       pending.value(4), uiText("Failed", "失败"),
+                       uiText("Connection lost before read-back verification: %1",
+                              "连接中断，写入未完成读回校验：%1")
+                           .arg(reason));
+      updateSdoTableEvidence(
+          pending.value(0).toInt(), pending.value(1), pending.value(2),
+          pending.value(4), uiText("Failed", "失败"),
+          uiText("SDO write failed before read-back verification: %1",
+                 "SDO 写入在读回校验前失败：%1")
+              .arg(reason));
+    }
+    pendingSdoWrites_.clear();
+  }
+  if (!pendingSdoVerifications_.isEmpty()) {
+    for (const auto &pending : std::as_const(pendingSdoVerifications_)) {
+      appendSdoHistory(uiText("Verify", "校验"), pending.value(0).toInt(),
+                       pending.value(1), pending.value(2), pending.value(3),
+                       pending.value(4), uiText("Failed", "失败"),
+                       uiText("Read-back failed: %1", "读回失败：%1")
+                           .arg(reason));
+      updateSdoTableEvidence(
+          pending.value(0).toInt(), pending.value(1), pending.value(2),
+          pending.value(4), uiText("Failed", "失败"),
+          uiText("Automatic read-back failed after SDO write: %1",
+                 "SDO 写入后的自动读回失败：%1")
+              .arg(reason));
+    }
+    pendingSdoVerifications_.clear();
+  }
 }

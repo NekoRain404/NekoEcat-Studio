@@ -65,68 +65,21 @@
 #include "plugins/oscilloscope/OscilloscopePlugin.h"
 #include "plugins/protocol/ProtocolAnalyzerPlugin.h"
 #include "plugins/project/ProjectPlugin.h"
-#include "plugins/alarm/AlarmPlugin.h"
+// AlarmPlugin excised for AC1 volume/tabs cleanup (include + reg removed)
 #include "plugins/eoe/EoEPlugin.h"
 #include "plugins/soe/SoEPlugin.h"
 #include "plugins/eni/EniExportPlugin.h"
 #include "plugins/chart/ChartPlugin.h"
-#include "plugins/dashboard/DashboardPlugin.h"
+#ifdef ECAT_SCRIPTING_ENABLED
 #include "plugins/automation/AutomationPlugin.h"
-#include "plugins/network/NetworkDiagnosticsPlugin.h"
-#include "plugins/master/MasterManagerPlugin.h"
-#include "plugins/sdocache/SdoCachePlugin.h"
+#endif
 #include "plugins/themecustomizer/ThemeCustomizerPlugin.h"
 #include "plugins/shortcuts/KeyboardShortcutsPlugin.h"
 #include "plugins/preferences/UserPreferencesPlugin.h"
-#include "plugins/trace/TracePlugin.h"
-#include "plugins/logicanalyzer/LogicAnalyzerPlugin.h"
-#include "plugins/diagram/DiagramPlugin.h"
-#include "plugins/formula/FormulaPlugin.h"
-#include "plugins/scriptlibrary/ScriptLibraryPlugin.h"
-#include "plugins/simulation/SimulationPlugin.h"
-#include "plugins/calibration/CalibrationPlugin.h"
-#include "plugins/documentation/DocumentationPlugin.h"
-#include "plugins/wizard/WizardPlugin.h"
-#include "plugins/template/TemplatePlugin.h"
-#include "plugins/report/ReportPlugin.h"
-#include "plugins/dashboarddesigner/DashboardDesignerPlugin.h"
-#include "plugins/alarmmanager/AlarmManagerPlugin.h"
-#include "plugins/datalogger/DataLoggerPlugin.h"
-#include "plugins/workflowdesigner/WorkflowDesignerPlugin.h"
-#include "plugins/testsuite/TestSuitePlugin.h"
-#include "plugins/deployment/DeploymentPlugin.h"
-#include "plugins/configeditor/ConfigurationEditorPlugin.h"
-#include "plugins/networkanalyzer/NetworkAnalyzerPlugin.h"
-#include "plugins/systemmonitor/SystemMonitorPlugin.h"
-#include "plugins/securitymanager/SecurityManagerPlugin.h"
-#include "plugins/compliancechecker/ComplianceCheckerPlugin.h"
-#include "plugins/certificationmanager/CertificationManagerPlugin.h"
-#include "plugins/optimizationdashboard/OptimizationDashboardPlugin.h"
-#include "plugins/monitoringdashboard/MonitoringDashboardPlugin.h"
-#include "plugins/analyticsdashboard/AnalyticsDashboardPlugin.h"
-#include "plugins/deploymentmanager/DeploymentManagerPlugin.h"
-#include "plugins/updatemanager/UpdateManagerPlugin.h"
-#include "plugins/maintenancescheduler/MaintenanceSchedulerPlugin.h"
-#include "plugins/integrationhub/IntegrationHubPlugin.h"
-#include "plugins/syncmanager/SyncManagerPlugin.h"
-#include "plugins/replicationmanager/ReplicationManagerPlugin.h"
-#include "plugins/visualizationstudio/VisualizationStudioPlugin.h"
-#include "plugins/reportdesigner/ReportDesignerPlugin.h"
-#include "plugins/documentationbrowser/DocumentationBrowserPlugin.h"
 #include "plugins/pdomapping/PdoMappingEditorPlugin.h"
-#include "plugins/pdomappingoptimization/PdoMappingOptimizationPlugin.h"
 #include "plugins/dcsyncprecision/DcSyncPrecisionPlugin.h"
-#include "plugins/dcsyncoptimizer/DcSyncOptimizerPlugin.h"
-#include "plugins/workflowoptimizer/WorkflowOptimizerPlugin.h"
-#include "plugins/workflowdashboard/WorkflowDashboardPlugin.h"
 #include "plugins/onlinediagnostics/OnlineDiagnosticsPlugin.h"
-#include "plugins/multimaster/MultiMasterPlugin.h"
 #include "plugins/realtimeperf/RealtimePerformancePlugin.h"
-#include "plugins/realtimeoptimizer/RealtimeOptimizerPlugin.h"
-#include "plugins/erroranalysis/AdvancedErrorAnalysisPlugin.h"
-#include "plugins/hardwareverification/HardwareVerificationPlugin.h"
-#include "plugins/freerunoptimization/FreeRunOptimizationPlugin.h"
-#include "plugins/sdooptimization/SdoOptimizationPlugin.h"
 
 #include "services/PerformanceMonitorService.h"
 #include "services/ServiceContainer.h"
@@ -147,9 +100,8 @@
 #include "plugins/rttest/RtTestPlugin.h"
 #include "plugins/export/ExportPlugin.h"
 #include "plugins/notes/NotesPlugin.h"
-#include "plugins/datapipeline/DataPipelinePlugin.h"
-#include "plugins/devicemanager/DeviceManagerPlugin.h"
-#include "plugins/performancedashboard/PerformanceDashboardPlugin.h"
+#include "plugins/onlinediagnostics/OnlineDiagnosticsPlugin.h"
+#include "plugins/realtimeperf/RealtimePerformancePlugin.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -303,83 +255,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   pluginRegistry_->registerPlugin(new EniExportPlugin(container_->client(), container_->eventBus(), this));
 
   pluginRegistry_->registerPlugin(new ProjectPlugin(container_->projectManager(), container_->configuration(), this));
-  pluginRegistry_->registerPlugin(new AlarmPlugin(container_->alarm(), container_->logging(), this));
+  // Alarm disabled for tab/volume reduction (AC1); visible=false + no reg line
 
   pluginRegistry_->registerPlugin(new ChartPlugin(container_->chart(), this));
-  pluginRegistry_->registerPlugin(new DashboardPlugin(container_->chart(), this));
 
 #ifdef ECAT_SCRIPTING_ENABLED
   pluginRegistry_->registerPlugin(new AutomationPlugin(container_->scripting(), this));
 #endif
 
-  pluginRegistry_->registerPlugin(new NetworkDiagnosticsPlugin(container_->networkDiagnostics(), this));
-  pluginRegistry_->registerPlugin(new MasterManagerPlugin(container_->masterManager(), container_->distributedClock(), this));
-  pluginRegistry_->registerPlugin(new SdoCachePlugin(container_->sdoCache(), this));
-
   pluginRegistry_->registerPlugin(new ThemeCustomizerPlugin(this));
   pluginRegistry_->registerPlugin(new KeyboardShortcutsPlugin(this));
   pluginRegistry_->registerPlugin(new UserPreferencesPlugin(this));
 
-  pluginRegistry_->registerPlugin(new TracePlugin(container_->trace(), this));
-  pluginRegistry_->registerPlugin(new LogicAnalyzerPlugin(container_->trace(), this));
-
-  pluginRegistry_->registerPlugin(new DiagramPlugin(this));
-  pluginRegistry_->registerPlugin(new FormulaPlugin(this));
-  pluginRegistry_->registerPlugin(new ScriptLibraryPlugin(this));
-  pluginRegistry_->registerPlugin(new SimulationPlugin(this));
-  pluginRegistry_->registerPlugin(new CalibrationPlugin(this));
-  pluginRegistry_->registerPlugin(new DocumentationPlugin(this));
-  pluginRegistry_->registerPlugin(new WizardPlugin(this));
-  pluginRegistry_->registerPlugin(new TemplatePlugin(this));
-  pluginRegistry_->registerPlugin(new ReportPlugin(this));
-  pluginRegistry_->registerPlugin(new DashboardDesignerPlugin(this));
-  pluginRegistry_->registerPlugin(new AlarmManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new DataLoggerPlugin(this));
-  pluginRegistry_->registerPlugin(new WorkflowDesignerPlugin(this));
-  pluginRegistry_->registerPlugin(new TestSuitePlugin(this));
-  pluginRegistry_->registerPlugin(new DeploymentPlugin(this));
-  pluginRegistry_->registerPlugin(new ConfigurationEditorPlugin(this));
-  pluginRegistry_->registerPlugin(new NetworkAnalyzerPlugin(this));
-  pluginRegistry_->registerPlugin(new SystemMonitorPlugin(this));
-  pluginRegistry_->registerPlugin(new SecurityManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new ComplianceCheckerPlugin(this));
-  pluginRegistry_->registerPlugin(new CertificationManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new OptimizationDashboardPlugin(this));
-  pluginRegistry_->registerPlugin(new MonitoringDashboardPlugin(this));
-  pluginRegistry_->registerPlugin(new AnalyticsDashboardPlugin(this));
-  pluginRegistry_->registerPlugin(new DeploymentManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new UpdateManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new MaintenanceSchedulerPlugin(this));
-  pluginRegistry_->registerPlugin(new IntegrationHubPlugin(this));
-  pluginRegistry_->registerPlugin(new SyncManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new ReplicationManagerPlugin(this));
-  pluginRegistry_->registerPlugin(new VisualizationStudioPlugin(this));
-  pluginRegistry_->registerPlugin(new ReportDesignerPlugin(this));
-  pluginRegistry_->registerPlugin(new DocumentationBrowserPlugin(this));
   pluginRegistry_->registerPlugin(new PdoMappingEditorPlugin(container_->pdoMapping(), this));
-
-  pluginRegistry_->registerPlugin(new PdoMappingOptimizationPlugin(this));
-
   pluginRegistry_->registerPlugin(new DcSyncPrecisionPlugin(&client_, container_->eventBus(), this));
-
-  pluginRegistry_->registerPlugin(new DcSyncOptimizerPlugin(&client_, container_->eventBus(), this));
-
-  pluginRegistry_->registerPlugin(new WorkflowOptimizerPlugin(container_->workflowAnalytics(), this));
-  pluginRegistry_->registerPlugin(new WorkflowDashboardPlugin(container_->workflowMonitoring(), this));
-
-  pluginRegistry_->registerPlugin(new OnlineDiagnosticsPlugin(container_->onlineDiagnostics(), this));
-
-  pluginRegistry_->registerPlugin(new MultiMasterPlugin(container_->multiMaster(), this));
-
-  pluginRegistry_->registerPlugin(new RealtimePerformancePlugin(container_->realtimePerformance(), this));
-
-  pluginRegistry_->registerPlugin(new RealtimeOptimizerPlugin(container_->realtimeOptimizer(), this));
-
-  pluginRegistry_->registerPlugin(new HardwareVerificationPlugin(container_->hardwareVerification(), this));
-
-  pluginRegistry_->registerPlugin(new FreeRunOptimizationPlugin(&client_, container_->eventBus(), this));
-
-  pluginRegistry_->registerPlugin(new SdoOptimizationPlugin(&client_, container_->eventBus(), this));
 
   pluginRegistry_->registerPlugin(new OverviewPlugin(container_, this));
   pluginRegistry_->registerPlugin(new OdPlugin(container_, this));
@@ -401,14 +290,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   pluginRegistry_->registerPlugin(new RtTestPlugin(container_, this));
   pluginRegistry_->registerPlugin(new ExportPlugin(container_, this));
   pluginRegistry_->registerPlugin(new NotesPlugin(this));
-  pluginRegistry_->registerPlugin(new AdvancedErrorAnalysisPlugin(this));
-  auto *dataPipelineService = container_->dataPipeline();
-  pluginRegistry_->registerPlugin(new DataPipelinePlugin(dataPipelineService, this));
-  auto *deviceManagerService = container_->deviceManager();
-  pluginRegistry_->registerPlugin(new DeviceManagerPlugin(deviceManagerService, this));
-
   auto *perfMonitorService = container_->perfMonitor();
-  pluginRegistry_->registerPlugin(new PerformanceDashboardPlugin(perfMonitorService, this));
+  pluginRegistry_->registerPlugin(new OnlineDiagnosticsPlugin(container_->onlineDiagnostics(), this));
+  pluginRegistry_->registerPlugin(new RealtimePerformancePlugin(container_->realtimePerformance(), this));
 
   qint64 pluginLoadMs = startupTimer.elapsed();
 
@@ -428,6 +312,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   }
   restoreState(settings.value("windowState").toByteArray());
   startEmbeddedDaemon();
+  // If a non-English UI language was persisted, applySettings() already set the
+  // active language but the UI was built in English above.  Rebuild once the
+  // constructor has fully wired everything so the saved language shows on launch.
+  if (LanguageManager::instance().currentLanguage() != Language::English) {
+    QTimer::singleShot(0, this, [this] {
+      rebuildUi();
+      applyCustomShortcuts();
+    });
+  }
 }
 
 /// MainWindow destructor — cleanup sequence:

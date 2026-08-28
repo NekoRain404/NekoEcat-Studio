@@ -91,8 +91,12 @@ bool AsyncOperationManager::cancel(const QString &operationId) {
   op->cancelled.store(true);
 
   if (op->state == OperationState::Pending) {
+    // A pending operation never runs, so it will never reach
+    // onOperationFinished() and must be removed + deleted here to avoid a leak.
     op->state = OperationState::Cancelled;
     queue_.removeAll(operationId);
+    operations_.erase(it);
+    delete op;
     return true;
   }
 
@@ -125,19 +129,55 @@ OperationResult AsyncOperationManager::result(const QString &operationId) const 
 
 void AsyncOperationManager::cancelAll() {
   QMutexLocker locker(&mutex_);
-  for (Operation *op : operations_) {
-    if (op->state == OperationState::Pending || op->state == OperationState::Running) {
+  QList<QString> toRemove;
+  for (auto it = operations_.begin(); it != operations_.end(); ++it) {
+    Operation *op = it.value();
+    const bool wasRunning = (op->state == OperationState::Running);
+    if (op->state == OperationState::Pending || wasRunning) {
       op->cancelled.store(true);
       op->state = OperationState::Cancelled;
     }
+    // Pending operations will never run and therefore never reach
+    // onOperationFinished(); collect them for removal so they cannot leak.
+    if (!wasRunning && op->state == OperationState::Cancelled) {
+      toRemove.append(it.key());
+    }
+  }
+  // Remove + delete collected entries (running operations are cleaned up by
+  // onOperationFinished() once their worker thread finishes).
+  for (const QString &id : toRemove) {
+    delete operations_.take(id);
   }
   queue_.clear();
 }
 
 void AsyncOperationManager::processQueue() {
   while (runningCount_ < maxConcurrent_ && !queue_.isEmpty()) {
-    QString id = queue_.dequeue();
-    auto it = operations_.find(id);
+    // Minimal priority queuing: pick the highest-priority ready operation with
+    // a short O(n) scan over the FIFO list (queues are typically tiny).  On
+    // ties the earliest-queued operation wins.
+    int bestIndex = -1;
+    int bestPriority = -1;
+    QString bestId;
+    for (int i = 0; i < queue_.size(); ++i) {
+      const QString id = queue_.at(i);
+      auto it = operations_.find(id);
+      if (it == operations_.end()) continue;
+      Operation *cand = it.value();
+      if (cand->state == OperationState::Cancelled) continue;
+      const int p = static_cast<int>(cand->priority);
+      if (p > bestPriority) {
+        bestPriority = p;
+        bestIndex = i;
+        bestId = id;
+      }
+    }
+    if (bestIndex < 0) {
+      queue_.clear();  // only cancelled entries remain
+      break;
+    }
+    queue_.removeAt(bestIndex);
+    auto it = operations_.find(bestId);
     if (it == operations_.end() || (*it)->state == OperationState::Cancelled) continue;
 
     Operation *op = *it;
@@ -206,6 +246,23 @@ void AsyncOperationManager::onOperationFinished(const QString &operationId,
     emit operationCompleted(operationId, result);
   } else {
     emit operationFailed(operationId, result.error);
+  }
+
+  // Retain the finished operation so callers can still query result()/progress()
+  // immediately after completion, but bound the map so it cannot grow without
+  // bound.  Oldest finished operations are evicted first (iterator-safe: we
+  // only erase iterators we re-fetched from a fresh lookup).
+  {
+    QMutexLocker locker(&mutex_);
+    finishedOrder_.append(operationId);
+    while (operations_.size() > kMaxRetainedOperations && !finishedOrder_.isEmpty()) {
+      const QString victim = finishedOrder_.takeFirst();
+      auto vit = operations_.find(victim);
+      if (vit != operations_.end()) {
+        delete vit.value();
+        operations_.erase(vit);
+      }
+    }
   }
 
   processQueue();

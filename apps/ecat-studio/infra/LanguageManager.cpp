@@ -63,6 +63,24 @@ QString LanguageManager::displayName(Language lang) const
     return QStringLiteral("English");
 }
 
+// Returns the Qt translation-file basename suffix (matches the .ts/.qm files
+// under translations/, e.g. nekoecat_zh.ts / nekoecat_zh_TW.ts).  This is
+// distinct from the BCP-47 localeCode ("zh-CN" vs "zh").
+QString LanguageManager::translationFileSuffix(Language lang) const
+{
+    switch (lang) {
+    case Language::English:           return QStringLiteral("en");
+    case Language::ChineseSimplified: return QStringLiteral("zh");
+    case Language::Japanese:          return QStringLiteral("ja");
+    case Language::German:            return QStringLiteral("de");
+    case Language::Korean:            return QStringLiteral("ko");
+    case Language::ChineseTraditional:return QStringLiteral("zh_TW");
+    case Language::French:            return QStringLiteral("fr");
+    case Language::Spanish:           return QStringLiteral("es");
+    }
+    return QStringLiteral("en");
+}
+
 // Checks if the given language is the currently active one
 bool LanguageManager::isCurrentLanguage(Language lang) const
 {

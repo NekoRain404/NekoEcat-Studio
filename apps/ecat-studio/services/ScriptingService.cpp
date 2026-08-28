@@ -17,6 +17,9 @@
 #include "infra/EcatClient.h"
 #include "SdoService.h"
 #include "TopologyService.h"
+#include <QCoreApplication>
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QJSEngine>
 #include <QThread>
 
@@ -66,8 +69,28 @@ bool ScriptingBuiltin::setState(int position, const QString &state) {
   return false;
 }
 
+// Wait for the requested duration without freezing the GUI.  The main thread
+// never calls QThread::msleep() outright; instead the wait is sliced into small
+// chunks with the event loop pumped between them.  The wait is capped at 10s —
+// long waits still degrade UI responsiveness by design (scripts run on the GUI
+// thread) but keep the window alive and responsive to input/reposts.
 void ScriptingBuiltin::wait(int ms) {
-  QThread::msleep(static_cast<unsigned long>(ms));
+  if (ms <= 0) return;
+  constexpr int kMaxWaitMs = 10000;   // cap to keep the GUI responsive
+  const int bounded = qMin(ms, kMaxWaitMs);
+  constexpr int kSliceMs = 20;        // event-loop pump interval
+  QElapsedTimer elapsed;
+  elapsed.start();
+  while (elapsed.elapsed() < bounded) {
+    QCoreApplication::processEvents(QEventLoop::AllEvents);
+    const int remaining = bounded - static_cast<int>(elapsed.elapsed());
+    QThread::msleep(static_cast<unsigned long>(qMin(kSliceMs, remaining)));
+  }
+  if (ms > kMaxWaitMs) {
+    emit logMessage(
+        QStringLiteral("wait(%1ms) exceeded the 10s cap; the GUI stayed responsive by slicing the wait")
+            .arg(ms));
+  }
 }
 
 void ScriptingBuiltin::log(const QString &message) {

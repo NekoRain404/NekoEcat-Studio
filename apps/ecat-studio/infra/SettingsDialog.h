@@ -100,6 +100,10 @@ signals:
     // MainWindow connects to this for live preview before confirmation.
     void themePreviewRequested(const QString &themeName);
 
+    // Emitted when the user clicks "Refresh" next to the network adapter combo.
+    // MainWindow connects this to a real adapter re-query (not a theme change).
+    void adaptersRefreshRequested();
+
 private:
     // ── Tab builders ──────────────────────────────────────────────
     QWidget *buildAppearanceTab(const AppSettings &s, bool zh);

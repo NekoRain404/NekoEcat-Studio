@@ -5,6 +5,7 @@
 
 #include "infra/SettingsDialog.h"
 #include "infra/TranslationRegistry.h"
+#include "themes/ThemeManager.h"
 #include "utils/ConfirmDialogBuilder.h"
 
 #include <QFileInfo>
@@ -241,9 +242,44 @@ void MainWindow::openSettings() {
 
   connect(&dialog, &SettingsDialog::themePreviewRequested,
           this, [this](const QString &theme) {
+    // Defensively reject sentinel/non-theme values so a misrouted signal can
+    // never persist a bogus theme name into settings_.
+    if (theme.startsWith("__") ||
+        !ThemeManager::availableThemes().contains(theme)) {
+      return;
+    }
     settings_.theme = theme;
     applyTheme();
   });
+
+  auto populateAdapters = [&dialog](const QJsonObject &data) {
+    QStringList entries;
+    const auto adapters = data.value("adapters").toArray();
+    for (const auto &value : adapters) {
+      const auto a = value.toObject();
+      const QString link = a.value("linkUp").toBool()
+                               ? QStringLiteral("Up")
+                               : QStringLiteral("Down");
+      entries << QStringLiteral("%1|%2|%3|%4")
+                     .arg(a.value("name").toString(),
+                          a.value("mac").toString(),
+                          a.value("driver").toString(),
+                          link);
+    }
+    dialog.setAvailableAdapters(entries);
+  };
+  connect(&client_, &EcatClient::adaptersListResult, &dialog,
+          [populateAdapters](const QJsonObject &data) { populateAdapters(data); });
+  connect(&dialog, &SettingsDialog::adaptersRefreshRequested, &client_,
+          [this] {
+            if (client_.isConnected()) {
+              client_.listAdapters();
+            }
+          });
+  // Populate the adapter list once when the dialog opens.
+  if (client_.isConnected()) {
+    client_.listAdapters();
+  }
 
   if (dialog.exec() != QDialog::Accepted) {
     settings_.theme = previousTheme;

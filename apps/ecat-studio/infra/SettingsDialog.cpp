@@ -225,7 +225,7 @@ QWidget *SettingsDialog::buildEthercatTab(const AppSettings &s, bool zh)
     }
 
     connect(refreshAdapterBtn, &QPushButton::clicked, this, [this]() {
-        emit themePreviewRequested(QStringLiteral("__refresh_adapters__"));
+        emit adaptersRefreshRequested();
     });
 
     // ── Backend Mode section ────────────────────────────────────────────
