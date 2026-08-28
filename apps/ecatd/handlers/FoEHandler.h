@@ -12,6 +12,7 @@
 
 #include <QJsonObject>
 #include <QString>
+#include <QStringList>
 
 class FoEHandler {
 public:
@@ -25,11 +26,16 @@ public:
     // Returns: { "success": true, "bytesWritten": int, "message": string }
     QJsonObject handleFoeWrite(const QString &id, const QJsonObject &params);
 
-    // Validate that a file path is absolute and its parent directory exists.
-    // Exposed for testing.
+    // Validate that a file path is absolute, free of traversal sequences,
+    // resolves within an allowed firmware base directory, and its parent
+    // directory exists. Exposed for testing.
     bool validateFilePath(const QString &path, QString *error) const;
 
 private:
+    // Allowed base directories for FoE transfers (default: /tmp + $HOME, or
+    // the NEKOECAT_FIRMWARE_DIR env var when set).
+    QStringList firmwareBaseDirs() const;
+
     // Run an ethercat CLI command and capture stdout/stderr.
     // Returns the process exit code. stdout -> output, stderr -> errorOutput.
     int runEthercatCommand(const QStringList &args, QString *output,

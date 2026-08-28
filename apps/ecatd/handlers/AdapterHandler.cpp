@@ -2,6 +2,8 @@
 
 #include "AdapterHandler.h"
 
+#include "CommandDispatcher.h"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -30,7 +32,7 @@ QJsonObject AdapterHandler::handleList(const QString &id, const QJsonObject &par
   QJsonObject result;
   result["adapters"] = arr;
   result["current"] = current;
-  return result;
+  return CommandDispatcher::success(id, result);
 }
 
 // Set the IgH master adapter by rewriting the master0_device line in /etc/ethercat.conf.
@@ -38,11 +40,7 @@ QJsonObject AdapterHandler::handleSet(const QString &id, const QJsonObject &para
 {
   const QString adapter = params.value("adapter").toString().trimmed();
   if (adapter.isEmpty()) {
-    QJsonObject r;
-    r["id"] = id;
-    r["error"] = "Missing 'adapter' parameter.";
-    r["code"] = -1;
-    return r;
+    return CommandDispatcher::failure(id, "Missing 'adapter' parameter.");
   }
 
   // Validate that the requested adapter exists on the host.
@@ -55,22 +53,16 @@ QJsonObject AdapterHandler::handleSet(const QString &id, const QJsonObject &para
     }
   }
   if (!found) {
-    QJsonObject r;
-    r["id"] = id;
-    r["error"] = QStringLiteral("Adapter '%1' not found.").arg(adapter);
-    r["code"] = -1;
-    return r;
+    return CommandDispatcher::failure(id,
+        QStringLiteral("Adapter '%1' not found.").arg(adapter));
   }
 
   // Rewrite /etc/ethercat.conf, replacing the master0_device line.
   const QString confPath = QStringLiteral("/etc/ethercat.conf");
   QFile file(confPath);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QJsonObject r;
-    r["id"] = id;
-    r["error"] = QStringLiteral("Cannot read %1: %2").arg(confPath, file.errorString());
-    r["code"] = -1;
-    return r;
+    return CommandDispatcher::failure(id,
+        QStringLiteral("Cannot read %1: %2").arg(confPath, file.errorString()));
   }
 
   const QString content = QString::fromUtf8(file.readAll());
@@ -94,11 +86,8 @@ QJsonObject AdapterHandler::handleSet(const QString &id, const QJsonObject &para
   }
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-    QJsonObject r;
-    r["id"] = id;
-    r["error"] = QStringLiteral("Cannot write %1: %2").arg(confPath, file.errorString());
-    r["code"] = -1;
-    return r;
+    return CommandDispatcher::failure(id,
+        QStringLiteral("Cannot write %1: %2").arg(confPath, file.errorString()));
   }
   file.write(updated.toUtf8());
   file.close();
@@ -106,7 +95,7 @@ QJsonObject AdapterHandler::handleSet(const QString &id, const QJsonObject &para
   QJsonObject result;
   result["adapter"] = adapter;
   result["message"] = QStringLiteral("Adapter set to '%1'. Restart ethercat service to apply.").arg(adapter);
-  return result;
+  return CommandDispatcher::success(id, result);
 }
 
 // Enumerate all network interfaces under /sys/class/net/.

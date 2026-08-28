@@ -1,5 +1,6 @@
 // ecrt-based Free Run process image controller for real-time I/O.
 #include "FreeRunController.h"
+#include "freerun_shm_mirror.h"
 
 #include <QJsonArray>
 #include <QHash>
@@ -46,6 +47,8 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     // Acquire exclusive access to the IgH master, auto-discover the slave topology
     // via the ethercat CLI, register all PDO entries into a single process data domain,
     // then spin up the real-time cycle thread at ~1 kHz.
+    // The running_ check happens under startStopMutex_ to avoid a check-then-act race.
+    std::lock_guard<std::mutex> lock(startStopMutex_);
     if (running_) {
         if (masterIndex == activeMasterIndex_) {
             return true;
@@ -55,8 +58,6 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         }
         return false;
     }
-
-    std::lock_guard<std::mutex> lock(startStopMutex_);
 
     std::vector<SlaveSpec> slaves;
     if (!buildConfiguration(masterIndex, &slaves, error)) {
@@ -213,16 +214,31 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         return false;
     }
 
+    // Initial state snapshot so telemetry() reports accurate values immediately for real slaves
+    ecrt_master_state(master_, &masterState_);
+    ecrt_domain_state(domain_, &domainState_);
+
+    // Precompute the mirror layout ONCE (never allocate inside the RT loop).
+    // computeProcessDataSize() gives the actual byte span of the process image,
+    // which BOTH the shared-memory stride and the client attach use, so the
+    // two sides agree on the geometry (daemon buffer[1] == data[0] + data_size).
+    mirrorEntries_ = buildMirrorEntries();
+    size_t computedSize = ::computeProcessDataSize(mirrorEntries_.data(), mirrorEntries_.size());
+    if (computedSize == 0) computedSize = 1;  // keep a consistent, usable arena
+    if (computedSize > kMaxProcessDataSize) computedSize = kMaxProcessDataSize;
+
+    if (!initSharedMemory(static_cast<uint32_t>(computedSize), error)) {
+        cleanup();
+        return false;
+    }
+
     activeMasterIndex_ = masterIndex;
     cycleCount_ = 0;
     wcErrorCount_ = 0;
     lastWarning_.clear();
-    {
-        std::lock_guard<std::mutex> lock(cycleMutex_);
-        minCycleNsec_ = INT64_MAX;
-        maxCycleNsec_ = 0;
-        totalCycleNsec_ = 0;
-    }
+    minCycleNsec_.store(INT64_MAX, std::memory_order_relaxed);
+    maxCycleNsec_.store(0, std::memory_order_relaxed);
+    totalCycleNsec_.store(0, std::memory_order_relaxed);
     {
         std::lock_guard<std::mutex> lock(statusMutex_);
         status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
@@ -231,6 +247,159 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     thread_ = std::thread(&FreeRunController::loop, this);
     pthread_setname_np(thread_.native_handle(), "ecatd_free_run");
     return true;
+}
+
+bool FreeRunController::initSharedMemory(uint32_t dataSize, QString *error)
+{
+    // Create / open POSIX shared memory for external clients.
+    // Mode 0600 restricts access to the daemon's owner; the shm is a control
+    // plane for process-data actuation, so world-writable would be unsafe.
+    shm_fd_ = shm_open(kShmName, O_CREAT | O_RDWR, 0600);
+    if (shm_fd_ < 0) {
+        if (error) *error = "Failed to open shared memory " + QString(kShmName);
+        return false;
+    }
+
+    // Don't leak the fd across exec (e.g. into shelled-out `ethercat`).
+    int flags = fcntl(shm_fd_, F_GETFD);
+    if (flags >= 0) {
+        fcntl(shm_fd_, F_SETFD, flags | FD_CLOEXEC);
+    }
+
+    // Both buffers are laid out with the ACTUAL data_size stride so the daemon
+    // and the client agree on the geometry (buffer[1] == data[0] + data_size).
+    const size_t bufferSize = dataSize > 0 ? dataSize : kMaxProcessDataSize;
+    shm_size_ = sizeof(ShmHeader) + 2 * bufferSize;
+
+    if (ftruncate(shm_fd_, static_cast<off_t>(shm_size_)) != 0) {
+        if (error) *error = "Failed to size shared memory";
+        close(shm_fd_);
+        shm_fd_ = -1;
+        shm_unlink(kShmName);
+        return false;
+    }
+
+    shm_ptr_ = mmap(nullptr, shm_size_, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd_, 0);
+    if (shm_ptr_ == MAP_FAILED) {
+        if (error) *error = "Failed to mmap shared memory";
+        close(shm_fd_);
+        shm_fd_ = -1;
+        shm_unlink(kShmName);
+        return false;
+    }
+
+    shm_header_ = static_cast<ShmHeader*>(shm_ptr_);
+    shm_data_[0] = static_cast<uint8_t*>(shm_ptr_) + sizeof(ShmHeader);
+    shm_data_[1] = shm_data_[0] + bufferSize;
+    shm_stride_ = bufferSize;
+
+    // Initialize header (data_size is the actual stride; all fields accessed
+    // cross-process go through the atomic helpers).
+    nekoecat_shm_store(&shm_header_->version, 0, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->cycle_count, 0, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->timestamp_ns, 0, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->active_buffer, 0, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->data_size, static_cast<uint32_t>(bufferSize), NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->layout_version, NEKOECAT_SHM_LAYOUT_VERSION, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->status_flags, 0, NEKOECAT_MO_RELAXED);
+    nekoecat_shm_store(&shm_header_->ignored_writes, 0, NEKOECAT_MO_RELAXED);
+
+    return true;
+}
+
+void FreeRunController::cleanupSharedMemory()
+{
+    if (shm_ptr_ && shm_ptr_ != MAP_FAILED) {
+        munmap(shm_ptr_, shm_size_);
+        shm_ptr_ = nullptr;
+    }
+    if (shm_fd_ >= 0) {
+        close(shm_fd_);
+        shm_fd_ = -1;
+        shm_unlink(kShmName);   // optional: keep it if you want persistence between runs
+    }
+    shm_header_ = nullptr;
+    shm_data_[0] = shm_data_[1] = nullptr;
+    shm_stride_ = 0;
+    shm_size_ = 0;
+}
+
+std::vector<ShmMirrorEntry> FreeRunController::buildMirrorEntries() const
+{
+    std::vector<ShmMirrorEntry> out;
+    for (const auto& e : runtimeEntries_) {
+        ShmMirrorEntry me{};
+        me.slave = e.slavePosition;
+        me.index = e.index;
+        me.sub = e.subindex;
+        me.bitLength = e.bitLength;
+        strncpy(me.direction, e.direction.toUtf8().constData(), sizeof(me.direction)-1);
+        me.offset = e.offset ? *e.offset : 0;
+        out.push_back(me);
+    }
+    return out;
+}
+
+void FreeRunController::mirrorToShm()
+{
+    if (!shm_header_ || !domainData_ || mirrorEntries_.empty()) return;
+
+    // Defense in depth: a client must never be able to push us past the shared
+    // buffer we actually allocated, so clamp the header data_size at every use
+    // to the true stride (shm_stride_) and never above kMaxProcessDataSize.
+    const size_t stride = shm_stride_ > 0 ? shm_stride_ : static_cast<size_t>(kMaxProcessDataSize);
+    uint32_t dataSize = nekoecat_shm_load(&shm_header_->data_size, NEKOECAT_MO_RELAXED);
+    if (dataSize == 0 || static_cast<size_t>(dataSize) > stride) {
+        dataSize = static_cast<uint32_t>(stride);
+    }
+
+    // Keep the second buffer pointer consistent with the true allocation stride.
+    shm_data_[1] = shm_data_[0] + stride;
+
+    // Delegate to extracted pure logic; the whole atomic publish (timestamp,
+    // status_flags, active_buffer, version) happens inside mirrorToShm so the
+    // RT loop never pokes the header afterwards.
+    ShmMirrorContext ctx{};
+    ctx.domainData = domainData_;
+    ctx.shmData[0] = shm_data_[0];
+    ctx.shmData[1] = shm_data_[1];
+    ctx.entries = mirrorEntries_.data();
+    ctx.entryCount = mirrorEntries_.size();
+    ctx.dataSize = dataSize;
+    ctx.timestampNs = monotonicNsec();
+    ctx.activeBuffer = &shm_header_->active_buffer;
+    ctx.version = &shm_header_->version;
+    ctx.cycleCount = &shm_header_->cycle_count;
+    ctx.timestampNsField = &shm_header_->timestamp_ns;
+    ctx.statusFlags = &shm_header_->status_flags;
+    ctx.ignoredWrites = &shm_header_->ignored_writes;
+    ::mirrorToShm(&ctx);
+}
+
+QJsonObject FreeRunController::shmInfo() const
+{
+    QJsonObject info;
+    info["shm_name"] = QString(kShmName);
+    if (shm_header_) {
+        info["data_size"] = static_cast<int>(nekoecat_shm_load(&shm_header_->data_size, NEKOECAT_MO_RELAXED));
+        info["layout_version"] = static_cast<int>(nekoecat_shm_load(&shm_header_->layout_version, NEKOECAT_MO_RELAXED));
+        info["active_buffer"] = static_cast<int>(nekoecat_shm_load(&shm_header_->active_buffer, NEKOECAT_MO_RELAXED));
+        info["version"] = static_cast<qint64>(nekoecat_shm_load(&shm_header_->version, NEKOECAT_MO_RELAXED));
+    }
+    QJsonArray layout;
+    for (const auto& e : runtimeEntries_) {
+        QJsonObject entry;
+        entry["slave"] = e.slavePosition;
+        entry["index"] = static_cast<int>(e.index);
+        entry["subindex"] = static_cast<int>(e.subindex);
+        entry["bitLength"] = static_cast<int>(e.bitLength);
+        entry["direction"] = e.direction;
+        entry["name"] = e.name;
+        if (e.offset) entry["offset"] = static_cast<int>(*e.offset);
+        layout.append(entry);
+    }
+    info["layout"] = layout;
+    return info;
 }
 
 void FreeRunController::stop()
@@ -288,19 +457,23 @@ QJsonObject FreeRunController::telemetry() const
         std::lock_guard<std::mutex> lock(statusMutex_);
         statusLocal = status_;
     }
-    std::lock_guard<std::mutex> cycleLock(cycleMutex_);
-    const auto cycles = cycleCount_.load();
-    int64_t minNs = minCycleNsec_, maxNs = maxCycleNsec_, avgNs = 0, jitterNs = 0;
-    if (minNs == INT64_MAX) minNs = 0;
+    // Cycle statistics are lock-free atomics updated by the RT thread; relaxed
+    // reads give an approximate (non-blocking) view for diagnostics.
+    const auto cycles = cycleCount_.load(std::memory_order_relaxed);
+    const int64_t minNs = minCycleNsec_.load(std::memory_order_relaxed);
+    const int64_t maxNs = maxCycleNsec_.load(std::memory_order_relaxed);
+    const int64_t totalNs = totalCycleNsec_.load(std::memory_order_relaxed);
+    int64_t avgNs = 0, jitterNs = 0;
     if (cycles > 0) {
-        avgNs = totalCycleNsec_ / static_cast<int64_t>(cycles);
+        avgNs = totalNs / static_cast<int64_t>(cycles);
         jitterNs = std::max(maxNs - avgNs, avgNs - minNs);
     }
+    const int64_t effectiveMinNs = (minNs == INT64_MAX) ? 0 : minNs;
     return {
         {"running", running_.load()},
         {"status", statusLocal},
         {"master", static_cast<int>(activeMasterIndex_)},
-        {"cycles", QString::number(cycleCount_.load())},
+        {"cycles", QString::number(cycles)},
         {"slavesResponding", slavesResponding},
         {"alStates", static_cast<int>(alStates)},
         {"alStateText", alStateText(alStates)},
@@ -309,7 +482,7 @@ QJsonObject FreeRunController::telemetry() const
         {"wcState", static_cast<int>(wcState)},
         {"wcStateText", wcStateText(wcState)},
         {"wcErrors", static_cast<qint64>(wcErrorCount_.load())},
-        {"minCycleUsec", static_cast<double>(minNs) / 1000.0},
+        {"minCycleUsec", static_cast<double>(effectiveMinNs) / 1000.0},
         {"maxCycleUsec", static_cast<double>(maxNs) / 1000.0},
         {"avgCycleUsec", static_cast<double>(avgNs) / 1000.0},
         {"jitterUsec", static_cast<double>(jitterNs) / 1000.0},
@@ -555,19 +728,29 @@ void FreeRunController::loop()
         if (!running_) break;
 
         // Measure actual cycle interval for jitter analysis.
+        // Lock-free atomic statistics — the RT loop must never take a mutex.
         const uint64_t now = monotonicNsec();
         const int64_t cycleDelta = static_cast<int64_t>(now - prevTime);
         prevTime = now;
         {
-            std::lock_guard<std::mutex> lock(cycleMutex_);
-            if (cycleDelta < minCycleNsec_) minCycleNsec_ = cycleDelta;
-            if (cycleDelta > maxCycleNsec_) maxCycleNsec_ = cycleDelta;
-            totalCycleNsec_ += cycleDelta;
+            int64_t curMin = minCycleNsec_.load(std::memory_order_relaxed);
+            while (cycleDelta < curMin &&
+                   !minCycleNsec_.compare_exchange_weak(curMin, cycleDelta, std::memory_order_relaxed)) {
+            }
+            int64_t curMax = maxCycleNsec_.load(std::memory_order_relaxed);
+            while (cycleDelta > curMax &&
+                   !maxCycleNsec_.compare_exchange_weak(curMax, cycleDelta, std::memory_order_relaxed)) {
+            }
+            totalCycleNsec_.fetch_add(cycleDelta, std::memory_order_relaxed);
         }
 
         ecrt_master_application_time(master_, monotonicNsec());
         ecrt_master_receive(master_);
         ecrt_domain_process(domain_);
+
+        // Mirror to shared memory for external clients (and apply their writes)
+        mirrorToShm();
+
         {
             std::lock_guard<std::mutex> lock(stateMutex_);
             ecrt_master_state(master_, &masterState_);
@@ -765,10 +948,13 @@ void FreeRunController::cleanup()
     runtimeSlaves_.clear();
     registrations_.clear();
     runtimeEntries_.clear();
+    mirrorEntries_.clear();
     offsets_.clear();
     bitPositions_.clear();
     activeMasterIndex_ = 0;
     cycleCount_ = 0;
+
+    cleanupSharedMemory();
     {
         std::lock_guard<std::mutex> lock(stateMutex_);
         masterState_ = {};

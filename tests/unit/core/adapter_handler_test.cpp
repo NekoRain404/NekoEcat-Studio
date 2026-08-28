@@ -5,6 +5,7 @@
 //   - Adapter field validation
 //   - Set adapter rejection (empty/invalid)
 //   - Loopback exclusion from list
+//   - Success/failure envelope structure (ok / result / error)
 
 #include <QTest>
 #include <QJsonObject>
@@ -19,9 +20,11 @@ private slots:
   // Verify handleList returns the expected JSON shape even with no real adapters.
   void testHandleListStructure() {
     AdapterHandler handler;
-    QJsonObject result = handler.handleList("1", {});
+    QJsonObject resp = handler.handleList("1", {});
 
-    // Response must contain 'adapters' array and 'current' string.
+    // Response must be a success envelope containing 'adapters' and 'current'.
+    QVERIFY(resp.value("ok").toBool() == true);
+    QJsonObject result = resp.value("result").toObject();
     QVERIFY(result.contains("adapters"));
     QVERIFY(result.contains("current"));
     QVERIFY(result["adapters"].isArray());
@@ -32,9 +35,9 @@ private slots:
   // Verify that every adapter in the list has the required fields.
   void testAdapterFieldsPresent() {
     AdapterHandler handler;
-    QJsonObject result = handler.handleList("2", {});
+    QJsonObject resp = handler.handleList("2", {});
 
-    QJsonArray adapters = result["adapters"].toArray();
+    QJsonArray adapters = resp.value("result").toObject()["adapters"].toArray();
     for (const auto &entry : adapters) {
       QJsonObject obj = entry.toObject();
       QVERIFY(obj.contains("name"));
@@ -48,14 +51,16 @@ private slots:
     }
   }
 
-  // Verify handleSet rejects an empty adapter parameter.
+  // Verify handleSet rejects an empty adapter parameter with a failure envelope.
   void testHandleSetEmptyAdapter() {
     AdapterHandler handler;
-    QJsonObject result = handler.handleSet("3", {});
+    QJsonObject resp = handler.handleSet("3", {});
 
-    QVERIFY(result.contains("error"));
-    QVERIFY(result["error"].toString().contains("Missing"));
-    QCOMPARE(result["code"].toInt(), -1);
+    QVERIFY(resp.value("ok").toBool() == false);
+    QVERIFY(resp.contains("error"));
+    QJsonObject err = resp.value("error").toObject();
+    QVERIFY(err["message"].toString().contains("Missing"));
+    QCOMPARE(err["code"].toInt(), -1);
   }
 
   // Verify handleSet rejects a non-existent adapter name.
@@ -63,19 +68,20 @@ private slots:
     AdapterHandler handler;
     QJsonObject params;
     params["adapter"] = "nonexistent_iface_99999";
-    QJsonObject result = handler.handleSet("4", params);
+    QJsonObject resp = handler.handleSet("4", params);
 
-    QVERIFY(result.contains("error"));
-    QVERIFY(result["error"].toString().contains("not found"));
-    QCOMPARE(result["code"].toInt(), -1);
+    QVERIFY(resp.value("ok").toBool() == false);
+    QJsonObject err = resp.value("error").toObject();
+    QVERIFY(err["message"].toString().contains("not found"));
+    QCOMPARE(err["code"].toInt(), -1);
   }
 
   // Verify that enumerateAdapters does not include loopback.
   void testNoLoopbackInList() {
     AdapterHandler handler;
-    QJsonObject result = handler.handleList("5", {});
+    QJsonObject resp = handler.handleList("5", {});
 
-    QJsonArray adapters = result["adapters"].toArray();
+    QJsonArray adapters = resp.value("result").toObject()["adapters"].toArray();
     for (const auto &entry : adapters) {
       QJsonObject obj = entry.toObject();
       QVERIFY(obj["name"].toString() != "lo");

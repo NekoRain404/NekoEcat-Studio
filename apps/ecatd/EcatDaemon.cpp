@@ -3,6 +3,7 @@
 
 #include "EthercatNativeBackend.h"
 #include "JsonProtocol.h"
+#include "freerun_rpc_handlers.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -67,7 +68,7 @@ EcatDaemon::EcatDaemon(QObject *parent)
     dcPollTimer_ = new QTimer(this);
     connect(dcPollTimer_, &QTimer::timeout, this, [this]() {
         if (freeRun_.running()) {
-            dcSyncHandler_.update(freeRun_.masterHandle(), 0);
+            dcSyncHandler_.update(freeRun_.masterHandle(), freeRun_.slaveCount());
         }
     });
     dcPollTimer_->start(500);
@@ -107,6 +108,17 @@ void EcatDaemon::readClient()
 
     auto &buffer = buffers_[socket];
     buffer += socket->readAll();
+
+    // Bound the per-socket reassembly buffer: a client that never sends a
+    // newline must not be able to grow the buffer without limit. On overflow,
+    // reply with an error and drop the connection (the disconnected handler
+    // removes the socket's buffer and decrements activeConnections_).
+    constexpr int kMaxSocketBuffer = 1024 * 1024;  // 1 MiB
+    if (buffer.size() > kMaxSocketBuffer) {
+        send(socket, JsonProtocol::failure({}, "Request frame too large"));
+        socket->disconnectFromHost();
+        return;
+    }
 
     int newline = -1;
     while ((newline = buffer.indexOf('\n')) >= 0) {
@@ -317,24 +329,7 @@ void EcatDaemon::setupHandlers() {
         return CommandDispatcher::failure(id, error);
     });
 
-    dispatcher_.registerHandler("freeRunStart", [this](const QString &id, const QJsonObject &params) {
-        uint32_t masterIndex = 0;
-        QString error;
-        if (!requestedMasterIndex(params, &masterIndex, &error))
-            return CommandDispatcher::failure(id, error);
-        return freeRun_.start(masterIndex, &error)
-            ? CommandDispatcher::success(id, freeRun_.telemetry())
-            : CommandDispatcher::failure(id, error);
-    });
-
-    dispatcher_.registerHandler("freeRunStop", [this](const QString &id, const QJsonObject &) {
-        freeRun_.stop();
-        return CommandDispatcher::success(id, {{"status", freeRun_.status()}});
-    });
-
-    dispatcher_.registerHandler("freeRunStatus", [this](const QString &id, const QJsonObject &) {
-        return CommandDispatcher::success(id, freeRun_.telemetry());
-    });
+    registerFreeRunHandlers(dispatcher_, freeRun_);
 
     dispatcher_.registerHandler("rtTestStart", [this](const QString &id, const QJsonObject &params) {
         uint32_t masterIndex = 0;
@@ -342,7 +337,10 @@ void EcatDaemon::setupHandlers() {
         if (!requestedMasterIndex(params, &masterIndex, &error))
             return CommandDispatcher::failure(id, error);
         const int cycleUsec = params.value("cycleUsec").toInt(1000);
-        return rtTest_.start(masterIndex, cycleUsec, &error)
+        // Clamp to the sane RT-test range (500us .. 1s); RtTestController also
+        // validates, this is belt-and-braces at the RPC boundary.
+        const int clampedCycleUsec = qBound(500, cycleUsec, 1000000);
+        return rtTest_.start(masterIndex, clampedCycleUsec, &error)
             ? CommandDispatcher::success(id, rtTest_.telemetry())
             : CommandDispatcher::failure(id, error);
     });

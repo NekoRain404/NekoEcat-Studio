@@ -35,6 +35,15 @@ RtTestController::~RtTestController()
 
 bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString *error)
 {
+    // Clamp the requested cycle time to a sane real-time range. A value of 0 or
+    // negative would otherwise produce an invalid timespec busy-loop.
+    if (cycleUsec < 500 || cycleUsec > 1000000) {
+        if (error) {
+            *error = QString("cycleUsec %1 out of range; use 500..1000000 usec.").arg(cycleUsec);
+        }
+        return false;
+    }
+
     // Prevent double-start; if already running on the same master, treat as success.
     if (running_) {
         if (masterIndex == activeMasterIndex_) {
@@ -184,7 +193,7 @@ void RtTestController::loop(int cycleUsec)
     // Lock all current and future memory pages to prevent page faults during the RT loop.
     mlockall(MCL_CURRENT | MCL_FUTURE);
 
-    const uint64_t cycleNsec = static_cast<uint64_t>(cycleUsec) * 1000ULL;
+    const int64_t cycleNsec = static_cast<int64_t>(cycleUsec) * 1000LL;
     uint64_t wakeupTime = monotonicNsec();
     uint64_t prevTime = wakeupTime;
 
@@ -196,8 +205,15 @@ void RtTestController::loop(int cycleUsec)
         struct timespec wake{};
         wake.tv_sec = static_cast<time_t>(wakeupTime / NsecPerSec);
         wake.tv_nsec = static_cast<long>(wakeupTime % NsecPerSec);
-        while (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &wake, nullptr) == EINTR) {
+        int sleepErr = 0;
+        while ((sleepErr = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &wake, nullptr)) == EINTR) {
             // Retry on signal interruption.
+        }
+        if (sleepErr != 0) {
+            // EINVAL (invalid time) or another non-EINTR error — break instead
+            // of spinning at full CPU.
+            running_ = false;
+            break;
         }
 
         if (!running_) break;

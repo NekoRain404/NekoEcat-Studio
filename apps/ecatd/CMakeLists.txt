@@ -4,9 +4,13 @@ add_executable(ecatd
     EcatDaemon.cpp
     EcatDaemon.h
     FreeRunController.cpp
+    FreeRunController.h
+    freerun_shm_mirror.cpp
+    freerun_shm_mirror.h
+    freerun_rpc_handlers.cpp
+    freerun_rpc_handlers.h
     RtTestController.cpp
     RtTestController.h
-    FreeRunController.h
     handlers/AdapterHandler.h
     handlers/AdapterHandler.cpp
     handlers/AlEventHandler.h

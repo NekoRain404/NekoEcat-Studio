@@ -8,11 +8,21 @@
 #include <QJsonObject>
 #include <QString>
 #include <atomic>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
 
 #include <ecrt.h>
+
+#include "freerun_shm_mirror.h"
+#include "nekoecat_shm.h"
+
+#include <cstdint>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 class FreeRunController : public QObject {
     Q_OBJECT
@@ -33,6 +43,11 @@ public:
     // Expose the IgH master handle for DC sync enrichment.
     // Returns nullptr when Free Run is not active.
     ec_master_t *masterHandle() const { return master_; }
+
+    // Number of discovered slaves on the bus (safe for the daemon's event
+    // loop thread: runtimeSlaves_ is only mutated during start/stop, which
+    // run on the same thread).
+    int slaveCount() const { return static_cast<int>(runtimeSlaves_.size()); }
 
 private:
     // Describes a single PDO entry from the cstruct output.
@@ -90,12 +105,50 @@ private:
         unsigned int *bitPosition = nullptr;
     };
 
+public:
+    // Shared memory layout for external clients (double buffer + version) - public for tests + client
+    // The layout itself lives in the canonical Qt-free header nekoecat_shm.h.
+
+private:
+    static constexpr size_t kMaxProcessDataSize = NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE;
+    static constexpr const char* kShmName = "/nekoecat_proc_0";
+
     bool buildConfiguration(uint32_t masterIndex, std::vector<SlaveSpec> *slaves, QString *error) const;
     bool parseCStruct(uint16_t position, const QString &text, SlaveSpec *slave, QString *error) const;
     void applyPdoNames(const QString &text, SlaveSpec *slave) const;
     QString runEthercat(uint32_t masterIndex, const QStringList &arguments, int *exitCode, QString *stdErr) const;
+    bool initSharedMemory(uint32_t dataSize, QString *error);
+    void cleanupSharedMemory();
+    void mirrorToShm();
+    std::vector<ShmMirrorEntry> buildMirrorEntries() const;
+public:
+    QJsonObject shmInfo() const;  // for RPC exposure: name, size, layout_version, entries[]
     void loop();
     void cleanup();
+
+#ifdef UNIT_TEST
+public:
+    void testMirrorToShm() { mirrorToShm(); }
+    void testSetDomainData(uint8_t* d, uint32_t s) { domainData_ = d; if (shm_header_) nekoecat_shm_store(&shm_header_->data_size, s, NEKOECAT_MO_RELAXED); }
+    void testSetupTestShm(ShmHeader* h, uint8_t* buf0, uint8_t* buf1, uint32_t dsz) {
+        shm_header_ = h; shm_data_[0] = buf0; shm_data_[1] = buf1; shm_stride_ = dsz;
+        if (h) {
+            nekoecat_shm_store(&h->data_size, dsz, NEKOECAT_MO_RELAXED);
+            nekoecat_shm_store(&h->active_buffer, 0, NEKOECAT_MO_RELAXED);
+            nekoecat_shm_store(&h->version, 0, NEKOECAT_MO_RELAXED);
+            nekoecat_shm_store(&h->cycle_count, 0, NEKOECAT_MO_RELAXED);
+            nekoecat_shm_store(&h->layout_version, NEKOECAT_SHM_LAYOUT_VERSION, NEKOECAT_MO_RELAXED);
+        }
+    }
+    void testAddMirrorEntry(uint16_t slave, uint16_t idx, uint8_t sub, uint8_t blen, const char* dir, uint32_t off) {
+        RuntimeEntry e{};
+        e.slavePosition = slave; e.index = idx; e.subindex = sub; e.bitLength = blen;
+        e.direction = QString::fromUtf8(dir);
+        testOffs_.push_back(std::make_unique<unsigned int>(off));
+        e.offset = testOffs_.back().get();
+        runtimeEntries_.push_back(e);
+    }
+#endif
     QString alStateText(unsigned int alStates) const;
     QString wcStateText(ec_wc_state_t state) const;
     QJsonArray entryTelemetryLocked() const;
@@ -105,18 +158,28 @@ private:
     QString readEntryRawValue(const RuntimeEntry &entry) const;
     QString readEntryDecodedValue(const RuntimeEntry &entry) const;
 
+private:
     std::atomic_bool running_{false};
     std::atomic_ullong cycleCount_{0};
     std::atomic_ullong wcErrorCount_{0};  // Consecutive WC completeness errors.
     static constexpr int kWcErrorThreshold = 100;  // Update status after this many consecutive errors.
-    // Cycle time statistics (nanoseconds) — updated by the RT thread, read by telemetry().
-    mutable std::mutex cycleMutex_;
-    int64_t minCycleNsec_ = INT64_MAX;
-    int64_t maxCycleNsec_ = 0;
-    int64_t totalCycleNsec_ = 0;
+    // Cycle time statistics (nanoseconds) — lock-free atomics so the RT loop
+    // never takes a mutex (telemetry() reads them relaxed; approximate values
+    // are acceptable for diagnostics).
+    std::atomic<int64_t> minCycleNsec_{INT64_MAX};
+    std::atomic<int64_t> maxCycleNsec_{0};
+    std::atomic<int64_t> totalCycleNsec_{0};
     std::thread thread_;
     uint32_t activeMasterIndex_ = 0;
     QString status_ = "Stopped";
+
+    // Shared memory for external real-time clients
+    int shm_fd_ = -1;
+    void* shm_ptr_ = nullptr;
+    size_t shm_size_ = 0;
+    size_t shm_stride_ = 0;  // per-buffer stride actually allocated (== data_size)
+    ShmHeader* shm_header_ = nullptr;
+    uint8_t* shm_data_[2] = {nullptr, nullptr};
     // Protects masterState_ and domainState_ which are written by the RT thread.
     mutable std::mutex stateMutex_;
     ec_master_state_t masterState_ {};
@@ -138,4 +201,9 @@ private:
     // Sentinelled list passed to ecrt to register all PDO entries in the domain.
     std::vector<ec_pdo_entry_reg_t> registrations_;
     std::vector<RuntimeEntry> runtimeEntries_;
+    // Precomputed mirror layout (built once at start(), reused by the RT loop).
+    std::vector<ShmMirrorEntry> mirrorEntries_;
+#ifdef UNIT_TEST
+    std::vector<std::unique_ptr<unsigned int>> testOffs_;
+#endif
 };

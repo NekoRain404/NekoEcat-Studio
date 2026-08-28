@@ -18,8 +18,42 @@ target_compile_definitions(product_boundary_test PRIVATE
     SOURCE_ROOT="${CMAKE_SOURCE_DIR}"
 )
 target_link_libraries(product_boundary_test PRIVATE Qt6::Core Qt6::Test)
+
+add_executable(free_run_mirror_test
+    free_run_mirror_test.cpp
+    ../../../apps/ecatd/FreeRunController.cpp
+    ../../../apps/ecatd/freerun_shm_mirror.cpp
+)
+target_link_libraries(free_run_mirror_test PRIVATE Qt6::Core Qt6::Test ethercat)
+target_include_directories(free_run_mirror_test PRIVATE ../../../apps/ecatd ../../../src/core)
+target_compile_definitions(free_run_mirror_test PRIVATE UNIT_TEST)
+add_test(NAME free_run_mirror_test COMMAND free_run_mirror_test)
+set_tests_properties(free_run_mirror_test PROPERTIES TIMEOUT 60)
+
+add_executable(nekoecat_client_layout_test
+    nekoecat_client_layout_test.c
+    ../../../client/nekoecat_client.c
+)
+target_include_directories(nekoecat_client_layout_test PRIVATE ../../../client ../../../src/core)
+target_compile_definitions(nekoecat_client_layout_test PRIVATE NEKOECAT_TESTING)
+target_link_libraries(nekoecat_client_layout_test PRIVATE pthread)
+set_target_properties(nekoecat_client_layout_test PROPERTIES LINKER_LANGUAGE C AUTOMOC OFF RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/unit/core")
+add_test(NAME nekoecat_client_layout_test COMMAND nekoecat_client_layout_test)
+set_tests_properties(nekoecat_client_layout_test PROPERTIES TIMEOUT 60)
 set_target_properties(product_boundary_test PROPERTIES AUTOMOC ON)
 add_test(NAME product_boundary_test COMMAND product_boundary_test)
+
+add_executable(freerun_client_cycle_test
+    freerun_client_cycle_test.cpp
+    ../../../apps/ecatd/freerun_shm_mirror.cpp
+    ../../../client/nekoecat_client.c
+)
+target_include_directories(freerun_client_cycle_test PRIVATE ../../../apps/ecatd ../../../client ../../../src/core)
+target_compile_definitions(freerun_client_cycle_test PRIVATE NEKOECAT_TESTING)
+target_link_libraries(freerun_client_cycle_test PRIVATE pthread)
+set_target_properties(freerun_client_cycle_test PROPERTIES AUTOMOC OFF RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/unit/core")
+add_test(NAME freerun_client_cycle_test COMMAND freerun_client_cycle_test)
+set_tests_properties(freerun_client_cycle_test PROPERTIES TIMEOUT 60)
 
 add_executable(io_variable_filter_test
     io_variable_filter_test.cpp
@@ -167,6 +201,7 @@ target_include_directories(command_dispatcher_test PRIVATE
 target_link_libraries(command_dispatcher_test PRIVATE Qt6::Core Qt6::Network)
 
 add_test(NAME command_dispatcher_test COMMAND command_dispatcher_test)
+set_tests_properties(command_dispatcher_test PROPERTIES TIMEOUT 120)
 
 add_executable(workspace_boundary_types_test
     workspace_boundary_types_test.cpp
@@ -228,6 +263,8 @@ add_executable(adapter_handler_test
     adapter_handler_test.cpp
     ../../../apps/ecatd/handlers/AdapterHandler.cpp
     ../../../apps/ecatd/handlers/AdapterHandler.h
+    ../../../apps/ecatd/CommandDispatcher.cpp
+    ../../../apps/ecatd/CommandDispatcher.h
 )
 target_include_directories(adapter_handler_test PRIVATE
     ${CMAKE_SOURCE_DIR}/apps/ecatd
@@ -251,6 +288,7 @@ target_include_directories(dc_sync_handler_test PRIVATE
 target_link_libraries(dc_sync_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
 set_target_properties(dc_sync_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME dc_sync_handler_test COMMAND dc_sync_handler_test)
+set_tests_properties(dc_sync_handler_test PROPERTIES TIMEOUT 120)
 
 # ── FoEHandler (daemon) ─────────────────────────────────────────────
 add_executable(foe_handler_test
@@ -359,6 +397,10 @@ add_executable(daemon_handler_test
     ../../../apps/ecatd/CommandDispatcher.h
     ../../../apps/ecatd/FreeRunController.cpp
     ../../../apps/ecatd/FreeRunController.h
+    ../../../apps/ecatd/freerun_shm_mirror.cpp
+    ../../../apps/ecatd/freerun_shm_mirror.h
+    ../../../apps/ecatd/freerun_rpc_handlers.cpp
+    ../../../apps/ecatd/freerun_rpc_handlers.h
     ../../../apps/ecatd/RtTestController.cpp
     ../../../apps/ecatd/RtTestController.h
     ../../../apps/ecatd/handlers/AlEventHandler.cpp
@@ -390,7 +432,9 @@ target_include_directories(daemon_handler_test PRIVATE
 )
 target_link_libraries(daemon_handler_test PRIVATE Qt6::Core Qt6::Network Qt6::Test ecat_igh ethercat)
 set_target_properties(daemon_handler_test PROPERTIES AUTOMOC ON)
+target_compile_definitions(daemon_handler_test PRIVATE UNIT_TEST)
 add_test(NAME daemon_handler_test COMMAND daemon_handler_test)
+set_tests_properties(daemon_handler_test PROPERTIES TIMEOUT 120)
 
 # ── EniGenerator Test ──────────────────────────────────────────────────
 add_executable(eni_generator_test
@@ -440,3 +484,8 @@ target_include_directories(soe_handler_test PRIVATE
 target_link_libraries(soe_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethercat)
 set_target_properties(soe_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME soe_handler_test COMMAND soe_handler_test)
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

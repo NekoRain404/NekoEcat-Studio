@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(NekoEcatStudio VERSION 1.0.0 LANGUAGES CXX)
+project(NekoEcatStudio VERSION 1.0.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,6 +56,7 @@ endif()
 # Shared libraries
 add_subdirectory(src/core)    # EthercatTypes, JsonProtocol
 add_subdirectory(src/igh)     # IgH ethercat CLI adapter
+add_subdirectory(client)      # Pure-C real-time client library (SHM + JSON-RPC)
 
 # Applications
 add_subdirectory(apps/ecatd)       # Runtime daemon
@@ -95,6 +96,9 @@ set(CPACK_RPM_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.x86_64.r
 
 # Install rules
 install(TARGETS ecatd ecat-studio DESTINATION bin)
+install(TARGETS nekoecat_client DESTINATION lib)
+install(FILES client/nekoecat_client.h client/shm_layout.h src/core/nekoecat_shm.h
+        DESTINATION include/nekoecat)
 install(DIRECTORY translations/ DESTINATION share/nekoecat/translations)
 install(FILES README.md LICENSE CHANGELOG.md ARCHITECTURE.md
         DESTINATION share/doc/nekoecat)

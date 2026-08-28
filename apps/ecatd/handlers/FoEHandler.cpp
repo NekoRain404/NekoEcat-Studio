@@ -77,7 +77,12 @@ QJsonObject FoEHandler::handleFoeWrite(const QString &id, const QJsonObject &par
         return CommandDispatcher::failure(id, "Missing 'filePath' parameter.");
     }
 
-    // Validate the input file exists and is readable.
+    // Validate the input file exists, is readable, and is inside the allowed
+    // firmware base (blocks uploading sensitive files from arbitrary paths).
+    QString pathError;
+    if (!validateFilePath(filePath, &pathError)) {
+        return CommandDispatcher::failure(id, pathError);
+    }
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists()) {
         return CommandDispatcher::failure(id,
@@ -147,7 +152,8 @@ int FoEHandler::runEthercatCommand(const QStringList &args, QString *output,
     return proc.exitCode();
 }
 
-// Validate that a path is absolute, free of traversal sequences, and its parent directory exists.
+// Validate that a path is absolute, free of traversal sequences, resolves
+// without symlinks escaping, and stays inside an allowed firmware base directory.
 bool FoEHandler::validateFilePath(const QString &path, QString *error) const
 {
     QFileInfo info(path);
@@ -156,24 +162,61 @@ bool FoEHandler::validateFilePath(const QString &path, QString *error) const
         return false;
     }
     // Reject path traversal sequences
-    if (path.contains("/../") || path.endsWith("/..")) {
+    if (path.contains("/../") || path.endsWith("/..") || path == QLatin1String("..") || path.contains("/..")) {
         if (error) *error = QString("File path '%1' must not contain '..' components.").arg(path);
         return false;
-    }
-    // Resolve symlinks and check the canonical path exists
-    const QString canonical = info.canonicalFilePath();
-    if (!canonical.isEmpty() && canonical != path) {
-        // A symlink was resolved — verify the target is also absolute
-        if (!QFileInfo(canonical).isAbsolute()) {
-            if (error) *error = QString("Resolved path '%1' is not absolute.").arg(canonical);
-            return false;
-        }
     }
     if (!info.dir().exists()) {
         if (error) *error = QString("Directory '%1' does not exist.").arg(info.path());
         return false;
     }
-    return true;
+
+    // Resolve symlinks and normalize. For a not-yet-created file canonicalFilePath
+    // is empty, so resolve the parent directory instead (it must exist).
+    QString resolved = info.canonicalFilePath();
+    if (resolved.isEmpty()) {
+        const QString parent = QFileInfo(info.path()).canonicalFilePath();
+        if (parent.isEmpty()) {
+            if (error) *error = QString("Cannot resolve '%1'.").arg(info.path());
+            return false;
+        }
+        resolved = parent;
+    }
+
+    // The resolved target must stay inside one of the allowed firmware bases.
+    // This defeats arbitrary-path writes (e.g. /etc/cron.d/...) and symlink
+    // traversal that points outside the base.
+    const QStringList bases = firmwareBaseDirs();
+    for (const QString &base : bases) {
+        const QString baseCanonical = QFileInfo(base).canonicalFilePath();
+        if (baseCanonical.isEmpty()) {
+            continue;
+        }
+        if (resolved == baseCanonical || resolved.startsWith(baseCanonical + QLatin1Char('/'))) {
+            return true;
+        }
+    }
+    if (error) {
+        *error = QString("File path '%1' resolves to '%2', outside the allowed firmware directory.").arg(path, resolved);
+    }
+    return false;
+}
+
+// Allowed base directories for FoE file transfers. Set NEKOECAT_FIRMWARE_DIR to
+// restrict to a single directory; otherwise /tmp and the user's home are allowed.
+QStringList FoEHandler::firmwareBaseDirs() const
+{
+    const QByteArray env = qgetenv("NEKOECAT_FIRMWARE_DIR");
+    if (!env.isEmpty()) {
+        return {QString::fromLocal8Bit(env)};
+    }
+    QStringList bases;
+    bases << QStringLiteral("/tmp");
+    const QString home = QDir::homePath();
+    if (!home.isEmpty() && home != QStringLiteral("/tmp")) {
+        bases << home;
+    }
+    return bases;
 }
 
 // Get the size of a file in bytes. Returns -1 if the file doesn't exist.
