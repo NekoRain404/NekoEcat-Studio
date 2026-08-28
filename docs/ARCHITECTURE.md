@@ -112,92 +112,57 @@ Internal storage: `QVector<WorkspacePlugin*>` for ordered traversal (sorted by d
 
 ### Registered Plugins
 
-| Plugin | Id | Purpose |
-|--------|----|---------|
-| OverviewPlugin | `overview` | Bus summary and slave overview |
-| TopologyPlugin | `topology` | Topology graph visualization |
-| OdPlugin | `od` | Object Dictionary browser |
-| WatchPlugin | `watch` | SDO watch list with polling |
-| FreeRunPlugin | `freerun` | Process data Free Run mode |
-| RtTestPlugin | `rttest` | Real-time performance testing |
-| DcSyncPlugin | `dcsync` | DC sync diagnostics |
-| AlEventPlugin | `alevent` | AL event log viewer |
-| StateMachinePlugin | `statemachine` | Slave state machine control |
-| StartupSdoPlugin | `startupsdo` | Startup SDO configuration |
-| IoVariablePlugin | `iovariable` | I/O variable monitoring |
-| ConsistencyPlugin | `consistency` | Bus consistency checks |
-| DiagnosticsPlugin | `diagnostics` | Host and bus diagnostics |
-| SessionPlugin | `session` | Session management |
-| SignalPlugin | `signal` | Multi-channel signal analyzer |
-| ExportPlugin | `export` | Data export |
-| NotesPlugin | `notes` | User notes |
-| EsiBrowserPlugin | `esibrowser` | ESI XML browser, parser, and device matcher |
-| BusStatsPlugin | `busstats` | Bus statistics monitoring |
-| DashboardPlugin | `dashboard` | Configurable dashboard with gauges, counters, sparklines |
-| ChartPlugin | `chart` | Data visualization (line, bar, pie, scatter, gauge) |
-| AutomationPlugin | `automation` | JavaScript script editor and execution |
-| ProtocolAnalyzerPlugin | `protocol` | EtherCAT protocol frame capture and analysis |
-| ProjectPlugin | `project` | Project management and configuration |
-| AlarmPlugin | `alarm` | System alarm management and history |
-| OscilloscopePlugin | `oscilloscope` | Real-time multi-channel waveform display |
-| NetworkDiagnosticsPlugin | `network` | Network port status, error counters, bandwidth utilization |
-| DataPipelinePlugin | `datapipeline` | Data pipeline configuration, stage management, and monitoring |
-| DeviceManagerPlugin | `devicemanager` | Device discovery, configuration, and status monitoring |
-| MasterManagerPlugin | `master` | EtherCAT master info, diagnostics, restart, and log viewer |
-| SdoCachePlugin | `sdocache` | SDO cache management and statistics |
-| ThemeCustomizerPlugin | `themecustomizer` | UI theme customization |
-| KeyboardShortcutsPlugin | `shortcuts` | Keyboard shortcut configuration |
-| UserPreferencesPlugin | `preferences` | User preference management |
-| TracePlugin | `trace` | EtherCAT frame trace capture |
-| LogicAnalyzerPlugin | `logicanalyzer` | Logic analyzer for digital signals |
-| DiagramPlugin | `diagram` | Network topology diagram editor |
-| FormulaPlugin | `formula` | Formula calculator for process data |
-| ScriptLibraryPlugin | `scriptlibrary` | Automation script library |
-| SimulationPlugin | `simulation` | EtherCAT bus simulation |
-| CalibrationPlugin | `calibration` | Device calibration tools |
-| DocumentationPlugin | `documentation` | Integrated documentation browser |
-| WizardPlugin | `wizard` | Setup wizard for common tasks |
-| TemplatePlugin | `template` | Project template management |
-| ReportPlugin | `report` | Report generation and export |
-| DashboardDesignerPlugin | `dashboarddesigner` | Custom dashboard layout designer |
-| AlarmManagerPlugin | `alarmmanager` | Advanced alarm management and rules |
-| DataLoggerPlugin | `datalogger` | High-speed data logging to file |
-| WorkflowDesignerPlugin | `workflowdesigner` | Commissioning workflow designer |
-| TestSuitePlugin | `testsuite` | Automated test suite runner |
-| DeploymentPlugin | `deployment` | Device deployment and provisioning |
-| ConfigurationEditorPlugin | `configeditor` | Advanced configuration editor |
-| NetworkAnalyzerPlugin | `networkanalyzer` | Network traffic analyzer |
-| SystemMonitorPlugin | `systemmonitor` | System resource monitoring |
-| SecurityManagerPlugin | `securitymanager` | Security policy management |
-| ComplianceCheckerPlugin | `compliancechecker` | EtherCAT compliance checking |
-| CertificationManagerPlugin | `certificationmanager` | Device certification management |
-| OptimizationDashboardPlugin | `optimization` | Performance optimization dashboard |
-| MonitoringDashboardPlugin | `monitoring` | Real-time monitoring dashboard |
-| AnalyticsDashboardPlugin | `analytics` | Data analytics dashboard |
-| DeploymentManagerPlugin | `deploymentmanager` | Multi-device deployment management |
-| UpdateManagerPlugin | `updatemanager` | Firmware update management |
-| MaintenanceSchedulerPlugin | `maintenancescheduler` | Maintenance scheduling |
-| IntegrationHubPlugin | `integrationhub` | Third-party integration hub |
-| SyncManagerPlugin | `syncmanager` | Sync manager configuration |
-| ReplicationManagerPlugin | `replicationmanager` | Configuration replication |
-| VisualizationStudioPlugin | `visualizationstudio` | Advanced data visualization |
-| ReportDesignerPlugin | `reportdesigner` | Custom report designer |
-| DocumentationBrowserPlugin | `documentationbrowser` | Documentation browser |
-| WorkflowOptimizerPlugin | `workflowoptimizer` | Workflow optimization recommendations |
-| WorkflowDashboardPlugin | `workflowdashboard` | Workflow monitoring dashboard |
-| PdoMappingEditorPlugin | `pdomapping` | Visual PDO mapping editor with canvas, validator, and export |
-| DcSyncPrecisionPlugin | `dcsyncprecision` | DC sync precision analysis with drift monitoring and jitter analysis |
-| OnlineDiagnosticsPlugin | `onlinediagnostics` | Real-time bus monitoring, error analysis, and health scoring |
-| MultiMasterPlugin | `multimaster` | Multi-master management with comparison view |
-| RealtimePerformancePlugin | `realtimeperf` | Latency and throughput monitoring with ring buffer statistics |
-| AdvancedErrorAnalysisPlugin | `erroranalysis` | Error timeline, correlation analysis, and root cause identification |
-| HardwareVerificationPlugin | `hardwareverification` | Device and network verification for pre-commissioning checks |
-| DcSyncOptimizerPlugin | `dcsyncoptimizer` | DC synchronization optimization with sync, drift, jitter, and config optimization |
-| DcSyncOptimizationPlugin | `dcsyncoptimization` | DC sync precision optimization with drift monitoring and jitter analysis |
-| FreeRunOptimizationPlugin | `freerunoptimization` | Free Run process data exchange optimization |
-| PdoMappingOptimizationPlugin | `pdomappingoptimization` | PDO mapping configuration optimization |
-| SdoOptimizationPlugin | `sdooptimization` | SDO communication optimization with cache and batch optimization |
-| RealtimeOptimizerPlugin | `realtimeoptimizer` | Real-time performance optimization with latency and throughput optimization |
+The GUI registers the following plugins in `MainWindow.cpp`. All are compiled
+into the default application build; `Visible` marks the plugins that contribute
+a workspace tab (the rest are hidden helper/preference plugins).
+
+| Plugin | Id | Purpose | Visible |
+|--------|----|---------|---------|
+| OverviewPlugin | `overview` | Bus summary and slave overview | Yes |
+| TopologyPlugin | `topology` | Topology graph visualization | Yes |
+| OdPlugin | `od` | Object Dictionary browser | Yes |
+| WatchPlugin | `watch` | SDO watch list with polling | Yes |
+| FreeRunPlugin | `freerun` | Process data Free Run mode | Yes |
+| DcSyncPlugin | `dcsync` | DC sync diagnostics | Yes |
+| AlEventPlugin | `alevent` | AL event log viewer | Yes |
+| StateMachinePlugin | `statemachine` | Slave state machine control | Yes |
+| StartupSdoPlugin | `startupsdo` | Startup SDO configuration | Yes |
+| IoVariablePlugin | `iovariable` | I/O variable monitoring | Yes |
+| ConsistencyPlugin | `consistency` | Bus consistency checks | Yes |
+| DiagnosticsPlugin | `diagnostics` | Host and bus diagnostics | Yes |
+| SessionPlugin | `session` | Session management | Yes |
+| SignalPlugin | `signal` | Multi-channel signal analyzer | Yes |
+| EsiBrowserPlugin | `esibrowser` | ESI XML browser, parser, and device matcher | Yes |
+| BusStatsPlugin | `busstats` | Bus statistics monitoring | Yes |
+| OscilloscopePlugin | `oscilloscope` | Real-time multi-channel waveform display | Yes |
+| EoEPlugin | `eoe` | Ethernet over EtherCAT (EoE) tunnel | Yes |
+| SoEPlugin | `soe` | Servo over EtherCAT (SoE) interface | Yes |
+| EniExportPlugin | `eni` | ENI export | Yes |
+| ProjectPlugin | `project` | Project management and configuration | Yes |
+| PdoMappingEditorPlugin | `pdomapping` | Visual PDO mapping editor with canvas, validator, and export | Yes |
+| DcSyncPrecisionPlugin | `dcsyncprecision` | DC sync precision analysis with drift/jitter monitoring | Yes |
+| OnlineDiagnosticsPlugin | `onlinediagnostics` | Real-time bus monitoring, error analysis, health scoring | Yes |
+| RtTestPlugin | `rttest` | Real-time performance testing | No |
+| ExportPlugin | `export` | Data export | No |
+| NotesPlugin | `notes` | User notes | No |
+| ChartPlugin | `chart` | Data visualization (line, bar, pie, scatter, gauge) | No |
+| ProtocolAnalyzerPlugin | `protocol` | EtherCAT protocol frame capture and analysis | No |
+| ThemeCustomizerPlugin | `themecustomizer` | UI theme customization | No |
+| KeyboardShortcutsPlugin | `shortcuts` | Keyboard shortcut configuration | No |
+| UserPreferencesPlugin | `preferences` | User preference management | No |
+| AutomationPlugin | `automation` | JavaScript script editor and execution (Qt6 Qml) | No |
+| RealtimePerformancePlugin | `realtimeperf` | Latency and throughput monitoring with ring buffer statistics | No |
+
+That is **34 plugins registered** in the default build, of which **24 are
+visible** as workspace tabs. The `AlarmPlugin` is registered only when
+`ECAT_EXPERIMENTAL_SERVICES=ON`.
+
+> Note: many additional plugin directories exist on disk (Dashboard, Trace,
+> LogicAnalyzer, Diagram, Formula, Simulation, Calibration, Documentation,
+> Wizard, MultiMaster, AdvancedErrorAnalysis, HardwareVerification, the
+> various *Optimizer plugins, and the workflow/dashboard editors). They are
+> **not** part of the default application build; their unit tests are only
+> compiled when `ECAT_EXPERIMENTAL_SERVICES=ON`.
 
 ### EventBus
 

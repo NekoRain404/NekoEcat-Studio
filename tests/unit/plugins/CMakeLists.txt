@@ -81,7 +81,80 @@ set_target_properties(notes_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME notes_plugin_test COMMAND notes_plugin_test)
 set_tests_properties(notes_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
+# ── ExportPlugin (unit) ───────────────────────────────────────────────
+add_executable(export_plugin_test
+    export_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/export/ExportPlugin.cpp
+    ../../../apps/ecat-studio/plugins/export/ExportPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../../apps/ecat-studio/utils/TableHelpers.cpp
+    ../../../apps/ecat-studio/utils/TableHelpers.h
+    ../../../apps/ecat-studio/utils/TextHelpers.cpp
+    ../../../apps/ecat-studio/utils/TextHelpers.h
+)
+target_include_directories(export_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(export_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(export_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME export_plugin_test COMMAND export_plugin_test)
+set_tests_properties(export_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+# ── RtTestPlugin (unit) ───────────────────────────────────────────────
+add_executable(rttest_plugin_test
+    rttest_plugin_test.cpp
+    ../../../apps/ecat-studio/plugins/rttest/RtTestPlugin.cpp
+    ../../../apps/ecat-studio/plugins/rttest/RtTestPlugin.h
+    ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../../../apps/ecat-studio/services/ServiceContainer.h
+    ../../../apps/ecat-studio/services/EventBus.cpp
+    ../../../apps/ecat-studio/services/EventBus.h
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+)
+target_include_directories(rttest_plugin_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/services
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/infra
+    ${CMAKE_SOURCE_DIR}/src/core
+)
+target_link_libraries(rttest_plugin_test PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Widgets
+    Qt6::Test
+    ecat_core
+)
+set_target_properties(rttest_plugin_test PROPERTIES AUTOMOC ON)
+add_test(NAME rttest_plugin_test COMMAND rttest_plugin_test)
+set_tests_properties(rttest_plugin_test PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
 # ── DcSyncOptimizerPlugin + DcSyncOptimizerService ─────────────────────
+# DcSyncOptimizer/PdoMappingOptimization/RealtimeOptimizer/ErrorAnalysis
+# plugins are NOT compiled into the app build — gate their tests.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(dcsyncoptimizer_plugin_test
     dcsyncoptimizer_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/dcsyncoptimizer/DcSyncOptimizerPlugin.cpp
@@ -191,6 +264,7 @@ add_test(NAME plugin_widgets_test COMMAND plugin_widgets_test)
 set_tests_properties(plugin_widgets_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (dcsyncoptimizer/pdomappingoptimization/plugin_widgets)
 
 # ── BusStatsPlugin + BusStatsService (GUI) ──────────────────────────
 add_executable(busstats_plugin_test
@@ -271,6 +345,7 @@ set_tests_properties(onlinediagnostics_plugin_test PROPERTIES
 )
 
 # ── AlarmPlugin + AlarmService + LoggingService ─────────────────────
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(alarm_plugin_test
     alarm_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/alarm/AlarmPlugin.cpp
@@ -300,6 +375,7 @@ add_test(NAME alarm_plugin_test COMMAND alarm_plugin_test)
 set_tests_properties(alarm_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif()
 
 # ── ProjectPlugin + ProjectManagerService + ConfigurationService ─────
 add_executable(project_plugin_test
@@ -433,6 +509,8 @@ set_tests_properties(chart_plugin_test PROPERTIES
 )
 
 # ── DashboardPlugin + ChartService (GUI) ────────────────────────────
+# DashboardPlugin is NOT in the app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(dashboard_plugin_test
     dashboard_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/dashboard/DashboardPlugin.cpp
@@ -467,6 +545,7 @@ add_test(NAME dashboard_plugin_test COMMAND dashboard_plugin_test)
 set_tests_properties(dashboard_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (dashboard)
 
 if(Qt6Qml_FOUND)
 
@@ -520,6 +599,9 @@ if(Qt6Qml_FOUND)
 endif()
 
 # ── NetworkDiagnosticsPlugin + NetworkDiagnosticsService (GUI) ───────────
+# NetworkDiagnostics/DataPipeline/DeviceManager/MasterManager/SdoCache
+# plugins are NOT compiled into the app build — gate their tests.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(network_diagnostics_plugin_test
     network_diagnostics_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/network/NetworkDiagnosticsPlugin.cpp
@@ -668,6 +750,7 @@ add_test(NAME sdo_cache_plugin_test COMMAND sdo_cache_plugin_test)
 set_tests_properties(sdo_cache_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (network/data_pipeline/device_manager/master/sdo_cache plugins)
 
 # ── ThemeCustomizerPlugin (GUI) ──────────────────────────────────────
 add_executable(theme_customizer_plugin_test
@@ -709,6 +792,9 @@ add_test(NAME user_preferences_plugin_test COMMAND user_preferences_plugin_test)
 set_tests_properties(user_preferences_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 # ── TracePlugin + TraceService (GUI) ────────────────────────────────────
+# Trace/LogicAnalyzer/Diagram/Formula/ScriptLibrary plugins are NOT in the
+# app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(trace_plugin_test
     trace_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/trace/TracePlugin.cpp
@@ -826,8 +912,12 @@ target_include_directories(scriptlibrary_plugin_test PRIVATE ${CMAKE_SOURCE_DIR}
 set_target_properties(scriptlibrary_plugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME scriptlibrary_plugin_test COMMAND scriptlibrary_plugin_test)
 set_tests_properties(scriptlibrary_plugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif() # ECAT_EXPERIMENTAL_SERVICES (trace/logicanalyzer/diagram/formula/scriptlibrary)
 
 # ── SimulationPlugin (integration) ──────────────────────────────────
+# Simulation/Calibration/Documentation/Wizard/Template plugins are NOT in
+# the app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(simulation_plugin_test
     simulation_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/simulation/SimulationPlugin.cpp
@@ -914,8 +1004,13 @@ add_test(NAME template_plugin_test COMMAND template_plugin_test)
 set_tests_properties(template_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (simulation/calibration/documentation/wizard/template)
 
 # ── SecurityManagerPlugin ──────────────────────────────────────────
+# SecurityManager/ComplianceChecker/CertificationManager/Report/
+# DashboardDesigner/AlarmManager/DataLogger plugins are NOT in the app
+# build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(securitymanager_plugin_test
     securitymanager_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/securitymanager/SecurityManagerPlugin.cpp
@@ -1039,8 +1134,16 @@ add_test(NAME datalogger_plugin_test COMMAND datalogger_plugin_test)
 set_tests_properties(datalogger_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (security/compliance/certification/report/dashboarddesigner/alarmmanager/datalogger)
 
 # ── WorkflowDesignerPlugin (unit) ─────────────────────────────────
+# WorkflowDesigner/TestSuite/Deployment/DeploymentManager/UpdateManager/
+# MaintenanceScheduler/ConfigEditor/NetworkAnalyzer/SystemMonitor/
+# OptimizationDashboard/MonitoringDashboard/AnalyticsDashboard/
+# IntegrationHub/SyncManager/ReplicationManager/VisualizationStudio/
+# ReportDesigner/DocumentationBrowser/WorkflowOptimizer/WorkflowDashboard
+# plugins are NOT compiled into the app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(workflowdesigner_plugin_test
     workflowdesigner_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/workflowdesigner/WorkflowDesignerPlugin.cpp
@@ -1364,6 +1467,7 @@ set_tests_properties(workflowdashboard_plugin_test PROPERTIES
     TIMEOUT 30
     LABELS "unit;plugin"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (workflow/analytics/dashboard/editor plugins)
 
 # ── ESI Browser Plugin Test ──────────────────────────────────────────
 add_executable(esi_browser_plugin_test
@@ -1438,6 +1542,9 @@ set_tests_properties(dcsyncprecision_plugin_test PROPERTIES
 )
 
 # ── FreeRunOptimizationPlugin + FreeRunOptimizationService ───────────
+# FreeRunOptimization/SdoOptimization plugins are NOT in the app build —
+# gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(freerunoptimization_plugin_test
     freerunoptimization_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/freerunoptimization/FreeRunOptimizationPlugin.cpp
@@ -1524,6 +1631,7 @@ add_test(NAME sdooptimization_plugin_test COMMAND sdooptimization_plugin_test)
 set_tests_properties(sdooptimization_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (freerunoptimization/sdooptimization)
 
 # ── OverviewPlugin (unit) ────────────────────────────────────────────
 add_executable(overview_plugin_test
@@ -1917,6 +2025,9 @@ set_tests_properties(realtimeperf_plugin_test PROPERTIES
 )
 
 # ── RealtimeOptimizerPlugin + RealtimeOptimizerService (GUI) ──────────
+# RealtimeOptimizer/MultiMaster/ErrorAnalysis/HardwareVerification/
+# PerformanceDashboard plugins are NOT compiled into the app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(realtimeoptimizer_plugin_test
     realtimeoptimizer_plugin_test.cpp
     ../../../apps/ecat-studio/plugins/realtimeoptimizer/RealtimeOptimizerPlugin.cpp
@@ -2097,3 +2208,10 @@ add_test(NAME performance_dashboard_plugin_test COMMAND performance_dashboard_pl
 set_tests_properties(performance_dashboard_plugin_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+endif() # ECAT_EXPERIMENTAL_SERVICES (realtimeoptimizer/multimaster/erroranalysis/hardwareverification/performance_dashboard)
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

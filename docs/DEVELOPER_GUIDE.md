@@ -89,7 +89,12 @@ tests/
 ctest --test-dir build --output-on-failure -j$(nproc)
 
 # Specific test
-./build/tests/event_bus_test
+./build/tests/unit/core/event_bus_test
+
+# Run only the unit / integration / performance suites via labels
+ctest --test-dir build -L unit
+ctest --test-dir build -L integration
+ctest --test-dir build -L performance
 
 # With coverage
 bash scripts/analyze_coverage.sh
@@ -99,6 +104,17 @@ bash scripts/check_memory.sh
 
 # Performance benchmarks
 bash scripts/benchmark.sh
+```
+
+The default `ctest` run only builds and executes tests whose system under test
+is actually compiled into the application. Services/plugins that are not part
+of the default app build (workflow, optimization, EtherCAT analytics, dashboard
+editors, etc.) are gated behind the `ECAT_EXPERIMENTAL_SERVICES` option:
+
+```bash
+cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+ctest --test-dir build --output-on-failure -j$(nproc)
 ```
 
 ### Writing Tests

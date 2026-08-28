@@ -72,7 +72,6 @@ add_executable(plugin_fixture_test
     ../../../apps/ecat-studio/plugins/PluginRegistry.h
     ../../../apps/ecat-studio/plugins/WorkspacePlugin.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -280,7 +279,6 @@ add_executable(service_fixture_test
     ../../fixtures/ServiceTestFixture.cpp
     ../../fixtures/ServiceTestFixture.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -495,3 +493,8 @@ target_link_libraries(ui_fixture_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 set_target_properties(ui_fixture_test PROPERTIES AUTOMOC ON)
 add_test(NAME ui_fixture_test COMMAND ui_fixture_test)
 set_tests_properties(ui_fixture_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

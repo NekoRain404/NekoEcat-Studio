@@ -315,22 +315,34 @@ QTEST_MAIN(MyPluginTest)
 #include "myplugin_test.moc"
 ```
 
-Add the test to `tests/CMakeLists.txt`:
+Add the test to `tests/unit/plugins/CMakeLists.txt` (plugin tests are organized
+per-directory; use the `TestServiceContainer.cpp` stub so the test does not
+pull in every service dependency):
 
 ```cmake
 add_executable(myplugin_test myplugin_test.cpp
     ../apps/ecat-studio/plugins/myplugin/MyPlugin.cpp
-    ../apps/ecat-studio/plugins/PluginRegistry.cpp
-    # ... service sources as needed
+    ../apps/ecat-studio/plugins/WorkspacePlugin.h
+    TestServiceContainer.cpp
+    ../apps/ecat-studio/services/ServiceContainer.h
+    ../apps/ecat-studio/services/EventBus.cpp
+    ../apps/ecat-studio/services/EventBus.h
+    ../apps/ecat-studio/infra/EcatClient.cpp
+    ../apps/ecat-studio/infra/EcatClient.h
 )
 target_link_libraries(myplugin_test PRIVATE Qt6::Core Qt6::Widgets Qt6::Test)
 target_include_directories(myplugin_test PRIVATE
-    ../apps/ecat-studio
-    ../apps/ecat-studio/plugins/myplugin
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio
+    ${CMAKE_SOURCE_DIR}/apps/ecat-studio/plugins/myplugin
 )
 set_target_properties(myplugin_test PROPERTIES AUTOMOC ON)
 add_test(NAME myplugin_test COMMAND myplugin_test)
+set_tests_properties(myplugin_test PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 ```
+
+> Note: if your plugin's dependencies are not part of the default application
+> build, its test must be placed inside an `if(ECAT_EXPERIMENTAL_SERVICES)`
+> block so the default `ctest` run only covers code that actually ships.
 
 Run with `QT_QPA_PLATFORM=offscreen` for headless environments.
 

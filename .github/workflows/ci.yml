@@ -74,21 +74,20 @@ jobs:
             pacman -S --noconfirm ethercat 2>/dev/null || true
           fi
 
+          # Fall back to the tracked, complete ecrt.h stub when the real IgH
+          # headers are unavailable, so the daemon and core tests still compile.
           if [ ! -f /usr/include/ecrt.h ]; then
-            echo "Creating stub ecrt.h for CI..."
+            echo "Creating stub ecrt.h for CI (from tracked ecrt_stub.h)..."
             mkdir -p /usr/include
-            cat > /usr/include/ecrt.h << 'STUB'
-          #pragma once
-          #include <cstdint>
-          typedef struct ec_master ec_master_t;
-          typedef struct ec_domain ec_domain_t;
-          typedef struct ec_slave_config ec_slave_config_t;
-          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
-          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
-          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
-          STUB
-            mkdir -p /usr/lib
-            echo "/* stub */" > /usr/lib/libethercat.so
+            if ! cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h 2>/dev/null; then
+              sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
+            fi
+          fi
+          # Provide a valid ELF libethercat.so for linking (empty shared object).
+          if [ ! -f /usr/lib/libethercat.so ]; then
+            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
+              && (cp /tmp/libethercat.so /usr/lib/libethercat.so 2>/dev/null \
+                  || sudo cp /tmp/libethercat.so /usr/lib/libethercat.so)
           fi
 
       - name: Configure
@@ -120,20 +119,16 @@ jobs:
       - name: Install IgH stub
         run: |
           sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          # Fall back to the tracked, complete ecrt.h stub when the real IgH
+          # headers are unavailable, so the daemon and core tests still compile.
           if [ ! -f /usr/include/ecrt.h ]; then
             sudo mkdir -p /usr/include
-            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
-          #pragma once
-          #include <cstdint>
-          typedef struct ec_master ec_master_t;
-          typedef struct ec_domain ec_domain_t;
-          typedef struct ec_slave_config ec_slave_config_t;
-          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
-          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
-          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
-          STUB
-            sudo mkdir -p /usr/lib
-            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+            sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
+          fi
+          # Provide a valid ELF libethercat.so for linking (empty shared object).
+          if [ ! -f /usr/lib/libethercat.so ]; then
+            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
+              && sudo cp /tmp/libethercat.so /usr/lib/libethercat.so
           fi
 
       - name: Configure
@@ -182,20 +177,16 @@ jobs:
       - name: Install IgH stub
         run: |
           sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          # Fall back to the tracked, complete ecrt.h stub when the real IgH
+          # headers are unavailable, so the daemon and core tests still compile.
           if [ ! -f /usr/include/ecrt.h ]; then
             sudo mkdir -p /usr/include
-            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
-          #pragma once
-          #include <cstdint>
-          typedef struct ec_master ec_master_t;
-          typedef struct ec_domain ec_domain_t;
-          typedef struct ec_slave_config ec_slave_config_t;
-          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
-          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
-          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
-          STUB
-            sudo mkdir -p /usr/lib
-            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+            sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
+          fi
+          # Provide a valid ELF libethercat.so for linking (empty shared object).
+          if [ ! -f /usr/lib/libethercat.so ]; then
+            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
+              && sudo cp /tmp/libethercat.so /usr/lib/libethercat.so
           fi
 
       - name: Configure
@@ -206,10 +197,20 @@ jobs:
 
       - name: Valgrind tests
         run: |
-          ctest --test-dir build --output-on-failure -j1 \
-            --test-command "valgrind --leak-check=full --error-exitcode=1 --track-origins=yes" 2>&1 || {
-              echo "::warning::Valgrind reported issues (non-blocking)"
-            }
+          set -euo pipefail
+          failures=0
+          while IFS= read -r bin; do
+            [ -x "$bin" ] || continue
+            echo "==> valgrind: $bin"
+            if ! valgrind --error-exitcode=99 --leak-check=full --quiet "$bin" >/dev/null 2>&1; then
+              echo "::error::valgrind reported errors in $bin"
+              failures=$((failures + 1))
+            fi
+          done < <(find build/tests -type f -executable -name '*_test')
+          if [ "$failures" -gt 0 ]; then
+            echo "::error::Valgrind failed for $failures test binary(ies)"
+            exit 1
+          fi
 
   coverage:
     runs-on: ubuntu-latest
@@ -225,20 +226,16 @@ jobs:
       - name: Install IgH stub
         run: |
           sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          # Fall back to the tracked, complete ecrt.h stub when the real IgH
+          # headers are unavailable, so the daemon and core tests still compile.
           if [ ! -f /usr/include/ecrt.h ]; then
             sudo mkdir -p /usr/include
-            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
-          #pragma once
-          #include <cstdint>
-          typedef struct ec_master ec_master_t;
-          typedef struct ec_domain ec_domain_t;
-          typedef struct ec_slave_config ec_slave_config_t;
-          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
-          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
-          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
-          STUB
-            sudo mkdir -p /usr/lib
-            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+            sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
+          fi
+          # Provide a valid ELF libethercat.so for linking (empty shared object).
+          if [ ! -f /usr/lib/libethercat.so ]; then
+            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
+              && sudo cp /tmp/libethercat.so /usr/lib/libethercat.so
           fi
 
       - name: Configure with coverage
@@ -289,20 +286,16 @@ jobs:
       - name: Install IgH stub
         run: |
           sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
+          # Fall back to the tracked, complete ecrt.h stub when the real IgH
+          # headers are unavailable, so the daemon and core tests still compile.
           if [ ! -f /usr/include/ecrt.h ]; then
             sudo mkdir -p /usr/include
-            sudo tee /usr/include/ecrt.h > /dev/null << 'STUB'
-          #pragma once
-          #include <cstdint>
-          typedef struct ec_master ec_master_t;
-          typedef struct ec_domain ec_domain_t;
-          typedef struct ec_slave_config ec_slave_config_t;
-          inline void ecrt_master_reference_clock_time(ec_master_t*, uint32_t*) {}
-          inline void ecrt_master_sync_monitor_queue(ec_master_t*) {}
-          inline uint32_t ecrt_master_sync_monitor_process(ec_master_t*) { return 0; }
-          STUB
-            sudo mkdir -p /usr/lib
-            echo "/* stub */" | sudo tee /usr/lib/libethercat.so > /dev/null
+            sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
+          fi
+          # Provide a valid ELF libethercat.so for linking (empty shared object).
+          if [ ! -f /usr/lib/libethercat.so ]; then
+            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
+              && sudo cp /tmp/libethercat.so /usr/lib/libethercat.so
           fi
 
       - name: Coverage analysis

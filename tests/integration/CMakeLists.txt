@@ -73,8 +73,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -241,12 +239,6 @@ add_executable(plugin_integration_test
     ../../apps/ecat-studio/services/EtherCATComplianceService.h
     ../../apps/ecat-studio/services/EtherCATCertificationService.cpp
     ../../apps/ecat-studio/services/EtherCATCertificationService.h
-    ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
-    ../../apps/ecat-studio/services/EtherCATSecurityService.h
-    ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
-    ../../apps/ecat-studio/services/EtherCATComplianceService.h
-    ../../apps/ecat-studio/services/EtherCATCertificationService.cpp
-    ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.cpp
     ../../apps/ecat-studio/services/EtherCATAnalyticsService.h
     ../../apps/ecat-studio/services/EtherCATUpdateService.cpp
@@ -282,8 +274,6 @@ set_tests_properties(plugin_integration_test PROPERTIES ENVIRONMENT "QT_QPA_PLAT
 add_executable(service_integration_test
     service_integration_test.cpp
     ../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -418,12 +408,6 @@ add_executable(service_integration_test
     ../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
-    ../../apps/ecat-studio/services/EtherCATSecurityService.h
-    ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
-    ../../apps/ecat-studio/services/EtherCATComplianceService.h
-    ../../apps/ecat-studio/services/EtherCATCertificationService.cpp
-    ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -524,8 +508,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.cpp
     ../../apps/ecat-studio/plugins/statemachine/StateMachinePlugin.h
     ../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
-    ../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../apps/ecat-studio/services/SdoCacheService.h
     ../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -686,12 +668,6 @@ add_executable(plugin_lifecycle_test
     ../../apps/ecat-studio/services/EtherCATRecoveryService.h
     ../../apps/ecat-studio/services/EtherCATSimulationService.cpp
     ../../apps/ecat-studio/services/EtherCATSimulationService.h
-    ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
-    ../../apps/ecat-studio/services/EtherCATSecurityService.h
-    ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
-    ../../apps/ecat-studio/services/EtherCATComplianceService.h
-    ../../apps/ecat-studio/services/EtherCATCertificationService.cpp
-    ../../apps/ecat-studio/services/EtherCATCertificationService.h
     ../../apps/ecat-studio/services/EtherCATSecurityService.cpp
     ../../apps/ecat-studio/services/EtherCATSecurityService.h
     ../../apps/ecat-studio/services/EtherCATComplianceService.cpp
@@ -827,3 +803,7 @@ target_include_directories(gui_daemon_integration_test PRIVATE
 target_link_libraries(gui_daemon_integration_test PRIVATE Qt6::Core Qt6::Network)
 set_target_properties(gui_daemon_integration_test PROPERTIES AUTOMOC ON)
 add_test(NAME gui_daemon_integration_test COMMAND gui_daemon_integration_test)
+
+# Label all integration tests so `ctest -L integration` is meaningful.
+get_property(_integration_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_integration_tests} APPEND PROPERTY LABELS "integration")

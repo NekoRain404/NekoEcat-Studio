@@ -43,8 +43,12 @@ private slots:
     QVERIFY(sc.watchdog() != nullptr);
     QVERIFY(sc.safety() != nullptr);
     QVERIFY(sc.diagnosticReport() != nullptr);
+#ifdef ECAT_EXPERIMENTAL_SERVICES
+    // AlarmService/LoggingService are only compiled when the experimental
+    // services option is enabled (see apps/ecat-studio/CMakeLists.txt).
     QVERIFY(sc.alarm() != nullptr);
     QVERIFY(sc.logging() != nullptr);
+#endif
   }
 
   // Verify service dependency instances are valid

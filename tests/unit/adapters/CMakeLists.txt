@@ -264,3 +264,8 @@ add_test(NAME slave_evidence_table_adapter_test
 set_tests_properties(slave_evidence_table_adapter_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

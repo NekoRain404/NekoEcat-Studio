@@ -44,9 +44,9 @@ private slots:
     QCOMPARE(plugin_->defaultOrder(), 75);
   }
 
-  // Plugin is visible by default
+  // RtTestPlugin is a hidden helper plugin (no standalone workspace tab)
   void testVisible() {
-    QVERIFY(plugin_->visible());
+    QVERIFY(!plugin_->visible());
   }
 
   // Widget is created and not null

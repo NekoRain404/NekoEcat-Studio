@@ -215,8 +215,8 @@ Set the log level in `Tools -> Settings -> Logging`.
 
 ### Tests
 
-The project includes 247 unit and integration tests covering core services,
-handlers, and performance benchmarks. Run them from the build directory:
+The project includes automated unit, integration, and performance tests covering
+core services, handlers, and the plugins that ship. Run them from the build directory:
 
 ```bash
 ctest --output-on-failure

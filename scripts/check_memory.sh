@@ -49,7 +49,9 @@ SUMMARY_FILE="${REPORT_DIR}/summary_${TIMESTAMP}.txt"
   echo ""
 } > "${SUMMARY_FILE}"
 
-for test_bin in "${BUILD_DIR}"/tests/*_test; do
+# Test binaries live in build/tests/unit, build/tests/integration and
+# build/tests/performance (plus any legacy build/tests/*_test).
+for test_bin in "${BUILD_DIR}"/tests/*_test "${BUILD_DIR}"/tests/*/*_test; do
   [ -x "${test_bin}" ] || continue
   test_name=$(basename "${test_bin}")
   TOTAL_TESTS=$((TOTAL_TESTS + 1))

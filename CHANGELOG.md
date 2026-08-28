@@ -1,5 +1,32 @@
 # Changelog
 
+## [Build & Test Fix Round] — 2026-08-28
+
+### Fixed
+
+- **Red build**: `service_integration_test` no longer calls `ServiceContainer::alarm()/logging()`
+  (those accessors exist only under `ECAT_EXPERIMENTAL_SERVICES`); the call sites are now guarded
+  so the default build compiles.
+- **Test suite reflects what ships**: unit tests for services and plugins that are no longer part
+  of the default application build (Workflow/EtherCAT-analytics/optimizer services, dashboard and
+  workflow-editor plugins, etc.) are gated behind `ECAT_EXPERIMENTAL_SERVICES`. The default run is
+  now 175 tests (100% passing) covering only compiled, registered, and visible functionality.
+- **CI**: replaced the tiny inline `ecrt.h` stub (which could not compile the daemon/core tests and
+  used a broken heredoc) with a tracked, complete stub at `.github/workflows/ci/ecrt_stub.h`;
+  fixed the broken `libethercat.so` creation; removed the dead-code `OpcUaServer.cpp` entries from
+  integration/unit test builds; rewrote the ineffective valgrind step into a real per-binary loop.
+- **Scripts**: fixed `check_memory.sh` test glob (test binaries live in per-type subdirectories);
+  `package-deb.sh`/`package-rpm.sh` now derive the version from `CMakeLists.txt` instead of a stale
+  1.2.0 default; `package-linux.sh` no longer ships a fabricated v0.1.0 release-note block;
+  `capture_goal_evidence.sh` default scratch dir is sane and no longer fabricates a duplicate test
+  run; `analyze_coverage.sh` matches modern gcovr `lines:`/`branches:` output.
+- **Build hygiene**: deduplicated `NotesPlugin` and other duplicated source entries; added
+  `unit`/`integration`/`performance` test labels so `ctest -L <label>` is meaningful; wired the
+  previously orphaned `export_plugin_test` and `rttest_plugin_test` back into the build.
+- **Docs**: README, ARCHITECTURE, DEVELOPER_GUIDE, PLUGIN_GUIDE and the `ServiceContainer.h`
+  header no longer claim stale counts (247 tests, 85+ services, 28 visible workspaces); the
+  registered/visible plugin table now matches `MainWindow.cpp`.
+
 ## [1.0.0-beta] — 2026-07-03
 
 ### Added

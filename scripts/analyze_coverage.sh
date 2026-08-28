@@ -77,8 +77,10 @@ gcovr --root "${ROOT_DIR}" \
   --print-summary 2>&1 | \
   grep -E '(TOTAL|[0-9]+\.[0-9]+%)' > "${REPORT_DIR}/coverage_metrics.txt" || true
 
-LINE_PCT=$(grep -oP 'line: \K[0-9.]+' "${REPORT_DIR}/gcovr_summary.txt" 2>/dev/null || echo "0")
-BRANCH_PCT=$(grep -oP 'branch: \K[0-9.]+' "${REPORT_DIR}/gcovr_summary.txt" 2>/dev/null || echo "0")
+# Modern gcovr emits "lines: X%" and "branches: X%" (plural); older versions
+# emitted singular "line:" / "branch:". Match both.
+LINE_PCT=$(grep -oP 'lines?: \K[0-9.]+' "${REPORT_DIR}/gcovr_summary.txt" 2>/dev/null | head -1 || echo "0")
+BRANCH_PCT=$(grep -oP 'branches?: \K[0-9.]+' "${REPORT_DIR}/gcovr_summary.txt" 2>/dev/null | head -1 || echo "0")
 
 echo "${TIMESTAMP},${LINE_PCT},${BRANCH_PCT}" >> "${TREND_FILE}"
 echo "==> Trend updated: ${TIMESTAMP}, line=${LINE_PCT}%, branch=${BRANCH_PCT}%"

@@ -152,7 +152,6 @@ add_executable(ui_creation_test
     ../../../apps/ecat-studio/utils/TextHelpers.cpp
     ../../../apps/ecat-studio/utils/TextHelpers.h
     ../../../apps/ecat-studio/services/ServiceContainer.cpp
-    ../../../apps/ecat-studio/services/OpcUaServer.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.cpp
     ../../../apps/ecat-studio/services/SdoCacheService.h
     ../../../apps/ecat-studio/services/SdoOptimizationService.cpp
@@ -386,3 +385,8 @@ add_test(NAME project_persistence_test COMMAND project_persistence_test)
 set_tests_properties(project_persistence_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

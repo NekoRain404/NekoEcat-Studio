@@ -25,6 +25,8 @@ CTestTestfile.cmake
 .cache/
 .worktrees/
 .DS_Store
+__pycache__/
+*.pyc
 
 # AI dev artifacts
 .agents/

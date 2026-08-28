@@ -10,7 +10,7 @@
     <img alt="CMake" src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white">
     <img alt="Linux" src="https://img.shields.io/badge/Linux-EtherCAT-FCC624?style=for-the-badge&logo=linux&logoColor=111111">
     <img alt="License" src="https://img.shields.io/badge/License-GPL--3.0-6C5CE7?style=for-the-badge">
-    <img alt="Tests" src="https://img.shields.io/badge/Tests-247%20passed-00D68F?style=for-the-badge">
+    <img alt="Tests" src="https://img.shields.io/badge/Tests-175%20passed-00D68F?style=for-the-badge">
   </p>
 </div>
 
@@ -31,9 +31,11 @@ Whether you are integrating a new drive, tuning distributed clocks, debugging a 
 | **EoE** (Ethernet over EtherCAT) | ✅ | IP configuration, frame statistics |
 | **SoE** (Servo over EtherCAT) | ✅ | IDN read/write, parameter validation |
 
-### 🛠️ 28 Purpose-Built Workspaces
+### 🛠️ 24 Purpose-Built Workspaces
 
 Organized into logical groups — no clutter, just the right tool for each task.
+(34 plugins are compiled and registered; the 24 visible ones each contribute a
+workspace tab, the rest are hidden helper/preference plugins.)
 
 | Group | Workspaces |
 |-------|-----------|
@@ -115,7 +117,7 @@ sudo ./build/apps/ecatd/ecatd
 
 ## 🧪 Tested
 
-- **247 automated tests** — unit tests for all plugins, daemon handlers, and services
+- **175 automated tests** — the default build runs unit, integration, and performance tests covering the plugins, daemon handlers, and services that actually ship. Reaching additional (previously removed) services/plugins requires `cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON`
 - **Verified on real hardware** — SDO read/write, slave scan, state transitions, and PDO mapping confirmed on Beckhoff-compatible digital I/O slave
 - **Test environment**: IgH Master 1.6.9, Linux 7.0.12-zen, RTL8125 NIC
 
@@ -125,8 +127,8 @@ sudo ./build/apps/ecatd/ecatd
 ┌──────────────────────────────────────────────────────────┐
 │                    NekoEcat Studio                        │
 │  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐  │
-│  │ 28 Plugin    │  │ EventBus     │  │ ServiceContainer │  │
-│  │ Workspaces   │  │ Pub/Sub      │  │ Dependency Inj.  │  │
+│  │ 34 Plugins   │  │ EventBus     │  │ ServiceContainer │  │
+│  │ (24 visible) │  │ Pub/Sub      │  │ Dependency Inj.  │  │
 │  └──────┬──────┘  └──────┬───────┘  └────────┬────────┘  │
 │         │                │                    │           │
 │  ┌──────┴────────────────┴────────────────────┴────────┐  │
@@ -174,7 +176,7 @@ Contributions are welcome! Whether it is a bug report, feature request, or pull 
 
 1. Check the [open issues](https://github.com/NekoRain/nekoecat-studio/issues) for existing discussions
 2. Read the [Developer Guide](docs/DEVELOPER_GUIDE.md) for build and test setup
-3. Submit a PR — the CI pipeline runs 247 tests automatically
+3. Submit a PR — the CI pipeline builds and runs the full default test suite automatically
 
 ## 📄 License
 

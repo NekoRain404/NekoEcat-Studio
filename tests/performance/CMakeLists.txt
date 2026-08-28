@@ -682,3 +682,8 @@ set_target_properties(core_performance_test PROPERTIES AUTOMOC ON)
 add_test(NAME core_performance_test COMMAND core_performance_test)
 
 endif() # ECAT_EXPERIMENTAL_SERVICES
+
+# Label every test in this directory tree as "performance" so
+# `ctest -L performance` is meaningful (sub-labels preserved via APPEND).
+get_property(_performance_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_performance_tests} APPEND PROPERTY LABELS "performance")

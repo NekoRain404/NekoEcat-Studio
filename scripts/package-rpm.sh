@@ -2,7 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${1:-1.2.0}"
+# Default version is derived from the CMake project; override with $1.
+VERSION="${1:-$(grep -oP 'project\(NekoEcatStudio VERSION \K[0-9.]+' "${ROOT_DIR}/CMakeLists.txt")}"
 PACKAGE_NAME="nekoecat-studio"
 RPM_DIR="${ROOT_DIR}/dist/rpm"
 BUILD_DIR="${ROOT_DIR}/build"

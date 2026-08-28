@@ -275,6 +275,10 @@ set_tests_properties(export_service_test PROPERTIES
 )
 
 # ── DataPipelineService (unit) ──────────────────────────────────────
+# DataPipelineService is NOT compiled into the app build — gate its test
+# behind the experimental services option so the default run reflects the
+# shipped product.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(data_pipeline_service_test
     data_pipeline_service_test.cpp
     ../../../apps/ecat-studio/services/DataPipelineService.cpp
@@ -309,6 +313,7 @@ target_link_libraries(device_manager_service_test PRIVATE
 )
 set_target_properties(device_manager_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME device_manager_service_test COMMAND device_manager_service_test)
+endif() # ECAT_EXPERIMENTAL_SERVICES (DataPipelineService/DeviceManagerService)
 
 # ── FirmwareUpdateService (unit) ────────────────────────────────────
 add_executable(firmware_update_service_test
@@ -377,6 +382,8 @@ set_target_properties(coe_foe_eoe_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME coe_foe_eoe_service_test COMMAND coe_foe_eoe_service_test)
 
 # ── DomainService (unit) ───────────────────────────────────────────
+# DomainService / SyncManagerService are NOT in the app build — gated.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(domain_service_test
     domain_service_test.cpp
     ../../../apps/ecat-studio/services/DomainService.cpp
@@ -409,6 +416,7 @@ target_link_libraries(sync_manager_service_test PRIVATE
 )
 set_target_properties(sync_manager_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME sync_manager_service_test COMMAND sync_manager_service_test)
+endif() # ECAT_EXPERIMENTAL_SERVICES (DomainService/SyncManagerService)
 
 # ── StateMachineService (unit) ──────────────────────────────────────
 add_executable(state_machine_service_test
@@ -477,6 +485,11 @@ set_target_properties(redundancy_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME redundancy_service_test COMMAND redundancy_service_test)
 
 # ── EtherCATMonitorService Test ─────────────────────────────────────
+# The EtherCAT{Monitor,Analyzer,Optimizer,Config,Recovery,Simulation,
+# Security,Compliance,Certification,Analytics,Update,Maintenance,
+# Visualization,Reporting,Documentation} services are NOT compiled into the
+# app build — gate their tests behind ECAT_EXPERIMENTAL_SERVICES.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(ethercat_monitor_service_test
     ethercat_monitor_service_test.cpp
     ../../../apps/ecat-studio/services/EtherCATMonitorService.cpp
@@ -757,8 +770,13 @@ target_link_libraries(ethercat_documentation_service_test PRIVATE
 )
 set_target_properties(ethercat_documentation_service_test PROPERTIES AUTOMOC ON)
 add_test(NAME ethercat_documentation_service_test COMMAND ethercat_documentation_service_test)
+endif() # ECAT_EXPERIMENTAL_SERVICES (EtherCAT* services)
 
 # ── WorkflowOptimizationService (unit) ──────────────────────────────
+# Workflow{Optimization,TaskManagement,ResourceManagement,Automation,
+# Scheduling,Monitoring,Analytics,Visualization,Reporting,Security}
+# services are NOT compiled into the app build — gate their tests.
+if(ECAT_EXPERIMENTAL_SERVICES)
 add_executable(workflow_optimization_service_test
     workflow_optimization_service_test.cpp
     ../../../apps/ecat-studio/services/WorkflowOptimizationService.cpp
@@ -953,6 +971,7 @@ set_tests_properties(workflow_security_service_test PROPERTIES
     TIMEOUT 30
     LABELS "unit;security"
 )
+endif() # ECAT_EXPERIMENTAL_SERVICES (Workflow*/Task/Resource services)
 
 # ── Experimental Workflow Enterprise/Cloud/AI/Digital-Twin Tests ───────
 if(ECAT_EXPERIMENTAL_SERVICES)
@@ -1149,7 +1168,12 @@ set_tests_properties(workflow_documentation_browser_service_test PROPERTIES
     LABELS "unit;workflow"
 )
 
+endif() # ECAT_EXPERIMENTAL_SERVICES (experimental workflow enterprise tests)
+
 # ── FreeRunConfigurationService Test ─────────────────────────────────
+# FreeRunConfiguration/Monitoring, PdoConfiguration, PdoMapping, OpState and
+# PerformanceMonitor services ARE compiled into the app build, so these tests
+# run in the DEFAULT build.
 add_executable(free_run_configuration_service_test
     free_run_configuration_service_test.cpp
     ../../../apps/ecat-studio/services/FreeRunConfigurationService.cpp
@@ -1256,4 +1280,7 @@ set_tests_properties(performance_monitor_service_test PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
-endif() # ECAT_EXPERIMENTAL_SERVICES
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")

@@ -422,3 +422,8 @@ target_include_directories(slave_evidence_detail_test PRIVATE
 target_link_libraries(slave_evidence_detail_test PRIVATE Qt6::Core)
 
 add_test(NAME slave_evidence_detail_test COMMAND slave_evidence_detail_test)
+
+# Label every test in this directory as "unit" so `ctest -L unit` is meaningful
+# (existing sub-labels are preserved via APPEND).
+get_property(_unit_tests DIRECTORY PROPERTY TESTS)
+set_property(TEST ${_unit_tests} APPEND PROPERTY LABELS "unit")
