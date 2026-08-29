@@ -653,9 +653,9 @@ void MainWindow::refreshEsiRepository() {
         const QString n = xml.name().toString();
         if (n == "Vendor" && vendor.isEmpty()) {
           while (!xml.atEnd() &&
-                 !(xml.isEndElement() && xml.name() == "Vendor")) {
+                 !(xml.isEndElement() && xml.name() == QStringLiteral("Vendor"))) {
             xml.readNext();
-            if (xml.isStartElement() && xml.name() == "Id") {
+            if (xml.isStartElement() && xml.name() == QStringLiteral("Id")) {
               vendor = xml.readElementText().trimmed();
             }
           }
