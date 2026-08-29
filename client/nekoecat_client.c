@@ -86,22 +86,43 @@ static int send_line(int sock, const char* json) {
     return send(sock, buf, (size_t)len, 0) == len ? 0 : -1;
 }
 
-/* Read one newline-delimited line. If the line does not terminate within cap
- * bytes the stream is desynced — report an error instead of truncating. */
-static int recv_line(int sock, char* buf, size_t cap) {
-    if (!buf || cap == 0) return -1;
-    size_t pos = 0;
-    while (pos < cap) {
+/* Read one newline-delimited line into a dynamically grown buffer.
+ * The daemon can legitimately return large responses (full telemetry / the
+ * complete PDO layout), so fixed-size stacks are a real-bus failure mode.
+ * Returns a malloc'd, NUL-terminated line (caller frees) or NULL on error.
+ * Hard-capped at kMaxRpcResponse so a misbehaving peer cannot OOM us. */
+#define kMaxRpcResponse (1u << 20) /* 1 MiB */
+static char* recv_line(int sock) {
+    size_t cap = 512, pos = 0;
+    char* buf = (char*)malloc(cap);
+    if (!buf) return NULL;
+    for (;;) {
+        if (pos + 1 >= cap) {
+            if (cap >= kMaxRpcResponse) {
+                free(buf);
+                return NULL;
+            }
+            size_t ncap = cap < kMaxRpcResponse ? cap * 2 : kMaxRpcResponse;
+            char* nb = (char*)realloc(buf, ncap);
+            if (!nb) {
+                free(buf);
+                return NULL;
+            }
+            buf = nb;
+            cap = ncap;
+        }
         char ch;
         ssize_t r = recv(sock, &ch, 1, 0);
-        if (r <= 0) return -1;  /* EOF or error */
+        if (r <= 0) {
+            free(buf);
+            return NULL;  /* EOF or error */
+        }
         if (ch == '\n') {
             buf[pos] = 0;
-            return 0;
+            return buf;
         }
         buf[pos++] = ch;
     }
-    return -1;  /* no newline within cap */
 }
 
 bool nekoecat_client_connect(NekoEcatClient* client, const char* host, uint16_t port, char* err, size_t errsz) {
@@ -170,43 +191,50 @@ void nekoecat_client_disconnect(NekoEcatClient* client) {
     client->shm_size = 0;
 }
 
-static bool rpc_call(NekoEcatClient* c, const char* method, const char* params, char* resp, size_t rcap) {
+/* Issue an RPC and return the malloc'd response line on success (caller frees),
+ * or NULL after setting last_error. Responses are dynamically sized, so large
+ * payloads (full telemetry / layouts) are handled on real buses. */
+static char* rpc_call(NekoEcatClient* c, const char* method, const char* params) {
     char req[512];
     snprintf(req, sizeof(req), "{\"id\":\"1\",\"method\":\"%s\",\"params\":%s}", method, params ? params : "{}");
     if (send_line(c->sock, req) < 0) {
         set_error(c, "rpc send failed (%s)", method);
-        return false;
+        return NULL;
     }
-    if (recv_line(c->sock, resp, rcap) < 0) {
+    char* resp = recv_line(c->sock);
+    if (!resp) {
         set_error(c, "rpc recv failed (%s)", method);
-        return false;
+        return NULL;
     }
     if (strstr(resp, "\"ok\":true") == NULL) {
         set_error(c, "rpc %s rejected", method);
-        return false;
+        free(resp);
+        return NULL;
     }
-    return true;
+    return resp;
 }
 
 bool nekoecat_client_start_freerun(NekoEcatClient* client, const char* mapping_json, char* err, size_t esz) {
     char params[256];
     snprintf(params, sizeof(params), "{\"mapping\":%s}", mapping_json ? mapping_json : "null");
-    char resp[1024];
-    if (!rpc_call(client, "freeRunStart", params, resp, sizeof(resp))) {
+    char* resp = rpc_call(client, "freeRunStart", params);
+    if (!resp) {
         errcpy(err, esz, nekoecat_client_get_last_error(client));
         return false;
     }
+    free(resp);
     // after start, auto attach
     return nekoecat_client_attach(client, NULL, err, esz);
 }
 
 bool nekoecat_client_stop_freerun(NekoEcatClient* client, char* err, size_t esz) {
-    char resp[256];
-    const bool ok = rpc_call(client, "freeRunStop", "{}", resp, sizeof(resp));
-    if (!ok) {
+    char* resp = rpc_call(client, "freeRunStop", "{}");
+    if (!resp) {
         errcpy(err, esz, nekoecat_client_get_last_error(client));
+        return false;
     }
-    return ok;
+    free(resp);
+    return true;
 }
 
 bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, char* err, size_t esz) {
@@ -242,8 +270,8 @@ bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, cha
         const char* nm = strstr(layout_json, "\"shm_name\":\"");
         if (nm) sscanf(nm + 12, "%63[^\"]", shmname);
     } else {
-        char resp[4096];
-        if (!rpc_call(client, "freeRunShmInfo", "{}", resp, sizeof(resp))) {
+        char* resp = rpc_call(client, "freeRunShmInfo", "{}");
+        if (!resp) {
             errcpy(err, esz, nekoecat_client_get_last_error(client));
             return false;
         }
@@ -255,6 +283,7 @@ bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, cha
             if (start) json = start;
         }
         if (!layout_parse_from_shm_info_json(json, &parsed)) {
+            free(resp);
             set_error(client, "attach: failed to parse layout from shmInfo");
             errcpy(err, esz, "attach: failed to parse layout from shmInfo");
             return false;
@@ -264,6 +293,7 @@ bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, cha
         if (np) sscanf(np + 12, "%63[^\"]", shmname);
         const char* lv = strstr(json, "\"layout_version\":");
         if (lv) sscanf(lv + 17, "%u", &layout_version);
+        free(resp);
     }
 
     if (dsize == 0 || dsize > NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE) {
@@ -278,7 +308,22 @@ bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, cha
         errcpy(err, esz, "shm_open fail");
         return false;
     }
-    client->shm_size = sizeof(ShmHeader) + 2 * (size_t)dsize;
+    // Never map past the object's real size: the daemon may have restarted with
+    // a different data_size between the RPC fetch and this open, and mapping
+    // past EOF would SIGBUS on first access. Clamp to the actual object size.
+    struct stat st;
+    size_t want = sizeof(ShmHeader) + 2 * (size_t)dsize;
+    if (fstat(client->shm_fd, &st) != 0 || (uint64_t)st.st_size < sizeof(ShmHeader)) {
+        close(client->shm_fd);
+        client->shm_fd = -1;
+        set_error(client, "shm fstat fail (%s)", shmname);
+        errcpy(err, esz, "shm fstat fail");
+        return false;
+    }
+    if (st.st_size < (off_t)want) {
+        want = (size_t)st.st_size;
+    }
+    client->shm_size = want;
     client->shm_ptr = mmap(0, client->shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, client->shm_fd, 0);
     if (client->shm_ptr == MAP_FAILED) {
         close(client->shm_fd);
@@ -286,6 +331,20 @@ bool nekoecat_client_attach(NekoEcatClient* client, const char* layout_json, cha
         client->shm_ptr = NULL;
         set_error(client, "mmap fail");
         errcpy(err, esz, "mmap fail");
+        return false;
+    }
+    // Cross-check the freshly mapped header's data_size against what the layout
+    // was fetched for; if the running daemon recreated the object with a
+    // different size, the buffers are stale — refuse rather than read garbage.
+    client->hdr = (ShmHeader*)client->shm_ptr;
+    const uint32_t hdrDataSize = nekoecat_shm_load(&client->hdr->data_size, NEKOECAT_MO_ACQUIRE);
+    if (hdrDataSize != dsize) {
+        set_error(client, "attach: shm data_size changed (header=%u, layout=%u)", hdrDataSize, dsize);
+        munmap(client->shm_ptr, client->shm_size);
+        client->shm_ptr = NULL;
+        close(client->shm_fd);
+        client->shm_fd = -1;
+        errcpy(err, esz, "shm data_size mismatch (daemon restarted?)");
         return false;
     }
     client->hdr = (ShmHeader*)client->shm_ptr;

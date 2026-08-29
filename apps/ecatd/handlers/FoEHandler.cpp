@@ -8,6 +8,9 @@
 #include <QFileInfo>
 #include <QProcess>
 
+#include <cerrno>
+#include <sys/stat.h>
+
 // Read firmware from a slave using `ethercat foe_read -p N --output FILE`.
 // The file is saved locally on the daemon host.
 QJsonObject FoEHandler::handleFoeRead(const QString &id, const QJsonObject &params)
@@ -46,6 +49,15 @@ QJsonObject FoEHandler::handleFoeRead(const QString &id, const QJsonObject &para
         return CommandDispatcher::failure(id, errorMsg);
     }
 
+    // Re-validate the file the CLI just created: a TOCTOU attacker may have
+    // swapped the path for a symlink/hard link pointing outside the allowed
+    // base after the pre-check. If so, remove the artifact and refuse.
+    QString recheckError;
+    if (!revalidateCreatedFile(filePath, &recheckError)) {
+        QFile::remove(filePath);
+        return CommandDispatcher::failure(id, recheckError);
+    }
+
     // Determine the size of the output file.
     const qint64 size = fileSizeBytes(filePath);
 
@@ -81,6 +93,12 @@ QJsonObject FoEHandler::handleFoeWrite(const QString &id, const QJsonObject &par
     // firmware base (blocks uploading sensitive files from arbitrary paths).
     QString pathError;
     if (!validateFilePath(filePath, &pathError)) {
+        return CommandDispatcher::failure(id, pathError);
+    }
+    // Reject symlinks and hard links on the input file (hard links bypass the
+    // canonical-path base check — an attacker could exfiltrate /etc/shadow via
+    // a hard link placed inside the allowed base).
+    if (!rejectUnsafeExistingFile(filePath, &pathError)) {
         return CommandDispatcher::failure(id, pathError);
     }
     QFileInfo fileInfo(filePath);
@@ -200,6 +218,48 @@ bool FoEHandler::validateFilePath(const QString &path, QString *error) const
         *error = QString("File path '%1' resolves to '%2', outside the allowed firmware directory.").arg(path, resolved);
     }
     return false;
+}
+
+// Reject symlinks, hard links (st_nlink > 1), and non-regular files at the final
+// path component. A missing file is fine (it will be created by foe_read).
+// Hard links are the key gap: canonicalFilePath() cannot see that /tmp/x is a
+// hard link to /etc/shadow, so we reject any regular file with nlink > 1.
+bool FoEHandler::rejectUnsafeExistingFile(const QString &path, QString *error) const
+{
+    struct stat st {};
+    const QByteArray encoded = QFile::encodeName(path);
+    if (::lstat(encoded.constData(), &st) != 0) {
+        if (errno == ENOENT) {
+            return true; // doesn't exist yet — nothing to protect
+        }
+        if (error) *error = QString("Cannot stat '%1'.").arg(path);
+        return false;
+    }
+    if (S_ISLNK(st.st_mode)) {
+        if (error) *error = QString("File '%1' must not be a symbolic link.").arg(path);
+        return false;
+    }
+    if (!S_ISREG(st.st_mode)) {
+        if (error) *error = QString("File '%1' must be a regular file.").arg(path);
+        return false;
+    }
+    if (st.st_nlink > 1) {
+        if (error) *error = QString("File '%1' must not be a hard link (link count %2).")
+                              .arg(path).arg(st.st_nlink);
+        return false;
+    }
+    return true;
+}
+
+// Re-verify a file after the CLI has written it, closing the validate-then-use
+// TOCTOU window: the path must still resolve inside the allowed base and the
+// final component must be a regular, non-linked file.
+bool FoEHandler::revalidateCreatedFile(const QString &path, QString *error) const
+{
+    if (!validateFilePath(path, error)) {
+        return false;
+    }
+    return rejectUnsafeExistingFile(path, error);
 }
 
 // Allowed base directories for FoE file transfers. Set NEKOECAT_FIRMWARE_DIR to

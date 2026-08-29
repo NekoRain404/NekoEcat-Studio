@@ -36,6 +36,15 @@ private:
     // the NEKOECAT_FIRMWARE_DIR env var when set).
     QStringList firmwareBaseDirs() const;
 
+    // Reject any existing final path component that is a symlink, a hard link
+    // (st_nlink > 1), or anything that is not a regular file. A missing file is
+    // acceptable (it will be created). Blocks exfiltration via hard links.
+    bool rejectUnsafeExistingFile(const QString &path, QString *error) const;
+
+    // Re-run the base-directory + unsafe-link checks on a file that the CLI may
+    // have just created, closing the validate-then-use TOCTOU for foe_read.
+    bool revalidateCreatedFile(const QString &path, QString *error) const;
+
     // Run an ethercat CLI command and capture stdout/stderr.
     // Returns the process exit code. stdout -> output, stderr -> errorOutput.
     int runEthercatCommand(const QStringList &args, QString *output,

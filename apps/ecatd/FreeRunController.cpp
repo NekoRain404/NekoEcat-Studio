@@ -412,6 +412,14 @@ void FreeRunController::stop()
             thread_.join();
         }
     }
+    // Publish a final "stopped" state before tearing the SHM down so attached
+    // clients observe DATA_STALE instead of a stale RUNNING flag: clear
+    // RUNNING and bump version (release) so the client loop wakes up.
+    if (shm_header_) {
+        nekoecat_shm_fetch_and(&shm_header_->status_flags, ~NEKOECAT_FLAG_RUNNING, NEKOECAT_MO_RELEASE);
+        const uint64_t v = nekoecat_shm_load(&shm_header_->version, NEKOECAT_MO_RELAXED);
+        nekoecat_shm_store(&shm_header_->version, v + 1, NEKOECAT_MO_RELEASE);
+    }
     cleanup();
     {
         std::lock_guard<std::mutex> sLock(statusMutex_);

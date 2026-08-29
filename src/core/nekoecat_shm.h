@@ -123,6 +123,7 @@ typedef struct ShmLayout {
 #define nekoecat_shm_store(ptr, val, mo)    __atomic_store_n((ptr), (val), (mo))
 #define nekoecat_shm_fetch_add(ptr, val, mo) __atomic_fetch_add((ptr), (val), (mo))
 #define nekoecat_shm_fetch_or(ptr, val, mo)  __atomic_fetch_or((ptr), (val), (mo))
+#define nekoecat_shm_fetch_and(ptr, val, mo) __atomic_fetch_and((ptr), (val), (mo))
 
 /* ------------------------------------------------------------------ */
 /* Mirror logic (pure C, no Qt)                                        */
