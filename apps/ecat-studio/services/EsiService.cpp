@@ -51,8 +51,8 @@ bool EsiService::importEsi(const QString &filePath) {
     if (!xml.isStartElement()) {
       if (xml.isEndElement()) {
         QStringView name(xml.name());
-        if (name == "Descriptions") inDescriptions = false;
-        if (name == "Device") {
+        if (name == QStringLiteral("Descriptions")) inDescriptions = false;
+        if (name == QStringLiteral("Device")) {
           if (inDevice && current.vendorId != 0) {
             QString key = QString("%1:%2")
                               .arg(current.vendorId, 8, 16, QChar('0'))
@@ -66,22 +66,22 @@ bool EsiService::importEsi(const QString &filePath) {
           current = EsiDeviceInfo();
           inDevice = false;
         }
-        if (name == "RxPdo") {
+        if (name == QStringLiteral("RxPdo")) {
           if (inRxPdo) {
             current.rxPdos.append(currentPdo);
             currentPdo = EsiPdoAssignment();
           }
           inRxPdo = false;
         }
-        if (name == "TxPdo") {
+        if (name == QStringLiteral("TxPdo")) {
           if (inTxPdo) {
             current.txPdos.append(currentPdo);
             currentPdo = EsiPdoAssignment();
           }
           inTxPdo = false;
         }
-        if (name == "Sm") inSm = false;
-        if (name == "Entry") {
+        if (name == QStringLiteral("Sm")) inSm = false;
+        if (name == QStringLiteral("Entry")) {
           if (inRxPdo || inTxPdo) currentPdo.entries.append(currentEntry);
           currentEntry = EsiPdoEntry();
         }
@@ -90,13 +90,13 @@ bool EsiService::importEsi(const QString &filePath) {
     }
 
     QStringView name(xml.name());
-    if (name == "Descriptions") inDescriptions = true;
-    if (inDescriptions && name == "Device") {
+    if (name == QStringLiteral("Descriptions")) inDescriptions = true;
+    if (inDescriptions && name == QStringLiteral("Device")) {
       inDevice = true;
       current = EsiDeviceInfo();
     }
     if (inDevice) {
-      if (name == "Type") {
+      if (name == QStringLiteral("Type")) {
         QString typeText = xml.attributes().value("Type").toString();
         int vid = parseHexOrDec(xml.attributes().value("VendorId").toString());
         int pcode = parseHexOrDec(xml.attributes().value("ProductCode").toString());
@@ -107,37 +107,37 @@ bool EsiService::importEsi(const QString &filePath) {
         if (!typeText.isEmpty()) current.type = typeText;
         current.name = xml.readElementText();
         if (current.name.isEmpty()) current.name = current.type;
-      } else if (name == "Name") {
+      } else if (name == QStringLiteral("Name")) {
         current.name = xml.readElementText();
-      } else if (name == "Desc") {
+      } else if (name == QStringLiteral("Desc")) {
         current.description = xml.readElementText();
-      } else if (name == "Sm") {
+      } else if (name == QStringLiteral("Sm")) {
         inSm = true;
         EsiSyncManager sm;
         sm.index = xml.attributes().value("Index").toString().toInt();
         sm.direction = xml.attributes().value("Dir").toString();
         current.syncManagers.append(sm);
-      } else if (name == "RxPdo") {
+      } else if (name == QStringLiteral("RxPdo")) {
         inRxPdo = true;
         currentPdo = EsiPdoAssignment();
         currentPdo.index = xml.attributes().value("Index").toString();
         if (currentPdo.index.startsWith("0x"))
           currentPdo.index = currentPdo.index.mid(2);
-      } else if (name == "TxPdo") {
+      } else if (name == QStringLiteral("TxPdo")) {
         inTxPdo = true;
         currentPdo = EsiPdoAssignment();
         currentPdo.index = xml.attributes().value("Index").toString();
         if (currentPdo.index.startsWith("0x"))
           currentPdo.index = currentPdo.index.mid(2);
-      } else if (name == "Entry") {
+      } else if (name == QStringLiteral("Entry")) {
         currentEntry.index = xml.attributes().value("Index").toString();
         if (currentEntry.index.startsWith("0x"))
           currentEntry.index = currentEntry.index.mid(2);
         currentEntry.subIndex = xml.attributes().value("SubIndex").toString();
         currentEntry.bitSize = xml.attributes().value("BitLen").toString().toInt();
-      } else if (name == "Name" && (inRxPdo || inTxPdo)) {
+      } else if (name == QStringLiteral("Name") && (inRxPdo || inTxPdo)) {
         currentEntry.name = xml.readElementText();
-      } else if (name == "DataType" && (inRxPdo || inTxPdo)) {
+      } else if (name == QStringLiteral("DataType") && (inRxPdo || inTxPdo)) {
         currentEntry.type = xml.readElementText();
       }
     }

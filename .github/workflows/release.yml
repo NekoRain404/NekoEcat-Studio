@@ -10,6 +10,7 @@ permissions:
 
 env:
   CMAKE_BUILD_TYPE: Release
+  QT_QPA_PLATFORM: offscreen
 
 jobs:
   release:

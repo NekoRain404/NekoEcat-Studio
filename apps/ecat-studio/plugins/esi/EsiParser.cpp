@@ -125,8 +125,8 @@ bool EsiParser::validateStructure(const QString &filePath) const {
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
-            if (QStringView(xml.name()) == "Descriptions") hasDescriptions = true;
-            if (hasDescriptions && QStringView(xml.name()) == "Device") hasDevice = true;
+            if (QStringView(xml.name()) == QStringLiteral("Descriptions")) hasDescriptions = true;
+            if (hasDescriptions && QStringView(xml.name()) == QStringLiteral("Device")) hasDevice = true;
         }
     }
 
