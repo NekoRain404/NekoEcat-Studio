@@ -59,7 +59,13 @@ EcatClient::EcatClient(QObject *parent) : QObject(parent) {
                 (connectionState_ == ConnectionState::Connecting ||
                  connectionState_ == ConnectionState::Reconnecting);
             if (connectAttemptFailed) {
-              ++connectFailures_;
+              // The timeout handler (setupConnectTimeout) may have already
+              // counted this failure via abort() -> disconnected signal.
+              // Guard against double-counting by checking the state that the
+              // timeout handler sets to Disconnected before incrementing.
+              if (connectionState_ != ConnectionState::Disconnected) {
+                ++connectFailures_;
+              }
             }
 
             if (error == QAbstractSocket::ConnectionRefusedError) {

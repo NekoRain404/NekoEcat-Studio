@@ -50,6 +50,7 @@ struct ReaderStats {
     uint64_t retries = 0;        // snapshots rejected because version moved
     uint64_t maxV1 = 0;
     uint64_t minV1 = ~0ULL;
+    uint64_t lastAcceptedV1 = 0; // version of the most recent accepted read
     bool monotonic = true;
     bool homogeneous = true;
     bool activeValid = true;
@@ -89,6 +90,7 @@ static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
     ++st->reads;
     if (v1 < st->minV1) st->minV1 = v1;
     if (v1 > st->maxV1) st->maxV1 = v1;
+    st->lastAcceptedV1 = v1;
 
     // Per-cycle marker is stored little-endian at offset 0.
     uint64_t marker = 0;
@@ -140,9 +142,11 @@ static void *readerLoop(void *arg) {
         const bool accepted = doubleRead(s, snap.data(), &rc->st);
         if (!accepted) continue;
 
-        // Accepted reads in one thread see non-decreasing versions.
-        if (rc->st.reads > 1 && rc->st.maxV1 < prevV1) rc->st.monotonic = false;
-        prevV1 = rc->st.maxV1;
+        // Accepted reads in one thread see non-decreasing versions. Track the
+        // version of the last ACCEPTED read (not maxV1, which only grows and
+        // would make this comparison a tautology).
+        if (rc->st.reads > 1 && rc->st.lastAcceptedV1 < prevV1) rc->st.monotonic = false;
+        prevV1 = rc->st.lastAcceptedV1;
     }
     return nullptr;
 }

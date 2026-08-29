@@ -68,14 +68,17 @@ QString AsyncOperationManager::execute(const QString &name, OperationFunc func,
     });
 
     emit operationStarted(id);
-
-    if (timeoutMs > 0) {
-      QTimer::singleShot(timeoutMs, this, [this, id]() {
-        cancel(id);
-      });
-    }
   } else {
     queue_.enqueue(id);
+  }
+
+  // Timeout applies whether the op started immediately or is still queued:
+  // cancel() handles both Pending (removed from queue) and Running (cancelled
+  // flag checked by the worker) operations.
+  if (timeoutMs > 0) {
+    QTimer::singleShot(timeoutMs, this, [this, id]() {
+      cancel(id);
+    });
   }
 
   return id;

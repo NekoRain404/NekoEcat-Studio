@@ -210,7 +210,9 @@ bool FoEHandler::validateFilePath(const QString &path, QString *error) const
         if (baseCanonical.isEmpty()) {
             continue;
         }
-        if (resolved == baseCanonical || resolved.startsWith(baseCanonical + QLatin1Char('/'))) {
+        if (resolved == baseCanonical
+            || baseCanonical == QLatin1String("/")  // root base allows all
+            || resolved.startsWith(baseCanonical + QLatin1Char('/'))) {
             return true;
         }
     }

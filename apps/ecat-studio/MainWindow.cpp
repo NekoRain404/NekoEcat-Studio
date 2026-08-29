@@ -100,8 +100,6 @@
 #include "plugins/rttest/RtTestPlugin.h"
 #include "plugins/export/ExportPlugin.h"
 #include "plugins/notes/NotesPlugin.h"
-#include "plugins/onlinediagnostics/OnlineDiagnosticsPlugin.h"
-#include "plugins/realtimeperf/RealtimePerformancePlugin.h"
 
 #include <QCoreApplication>
 #include <QDir>

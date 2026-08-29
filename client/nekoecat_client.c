@@ -473,6 +473,10 @@ bool nekoecat_client_read_raw_at(NekoEcatClient* c, uint32_t off, void* buf, uin
 }
 
 bool nekoecat_client_write_raw_at(NekoEcatClient* c, uint32_t off, const void* buf, uint32_t nbytes) {
+    // NOTE: output writes are last-write-wins with no torn-write protection
+    // against the daemon's per-cycle overlay (freerun_shm_mirror reads the same
+    // buffer concurrently). On weakly-ordered CPUs a multi-byte write may be
+    // observed partially applied for one cycle; it self-corrects next cycle.
     if (!c || !c->attached || !c->hdr || !buf) {
         if (c) set_error(c, "write_raw_at: not attached");
         return false;
@@ -746,7 +750,10 @@ bool nekoecat_client_test_attach_to_shm(NekoEcatClient* client, const char* layo
     if (layout_json) {
         layout_parse_from_shm_info_json(layout_json, &client->layout);
     }
-    if (client->hdr) client->last_version = nekoecat_shm_load(&client->hdr->version, NEKOECAT_MO_ACQUIRE) - 1;
+    if (client->hdr) {
+        const uint64_t v = nekoecat_shm_load(&client->hdr->version, NEKOECAT_MO_ACQUIRE);
+        client->last_version = v > 0 ? v - 1 : 0;  // never wrap to UINT64_MAX
+    }
     return true;
 }
 
@@ -762,7 +769,7 @@ void nekoecat_client_test_setup_shm(NekoEcatClient* c, uint8_t* shm_base, uint32
     c->data[1] = c->data[0] + dsize;
     c->attached = 1;
     c->mapped_data_size = dsize;
-    c->last_version = initial_version - 1;
+    c->last_version = initial_version > 0 ? initial_version - 1 : 0;
     c->layout.data_size = dsize;
 }
 #endif /* NEKOECAT_TESTING */
