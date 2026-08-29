@@ -485,6 +485,59 @@ target_link_libraries(soe_handler_test PRIVATE Qt6::Core Qt6::Test ecat_igh ethe
 set_target_properties(soe_handler_test PROPERTIES AUTOMOC ON)
 add_test(NAME soe_handler_test COMMAND soe_handler_test)
 
+# ── SHM publish/consume concurrency stress ─────────────────────────────
+add_executable(shm_stress_test
+    shm_stress_test.cpp
+    ../../../apps/ecatd/freerun_shm_mirror.cpp
+)
+target_include_directories(shm_stress_test PRIVATE ../../../apps/ecatd ../../../src/core)
+target_link_libraries(shm_stress_test PRIVATE pthread)
+set_target_properties(shm_stress_test PROPERTIES AUTOMOC OFF RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/unit/core")
+add_test(NAME shm_stress_test COMMAND shm_stress_test)
+set_tests_properties(shm_stress_test PROPERTIES TIMEOUT 60)
+
+# ── Pure-C client defensive paths ───────────────────────────────────────
+add_executable(client_robustness_test
+    client_robustness_test.c
+    ../../../client/nekoecat_client.c
+)
+target_include_directories(client_robustness_test PRIVATE ../../../client ../../../src/core)
+target_compile_definitions(client_robustness_test PRIVATE NEKOECAT_TESTING)
+target_link_libraries(client_robustness_test PRIVATE pthread)
+set_target_properties(client_robustness_test PROPERTIES LINKER_LANGUAGE C AUTOMOC OFF RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/unit/core")
+add_test(NAME client_robustness_test COMMAND client_robustness_test)
+set_tests_properties(client_robustness_test PROPERTIES TIMEOUT 60)
+
+# ── GUI language mapping ────────────────────────────────────────────────
+add_executable(language_switch_test
+    language_switch_test.cpp
+    ../../../apps/ecat-studio/infra/LanguageManager.cpp
+    ../../../apps/ecat-studio/infra/LanguageManager.h
+    ../../../apps/ecat-studio/infra/TranslationRegistry.cpp
+    ../../../apps/ecat-studio/infra/TranslationRegistry.h
+)
+target_include_directories(language_switch_test PRIVATE ../../../apps/ecat-studio/infra)
+target_link_libraries(language_switch_test PRIVATE Qt6::Core Qt6::Test)
+set_target_properties(language_switch_test PROPERTIES AUTOMOC ON)
+add_test(NAME language_switch_test COMMAND language_switch_test)
+set_tests_properties(language_switch_test PROPERTIES TIMEOUT 60)
+
+# ── EcatClient reconnection behaviour ───────────────────────────────────
+add_executable(connection_recovery_test
+    connection_recovery_test.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.cpp
+    ../../../apps/ecat-studio/infra/EcatClient.h
+    ../../../src/core/JsonProtocol.cpp
+    ../../../src/core/JsonProtocol.h
+    ../../../src/core/EthercatTypes.cpp
+    ../../../src/core/EthercatTypes.h
+)
+target_include_directories(connection_recovery_test PRIVATE ../../../apps/ecat-studio/infra ../../../src/core)
+target_link_libraries(connection_recovery_test PRIVATE Qt6::Core Qt6::Network)
+set_target_properties(connection_recovery_test PROPERTIES AUTOMOC ON)
+add_test(NAME connection_recovery_test COMMAND connection_recovery_test)
+set_tests_properties(connection_recovery_test PROPERTIES TIMEOUT 60)
+
 # Label every test in this directory as "unit" so `ctest -L unit` is meaningful
 # (existing sub-labels are preserved via APPEND).
 get_property(_unit_tests DIRECTORY PROPERTY TESTS)
