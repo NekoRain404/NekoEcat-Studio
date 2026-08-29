@@ -12,6 +12,7 @@
 #include "JsonProtocol.h"
 
 #include <QCoreApplication>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QTcpServer>
 #include <QTcpSocket>

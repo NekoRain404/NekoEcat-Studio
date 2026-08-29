@@ -99,29 +99,28 @@ void LanguageSwitchTest::switchEmitsSignalAndReflects()
     auto &mgr = LanguageManager::instance();
     mgr.setCurrentLanguage(Language::English);  // reset baseline
 
-    Language signaled = Language::English;
-    int signalCount = 0;
-    QObject::connect(&mgr, &LanguageManager::languageChanged,
-                     [&](Language lang) { signaled = lang; ++signalCount; });
+    // Use QSignalSpy: a plain lambda would capture stack locals that dangle
+    // after this slot returns while remaining connected to the singleton.
+    QSignalSpy spy(&mgr, &LanguageManager::languageChanged);
 
     mgr.setCurrentLanguage(Language::Japanese);
-    QCOMPARE(signalCount, 1);
-    QCOMPARE(signaled, Language::Japanese);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.takeFirst().at(0).value<Language>(), Language::Japanese);
     QCOMPARE(mgr.currentLanguage(), Language::Japanese);
     QVERIFY(mgr.isCurrentLanguage(Language::Japanese));
 
     // Switching to the same language must not re-emit.
     mgr.setCurrentLanguage(Language::Japanese);
-    QCOMPARE(signalCount, 1);
+    QCOMPARE(spy.count(), 0);
 
     // Setting the same language by display name also does not re-emit.
     mgr.setCurrentLanguage("日本語");
-    QCOMPARE(signalCount, 1);
+    QCOMPARE(spy.count(), 0);
 
     // Switch back by display name (QString overload).
     mgr.setCurrentLanguage("简体中文");
-    QCOMPARE(signalCount, 2);
-    QCOMPARE(signaled, Language::ChineseSimplified);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.takeFirst().at(0).value<Language>(), Language::ChineseSimplified);
     QCOMPARE(mgr.currentLanguage(), Language::ChineseSimplified);
 
     mgr.setCurrentLanguage(Language::English);  // cleanup
