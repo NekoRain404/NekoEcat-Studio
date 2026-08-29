@@ -50,7 +50,7 @@ sudo pacman -S ethercat  # Arch Linux
 ### Build Commands
 
 ```bash
-# Configure
+# Configure (default build: 179 tests, 24 visible workspace tabs, 42 service TUs)
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 
 # Build
@@ -59,8 +59,13 @@ cmake --build build -j$(nproc)
 # Run tests
 ctest --test-dir build --output-on-failure -j$(nproc)
 
-# Install (optional)
+# Install (client library to lib/ + headers to include/nekoecat)
 cmake --install build --prefix /usr/local
+
+# With experimental services (adds AlarmService, LoggingService, and their tests)
+cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+ctest --test-dir build --output-on-failure -j$(nproc)
 ```
 
 ### Build Types
@@ -107,14 +112,62 @@ bash scripts/benchmark.sh
 ```
 
 The default `ctest` run only builds and executes tests whose system under test
-is actually compiled into the application. Services/plugins that are not part
-of the default app build (workflow, optimization, EtherCAT analytics, dashboard
-editors, etc.) are gated behind the `ECAT_EXPERIMENTAL_SERVICES` option:
+is actually compiled into the application. The default suite is **179 tests
+(143 unit + 11 integration + 25 performance)** — all pass in a fresh Release
+build with `ECAT_EXPERIMENTAL_SERVICES=OFF`. The default build compiles 34
+plugins (24 visible workspace tabs) and 42 service translation units in
+`apps/ecat-studio/services/`; `ServiceContainer` exposes 41 accessors
+(`EcatClient` + `EventBus` + 39 domain services).
+
+Services/plugins that are not part of the default app build (workflow,
+optimization, EtherCAT analytics, dashboard editors, etc.) are gated behind the
+`ECAT_EXPERIMENTAL_SERVICES` option:
 
 ```bash
 cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(nproc)
 ctest --test-dir build --output-on-failure -j$(nproc)
+```
+
+### IgH EtherCAT header stub
+
+The daemon and core tests need IgH `ecrt.h`/`ethercat.h` headers. CI does not
+install the IgH stack; it installs a tracked, complete stub via:
+
+```bash
+bash .github/workflows/ci/setup-ethercat-stub.sh
+```
+
+which copies `.github/workflows/ci/ecrt_stub.h` into place. Contributors without
+IgH installed can use the same script locally to build and test the daemon/core
+without a real IgH master. The stub provides the ecrt API surface the daemon
+uses; runtime hardware paths are exercised on real targets.
+
+### Building and using the real-time client library
+
+The pure-C client is built independently of the GUI/daemon and consumed like any
+static library:
+
+```bash
+cmake -S client -B build-client
+cmake --build build-client
+# produces build-client/libnekoecat_client.a
+```
+
+From the top-level build it is built as part of the default tree and installed by
+`cmake --install` (library to `lib/`, headers `nekoecat_client.h`/`shm_layout.h`/
+`nekoecat_shm.h` to `include/nekoecat`). The client speaks JSON-RPC to ecatd
+(control plane) and reads the shared-memory Free Run process image (data plane).
+A runnable Python example is provided:
+
+```bash
+python3 examples/realtime/nekoecat_client_example.py [--layout layout.json] [--cycles N]
+```
+
+Scaffold a C demo against the installed headers/library:
+
+```bash
+cc -I include/nekoecat demo.c -L lib -lnekoecat_client -lpthread -o demo
 ```
 
 ### Writing Tests

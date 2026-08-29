@@ -1,31 +1,99 @@
 # Changelog
 
-## [Build & Test Fix Round] — 2026-08-28
+## [Real-Time SHM Hardening + Fix Round] — 2026-08-29
+
+Covers the 11 commits after `4fcba7a`: SHM data-plane hardening, GUI fixes, build/test/CI/script
+fixes, three CI-compatibility rounds, new tests, residual fixes, and the final data-race fix.
+
+### Added
+
+- **Real-time SHM data plane (408fd06)**: `ecatd` now mirrors the Free Run process image into
+  POSIX shared memory via a lock-free double-buffer protocol. The canonical, Qt-free ABI
+  (`ShmHeader`, mirror/layout entry structs, atomic helpers, compile-time layout assertions) lives
+  in `src/core/nekoecat_shm.h`, shared verbatim between the C++20 daemon and the pure-C client.
+  The daemon-side mirror (`apps/ecatd/freerun_shm_mirror.cpp`) publishes with a strict atomic
+  order (timestamp/status/cycle_count relaxed → `active_buffer` release → `version` release), and
+  overlays validated client RxPDO writes back into the domain data (last-write-wins); out-of-bounds
+  writes are ignored and counted.
+- **Pure-C client library (408fd06, 2fae860)**: `client/nekoecat_client.{c,h}` + `shm_layout.h`
+  provide a C99 client over the SHM data plane and a JSON-RPC control plane. Adds
+  `nekoecat_client_attach()`, cycle sync (`wait_next_cycle`/`try_wait_next_cycle`), typed
+  read/write by index and raw-offset helpers with bounds validation, and the `DATA_STALE` state.
+  A standalone `client/CMakeLists.txt` builds `libnekoecat_client.a`; install rules place the
+  library in `lib/` and the headers in `include/nekoecat`.
+- **Python example (408fd06)**: `examples/realtime/nekoecat_client_example.py` demonstrates raw
+  `mmap`+`ctypes` access plus a ctypes wrapper of the C library.
+- **Daemon RPC (408fd06)**: `apps/ecatd/freerun_rpc_handlers.{cpp,h}` add the `freeRunShmInfo`
+  JSON-RPC method (layout/shm_name/data_size) alongside `freeRunStart`/`freeRunStop`/`freeRunStatus`.
+- **FoE path allowlist (2fae860)**: firmware transfers are confined to `NEKOECAT_FIRMWARE_DIR`
+  (defaults to `/tmp` and the user's home), with canonical-path resolution that rejects traversal,
+  symlink escapes, hard links, and the validate-then-use TOCTOU window.
+- **Status flag (408fd06)**: the daemon sets `NEKOECAT_FLAG_RUNNING` in `status_flags` as part of
+  each atomic publish.
+- **Supplementary tests (7daaf9a)**: `shm_stress_test`, `client_robustness_test`,
+  `connection_recovery_test`, `language_switch_test`, plus the earlier SHM/layout/cycle tests
+  (`free_run_mirror_test`, `freerun_client_cycle_test`, `nekoecat_client_layout_test`).
 
 ### Fixed
 
-- **Red build**: `service_integration_test` no longer calls `ServiceContainer::alarm()/logging()`
-  (those accessors exist only under `ECAT_EXPERIMENTAL_SERVICES`); the call sites are now guarded
-  so the default build compiles.
-- **Test suite reflects what ships**: unit tests for services and plugins that are no longer part
-  of the default application build (Workflow/EtherCAT-analytics/optimizer services, dashboard and
-  workflow-editor plugins, etc.) are gated behind `ECAT_EXPERIMENTAL_SERVICES`. The default run is
-  now 175 tests (100% passing) covering only compiled, registered, and visible functionality.
-- **CI**: replaced the tiny inline `ecrt.h` stub (which could not compile the daemon/core tests and
-  used a broken heredoc) with a tracked, complete stub at `.github/workflows/ci/ecrt_stub.h`;
-  fixed the broken `libethercat.so` creation; removed the dead-code `OpcUaServer.cpp` entries from
-  integration/unit test builds; rewrote the ineffective valgrind step into a real per-binary loop.
-- **Scripts**: fixed `check_memory.sh` test glob (test binaries live in per-type subdirectories);
-  `package-deb.sh`/`package-rpm.sh` now derive the version from `CMakeLists.txt` instead of a stale
-  1.2.0 default; `package-linux.sh` no longer ships a fabricated v0.1.0 release-note block;
-  `capture_goal_evidence.sh` default scratch dir is sane and no longer fabricates a duplicate test
-  run; `analyze_coverage.sh` matches modern gcovr `lines:`/`branches:` output.
-- **Build hygiene**: deduplicated `NotesPlugin` and other duplicated source entries; added
-  `unit`/`integration`/`performance` test labels so `ctest -L <label>` is meaningful; wired the
-  previously orphaned `export_plugin_test` and `rttest_plugin_test` back into the build.
-- **Docs**: README, ARCHITECTURE, DEVELOPER_GUIDE, PLUGIN_GUIDE and the `ServiceContainer.h`
-  header no longer claim stale counts (247 tests, 85+ services, 28 visible workspaces); the
-  registered/visible plugin table now matches `MainWindow.cpp`.
+- **Red build (1b42117)**: `service_integration_test` no longer calls
+  `ServiceContainer::alarm()/logging()` (those accessors exist only under
+  `ECAT_EXPERIMENTAL_SERVICES`); the call sites are now guarded so the default build compiles.
+- **Test suite reflects what ships (1b42117)**: unit tests for services and plugins that are no
+  longer part of the default application build (Workflow/EtherCAT-analytics/optimizer services,
+  dashboard and workflow-editor plugins, etc.) are gated behind `ECAT_EXPERIMENTAL_SERVICES`. The
+  default run is now 179 tests (100% passing) covering only compiled, registered, and visible
+  functionality.
+- **SHM client hardening (2fae860)**: bounded receive/line buffers (dynamic growth with a cap
+  instead of a fixed `recv_line`), SIGBUS guard that clamps the mmap size to the actual object
+  size so a corrupt header cannot drive reads/writes past the mapped region, and stricter stale
+  (version/size) detection on attach.
+- **Data race (1460820)**: `concurrent_access_test` no longer races; the shared concurrency
+  fixture is now synchronized.
+- **CI**:
+  - Replaced the tiny inline `ecrt.h` stub (which could not compile the daemon/core tests and used
+    a broken heredoc) with a tracked, complete stub at `.github/workflows/ci/ecrt_stub.h`
+    (1b42117), installed via `setup-ethercat-stub.sh` (2e9038f).
+  - Fixed the broken `libethercat.so` creation; removed the dead-code `OpcUaServer.cpp` entries
+    from integration/unit test builds; rewrote the ineffective valgrind step into a real
+    per-binary loop (1b42117).
+  - First CI run blockers (2e9038f): PR-triggered jobs, OpenSSL/Qt-6.2 compatibility, shell
+    portability, and static-analysis timing are cleaned up.
+  - Second CI run failures (172ecdb): `EsiService`/`EsiParser` string/`QStringView` handling and a
+    `project_persistence_test` fix.
+  - Third CI round (3ca6073): missing `QJsonDocument` include in `protocol_integration_test`; a
+    dangling-lambda test UB in `language_switch_test` is removed.
+  - Fourth CI round (b0c672b): `QStringView ==` narrow-literal comparison in the ProjectIo ESI
+    parse.
+- **GUI layer (aaec6dc)**: language switching (re-trigger translation rebuild, translate the
+  SettingsDialog), reconnection (EcatClient reconnect backoff/reset), and memory-leak fixes across
+  `MainWindow`, `ServiceContainer`, `AsyncOperationManager`, `ScriptingService`, and the theme
+  wiring.
+- **Residual low-priority items (c7c9945)**: EcatClient request/response hygiene,
+  `AlEventHandler` periodic cleanup, `al_event_handler_test` alignment, and removal of a stale
+  `tests/unit/infra/CMakeLists.txt` section.
+- **Scripts (1b42117)**: fixed `check_memory.sh` test glob (test binaries live in per-type
+  subdirectories); `package-deb.sh`/`package-rpm.sh` derive the version from `CMakeLists.txt`
+  instead of a stale 1.2.0 default; `package-linux.sh` no longer ships a fabricated v0.1.0
+  release-note block; `capture_goal_evidence.sh` default scratch dir is sane and no longer
+  fabricates a duplicate test run; `analyze_coverage.sh` matches modern gcovr `lines:`/`branches:`
+  output.
+- **Build hygiene (1b42117)**: deduplicated `NotesPlugin` and other duplicated source entries;
+  added `unit`/`integration`/`performance` test labels so `ctest -L <label>` is meaningful; wired
+  the previously orphaned `export_plugin_test` and `rttest_plugin_test` back into the build.
+- **Docs (1b42117 + this round)**: README, ARCHITECTURE, DEVELOPER_GUIDE, PLUGIN_GUIDE and the
+  `ServiceContainer.h` header no longer claim stale counts (247 tests, 85+ services, 28 visible
+  workspaces); the registered/visible plugin table now matches `MainWindow.cpp`.
+
+### Known CI issues (open, not yet fixed)
+
+- **format-check** runs with `continue-on-error: true`: ~300 pre-existing files predate the
+  committed `.clang-format` and fail the dry-run. It stays visible so violations don't regress,
+  but it does not block merges until a dedicated formatting commit lands.
+- **valgrind** flags ~11 plugin tests for memory leaks (the per-binary loop reports them as
+  errors but they are pre-existing Qt-related allocations); the job currently fails on those.
+- **QT_QPA_PLATFORM** is now set to `offscreen` at the workflow level so QApplication tests run
+  headless in containers; widget tests should still set it per-test for local runs.
 
 ## [1.0.0-beta] — 2026-07-03
 

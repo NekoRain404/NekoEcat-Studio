@@ -154,8 +154,18 @@ a workspace tab (the rest are hidden helper/preference plugins).
 | RealtimePerformancePlugin | `realtimeperf` | Latency and throughput monitoring with ring buffer statistics | No |
 
 That is **34 plugins registered** in the default build, of which **24 are
-visible** as workspace tabs. The `AlarmPlugin` is registered only when
-`ECAT_EXPERIMENTAL_SERVICES=ON`.
+visible** as workspace tabs. (The `AutomationPlugin` registration is wrapped in
+`#ifdef ECAT_SCRIPTING_ENABLED`, so a build without `Qt6::Qml` registers 33
+plugins, all still 24 visible.) The `AlarmPlugin` is compiled and registered
+only when `ECAT_EXPERIMENTAL_SERVICES=ON`; several of the plugins above
+(`RtTestPlugin`, `ExportPlugin`, `NotesPlugin`, `ChartPlugin`,
+`ProtocolAnalyzerPlugin`, `ThemeCustomizerPlugin`, `KeyboardShortcutsPlugin`,
+`UserPreferencesPlugin`, `RealtimePerformancePlugin`) are registered but report
+`visible() == false` and contribute no tab. The **visible** workspace tabs are:
+Overview, Topology, Object Dictionary, Watch, Free Run, DcSync, AlEvent,
+StateMachine, StartupSdo, IoVariable, Consistency, Diagnostics, Session,
+Signal, EsiBrowser, BusStats, Oscilloscope, EoE, SoE, EniExport, Project,
+PdoMappingEditor, DcSyncPrecision, OnlineDiagnostics.
 
 > Note: many additional plugin directories exist on disk (Dashboard, Trace,
 > LogicAnalyzer, Diagram, Formula, Simulation, Calibration, Documentation,
@@ -230,163 +240,94 @@ Dependency injection container holding all service instances. Passed to plugins 
 | `diagnosticReport()` | `DiagnosticReportService*` | Diagnostic report generation |
 | `projectManager()` | `ProjectManagerService*` | Project lifecycle management |
 | `configuration()` | `ConfigurationService*` | Configuration management |
-| `alarm()` | `AlarmService*` | System alarm management |
-| `logging()` | `LoggingService*` | Centralized logging |
 | `chart()` | `ChartService*` | Chart data management |
 | `batch()` | `BatchOperationService*` | Batch SDO/state operations |
-| `scripting()` | `ScriptingService*` | JavaScript automation (optional, requires `ECAT_SCRIPTING_ENABLED`) |
 | `networkDiagnostics()` | `NetworkDiagnosticsService*` | Network port health and error monitoring |
 | `ecatHealth()` | `EcatHealthService*` | EtherCAT health score and state monitoring |
 | `exportService()` | `ExportService*` | Data export functionality |
-| `dataPipeline()` | `DataPipelineService*` | Data pipeline management |
-| `deviceManager()` | `DeviceManagerService*` | Device discovery and management |
 | `firmwareUpdate()` | `FirmwareUpdateService*` | Firmware update operations |
 | `reportGenerator()` | `ReportGeneratorService*` | Report generation |
-| `masterManager()` | `MasterManagerService*` | EtherCAT master management |
-| `distributedClock()` | `DistributedClockService*` | Distributed clock management |
+| `dcSyncPrecision()` | `DcSyncPrecisionService*` | DC sync precision analysis |
 | `sdoCache()` | `SdoCacheService*` | Per-slave SDO cache management |
 | `pdoMapping()` | `PdoMappingService*` | PDO mapping discovery and validation |
 | `coe()` | `CoEService*` | CANopen over EtherCAT protocol |
 | `foe()` | `FoEService*` | File over EtherCAT protocol |
 | `eoe()` | `EoEService*` | Ethernet over EtherCAT protocol |
-| `trace()` | `TraceService*` | EtherCAT frame tracing |
-| `domain()` | `DomainService*` | Domain/process data management |
-| `syncManager()` | `SyncManagerService*` | Sync manager configuration |
 | `stateMachine()` | `StateMachineService*` | Slave state machine control |
 | `errorHandling()` | `ErrorHandlingService*` | Error detection and recovery |
 | `hotConnect()` | `HotConnectService*` | Hot connect group management |
 | `redundancy()` | `RedundancyService*` | EtherCAT redundancy management |
-| `ecatMonitor()` | `EtherCATMonitorService*` | Real-time bus traffic monitoring |
-| `ecatAnalyzer()` | `EtherCATAnalyzerService*` | Protocol analysis |
-| `ecatOptimizer()` | `EtherCATOptimizerService*` | Performance optimization |
-| `ecatConfig()` | `EtherCATConfigService*` | Configuration profile management |
-| `ecatBackup()` | `EtherCATBackupService*` | Configuration backup |
-| `ecatRecovery()` | `EtherCATRecoveryService*` | System recovery |
-| `ecatSimulation()` | `EtherCATSimulationService*` | Virtual bus simulation |
-| `ecatTesting()` | `EtherCATTestingService*` | Automated testing |
-| `ecatValidation()` | `EtherCATValidationService*` | Configuration validation |
-| `ecatSecurity()` | `EtherCATSecurityService*` | Security policy management |
-| `ecatCompliance()` | `EtherCATComplianceService*` | Compliance checking |
-| `ecatCertification()` | `EtherCATCertificationService*` | Device certification |
-| `ecatOptimization()` | `EtherCATOptimizationService*` | Advanced optimization |
-| `ecatAdvancedMonitor()` | `EtherCATMonitoringService*` | Advanced monitoring with alerts |
-| `ecatAnalytics()` | `EtherCATAnalyticsService*` | Data analytics |
-| `ecatDeployment()` | `EtherCATDeploymentService*` | Device deployment |
-| `ecatUpdate()` | `EtherCATUpdateService*` | Firmware/software updates |
-| `ecatMaintenance()` | `EtherCATMaintenanceService*` | Maintenance scheduling |
-| `ecatIntegration()` | `EtherCATIntegrationService*` | Third-party integration |
-| `ecatVisualization()` | `EtherCATVisualizationService*` | Data visualization |
-| `ecatReporting()` | `EtherCATReportingService*` | Advanced reporting |
-| `ecatDocumentation()` | `EtherCATDocumentationService*` | Documentation generation |
-| `workflowAutomation()` | `WorkflowAutomationService*` | Workflow automation |
-| `workflowScheduling()` | `WorkflowSchedulingService*` | Workflow scheduling |
-| `workflowMonitoring()` | `WorkflowMonitoringService*` | Workflow monitoring |
-| `workflowVisualization()` | `WorkflowVisualizationService*` | Workflow visualization |
-| `workflowReporting()` | `WorkflowReportingService*` | Workflow reporting |
-| `pdoMapping()` | `PdoMappingService*` | PDO mapping discovery and validation |
-| `dcSyncPrecision()` | `DcSyncPrecisionService*` | DC sync precision analysis |
 | `onlineDiagnostics()` | `OnlineDiagnosticsService*` | Real-time bus monitoring and diagnostics |
-| `multiMaster()` | `MultiMasterService*` | Multi-master management |
 | `realtimePerformance()` | `RealtimePerformanceService*` | Real-time performance monitoring |
-| `advancedErrorAnalysis()` | `AdvancedErrorAnalysisService*` | Advanced error analysis |
-| `hardwareVerification()` | `HardwareVerificationService*` | Hardware verification |
-| `dcSyncOptimization()` | `DcSyncOptimizationService*` | DC sync optimization |
-| `dcSyncOptimizer()` | `DcSyncOptimizerService*` | DC sync optimizer |
-| `freeRunOptimization()` | `FreeRunOptimizationService*` | Free Run optimization |
-| `pdoMappingOptimization()` | `PdoMappingOptimizationService*` | PDO mapping optimization |
-| `sdoOptimization()` | `SdoOptimizationService*` | SDO optimization |
-| `realtimeOptimizer()` | `RealtimeOptimizerService*` | Real-time performance optimization |
+| `freeRunConfig()` | `FreeRunConfigurationService*` | Free Run configuration |
+| `freeRunMonitor()` | `FreeRunMonitoringService*` | Free Run monitoring |
+| `pdoConfiguration()` | `PdoConfigurationService*` | PDO configuration |
+| `opState()` | `OpStateService*` | Operational state management |
+| `oscilloscope()` | `OscilloscopeService*` | Oscilloscope signal capture |
+| `protocolAnalyzer()` | `ProtocolAnalyzerService*` | Protocol analysis |
+
+That is **41 accessors** in the default build: `EcatClient` + `EventBus` plus
+**39 domain services**. `ScriptingService` is available only when
+`ECAT_SCRIPTING_ENABLED` is defined (requires Qt6::Qml); `AlarmService` and
+`LoggingService` only when `ECAT_EXPERIMENTAL_SERVICES=ON`. Earlier revisions of
+this document claimed 85+ services; the shipped count is what `ServiceContainer`
+actually constructs.
 
 ## Service Layer
 
+The services below are compiled into the default application build and
+instantiated by `ServiceContainer` (39 domain services plus `EcatClient` and
+`EventBus`). Earlier revisions of this document listed 85+ services; the
+experimental/optimization/analytics/workflow/dashboard services that still exist
+as source files are **not** compiled or registered unless
+`ECAT_EXPERIMENTAL_SERVICES=ON` (which adds `AlarmService` and `LoggingService`).
+
 | Service | File | Purpose |
 |---------|------|---------|
-| `TopologyService` | `services/TopologyService.h` | Bus scanning, slave info, baseline capture/diff |
+| `EcatClient` | `infra/EcatClient.h` | TCP client to ecatd (JSON-RPC) |
+| `EventBus` | `services/EventBus.h` | Central inter-plugin signal hub |
 | `SdoService` | `services/SdoService.h` | SDO upload/download, dictionary caching, evidence tracking |
 | `WatchService` | `services/WatchService.h` | Watch list management, periodic polling, drift detection |
-| `DcSyncService` | `services/DcSyncService.h` | DC sync diagnostics polling (default 2s interval) |
+| `TopologyService` | `services/TopologyService.h` | Bus scanning, slave info, baseline capture/diff |
+| `DcSyncService` | `services/DcSyncService.h` | DC sync diagnostics polling |
 | `AlEventService` | `services/AlEventService.h` | AL event log polling and clearing |
-| `SignalService` | `services/SignalService.h` | Multi-channel signal subscriptions, time-series storage, running statistics |
-| `PerformanceMonitorService` | `services/PerformanceMonitorService.h` | Cycle time, jitter, frame loss, SDO response time, PDO update rate (1000-sample ring buffer) |
-| `EsiService` | `services/EsiService.h` | ESI XML import/parse, device matching by vendor/product, PDO mapping lookup |
-| `BusStatsService` | `services/BusStatsService.h` | Bus frame counts, error counts, bandwidth, frame rate |
-| `EventBus` | `services/EventBus.h` | Central inter-plugin signal hub (8 event types) |
-| `AsyncOperationManager` | `services/AsyncOperationManager.h` | Priority-queued async operations with timeout, progress tracking, and cancellation |
-| `WatchdogService` | `services/WatchdogService.h` | Watchdog timeout monitoring, per-slave status tracking, EventBus integration |
-| `SafetyController` | `services/SafetyController.h` | Safety boundary validation for state transitions, SDO writes, and Free Run |
-| `DiagnosticReportService` | `services/DiagnosticReportService.h` | Comprehensive diagnostic reports (topology, slaves, performance, DC sync, watchdog) in Markdown/CSV |
-| `ProjectManagerService` | `services/ProjectManagerService.h` | Project lifecycle (create/open/save/export/import) with .ecatproj JSON files |
-| `ConfigurationService` | `services/ConfigurationService.h` | Master/slave/network/timing/safety configuration with validation and persistence |
-| `AlarmService` | `services/AlarmService.h` | System alarm management with severity levels, categories, and lifecycle states |
-| `LoggingService` | `services/LoggingService.h` | Centralized logging with file rotation, level filtering, and category-based organization |
-| `ChartService` | `services/ChartService.h` | Chart data management for DashboardPlugin and ChartPlugin |
-| `BatchOperationService` | `services/BatchOperationService.h` | Batch SDO/state/topology operations with progress and cancellation |
-| `ScriptingService` | `services/ScriptingService.h` | Embedded JavaScript scripting engine for automation (optional, requires Qt6::Qml) |
-| `NetworkDiagnosticsService` | `services/NetworkDiagnosticsService.h` | Network port health monitoring, error counters, bandwidth, latency, jitter |
-| `EcatHealthService` | `services/EcatHealthService.h` | EtherCAT-specific health: master/slave states, DC sync, AL events, watchdog, 0-100 health score |
-| `ExportService` | `services/ExportService.h` | Data export functionality |
-| `DataPipelineService` | `services/DataPipelineService.h` | Data pipeline management |
-| `DeviceManagerService` | `services/DeviceManagerService.h` | Device discovery and management |
-| `FirmwareUpdateService` | `services/FirmwareUpdateService.h` | Firmware update operations |
+| `SignalService` | `services/SignalService.h` | Multi-channel signal subscriptions and stats |
+| `PerformanceMonitorService` | `services/PerformanceMonitorService.h` | Cycle time, jitter, frame loss metrics (ring buffer) |
+| `EsiService` | `services/EsiService.h` | ESI XML import/parse, device matching, PDO lookup |
+| `BusStatsService` | `services/BusStatsService.h` | Bus frame counts, error counts, bandwidth |
+| `WatchdogService` | `services/WatchdogService.h` | Watchdog timeout monitoring per slave |
+| `SafetyController` | `services/SafetyController.h` | Safety boundary validation for transitions, SDO writes, Free Run |
+| `DiagnosticReportService` | `services/DiagnosticReportService.h` | Diagnostic reports in Markdown/CSV |
+| `ProjectManagerService` | `services/ProjectManagerService.h` | Project lifecycle with .ecatproj files |
+| `ConfigurationService` | `services/ConfigurationService.h` | Master/slave/network/timing configuration |
+| `ChartService` | `services/ChartService.h` | Chart data management |
+| `BatchOperationService` | `services/BatchOperationService.h` | Batch SDO/state/topology operations |
+| `AsyncOperationManager` | `services/AsyncOperationManager.h` | Priority-queued async operations with timeout/progress |
+| `NetworkDiagnosticsService` | `services/NetworkDiagnosticsService.h` | Network port health, error counters, latency |
+| `EcatHealthService` | `services/EcatHealthService.h` | EtherCAT health score (0-100) |
+| `ExportService` | `services/ExportService.h` | Data export to file/external formats |
+| `FirmwareUpdateService` | `services/FirmwareUpdateService.h` | Firmware update via FoE |
 | `ReportGeneratorService` | `services/ReportGeneratorService.h` | Report generation |
-| `MasterManagerService` | `services/MasterManagerService.h` | EtherCAT master management |
-| `DistributedClockService` | `services/DistributedClockService.h` | Distributed clock management |
-| `RedundancyService` | `services/RedundancyService.h` | EtherCAT redundancy management |
-| `HotConnectService` | `services/HotConnectService.h` | Hot connect group management |
-| `ErrorHandlingService` | `services/ErrorHandlingService.h` | Error handling and recovery |
-| `StateMachineService` | `services/StateMachineService.h` | State machine management |
-| `SyncManagerService` | `services/SyncManagerService.h` | Sync manager configuration |
-| `DomainService` | `services/DomainService.h` | EtherCAT domain management |
-| `TraceService` | `services/TraceService.h` | EtherCAT frame tracing |
-| `EoEService` | `services/EoEService.h` | Ethernet over EtherCAT |
+| `DcSyncPrecisionService` | `services/DcSyncPrecisionService.h` | DC sync drift/jitter analysis |
+| `SdoCacheService` | `services/SdoCacheService.h` | Per-slave SDO dictionary/value cache |
+| `PdoMappingService` | `services/PdoMappingService.h` | PDO mapping discovery, validation, export |
+| `CoEService` | `services/CoEService.h` | CANopen over EtherCAT (SDO info, dictionary, emergency) |
 | `FoEService` | `services/FoEService.h` | File over EtherCAT |
-| `WorkflowOptimizationService` | `services/WorkflowOptimizationService.h` | Workflow optimization |
-| `ResourceManagementService` | `services/ResourceManagementService.h` | Resource management |
-| `TaskManagementService` | `services/TaskManagementService.h` | Task management |
-| `EtherCATDocumentationService` | `services/EtherCATDocumentationService.h` | Documentation generation |
-| `EtherCATReportingService` | `services/EtherCATReportingService.h` | Advanced reporting |
-| `EtherCATVisualizationService` | `services/EtherCATVisualizationService.h` | Data visualization |
-| `EtherCATIntegrationService` | `services/EtherCATIntegrationService.h` | Third-party integration |
-| `EtherCATMaintenanceService` | `services/EtherCATMaintenanceService.h` | Maintenance scheduling |
-| `EtherCATDeploymentService` | `services/EtherCATDeploymentService.h` | Device deployment |
-| `EtherCATUpdateService` | `services/EtherCATUpdateService.h` | Firmware update management |
-| `EtherCATAnalyticsService` | `services/EtherCATAnalyticsService.h` | Data analytics |
-| `EtherCATMonitoringService` | `services/EtherCATMonitoringService.h` | Real-time monitoring |
-| `EtherCATOptimizationService` | `services/EtherCATOptimizationService.h` | Performance optimization |
-| `EtherCATCertificationService` | `services/EtherCATCertificationService.h` | Device certification |
-| `EtherCATComplianceService` | `services/EtherCATComplianceService.h` | Compliance checking |
-| `EtherCATSecurityService` | `services/EtherCATSecurityService.h` | Security management |
-| `EtherCATValidationService` | `services/EtherCATValidationService.h` | Data validation |
-| `EtherCATSimulationService` | `services/EtherCATSimulationService.h` | Bus simulation |
-| `EtherCATTestingService` | `services/EtherCATTestingService.h` | Automated testing |
-| `EtherCATBackupService` | `services/EtherCATBackupService.h` | Configuration backup |
-| `EtherCATRecoveryService` | `services/EtherCATRecoveryService.h` | System recovery |
-| `EtherCATConfigService` | `services/EtherCATConfigService.h` | Configuration management |
-| `EtherCATOptimizerService` | `services/EtherCATOptimizerService.h` | Process optimization |
-| `EtherCATAnalyzerService` | `services/EtherCATAnalyzerService.h` | Data analysis |
-| `EtherCATMonitorService` | `services/EtherCATMonitorService.h` | System monitoring |
-| `WorkflowAnalyticsService` | `services/WorkflowAnalyticsService.h` | Workflow analytics and optimization data |
-| `WorkflowMonitoringService` | `services/WorkflowMonitoringService.h` | Workflow monitoring and dashboard data |
-| `CoEService` | `services/CoEService.h` | CANopen over EtherCAT protocol (SDO info, dictionary upload, emergency objects) |
-| `ImpactAnalysisService` | `services/ImpactAnalysisService.h` | Impact analysis data aggregation for Free Run and state transitions |
-| `PdoMappingService` | `services/PdoMappingService.h` | PDO mapping discovery, validation, configuration, and export |
-| `SdoCacheService` | `services/SdoCacheService.h` | Per-slave SDO dictionary/value cache with TTL and eviction policies |
-| `WorkflowAutomationService` | `services/WorkflowAutomationService.h` | Automated task execution, testing, deployment, and monitoring workflows |
-| `WorkflowReportingService` | `services/WorkflowReportingService.h` | Workflow execution, performance, error, and resource utilization reports |
-| `WorkflowSchedulingService` | `services/WorkflowSchedulingService.h` | Cron-based, event-based, dependency-based, and priority-based workflow scheduling |
-| `WorkflowVisualizationService` | `services/WorkflowVisualizationService.h` | Workflow flowcharts, Gantt charts, dependency graphs, and resource timelines |
-| `DcSyncPrecisionService` | `services/DcSyncPrecisionService.h` | DC sync precision analysis with drift monitoring and jitter statistics |
-| `OnlineDiagnosticsService` | `services/OnlineDiagnosticsService.h` | Real-time bus monitoring, error analysis, and health scoring |
-| `MultiMasterService` | `services/MultiMasterService.h` | Multi-master management and cross-master coordination |
-| `RealtimePerformanceService` | `services/RealtimePerformanceService.h` | Latency monitoring, throughput tracking, and performance statistics |
-| `AdvancedErrorAnalysisService` | `services/AdvancedErrorAnalysisService.h` | Error timeline, correlation analysis, and pattern recognition |
-| `HardwareVerificationService` | `services/HardwareVerificationService.h` | Device and network verification for hardware integrity checks |
-| `DcSyncOptimizationService` | `services/DcSyncOptimizationService.h` | DC sync optimization with sync, drift, jitter, and config optimization |
-| `DcSyncOptimizerService` | `services/DcSyncOptimizerService.h` | DC synchronization optimizer for distributed clock |
-| `FreeRunOptimizationService` | `services/FreeRunOptimizationService.h` | Free Run process data exchange optimization |
-| `PdoMappingOptimizationService` | `services/PdoMappingOptimizationService.h` | PDO mapping configuration optimization |
-| `SdoOptimizationService` | `services/SdoOptimizationService.h` | SDO communication optimization with cache and batch optimization |
-| `RealtimeOptimizerService` | `services/RealtimeOptimizerService.h` | Real-time performance optimization with latency and throughput optimization |
+| `EoEService` | `services/EoEService.h` | Ethernet over EtherCAT |
+| `StateMachineService` | `services/StateMachineService.h` | Slave state machine control |
+| `ErrorHandlingService` | `services/ErrorHandlingService.h` | Error detection and recovery |
+| `HotConnectService` | `services/HotConnectService.h` | Hot connect group management |
+| `RedundancyService` | `services/RedundancyService.h` | EtherCAT redundancy management |
+| `OnlineDiagnosticsService` | `services/OnlineDiagnosticsService.h` | Real-time bus monitoring and health scoring |
+| `RealtimePerformanceService` | `services/RealtimePerformanceService.h` | Latency/throughput monitoring |
+| `FreeRunConfigurationService` | `services/FreeRunConfigurationService.h` | Free Run configuration |
+| `FreeRunMonitoringService` | `services/FreeRunMonitoringService.h` | Free Run monitoring |
+| `PdoConfigurationService` | `services/PdoConfigurationService.h` | PDO configuration |
+| `OpStateService` | `services/OpStateService.h` | Operational state management |
+| `OscilloscopeService` | `services/OscilloscopeService.h` | Oscilloscope signal capture |
+| `ProtocolAnalyzerService` | `services/ProtocolAnalyzerService.h` | Protocol analysis |
+| `ImpactAnalysisService` | `services/ImpactAnalysisService.h` | Impact analysis for Free Run/state transitions |
+| `ScriptingService` | `services/ScriptingService.h` | Automation scripting (only if `ECAT_SCRIPTING_ENABLED`) |
 
 ### Native IgH API Backend
 
@@ -453,11 +394,13 @@ EcatDaemon
   ├── CommandDispatcher        (routes method → handler lambda)
   ├── EthercatCliBackend       (EcatService impl; wraps IgH CLI)
   ├── FreeRunController        (ecrt-based process image I/O at ~1kHz, SCHED_FIFO + TIMER_ABSTIME)
+  ├── freeRun_shm_mirror       (mirrorToShm: publishes process image to POSIX SHM)
+  ├── freeRun_rpc_handlers     (freeRunStart/Stop/Status/ShmInfo dispatch)
   ├── RtTestController         (real-time latency testing)
   ├── DcSyncHandler            (DC sync status, configuration, activation, deactivation)
   ├── AlEventHandler           (AL event log; polled every 1s)
   ├── AdapterHandler           (network adapter discovery/selection)
-  ├── FoEHandler               (File over EtherCAT firmware read/write)
+  ├── FoEHandler               (File over EtherCAT firmware read/write, path-allowlisted)
   └── SignalHandler            (signal subscription/polling)
 ```
 
@@ -483,6 +426,7 @@ The daemon accepts multiple TCP clients simultaneously (per-socket line buffers 
 | `freeRunStart` | `master` | Start ecrt Free Run mode |
 | `freeRunStop` | — | Stop Free Run mode |
 | `freeRunStatus` | — | Get Free Run telemetry |
+| `freeRunShmInfo` | — | Get SHM name, data size, and process-image layout for the real-time client |
 | `rtTestStart` | `master, cycleUsec` | Start real-time latency test |
 | `rtTestStop` | — | Stop RT test |
 | `rtTestStatus` | — | Get RT test telemetry |
@@ -500,6 +444,79 @@ The daemon accepts multiple TCP clients simultaneously (per-socket line buffers 
 | `signalSubscribe` | `name, slave, index, subIndex` | Subscribe to a signal channel |
 | `signalUnsubscribe` | `channelId` | Unsubscribe from a signal channel |
 | `hostDiagnostics` | — | Host health checks |
+
+## Real-Time Shared-Memory Data Plane
+
+The real-time path for process data bypasses TCP/JSON entirely for the hot loop.
+The daemon's `FreeRunController` owns an ecrt process-data domain in real-time
+(`SCHED_FIFO`, ~1 kHz); the SHM mirror publishes a constant-size snapshot of that
+image into POSIX shared memory each cycle for any external process to consume.
+
+**Canonical ABI header**: `src/core/nekoecat_shm.h`. This Qt-free, plain-C
+header is the single source of truth for the layout shared between the C++ daemon
+and the pure-C client (`client/nekoecat_client.c`). It defines `ShmHeader`,
+daemon-side `ShmMirrorEntry`/`ShmMirrorContext`, client-side `ShmLayoutEntry`/
+`ShmLayout`, cross-process atomics (C11/GCC `__atomic` helpers), and
+compile-time `static_assert`s that fail the build if the two sides drift.
+
+**SHM region layout** (`/nekoecat_proc_0`):
+
+```
+[ ShmHeader (56 bytes) ]
+[ data buffer 0  — stride = data_size, cap NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE (4096) ]
+[ data buffer 1  — stride = data_size                                        ]
+```
+
+`ShmHeader` fields (`version`, `cycle_count`, `timestamp_ns`, `active_buffer`,
+`data_size`, `layout_version`, `status_flags`, `ignored_writes`, `reserved`) are
+POD and are always touched through the atomic helpers.
+
+### Double buffer + publish order
+
+Each cycle (`mirrorToShm` in `apps/ecatd/freerun_shm_mirror.cpp`):
+
+1. Copy the fresh inputs from the ecrt domain into the **inactive** buffer.
+2. Overlay validated client outputs (RxPDO) from the **active** buffer back into
+   the inactive buffer AND into the daemon `domainData` (last-write-wins), so the
+   next ecrt `send` carries them. Out-of-range client writes are ignored and
+   counted into `ignored_writes`.
+3. **Publish atomically**, in this order:
+   `timestamp_ns` → `status_flags` (mark `NEKOECAT_FLAG_RUNNING`) →
+   `cycle_count` (all relaxed) → `active_buffer` (release) → `version` (final
+   release). `active_buffer` flips to the freshly-written buffer; `version` is
+   bumped last. Because `version` is a release store, any reader that acquires it
+   is guaranteed to observe every preceding cyclic update.
+
+The publish order is chosen so a weakly-ordered reader can rely on it: a client
+that `acquire`s `version` gets a consistent, torn-free view of one complete cycle.
+
+### Client attach + double-read
+
+`nekoecat_client_attach()` (`client/nekoecat_client.c`) locates the SHM arena
+(`freeRunShmInfo` RPC or a caller-provided layout JSON), validates the layout
+version and size, and `mmap`s both data buffers plus the header. Access is via
+the classic double-read protocol:
+
+1. `acquire` `version` (call it V).
+2. Read `active_buffer` and the data buffer.
+3. `acquire` `version` again; if it still equals V the view is stable and safe to
+   use; otherwise retry (a publish happened mid-read).
+
+Typed reads (`read_u8/u16/u32/u64/float_by_index`, `read_*_at`) always bounds-check
+against `data_size` and go through this protocol. Writes validate `0 ≤ off` and
+`off + width ≤ data_size` and land directly in SHM for the daemon to overlay.
+The client tracks `NEKOECAT_STATE_DATA_STALE` when a cycle is missed or the
+published `version`/size stop advancing. Raw zero-copy access is available via
+`nekoecat_client_get_process_data_ptr()`/`_get_current_version()`/`_get_data_size()`.
+
+### Client library and install
+
+`client/CMakeLists.txt` builds a standalone static library `libnekoecat_client.a`
+(`nekoecat_client.c/.h`, `shm_layout.h`, and the canonical `nekoecat_shm.h`).
+The Python example `examples/realtime/nekoecat_client_example.py` demonstrates raw
+`mmap`+`ctypes` access and a ctypes wrapper of the C library. Install rules place
+the library in `lib/` and `nekoecat_client.h`, `shm_layout.h`, `nekoecat_shm.h`
+in `include/nekoecat`.
 
 ## Data Flow
 
@@ -930,16 +947,17 @@ tests/
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| Plugin tests | ~80 | One per plugin, verifying identity, UI, lifecycle |
-| Service tests | ~50 | Service-layer logic, EventBus integration |
-| Model/Adapter tests | ~30 | Pure data logic, table population |
-| Handler tests | ~10 | Signal, DC sync, AL event, adapter handlers |
-| Infrastructure tests | ~20 | EventBus, ServiceContainer, PluginRegistry, cache, memory pool |
-| Boundary tests | ~20 | Empty data, large data, concurrent access, error recovery |
-| Integration tests | ~15 | Plugin lifecycle, service integration, EventBus integration |
-| Performance tests | ~60 | SDO, topology, EventBus, state machine benchmarks |
-| UI tests | ~10 | Widget creation, lifecycle, and rendering |
-| **Stable default registered** | **285** | **Default CMake configuration; experimental opt-in tests are additional** |
+| Unit | 143 | Core, services, plugins, models, adapters, detail, infra, utils, handlers |
+| Integration | 11 | Daemon lifecycle, plugin lifecycle, protocol/event-bus/service integration |
+| Performance | 25 | EventBus, data pipeline, device manager, sync manager, state machine, EtherCAT monitors |
+| Workflow (subset) | 2 | Workflow optimizer + dashboard plugin integration |
+
+The default `ctest` run reports **179 tests** (143 unit + 11 integration + 25
+performance; the 2 workflow tests carry an additional `workflow` label that is a
+subset of integration). All pass in the default build (Release,
+`ECAT_EXPERIMENTAL_SERVICES=OFF`). Reaching the previously removed
+experimental/optimization/dashboard tests requires configuring with
+`-DECAT_EXPERIMENTAL_SERVICES=ON`.
 
 ### Mock Strategy
 

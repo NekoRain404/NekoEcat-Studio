@@ -10,7 +10,7 @@
     <img alt="CMake" src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white">
     <img alt="Linux" src="https://img.shields.io/badge/Linux-EtherCAT-FCC624?style=for-the-badge&logo=linux&logoColor=111111">
     <img alt="License" src="https://img.shields.io/badge/License-GPL--3.0-6C5CE7?style=for-the-badge">
-    <img alt="Tests" src="https://img.shields.io/badge/Tests-175%20passed-00D68F?style=for-the-badge">
+    <img alt="Tests" src="https://img.shields.io/badge/Tests-179%20passed-00D68F?style=for-the-badge">
   </p>
 </div>
 
@@ -55,6 +55,23 @@ Every SDO write, state transition, and configuration change is tracked. Before w
 ### 🌍 8 Languages
 
 Switch between English, 简体中文, 日本語, Deutsch, 한국어, 繁體中文, Français, and Español — at runtime, no restart needed.
+
+### 🧪 Real-Time Client / Shared Memory
+
+A first-class, Qt-free real-time data plane for external programs:
+
+- **SHM data plane** — `ecatd` mirrors the Free Run process image into POSIX
+  shared memory (`/nekoecat_proc_0`) using a lock-free double buffer with a
+  version-counter consistency protocol. No JSON or TCP in the hot path.
+- **JSON-RPC control plane** — start/stop Free Run and query the process-image
+  layout over the daemon's normal TCP endpoint.
+- **Pure-C library** — `libnekoecat_client.a` (header: `client/nekoecat_client.h`)
+  provides typed reads/writes with bounds validation and a double-read attach
+  protocol.
+- **Python example** — `examples/realtime/nekoecat_client_example.py` shows raw
+  `mmap`/`ctypes` access plus the C library via ctypes.
+
+See `docs/ARCHITECTURE.md` for the shared-memory design.
 
 ### 🔌 Dual Backend Architecture
 
@@ -106,6 +123,10 @@ sudo ./build/apps/ecatd/ecatd
 ./build/apps/ecat-studio/ecat-studio
 ```
 
+`cmake --install` installs `ecatd`/`ecat-studio` to `bin/`, the real-time client
+library `libnekoecat_client.a` to `lib/`, and the client/SHM headers
+(`nekoecat_client.h`, `shm_layout.h`, `nekoecat_shm.h`) to `include/nekoecat`.
+
 ### First Steps
 
 1. **Start the daemon** — `ecatd` connects to the IgH EtherCAT Master
@@ -117,7 +138,10 @@ sudo ./build/apps/ecatd/ecatd
 
 ## 🧪 Tested
 
-- **175 automated tests** — the default build runs unit, integration, and performance tests covering the plugins, daemon handlers, and services that actually ship. Reaching additional (previously removed) services/plugins requires `cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON`
+- **179 automated tests (100% passing)** — the default build runs 143 unit,
+  11 integration, and 25 performance tests covering the plugins, daemon handlers,
+  and services that actually ship. Reaching additional (previously removed)
+  services/plugins requires `cmake -B build -DECAT_EXPERIMENTAL_SERVICES=ON`
 - **Verified on real hardware** — SDO read/write, slave scan, state transitions, and PDO mapping confirmed on Beckhoff-compatible digital I/O slave
 - **Test environment**: IgH Master 1.6.9, Linux 7.0.12-zen, RTL8125 NIC
 
@@ -143,20 +167,24 @@ sudo ./build/apps/ecatd/ecatd
 │  │  │ CLI Backend   │  │ Native ecrt │  │ FreeRun    │  │  │
 │  │  │ (ethercat cmd)│  │ Backend     │  │ Controller │  │  │
 │  │  └──────┬───────┘  └──────┬──────┘  └─────┬──────┘  │  │
-│  └─────────┼─────────────────┼────────────────┼─────────┘  │
-└────────────┼─────────────────┼────────────────┼────────────┘
-             │                 │                │
-             └────────┬────────┴────────────────┘
-                      │
-             ┌────────┴────────┐
-             │ IgH EtherCAT    │
-             │ Master (ecrt)   │
-             └────────┬────────┘
-                      │
-             ┌────────┴────────┐
-             │  EtherCAT Bus   │
-             │  (real slaves)  │
-             └─────────────────┘
+│  │         └─────────┬───────┘               │         │  │
+│  │                   │                 ┌─────┴──────┐  │  │
+│  │                   │                 │ SHM Mirror │  │  │
+│  │                   │                 │(double-buf)│  │  │
+│  └───────────────────┼─────────────────┼───────┬────┼──┘  │
+└──────────────────────┼─────────────────┼───────┼────┼─────┘
+                       │                 │       │    │
+              ┌────────┴────────┐        │  ┌────┴─────┴──────┐
+              │ IgH EtherCAT    │        │  │ POSIX SHM       │
+              │ Master (ecrt)   │        │  │ /nekoecat_proc_0│
+              └────────┬────────┘        │  │ (C client, Py)  │
+                       │                 │  └─────────────────┘
+              ┌────────┴────────┐        │
+              │  EtherCAT Bus   │        │
+              │  (real slaves)  │        │
+              └─────────────────┘        │
+                                         │
+                            nekoecat_client (C) / Python example
 ```
 
 ## 📚 Documentation

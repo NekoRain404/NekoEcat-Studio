@@ -46,8 +46,12 @@ project file (`Ctrl+S`). Reopen with `Ctrl+O` to resume where you left off.
 
 ## Workspace Reference
 
-NekoEcat Studio has 28 workspace tabs organized into functional groups. Use the
-tab bar at the top or the View -> Workspaces menu to navigate.
+NekoEcat Studio ships **24 workspace tabs** (some plugins are compiled and
+registered but report `visible() == false` and contribute no tab, so the
+on-screen tab bar is 24). The tabs below are organized into functional groups.
+Use the tab bar at the top or the View -> Workspaces menu to navigate. Entries
+marked *(not in default build)* describe experimental/optimization workspaces
+that are not part of the shipped tab bar.
 
 ### Home
 
@@ -79,8 +83,8 @@ tab bar at the top or the View -> Workspaces menu to navigate.
 | **Watch** | Add multiple SDO/PDO targets for real-time monitoring. Batch read/write, value-change highlighting, CSV export. |
 | **Signal Analyzer** | Live signal visualization with zoom, pan, and measurement cursors. |
 | **Oscilloscope** | Multi-channel oscilloscope-style display for analog and digital signals. Trigger modes and persistence. |
-| **Signal Trace** | High-speed trace recording for post-capture analysis. Configurable trigger conditions and buffer depth. |
-| **Logic Analyzer** | Digital logic analysis with protocol decoding, pattern triggers, and export. |
+| **Signal Trace** *(not in default build)* | High-speed trace recording for post-capture analysis. Configurable trigger conditions and buffer depth. |
+| **Logic Analyzer** *(not in default build)* | Digital logic analysis with protocol decoding, pattern triggers, and export. |
 
 ### DC (Distributed Clocks)
 
@@ -88,7 +92,7 @@ tab bar at the top or the View -> Workspaces menu to navigate.
 |-----|-------------|
 | **DC Sync** | Overview of distributed clock synchronization status per slave. |
 | **DC Sync Precision** | Detailed jitter and drift measurements with statistical distribution charts. |
-| **DC Sync Optimizer** | Guided tool for optimizing DC sync parameters (shift times, cycle offsets) across the network. |
+| **DC Sync Optimizer** *(not in default build)* | Guided tool for optimizing DC sync parameters (shift times, cycle offsets) across the network. |
 
 ### Runtime
 
@@ -105,7 +109,7 @@ tab bar at the top or the View -> Workspaces menu to navigate.
 | **Diagnostics** | Historical error analysis, correlated events, and trend charts. |
 | **Consistency** | Cross-check OD, PDO, and DC configuration against the ESI definitions. Flag mismatches and unsupported entries. |
 | **AL Events** | Real-time AL (Application Layer) event log from the bus. |
-| **Alarms** | User-configurable alarm rules with severity levels, notifications, and logging. |
+| **Alarms** *(not in default build)* | User-configurable alarm rules with severity levels, notifications, and logging. |
 
 ### Protocols
 
@@ -216,7 +220,9 @@ Set the log level in `Tools -> Settings -> Logging`.
 ### Tests
 
 The project includes automated unit, integration, and performance tests covering
-core services, handlers, and the plugins that ship. Run them from the build directory:
+core services, handlers, and the plugins that ship. The default suite is **179
+tests (143 unit + 11 integration + 25 performance)**, all passing. Run them from
+the build directory:
 
 ```bash
 ctest --output-on-failure

@@ -60,6 +60,18 @@ cmake --build build -j$(nproc)
 - IgH EtherCAT Master runtime (`libethercat.so.1`)
 - Configured EtherCAT NIC and master service
 
+### Real-Time Client Library
+
+The pure-C real-time client is installed with the main build. After
+`cmake --install`, the static library lands at `<prefix>/lib/libnekoecat_client.a`
+and the shared headers (`nekoecat_client.h`, `shm_layout.h`, `nekoecat_shm.h`)
+at `<prefix>/include/nekoecat`. A standalone build is also possible:
+
+```bash
+cmake -S client -B build-client
+cmake --build build-client      # -> build-client/libnekoecat_client.a
+```
+
 ### Installing IgH EtherCAT Master
 
 ```bash

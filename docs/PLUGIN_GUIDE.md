@@ -388,28 +388,43 @@ Connection change →  onConnectionChanged(true/false) on link state
 
 ## Existing Plugin Examples
 
+The table below lists plugins found in the source tree. Only those marked
+**(ships)** are compiled into and registered by the default application build;
+the rest are experimental/stub plugins whose sources exist but are not part of
+the shipped binary (their tests compile only with `ECAT_EXPERIMENTAL_SERVICES`).
+The default build registers 34 plugins; **24 are visible workspace tabs** — the
+visible set is Overview, Topology, Object Dictionary, Watch, Free Run, DcSync,
+AlEvent, StateMachine, StartupSdo, IoVariable, Consistency, Diagnostics, Session,
+Signal, EsiBrowser, BusStats, Oscilloscope, EoE, SoE, EniExport, Project,
+PdoMappingEditor, DcSyncPrecision, and OnlineDiagnostics.
+
 | Plugin | Complexity | Constructor | Key Features |
 |--------|-----------|-------------|--------------|
-| `NotesPlugin` | Simple | `(QObject*)` | Self-contained, no services, plain QPlainTextEdit |
-| `EsiBrowserPlugin` | Medium | `(EsiService*, QObject*)` | Fine-grained service injection, ESI parser and matcher |
-| `BusStatsPlugin` | Medium | `(BusStatsService*, QObject*)` | Fine-grained injection, live stats via timer |
-| `TopologyPlugin` | Complex | `(EventBus*, QObject*)` | EventBus subscription, custom graph widget, layout modes |
-| `SignalPlugin` | Complex | `(SignalService*, QObject*)` | Real-time chart, channel management, data streaming |
-| `DcSyncPlugin` | Complex | `(EventBus*, DcSyncService*, QObject*)` | EventBus + service, JSON data display |
-| `DashboardPlugin` | Complex | `(ChartService*, QObject*)` | Configurable gauges, counters, sparklines in grid layout |
-| `ChartPlugin` | Medium | `(ChartService*, QObject*)` | Line/bar/pie/scatter/gauge charts, data source selection, export |
-| `AutomationPlugin` | Complex | `(ScriptingService*, QObject*)` | Script editor, console output, template insertion, run/stop controls |
-| `ProtocolAnalyzerPlugin` | Complex | `(ProtocolAnalyzerService*, QObject*)` | Frame capture, protocol decode, filtering, PCAP export |
-| `ProjectPlugin` | Medium | `(ProjectManagerService*, ConfigurationService*, QObject*)` | Project tree, config pages, import/export |
-| `AlarmPlugin` | Medium | `(AlarmService*, LoggingService*, QObject*)` | Alarm table, filtering, acknowledge/clear actions, history export |
-| `OscilloscopePlugin` | Complex | `(OscilloscopeService*, QObject*)` | Multi-channel scope, timebase, trigger modes, cursor, FFT |
-| `DataPipelinePlugin` | Medium | `(DataPipelineService*, QObject*)` | Pipeline configuration, stage management, monitoring |
-| `DeviceManagerPlugin` | Medium | `(DeviceManagerService*, QObject*)` | Device discovery, configuration, status monitoring |
-| `MasterManagerPlugin` | Complex | `(MasterManagerService*, DistributedClockService*, QObject*)` | Master info, diagnostics, restart, log viewer |
+| `NotesPlugin` **(ships)** | Simple | `(QObject*)` | Self-contained, no services, plain QPlainTextEdit; hidden (visible()==false) |
+| `EsiBrowserPlugin` **(ships)** | Medium | `(EsiService*, QObject*)` | Fine-grained service injection, ESI parser and matcher |
+| `BusStatsPlugin` **(ships)** | Medium | `(BusStatsService*, QObject*)` | Fine-grained injection, live stats via timer |
+| `TopologyPlugin` **(ships)** | Complex | `(EventBus*, QObject*)` | EventBus subscription, custom graph widget, layout modes |
+| `SignalPlugin` **(ships)** | Complex | `(SignalService*, QObject*)` | Real-time chart, channel management, data streaming |
+| `DcSyncPlugin` **(ships)** | Complex | `(EventBus*, DcSyncService*, QObject*)` | EventBus + service, JSON data display |
+| `ChartPlugin` **(ships)** | Medium | `(ChartService*, QObject*)` | Line/bar/pie/scatter/gauge charts; hidden (visible()==false) |
+| `AutomationPlugin` **(ships w/ Qt6::Qml)** | Complex | `(ScriptingService*, QObject*)` | Script editor, console output, run/stop; hidden (visible()==false) |
+| `ProtocolAnalyzerPlugin` **(ships)** | Complex | `(ProtocolAnalyzerService*, QObject*)` | Frame capture, protocol decode, filtering, PCAP export; hidden |
+| `ProjectPlugin` **(ships)** | Medium | `(ProjectManagerService*, ConfigurationService*, QObject*)` | Project tree, config pages, import/export |
+| `OscilloscopePlugin` **(ships)** | Complex | `(OscilloscopeService*, QObject*)` | Multi-channel scope, timebase, trigger modes, cursor, FFT |
+| `ThemeCustomizerPlugin` **(ships)** | Simple | `(QObject*)` | UI theme customization; hidden (visible()==false) |
+| `KeyboardShortcutsPlugin` **(ships)** | Simple | `(QObject*)` | Keyboard shortcut configuration; hidden (visible()==false) |
+| `UserPreferencesPlugin` **(ships)** | Simple | `(QObject*)` | User preference management; hidden (visible()==false) |
+| `RtTestPlugin` **(ships)** | Medium | `(container_, QObject*)` | Real-time latency test; hidden (visible()==false) |
+| `ExportPlugin` **(ships)** | Medium | `(container_, QObject*)` | Data export to file; hidden (visible()==false) |
+| `PdoMappingEditorPlugin` **(ships)** | Complex | `(PdoMappingService*, QObject*)` | Visual PDO mapping with canvas, validator, and export |
+| `DcSyncPrecisionPlugin` **(ships)** | Complex | `(DcSyncPrecisionService*, QObject*)` | DC sync drift monitoring and jitter analysis |
+| `OnlineDiagnosticsPlugin` **(ships)** | Complex | `(OnlineDiagnosticsService*, QObject*)` | Real-time bus monitoring and error analysis |
+| `RealtimePerformancePlugin` **(ships)** | Complex | `(RealtimePerformanceService*, QObject*)` | Latency/throughput monitoring; hidden (visible()==false) |
+| `AlarmPlugin` | Medium | `(AlarmService*, LoggingService*, QObject*)` | Alarm table, filtering, acknowledge/clear; only with `ECAT_EXPERIMENTAL_SERVICES` |
+| `DataPipelinePlugin` | Medium | `(DataPipelineService*, QObject*)` | Pipeline configuration, stage management |
+| `DeviceManagerPlugin` | Medium | `(DeviceManagerService*, QObject*)` | Device discovery, configuration, status |
+| `MasterManagerPlugin` | Complex | `(MasterManagerService*, DistributedClockService*, QObject*)` | Master info, diagnostics, restart |
 | `SdoCachePlugin` | Medium | `(SdoCacheService*, QObject*)` | SDO cache management and statistics |
-| `ThemeCustomizerPlugin` | Simple | `(QObject*)` | UI theme customization |
-| `KeyboardShortcutsPlugin` | Simple | `(QObject*)` | Keyboard shortcut configuration |
-| `UserPreferencesPlugin` | Simple | `(QObject*)` | User preference management |
 | `TracePlugin` | Medium | `(TraceService*, QObject*)` | EtherCAT frame trace capture |
 | `LogicAnalyzerPlugin` | Medium | `(TraceService*, QObject*)` | Logic analyzer for digital signals |
 | `DiagramPlugin` | Medium | `(QObject*)` | Network topology diagram editor |
@@ -447,15 +462,15 @@ Connection change →  onConnectionChanged(true/false) on link state
 | `DocumentationBrowserPlugin` | Medium | `(QObject*)` | Documentation browser |
 | `WorkflowOptimizerPlugin` | Complex | `(WorkflowAnalyticsService*, QObject*)` | Workflow optimization recommendations |
 | `WorkflowDashboardPlugin` | Complex | `(WorkflowMonitoringService*, QObject*)` | Workflow monitoring dashboard |
-| `PdoMappingEditorPlugin` | Complex | `(PdoMappingService*, QObject*)` | Visual PDO mapping with canvas, validator, and export |
-| `DcSyncPrecisionPlugin` | Complex | `(DcSyncPrecisionService*, QObject*)` | DC sync drift monitoring and jitter analysis |
-| `OnlineDiagnosticsPlugin` | Complex | `(OnlineDiagnosticsService*, QObject*)` | Real-time bus monitoring and error analysis |
 | `MultiMasterPlugin` | Complex | `(MultiMasterService*, QObject*)` | Multi-master management and comparison |
-| `RealtimePerformancePlugin` | Complex | `(RealtimePerformanceService*, QObject*)` | Latency and throughput monitoring |
 | `AdvancedErrorAnalysisPlugin` | Complex | `(AdvancedErrorAnalysisService*, QObject*)` | Error timeline and correlation analysis |
 | `HardwareVerificationPlugin` | Complex | `(HardwareVerificationService*, QObject*)` | Device and network verification |
 
 ## Existing defaultOrder Values
+
+The values below cover both shipped and experimental plugins. Only the plugins
+marked **(ships)** in the table above are registered in the default build; the
+rest are experimental and require `ECAT_EXPERIMENTAL_SERVICES`.
 
 | Order | Plugin |
 |-------|--------|
