@@ -29,17 +29,8 @@ jobs:
           sudo apt-get install -y qt6-base-dev qt6-tools-dev qt6-l10n-tools \
             libqt6network6 libqt6widgets6 libqt6test6
 
-      - name: Install IgH EtherCAT headers
-        run: |
-          sudo apt-get install -y ethercat-master-dev 2>/dev/null || true
-          if [ ! -f /usr/include/ecrt.h ]; then
-            sudo mkdir -p /usr/include
-            sudo cp .github/workflows/ci/ecrt_stub.h /usr/include/ecrt.h
-          fi
-          if [ ! -f /usr/lib/libethercat.so ]; then
-            echo 'int ecrt_stub_dummy;' | gcc -x c -shared -fPIC -o /tmp/libethercat.so - 2>/dev/null \
-              && sudo cp /tmp/libethercat.so /usr/lib/libethercat.so
-          fi
+      - name: Install IgH EtherCAT headers/stub
+        run: bash .github/workflows/ci/setup-ethercat-stub.sh
 
       - name: Configure
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }}
