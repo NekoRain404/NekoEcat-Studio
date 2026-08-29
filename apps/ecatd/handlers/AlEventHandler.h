@@ -39,5 +39,5 @@ private:
     QVector<QString> previousAlStatus_;
 
     QString runCommand(const QString &cmd) const;
-    QVector<AlEventEntry> pollSlaveAlStatus() const;
+    QVector<AlEventEntry> pollSlaveAlStatus();
 };

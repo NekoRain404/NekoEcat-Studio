@@ -13,7 +13,7 @@ void AlEventHandler::poll()
     }
 }
 
-QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus() const
+QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus()
 {
     QVector<AlEventEntry> result;
 
@@ -38,8 +38,17 @@ QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus() const
         }
 
         const QString state = parts[2];
-        // Only record an event when the slave is NOT in a healthy running state.
-        if (state != "OP" && state != "SAFEOP" && state != "PREOP") {
+
+        // Remember every observed status so identical consecutive polls are
+        // merged: only a change from the previously observed status becomes an event.
+        if (pos >= previousAlStatus_.size())
+            previousAlStatus_.resize(pos + 1);
+        const bool changed = previousAlStatus_[pos] != state;
+        previousAlStatus_[pos] = state;
+
+        // Only record an event when the slave is NOT in a healthy running state
+        // and its status changed since the last poll.
+        if (changed && state != "OP" && state != "SAFEOP" && state != "PREOP") {
             AlEventEntry entry;
             entry.timestampMs = QDateTime::currentMSecsSinceEpoch();
             entry.slave = pos;
@@ -57,7 +66,6 @@ QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus() const
 
 QJsonObject AlEventHandler::handle(const QString &id, const QJsonObject &params)
 {
-    Q_UNUSED(id);
     QJsonArray arr;
     const int limit = params.value("limit").toInt(100);
     const int start = qMax(0, events_.size() - limit);
@@ -77,7 +85,10 @@ QJsonObject AlEventHandler::handle(const QString &id, const QJsonObject &params)
     QJsonObject result;
     result["events"] = arr;
     result["total"] = events_.size();
-    return result;
+    // Wrap in the standard ok envelope ({id, ok, result}) so the daemon's
+    // error counting sees ok:true. Built inline (mirrors CommandDispatcher::
+    // success) because the unit-test target compiles this file standalone.
+    return QJsonObject{{"id", id}, {"ok", true}, {"result", result}};
 }
 
 void AlEventHandler::clear()

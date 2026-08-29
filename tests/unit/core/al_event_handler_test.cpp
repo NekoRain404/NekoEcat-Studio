@@ -16,14 +16,16 @@ class AlEventHandlerTest : public QObject {
     Q_OBJECT
 
 private slots:
-    // Verify handle returns empty events array when none added
+    // Verify handle returns an ok envelope with empty events array when none added
     void testHandleEmptyEvents() {
         AlEventHandler handler;
         QJsonObject result = handler.handle("1", {});
-        QVERIFY(result.contains("events"));
-        QVERIFY(result.contains("total"));
-        QCOMPARE(result["total"].toInt(), 0);
-        QCOMPARE(result["events"].toArray().size(), 0);
+        QVERIFY(result.value("ok").toBool());
+        QJsonObject inner = result.value("result").toObject();
+        QVERIFY(inner.contains("events"));
+        QVERIFY(inner.contains("total"));
+        QCOMPARE(inner["total"].toInt(), 0);
+        QCOMPARE(inner["events"].toArray().size(), 0);
     }
 
     // Verify handle returns correct event data after adding events
@@ -49,8 +51,10 @@ private slots:
         handler.addEvent(e2);
 
         QJsonObject result = handler.handle("2", {});
-        QCOMPARE(result["total"].toInt(), 2);
-        QJsonArray events = result["events"].toArray();
+        QVERIFY(result.value("ok").toBool());
+        QJsonObject inner = result.value("result").toObject();
+        QCOMPARE(inner["total"].toInt(), 2);
+        QJsonArray events = inner["events"].toArray();
         QCOMPARE(events.size(), 2);
 
         QJsonObject first = events[0].toObject();
@@ -73,13 +77,14 @@ private slots:
         entry.severity = "Error";
         handler.addEvent(entry);
 
-        QCOMPARE(handler.handle("3", {})["total"].toInt(), 1);
+        QCOMPARE(handler.handle("3", {})["result"].toObject()["total"].toInt(), 1);
 
         handler.clear();
 
         QJsonObject result = handler.handle("4", {});
-        QCOMPARE(result["total"].toInt(), 0);
-        QCOMPARE(result["events"].toArray().size(), 0);
+        QJsonObject inner = result.value("result").toObject();
+        QCOMPARE(inner["total"].toInt(), 0);
+        QCOMPARE(inner["events"].toArray().size(), 0);
     }
 
     // Verify limit parameter restricts returned event count
@@ -97,8 +102,9 @@ private slots:
         }
 
         QJsonObject result = handler.handle("5", {{"limit", 3}});
-        QCOMPARE(result["total"].toInt(), 10);
-        QJsonArray events = result["events"].toArray();
+        QJsonObject inner = result.value("result").toObject();
+        QCOMPARE(inner["total"].toInt(), 10);
+        QJsonArray events = inner["events"].toArray();
         QCOMPARE(events.size(), 3);
         // The last 3 events should be returned (slave 7, 8, 9).
         QCOMPARE(events[0].toObject()["slave"].toInt(), 7);
@@ -111,7 +117,7 @@ private slots:
         AlEventHandler handler;
         handler.poll();
         QJsonObject result = handler.handle("6", {});
-        QCOMPARE(result["total"].toInt(), 0);
+        QCOMPARE(result["result"].toObject()["total"].toInt(), 0);
     }
 };
 

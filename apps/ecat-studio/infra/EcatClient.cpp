@@ -490,9 +490,22 @@ void EcatClient::sweepTimedOutRequests() {
     }
     // Iterate over collection
     for (const QString &id : timedOut) {
-        handlers_.remove(id);
+        // Take the handler out of the map before invoking it so the container
+        // never holds a stale pointer and re-entrancy is safe.
+        const auto handler = handlers_.take(id);
         requestTimestamps_.remove(id);
-        emit errorMessage(QString("Request %1 timed out after %2ms").arg(id).arg(requestTimeoutMs_));
+        const QString errorMsg =
+            QString("Request %1 timed out after %2ms").arg(id).arg(requestTimeoutMs_);
+        emit errorMessage(errorMsg);
+        // Mirror handleLine(): deliver an error result to the pending handler
+        // so callers don't wait forever for a response that will never arrive.
+        if (handler) {
+            QJsonObject errorResult;
+            errorResult["error"] = true;
+            errorResult["errorMessage"] = errorMsg;
+            errorResult["errorCode"] = -1;
+            handler(errorResult);
+        }
     }
 }
 
