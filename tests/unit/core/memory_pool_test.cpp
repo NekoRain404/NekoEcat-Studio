@@ -71,12 +71,15 @@ void testPoolExhaustion() {
 // Test statistics tracking for allocations and peak usage
 void testStats() {
   MemoryPool<TestObj> pool(5);
+  QVector<TestObj *> objs;
   for (int i = 0; i < 7; ++i) {
-    pool.allocate();
+    objs.append(pool.allocate());
   }
   auto s = pool.stats();
   expectEqual(s.totalAllocations, 7, "totalAllocations is 7");
   expectEqual(s.peakUsage, 5, "peakUsage capped at pool capacity");
+  // Release all allocations so the pool has no leaked blocks.
+  for (TestObj *o : objs) pool.deallocate(o);
 }
 
 // Capacity and available return configured values

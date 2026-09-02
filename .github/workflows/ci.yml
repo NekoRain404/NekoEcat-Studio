@@ -160,11 +160,16 @@ jobs:
       - name: Valgrind tests
         run: |
           set -euo pipefail
+          # Only fail on REAL defects: "definitely/indirectly lost" leaks and
+          # invalid memory accesses. Qt widget tests always leave
+          # "still reachable"/"possibly lost" records from internal caches
+          # and connection lists -- run-valgrind.sh excludes those.
+          # QT_QPA_PLATFORM=offscreen is inherited from the workflow env.
           failures=0
           while IFS= read -r bin; do
             [ -x "$bin" ] || continue
             echo "==> valgrind: $bin"
-            if ! valgrind --error-exitcode=99 --leak-check=full --quiet "$bin" >/dev/null 2>&1; then
+            if ! bash .github/workflows/ci/run-valgrind.sh "$bin"; then
               echo "::error::valgrind reported errors in $bin"
               failures=$((failures + 1))
             fi
