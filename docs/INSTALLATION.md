@@ -89,6 +89,59 @@ sudo pacman -S ethercat
 3. Grant user permissions for EtherCAT access
 4. Launch NekoEcat Studio
 
+## Run as a Service
+
+The runtime daemon (`ecatd`) can run as a supervised boot service. The tar
+package ships a systemd unit under `packaging/systemd/`.
+
+```bash
+# Install the unit and start ecatd on boot
+sudo cp packaging/systemd/ecatd.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now ecatd
+```
+
+The unit waits for the IgH master (`After=network.target ethercat.service`,
+`Wants=ethercat.service`) and supervises ecatd (`Restart=on-failure`). It runs
+as root with an RT priority limit and an unlimited memlock so the Free Run
+control loop can mmap its process image; restrict firmware transfers with
+`NEKOECAT_FIRMWARE_DIR` (default `/var/lib/nekoecat/firmware` — create it first):
+
+```bash
+sudo install -d /var/lib/nekoecat/firmware
+```
+
+Verify and follow logs:
+
+```bash
+systemctl status ecatd
+journalctl -u ecatd -f
+```
+
+To run ecatd straight from a build tree (no install), override the binary with
+a drop-in instead of editing the unit:
+
+```bash
+sudo systemctl edit ecatd
+```
+
+```ini
+[Service]
+ExecStart=/home/yourname/nekoecat/build/apps/ecatd/ecatd --foreground
+```
+
+```bash
+sudo systemctl daemon-reload && sudo systemctl restart ecatd
+```
+
+For a hardened non-root deployment (dedicated user + capabilities), see the
+comment block at the top of `packaging/systemd/ecatd.service` and
+`packaging/systemd/README.md`. To stop the service:
+
+```bash
+sudo systemctl disable --now ecatd
+```
+
 ## Verification
 
 ```bash

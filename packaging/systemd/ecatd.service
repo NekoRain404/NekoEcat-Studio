@@ -1,0 +1,81 @@
+# NekoEcat ecatd runtime daemon
+#
+# Runs ecatd in the foreground (Type=simple) as root so it can open
+# /dev/EtherCAT0 and raise the Free Run control loop to RT priorities without a
+# custom security policy. ecatd binds to 127.0.0.1:5877 only, so it is a local
+# IPC service, not network-exposed.
+#
+# ROOT USER TRADEOFF
+# ------------------
+# ecatd currently has no seccomp/landlock profile and needs raw access to the
+# IgH master device plus RT scheduling, so it runs as root by default. This is
+# the pragmatic choice for a commissioning workstation; it is NOT the layout for
+# a hardened production box.
+#
+# HARDENING PATH (dedicated user + capabilities)
+# ----------------------------------------------
+# For a locked-down install, drop the root user and grant only the privileges
+# ecatd needs, then create /var/lib/nekoecat/firmware owned by the service user:
+#
+#   sudo useradd --system --home-dir /var/lib/nekoecat --create-home ecatd
+#   sudo install -d -o ecatd -g ecatd /var/lib/nekoecat/firmware
+#
+#   sudo systemctl edit ecatd
+#   [Service]
+#   User=ecatd
+#   Group=ecatd
+#   AmbientCapabilities=CAP_SYS_NICE CAP_IPC_LOCK
+#   CapabilityBoundingSet=CAP_SYS_NICE CAP_IPC_LOCK
+#   DeviceAllow=/dev/EtherCAT0 rw
+#   NoNewPrivileges=true
+#   ProtectSystem=strict
+#   ProtectHome=true
+#   PrivateTmp=true
+#
+#   sudo systemctl daemon-reload && sudo systemctl restart ecatd
+#
+# (Full walkthrough: packaging/systemd/README.md)
+#
+# BUILD-TREE / NON-DEFAULT-PREFIX INSTALLS
+# ----------------------------------------
+# This unit ships with ExecStart pointing at the packaged binary
+# (/usr/local/bin/ecatd). To run ecatd straight out of a build tree or from a
+# different prefix, override ExecStart with a drop-in rather than editing this
+# file (your override survives package upgrades):
+#
+#   sudo systemctl edit ecatd
+#   [Service]
+#   ExecStart=/absolute/path/to/build/apps/ecatd/ecatd --foreground
+#
+#   sudo systemctl daemon-reload && sudo systemctl restart ecatd
+#
+# NOTE: `--foreground` is accepted for forward compatibility with potential
+# self-daemonizing builds; the current ecatd always runs in the foreground,
+# which is exactly what Type=simple expects.
+
+[Unit]
+Description=NekoEcat EtherCAT runtime daemon (ecatd)
+Documentation=file:///usr/share/doc/nekoecat/README.md
+After=network.target ethercat.service
+Wants=ethercat.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ecatd --foreground
+Restart=on-failure
+RestartSec=3
+User=root
+# RT FIFO priority 95 for the Free Run control loop; see README for the
+# reduced-capability alternative.
+LimitRTPRIO=95
+# The Free Run process image is shared with clients via mmap; keep it resident.
+LimitMEMLOCK=infinity
+# Restrict FoE firmware transfers to this directory (docs/INSTALLATION.md).
+# Create it first:  sudo install -d /var/lib/nekoecat/firmware
+Environment=NEKOECAT_FIRMWARE_DIR=/var/lib/nekoecat/firmware
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ecatd
+
+[Install]
+WantedBy=multi-user.target

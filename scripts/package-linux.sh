@@ -16,6 +16,8 @@ mkdir -p "${PACKAGE_DIR}/bin"
 cp "${ROOT_DIR}/build/apps/ecat-studio/ecat-studio" "${PACKAGE_DIR}/bin/"
 cp "${ROOT_DIR}/build/apps/ecatd/ecatd" "${PACKAGE_DIR}/bin/"
 cp "${ROOT_DIR}/README.md" "${ROOT_DIR}/LICENSE" "${PACKAGE_DIR}/"
+mkdir -p "${PACKAGE_DIR}/packaging/systemd"
+cp "${ROOT_DIR}/packaging/systemd/ecatd.service" "${ROOT_DIR}/packaging/systemd/README.md" "${PACKAGE_DIR}/packaging/systemd/"
 
 cat >"${PACKAGE_DIR}/NekoEcat-Studio" <<'LAUNCHER'
 #!/usr/bin/env bash

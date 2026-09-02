@@ -170,6 +170,66 @@ Scaffold a C demo against the installed headers/library:
 cc -I include/nekoecat demo.c -L lib -lnekoecat_client -lpthread -o demo
 ```
 
+### Hardware regression testing
+
+`scripts/hardware_regression.sh` is a live-bus test for a host with a running
+IgH EtherCAT master and at least one slave. It is **not** part of `ctest` and
+must **not** run on the host's production bus by default, because it reconfigures
+the selected slave's state.
+
+What it does:
+
+1. Guards on `/dev/EtherCAT0` (or `$NEKOECAT_MASTER_DEV`) existing and the
+   `ethercat` CLI being resolvable, exiting `1` with a clear message otherwise.
+2. Talks to the bus via the `ecatd` JSON-RPC daemon (`127.0.0.1:5877`) when it
+   is reachable, and falls back to the `ethercat` CLI (sudo-wrapped when not
+   root) otherwise.
+3. Requires at least one slave; validates the `--slave` position.
+4. Cycles the selected slave `INIT -> PREOP -> SAFEOP -> OP`, verifying each
+   step against the actual AL state before moving on.
+5. Reads mandatory identity SDOs `0x1000:0` (device type) and `0x1018:1`
+   (vendor ID) and fails if either is empty.
+6. With `--allow-write`, performs an SDO read-modify-write and verifies the
+   read-back (default object `0x1018:1`, type `uint32`; override with
+   `NEKOECAT_WRITE_TEST_INDEX` / `_SUBINDEX` / `_TYPE` if the object is
+   read-only on your slave).
+7. On any failure, restores the selected slave to INIT (safe state) via a
+   cleanup trap.
+
+Run it only against a bus you are allowed to reconfigure:
+
+```bash
+# Against a running ecatd (e.g. installed via the systemd unit)
+bash scripts/hardware_regression.sh --slave 0 --target-state OP
+
+# Force daemon RPC mode (fail instead of falling back to the CLI)
+bash scripts/hardware_regression.sh --use-daemon
+
+# Force the CLI backend with an explicit binary path
+bash scripts/hardware_regression.sh --ethercat-bin /usr/bin/ethercat
+
+# Include the SDO write-path test
+bash scripts/hardware_regression.sh --allow-write --verbose
+```
+
+Expected passing output (logs go to stderr):
+
+```
+[hardware-regression] Backend: ecatd RPC (127.0.0.1:5877)
+[hardware-regression] Slaves on bus: 3
+[hardware-regression] State OK: INIT
+[hardware-regression] State OK: PREOP
+[hardware-regression] State OK: SAFEOP
+[hardware-regression] State OK: OP
+[hardware-regression] Device type  0x1000:0 = 0x00000020
+[hardware-regression] Vendor ID    0x1018:1 = 0x00000002
+[hardware-regression] PASS: slave 0 reached OP; identity SDOs verified
+```
+
+Exit code `0` means pass; non-zero means the run failed and the slave was
+returned to INIT. See `--help` for the full option list and environment
+overrides (`NEKOECAT_MASTER_DEV`, `NEKOECAT_MASTER`, `NEKOECAT_NO_SUDO`, ...).
+
 ### Writing Tests
 
 ```cpp
