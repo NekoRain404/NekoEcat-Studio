@@ -179,7 +179,13 @@ PY
 #   returns 1 -> daemon answered but RPC failed, message in RPC_ERROR
 #   returns 2 -> daemon unusable (connection/parse failure)
 daemon_call() {
-  local method="$1" params="${2:-{}}" req reply
+  local method="$1"
+  # NB: the obvious default ${2:-{}} is a bash trap — a bare "}" terminates the
+  # parameter expansion, appending a literal "}" to every non-empty $2 (params
+  # became '{"master":"0"}}'). Use an empty-string default and assign '{}' only
+  # when the field is unset/empty, which also keeps set -u happy for 1-arg calls.
+  local params="${2:-}"
+  [ -n "$params" ] || params='{}'
   RPC_ID=$((RPC_ID + 1))
   RPC_RESULT=""
   RPC_ERROR=""
