@@ -47,33 +47,33 @@ class TopologyGraphWidget;
 class EventBus;
 
 class TopologyPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit TopologyPlugin(EventBus *bus, QObject *parent = nullptr);
+    explicit TopologyPlugin(EventBus* bus, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Get the topology graph widget.
-  // @return TopologyGraphWidget pointer
-  TopologyGraphWidget *graphWidget() const { return graph_; }
+    // Get the topology graph widget.
+    // @return TopologyGraphWidget pointer
+    TopologyGraphWidget* graphWidget() const { return graph_; }
 
 private slots:
-  // Handle slave list changes from EventBus.
-  // @param slaves  Updated slave list
-  void handleSlaveChanged(const QVector<SlaveInfo> &slaves);
+    // Handle slave list changes from EventBus.
+    // @param slaves  Updated slave list
+    void handleSlaveChanged(const QVector<SlaveInfo>& slaves);
 
 private:
-  // Build the plugin's UI.
-  void buildUi();
+    // Build the plugin's UI.
+    void buildUi();
 
-  EventBus *bus_;                      // Event bus for slave updates
-  QWidget *container_ = nullptr;       // Main container widget
-  TopologyGraphWidget *graph_ = nullptr;  // Topology graph widget
-  QComboBox *layoutCombo_ = nullptr;   // Layout mode selector
+    EventBus* bus_;                        // Event bus for slave updates
+    QWidget* container_ = nullptr;         // Main container widget
+    TopologyGraphWidget* graph_ = nullptr; // Topology graph widget
+    QComboBox* layoutCombo_ = nullptr;     // Layout mode selector
 };

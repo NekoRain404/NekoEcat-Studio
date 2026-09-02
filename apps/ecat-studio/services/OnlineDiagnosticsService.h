@@ -19,36 +19,36 @@
 class EcatClient;
 
 class OnlineDiagnosticsService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit OnlineDiagnosticsService(EcatClient *client, QObject *parent = nullptr);
+    explicit OnlineDiagnosticsService(EcatClient* client, QObject* parent = nullptr);
 
-  void startMonitoring(int intervalMs = 1000);
-  void stopMonitoring();
-  bool isMonitoring() const;
+    void startMonitoring(int intervalMs = 1000);
+    void stopMonitoring();
+    bool isMonitoring() const;
 
-  BusTraffic busTraffic() const { return traffic_; }
-  ErrorRate errorRate() const { return errorRate_; }
-  PerformanceMetrics performance() const { return perf_; }
-  HealthStatus health() const { return health_; }
+    BusTraffic busTraffic() const { return traffic_; }
+    ErrorRate errorRate() const { return errorRate_; }
+    PerformanceMetrics performance() const { return perf_; }
+    HealthStatus health() const { return health_; }
 
 signals:
-  void trafficUpdated(const BusTraffic &traffic);
-  void errorRateUpdated(const ErrorRate &rate);
-  void performanceUpdated(const PerformanceMetrics &metrics);
-  void healthUpdated(const HealthStatus &health);
-  void error(const QString &msg);
+    void trafficUpdated(const BusTraffic& traffic);
+    void errorRateUpdated(const ErrorRate& rate);
+    void performanceUpdated(const PerformanceMetrics& metrics);
+    void healthUpdated(const HealthStatus& health);
+    void error(const QString& msg);
 
 private:
-  void poll();
+    void poll();
 
-  EcatClient *client_;
-  QTimer *pollTimer_ = nullptr;
-  BusTraffic traffic_;
-  ErrorRate errorRate_;
-  PerformanceMetrics perf_;
-  HealthStatus health_;
-  quint64 prevTxFrames_ = 0;
-  quint64 prevRxFrames_ = 0;
-  quint64 prevTotalErrors_ = 0;
+    EcatClient* client_;
+    QTimer* pollTimer_ = nullptr;
+    BusTraffic traffic_;
+    ErrorRate errorRate_;
+    PerformanceMetrics perf_;
+    HealthStatus health_;
+    quint64 prevTxFrames_ = 0;
+    quint64 prevRxFrames_ = 0;
+    quint64 prevTotalErrors_ = 0;
 };

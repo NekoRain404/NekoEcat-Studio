@@ -69,8 +69,8 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
-#include <QTabWidget>
 #include <QTableWidget>
+#include <QTabWidget>
 #include <QTextBrowser>
 #include <QTextStream>
 #include <QToolBar>

@@ -39,62 +39,64 @@
 //   - duplicate plugin id (silently ignored)
 // After registration, plugins are sorted by defaultOrder() ascending.
 // Returns true on success, false on validation failure.
-bool PluginRegistry::registerPlugin(WorkspacePlugin *plugin) {
-  // Validate plugin — reject null pointers and empty ids
-  if (!plugin) {
-    emit registrationFailed("Null plugin pointer", QString());
-    return false;
-  }
-  if (plugin->id().isEmpty()) {
-    emit registrationFailed("Plugin has empty id", "(unnamed)");
-    return false;
-  }
+bool PluginRegistry::registerPlugin(WorkspacePlugin* plugin) {
+    // Validate plugin — reject null pointers and empty ids
+    if (!plugin) {
+        emit registrationFailed("Null plugin pointer", QString());
+        return false;
+    }
+    if (plugin->id().isEmpty()) {
+        emit registrationFailed("Plugin has empty id", "(unnamed)");
+        return false;
+    }
 
-  // Reject duplicate ids — first registration wins
-  if (idMap_.contains(plugin->id())) {
-    emit registrationFailed(
-        QString("Duplicate plugin id '%1' — keeping first registration").arg(plugin->id()),
-        plugin->id());
-    return false;
-  }
+    // Reject duplicate ids — first registration wins
+    if (idMap_.contains(plugin->id())) {
+        emit registrationFailed(QString("Duplicate plugin id '%1' — keeping first registration").arg(plugin->id()),
+                                plugin->id());
+        return false;
+    }
 
-  // Add to both containers (vector for ordering, map for lookup)
-  plugins_.append(plugin);
-  idMap_.insert(plugin->id(), plugin);
+    // Add to both containers (vector for ordering, map for lookup)
+    plugins_.append(plugin);
+    idMap_.insert(plugin->id(), plugin);
 
-  // Sort by defaultOrder() to maintain consistent tab ordering
-  // Lower defaultOrder() values appear first (leftmost tabs)
-  std::sort(plugins_.begin(), plugins_.end(), [](const WorkspacePlugin *a, const WorkspacePlugin *b) {
-    return a->defaultOrder() < b->defaultOrder();
-  });
-  return true;
+    // Sort by defaultOrder() to maintain consistent tab ordering
+    // Lower defaultOrder() values appear first (leftmost tabs)
+    std::sort(plugins_.begin(), plugins_.end(),
+              [](const WorkspacePlugin* a, const WorkspacePlugin* b) { return a->defaultOrder() < b->defaultOrder(); });
+    return true;
 }
 
 // ── Access Methods ─────────────────────────────────────────────────────
 
 /// Returns the total number of registered plugins (including hidden ones).
-int PluginRegistry::count() const { return plugins_.size(); }
+int PluginRegistry::count() const {
+    return plugins_.size();
+}
 
 /// Returns the plugin at the given index in sorted order, or nullptr if out of range.
 /// Index 0 is the plugin with the lowest defaultOrder() value.
-WorkspacePlugin *PluginRegistry::pluginAt(int index) const {
-  if (index < 0 || index >= plugins_.size()) return nullptr;
-  return plugins_[index];
+WorkspacePlugin* PluginRegistry::pluginAt(int index) const {
+    if (index < 0 || index >= plugins_.size())
+        return nullptr;
+    return plugins_[index];
 }
 
 /// Finds a plugin by its unique id string, or nullptr if not found.
 /// Uses QMap for O(log n) lookup performance.
-WorkspacePlugin *PluginRegistry::findById(const QString &id) const {
-  return idMap_.value(id, nullptr);
+WorkspacePlugin* PluginRegistry::findById(const QString& id) const {
+    return idMap_.value(id, nullptr);
 }
 
 /// Returns a list of all plugins where visible() returns true.
 /// This is used by MainWindow to create only the visible tabs.
 /// The returned list is in sorted order (by defaultOrder ascending).
-QVector<WorkspacePlugin *> PluginRegistry::visiblePlugins() const {
-  QVector<WorkspacePlugin *> result;
-  for (auto *p : plugins_) {
-    if (p->visible()) result.append(p);
-  }
-  return result;
+QVector<WorkspacePlugin*> PluginRegistry::visiblePlugins() const {
+    QVector<WorkspacePlugin*> result;
+    for (auto* p : plugins_) {
+        if (p->visible())
+            result.append(p);
+    }
+    return result;
 }

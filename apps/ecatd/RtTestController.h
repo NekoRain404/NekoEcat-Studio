@@ -4,11 +4,11 @@
 // Measures ecrt receive/process/send cycle intervals to quantify latency,
 // jitter, and packet loss — the key indicators of communication stability.
 
-#include <QObject>
-#include <QJsonObject>
-#include <QString>
 #include <atomic>
 #include <mutex>
+#include <QJsonObject>
+#include <QObject>
+#include <QString>
 #include <thread>
 
 #include <ecrt.h>
@@ -21,12 +21,12 @@ class RtTestController : public QObject {
     // Reports min/max/avg latency, jitter (max deviation from avg), cycle count,
     // and a rolling window of recent cycle times for trend display.
 public:
-    explicit RtTestController(QObject *parent = nullptr);
+    explicit RtTestController(QObject* parent = nullptr);
     ~RtTestController() override;
 
     // Start the RT test on the given IgH master index.
     // cycleUsec: target cycle time in microseconds (default 1000 = 1 kHz).
-    bool start(uint32_t masterIndex, int cycleUsec = 1000, QString *error = nullptr);
+    bool start(uint32_t masterIndex, int cycleUsec = 1000, QString* error = nullptr);
     void stop();
     bool running() const;
     QString status() const;
@@ -49,9 +49,9 @@ private:
     QString status_ = "Stopped";
 
     // IgH handles — nullptr when not running.
-    ec_master_t *master_ = nullptr;
-    ec_domain_t *domain_ = nullptr;
-    uint8_t *domainData_ = nullptr;
+    ec_master_t* master_ = nullptr;
+    ec_domain_t* domain_ = nullptr;
+    uint8_t* domainData_ = nullptr;
 
     // Timing statistics (protected by mutex, written by RT thread).
     mutable std::mutex statsMutex_;

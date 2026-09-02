@@ -25,41 +25,41 @@ public:
     /// @param master Target master index (e.g. "0").
     /// @param error Optional error output; non-null on failure.
     /// @return Raw master info text for display.
-    virtual QString masterText(const QString &master, QString *error = nullptr) const = 0;
+    virtual QString masterText(const QString& master, QString* error = nullptr) const = 0;
 
     /// @brief Scan all slaves on the bus and return structured info.
     /// @param master Target master index.
     /// @param error Optional error output.
     /// @return List of discovered SlaveInfo structs.
-    virtual QVector<SlaveInfo> scanSlaves(const QString &master, QString *error = nullptr) const = 0;
+    virtual QVector<SlaveInfo> scanSlaves(const QString& master, QString* error = nullptr) const = 0;
 
     /// @brief Get detailed information for a specific slave.
     /// @param master Target master index.
     /// @param position Slave position on the bus.
     /// @param error Optional error output.
     /// @return Raw slave info text.
-    virtual QString slaveInfo(const QString &master, int position, QString *error = nullptr) const = 0;
+    virtual QString slaveInfo(const QString& master, int position, QString* error = nullptr) const = 0;
 
     /// @brief Get the ESI/XML description for a specific slave.
     /// @param master Target master index.
     /// @param position Slave position on the bus.
     /// @param error Optional error output.
     /// @return Raw XML content string.
-    virtual QString slaveXml(const QString &master, int position, QString *error = nullptr) const = 0;
+    virtual QString slaveXml(const QString& master, int position, QString* error = nullptr) const = 0;
 
     /// @brief List Process Data Objects (PDOs) mapped to a slave.
     /// @param master Target master index.
     /// @param position Slave position on the bus.
     /// @param error Optional error output.
     /// @return Raw PDO mapping text.
-    virtual QString pdos(const QString &master, int position, QString *error = nullptr) const = 0;
+    virtual QString pdos(const QString& master, int position, QString* error = nullptr) const = 0;
 
     /// @brief List Service Data Objects (SDOs) available on a slave.
     /// @param master Target master index.
     /// @param position Slave position on the bus.
     /// @param error Optional error output.
     /// @return Raw SDO catalog text.
-    virtual QString sdos(const QString &master, int position, QString *error = nullptr) const = 0;
+    virtual QString sdos(const QString& master, int position, QString* error = nullptr) const = 0;
 
     /// @brief Upload (read) an SDO value from a slave.
     /// @param master Target master index.
@@ -69,9 +69,8 @@ public:
     /// @param type Optional data type hint (e.g. "uint32").
     /// @param error Optional error output.
     /// @return The uploaded value as a string.
-    virtual QString upload(const QString &master, int position, const QString &index,
-                           const QString &subIndex, const QString &type = QString(),
-                           QString *error = nullptr) const = 0;
+    virtual QString upload(const QString& master, int position, const QString& index, const QString& subIndex,
+                           const QString& type = QString(), QString* error = nullptr) const = 0;
 
     /// @brief Download (write) an SDO value to a slave.
     /// @param master Target master index.
@@ -82,9 +81,8 @@ public:
     /// @param type Data type (e.g. "uint32", "int8", "string").
     /// @param error Optional error output.
     /// @return true on success, false on failure.
-    virtual bool download(const QString &master, int position, const QString &index,
-                          const QString &subIndex, const QString &value,
-                          const QString &type, QString *error = nullptr) const = 0;
+    virtual bool download(const QString& master, int position, const QString& index, const QString& subIndex,
+                          const QString& value, const QString& type, QString* error = nullptr) const = 0;
 
     /// @brief Set the operational state of a single slave.
     /// @param master Target master index.
@@ -92,27 +90,26 @@ public:
     /// @param state Target state (e.g. "OP", "PREOP", "SAFEOP", "INIT").
     /// @param error Optional error output.
     /// @return true on success.
-    virtual bool setState(const QString &master, int position, const QString &state,
-                          QString *error = nullptr) const = 0;
+    virtual bool setState(const QString& master, int position, const QString& state,
+                          QString* error = nullptr) const = 0;
 
     /// @brief Set the operational state of all slaves on the bus.
     /// @param master Target master index.
     /// @param state Target state for all slaves.
     /// @param error Optional error output.
     /// @return true if all slaves transitioned successfully.
-    virtual bool setAllStates(const QString &master, const QString &state,
-                              QString *error = nullptr) const = 0;
+    virtual bool setAllStates(const QString& master, const QString& state, QString* error = nullptr) const = 0;
 
     /// @brief Force a bus rescan to rediscover slaves.
     /// @param master Target master index.
     /// @param error Optional error output.
     /// @return true on success.
-    virtual bool rescan(const QString &master, QString *error = nullptr) const = 0;
+    virtual bool rescan(const QString& master, QString* error = nullptr) const = 0;
 
     /// @brief Run host-level diagnostics (network, CPU, IgH driver status).
     /// @param error Optional error output.
     /// @return JSON array of diagnostic check results.
-    virtual QJsonArray hostDiagnostics(QString *error = nullptr) const = 0;
+    virtual QJsonArray hostDiagnostics(QString* error = nullptr) const = 0;
 
     /// @brief Whether this backend uses the native ecrt API (vs CLI).
     /// @return true for native backend, false for CLI backend.

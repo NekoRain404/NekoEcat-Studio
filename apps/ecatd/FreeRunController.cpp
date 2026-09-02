@@ -2,10 +2,10 @@
 #include "FreeRunController.h"
 #include "freerun_shm_mirror.h"
 
-#include <QJsonArray>
 #include <QHash>
-#include <QProcess>
+#include <QJsonArray>
 #include <QJsonObject>
+#include <QProcess>
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -21,29 +21,23 @@ namespace {
 constexpr int64_t NsecPerSec = 1000000000LL;
 
 // CLOCK_MONOTONIC avoids NTP jumps; ecrt requires absolute nanosecond timestamps for DC sync.
-uint64_t monotonicNsec()
-{
-    timespec ts {};
+uint64_t monotonicNsec() {
+    timespec ts{};
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return static_cast<uint64_t>(ts.tv_sec) * NsecPerSec + static_cast<uint64_t>(ts.tv_nsec);
 }
-}
+} // namespace
 
-FreeRunController::FreeRunController(uint32_t cycleNsec, QObject *parent)
+FreeRunController::FreeRunController(uint32_t cycleNsec, QObject* parent)
     // The controller starts idle; call start() to acquire an IgH master.
-    : QObject(parent)
-    , cycleNsec_(cycleNsec)
-{
-}
+    : QObject(parent), cycleNsec_(cycleNsec) {}
 
-FreeRunController::~FreeRunController()
-{
+FreeRunController::~FreeRunController() {
     // Ensure the real-time thread is stopped and ecrt resources are released.
     stop();
 }
 
-bool FreeRunController::start(uint32_t masterIndex, QString *error)
-{
+bool FreeRunController::start(uint32_t masterIndex, QString* error) {
     // Acquire exclusive access to the IgH master, auto-discover the slave topology
     // via the ethercat CLI, register all PDO entries into a single process data domain,
     // then spin up the real-time cycle thread at ~1 kHz.
@@ -54,7 +48,8 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
             return true;
         }
         if (error) {
-            *error = QString("Free Run is already active on master %1. Stop it before switching masters.").arg(activeMasterIndex_);
+            *error = QString("Free Run is already active on master %1. Stop it before switching masters.")
+                         .arg(activeMasterIndex_);
         }
         return false;
     }
@@ -73,7 +68,8 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     master_ = ecrt_request_master(masterIndex);
     if (!master_) {
         if (error) {
-            *error = QString("Failed to request IgH master %1. Stop other EtherCAT applications and retry.").arg(masterIndex);
+            *error = QString("Failed to request IgH master %1. Stop other EtherCAT applications and retry.")
+                         .arg(masterIndex);
         }
         cleanup();
         return false;
@@ -97,9 +93,9 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     bitPositions_.clear();
 
     int totalEntries = 0;
-    for (const auto &slave : slaves) {
-        for (const auto &sync : slave.syncs) {
-            for (const auto &pdo : sync.pdos) {
+    for (const auto& slave : slaves) {
+        for (const auto& sync : slave.syncs) {
+            for (const auto& pdo : sync.pdos) {
                 totalEntries += static_cast<int>(pdo.entries.size());
             }
         }
@@ -108,8 +104,9 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     bitPositions_.resize(totalEntries);
 
     int entryCursor = 0;
-    for (const auto &slave : slaves) {
-        auto *config = ecrt_master_slave_config(master_, slave.alias, slave.position, slave.vendorId, slave.productCode);
+    for (const auto& slave : slaves) {
+        auto* config =
+            ecrt_master_slave_config(master_, slave.alias, slave.position, slave.vendorId, slave.productCode);
         if (!config) {
             if (error) {
                 *error = QString("Failed to create slave config for position %1.").arg(slave.position);
@@ -122,11 +119,11 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         runtime.spec = slave;
         runtime.entryStorage.reserve(slave.syncs.size());
 
-        for (const auto &sync : slave.syncs) {
-            for (const auto &pdo : sync.pdos) {
+        for (const auto& sync : slave.syncs) {
+            for (const auto& pdo : sync.pdos) {
                 std::vector<ec_pdo_entry_info_t> entries;
                 entries.reserve(pdo.entries.size());
-                for (const auto &entry : pdo.entries) {
+                for (const auto& entry : pdo.entries) {
                     entries.push_back({entry.index, entry.subindex, entry.bitLength});
                     registrations_.push_back({
                         slave.alias,
@@ -157,16 +154,16 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
         }
 
         int pdoCursor = 0;
-        for (const auto &sync : slave.syncs) {
-            for (const auto &pdo : sync.pdos) {
-                auto &entries = runtime.entryStorage[pdoCursor++];
+        for (const auto& sync : slave.syncs) {
+            for (const auto& pdo : sync.pdos) {
+                auto& entries = runtime.entryStorage[pdoCursor++];
                 runtime.pdoStorage.push_back({pdo.index, static_cast<unsigned int>(entries.size()), entries.data()});
             }
         }
 
         pdoCursor = 0;
-        for (const auto &sync : slave.syncs) {
-            ec_pdo_info_t *pdoData = sync.pdos.empty() ? nullptr : runtime.pdoStorage.data() + pdoCursor;
+        for (const auto& sync : slave.syncs) {
+            ec_pdo_info_t* pdoData = sync.pdos.empty() ? nullptr : runtime.pdoStorage.data() + pdoCursor;
             runtime.syncStorage.push_back({
                 sync.index,
                 sync.direction,
@@ -224,8 +221,10 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     // two sides agree on the geometry (daemon buffer[1] == data[0] + data_size).
     mirrorEntries_ = buildMirrorEntries();
     size_t computedSize = ::computeProcessDataSize(mirrorEntries_.data(), mirrorEntries_.size());
-    if (computedSize == 0) computedSize = 1;  // keep a consistent, usable arena
-    if (computedSize > kMaxProcessDataSize) computedSize = kMaxProcessDataSize;
+    if (computedSize == 0)
+        computedSize = 1; // keep a consistent, usable arena
+    if (computedSize > kMaxProcessDataSize)
+        computedSize = kMaxProcessDataSize;
 
     if (!initSharedMemory(static_cast<uint32_t>(computedSize), error)) {
         cleanup();
@@ -241,7 +240,10 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     totalCycleNsec_.store(0, std::memory_order_relaxed);
     {
         std::lock_guard<std::mutex> lock(statusMutex_);
-        status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries").arg(masterIndex).arg(slaves.size()).arg(totalEntries);
+        status_ = QString("Running on master %1, %2 slave(s), %3 PDO entries")
+                      .arg(masterIndex)
+                      .arg(slaves.size())
+                      .arg(totalEntries);
     }
     running_ = true;
     thread_ = std::thread(&FreeRunController::loop, this);
@@ -249,14 +251,14 @@ bool FreeRunController::start(uint32_t masterIndex, QString *error)
     return true;
 }
 
-bool FreeRunController::initSharedMemory(uint32_t dataSize, QString *error)
-{
+bool FreeRunController::initSharedMemory(uint32_t dataSize, QString* error) {
     // Create / open POSIX shared memory for external clients.
     // Mode 0600 restricts access to the daemon's owner; the shm is a control
     // plane for process-data actuation, so world-writable would be unsafe.
     shm_fd_ = shm_open(kShmName, O_CREAT | O_RDWR, 0600);
     if (shm_fd_ < 0) {
-        if (error) *error = "Failed to open shared memory " + QString(kShmName);
+        if (error)
+            *error = "Failed to open shared memory " + QString(kShmName);
         return false;
     }
 
@@ -272,7 +274,8 @@ bool FreeRunController::initSharedMemory(uint32_t dataSize, QString *error)
     shm_size_ = sizeof(ShmHeader) + 2 * bufferSize;
 
     if (ftruncate(shm_fd_, static_cast<off_t>(shm_size_)) != 0) {
-        if (error) *error = "Failed to size shared memory";
+        if (error)
+            *error = "Failed to size shared memory";
         close(shm_fd_);
         shm_fd_ = -1;
         shm_unlink(kShmName);
@@ -281,7 +284,8 @@ bool FreeRunController::initSharedMemory(uint32_t dataSize, QString *error)
 
     shm_ptr_ = mmap(nullptr, shm_size_, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd_, 0);
     if (shm_ptr_ == MAP_FAILED) {
-        if (error) *error = "Failed to mmap shared memory";
+        if (error)
+            *error = "Failed to mmap shared memory";
         close(shm_fd_);
         shm_fd_ = -1;
         shm_unlink(kShmName);
@@ -307,8 +311,7 @@ bool FreeRunController::initSharedMemory(uint32_t dataSize, QString *error)
     return true;
 }
 
-void FreeRunController::cleanupSharedMemory()
-{
+void FreeRunController::cleanupSharedMemory() {
     if (shm_ptr_ && shm_ptr_ != MAP_FAILED) {
         munmap(shm_ptr_, shm_size_);
         shm_ptr_ = nullptr;
@@ -316,7 +319,7 @@ void FreeRunController::cleanupSharedMemory()
     if (shm_fd_ >= 0) {
         close(shm_fd_);
         shm_fd_ = -1;
-        shm_unlink(kShmName);   // optional: keep it if you want persistence between runs
+        shm_unlink(kShmName); // optional: keep it if you want persistence between runs
     }
     shm_header_ = nullptr;
     shm_data_[0] = shm_data_[1] = nullptr;
@@ -324,8 +327,7 @@ void FreeRunController::cleanupSharedMemory()
     shm_size_ = 0;
 }
 
-std::vector<ShmMirrorEntry> FreeRunController::buildMirrorEntries() const
-{
+std::vector<ShmMirrorEntry> FreeRunController::buildMirrorEntries() const {
     std::vector<ShmMirrorEntry> out;
     for (const auto& e : runtimeEntries_) {
         ShmMirrorEntry me{};
@@ -333,16 +335,16 @@ std::vector<ShmMirrorEntry> FreeRunController::buildMirrorEntries() const
         me.index = e.index;
         me.sub = e.subindex;
         me.bitLength = e.bitLength;
-        strncpy(me.direction, e.direction.toUtf8().constData(), sizeof(me.direction)-1);
+        strncpy(me.direction, e.direction.toUtf8().constData(), sizeof(me.direction) - 1);
         me.offset = e.offset ? *e.offset : 0;
         out.push_back(me);
     }
     return out;
 }
 
-void FreeRunController::mirrorToShm()
-{
-    if (!shm_header_ || !domainData_ || mirrorEntries_.empty()) return;
+void FreeRunController::mirrorToShm() {
+    if (!shm_header_ || !domainData_ || mirrorEntries_.empty())
+        return;
 
     // Defense in depth: a client must never be able to push us past the shared
     // buffer we actually allocated, so clamp the header data_size at every use
@@ -376,8 +378,7 @@ void FreeRunController::mirrorToShm()
     ::mirrorToShm(&ctx);
 }
 
-QJsonObject FreeRunController::shmInfo() const
-{
+QJsonObject FreeRunController::shmInfo() const {
     QJsonObject info;
     info["shm_name"] = QString(kShmName);
     if (shm_header_) {
@@ -395,15 +396,15 @@ QJsonObject FreeRunController::shmInfo() const
         entry["bitLength"] = static_cast<int>(e.bitLength);
         entry["direction"] = e.direction;
         entry["name"] = e.name;
-        if (e.offset) entry["offset"] = static_cast<int>(*e.offset);
+        if (e.offset)
+            entry["offset"] = static_cast<int>(*e.offset);
         layout.append(entry);
     }
     info["layout"] = layout;
     return info;
 }
 
-void FreeRunController::stop()
-{
+void FreeRunController::stop() {
     // Signal the cycle thread to exit and release all ecrt resources.
     std::lock_guard<std::mutex> lock(startStopMutex_);
     if (running_) {
@@ -427,22 +428,19 @@ void FreeRunController::stop()
     }
 }
 
-bool FreeRunController::running() const
-{
+bool FreeRunController::running() const {
     return running_;
 }
 
 // Thread-safe status string for display.
-QString FreeRunController::status() const
-{
+QString FreeRunController::status() const {
     std::lock_guard<std::mutex> lock(statusMutex_);
     return status_;
 }
 
 // Snapshot of master/domain state and per-entry live values; mutex-protected
 // because the real-time thread writes masterState_/domainState_ concurrently.
-QJsonObject FreeRunController::telemetry() const
-{
+QJsonObject FreeRunController::telemetry() const {
     // Capture state under mutex, then format entries outside it
     // (IgH process data buffer is safe for concurrent reads).
     int slavesResponding = 0;
@@ -501,8 +499,7 @@ QJsonObject FreeRunController::telemetry() const
     };
 }
 
-bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<SlaveSpec> *slaves, QString *error) const
-{
+bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<SlaveSpec>* slaves, QString* error) const {
     // Auto-discover slave topology by parsing `ethercat slaves` output for positions,
     // then `ethercat cstruct` for the exact PDO mapping that ecrt needs to configure the domain.
     int exitCode = 0;
@@ -516,13 +513,14 @@ bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<Sla
     }
 
     const QRegularExpression lineRe(R"(^\s*(\d+)\s+)");
-    for (const auto &line : scan.split('\n', Qt::SkipEmptyParts)) {
+    for (const auto& line : scan.split('\n', Qt::SkipEmptyParts)) {
         const auto match = lineRe.match(line);
         if (!match.hasMatch()) {
             continue;
         }
         const uint16_t position = static_cast<uint16_t>(match.captured(1).toUShort());
-        const QString cstruct = runEthercat(masterIndex, {"cstruct", "-p", QString::number(position)}, &exitCode, &stdErr);
+        const QString cstruct =
+            runEthercat(masterIndex, {"cstruct", "-p", QString::number(position)}, &exitCode, &stdErr);
         if (exitCode != 0) {
             if (error) {
                 *error = stdErr.isEmpty() ? cstruct : stdErr;
@@ -542,8 +540,7 @@ bool FreeRunController::buildConfiguration(uint32_t masterIndex, std::vector<Sla
     return true;
 }
 
-bool FreeRunController::parseCStruct(uint16_t position, const QString &text, SlaveSpec *slave, QString *error) const
-{
+bool FreeRunController::parseCStruct(uint16_t position, const QString& text, SlaveSpec* slave, QString* error) const {
     // Extract vendor/product IDs and the full PDO/sync tree from IgH's generated C struct.
     // Entry names come from inline `/* ... */` comments that IgH places after each entry.
     slave->position = position;
@@ -596,7 +593,8 @@ bool FreeRunController::parseCStruct(uint16_t position, const QString &text, Sla
         allPdos.push_back(std::move(pdo));
     }
 
-    const QRegularExpression syncRe(R"(\{(\d+),\s*(EC_DIR_[A-Z]+),\s*(\d+),\s*(?:slave_\d+_pdos\s*\+\s*(\d+)|NULL),\s*(EC_WD_[A-Z]+)\})");
+    const QRegularExpression syncRe(
+        R"(\{(\d+),\s*(EC_DIR_[A-Z]+),\s*(\d+),\s*(?:slave_\d+_pdos\s*\+\s*(\d+)|NULL),\s*(EC_WD_[A-Z]+)\})");
     auto syncIt = syncRe.globalMatch(text);
     while (syncIt.hasNext()) {
         const auto m = syncIt.next();
@@ -621,8 +619,7 @@ bool FreeRunController::parseCStruct(uint16_t position, const QString &text, Sla
     return true;
 }
 
-void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) const
-{
+void FreeRunController::applyPdoNames(const QString& text, SlaveSpec* slave) const {
     // Fill in human-readable names from `ethercat pdos` verbose output where cstruct had none.
     // This enriches the telemetry display with symbolic PDO entry names.
     if (!slave) {
@@ -631,7 +628,7 @@ void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) con
 
     QHash<QString, QString> names;
     const QRegularExpression entryRe(R"(^\s+PDO entry\s+(0x[0-9a-fA-F]+):([0-9a-fA-F]+),\s+\d+\s+bit,\s+\"(.+)\")");
-    for (const auto &line : text.split('\n')) {
+    for (const auto& line : text.split('\n')) {
         const auto match = entryRe.match(line);
         if (!match.hasMatch()) {
             continue;
@@ -648,9 +645,9 @@ void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) con
         return;
     }
 
-    for (auto &sync : slave->syncs) {
-        for (auto &pdo : sync.pdos) {
-            for (auto &entry : pdo.entries) {
+    for (auto& sync : slave->syncs) {
+        for (auto& pdo : sync.pdos) {
+            for (auto& entry : pdo.entries) {
                 if (!entry.name.trimmed().isEmpty()) {
                     continue;
                 }
@@ -663,8 +660,8 @@ void FreeRunController::applyPdoNames(const QString &text, SlaveSpec *slave) con
     }
 }
 
-QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList &arguments, int *exitCode, QString *stdErr) const
-{
+QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList& arguments, int* exitCode,
+                                       QString* stdErr) const {
     // Shell out to the IgH `ethercat` CLI with a specific master index.
     // Used during configuration discovery, not in the real-time loop.
     QProcess process;
@@ -692,13 +689,12 @@ QString FreeRunController::runEthercat(uint32_t masterIndex, const QStringList &
     return QString::fromLocal8Bit(process.readAllStandardOutput());
 }
 
-void FreeRunController::loop()
-{
+void FreeRunController::loop() {
     // Real-time cycle: receive -> process -> sample state -> queue -> send,
     // at ~1 kHz using absolute-time clock_nanosleep to avoid drift accumulation.
 
     // Elevate to real-time scheduling — failure is non-fatal, just means less deterministic timing.
-    struct sched_param param{};
+    struct sched_param param {};
     param.sched_priority = 80;
     if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
         lastWarning_ = "SCHED_FIFO not granted — cycle timing may be degraded";
@@ -721,7 +717,7 @@ void FreeRunController::loop()
         wakeupTime += cycleTarget;
 
         // Sleep until next cycle — clock_nanosleep with TIMER_ABSTIME avoids drift.
-        struct timespec wake{};
+        struct timespec wake {};
         wake.tv_sec = static_cast<time_t>(wakeupTime / NsecPerSec);
         wake.tv_nsec = static_cast<long>(wakeupTime % NsecPerSec);
         int sleepErr = 0;
@@ -733,7 +729,8 @@ void FreeRunController::loop()
             break;
         }
 
-        if (!running_) break;
+        if (!running_)
+            break;
 
         // Measure actual cycle interval for jitter analysis.
         // Lock-free atomic statistics — the RT loop must never take a mutex.
@@ -743,12 +740,10 @@ void FreeRunController::loop()
         {
             int64_t curMin = minCycleNsec_.load(std::memory_order_relaxed);
             while (cycleDelta < curMin &&
-                   !minCycleNsec_.compare_exchange_weak(curMin, cycleDelta, std::memory_order_relaxed)) {
-            }
+                   !minCycleNsec_.compare_exchange_weak(curMin, cycleDelta, std::memory_order_relaxed)) {}
             int64_t curMax = maxCycleNsec_.load(std::memory_order_relaxed);
             while (cycleDelta > curMax &&
-                   !maxCycleNsec_.compare_exchange_weak(curMax, cycleDelta, std::memory_order_relaxed)) {
-            }
+                   !maxCycleNsec_.compare_exchange_weak(curMax, cycleDelta, std::memory_order_relaxed)) {}
             totalCycleNsec_.fetch_add(cycleDelta, std::memory_order_relaxed);
         }
 
@@ -770,8 +765,7 @@ void FreeRunController::loop()
             // Update status when WC errors exceed threshold.
             if (wcErrorCount_ == kWcErrorThreshold) {
                 std::lock_guard<std::mutex> sLock(statusMutex_);
-                status_ = QString("WARNING: %1 consecutive WC errors — check bus wiring")
-                              .arg(wcErrorCount_.load());
+                status_ = QString("WARNING: %1 consecutive WC errors — check bus wiring").arg(wcErrorCount_.load());
             }
         } else {
             if (wcErrorCount_ > 0) {
@@ -791,12 +785,11 @@ void FreeRunController::loop()
     munlockall();
 
     // Restore normal scheduling before exiting.
-    struct sched_param normal{};
+    struct sched_param normal {};
     sched_setscheduler(0, SCHED_OTHER, &normal);
 }
 
-QString FreeRunController::alStateText(unsigned int alStates) const
-{
+QString FreeRunController::alStateText(unsigned int alStates) const {
     // Decode AL state bitmask into human-readable names (INIT/PREOP/SAFEOP/OP).
     QStringList states;
     if (alStates & 0x01) {
@@ -814,27 +807,25 @@ QString FreeRunController::alStateText(unsigned int alStates) const
     return states.isEmpty() ? "Unknown" : states.join(" | ");
 }
 
-QString FreeRunController::wcStateText(ec_wc_state_t state) const
-{
+QString FreeRunController::wcStateText(ec_wc_state_t state) const {
     // Working counter completeness — indicates whether all registered slaves responded.
     switch (state) {
-    case EC_WC_ZERO:
-        return "Zero";
-    case EC_WC_INCOMPLETE:
-        return "Incomplete";
-    case EC_WC_COMPLETE:
-        return "Complete";
-    default:
-        return "Unknown";
+        case EC_WC_ZERO:
+            return "Zero";
+        case EC_WC_INCOMPLETE:
+            return "Incomplete";
+        case EC_WC_COMPLETE:
+            return "Complete";
+        default:
+            return "Unknown";
     }
 }
 
-QJsonArray FreeRunController::entryTelemetryLocked() const
-{
+QJsonArray FreeRunController::entryTelemetryLocked() const {
     // Build JSON array of all registered PDO entries with live values read from
     // the shared process data image. IgH process data buffer is safe for concurrent reads.
     QJsonArray array;
-    for (const auto &entry : runtimeEntries_) {
+    for (const auto& entry : runtimeEntries_) {
         array.append(QJsonObject{
             {"slave", static_cast<int>(entry.slavePosition)},
             {"sync", static_cast<int>(entry.syncIndex)},
@@ -855,29 +846,25 @@ QJsonArray FreeRunController::entryTelemetryLocked() const
     return array;
 }
 
-QString FreeRunController::normalizedEntryName(const QString &name) const
-{
+QString FreeRunController::normalizedEntryName(const QString& name) const {
     // Strip IgH's bracket annotations (e.g. "[0x6000:01]") for cleaner display.
     QString cleaned = name;
     cleaned.remove(QRegularExpression(R"(\s*\[[^\]]+\]\s*)"));
     return cleaned.trimmed();
 }
 
-QString FreeRunController::entryDisplayName(const RuntimeEntry &entry) const
-{
+QString FreeRunController::entryDisplayName(const RuntimeEntry& entry) const {
     // Fall back to direction + hex address when no symbolic name is available.
     const QString cleaned = normalizedEntryName(entry.name);
     if (!cleaned.isEmpty()) {
         return cleaned;
     }
     return QString("%1 %2:%3")
-        .arg(entry.direction,
-             QString("0x%1").arg(entry.index, 4, 16, QLatin1Char('0')),
+        .arg(entry.direction, QString("0x%1").arg(entry.index, 4, 16, QLatin1Char('0')),
              QString("0x%1").arg(entry.subindex, 2, 16, QLatin1Char('0')));
 }
 
-QString FreeRunController::entryMeaning(const RuntimeEntry &entry) const
-{
+QString FreeRunController::entryMeaning(const RuntimeEntry& entry) const {
     // Infer physical meaning from entry name keywords for UI grouping
     // (e.g. "flow" -> Flow, "pressure" -> Pressure).
     const QString name = entryDisplayName(entry).toLower();
@@ -902,46 +889,43 @@ QString FreeRunController::entryMeaning(const RuntimeEntry &entry) const
     return entry.direction;
 }
 
-QString FreeRunController::readEntryRawValue(const RuntimeEntry &entry) const
-{
+QString FreeRunController::readEntryRawValue(const RuntimeEntry& entry) const {
     // Read the raw integer value directly from the domain data buffer
     // using ecrt's width-specific read macros (1/8/16/32/64-bit).
     if (!domainData_ || !entry.offset || *entry.offset == static_cast<unsigned int>(-1)) {
         return {};
     }
-    const uint8_t *data = domainData_ + *entry.offset;
+    const uint8_t* data = domainData_ + *entry.offset;
     switch (entry.bitLength) {
-    case 1:
-        return QString::number(EC_READ_BIT(data, entry.bitPosition ? *entry.bitPosition : 0));
-    case 8:
-        return QString::number(EC_READ_U8(data));
-    case 16:
-        return QString::number(EC_READ_U16(data));
-    case 32:
-        return QString::number(EC_READ_U32(data));
-    case 64:
-        return QString::number(EC_READ_U64(data));
-    default:
-        return QString("raw %1 bit").arg(entry.bitLength);
+        case 1:
+            return QString::number(EC_READ_BIT(data, entry.bitPosition ? *entry.bitPosition : 0));
+        case 8:
+            return QString::number(EC_READ_U8(data));
+        case 16:
+            return QString::number(EC_READ_U16(data));
+        case 32:
+            return QString::number(EC_READ_U32(data));
+        case 64:
+            return QString::number(EC_READ_U64(data));
+        default:
+            return QString("raw %1 bit").arg(entry.bitLength);
     }
 }
 
-QString FreeRunController::readEntryDecodedValue(const RuntimeEntry &entry) const
-{
+QString FreeRunController::readEntryDecodedValue(const RuntimeEntry& entry) const {
     // Interpret 32-bit values as IEEE 754 floats (common for analog sensors);
     // other widths fall through to the raw integer representation.
     if (!domainData_ || !entry.offset || *entry.offset == static_cast<unsigned int>(-1)) {
         return {};
     }
-    const uint8_t *data = domainData_ + *entry.offset;
+    const uint8_t* data = domainData_ + *entry.offset;
     if (entry.bitLength == 32) {
         return QString::number(EC_READ_REAL(data), 'f', 6);
     }
     return readEntryRawValue(entry);
 }
 
-void FreeRunController::cleanup()
-{
+void FreeRunController::cleanup() {
     // Release the IgH master/domain and reset all runtime state to idle.
     // running_ is cleared by stop() before calling cleanup().
     if (thread_.joinable()) {

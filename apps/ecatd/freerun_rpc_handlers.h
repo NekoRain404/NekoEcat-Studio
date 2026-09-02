@@ -7,4 +7,4 @@
 class CommandDispatcher;
 class FreeRunController;
 
-void registerFreeRunHandlers(CommandDispatcher &dispatcher, FreeRunController &freeRun);
+void registerFreeRunHandlers(CommandDispatcher& dispatcher, FreeRunController& freeRun);

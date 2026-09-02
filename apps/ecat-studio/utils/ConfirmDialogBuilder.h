@@ -10,8 +10,7 @@ class QWidget;
 
 namespace ConfirmDialogBuilder {
 
-bool confirm(QWidget *parent, const QString &title, const QString &summary,
-             const QStringList &details, const QString &confirmText,
-             const QString &theme);
+bool confirm(QWidget* parent, const QString& title, const QString& summary, const QStringList& details,
+             const QString& confirmText, const QString& theme);
 
 } // namespace ConfirmDialogBuilder

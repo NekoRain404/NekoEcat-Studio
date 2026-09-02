@@ -15,15 +15,15 @@
 ///   open62541 runs its own network thread. Data updates are marshalled
 ///   from the main thread via QTimer + mutex-protected shared state.
 
-#include <QObject>
-#include <QTimer>
-#include <QVector>
-#include <QMutex>
+#include "EthercatTypes.h"
+#include <open62541.h>
 #include <QHash>
+#include <QMutex>
+#include <QObject>
 #include <QPair>
 #include <QString>
-#include <open62541.h>
-#include "EthercatTypes.h"
+#include <QTimer>
+#include <QVector>
 
 class EcatClient;
 
@@ -39,7 +39,7 @@ struct MonitoredSdo {
 class OpcUaServer : public QObject {
     Q_OBJECT
 public:
-    explicit OpcUaServer(EcatClient *client, QObject *parent = nullptr);
+    explicit OpcUaServer(EcatClient* client, QObject* parent = nullptr);
     ~OpcUaServer() override;
 
     /// Start the OPC UA server on the given port.
@@ -49,7 +49,7 @@ public:
     bool isRunning() const { return running_; }
 
     /// Update the exposed slave list (called from topology change).
-    void updateSlaves(const QVector<SlaveInfo> &slaves);
+    void updateSlaves(const QVector<SlaveInfo>& slaves);
 
 signals:
     void serverStarted(quint16 port);
@@ -58,19 +58,19 @@ signals:
 private:
     void setupObjectTypes();
     void addSlaveNodes();
-    void addSdoNodes(int slaveIndex, unsigned int nodeBase, const UA_NodeId &slaveNodeId);
+    void addSdoNodes(int slaveIndex, unsigned int nodeBase, const UA_NodeId& slaveNodeId);
     void removeSlaveNodes();
     void setupSdoPolling();
     void pollSdoValues();
 
-    EcatClient *client_;
-    UA_Server *server_ = nullptr;
-    UA_ServerConfig *config_ = nullptr;
+    EcatClient* client_;
+    UA_Server* server_ = nullptr;
+    UA_ServerConfig* config_ = nullptr;
     QVector<SlaveInfo> slaves_;
     mutable QMutex mutex_;
     bool running_ = false;
     quint16 port_ = 4840;
-    QTimer *sdoPollTimer_ = nullptr;
+    QTimer* sdoPollTimer_ = nullptr;
 
     // SDO value cache: "slave:index:subIndex" → value string
     QHash<QString, QString> sdoCache_;

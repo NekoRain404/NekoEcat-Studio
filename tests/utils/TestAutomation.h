@@ -32,8 +32,8 @@ struct CoverageReport {
 
 class TestAutomation {
 public:
-    static QStringList discoverTests(const QString &directory);
-    static TestResults executeTests(const QStringList &tests, int parallel = 1);
-    static QString generateReport(const TestResults &results);
-    static CoverageReport calculateCoverage(const TestResults &results);
+    static QStringList discoverTests(const QString& directory);
+    static TestResults executeTests(const QStringList& tests, int parallel = 1);
+    static QString generateReport(const TestResults& results);
+    static CoverageReport calculateCoverage(const TestResults& results);
 };

@@ -1,9 +1,11 @@
 #include "EsiBrowserPlugin.h"
-#include "EsiParser.h"
 #include "EsiDeviceMatcher.h"
+#include "EsiParser.h"
 #include "services/EsiService.h"
 
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QIcon>
@@ -14,36 +16,40 @@
 #include <QSplitter>
 #include <QTableWidget>
 #include <QTabWidget>
+#include <QTextEdit>
 #include <QTreeWidget>
 #include <QVBoxLayout>
-#include <QTextEdit>
-#include <QDir>
-#include <QFileInfo>
 
-EsiBrowserPlugin::EsiBrowserPlugin(EsiService *esiService, QObject *parent)
-    : service_(esiService)
-    , parser_(new EsiParser(this))
-    , matcher_(new EsiDeviceMatcher(esiService, this))
-{
-    if (parent) setParent(parent);
+EsiBrowserPlugin::EsiBrowserPlugin(EsiService* esiService, QObject* parent)
+    : service_(esiService), parser_(new EsiParser(this)), matcher_(new EsiDeviceMatcher(esiService, this)) {
+    if (parent)
+        setParent(parent);
     buildUi();
 
-    connect(service_, &EsiService::esiImported, this,
-            [this](int) { updateDeviceList(); });
-    connect(parser_, &EsiParser::parseComplete, this,
-            [this](int) { updateDeviceList(); });
+    connect(service_, &EsiService::esiImported, this, [this](int) { updateDeviceList(); });
+    connect(parser_, &EsiParser::parseComplete, this, [this](int) { updateDeviceList(); });
     connect(matcher_, &EsiDeviceMatcher::matchFound, this,
-            [this](const QString &, int, int) {
-                matchReport_->append(tr("Match found"));
-            });
+            [this](const QString&, int, int) { matchReport_->append(tr("Match found")); });
 }
 
-QString EsiBrowserPlugin::id() const { return "esibrowser"; }
-QString EsiBrowserPlugin::displayName() const { return "ESI Browser"; }
-QString EsiBrowserPlugin::displayNameZh() const { return QStringLiteral("ESI 浏览器"); }
-QIcon EsiBrowserPlugin::icon() const { return QIcon::fromTheme("document-properties"); }
-int EsiBrowserPlugin::defaultOrder() const { return 22; }
-bool EsiBrowserPlugin::visible() const { return true; }
+QString EsiBrowserPlugin::id() const {
+    return "esibrowser";
+}
+QString EsiBrowserPlugin::displayName() const {
+    return "ESI Browser";
+}
+QString EsiBrowserPlugin::displayNameZh() const {
+    return QStringLiteral("ESI 浏览器");
+}
+QIcon EsiBrowserPlugin::icon() const {
+    return QIcon::fromTheme("document-properties");
+}
+int EsiBrowserPlugin::defaultOrder() const {
+    return 22;
+}
+bool EsiBrowserPlugin::visible() const {
+    return true;
+}
 
 void EsiBrowserPlugin::activate() {}
 void EsiBrowserPlugin::deactivate() {}
@@ -56,15 +62,17 @@ void EsiBrowserPlugin::onConnectionChanged(bool connected) {
     }
 }
 
-QWidget *EsiBrowserPlugin::widget() { return containerWidget_; }
+QWidget* EsiBrowserPlugin::widget() {
+    return containerWidget_;
+}
 
 void EsiBrowserPlugin::buildUi() {
     containerWidget_ = new QWidget;
-    auto *layout = new QVBoxLayout(containerWidget_);
+    auto* layout = new QVBoxLayout(containerWidget_);
     layout->setContentsMargins(14, 14, 14, 14);
     layout->setSpacing(10);
 
-    auto *toolbar = new QHBoxLayout;
+    auto* toolbar = new QHBoxLayout;
     toolbar->setSpacing(8);
 
     filterEdit_ = new QLineEdit;
@@ -129,10 +137,9 @@ void EsiBrowserPlugin::buildUi() {
     connect(exportBtn_, &QPushButton::clicked, this, &EsiBrowserPlugin::exportSelected);
     connect(refreshBtn_, &QPushButton::clicked, this, &EsiBrowserPlugin::refreshList);
     connect(matchBtn_, &QPushButton::clicked, this, &EsiBrowserPlugin::autoMatchDevices);
-    connect(esiTree_, &QTreeWidget::itemSelectionChanged,
-            this, &EsiBrowserPlugin::onTreeSelectionChanged);
+    connect(esiTree_, &QTreeWidget::itemSelectionChanged, this, &EsiBrowserPlugin::onTreeSelectionChanged);
     connect(filterEdit_, &QLineEdit::textChanged, this,
-            [this](const QString &) { updateTreeFilter(filterEdit_->text()); });
+            [this](const QString&) { updateTreeFilter(filterEdit_->text()); });
 }
 
 void EsiBrowserPlugin::buildDetailPanel() {
@@ -151,10 +158,8 @@ void EsiBrowserPlugin::buildDetailPanel() {
 void EsiBrowserPlugin::buildPdoPanel() {
     pdoTable_ = new QTableWidget;
     pdoTable_->setColumnCount(5);
-    pdoTable_->setHorizontalHeaderLabels({
-        tr("PDO Index"), tr("PDO Name"), tr("Entry Index"),
-        tr("Entry Name"), tr("Bit Size")
-    });
+    pdoTable_->setHorizontalHeaderLabels(
+        {tr("PDO Index"), tr("PDO Name"), tr("Entry Index"), tr("Entry Name"), tr("Bit Size")});
     pdoTable_->horizontalHeader()->setStretchLastSection(true);
     pdoTable_->verticalHeader()->setVisible(false);
     pdoTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -167,9 +172,7 @@ void EsiBrowserPlugin::buildPdoPanel() {
 void EsiBrowserPlugin::buildSyncManagerPanel() {
     syncManagerTable_ = new QTableWidget;
     syncManagerTable_->setColumnCount(4);
-    syncManagerTable_->setHorizontalHeaderLabels({
-        tr("SM Index"), tr("Name"), tr("Direction"), tr("PDO Count")
-    });
+    syncManagerTable_->setHorizontalHeaderLabels({tr("SM Index"), tr("Name"), tr("Direction"), tr("PDO Count")});
     syncManagerTable_->horizontalHeader()->setStretchLastSection(true);
     syncManagerTable_->verticalHeader()->setVisible(false);
     syncManagerTable_->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -180,25 +183,24 @@ void EsiBrowserPlugin::buildSyncManagerPanel() {
 }
 
 void EsiBrowserPlugin::importFile() {
-    const QStringList paths = QFileDialog::getOpenFileNames(
-        containerWidget_, tr("Import ESI XML"), QString(),
-        "ESI XML (*.xml);;All Files (*)");
-    if (paths.isEmpty()) return;
-    for (const QString &path : paths) {
+    const QStringList paths = QFileDialog::getOpenFileNames(containerWidget_, tr("Import ESI XML"), QString(),
+                                                            "ESI XML (*.xml);;All Files (*)");
+    if (paths.isEmpty())
+        return;
+    for (const QString& path : paths) {
         service_->importEsi(path);
     }
     updateDeviceList();
 }
 
 void EsiBrowserPlugin::importDirectory() {
-    const QString dir = QFileDialog::getExistingDirectory(
-        containerWidget_, tr("Import ESI Directory"));
-    if (dir.isEmpty()) return;
+    const QString dir = QFileDialog::getExistingDirectory(containerWidget_, tr("Import ESI Directory"));
+    if (dir.isEmpty())
+        return;
 
     QDir directory(dir);
-    const QStringList xmlFiles = directory.entryList(
-        {"*.xml"}, QDir::Files, QDir::Name);
-    for (const QString &file : xmlFiles) {
+    const QStringList xmlFiles = directory.entryList({"*.xml"}, QDir::Files, QDir::Name);
+    for (const QString& file : xmlFiles) {
         service_->importEsi(directory.absoluteFilePath(file));
     }
     updateDeviceList();
@@ -209,14 +211,15 @@ void EsiBrowserPlugin::refreshList() {
 }
 
 void EsiBrowserPlugin::exportSelected() {
-    QTreeWidgetItem *item = esiTree_->currentItem();
-    if (!item) return;
+    QTreeWidgetItem* item = esiTree_->currentItem();
+    if (!item)
+        return;
     QString deviceId = item->data(0, Qt::UserRole).toString();
-    if (deviceId.isEmpty()) return;
+    if (deviceId.isEmpty())
+        return;
 
-    const QString path = QFileDialog::getSaveFileName(
-        containerWidget_, tr("Export ESI XML"), QString(),
-        "ESI XML (*.xml)");
+    const QString path =
+        QFileDialog::getSaveFileName(containerWidget_, tr("Export ESI XML"), QString(), "ESI XML (*.xml)");
     if (!path.isEmpty())
         service_->exportEsi(deviceId, path);
 }
@@ -228,7 +231,7 @@ void EsiBrowserPlugin::autoMatchDevices() {
 
     auto devices = service_->listDevices();
     QVector<QPair<int, int>> connected;
-    for (const auto &dev : devices) {
+    for (const auto& dev : devices) {
         connected.append({dev.vendorId, dev.productCode});
     }
 
@@ -238,16 +241,16 @@ void EsiBrowserPlugin::autoMatchDevices() {
     matchReport_->append(tr("Matched: %1").arg(report.matchedDevices));
     matchReport_->append(tr("Unmatched: %1\n").arg(report.unmatchedDevices));
 
-    for (const auto &result : report.results) {
+    for (const auto& result : report.results) {
         QString status = result.matched ? tr("MATCH") : tr("NO MATCH");
         matchReport_->append(QStringLiteral("[%1] Vendor=0x%2 Product=0x%3 — %4")
-            .arg(status)
-            .arg(result.vendorId, 8, 16, QChar('0'))
-            .arg(result.productCode, 8, 16, QChar('0'))
-            .arg(result.esiDeviceName.isEmpty() ? tr("(unknown)") : result.esiDeviceName));
+                                 .arg(status)
+                                 .arg(result.vendorId, 8, 16, QChar('0'))
+                                 .arg(result.productCode, 8, 16, QChar('0'))
+                                 .arg(result.esiDeviceName.isEmpty() ? tr("(unknown)") : result.esiDeviceName));
 
         if (!result.differences.isEmpty()) {
-            for (const auto &diff : result.differences) {
+            for (const auto& diff : result.differences) {
                 matchReport_->append(QStringLiteral("  ⚠ %1").arg(diff));
             }
         }
@@ -258,12 +261,12 @@ void EsiBrowserPlugin::updateDeviceList() {
     esiTree_->clear();
     currentDevices_ = service_->listDevices();
 
-    QTreeWidgetItem *vendorRoot = nullptr;
+    QTreeWidgetItem* vendorRoot = nullptr;
     QString lastVendor;
     int count = 0;
 
     for (int i = 0; i < currentDevices_.size(); ++i) {
-        const auto &d = currentDevices_[i];
+        const auto& d = currentDevices_[i];
         QString vendorKey = QStringLiteral("0x%1").arg(d.vendorId, 8, 16, QChar('0'));
 
         if (vendorKey != lastVendor) {
@@ -274,7 +277,7 @@ void EsiBrowserPlugin::updateDeviceList() {
         }
 
         if (vendorRoot) {
-            auto *devItem = new QTreeWidgetItem(vendorRoot);
+            auto* devItem = new QTreeWidgetItem(vendorRoot);
             devItem->setText(0, QStringLiteral("%1 (%2)").arg(d.name, d.type));
             devItem->setData(0, Qt::UserRole, i);
             devItem->setData(0, Qt::UserRole + 1, d.deviceId);
@@ -292,12 +295,13 @@ void EsiBrowserPlugin::showDeviceDetail(int index) {
     pdoTable_->setRowCount(0);
     syncManagerTable_->setRowCount(0);
 
-    if (index < 0 || index >= currentDevices_.size()) return;
+    if (index < 0 || index >= currentDevices_.size())
+        return;
 
-    const EsiDeviceInfo &d = currentDevices_[index];
+    const EsiDeviceInfo& d = currentDevices_[index];
     currentDeviceIndex_ = index;
 
-    auto addRow = [&](const QString &prop, const QString &val) {
+    auto addRow = [&](const QString& prop, const QString& val) {
         int r = detailTable_->rowCount();
         detailTable_->insertRow(r);
         detailTable_->setItem(r, 0, new QTableWidgetItem(prop));
@@ -306,12 +310,9 @@ void EsiBrowserPlugin::showDeviceDetail(int index) {
 
     addRow(tr("Name"), d.name);
     addRow(tr("Type"), d.type);
-    addRow(tr("Vendor ID"),
-           QStringLiteral("0x%1").arg(d.vendorId, 8, 16, QChar('0')));
-    addRow(tr("Product Code"),
-           QStringLiteral("0x%1").arg(d.productCode, 8, 16, QChar('0')));
-    addRow(tr("Revision"),
-           QStringLiteral("0x%1").arg(d.revisionNo, 8, 16, QChar('0')));
+    addRow(tr("Vendor ID"), QStringLiteral("0x%1").arg(d.vendorId, 8, 16, QChar('0')));
+    addRow(tr("Product Code"), QStringLiteral("0x%1").arg(d.productCode, 8, 16, QChar('0')));
+    addRow(tr("Revision"), QStringLiteral("0x%1").arg(d.revisionNo, 8, 16, QChar('0')));
     addRow(tr("Description"), d.description);
     addRow(tr("Device ID"), d.deviceId);
     addRow(tr("Rx PDOs"), QString::number(d.rxPdos.size()));
@@ -322,22 +323,20 @@ void EsiBrowserPlugin::showDeviceDetail(int index) {
     showSyncManagerConfig(d);
 }
 
-void EsiBrowserPlugin::showPdoMapping(const EsiDeviceInfo &dev) {
+void EsiBrowserPlugin::showPdoMapping(const EsiDeviceInfo& dev) {
     pdoTable_->setRowCount(0);
 
-    auto addPdoEntries = [&](const QString &dir, const QVector<EsiPdoAssignment> &pdos) {
-        for (const auto &pdo : pdos) {
-            for (const auto &entry : pdo.entries) {
+    auto addPdoEntries = [&](const QString& dir, const QVector<EsiPdoAssignment>& pdos) {
+        for (const auto& pdo : pdos) {
+            for (const auto& entry : pdo.entries) {
                 int r = pdoTable_->rowCount();
                 pdoTable_->insertRow(r);
-                pdoTable_->setItem(r, 0, new QTableWidgetItem(
-                    QStringLiteral("0x%1 [%2]").arg(pdo.index, dir)));
+                pdoTable_->setItem(r, 0, new QTableWidgetItem(QStringLiteral("0x%1 [%2]").arg(pdo.index, dir)));
                 pdoTable_->setItem(r, 1, new QTableWidgetItem(pdo.name));
-                pdoTable_->setItem(r, 2, new QTableWidgetItem(
-                    QStringLiteral("0x%1:%2").arg(entry.index, entry.subIndex)));
+                pdoTable_->setItem(r, 2,
+                                   new QTableWidgetItem(QStringLiteral("0x%1:%2").arg(entry.index, entry.subIndex)));
                 pdoTable_->setItem(r, 3, new QTableWidgetItem(entry.name));
-                pdoTable_->setItem(r, 4, new QTableWidgetItem(
-                    QStringLiteral("%1 bit").arg(entry.bitSize)));
+                pdoTable_->setItem(r, 4, new QTableWidgetItem(QStringLiteral("%1 bit").arg(entry.bitSize)));
             }
         }
     };
@@ -346,39 +345,37 @@ void EsiBrowserPlugin::showPdoMapping(const EsiDeviceInfo &dev) {
     addPdoEntries("Tx", dev.txPdos);
 }
 
-void EsiBrowserPlugin::showSyncManagerConfig(const EsiDeviceInfo &dev) {
+void EsiBrowserPlugin::showSyncManagerConfig(const EsiDeviceInfo& dev) {
     syncManagerTable_->setRowCount(0);
 
-    for (const auto &sm : dev.syncManagers) {
+    for (const auto& sm : dev.syncManagers) {
         int r = syncManagerTable_->rowCount();
         syncManagerTable_->insertRow(r);
-        syncManagerTable_->setItem(r, 0, new QTableWidgetItem(
-            QString::number(sm.index)));
+        syncManagerTable_->setItem(r, 0, new QTableWidgetItem(QString::number(sm.index)));
         syncManagerTable_->setItem(r, 1, new QTableWidgetItem(sm.name));
         syncManagerTable_->setItem(r, 2, new QTableWidgetItem(sm.direction));
-        syncManagerTable_->setItem(r, 3, new QTableWidgetItem(
-            QString::number(sm.pdos)));
+        syncManagerTable_->setItem(r, 3, new QTableWidgetItem(QString::number(sm.pdos)));
     }
 }
 
-void EsiBrowserPlugin::updateTreeFilter(const QString &filter) {
+void EsiBrowserPlugin::updateTreeFilter(const QString& filter) {
     QString needle = filter.trimmed().toLower();
     for (int i = 0; i < esiTree_->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *vendorItem = esiTree_->topLevelItem(i);
+        QTreeWidgetItem* vendorItem = esiTree_->topLevelItem(i);
         bool vendorVisible = false;
         for (int j = 0; j < vendorItem->childCount(); ++j) {
-            QTreeWidgetItem *devItem = vendorItem->child(j);
-            bool match = needle.isEmpty() ||
-                         devItem->text(0).toLower().contains(needle);
+            QTreeWidgetItem* devItem = vendorItem->child(j);
+            bool match = needle.isEmpty() || devItem->text(0).toLower().contains(needle);
             devItem->setHidden(!match);
-            if (match) vendorVisible = true;
+            if (match)
+                vendorVisible = true;
         }
         vendorItem->setHidden(!vendorVisible);
     }
 }
 
 void EsiBrowserPlugin::onTreeSelectionChanged() {
-    QTreeWidgetItem *item = esiTree_->currentItem();
+    QTreeWidgetItem* item = esiTree_->currentItem();
     if (!item) {
         currentDeviceIndex_ = -1;
         return;

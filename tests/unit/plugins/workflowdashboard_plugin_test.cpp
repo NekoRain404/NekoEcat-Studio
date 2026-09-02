@@ -14,149 +14,148 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QTableWidget>
 #include <QTemporaryDir>
-#include <QRegularExpression>
 #include <QtTest/QtTest>
 
 #include "plugins/workflowdashboard/WorkflowDashboardPlugin.h"
 #include "services/WorkflowMonitoringService.h"
 
 class TestWorkflowDashboardPlugin : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  // Plugin reports correct id, display names, order, and visibility
-  // Plugin reports correct identity fields
-  void identity();
-  // Widget is not null after creation
-  // Widget is created and non-null
-  void widgetNotNull();
-  // Add and remove active workflows and verify count
-  // Active workflows can be added, removed, and counted
-  void activeWorkflows();
-  // Update workflow status and verify state
-  // Workflow status can be updated after adding
-  void workflowStatusUpdate();
-  // Add and retrieve alerts
-  // Alerts can be added with severity levels
-  void alerts();
-  // Add and retrieve notifications
-  // Notifications can be added by channel type
-  void notifications();
-  // Export dashboard data to JSON
-  // Export dashboard writes JSON to disk
-  void exportDashboard();
-  // Verify signal emissions on state changes
-  // Signal emissions on activation and export
-  void signalEmissions();
+    void initTestCase();
+    void cleanupTestCase();
+    // Plugin reports correct id, display names, order, and visibility
+    // Plugin reports correct identity fields
+    void identity();
+    // Widget is not null after creation
+    // Widget is created and non-null
+    void widgetNotNull();
+    // Add and remove active workflows and verify count
+    // Active workflows can be added, removed, and counted
+    void activeWorkflows();
+    // Update workflow status and verify state
+    // Workflow status can be updated after adding
+    void workflowStatusUpdate();
+    // Add and retrieve alerts
+    // Alerts can be added with severity levels
+    void alerts();
+    // Add and retrieve notifications
+    // Notifications can be added by channel type
+    void notifications();
+    // Export dashboard data to JSON
+    // Export dashboard writes JSON to disk
+    void exportDashboard();
+    // Verify signal emissions on state changes
+    // Signal emissions on activation and export
+    void signalEmissions();
 
 private:
-  WorkflowMonitoringService *monitoring_ = nullptr;
-  WorkflowDashboardPlugin *plugin_ = nullptr;
+    WorkflowMonitoringService* monitoring_ = nullptr;
+    WorkflowDashboardPlugin* plugin_ = nullptr;
 };
 
 void TestWorkflowDashboardPlugin::initTestCase() {
-  monitoring_ = new WorkflowMonitoringService(this);
-  plugin_ = new WorkflowDashboardPlugin(monitoring_, this);
+    monitoring_ = new WorkflowMonitoringService(this);
+    plugin_ = new WorkflowDashboardPlugin(monitoring_, this);
 }
 
 void TestWorkflowDashboardPlugin::cleanupTestCase() {
-  delete plugin_;
-  plugin_ = nullptr;
-  delete monitoring_;
-  monitoring_ = nullptr;
+    delete plugin_;
+    plugin_ = nullptr;
+    delete monitoring_;
+    monitoring_ = nullptr;
 }
 
 void TestWorkflowDashboardPlugin::identity() {
-  QCOMPARE(plugin_->id(), QString("workflowdashboard"));
-  QCOMPARE(plugin_->displayName(), QString("Workflow Dashboard"));
-  QCOMPARE(plugin_->displayNameZh(), QString("工作流仪表盘"));
-  QCOMPARE(plugin_->defaultOrder(), 390);
-  QVERIFY(!plugin_->visible());
+    QCOMPARE(plugin_->id(), QString("workflowdashboard"));
+    QCOMPARE(plugin_->displayName(), QString("Workflow Dashboard"));
+    QCOMPARE(plugin_->displayNameZh(), QString("工作流仪表盘"));
+    QCOMPARE(plugin_->defaultOrder(), 390);
+    QVERIFY(!plugin_->visible());
 }
 
 void TestWorkflowDashboardPlugin::widgetNotNull() {
-  QVERIFY(plugin_->widget() != nullptr);
+    QVERIFY(plugin_->widget() != nullptr);
 }
 
 void TestWorkflowDashboardPlugin::activeWorkflows() {
-  QCOMPARE(plugin_->activeWorkflowCount(), 0);
+    QCOMPARE(plugin_->activeWorkflowCount(), 0);
 
-  plugin_->addActiveWorkflow("wf1", "Build Pipeline", "Running");
-  QCOMPARE(plugin_->activeWorkflowCount(), 1);
+    plugin_->addActiveWorkflow("wf1", "Build Pipeline", "Running");
+    QCOMPARE(plugin_->activeWorkflowCount(), 1);
 
-  plugin_->addActiveWorkflow("wf2", "Deploy Pipeline", "Idle");
-  QCOMPARE(plugin_->activeWorkflowCount(), 2);
+    plugin_->addActiveWorkflow("wf2", "Deploy Pipeline", "Idle");
+    QCOMPARE(plugin_->activeWorkflowCount(), 2);
 
-  plugin_->removeActiveWorkflow("wf1");
-  QCOMPARE(plugin_->activeWorkflowCount(), 1);
+    plugin_->removeActiveWorkflow("wf1");
+    QCOMPARE(plugin_->activeWorkflowCount(), 1);
 
-  plugin_->removeActiveWorkflow("nonexistent");
-  QCOMPARE(plugin_->activeWorkflowCount(), 1);
+    plugin_->removeActiveWorkflow("nonexistent");
+    QCOMPARE(plugin_->activeWorkflowCount(), 1);
 
-  plugin_->removeActiveWorkflow("wf2");
-  QCOMPARE(plugin_->activeWorkflowCount(), 0);
+    plugin_->removeActiveWorkflow("wf2");
+    QCOMPARE(plugin_->activeWorkflowCount(), 0);
 }
 
 void TestWorkflowDashboardPlugin::workflowStatusUpdate() {
-  plugin_->addActiveWorkflow("wf_update", "Update Test", "Idle");
-  QCOMPARE(plugin_->activeWorkflowCount(), 1);
+    plugin_->addActiveWorkflow("wf_update", "Update Test", "Idle");
+    QCOMPARE(plugin_->activeWorkflowCount(), 1);
 
-  plugin_->updateWorkflowStatus("wf_update", "Running");
-  plugin_->removeActiveWorkflow("wf_update");
+    plugin_->updateWorkflowStatus("wf_update", "Running");
+    plugin_->removeActiveWorkflow("wf_update");
 }
 
 void TestWorkflowDashboardPlugin::alerts() {
-  QCOMPARE(plugin_->alertCount(), 0);
+    QCOMPARE(plugin_->alertCount(), 0);
 
-  plugin_->addAlert("Critical", "WorkflowEngine", "Pipeline stalled");
-  QCOMPARE(plugin_->alertCount(), 1);
+    plugin_->addAlert("Critical", "WorkflowEngine", "Pipeline stalled");
+    QCOMPARE(plugin_->alertCount(), 1);
 
-  plugin_->addAlert("Warning", "ResourceMonitor", "High memory usage");
-  QCOMPARE(plugin_->alertCount(), 2);
+    plugin_->addAlert("Warning", "ResourceMonitor", "High memory usage");
+    QCOMPARE(plugin_->alertCount(), 2);
 
-  plugin_->addAlert("Info", "Scheduler", "Task queued");
-  QCOMPARE(plugin_->alertCount(), 3);
+    plugin_->addAlert("Info", "Scheduler", "Task queued");
+    QCOMPARE(plugin_->alertCount(), 3);
 }
 
 void TestWorkflowDashboardPlugin::notifications() {
-  QCOMPARE(plugin_->notificationCount(), 0);
+    QCOMPARE(plugin_->notificationCount(), 0);
 
-  plugin_->addNotification("email", "Build completed successfully");
-  QCOMPARE(plugin_->notificationCount(), 1);
+    plugin_->addNotification("email", "Build completed successfully");
+    QCOMPARE(plugin_->notificationCount(), 1);
 
-  plugin_->addNotification("slack", "Deployment started");
-  QCOMPARE(plugin_->notificationCount(), 2);
+    plugin_->addNotification("slack", "Deployment started");
+    QCOMPARE(plugin_->notificationCount(), 2);
 }
 
 void TestWorkflowDashboardPlugin::exportDashboard() {
-  plugin_->addActiveWorkflow("wf_exp", "Export Test", "Running");
-  plugin_->addAlert("Info", "Test", "Test alert");
-  plugin_->addNotification("test", "Test notification");
+    plugin_->addActiveWorkflow("wf_exp", "Export Test", "Running");
+    plugin_->addAlert("Info", "Test", "Test alert");
+    plugin_->addNotification("test", "Test notification");
 
-  QTemporaryDir dir;
-  QVERIFY(dir.isValid());
-  const QString tmpPath = dir.filePath("dashboard_export_test.json");
-  QVERIFY(plugin_->exportDashboard(tmpPath));
-  QVERIFY(QFile::exists(tmpPath));
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString tmpPath = dir.filePath("dashboard_export_test.json");
+    QVERIFY(plugin_->exportDashboard(tmpPath));
+    QVERIFY(QFile::exists(tmpPath));
 
-  QTest::failOnWarning(QRegularExpression(
-      QStringLiteral("QFSFileEngine::open: No file name specified")));
-  QVERIFY(!plugin_->exportDashboard(QString()));
-  QVERIFY(!plugin_->exportDashboard(dir.path()));
+    QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+    QVERIFY(!plugin_->exportDashboard(QString()));
+    QVERIFY(!plugin_->exportDashboard(dir.path()));
 }
 
 void TestWorkflowDashboardPlugin::signalEmissions() {
-  QSignalSpy actSpy(plugin_, &WorkflowDashboardPlugin::workflowActivated);
-  QSignalSpy expSpy(plugin_, &WorkflowDashboardPlugin::dashboardExported);
+    QSignalSpy actSpy(plugin_, &WorkflowDashboardPlugin::workflowActivated);
+    QSignalSpy expSpy(plugin_, &WorkflowDashboardPlugin::dashboardExported);
 
-  QTemporaryDir dir;
-  QVERIFY(dir.isValid());
-  const QString tmpPath = dir.filePath("dashboard_signal_test.json");
-  QVERIFY(plugin_->exportDashboard(tmpPath));
-  QCOMPARE(expSpy.count(), 1);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString tmpPath = dir.filePath("dashboard_signal_test.json");
+    QVERIFY(plugin_->exportDashboard(tmpPath));
+    QCOMPARE(expSpy.count(), 1);
 }
 
 QTEST_MAIN(TestWorkflowDashboardPlugin)

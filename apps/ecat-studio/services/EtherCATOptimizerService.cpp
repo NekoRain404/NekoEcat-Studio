@@ -1,6 +1,6 @@
 #include "EtherCATOptimizerService.h"
-#include "infra/EcatClient.h"
 #include "EventBus.h"
+#include "infra/EcatClient.h"
 
 // EtherCATOptimizerService.cpp — Targeted optimization request facade
 //
@@ -9,26 +9,19 @@
 //   - Fails closed until wired to a backend that can measure before/after values
 //   - Recommendations cover addressing, DC sync, buffer sizing, and thread affinity
 
-EtherCATOptimizerService::EtherCATOptimizerService(EventBus *bus, EcatClient *client,
-                                                   QObject *parent)
-    : QObject(parent), bus_(bus), client_(client)
-{
-}
+EtherCATOptimizerService::EtherCATOptimizerService(EventBus* bus, EcatClient* client, QObject* parent)
+    : QObject(parent), bus_(bus), client_(client) {}
 
-OptimizationResult EtherCATOptimizerService::makeRejectedResult(
-    const QString &category, const QStringList &recommendations)
-{
+OptimizationResult EtherCATOptimizerService::makeRejectedResult(const QString& category,
+                                                                const QStringList& recommendations) {
     OptimizationResult r;
     r.category = category;
-    r.description = QStringLiteral(
-        "%1 optimization requires a connected EtherCAT optimization backend")
-                        .arg(category);
+    r.description = QStringLiteral("%1 optimization requires a connected EtherCAT optimization backend").arg(category);
     r.recommendations = recommendations;
     return r;
 }
 
-OptimizationResult EtherCATOptimizerService::optimizeConfiguration()
-{
+OptimizationResult EtherCATOptimizerService::optimizeConfiguration() {
     QStringList recs;
     recs << QStringLiteral("Enable auto-increment addressing for faster discovery");
     recs << QStringLiteral("Remove unused slave configurations to reduce scan time");
@@ -38,8 +31,7 @@ OptimizationResult EtherCATOptimizerService::optimizeConfiguration()
     return makeRejectedResult(QStringLiteral("Configuration"), recs);
 }
 
-OptimizationResult EtherCATOptimizerService::optimizeTiming()
-{
+OptimizationResult EtherCATOptimizerService::optimizeTiming() {
     QStringList recs;
     recs << QStringLiteral("Reduce jitter by increasing thread priority");
     recs << QStringLiteral("Consider shorter cycle times for tighter control");
@@ -49,8 +41,7 @@ OptimizationResult EtherCATOptimizerService::optimizeTiming()
     return makeRejectedResult(QStringLiteral("Timing"), recs);
 }
 
-OptimizationResult EtherCATOptimizerService::optimizeBuffers()
-{
+OptimizationResult EtherCATOptimizerService::optimizeBuffers() {
     QStringList recs;
     recs << QStringLiteral("Increase rx/tx buffer count to reduce frame loss");
     recs << QStringLiteral("Reduce payload size or increase bandwidth allocation");
@@ -60,8 +51,7 @@ OptimizationResult EtherCATOptimizerService::optimizeBuffers()
     return makeRejectedResult(QStringLiteral("Buffers"), recs);
 }
 
-OptimizationResult EtherCATOptimizerService::optimizePriorities()
-{
+OptimizationResult EtherCATOptimizerService::optimizePriorities() {
     QStringList recs;
     recs << QStringLiteral("Increase SDO queue depth for better throughput");
     recs << QStringLiteral("Prioritize PDO over SDO for real-time data");

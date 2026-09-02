@@ -7,123 +7,117 @@
 #include <QTableWidget>
 
 // Extracts all columns of an Object Dictionary row for detail display and SDO operations.
-SdoDictionaryRow sdoDictionaryRowFromTable(QTableWidget *table, int row) {
-  SdoDictionaryRow result;
-  result.row = row;
-  if (!table || row < 0 || row >= table->rowCount()) {
-    return result;
-  }
+SdoDictionaryRow sdoDictionaryRowFromTable(QTableWidget* table, int row) {
+    SdoDictionaryRow result;
+    result.row = row;
+    if (!table || row < 0 || row >= table->rowCount()) {
+        return result;
+    }
 
-  result.object = tableText(table, row, 0);
-  result.index = normalizeHexText(tableText(table, row, 1), 4);
-  result.subIndex = normalizeHexText(tableText(table, row, 2), 2);
-  result.access = tableText(table, row, 3);
-  result.type = tableText(table, row, 4);
-  result.bits = tableText(table, row, 5);
-  result.name = tableText(table, row, 6);
-  result.value = tableText(table, row, 7);
-  result.status = tableText(table, row, 8);
-  return result;
+    result.object = tableText(table, row, 0);
+    result.index = normalizeHexText(tableText(table, row, 1), 4);
+    result.subIndex = normalizeHexText(tableText(table, row, 2), 2);
+    result.access = tableText(table, row, 3);
+    result.type = tableText(table, row, 4);
+    result.bits = tableText(table, row, 5);
+    result.name = tableText(table, row, 6);
+    result.value = tableText(table, row, 7);
+    result.status = tableText(table, row, 8);
+    return result;
 }
 
 // Whether this row identifies a specific index:subIndex target for SDO reads/writes.
-bool sdoDictionaryRowHasTarget(const SdoDictionaryRow &row) {
-  return !row.index.isEmpty() && !row.subIndex.isEmpty();
+bool sdoDictionaryRowHasTarget(const SdoDictionaryRow& row) {
+    return !row.index.isEmpty() && !row.subIndex.isEmpty();
 }
 
 // Whether the row has a populated value (read result or cached).
-bool sdoDictionaryRowHasValue(const SdoDictionaryRow &row) {
-  return !row.value.isEmpty();
+bool sdoDictionaryRowHasValue(const SdoDictionaryRow& row) {
+    return !row.value.isEmpty();
 }
 
 // Whether the access rights include write permission.
-bool sdoDictionaryRowIsWritable(const SdoDictionaryRow &row) {
-  return row.access.toLower().contains('w');
+bool sdoDictionaryRowIsWritable(const SdoDictionaryRow& row) {
+    return row.access.toLower().contains('w');
 }
 
 // Returns indices of all non-hidden rows for batch SDO operations.
-QVector<int> visibleSdoDictionaryRows(QTableWidget *table) {
-  return visibleTableRows(table);
+QVector<int> visibleSdoDictionaryRows(QTableWidget* table) {
+    return visibleTableRows(table);
 }
 
 // Collects row indices whose SDO read status indicates a failure.
-QVector<int> failedSdoDictionaryRows(QTableWidget *table) {
-  QVector<int> rows;
-  if (!table) {
-    return rows;
-  }
-  rows.reserve(table->rowCount());
-    // Iterate over collection
-  for (int row = 0; row < table->rowCount(); ++row) {
-    const QString status = sdoDictionaryRowFromTable(table, row).status;
-    if (status.contains(QStringLiteral("failed"), Qt::CaseInsensitive) ||
-        status.contains(QStringLiteral("失败"))) {
-      rows.append(row);
+QVector<int> failedSdoDictionaryRows(QTableWidget* table) {
+    QVector<int> rows;
+    if (!table) {
+        return rows;
     }
-  }
-  return rows;
+    rows.reserve(table->rowCount());
+    // Iterate over collection
+    for (int row = 0; row < table->rowCount(); ++row) {
+        const QString status = sdoDictionaryRowFromTable(table, row).status;
+        if (status.contains(QStringLiteral("failed"), Qt::CaseInsensitive) || status.contains(QStringLiteral("失败"))) {
+            rows.append(row);
+        }
+    }
+    return rows;
 }
 
 // Whether any of the given visible rows have a populated value.
-bool sdoDictionaryRowsContainValue(QTableWidget *table,
-                                   const QVector<int> &rows) {
-  if (!table) {
-    return false;
-  }
+bool sdoDictionaryRowsContainValue(QTableWidget* table, const QVector<int>& rows) {
+    if (!table) {
+        return false;
+    }
     // Iterate over collection
-  for (const int row : rows) {
-    if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
-      continue;
+    for (const int row : rows) {
+        if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
+            continue;
+        }
+        if (sdoDictionaryRowHasValue(sdoDictionaryRowFromTable(table, row))) {
+            return true;
+        }
     }
-    if (sdoDictionaryRowHasValue(sdoDictionaryRowFromTable(table, row))) {
-      return true;
-    }
-  }
-  return false;
+    return false;
 }
 
 // Looks up the row matching a specific index:subIndex pair for targeted SDO access.
-SdoDictionaryRow sdoDictionaryRowForTarget(QTableWidget *table,
-                                           const QString &index,
-                                           const QString &subIndex) {
-  const int row = tableRowForObjectIndex(table, index, subIndex, 1, 2);
-  return sdoDictionaryRowFromTable(table, row);
+SdoDictionaryRow sdoDictionaryRowForTarget(QTableWidget* table, const QString& index, const QString& subIndex) {
+    const int row = tableRowForObjectIndex(table, index, subIndex, 1, 2);
+    return sdoDictionaryRowFromTable(table, row);
 }
 
 // Converts selected rows into read-request objects, skipping hidden or invalid entries.
-QVector<SdoDictionaryReadObject>
-sdoDictionaryReadObjectsFromRows(QTableWidget *table, const QVector<int> &rows,
-                                 int *skipped) {
-  if (skipped) {
-    *skipped = 0;
-  }
-
-  QVector<SdoDictionaryReadObject> objects;
-  if (!table) {
+QVector<SdoDictionaryReadObject> sdoDictionaryReadObjectsFromRows(QTableWidget* table, const QVector<int>& rows,
+                                                                  int* skipped) {
     if (skipped) {
-      *skipped = rows.size();
+        *skipped = 0;
     }
-    return objects;
-  }
+
+    QVector<SdoDictionaryReadObject> objects;
+    if (!table) {
+        if (skipped) {
+            *skipped = rows.size();
+        }
+        return objects;
+    }
 
     // Iterate over collection
-  for (const int row : rows) {
-    if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
-      if (skipped) {
-        ++(*skipped);
-      }
-      continue;
-    }
+    for (const int row : rows) {
+        if (row < 0 || row >= table->rowCount() || table->isRowHidden(row)) {
+            if (skipped) {
+                ++(*skipped);
+            }
+            continue;
+        }
 
-    const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(table, row);
-    if (!sdoDictionaryRowHasTarget(dictionary)) {
-      if (skipped) {
-        ++(*skipped);
-      }
-      continue;
+        const SdoDictionaryRow dictionary = sdoDictionaryRowFromTable(table, row);
+        if (!sdoDictionaryRowHasTarget(dictionary)) {
+            if (skipped) {
+                ++(*skipped);
+            }
+            continue;
+        }
+        objects.append({row, dictionary.index, dictionary.subIndex, dictionary.type});
     }
-    objects.append(
-        {row, dictionary.index, dictionary.subIndex, dictionary.type});
-  }
-  return objects;
+    return objects;
 }

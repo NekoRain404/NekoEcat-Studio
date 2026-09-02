@@ -21,64 +21,63 @@ class RtTestLatencyChart;
 class RtTestJitterSpark;
 
 class RtTestPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit RtTestPlugin(ServiceContainer *container,
-                        QObject *parent = nullptr);
+    explicit RtTestPlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Lifecycle
-  void activate() override;
-  void deactivate() override;
-  void onSettingsChanged(const AppSettings &settings) override;
-  void onConnectionChanged(bool connected) override;
+    // Lifecycle
+    void activate() override;
+    void deactivate() override;
+    void onSettingsChanged(const AppSettings& settings) override;
+    void onConnectionChanged(bool connected) override;
 
-  static QString formatDuration(double seconds);
+    static QString formatDuration(double seconds);
 
 private slots:
-  void handleRtTestTelemetry(const QJsonObject &telemetry);
+    void handleRtTestTelemetry(const QJsonObject& telemetry);
 
 private:
-  void buildUi();
-  void updateFreqLabel();
-  void updateActionAvailability();
+    void buildUi();
+    void updateFreqLabel();
+    void updateActionAvailability();
 
-  ServiceContainer *container_;
-  EcatClient *client_;
-  QWidget *containerWidget_ = nullptr;
-  bool running_ = false;
+    ServiceContainer* container_;
+    EcatClient* client_;
+    QWidget* containerWidget_ = nullptr;
+    bool running_ = false;
 
-  // Control bar
-  QPushButton *startButton_ = nullptr;
-  QPushButton *stopButton_ = nullptr;
-  QComboBox *cycleCombo_ = nullptr;
-  QLineEdit *customCycle_ = nullptr;
-  QLabel *freqLabel_ = nullptr;
-  QLabel *statusLabel_ = nullptr;
+    // Control bar
+    QPushButton* startButton_ = nullptr;
+    QPushButton* stopButton_ = nullptr;
+    QComboBox* cycleCombo_ = nullptr;
+    QLineEdit* customCycle_ = nullptr;
+    QLabel* freqLabel_ = nullptr;
+    QLabel* statusLabel_ = nullptr;
 
-  // Metrics
-  QLabel *minLabel_ = nullptr;
-  QLabel *maxLabel_ = nullptr;
-  QLabel *avgLabel_ = nullptr;
-  QLabel *jitterLabel_ = nullptr;
-  QLabel *cyclesLabel_ = nullptr;
-  QLabel *errorsLabel_ = nullptr;
-  QLabel *lossLabel_ = nullptr;
-  QLabel *durationLabel_ = nullptr;
-  QLabel *healthLabel_ = nullptr;
+    // Metrics
+    QLabel* minLabel_ = nullptr;
+    QLabel* maxLabel_ = nullptr;
+    QLabel* avgLabel_ = nullptr;
+    QLabel* jitterLabel_ = nullptr;
+    QLabel* cyclesLabel_ = nullptr;
+    QLabel* errorsLabel_ = nullptr;
+    QLabel* lossLabel_ = nullptr;
+    QLabel* durationLabel_ = nullptr;
+    QLabel* healthLabel_ = nullptr;
 
-  // Chart & sparkline
-  RtTestLatencyChart *chart_ = nullptr;
-  RtTestJitterSpark *jitterSpark_ = nullptr;
+    // Chart & sparkline
+    RtTestLatencyChart* chart_ = nullptr;
+    RtTestJitterSpark* jitterSpark_ = nullptr;
 
-  // Timeline log
-  QPlainTextEdit *timelineText_ = nullptr;
+    // Timeline log
+    QPlainTextEdit* timelineText_ = nullptr;
 };

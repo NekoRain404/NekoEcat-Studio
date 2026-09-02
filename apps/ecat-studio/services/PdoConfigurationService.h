@@ -39,89 +39,89 @@
 // Thread safety:
 //   All methods must be called from the main (GUI) thread.
 
+#include <QDateTime>
+#include <QHash>
 #include <QObject>
 #include <QString>
 #include <QVector>
-#include <QHash>
-#include <QDateTime>
 
 enum class PdoConfigDirection { Input, Output };
 
 struct PdoMappingConfig {
-  QString index;
-  QString subIndex;
-  QString name;
-  int bitSize = 0;
-  QString dataType;
-  PdoConfigDirection direction = PdoConfigDirection::Input;
+    QString index;
+    QString subIndex;
+    QString name;
+    int bitSize = 0;
+    QString dataType;
+    PdoConfigDirection direction = PdoConfigDirection::Input;
 };
 
 struct PdoAssignmentConfig {
-  int smIndex = 0;
-  QVector<QString> pdoIndices;
-  bool enabled = true;
+    int smIndex = 0;
+    QVector<QString> pdoIndices;
+    bool enabled = true;
 };
 
 struct PdoSyncManagerConfig {
-  int smIndex = 0;
-  PdoConfigDirection direction = PdoConfigDirection::Input;
-  int startAddress = 0;
-  int length = 0;
-  bool enable = true;
-  bool watchdog = false;
+    int smIndex = 0;
+    PdoConfigDirection direction = PdoConfigDirection::Input;
+    int startAddress = 0;
+    int length = 0;
+    bool enable = true;
+    bool watchdog = false;
 };
 
 struct DcSyncConfig {
-  bool assignActivate = false;
-  int sync0CycleTime = 0;
-  int sync1CycleTime = 0;
-  int sync0ShiftTime = 0;
-  int sync1ShiftTime = 0;
+    bool assignActivate = false;
+    int sync0CycleTime = 0;
+    int sync1CycleTime = 0;
+    int sync0ShiftTime = 0;
+    int sync1ShiftTime = 0;
 };
 
 struct PdoConfigurationStatus {
-  int position = -1;
-  bool mappingConfigured = false;
-  bool assignmentConfigured = false;
-  bool syncManagerConfigured = false;
-  bool dcSyncConfigured = false;
-  QDateTime lastApplied;
-  QString lastError;
+    int position = -1;
+    bool mappingConfigured = false;
+    bool assignmentConfigured = false;
+    bool syncManagerConfigured = false;
+    bool dcSyncConfigured = false;
+    QDateTime lastApplied;
+    QString lastError;
 };
 
 class PdoConfigurationService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit PdoConfigurationService(QObject *parent = nullptr);
+    explicit PdoConfigurationService(QObject* parent = nullptr);
 
-  bool configurePdoMapping(int position, const PdoMappingConfig &config);
-  bool configurePdoAssignment(int position, const PdoAssignmentConfig &config);
-  bool configureSyncManager(int position, const PdoSyncManagerConfig &config);
-  bool configureDcSync(int position, const DcSyncConfig &config);
-  bool applyConfiguration(int position);
+    bool configurePdoMapping(int position, const PdoMappingConfig& config);
+    bool configurePdoAssignment(int position, const PdoAssignmentConfig& config);
+    bool configureSyncManager(int position, const PdoSyncManagerConfig& config);
+    bool configureDcSync(int position, const DcSyncConfig& config);
+    bool applyConfiguration(int position);
 
-  QVector<PdoMappingConfig> pdoMappings(int position) const;
-  QVector<PdoAssignmentConfig> pdoAssignments(int position) const;
-  QVector<PdoSyncManagerConfig> syncManagers(int position) const;
-  DcSyncConfig dcSyncConfig(int position) const;
-  PdoConfigurationStatus configurationStatus(int position) const;
+    QVector<PdoMappingConfig> pdoMappings(int position) const;
+    QVector<PdoAssignmentConfig> pdoAssignments(int position) const;
+    QVector<PdoSyncManagerConfig> syncManagers(int position) const;
+    DcSyncConfig dcSyncConfig(int position) const;
+    PdoConfigurationStatus configurationStatus(int position) const;
 
 signals:
-  void configurationApplied(int position);
-  void configurationError(int position, const QString &message);
+    void configurationApplied(int position);
+    void configurationError(int position, const QString& message);
 
 private:
-  struct SlaveConfig {
-    QVector<PdoMappingConfig> mappings;
-    QVector<PdoAssignmentConfig> assignments;
-    QVector<PdoSyncManagerConfig> smConfigs;
-    DcSyncConfig dcSync;
-    PdoConfigurationStatus status;
-  };
+    struct SlaveConfig {
+        QVector<PdoMappingConfig> mappings;
+        QVector<PdoAssignmentConfig> assignments;
+        QVector<PdoSyncManagerConfig> smConfigs;
+        DcSyncConfig dcSync;
+        PdoConfigurationStatus status;
+    };
 
-  SlaveConfig &ensureSlave(int position);
-  bool validateMapping(const PdoMappingConfig &config, QString &error) const;
-  bool validateAssignment(const PdoAssignmentConfig &config, QString &error) const;
+    SlaveConfig& ensureSlave(int position);
+    bool validateMapping(const PdoMappingConfig& config, QString& error) const;
+    bool validateAssignment(const PdoAssignmentConfig& config, QString& error) const;
 
-  QHash<int, SlaveConfig> configs_;
+    QHash<int, SlaveConfig> configs_;
 };

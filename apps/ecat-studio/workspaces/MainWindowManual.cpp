@@ -9,17 +9,17 @@ namespace {
 // ── ecatd Path Helper ────────────────────────────────────────────────
 // — Locate the ecatd binary path relative to the application
 QString ecatdPath() {
-  const QFileInfo app(QCoreApplication::applicationFilePath());
-  const QStringList candidates = {
-      app.dir().absoluteFilePath("ecatd"),
-      app.dir().absoluteFilePath("../ecatd/ecatd"),
-  };
-  for (const QString &candidate : candidates) {
-    if (QFileInfo::exists(candidate)) {
-      return QFileInfo(candidate).canonicalFilePath();
+    const QFileInfo app(QCoreApplication::applicationFilePath());
+    const QStringList candidates = {
+        app.dir().absoluteFilePath("ecatd"),
+        app.dir().absoluteFilePath("../ecatd/ecatd"),
+    };
+    for (const QString& candidate : candidates) {
+        if (QFileInfo::exists(candidate)) {
+            return QFileInfo(candidate).canonicalFilePath();
+        }
     }
-  }
-  return "ecatd";
+    return "ecatd";
 }
 
 } // namespace
@@ -28,37 +28,32 @@ QString ecatdPath() {
 // ── Manual Dialog ───────────────────────────────────────────────────
 // — Open the built-in user manual dialog with full HTML documentation
 void MainWindow::showManual() {
-  QDialog dialog(this);
-  dialog.setObjectName("manualDialog");
-  dialog.setWindowTitle(
-      uiText("NekoEcat Studio User Manual", "NekoEcat Studio 使用说明书"));
-  dialog.setModal(true);
-  dialog.resize(980, 760);
+    QDialog dialog(this);
+    dialog.setObjectName("manualDialog");
+    dialog.setWindowTitle(uiText("NekoEcat Studio User Manual", "NekoEcat Studio 使用说明书"));
+    dialog.setModal(true);
+    dialog.resize(980, 760);
 
-  auto *layout = new QVBoxLayout(&dialog);
-  layout->setContentsMargins(18, 18, 18, 16);
-  layout->setSpacing(12);
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->setContentsMargins(18, 18, 18, 16);
+    layout->setSpacing(12);
 
-  auto *title = new QLabel(
-      uiText("NekoEcat Studio User Manual", "NekoEcat Studio 使用说明书"));
-  title->setObjectName("dialogTitle");
+    auto* title = new QLabel(uiText("NekoEcat Studio User Manual", "NekoEcat Studio 使用说明书"));
+    title->setObjectName("dialogTitle");
 
-  auto *subtitle = new QLabel(
-      uiText("Detailed operating guide for commissioning, diagnostics, SDO, "
-             "PDO, Watch, Startup SDO, and Free Run workflows.",
-             "面向调试、诊断、SDO、PDO、监视、启动 SDO "
-             "与自由运行工作流的详细操作说明。"));
-  subtitle->setObjectName("statusSummary");
-  subtitle->setWordWrap(true);
+    auto* subtitle = new QLabel(uiText("Detailed operating guide for commissioning, diagnostics, SDO, "
+                                       "PDO, Watch, Startup SDO, and Free Run workflows.",
+                                       "面向调试、诊断、SDO、PDO、监视、启动 SDO "
+                                       "与自由运行工作流的详细操作说明。"));
+    subtitle->setObjectName("statusSummary");
+    subtitle->setWordWrap(true);
 
-  auto *browser =
-      makeDocumentationBrowser("manualBrowser", settings_.theme == "Light");
-  const ManualSearchControls manualTools = makeManualSearchControls(
-      &dialog, browser, style(), uiText("Search manual text", "搜索说明书内容"),
-      uiText("Previous", "上一个"), uiText("Next", "下一个"),
-      uiText("Contents", "目录"));
+    auto* browser = makeDocumentationBrowser("manualBrowser", settings_.theme == "Light");
+    const ManualSearchControls manualTools =
+        makeManualSearchControls(&dialog, browser, style(), uiText("Search manual text", "搜索说明书内容"),
+                                 uiText("Previous", "上一个"), uiText("Next", "下一个"), uiText("Contents", "目录"));
 
-  const QString english = QStringLiteral(R"HTML(
+    const QString english = QStringLiteral(R"HTML(
 <!doctype html>
 <html>
 <head>
@@ -455,7 +450,7 @@ body { margin-left: 192px !important; }
 </html>
 )HTML");
 
-  const QString chinese = QStringLiteral(R"HTML(
+    const QString chinese = QStringLiteral(R"HTML(
 <!doctype html>
 <html>
 <head>
@@ -884,52 +879,48 @@ body { margin-left: 192px !important; }
 </html>
 )HTML");
 
-  const QString html = finalizeDocumentationHtml(
-      uiText(english, chinese), QCoreApplication::applicationVersion(),
-      activeMasterName(), ecatdPath(), settings_.theme == "Light");
+    const QString html = finalizeDocumentationHtml(uiText(english, chinese), QCoreApplication::applicationVersion(),
+                                                   activeMasterName(), ecatdPath(), settings_.theme == "Light");
     // Display formatted documentation in browser widget
-  browser->setHtml(html);
+    browser->setHtml(html);
 
-  auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     // Connect QDialogButtonBox::rejected signal to handler
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
-  layout->addWidget(title);
-  layout->addWidget(subtitle);
-// ── Tab Widget Assembly: manual tabs + search controls ──────────────────
-  layout->addLayout(manualTools.layout);
-  layout->addWidget(browser, 1);
-  layout->addWidget(buttons);
-  dialog.exec();
+    layout->addWidget(title);
+    layout->addWidget(subtitle);
+    // ── Tab Widget Assembly: manual tabs + search controls ──────────────────
+    layout->addLayout(manualTools.layout);
+    layout->addWidget(browser, 1);
+    layout->addWidget(buttons);
+    dialog.exec();
 }
 
 // ── About Dialog ────────────────────────────────────────────────────
 
 // — Open the About dialog with version and build information
 void MainWindow::showAbout() {
-  QDialog dialog(this);
-  dialog.setObjectName("aboutDialog");
-  dialog.setWindowTitle(
-      uiText("About NekoEcat Studio", "关于 NekoEcat Studio"));
-  dialog.setModal(true);
-  dialog.resize(860, 700);
+    QDialog dialog(this);
+    dialog.setObjectName("aboutDialog");
+    dialog.setWindowTitle(uiText("About NekoEcat Studio", "关于 NekoEcat Studio"));
+    dialog.setModal(true);
+    dialog.resize(860, 700);
 
-  auto *layout = new QVBoxLayout(&dialog);
-  layout->setContentsMargins(20, 20, 20, 16);
-  layout->setSpacing(12);
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->setContentsMargins(20, 20, 20, 16);
+    layout->setSpacing(12);
 
-  auto *title = new QLabel("NekoEcat Studio");
-  title->setObjectName("dialogTitle");
-  auto *tagline = new QLabel(
-      uiText("Modern EtherCAT engineering workstation for IgH EtherCAT Master.",
-             "面向 IgH EtherCAT Master 的现代 EtherCAT 工程工作站。"));
-  tagline->setObjectName("statusSummary");
-  tagline->setWordWrap(true);
+    auto* title = new QLabel("NekoEcat Studio");
+    title->setObjectName("dialogTitle");
+    auto* tagline = new QLabel(uiText("Modern EtherCAT engineering workstation for IgH EtherCAT Master.",
+                                      "面向 IgH EtherCAT Master 的现代 EtherCAT 工程工作站。"));
+    tagline->setObjectName("statusSummary");
+    tagline->setWordWrap(true);
 
-  auto *browser =
-      makeDocumentationBrowser("aboutBrowser", settings_.theme == "Light");
+    auto* browser = makeDocumentationBrowser("aboutBrowser", settings_.theme == "Light");
 
-  const QString english = QStringLiteral(R"HTML(
+    const QString english = QStringLiteral(R"HTML(
 <!doctype html>
 <html>
 <head>
@@ -996,7 +987,7 @@ th { background: #f0f4f9; color: #475569; }
 </html>
 )HTML");
 
-  const QString chinese = QStringLiteral(R"HTML(
+    const QString chinese = QStringLiteral(R"HTML(
 <!doctype html>
 <html>
 <head>
@@ -1061,19 +1052,18 @@ th { background: #f0f4f9; color: #475569; }
 </html>
 )HTML");
 
-  const QString html = finalizeDocumentationHtml(
-      uiText(english, chinese), QCoreApplication::applicationVersion(),
-      activeMasterName(), ecatdPath(), settings_.theme == "Light");
+    const QString html = finalizeDocumentationHtml(uiText(english, chinese), QCoreApplication::applicationVersion(),
+                                                   activeMasterName(), ecatdPath(), settings_.theme == "Light");
     // Display formatted documentation in browser widget
-  browser->setHtml(html);
+    browser->setHtml(html);
 
-  auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     // Connect QDialogButtonBox::rejected signal to handler
-  connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject); // wire signal to slot
 
-  layout->addWidget(title);
-  layout->addWidget(tagline);
-  layout->addWidget(browser, 1);
-  layout->addWidget(buttons);
-  dialog.exec();
+    layout->addWidget(title);
+    layout->addWidget(tagline);
+    layout->addWidget(browser, 1);
+    layout->addWidget(buttons);
+    dialog.exec();
 }

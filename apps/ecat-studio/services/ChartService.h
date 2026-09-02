@@ -34,97 +34,97 @@
 //   - Chart export is O(n) for rendering
 //   - Memory usage is bounded by number of charts
 
-#include <QObject>
 #include <QColor>
 #include <QMap>
+#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVector>
 
 // Represents a single dataset in a chart.
 struct ChartDataset {
-  QString name;              // Dataset name (for legend)
-  QVector<double> values;    // Data values
-  QColor color;              // Dataset color
+    QString name;           // Dataset name (for legend)
+    QVector<double> values; // Data values
+    QColor color;           // Dataset color
 };
 
 // Represents chart data with labels and datasets.
 struct ChartData {
-  QStringList labels;            // X-axis labels
-  QVector<ChartDataset> datasets; // Datasets to plot
+    QStringList labels;             // X-axis labels
+    QVector<ChartDataset> datasets; // Datasets to plot
 };
 
 class ChartService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ChartService(QObject *parent = nullptr);
+    explicit ChartService(QObject* parent = nullptr);
 
-  // Create a new chart with specified type, title, and data.
-  // @param type   Chart type ("line", "bar", "pie", "scatter", "gauge")
-  // @param title  Chart title
-  // @param data   Chart data with labels and datasets
-  // @return Chart ID for future reference
-  int createChart(const QString &type, const QString &title, const ChartData &data);
+    // Create a new chart with specified type, title, and data.
+    // @param type   Chart type ("line", "bar", "pie", "scatter", "gauge")
+    // @param title  Chart title
+    // @param data   Chart data with labels and datasets
+    // @return Chart ID for future reference
+    int createChart(const QString& type, const QString& title, const ChartData& data);
 
-  // Update an existing chart with new data.
-  // @param chartId  Chart ID to update
-  // @param data     New chart data
-  void updateChart(int chartId, const ChartData &data);
+    // Update an existing chart with new data.
+    // @param chartId  Chart ID to update
+    // @param data     New chart data
+    void updateChart(int chartId, const ChartData& data);
 
-  // Remove a chart by ID.
-  // @param chartId  Chart ID to remove
-  void removeChart(int chartId);
+    // Remove a chart by ID.
+    // @param chartId  Chart ID to remove
+    void removeChart(int chartId);
 
-  // Export a chart to a file.
-  // @param chartId   Chart ID to export
-  // @param filePath  Path to export the chart to
-  // @return true if export was successful
-  bool exportChart(int chartId, const QString &filePath);
+    // Export a chart to a file.
+    // @param chartId   Chart ID to export
+    // @param filePath  Path to export the chart to
+    // @return true if export was successful
+    bool exportChart(int chartId, const QString& filePath);
 
-  // Get the data for a specific chart.
-  // @param chartId  Chart ID to get data for
-  // @return ChartData structure
-  ChartData chartData(int chartId) const;
+    // Get the data for a specific chart.
+    // @param chartId  Chart ID to get data for
+    // @return ChartData structure
+    ChartData chartData(int chartId) const;
 
-  // Get the title of a specific chart.
-  // @param chartId  Chart ID to get title for
-  // @return Chart title
-  QString chartTitle(int chartId) const;
+    // Get the title of a specific chart.
+    // @param chartId  Chart ID to get title for
+    // @return Chart title
+    QString chartTitle(int chartId) const;
 
-  // Get the type of a specific chart.
-  // @param chartId  Chart ID to get type for
-  // @return Chart type
-  QString chartType(int chartId) const;
+    // Get the type of a specific chart.
+    // @param chartId  Chart ID to get type for
+    // @return Chart type
+    QString chartType(int chartId) const;
 
-  // Get all chart IDs.
-  // @return Vector of chart IDs
-  QVector<int> chartIds() const;
+    // Get all chart IDs.
+    // @return Vector of chart IDs
+    QVector<int> chartIds() const;
 
 signals:
-  // Emitted when a new chart is created.
-  // @param chartId  Chart ID of the new chart
-  void chartCreated(int chartId);
+    // Emitted when a new chart is created.
+    // @param chartId  Chart ID of the new chart
+    void chartCreated(int chartId);
 
-  // Emitted when a chart is updated.
-  // @param chartId  Chart ID that was updated
-  void chartUpdated(int chartId);
+    // Emitted when a chart is updated.
+    // @param chartId  Chart ID that was updated
+    void chartUpdated(int chartId);
 
-  // Emitted when a chart is removed.
-  // @param chartId  Chart ID that was removed
-  void chartRemoved(int chartId);
+    // Emitted when a chart is removed.
+    // @param chartId  Chart ID that was removed
+    void chartRemoved(int chartId);
 
-  // Emitted when an error occurs.
-  // @param message  Human-readable error message
-  void error(const QString &message);
+    // Emitted when an error occurs.
+    // @param message  Human-readable error message
+    void error(const QString& message);
 
 private:
-  // Internal chart record structure.
-  struct ChartRecord {
-    QString type;      // Chart type
-    QString title;     // Chart title
-    ChartData data;    // Chart data
-  };
+    // Internal chart record structure.
+    struct ChartRecord {
+        QString type;   // Chart type
+        QString title;  // Chart title
+        ChartData data; // Chart data
+    };
 
-  QMap<int, ChartRecord> charts_;  // All charts by ID
-  int nextId_ = 1;                 // Next chart ID to assign
+    QMap<int, ChartRecord> charts_; // All charts by ID
+    int nextId_ = 1;                // Next chart ID to assign
 };

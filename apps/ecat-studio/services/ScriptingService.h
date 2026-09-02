@@ -42,7 +42,7 @@
 #include <QStringList>
 
 #ifdef ECAT_SCRIPTING_ENABLED
-#include <QJSValue>
+    #include <QJSValue>
 #endif
 
 class QJSEngine;
@@ -53,152 +53,148 @@ class EcatClient;
 #ifdef ECAT_SCRIPTING_ENABLED
 // Built-in script functions for EtherCAT operations.
 class ScriptingBuiltin : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ScriptingBuiltin(EcatClient *client, SdoService *sdo,
-                            TopologyService *topology, QJSEngine *engine,
-                            QObject *parent = nullptr);
+    explicit ScriptingBuiltin(EcatClient* client, SdoService* sdo, TopologyService* topology, QJSEngine* engine,
+                              QObject* parent = nullptr);
 
-  // Read an SDO value from a slave.
-  // @param position  Slave position
-  // @param index     SDO index in hex format
-  // @param subIndex  SDO subindex in hex format
-  // @return QJSValue with the read result
-  Q_INVOKABLE QJSValue readSDO(int position, const QString &index,
-                                const QString &subIndex);
+    // Read an SDO value from a slave.
+    // @param position  Slave position
+    // @param index     SDO index in hex format
+    // @param subIndex  SDO subindex in hex format
+    // @return QJSValue with the read result
+    Q_INVOKABLE QJSValue readSDO(int position, const QString& index, const QString& subIndex);
 
-  // Write an SDO value to a slave.
-  // @param position  Slave position
-  // @param index     SDO index in hex format
-  // @param subIndex  SDO subindex in hex format
-  // @param value     Value to write
-  // @param type      Data type
-  // @return false because daemon acknowledgement is asynchronous.
-  Q_INVOKABLE bool writeSDO(int position, const QString &index,
-                             const QString &subIndex, const QString &value,
-                             const QString &type);
+    // Write an SDO value to a slave.
+    // @param position  Slave position
+    // @param index     SDO index in hex format
+    // @param subIndex  SDO subindex in hex format
+    // @param value     Value to write
+    // @param type      Data type
+    // @return false because daemon acknowledgement is asynchronous.
+    Q_INVOKABLE bool writeSDO(int position, const QString& index, const QString& subIndex, const QString& value,
+                              const QString& type);
 
-  // Scan the EtherCAT bus topology.
-  // @return QJSValue with scan results
-  Q_INVOKABLE QJSValue scanTopology();
+    // Scan the EtherCAT bus topology.
+    // @return QJSValue with scan results
+    Q_INVOKABLE QJSValue scanTopology();
 
-  // Set slave state.
-  // @param position  Slave position
-  // @param state     Target state (OP, PREOP, SAFEOP, INIT)
-  // @return false because daemon acknowledgement is asynchronous.
-  Q_INVOKABLE bool setState(int position, const QString &state);
+    // Set slave state.
+    // @param position  Slave position
+    // @param state     Target state (OP, PREOP, SAFEOP, INIT)
+    // @return false because daemon acknowledgement is asynchronous.
+    Q_INVOKABLE bool setState(int position, const QString& state);
 
-  // Wait for specified milliseconds.
-  // @param ms  Milliseconds to wait
-  Q_INVOKABLE void wait(int ms);
+    // Wait for specified milliseconds.
+    // @param ms  Milliseconds to wait
+    Q_INVOKABLE void wait(int ms);
 
-  // Log a message to the script console.
-  // @param message  Message to log
-  Q_INVOKABLE void log(const QString &message);
+    // Log a message to the script console.
+    // @param message  Message to log
+    Q_INVOKABLE void log(const QString& message);
 
-  // Show an alert dialog.
-  // @param message  Alert message
-  Q_INVOKABLE void alert(const QString &message);
+    // Show an alert dialog.
+    // @param message  Alert message
+    Q_INVOKABLE void alert(const QString& message);
 
 signals:
-  // Emitted when a log message is generated.
-  // @param message  Log message
-  void logMessage(const QString &message);
+    // Emitted when a log message is generated.
+    // @param message  Log message
+    void logMessage(const QString& message);
 
 private:
-  EcatClient *client_;       // TCP client to ecatd daemon
-  SdoService *sdo_;          // SDO service for read/write
-  TopologyService *topology_; // Topology service for scanning
-  QJSEngine *engine_;        // JavaScript engine
+    EcatClient* client_;        // TCP client to ecatd daemon
+    SdoService* sdo_;           // SDO service for read/write
+    TopologyService* topology_; // Topology service for scanning
+    QJSEngine* engine_;         // JavaScript engine
 };
 #endif
 
 class ScriptingService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ScriptingService(EcatClient *client, SdoService *sdo,
-                            TopologyService *topology,
-                            QObject *parent = nullptr);
+    explicit ScriptingService(EcatClient* client, SdoService* sdo, TopologyService* topology,
+                              QObject* parent = nullptr);
 
 #ifdef ECAT_SCRIPTING_ENABLED
-  // Execute a JavaScript script.
-  // @param script  JavaScript code to execute
-  // @return QJSValue with script result
-  QJSValue executeScript(const QString &script);
+    // Execute a JavaScript script.
+    // @param script  JavaScript code to execute
+    // @return QJSValue with script result
+    QJSValue executeScript(const QString& script);
 
-  // Execute a JavaScript file.
-  // @param filePath  Path to the JavaScript file
-  // @return QJSValue with script result
-  QJSValue executeScriptFile(const QString &filePath);
+    // Execute a JavaScript file.
+    // @param filePath  Path to the JavaScript file
+    // @return QJSValue with script result
+    QJSValue executeScriptFile(const QString& filePath);
 #else
-  // Execute a JavaScript script (stub implementation).
-  QVariant executeScript(const QString &script);
+    // Execute a JavaScript script (stub implementation).
+    QVariant executeScript(const QString& script);
 
-  // Execute a JavaScript file (stub implementation).
-  QVariant executeScriptFile(const QString &filePath);
+    // Execute a JavaScript file (stub implementation).
+    QVariant executeScriptFile(const QString& filePath);
 #endif
 
-  // Register a service for script access.
-  // @param name     Service name for script access
-  // @param service  Service object to register
-  void registerService(const QString &name, QObject *service);
+    // Register a service for script access.
+    // @param name     Service name for script access
+    // @param service  Service object to register
+    void registerService(const QString& name, QObject* service);
 
-  // List available scripts.
-  // @return QStringList of script names
-  QStringList listScripts() const;
+    // List available scripts.
+    // @return QStringList of script names
+    QStringList listScripts() const;
 
-  // Save a script to the scripts directory.
-  // @param name    Script name
-  // @param script  Script content
-  // @return true if save was successful
-  bool saveScript(const QString &name, const QString &script);
+    // Save a script to the scripts directory.
+    // @param name    Script name
+    // @param script  Script content
+    // @return true if save was successful
+    bool saveScript(const QString& name, const QString& script);
 
-  // Load a script from the scripts directory.
-  // @param name  Script name
-  // @return Script content
-  QString loadScript(const QString &name) const;
+    // Load a script from the scripts directory.
+    // @param name  Script name
+    // @return Script content
+    QString loadScript(const QString& name) const;
 
-  // Abort the currently running script.
-  void abortRunning();
+    // Abort the currently running script.
+    void abortRunning();
 
 signals:
-  // Emitted when a script starts execution.
-  // @param name  Script name
-  void scriptStarted(const QString &name);
+    // Emitted when a script starts execution.
+    // @param name  Script name
+    void scriptStarted(const QString& name);
 
 #ifdef ECAT_SCRIPTING_ENABLED
-  // Emitted when a script completes successfully.
-  // @param name    Script name
-  // @param result  Script result
-  void scriptCompleted(const QString &name, const QJSValue &result);
+    // Emitted when a script completes successfully.
+    // @param name    Script name
+    // @param result  Script result
+    void scriptCompleted(const QString& name, const QJSValue& result);
 #else
-  // Emitted when a script completes successfully (stub).
-  void scriptCompleted(const QString &name, const QVariant &result);
+    // Emitted when a script completes successfully (stub).
+    void scriptCompleted(const QString& name, const QVariant& result);
 #endif
 
-  // Emitted when a script fails.
-  // @param name   Script name
-  // @param error  Error message
-  void scriptError(const QString &name, const QString &error);
+    // Emitted when a script fails.
+    // @param name   Script name
+    // @param error  Error message
+    void scriptError(const QString& name, const QString& error);
 
-  // Emitted when a log message is generated.
-  // @param message  Log message
-  void logMessage(const QString &message);
+    // Emitted when a log message is generated.
+    // @param message  Log message
+    void logMessage(const QString& message);
 
 private:
 #ifdef ECAT_SCRIPTING_ENABLED
-  // Install built-in functions into the engine.
-  void installBuiltins();
+    // Install built-in functions into the engine.
+    void installBuiltins();
 #endif
 
-  // Get the scripts directory path.
-  static QString scriptsDir();
-  static bool isValidScriptName(const QString &name);
-  static QString scriptPath(const QString &name);
+    // Get the scripts directory path.
+    static QString scriptsDir();
+    static bool isValidScriptName(const QString& name);
+    static QString scriptPath(const QString& name);
 
 #ifdef ECAT_SCRIPTING_ENABLED
-  QJSEngine *engine_ = nullptr;           // JavaScript engine
-  ScriptingBuiltin *builtins_ = nullptr;  // Built-in functions
+    QJSEngine* engine_ = nullptr;          // JavaScript engine
+    ScriptingBuiltin* builtins_ = nullptr; // Built-in functions
 #endif
-  bool abortRequested_ = false;           // Abort flag
+    bool abortRequested_ = false; // Abort flag
 };

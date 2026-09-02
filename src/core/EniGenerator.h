@@ -33,37 +33,37 @@
 
 // Startup command: an SDO write applied during a state transition.
 struct EniStartupCommand {
-    QString transition;   // e.g. "PS" (PreOp->SafeOp), "SO" (SafeOp->Op)
-    quint16 index = 0;    // SDO index
-    quint8 subIndex = 0;  // SDO sub-index
-    QString dataHex;      // Value as hex bytes (no 0x prefix)
-    QString comment;      // Human-readable comment
+    QString transition;  // e.g. "PS" (PreOp->SafeOp), "SO" (SafeOp->Op)
+    quint16 index = 0;   // SDO index
+    quint8 subIndex = 0; // SDO sub-index
+    QString dataHex;     // Value as hex bytes (no 0x prefix)
+    QString comment;     // Human-readable comment
 };
 
 // PDO entry within a sync manager assignment.
 struct EniPdoEntry {
-    quint16 index = 0;     // Object index
-    quint8 subIndex = 0;   // Object sub-index
-    quint8 bitLength = 0;  // Entry bit length
-    QString name;          // Entry name
+    quint16 index = 0;    // Object index
+    quint8 subIndex = 0;  // Object sub-index
+    quint8 bitLength = 0; // Entry bit length
+    QString name;         // Entry name
 };
 
 // A PDO (RxPdo/TxPdo) with its entries.
 struct EniPdo {
-    quint16 index = 0;          // PDO index (e.g. 0x1600 RxPdo, 0x1A00 TxPdo)
-    QString name;               // PDO name
-    bool isTxPdo = false;       // true = TxPdo (input), false = RxPdo (output)
+    quint16 index = 0;    // PDO index (e.g. 0x1600 RxPdo, 0x1A00 TxPdo)
+    QString name;         // PDO name
+    bool isTxPdo = false; // true = TxPdo (input), false = RxPdo (output)
     QVector<EniPdoEntry> entries;
 };
 
 // Full per-slave ENI configuration.
 struct EniSlaveConfig {
-    int position = -1;          // Bus position
-    quint16 alias = 0;          // Configured station alias (0 if none)
-    QString name;               // Product/device name
-    quint32 vendorId = 0;       // Vendor ID
-    quint32 productCode = 0;    // Product code
-    quint32 revisionNo = 0;     // Revision number
+    int position = -1;       // Bus position
+    quint16 alias = 0;       // Configured station alias (0 if none)
+    QString name;            // Product/device name
+    quint32 vendorId = 0;    // Vendor ID
+    quint32 productCode = 0; // Product code
+    quint32 revisionNo = 0;  // Revision number
 
     // Mailbox protocol support flags.
     bool supportsCoE = false;
@@ -80,13 +80,13 @@ public:
     EniGenerator() = default;
 
     // Set the master device name written into the ENI <Config><Master> section.
-    void setMasterName(const QString &name) { masterName_ = name; }
+    void setMasterName(const QString& name) { masterName_ = name; }
 
     // Set the cycle time (microseconds) for the cyclic process data frame.
     void setCycleTimeUs(int us) { cycleTimeUs_ = us; }
 
     // Add a slave configuration to the document.
-    void addSlave(const EniSlaveConfig &slave);
+    void addSlave(const EniSlaveConfig& slave);
 
     // Clear all accumulated slave configurations.
     void clear();
@@ -104,17 +104,17 @@ private:
     QVector<EniSlaveConfig> slaves_;
 
     // Build the <Slave> element for one slave config.
-    QString buildSlaveElement(const EniSlaveConfig &slave) const;
+    QString buildSlaveElement(const EniSlaveConfig& slave) const;
 
     // Build the <ProcessData> sync/PDO sub-tree for one slave.
-    QString buildProcessData(const EniSlaveConfig &slave) const;
+    QString buildProcessData(const EniSlaveConfig& slave) const;
 
     // Build the <Mailbox> element listing supported protocols.
-    QString buildMailbox(const EniSlaveConfig &slave) const;
+    QString buildMailbox(const EniSlaveConfig& slave) const;
 
     // Build the <InitCmds> from startup commands for a transition group.
-    QString buildInitCmds(const EniSlaveConfig &slave) const;
+    QString buildInitCmds(const EniSlaveConfig& slave) const;
 
     // XML-escape a string for safe element/attribute content.
-    static QString xmlEscape(const QString &text);
+    static QString xmlEscape(const QString& text);
 };

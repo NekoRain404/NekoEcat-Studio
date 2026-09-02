@@ -37,20 +37,20 @@ class UITestFixture : public QObject {
     Q_OBJECT
 public:
     /// Constructs the fixture with an empty widget tracking list.
-    explicit UITestFixture(QObject *parent = nullptr);
+    explicit UITestFixture(QObject* parent = nullptr);
     /// Destroys the fixture and all managed widgets.
     ~UITestFixture() override;
 
     /// Creates a new QWidget with optional parent, tracked for cleanup.
-    QWidget *createWidget(QWidget *parent = nullptr);
+    QWidget* createWidget(QWidget* parent = nullptr);
     /// Destroys a tracked widget and removes it from the tracking list.
-    void destroyWidget(QWidget *widget);
+    void destroyWidget(QWidget* widget);
     /// Returns true if the widget is currently tracked by this fixture.
-    bool widgetExists(QWidget *widget) const;
+    bool widgetExists(QWidget* widget) const;
 
     /// Initializes QApplication for offscreen rendering (call once per test suite).
     static void initOffscreen();
 
 private:
-    QVector<QWidget *> managedWidgets_; ///< List of widgets tracked for cleanup
+    QVector<QWidget*> managedWidgets_; ///< List of widgets tracked for cleanup
 };

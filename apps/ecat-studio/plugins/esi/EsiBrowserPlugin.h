@@ -20,13 +20,13 @@ struct EsiDeviceInfo;
 class EsiBrowserPlugin : public WorkspacePlugin {
     Q_OBJECT
 public:
-    explicit EsiBrowserPlugin(EsiService *esiService, QObject *parent = nullptr);
+    explicit EsiBrowserPlugin(EsiService* esiService, QObject* parent = nullptr);
 
     QString id() const override;
     QString displayName() const override;
     QString displayNameZh() const override;
     QIcon icon() const override;
-    QWidget *widget() override;
+    QWidget* widget() override;
     int defaultOrder() const override;
     bool visible() const override;
 
@@ -40,9 +40,9 @@ public:
     void exportSelected();
     void autoMatchDevices();
 
-    EsiService *service() const { return service_; }
-    EsiParser *parser() const { return parser_; }
-    EsiDeviceMatcher *matcher() const { return matcher_; }
+    EsiService* service() const { return service_; }
+    EsiParser* parser() const { return parser_; }
+    EsiDeviceMatcher* matcher() const { return matcher_; }
 
 private:
     void buildUi();
@@ -53,34 +53,34 @@ private:
 
     void updateDeviceList();
     void showDeviceDetail(int index);
-    void showPdoMapping(const EsiDeviceInfo &dev);
-    void showSyncManagerConfig(const EsiDeviceInfo &dev);
-    void updateTreeFilter(const QString &filter);
+    void showPdoMapping(const EsiDeviceInfo& dev);
+    void showSyncManagerConfig(const EsiDeviceInfo& dev);
+    void updateTreeFilter(const QString& filter);
     void onTreeSelectionChanged();
 
-    EsiService *service_;
-    EsiParser *parser_;
-    EsiDeviceMatcher *matcher_;
+    EsiService* service_;
+    EsiParser* parser_;
+    EsiDeviceMatcher* matcher_;
 
-    QWidget *containerWidget_ = nullptr;
-    QSplitter *mainSplitter_ = nullptr;
-    QSplitter *rightSplitter_ = nullptr;
+    QWidget* containerWidget_ = nullptr;
+    QSplitter* mainSplitter_ = nullptr;
+    QSplitter* rightSplitter_ = nullptr;
 
-    QTreeWidget *esiTree_ = nullptr;
-    QLineEdit *filterEdit_ = nullptr;
-    QTabWidget *detailTabs_ = nullptr;
+    QTreeWidget* esiTree_ = nullptr;
+    QLineEdit* filterEdit_ = nullptr;
+    QTabWidget* detailTabs_ = nullptr;
 
-    QTableWidget *detailTable_ = nullptr;
-    QTableWidget *pdoTable_ = nullptr;
-    QTableWidget *syncManagerTable_ = nullptr;
-    QTextEdit *matchReport_ = nullptr;
+    QTableWidget* detailTable_ = nullptr;
+    QTableWidget* pdoTable_ = nullptr;
+    QTableWidget* syncManagerTable_ = nullptr;
+    QTextEdit* matchReport_ = nullptr;
 
-    QLabel *summaryLabel_ = nullptr;
-    QPushButton *importBtn_ = nullptr;
-    QPushButton *importDirBtn_ = nullptr;
-    QPushButton *exportBtn_ = nullptr;
-    QPushButton *refreshBtn_ = nullptr;
-    QPushButton *matchBtn_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
+    QPushButton* importBtn_ = nullptr;
+    QPushButton* importDirBtn_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
+    QPushButton* refreshBtn_ = nullptr;
+    QPushButton* matchBtn_ = nullptr;
 
     int currentDeviceIndex_ = -1;
     QVector<EsiDeviceInfo> currentDevices_;

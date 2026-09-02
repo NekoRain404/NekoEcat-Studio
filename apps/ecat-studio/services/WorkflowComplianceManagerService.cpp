@@ -1,14 +1,9 @@
 #include "WorkflowComplianceManagerService.h"
 
-WorkflowComplianceManagerService::WorkflowComplianceManagerService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowComplianceManagerService::WorkflowComplianceManagerService(QObject* parent) : QObject(parent) {}
 
-QString WorkflowComplianceManagerService::addRule(const QString &name,
-                                                   const QString &category,
-                                                   const QString &requirement)
-{
+QString WorkflowComplianceManagerService::addRule(const QString& name, const QString& category,
+                                                  const QString& requirement) {
     WfComplianceRule r;
     r.id = QStringLiteral("cr-%1").arg(nextId_++);
     r.name = name;
@@ -21,8 +16,7 @@ QString WorkflowComplianceManagerService::addRule(const QString &name,
     return r.id;
 }
 
-bool WorkflowComplianceManagerService::removeRule(const QString &ruleId)
-{
+bool WorkflowComplianceManagerService::removeRule(const QString& ruleId) {
     for (int i = 0; i < rules_.size(); ++i) {
         if (rules_[i].id == ruleId) {
             rules_.removeAt(i);
@@ -33,9 +27,8 @@ bool WorkflowComplianceManagerService::removeRule(const QString &ruleId)
     return false;
 }
 
-bool WorkflowComplianceManagerService::activateRule(const QString &ruleId)
-{
-    for (auto &r : rules_) {
+bool WorkflowComplianceManagerService::activateRule(const QString& ruleId) {
+    for (auto& r : rules_) {
         if (r.id == ruleId) {
             r.active = true;
             emit ruleActivated(ruleId);
@@ -45,9 +38,8 @@ bool WorkflowComplianceManagerService::activateRule(const QString &ruleId)
     return false;
 }
 
-bool WorkflowComplianceManagerService::deactivateRule(const QString &ruleId)
-{
-    for (auto &r : rules_) {
+bool WorkflowComplianceManagerService::deactivateRule(const QString& ruleId) {
+    for (auto& r : rules_) {
         if (r.id == ruleId) {
             r.active = false;
             emit ruleDeactivated(ruleId);
@@ -57,38 +49,33 @@ bool WorkflowComplianceManagerService::deactivateRule(const QString &ruleId)
     return false;
 }
 
-WfComplianceRule WorkflowComplianceManagerService::rule(const QString &ruleId) const
-{
-    for (const auto &r : rules_) {
+WfComplianceRule WorkflowComplianceManagerService::rule(const QString& ruleId) const {
+    for (const auto& r : rules_) {
         if (r.id == ruleId)
             return r;
     }
     return {};
 }
 
-QVector<WfComplianceRule> WorkflowComplianceManagerService::allRules() const
-{
+QVector<WfComplianceRule> WorkflowComplianceManagerService::allRules() const {
     return rules_;
 }
 
-int WorkflowComplianceManagerService::ruleCount() const
-{
+int WorkflowComplianceManagerService::ruleCount() const {
     return rules_.size();
 }
 
-int WorkflowComplianceManagerService::activeRuleCount() const
-{
+int WorkflowComplianceManagerService::activeRuleCount() const {
     int count = 0;
-    for (const auto &r : rules_) {
+    for (const auto& r : rules_) {
         if (r.active)
             ++count;
     }
     return count;
 }
 
-bool WorkflowComplianceManagerService::auditRule(const QString &ruleId)
-{
-    for (auto &r : rules_) {
+bool WorkflowComplianceManagerService::auditRule(const QString& ruleId) {
+    for (auto& r : rules_) {
         if (r.id == ruleId) {
             r.lastAudit = QDateTime::currentDateTime();
             emit ruleAudited(ruleId);
@@ -98,11 +85,9 @@ bool WorkflowComplianceManagerService::auditRule(const QString &ruleId)
     return false;
 }
 
-QVector<WfComplianceRule> WorkflowComplianceManagerService::rulesByCategory(
-    const QString &category) const
-{
+QVector<WfComplianceRule> WorkflowComplianceManagerService::rulesByCategory(const QString& category) const {
     QVector<WfComplianceRule> result;
-    for (const auto &r : rules_) {
+    for (const auto& r : rules_) {
         if (r.category == category)
             result.append(r);
     }

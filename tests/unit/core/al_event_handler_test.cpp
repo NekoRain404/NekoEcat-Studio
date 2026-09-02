@@ -6,9 +6,9 @@
 //   - Clearing event history
 //   - Limit parameter filtering
 
-#include <QTest>
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QTest>
 
 #include "../../../apps/ecatd/handlers/AlEventHandler.h"
 

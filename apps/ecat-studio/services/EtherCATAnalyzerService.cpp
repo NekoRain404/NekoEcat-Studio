@@ -1,8 +1,8 @@
 #include "EtherCATAnalyzerService.h"
-#include "infra/EcatClient.h"
 #include "EventBus.h"
-#include <QDateTime>
+#include "infra/EcatClient.h"
 #include <algorithm>
+#include <QDateTime>
 
 // EtherCATAnalyzerService.cpp — Ring-buffer analysis for frames, errors, performance, and trends
 //
@@ -11,42 +11,34 @@
 //   - Trend analysis uses linear regression (least-squares) to predict direction
 //   - Performance rating based on max jitter: Excellent <10µs, Good <50µs, Fair <100µs
 
-EtherCATAnalyzerService::EtherCATAnalyzerService(EventBus *bus, EcatClient *client,
-                                                 QObject *parent)
-    : QObject(parent), bus_(bus), client_(client)
-{
-}
+EtherCATAnalyzerService::EtherCATAnalyzerService(EventBus* bus, EcatClient* client, QObject* parent)
+    : QObject(parent), bus_(bus), client_(client) {}
 
-void EtherCATAnalyzerService::addFrameSample(const FrameInfo &frame)
-{
+void EtherCATAnalyzerService::addFrameSample(const FrameInfo& frame) {
     frameBuffer_.append(frame);
     if (frameBuffer_.size() > 10000)
         frameBuffer_.remove(0, frameBuffer_.size() - 10000);
 }
 
-void EtherCATAnalyzerService::addErrorSample(const ErrorEntry &error)
-{
+void EtherCATAnalyzerService::addErrorSample(const ErrorEntry& error) {
     errorBuffer_.append(error);
     if (errorBuffer_.size() > 10000)
         errorBuffer_.remove(0, errorBuffer_.size() - 10000);
 }
 
-void EtherCATAnalyzerService::addPerformanceSample(const PerformanceSample &sample)
-{
+void EtherCATAnalyzerService::addPerformanceSample(const PerformanceSample& sample) {
     perfBuffer_.append(sample);
     if (perfBuffer_.size() > 10000)
         perfBuffer_.remove(0, perfBuffer_.size() - 10000);
 }
 
-void EtherCATAnalyzerService::addTrendPoint(const TrendPoint &point)
-{
+void EtherCATAnalyzerService::addTrendPoint(const TrendPoint& point) {
     trendBuffer_.append(point);
     if (trendBuffer_.size() > 10000)
         trendBuffer_.remove(0, trendBuffer_.size() - 10000);
 }
 
-FrameAnalysis EtherCATAnalyzerService::analyzeFrames(int count)
-{
+FrameAnalysis EtherCATAnalyzerService::analyzeFrames(int count) {
     FrameAnalysis result;
     int n = qMin(count, frameBuffer_.size());
     int start = frameBuffer_.size() - n;
@@ -57,7 +49,7 @@ FrameAnalysis EtherCATAnalyzerService::analyzeFrames(int count)
     result.maxFrameTimeUs = 0.0;
 
     for (int i = start; i < frameBuffer_.size(); ++i) {
-        const FrameInfo &info = frameBuffer_[i];
+        const FrameInfo& info = frameBuffer_[i];
         if (info.hasError)
             ++result.errorFrames;
         result.frameTypes[info.type]++;
@@ -77,8 +69,7 @@ FrameAnalysis EtherCATAnalyzerService::analyzeFrames(int count)
     return result;
 }
 
-ErrorAnalysis EtherCATAnalyzerService::analyzeErrors(int count)
-{
+ErrorAnalysis EtherCATAnalyzerService::analyzeErrors(int count) {
     ErrorAnalysis result;
     int n = qMin(count, errorBuffer_.size());
     int start = errorBuffer_.size() - n;
@@ -86,7 +77,7 @@ ErrorAnalysis EtherCATAnalyzerService::analyzeErrors(int count)
     result.totalErrors = errorBuffer_.size();
 
     for (int i = start; i < errorBuffer_.size(); ++i) {
-        const ErrorEntry &entry = errorBuffer_[i];
+        const ErrorEntry& entry = errorBuffer_[i];
         result.errorsByType[entry.type]++;
         result.errorsByPosition[entry.position]++;
         result.recentErrors.append(entry);
@@ -116,15 +107,14 @@ ErrorAnalysis EtherCATAnalyzerService::analyzeErrors(int count)
     return result;
 }
 
-PerformanceAnalysis EtherCATAnalyzerService::analyzePerformance(int durationMs)
-{
+PerformanceAnalysis EtherCATAnalyzerService::analyzePerformance(int durationMs) {
     PerformanceAnalysis result;
     qint64 cutoff = QDateTime::currentMSecsSinceEpoch() - durationMs;
 
     double sumCycle = 0.0, sumJitter = 0.0, sumThroughput = 0.0;
     int count = 0;
 
-    for (const auto &s : perfBuffer_) {
+    for (const auto& s : perfBuffer_) {
         if (s.timestampMs >= cutoff) {
             sumCycle += s.cycleTimeUs;
             sumJitter += s.jitterUs;
@@ -156,13 +146,12 @@ PerformanceAnalysis EtherCATAnalyzerService::analyzePerformance(int durationMs)
     return result;
 }
 
-TrendAnalysis EtherCATAnalyzerService::analyzeTrend(int durationMs)
-{
+TrendAnalysis EtherCATAnalyzerService::analyzeTrend(int durationMs) {
     TrendAnalysis result;
     result.metric = QStringLiteral("cycle_time");
     qint64 cutoff = QDateTime::currentMSecsSinceEpoch() - durationMs;
 
-    for (const auto &p : trendBuffer_) {
+    for (const auto& p : trendBuffer_) {
         if (p.timestampMs >= cutoff)
             result.points.append(p);
     }

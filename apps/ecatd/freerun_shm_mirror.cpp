@@ -2,30 +2,36 @@
 #include <cstring>
 
 size_t computeProcessDataSize(const ShmMirrorEntry* entries, size_t count) {
-    if (!entries || count == 0) return 0;
+    if (!entries || count == 0)
+        return 0;
     size_t max_end = 0;
     for (size_t i = 0; i < count; ++i) {
         size_t bytes = (entries[i].bitLength + 7) / 8;
         size_t end = (size_t)entries[i].offset + bytes;
-        if (end > max_end) max_end = end;
+        if (end > max_end)
+            max_end = end;
     }
     return max_end;
 }
 
 void mirrorToShm(const ShmMirrorContext* ctx) {
-    if (!ctx || !ctx->domainData) return;
-    if (!ctx->shmData[0] || !ctx->shmData[1]) return;
+    if (!ctx || !ctx->domainData)
+        return;
+    if (!ctx->shmData[0] || !ctx->shmData[1])
+        return;
 
     // Defense in depth: never trust dataSize past the shared arena cap.
     size_t dataSize = ctx->dataSize;
     if (dataSize > NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE) {
         dataSize = NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE;
     }
-    if (dataSize == 0) return;
+    if (dataSize == 0)
+        return;
 
     // Validate the buffer index (a corrupt active_buffer must not index OOB).
     uint32_t active = nekoecat_shm_load(ctx->activeBuffer, NEKOECAT_MO_RELAXED);
-    if (active > 1) active = 0;
+    if (active > 1)
+        active = 0;
     const size_t inactive = 1 - active;
 
     // 1) Copy the fresh inputs from the domain into the inactive buffer.
@@ -36,9 +42,11 @@ void mirrorToShm(const ShmMirrorContext* ctx) {
     uint32_t ignored = 0;
     for (size_t i = 0; i < ctx->entryCount; ++i) {
         const ShmMirrorEntry& e = ctx->entries[i];
-        if (std::strcmp(e.direction, "RxPDO") != 0) continue;
+        if (std::strcmp(e.direction, "RxPDO") != 0)
+            continue;
         size_t bl = (size_t)((e.bitLength + 7) / 8);
-        if (bl == 0) continue;
+        if (bl == 0)
+            continue;
         // A client must never drive a copy outside the shared data area.
         if ((size_t)e.offset > dataSize || bl > dataSize - (size_t)e.offset) {
             ++ignored;

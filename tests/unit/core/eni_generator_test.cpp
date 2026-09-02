@@ -20,7 +20,8 @@ private slots:
 
         // Must be parseable XML.
         QXmlStreamReader reader(xml);
-        while (!reader.atEnd()) reader.readNext();
+        while (!reader.atEnd())
+            reader.readNext();
         QVERIFY(!reader.hasError());
     }
 
@@ -42,7 +43,8 @@ private slots:
         QCOMPARE(gen.slaveCount(), 1);
 
         QXmlStreamReader reader(xml);
-        while (!reader.atEnd()) reader.readNext();
+        while (!reader.atEnd())
+            reader.readNext();
         QVERIFY(!reader.hasError());
     }
 
@@ -91,7 +93,8 @@ private slots:
         QVERIFY(xml.contains("Output 1"));
 
         QXmlStreamReader reader(xml);
-        while (!reader.atEnd()) reader.readNext();
+        while (!reader.atEnd())
+            reader.readNext();
         QVERIFY(!reader.hasError());
     }
 
@@ -130,7 +133,8 @@ private slots:
         QVERIFY(!xml.contains("A & B <Drive>"));
 
         QXmlStreamReader reader(xml);
-        while (!reader.atEnd()) reader.readNext();
+        while (!reader.atEnd())
+            reader.readNext();
         QVERIFY(!reader.hasError());
     }
 
@@ -150,7 +154,8 @@ private slots:
         QVERIFY(xml.contains("<PhysAddr>1003</PhysAddr>"));
 
         QXmlStreamReader reader(xml);
-        while (!reader.atEnd()) reader.readNext();
+        while (!reader.atEnd())
+            reader.readNext();
         QVERIFY(!reader.hasError());
     }
 

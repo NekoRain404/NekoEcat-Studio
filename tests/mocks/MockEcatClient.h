@@ -42,9 +42,9 @@
 
 #include "infra/EcatClient.h"
 
+#include <functional>
 #include <QJsonObject>
 #include <QVector>
-#include <functional>
 
 /// Records a single method call to the mock client.
 struct MethodCall {
@@ -55,23 +55,23 @@ struct MethodCall {
 class MockEcatClient : public EcatClient {
     Q_OBJECT
 public:
-    explicit MockEcatClient(QObject *parent = nullptr);
+    explicit MockEcatClient(QObject* parent = nullptr);
 
     // ── Response Configuration ───────────────────────────────────
     /// Sets the simulated connection state.
     void setConnected(bool connected);
     /// Configures the canned response for scan() calls.
-    void setScanResult(const QVector<SlaveInfo> &slaves);
+    void setScanResult(const QVector<SlaveInfo>& slaves);
     /// Configures the canned response for upload() calls.
-    void setSdoResult(int pos, const QString &idx, const QString &sub, const QString &value);
+    void setSdoResult(int pos, const QString& idx, const QString& sub, const QString& value);
     /// Configures an error to be returned on the next call.
-    void setErrorOnNext(const QString &error);
+    void setErrorOnNext(const QString& error);
 
     // ── Call Inspection ──────────────────────────────────────────
     /// Returns all recorded method calls.
     QVector<MethodCall> calls() const;
     /// Returns the number of times a specific method was called.
-    int callCount(const QString &method) const;
+    int callCount(const QString& method) const;
     /// Clears all recorded method calls.
     void clearCalls();
 
@@ -83,16 +83,16 @@ public:
 
     // ── Signal Triggers ──────────────────────────────────────────
     /// Manually emits the slavesChanged signal (simulates daemon scan response).
-    void triggerSlavesChanged(const QVector<SlaveInfo> &slaves);
+    void triggerSlavesChanged(const QVector<SlaveInfo>& slaves);
     /// Manually emits the sdoValue signal (simulates daemon SDO read response).
-    void triggerSdoValue(int pos, const QString &idx, const QString &sub, const QString &val);
+    void triggerSdoValue(int pos, const QString& idx, const QString& sub, const QString& val);
     /// Manually emits the error signal (simulates daemon error).
-    void triggerError(const QString &msg);
+    void triggerError(const QString& msg);
 
 private:
-    bool connected_ = false;              ///< Simulated connection state
-    QVector<SlaveInfo> scanResult_;       ///< Canned scan response
-    QVector<MethodCall> calls_;           ///< Recorded method calls
-    QString pendingError_;                ///< Error to return on next call
-    ScanHandler scanHandler_;             ///< Custom scan handler
+    bool connected_ = false;        ///< Simulated connection state
+    QVector<SlaveInfo> scanResult_; ///< Canned scan response
+    QVector<MethodCall> calls_;     ///< Recorded method calls
+    QString pendingError_;          ///< Error to return on next call
+    ScanHandler scanHandler_;       ///< Custom scan handler
 };

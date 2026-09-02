@@ -7,34 +7,23 @@
 //   - Actions have priority levels and safe-to-auto-execute flags
 //   - Execution fails closed until wired to a live EtherCAT backend
 
-EtherCATRecoveryService::EtherCATRecoveryService(QObject *parent)
-    : QObject(parent)
-{
-    actions_.append({QStringLiteral("reset_slaves"),
-                     QStringLiteral("Reset Slaves"),
-                     QStringLiteral("Reset all slaves to INIT state"),
-                     10, true});
-    actions_.append({QStringLiteral("restart_master"),
-                     QStringLiteral("Restart Master"),
-                     QStringLiteral("Restart the EtherCAT master"),
-                     20, false});
-    actions_.append({QStringLiteral("reconfigure_network"),
-                     QStringLiteral("Reconfigure Network"),
-                     QStringLiteral("Re-apply network configuration"),
-                     30, false});
-    actions_.append({QStringLiteral("clear_errors"),
-                     QStringLiteral("Clear Errors"),
-                     QStringLiteral("Clear all error flags and counters"),
-                     5, true});
+EtherCATRecoveryService::EtherCATRecoveryService(QObject* parent) : QObject(parent) {
+    actions_.append({QStringLiteral("reset_slaves"), QStringLiteral("Reset Slaves"),
+                     QStringLiteral("Reset all slaves to INIT state"), 10, true});
+    actions_.append({QStringLiteral("restart_master"), QStringLiteral("Restart Master"),
+                     QStringLiteral("Restart the EtherCAT master"), 20, false});
+    actions_.append({QStringLiteral("reconfigure_network"), QStringLiteral("Reconfigure Network"),
+                     QStringLiteral("Re-apply network configuration"), 30, false});
+    actions_.append({QStringLiteral("clear_errors"), QStringLiteral("Clear Errors"),
+                     QStringLiteral("Clear all error flags and counters"), 5, true});
 }
 
-RecoveryResult EtherCATRecoveryService::executeRecovery(const QString &actionId)
-{
+RecoveryResult EtherCATRecoveryService::executeRecovery(const QString& actionId) {
     RecoveryResult result;
     result.actionId = actionId;
 
-    const RecoveryAction *action = nullptr;
-    for (const RecoveryAction &a : actions_) {
+    const RecoveryAction* action = nullptr;
+    for (const RecoveryAction& a : actions_) {
         if (a.id == actionId) {
             action = &a;
             break;
@@ -48,15 +37,13 @@ RecoveryResult EtherCATRecoveryService::executeRecovery(const QString &actionId)
     }
 
     result.success = false;
-    result.message = QStringLiteral("Recovery '%1' requires a connected EtherCAT backend")
-                         .arg(action->name);
+    result.message = QStringLiteral("Recovery '%1' requires a connected EtherCAT backend").arg(action->name);
     result.stepsPerformed = 0;
     return result;
 }
 
-RecoveryResult EtherCATRecoveryService::executeAutoRecovery()
-{
-    for (const RecoveryAction &a : actions_) {
+RecoveryResult EtherCATRecoveryService::executeAutoRecovery() {
+    for (const RecoveryAction& a : actions_) {
         if (a.automatic)
             return executeRecovery(a.id);
     }
@@ -67,8 +54,7 @@ RecoveryResult EtherCATRecoveryService::executeAutoRecovery()
     return result;
 }
 
-bool EtherCATRecoveryService::cancelRecovery()
-{
+bool EtherCATRecoveryService::cancelRecovery() {
     if (!status_.inProgress)
         return false;
 
@@ -77,8 +63,7 @@ bool EtherCATRecoveryService::cancelRecovery()
     return true;
 }
 
-QStringList EtherCATRecoveryService::diagnoseErrors() const
-{
+QStringList EtherCATRecoveryService::diagnoseErrors() const {
     QStringList diagnostics;
     diagnostics.append(QStringLiteral("Check slave AL status registers"));
     diagnostics.append(QStringLiteral("Verify cable connections"));
@@ -86,7 +71,6 @@ QStringList EtherCATRecoveryService::diagnoseErrors() const
     return diagnostics;
 }
 
-void EtherCATRecoveryService::resetStatus()
-{
+void EtherCATRecoveryService::resetStatus() {
     status_ = RecoveryStatus{};
 }

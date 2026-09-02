@@ -13,21 +13,21 @@ class QLabel;
 class QProgressBar;
 
 class ThroughputMonitorWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ThroughputMonitorWidget(QWidget *parent = nullptr);
+    explicit ThroughputMonitorWidget(QWidget* parent = nullptr);
 
-  void updateMetrics(const ThroughputMetrics &m);
+    void updateMetrics(const ThroughputMetrics& m);
 
 private:
-  void buildUi();
+    void buildUi();
 
-  QLabel *frameRateLabel_ = nullptr;
-  QLabel *byteRateLabel_ = nullptr;
-  QLabel *errorRateLabel_ = nullptr;
-  QLabel *utilizationLabel_ = nullptr;
-  QLabel *totalFramesLabel_ = nullptr;
-  QLabel *totalBytesLabel_ = nullptr;
-  QLabel *totalErrorsLabel_ = nullptr;
-  QProgressBar *utilizationBar_ = nullptr;
+    QLabel* frameRateLabel_ = nullptr;
+    QLabel* byteRateLabel_ = nullptr;
+    QLabel* errorRateLabel_ = nullptr;
+    QLabel* utilizationLabel_ = nullptr;
+    QLabel* totalFramesLabel_ = nullptr;
+    QLabel* totalBytesLabel_ = nullptr;
+    QLabel* totalErrorsLabel_ = nullptr;
+    QProgressBar* utilizationBar_ = nullptr;
 };

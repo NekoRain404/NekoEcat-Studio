@@ -8,14 +8,14 @@
 //   - EoE IP configuration
 //   - Signal emissions for all protocols
 
-#include <QTest>
-#include <QSignalSpy>
-#include <QFile>
-#include "services/CoEService.h"
-#include "services/FoEService.h"
-#include "services/EoEService.h"
-#include "services/SdoCacheService.h"
 #include "infra/EcatClient.h"
+#include "services/CoEService.h"
+#include "services/EoEService.h"
+#include "services/FoEService.h"
+#include "services/SdoCacheService.h"
+#include <QFile>
+#include <QSignalSpy>
+#include <QTest>
 
 class CoEFoEEoEServiceTest : public QObject {
     Q_OBJECT
@@ -253,14 +253,13 @@ private slots:
             QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/EoEService.cpp"),
         };
 
-        for (const QString &path : paths) {
+        for (const QString& path : paths) {
             QFile source(path);
             QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
                      qPrintable(QStringLiteral("Unable to open %1").arg(path)));
             const QString text = QString::fromUtf8(source.readAll());
             QVERIFY2(!text.contains(QStringLiteral("not implemented"), Qt::CaseInsensitive),
-                     qPrintable(QStringLiteral("%1 must not expose unfinished implementation wording.")
-                                    .arg(path)));
+                     qPrintable(QStringLiteral("%1 must not expose unfinished implementation wording.").arg(path)));
         }
     }
 };

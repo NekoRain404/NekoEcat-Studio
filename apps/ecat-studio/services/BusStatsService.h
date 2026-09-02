@@ -32,65 +32,65 @@
 //   - Statistics updates are O(1) per poll
 //   - Frame rate calculation uses previous frame counts
 
-#include <QObject>
 #include <QJsonObject>
+#include <QObject>
 #include <QTimer>
 
 class EcatClient;
 
 // Bus statistics structure.
 struct BusStats {
-  quint64 txFrames = 0;       // Total transmitted frames
-  quint64 rxFrames = 0;       // Total received frames
-  quint64 txErrors = 0;       // Transmit errors
-  quint64 rxErrors = 0;       // Receive errors
-  quint64 crcErrors = 0;      // CRC errors
-  quint64 lostFrames = 0;     // Lost frames
-  double bandwidthMbps = 0.0; // Bandwidth utilization in Mbps
-  double frameRate = 0.0;     // Frame rate in frames per second
-  qint64 timestampMs = 0;     // Timestamp (ms since epoch)
+    quint64 txFrames = 0;       // Total transmitted frames
+    quint64 rxFrames = 0;       // Total received frames
+    quint64 txErrors = 0;       // Transmit errors
+    quint64 rxErrors = 0;       // Receive errors
+    quint64 crcErrors = 0;      // CRC errors
+    quint64 lostFrames = 0;     // Lost frames
+    double bandwidthMbps = 0.0; // Bandwidth utilization in Mbps
+    double frameRate = 0.0;     // Frame rate in frames per second
+    qint64 timestampMs = 0;     // Timestamp (ms since epoch)
 };
 
 class BusStatsService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit BusStatsService(EcatClient *client, QObject *parent = nullptr);
+    explicit BusStatsService(EcatClient* client, QObject* parent = nullptr);
 
-  // Start periodic bus statistics monitoring.
-  // @param intervalMs  Polling interval in milliseconds (default: 1000ms)
-  void startMonitoring(int intervalMs = 1000);
+    // Start periodic bus statistics monitoring.
+    // @param intervalMs  Polling interval in milliseconds (default: 1000ms)
+    void startMonitoring(int intervalMs = 1000);
 
-  // Stop periodic bus statistics monitoring.
-  void stopMonitoring();
+    // Stop periodic bus statistics monitoring.
+    void stopMonitoring();
 
-  // Check if monitoring is currently active.
-  // @return true if monitoring is running
-  bool isMonitoring() const;
+    // Check if monitoring is currently active.
+    // @return true if monitoring is running
+    bool isMonitoring() const;
 
-  // Get the current bus statistics.
-  // @return BusStats structure
-  BusStats currentStats() const;
+    // Get the current bus statistics.
+    // @return BusStats structure
+    BusStats currentStats() const;
 
-  // Get the current bus statistics as JSON.
-  // @return JSON object with statistics
-  QJsonObject currentStatsJson() const;
+    // Get the current bus statistics as JSON.
+    // @return JSON object with statistics
+    QJsonObject currentStatsJson() const;
 
 signals:
-  // Emitted when bus statistics are updated.
-  // @param stats  JSON object with updated statistics
-  void statsUpdated(const QJsonObject &stats);
+    // Emitted when bus statistics are updated.
+    // @param stats  JSON object with updated statistics
+    void statsUpdated(const QJsonObject& stats);
 
-  // Emitted when an error occurs.
-  // @param msg  Human-readable error message
-  void error(const QString &msg);
+    // Emitted when an error occurs.
+    // @param msg  Human-readable error message
+    void error(const QString& msg);
 
 private:
-  // Poll daemon for bus statistics.
-  void poll();
+    // Poll daemon for bus statistics.
+    void poll();
 
-  EcatClient *client_;          // TCP client to ecatd daemon
-  QTimer *pollTimer_ = nullptr; // Timer for periodic polling
-  BusStats stats_;              // Current bus statistics
-  quint64 prevTxFrames_ = 0;   // Previous TX frame count (for rate calculation)
-  quint64 prevRxFrames_ = 0;   // Previous RX frame count (for rate calculation)
+    EcatClient* client_;          // TCP client to ecatd daemon
+    QTimer* pollTimer_ = nullptr; // Timer for periodic polling
+    BusStats stats_;              // Current bus statistics
+    quint64 prevTxFrames_ = 0;    // Previous TX frame count (for rate calculation)
+    quint64 prevRxFrames_ = 0;    // Previous RX frame count (for rate calculation)
 };

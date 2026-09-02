@@ -24,7 +24,7 @@
 #include "plugins/WorkspacePlugin.h"
 
 #ifdef ECAT_SCRIPTING_ENABLED
-#include <QJSValue>
+    #include <QJSValue>
 #endif
 
 class QPlainTextEdit;
@@ -33,47 +33,46 @@ class QPushButton;
 class ScriptingService;
 
 class AutomationPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit AutomationPlugin(ScriptingService *scriptingService,
-                            QObject *parent = nullptr);
+    explicit AutomationPlugin(ScriptingService* scriptingService, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
 private slots:
-  void runCurrentScript();
-  void stopScript();
-  void saveCurrentScript();
-  void deleteSelectedScript();
-  void onScriptSelected(int index);
-  void onScriptStarted(const QString &name);
+    void runCurrentScript();
+    void stopScript();
+    void saveCurrentScript();
+    void deleteSelectedScript();
+    void onScriptSelected(int index);
+    void onScriptStarted(const QString& name);
 #ifdef ECAT_SCRIPTING_ENABLED
-  void onScriptCompleted(const QString &name, const QJSValue &result);
+    void onScriptCompleted(const QString& name, const QJSValue& result);
 #else
-  void onScriptCompleted(const QString &name, const QVariant &result);
+    void onScriptCompleted(const QString& name, const QVariant& result);
 #endif
-  void onScriptError(const QString &name, const QString &error);
-  void onLogMessage(const QString &message);
-  void insertTemplate();
+    void onScriptError(const QString& name, const QString& error);
+    void onLogMessage(const QString& message);
+    void insertTemplate();
 
 private:
-  void buildUi();
-  void refreshScriptList();
+    void buildUi();
+    void refreshScriptList();
 
-  ScriptingService *scriptingService_;
-  QWidget *container_ = nullptr;
-  QPlainTextEdit *editor_ = nullptr;
-  QListWidget *scriptList_ = nullptr;
-  QPlainTextEdit *console_ = nullptr;
-  QPushButton *runBtn_ = nullptr;
-  QPushButton *stopBtn_ = nullptr;
-  QPushButton *saveBtn_ = nullptr;
-  QPushButton *deleteBtn_ = nullptr;
-  QPushButton *templateBtn_ = nullptr;
-  bool running_ = false;
+    ScriptingService* scriptingService_;
+    QWidget* container_ = nullptr;
+    QPlainTextEdit* editor_ = nullptr;
+    QListWidget* scriptList_ = nullptr;
+    QPlainTextEdit* console_ = nullptr;
+    QPushButton* runBtn_ = nullptr;
+    QPushButton* stopBtn_ = nullptr;
+    QPushButton* saveBtn_ = nullptr;
+    QPushButton* deleteBtn_ = nullptr;
+    QPushButton* templateBtn_ = nullptr;
+    bool running_ = false;
 };

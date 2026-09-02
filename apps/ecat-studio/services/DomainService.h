@@ -31,75 +31,75 @@
 //   - Offline process rejection is O(1)
 //   - Data access is O(1)
 
-#include <QObject>
 #include <QByteArray>
-#include <QVector>
 #include <QHash>
+#include <QObject>
+#include <QVector>
 
 // Domain information structure.
 struct DomainInfo {
-  int domainIndex = -1;     // Domain index
-  int pdoEntryCount = 0;    // Number of PDO entries in domain
-  int dataSize = 0;         // Data size in bytes
-  int workingCounter = 0;   // Working counter value
+    int domainIndex = -1;   // Domain index
+    int pdoEntryCount = 0;  // Number of PDO entries in domain
+    int dataSize = 0;       // Data size in bytes
+    int workingCounter = 0; // Working counter value
 };
 
 // PDO entry structure.
 struct PdoEntry {
-  int position = 0;    // Slave position
-  int index = 0;       // PDO index
-  int subIndex = 0;    // PDO subindex
+    int position = 0; // Slave position
+    int index = 0;    // PDO index
+    int subIndex = 0; // PDO subindex
 };
 
 class DomainService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit DomainService(QObject *parent = nullptr);
+    explicit DomainService(QObject* parent = nullptr);
 
-  // Create a new domain.
-  // @return Domain index
-  int createDomain();
+    // Create a new domain.
+    // @return Domain index
+    int createDomain();
 
-  // Register a PDO entry in a domain.
-  // @param domain    Domain index
-  // @param position  Slave position
-  // @param index     PDO index
-  // @param subIndex  PDO subindex
-  // @return true if registration was successful
-  bool registerPdoEntry(int domain, int position, int index, int subIndex);
+    // Register a PDO entry in a domain.
+    // @param domain    Domain index
+    // @param position  Slave position
+    // @param index     PDO index
+    // @param subIndex  PDO subindex
+    // @return true if registration was successful
+    bool registerPdoEntry(int domain, int position, int index, int subIndex);
 
-  // Process a domain (exchange process data).
-  // @param domain  Domain index
-  // @return true if processing was successful; currently false without backend
-  bool processDomain(int domain);
+    // Process a domain (exchange process data).
+    // @param domain  Domain index
+    // @return true if processing was successful; currently false without backend
+    bool processDomain(int domain);
 
-  // Get the data from a domain.
-  // @param domain  Domain index
-  // @return Domain data as QByteArray
-  QByteArray domainData(int domain) const;
+    // Get the data from a domain.
+    // @param domain  Domain index
+    // @return Domain data as QByteArray
+    QByteArray domainData(int domain) const;
 
-  // Get information about a domain.
-  // @param domain  Domain index
-  // @return DomainInfo structure
-  DomainInfo domainInfo(int domain) const;
+    // Get information about a domain.
+    // @param domain  Domain index
+    // @return DomainInfo structure
+    DomainInfo domainInfo(int domain) const;
 
-  // Get all domain indices.
-  // @return Vector of domain indices
-  QVector<int> domains() const;
+    // Get all domain indices.
+    // @return Vector of domain indices
+    QVector<int> domains() const;
 
 signals:
-  // Emitted when a domain is processed.
-  // @param domain  Domain index
-  // @param data    Processed data
-  void domainProcessed(int domain, const QByteArray &data);
+    // Emitted when a domain is processed.
+    // @param domain  Domain index
+    // @param data    Processed data
+    void domainProcessed(int domain, const QByteArray& data);
 
-  // Emitted when an error occurs.
-  // @param message  Human-readable error message
-  void error(const QString &message);
+    // Emitted when an error occurs.
+    // @param message  Human-readable error message
+    void error(const QString& message);
 
 private:
-  int nextIndex_ = 0;                          // Next domain index
-  QHash<int, DomainInfo> infos_;               // Domain information
-  QHash<int, QVector<PdoEntry>> entries_;      // PDO entries per domain
-  QHash<int, QByteArray> data_;                // Domain data
+    int nextIndex_ = 0;                     // Next domain index
+    QHash<int, DomainInfo> infos_;          // Domain information
+    QHash<int, QVector<PdoEntry>> entries_; // PDO entries per domain
+    QHash<int, QByteArray> data_;           // Domain data
 };

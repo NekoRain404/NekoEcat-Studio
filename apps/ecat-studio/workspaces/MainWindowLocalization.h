@@ -9,19 +9,18 @@
 // panel in the application.
 
 // ── Localization & Master Selection ───────────────────────────
-QString uiText(const QString &english, const QString &zh) const;
-void applyLanguage(const QString &localeCode);
+QString uiText(const QString& english, const QString& zh) const;
+void applyLanguage(const QString& localeCode);
 void rebuildWorkbench();
 QString activeMasterName() const;
 void refreshMasterSelector();
-void setActiveMaster(const QString &target);
-bool confirmDangerousOperation(const QString &title, const QString &summary,
-                               const QStringList &details,
-                               const QString &confirmText);
+void setActiveMaster(const QString& target);
+bool confirmDangerousOperation(const QString& title, const QString& summary, const QStringList& details,
+                               const QString& confirmText);
 
 // ── Status Bar & Logging ──────────────────────────────────────
 void updateStatusBar();
-void log(const QString &message);
+void log(const QString& message);
 int selectedPosition() const;
 QVector<int> selectedDictionaryRows() const;
 QVector<int> selectedSdoHistoryRows() const;

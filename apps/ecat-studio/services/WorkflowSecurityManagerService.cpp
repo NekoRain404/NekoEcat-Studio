@@ -1,14 +1,9 @@
 #include "WorkflowSecurityManagerService.h"
 
-WorkflowSecurityManagerService::WorkflowSecurityManagerService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowSecurityManagerService::WorkflowSecurityManagerService(QObject* parent) : QObject(parent) {}
 
-QString WorkflowSecurityManagerService::addPolicy(const QString &name,
-                                                   const QString &description,
-                                                   const QString &severity)
-{
+QString WorkflowSecurityManagerService::addPolicy(const QString& name, const QString& description,
+                                                  const QString& severity) {
     WfSecurityPolicy p;
     p.id = QStringLiteral("sp-%1").arg(nextId_++);
     p.name = name;
@@ -21,8 +16,7 @@ QString WorkflowSecurityManagerService::addPolicy(const QString &name,
     return p.id;
 }
 
-bool WorkflowSecurityManagerService::removePolicy(const QString &policyId)
-{
+bool WorkflowSecurityManagerService::removePolicy(const QString& policyId) {
     for (int i = 0; i < policies_.size(); ++i) {
         if (policies_[i].id == policyId) {
             policies_.removeAt(i);
@@ -33,9 +27,8 @@ bool WorkflowSecurityManagerService::removePolicy(const QString &policyId)
     return false;
 }
 
-bool WorkflowSecurityManagerService::enablePolicy(const QString &policyId)
-{
-    for (auto &p : policies_) {
+bool WorkflowSecurityManagerService::enablePolicy(const QString& policyId) {
+    for (auto& p : policies_) {
         if (p.id == policyId) {
             p.enabled = true;
             emit policyEnabled(policyId);
@@ -45,9 +38,8 @@ bool WorkflowSecurityManagerService::enablePolicy(const QString &policyId)
     return false;
 }
 
-bool WorkflowSecurityManagerService::disablePolicy(const QString &policyId)
-{
-    for (auto &p : policies_) {
+bool WorkflowSecurityManagerService::disablePolicy(const QString& policyId) {
+    for (auto& p : policies_) {
         if (p.id == policyId) {
             p.enabled = false;
             emit policyDisabled(policyId);
@@ -57,28 +49,24 @@ bool WorkflowSecurityManagerService::disablePolicy(const QString &policyId)
     return false;
 }
 
-WfSecurityPolicy WorkflowSecurityManagerService::policy(const QString &policyId) const
-{
-    for (const auto &p : policies_) {
+WfSecurityPolicy WorkflowSecurityManagerService::policy(const QString& policyId) const {
+    for (const auto& p : policies_) {
         if (p.id == policyId)
             return p;
     }
     return {};
 }
 
-QVector<WfSecurityPolicy> WorkflowSecurityManagerService::allPolicies() const
-{
+QVector<WfSecurityPolicy> WorkflowSecurityManagerService::allPolicies() const {
     return policies_;
 }
 
-int WorkflowSecurityManagerService::policyCount() const
-{
+int WorkflowSecurityManagerService::policyCount() const {
     return policies_.size();
 }
 
-bool WorkflowSecurityManagerService::enforcePolicy(const QString &policyId)
-{
-    for (const auto &p : policies_) {
+bool WorkflowSecurityManagerService::enforcePolicy(const QString& policyId) {
+    for (const auto& p : policies_) {
         if (p.id == policyId && p.enabled) {
             emit policyEnforced(policyId);
             return true;
@@ -87,10 +75,9 @@ bool WorkflowSecurityManagerService::enforcePolicy(const QString &policyId)
     return false;
 }
 
-int WorkflowSecurityManagerService::enabledPolicyCount() const
-{
+int WorkflowSecurityManagerService::enabledPolicyCount() const {
     int count = 0;
-    for (const auto &p : policies_) {
+    for (const auto& p : policies_) {
         if (p.enabled)
             ++count;
     }

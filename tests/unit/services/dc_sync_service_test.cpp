@@ -7,207 +7,209 @@
 //   - Plugin identity, ordering, visibility
 //   - EventBus integration populates plugin table
 
-#include <QTest>
 #include <QApplication>
-#include <QSignalSpy>
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QSignalSpy>
+#include <QTest>
 
+#include "infra/EcatClient.h"
 #include "plugins/dcsync/DcSyncPlugin.h"
-#include <QTableWidget>
 #include "services/DcSyncService.h"
 #include "services/EventBus.h"
-#include "infra/EcatClient.h"
+#include <QTableWidget>
 
 // ── DcSyncService tests ───────────────────────────────────────────────
 
 class DcSyncServiceTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private:
-  EcatClient *client_ = nullptr;
-  DcSyncService *svc_ = nullptr;
+    EcatClient* client_ = nullptr;
+    DcSyncService* svc_ = nullptr;
 
 private slots:
-  void init() {
-    client_ = new EcatClient(this);
-    svc_    = new DcSyncService(client_, this);
-  }
+    void init() {
+        client_ = new EcatClient(this);
+        svc_ = new DcSyncService(client_, this);
+    }
 
-  void cleanup() {
-    delete svc_;    svc_    = nullptr;
-    delete client_; client_ = nullptr;
-  }
+    void cleanup() {
+        delete svc_;
+        svc_ = nullptr;
+        delete client_;
+        client_ = nullptr;
+    }
 
-  // Verify dcSyncStatusResult is forwarded into dcSyncUpdate signal
-  void testSignalForwarding() {
-    QSignalSpy spy(svc_, &DcSyncService::dcSyncUpdate);
-    QVERIFY(spy.isValid());
+    // Verify dcSyncStatusResult is forwarded into dcSyncUpdate signal
+    void testSignalForwarding() {
+        QSignalSpy spy(svc_, &DcSyncService::dcSyncUpdate);
+        QVERIFY(spy.isValid());
 
-    QJsonObject slave;
-    slave["position"]  = 1;
-    slave["name"]      = "EL1008";
-    slave["dcCapable"] = true;
-    slave["syncing"]   = true;
-    slave["driftNs"]   = 42.0;
-    slave["jitterMin"] = 1.0;
-    slave["jitterMax"] = 9.0;
-    slave["jitterAvg"] = 4.5;
+        QJsonObject slave;
+        slave["position"] = 1;
+        slave["name"] = "EL1008";
+        slave["dcCapable"] = true;
+        slave["syncing"] = true;
+        slave["driftNs"] = 42.0;
+        slave["jitterMin"] = 1.0;
+        slave["jitterMax"] = 9.0;
+        slave["jitterAvg"] = 4.5;
 
-    QJsonArray slaves;
-    slaves.append(slave);
+        QJsonArray slaves;
+        slaves.append(slave);
 
-    QJsonObject payload;
-    payload["slaves"]                = slaves;
-    payload["referenceClockPosition"] = 0;
-    payload["referenceClockName"]    = "EK1100";
+        QJsonObject payload;
+        payload["slaves"] = slaves;
+        payload["referenceClockPosition"] = 0;
+        payload["referenceClockName"] = "EK1100";
 
-    emit client_->dcSyncStatusResult(payload);
-    QCOMPARE(spy.count(), 1);
+        emit client_->dcSyncStatusResult(payload);
+        QCOMPARE(spy.count(), 1);
 
-    const QJsonObject received = spy.at(0).at(0).toJsonObject();
-    QCOMPARE(received.value("referenceClockPosition").toInt(), 0);
-    QCOMPARE(received.value("slaves").toArray().size(), 1);
-  }
+        const QJsonObject received = spy.at(0).at(0).toJsonObject();
+        QCOMPARE(received.value("referenceClockPosition").toInt(), 0);
+        QCOMPARE(received.value("slaves").toArray().size(), 1);
+    }
 
-  // Verify error messages are forwarded from EcatClient
-  void testErrorForwarding() {
-    QSignalSpy spy(svc_, &DcSyncService::error);
-    emit client_->errorMessage("boom");
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.at(0).at(0).toString(), QString("boom"));
-  }
+    // Verify error messages are forwarded from EcatClient
+    void testErrorForwarding() {
+        QSignalSpy spy(svc_, &DcSyncService::error);
+        emit client_->errorMessage("boom");
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(spy.at(0).at(0).toString(), QString("boom"));
+    }
 
-  // Verify polling timer does not fire when disconnected
-  void testPollingRequiresConnection() {
-    QSignalSpy spy(client_, &EcatClient::dcSyncStatusResult);
-    svc_->startPolling(50);  // 50 ms for fast test
-    QTest::qWait(150);
-    // Client is disconnected — no requests should have been sent.
-    QCOMPARE(spy.count(), 0);
-    svc_->stopPolling();
-  }
+    // Verify polling timer does not fire when disconnected
+    void testPollingRequiresConnection() {
+        QSignalSpy spy(client_, &EcatClient::dcSyncStatusResult);
+        svc_->startPolling(50); // 50 ms for fast test
+        QTest::qWait(150);
+        // Client is disconnected — no requests should have been sent.
+        QCOMPARE(spy.count(), 0);
+        svc_->stopPolling();
+    }
 
-  void testNullClientDoesNotConnectOrPoll() {
-    DcSyncService svc(nullptr);
-    QSignalSpy updateSpy(&svc, &DcSyncService::dcSyncUpdate);
-    QSignalSpy rejectedSpy(&svc, &DcSyncService::pollingRejected);
+    void testNullClientDoesNotConnectOrPoll() {
+        DcSyncService svc(nullptr);
+        QSignalSpy updateSpy(&svc, &DcSyncService::dcSyncUpdate);
+        QSignalSpy rejectedSpy(&svc, &DcSyncService::pollingRejected);
 
-    svc.startPolling(50);
-    svc.requestUpdate();
-    svc.configure(0);
-    svc.activate(0);
-    svc.deactivate();
-    QTest::qWait(100);
-    svc.stopPolling();
+        svc.startPolling(50);
+        svc.requestUpdate();
+        svc.configure(0);
+        svc.activate(0);
+        svc.deactivate();
+        QTest::qWait(100);
+        svc.stopPolling();
 
-    QCOMPARE(updateSpy.count(), 0);
-    QCOMPARE(rejectedSpy.count(), 0);
-  }
+        QCOMPARE(updateSpy.count(), 0);
+        QCOMPARE(rejectedSpy.count(), 0);
+    }
 
-  void testRejectInvalidPollingInterval() {
-    QSignalSpy rejectedSpy(svc_, &DcSyncService::pollingRejected);
+    void testRejectInvalidPollingInterval() {
+        QSignalSpy rejectedSpy(svc_, &DcSyncService::pollingRejected);
 
-    svc_->startPolling(0);
-    svc_->startPolling(-1);
-    QTest::qWait(50);
+        svc_->startPolling(0);
+        svc_->startPolling(-1);
+        QTest::qWait(50);
 
-    QCOMPARE(rejectedSpy.count(), 2);
-    for (const auto &args : rejectedSpy)
-      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid polling interval")));
-  }
+        QCOMPARE(rejectedSpy.count(), 2);
+        for (const auto& args : rejectedSpy)
+            QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid polling interval")));
+    }
 };
 
 // ── DcSyncPlugin tests ────────────────────────────────────────────────
 
 class DcSyncPluginTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  // Verify plugin id and display names
-  void testIdentity() {
-    EventBus bus;
-    EcatClient client;
-    DcSyncService svc(&client);
-    DcSyncPlugin plugin(&bus, &svc);
-    QCOMPARE(plugin.id(),           QString("dcsync"));
-    QCOMPARE(plugin.displayName(),  QString("DC Sync"));
-    QCOMPARE(plugin.displayNameZh(), QString("DC同步"));
-  }
+    // Verify plugin id and display names
+    void testIdentity() {
+        EventBus bus;
+        EcatClient client;
+        DcSyncService svc(&client);
+        DcSyncPlugin plugin(&bus, &svc);
+        QCOMPARE(plugin.id(), QString("dcsync"));
+        QCOMPARE(plugin.displayName(), QString("DC Sync"));
+        QCOMPARE(plugin.displayNameZh(), QString("DC同步"));
+    }
 
-  // Verify default tab order
-  void testDefaultOrder() {
-    EventBus bus;
-    EcatClient client;
-    DcSyncService svc(&client);
-    DcSyncPlugin plugin(&bus, &svc);
-    QCOMPARE(plugin.defaultOrder(), 60);
-  }
+    // Verify default tab order
+    void testDefaultOrder() {
+        EventBus bus;
+        EcatClient client;
+        DcSyncService svc(&client);
+        DcSyncPlugin plugin(&bus, &svc);
+        QCOMPARE(plugin.defaultOrder(), 60);
+    }
 
-  // Verify plugin is visible
-  void testVisible() {
-    EventBus bus;
-    EcatClient client;
-    DcSyncService svc(&client);
-    DcSyncPlugin plugin(&bus, &svc);
-    QVERIFY(plugin.visible());
-  }
+    // Verify plugin is visible
+    void testVisible() {
+        EventBus bus;
+        EcatClient client;
+        DcSyncService svc(&client);
+        DcSyncPlugin plugin(&bus, &svc);
+        QVERIFY(plugin.visible());
+    }
 
-  // Verify main widget is created
-  void testWidgetNotNull() {
-    EventBus bus;
-    EcatClient client;
-    DcSyncService svc(&client);
-    DcSyncPlugin plugin(&bus, &svc);
-    QVERIFY(plugin.widget() != nullptr);
-  }
+    // Verify main widget is created
+    void testWidgetNotNull() {
+        EventBus bus;
+        EcatClient client;
+        DcSyncService svc(&client);
+        DcSyncPlugin plugin(&bus, &svc);
+        QVERIFY(plugin.widget() != nullptr);
+    }
 
-  // Verify EventBus data populates plugin table rows
-  void testEventBusIntegration() {
-    EventBus bus;
-    EcatClient client;
-    DcSyncService svc(&client);
-    DcSyncPlugin plugin(&bus, &svc);
+    // Verify EventBus data populates plugin table rows
+    void testEventBusIntegration() {
+        EventBus bus;
+        EcatClient client;
+        DcSyncService svc(&client);
+        DcSyncPlugin plugin(&bus, &svc);
 
-    QJsonObject slave;
-    slave["position"]  = 1;
-    slave["name"]      = "EL2004";
-    slave["dcCapable"] = true;
-    slave["syncing"]   = false;
-    slave["driftNs"]   = 0.0;
-    slave["jitterMin"] = 0.0;
-    slave["jitterMax"] = 0.0;
-    slave["jitterAvg"] = 0.0;
+        QJsonObject slave;
+        slave["position"] = 1;
+        slave["name"] = "EL2004";
+        slave["dcCapable"] = true;
+        slave["syncing"] = false;
+        slave["driftNs"] = 0.0;
+        slave["jitterMin"] = 0.0;
+        slave["jitterMax"] = 0.0;
+        slave["jitterAvg"] = 0.0;
 
-    QJsonArray slaves;
-    slaves.append(slave);
+        QJsonArray slaves;
+        slaves.append(slave);
 
-    QJsonObject payload;
-    payload["slaves"]                = slaves;
-    payload["referenceClockPosition"] = 0;
-    payload["referenceClockName"]    = "EK1100";
+        QJsonObject payload;
+        payload["slaves"] = slaves;
+        payload["referenceClockPosition"] = 0;
+        payload["referenceClockName"] = "EK1100";
 
-    bus.emitDcSyncUpdate(payload);
+        bus.emitDcSyncUpdate(payload);
 
-    // Table should have 2 rows: 1 ref-clock + 1 slave.
-    auto *table = plugin.widget()->findChild<QTableWidget *>();
-    QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 2);
-  }
+        // Table should have 2 rows: 1 ref-clock + 1 slave.
+        auto* table = plugin.widget()->findChild<QTableWidget*>();
+        QVERIFY(table != nullptr);
+        QCOMPARE(table->rowCount(), 2);
+    }
 };
 
 // ── Combined runner ───────────────────────────────────────────────────
 
-int main(int argc, char **argv) {
-  QApplication app(argc, argv);
-  int status = 0;
-  {
-    DcSyncServiceTest t;
-    status |= QTest::qExec(&t, argc, argv);
-  }
-  {
-    DcSyncPluginTest t;
-    status |= QTest::qExec(&t, argc, argv);
-  }
-  return status;
+int main(int argc, char** argv) {
+    QApplication app(argc, argv);
+    int status = 0;
+    {
+        DcSyncServiceTest t;
+        status |= QTest::qExec(&t, argc, argv);
+    }
+    {
+        DcSyncPluginTest t;
+        status |= QTest::qExec(&t, argc, argv);
+    }
+    return status;
 }
 
 // Required for the moc-included Q_OBJECT classes in this translation unit.

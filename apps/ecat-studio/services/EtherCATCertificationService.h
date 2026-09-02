@@ -9,16 +9,12 @@
 //
 // Thread safety: main (GUI) thread only.
 
-#include <QObject>
-#include <QVector>
-#include <QString>
 #include <QDateTime>
+#include <QObject>
+#include <QString>
+#include <QVector>
 
-enum class CertificationTestStatus {
-    Pass,
-    Fail,
-    NotTested
-};
+enum class CertificationTestStatus { Pass, Fail, NotTested };
 
 struct CertificationRequirement {
     QString requirementId;
@@ -56,26 +52,26 @@ struct CertificationResult {
 class EtherCATCertificationService : public QObject {
     Q_OBJECT
 public:
-    explicit EtherCATCertificationService(QObject *parent = nullptr);
+    explicit EtherCATCertificationService(QObject* parent = nullptr);
 
-    void addRequirement(const CertificationRequirement &req);
-    bool removeRequirement(const QString &reqId);
+    void addRequirement(const CertificationRequirement& req);
+    bool removeRequirement(const QString& reqId);
     QVector<CertificationRequirement> requirements() const;
     CertificationReport runCertification();
-    CertificationTestResult testRequirement(const QString &reqId);
+    CertificationTestResult testRequirement(const QString& reqId);
 
     CertificationResult certifyDevice(int position);
     CertificationResult certifyNetwork();
     CertificationResult certifySystem();
-    CertificationResult certifyOperator(const QString &operatorName);
+    CertificationResult certifyOperator(const QString& operatorName);
 
 signals:
     void requirementAdded();
     void requirementRemoved();
-    void certificationCompleted(const CertificationReport &report);
-    void deviceCertified(const CertificationResult &result);
+    void certificationCompleted(const CertificationReport& report);
+    void deviceCertified(const CertificationResult& result);
 
 private:
     QVector<CertificationRequirement> requirements_;
-    CertificationResult createRejectedCert(const QString &scope);
+    CertificationResult createRejectedCert(const QString& scope);
 };

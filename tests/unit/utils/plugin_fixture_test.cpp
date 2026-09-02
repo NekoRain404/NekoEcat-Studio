@@ -6,22 +6,21 @@
 //   - Plugin lookup by id
 //   - Plugin activation and deactivation
 
-#include <QTest>
-#include <QSignalSpy>
 #include "fixtures/PluginTestFixture.h"
 #include "plugins/WorkspacePlugin.h"
+#include <QSignalSpy>
+#include <QTest>
 
 namespace {
 
 class StubPlugin : public WorkspacePlugin {
 public:
-    explicit StubPlugin(const QString &id, int order = 100)
-        : id_(id), order_(order) {}
+    explicit StubPlugin(const QString& id, int order = 100) : id_(id), order_(order) {}
 
     QString id() const override { return id_; }
     QString displayName() const override { return id_; }
     QString displayNameZh() const override { return id_; }
-    QWidget *widget() override { return &widget_; }
+    QWidget* widget() override { return &widget_; }
     int defaultOrder() const override { return order_; }
     bool visible() const override { return true; }
 
@@ -35,7 +34,7 @@ private:
     QWidget widget_;
 };
 
-}
+} // namespace
 
 class PluginTestFixtureTest : public QObject {
     Q_OBJECT

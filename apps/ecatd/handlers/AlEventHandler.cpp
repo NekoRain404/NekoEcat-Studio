@@ -3,18 +3,16 @@
 #include <QProcess>
 #include <QRegularExpression>
 
-void AlEventHandler::poll()
-{
+void AlEventHandler::poll() {
     auto newEvents = pollSlaveAlStatus();
-    for (const auto &evt : newEvents) {
+    for (const auto& evt : newEvents) {
         events_.append(evt);
         if (events_.size() > kMaxEvents)
             events_.removeFirst();
     }
 }
 
-QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus()
-{
+QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus() {
     QVector<AlEventEntry> result;
 
     // Use `ethercat slaves` to get current slave states.
@@ -30,7 +28,7 @@ QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus()
     static const QRegularExpression re(QStringLiteral("\\s+"));
 
     int pos = 0;
-    for (const QString &line : lines) {
+    for (const QString& line : lines) {
         const QStringList parts = line.split(re, Qt::SkipEmptyParts);
         if (parts.size() < 4) {
             ++pos;
@@ -64,14 +62,13 @@ QVector<AlEventEntry> AlEventHandler::pollSlaveAlStatus()
     return result;
 }
 
-QJsonObject AlEventHandler::handle(const QString &id, const QJsonObject &params)
-{
+QJsonObject AlEventHandler::handle(const QString& id, const QJsonObject& params) {
     QJsonArray arr;
     const int limit = params.value("limit").toInt(100);
     const int start = qMax(0, events_.size() - limit);
 
     for (int i = start; i < events_.size(); ++i) {
-        const auto &e = events_[i];
+        const auto& e = events_[i];
         QJsonObject obj;
         obj["timestamp"] = e.timestampMs;
         obj["slave"] = e.slave;
@@ -91,21 +88,18 @@ QJsonObject AlEventHandler::handle(const QString &id, const QJsonObject &params)
     return QJsonObject{{"id", id}, {"ok", true}, {"result", result}};
 }
 
-void AlEventHandler::clear()
-{
+void AlEventHandler::clear() {
     events_.clear();
     previousAlStatus_.clear();
 }
 
-void AlEventHandler::addEvent(const AlEventEntry &entry)
-{
+void AlEventHandler::addEvent(const AlEventEntry& entry) {
     events_.append(entry);
     if (events_.size() > kMaxEvents)
         events_.removeFirst();
 }
 
-QString AlEventHandler::runCommand(const QString &cmd) const
-{
+QString AlEventHandler::runCommand(const QString& cmd) const {
     QProcess proc;
     proc.start("sh", {"-c", cmd});
     proc.waitForFinished(5000);

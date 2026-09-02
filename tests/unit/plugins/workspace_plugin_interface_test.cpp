@@ -6,9 +6,9 @@
 //   - Default icon behavior
 //   - Lifecycle methods (activate, deactivate, onConnectionChanged)
 
-#include <QTest>
-#include <QSignalSpy>
 #include "plugins/WorkspacePlugin.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class MockPlugin : public WorkspacePlugin {
 public:
@@ -17,7 +17,7 @@ public:
     QString displayNameZh() const override { return "模拟插件"; }
     int defaultOrder() const override { return 42; }
     bool visible() const override { return true; }
-    QWidget *widget() override { return nullptr; }
+    QWidget* widget() override { return nullptr; }
 };
 
 class WorkspacePluginInterfaceTest : public QObject {
@@ -38,7 +38,7 @@ private slots:
     void testSignalsExist() {
         MockPlugin p;
         QSignalSpy navSpy(&p, SIGNAL(requestNavigate(QString)));
-        QSignalSpy diagSpy(&p, SIGNAL(updateDiagnostics(QString,QString,QString)));
+        QSignalSpy diagSpy(&p, SIGNAL(updateDiagnostics(QString, QString, QString)));
         QVERIFY(navSpy.isValid());
         QVERIFY(diagSpy.isValid());
     }

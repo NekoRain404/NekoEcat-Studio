@@ -1,6 +1,6 @@
 #include "EtherCATMonitorService.h"
-#include "infra/EcatClient.h"
 #include "EventBus.h"
+#include "infra/EcatClient.h"
 
 // EtherCATMonitorService.cpp — Real-time bus monitoring with timer-driven polling
 //
@@ -10,14 +10,10 @@
 //   - External callers push updates; poll() re-emits current state when connected
 //   - Monitoring starts only when a live daemon connection exists
 
-EtherCATMonitorService::EtherCATMonitorService(EventBus *bus, EcatClient *client,
-                                               QObject *parent)
-    : QObject(parent), bus_(bus), client_(client)
-{
-}
+EtherCATMonitorService::EtherCATMonitorService(EventBus* bus, EcatClient* client, QObject* parent)
+    : QObject(parent), bus_(bus), client_(client) {}
 
-void EtherCATMonitorService::startMonitoring(int intervalMs)
-{
+void EtherCATMonitorService::startMonitoring(int intervalMs) {
     if (running_)
         return;
     if (!client_ || !client_->isConnected())
@@ -28,8 +24,7 @@ void EtherCATMonitorService::startMonitoring(int intervalMs)
     running_ = true;
 }
 
-void EtherCATMonitorService::stopMonitoring()
-{
+void EtherCATMonitorService::stopMonitoring() {
     if (!running_)
         return;
     timer_->stop();
@@ -38,36 +33,31 @@ void EtherCATMonitorService::stopMonitoring()
     running_ = false;
 }
 
-void EtherCATMonitorService::updateTraffic(const BusTraffic &t)
-{
+void EtherCATMonitorService::updateTraffic(const BusTraffic& t) {
     traffic_ = t;
     if (running_)
         emit trafficUpdated(traffic_);
 }
 
-void EtherCATMonitorService::updateErrorRate(const ErrorRate &r)
-{
+void EtherCATMonitorService::updateErrorRate(const ErrorRate& r) {
     errors_ = r;
     if (running_)
         emit errorRateUpdated(errors_);
 }
 
-void EtherCATMonitorService::updatePerformance(const PerformanceMetrics &m)
-{
+void EtherCATMonitorService::updatePerformance(const PerformanceMetrics& m) {
     perf_ = m;
     if (running_)
         emit performanceUpdated(perf_);
 }
 
-void EtherCATMonitorService::updateHealth(const HealthStatus &h)
-{
+void EtherCATMonitorService::updateHealth(const HealthStatus& h) {
     health_ = h;
     if (running_)
         emit healthUpdated(health_);
 }
 
-void EtherCATMonitorService::poll()
-{
+void EtherCATMonitorService::poll() {
     if (!client_ || !client_->isConnected())
         return;
 

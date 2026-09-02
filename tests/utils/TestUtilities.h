@@ -1,14 +1,14 @@
 #pragma once
-#include <QTest>
-#include <QSignalSpy>
-#include <QTimer>
-#include <QEventLoop>
 #include "EthercatTypes.h"
 #include "services/EventBus.h"
+#include <QEventLoop>
+#include <QSignalSpy>
+#include <QTest>
+#include <QTimer>
 
 class TestUtilities {
 public:
-    static SlaveInfo createTestSlave(int position, const QString &name = "TestSlave") {
+    static SlaveInfo createTestSlave(int position, const QString& name = "TestSlave") {
         SlaveInfo info;
         info.position = position;
         info.name = name;
@@ -24,7 +24,7 @@ public:
         return slaves;
     }
 
-    static bool waitForSignal(QObject *sender, const char *signal, int timeout = 1000) {
+    static bool waitForSignal(QObject* sender, const char* signal, int timeout = 1000) {
         QSignalSpy spy(sender, signal);
         return spy.wait(timeout);
     }

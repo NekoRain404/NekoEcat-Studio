@@ -33,7 +33,7 @@ namespace {
 
 int failures = 0;
 
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
@@ -44,32 +44,34 @@ void fail(const QString &msg) {
 class TestServer : public QTcpServer {
     Q_OBJECT
 public:
-    explicit TestServer(QObject *parent = nullptr) : QTcpServer(parent) {
+    explicit TestServer(QObject* parent = nullptr) : QTcpServer(parent) {
         connect(this, &QTcpServer::newConnection, this, &TestServer::acceptClient);
     }
 
     // Close all connected client sockets but KEEP listening so a reconnect to
     // the same port succeeds.
     void dropAllClients() {
-        for (auto *sock : connectedSockets_) sock->disconnectFromHost();
+        for (auto* sock : connectedSockets_)
+            sock->disconnectFromHost();
     }
 
     int connectionCount() const { return acceptCount_; }
 
 private slots:
     void acceptClient() {
-        while (auto *socket = nextPendingConnection()) {
+        while (auto* socket = nextPendingConnection()) {
             ++acceptCount_;
             connectedSockets_.append(socket);
             connect(socket, &QTcpSocket::readyRead, this, [this, socket] {
-                QByteArray &buf = buffers_[socket];
+                QByteArray& buf = buffers_[socket];
                 buf += socket->readAll();
                 int newline = -1;
                 while ((newline = buf.indexOf('\n')) >= 0) {
                     const auto line = buf.left(newline);
                     buf.remove(0, newline + 1);
                     const auto doc = QJsonDocument::fromJson(line);
-                    if (!doc.isObject()) continue;
+                    if (!doc.isObject())
+                        continue;
                     const auto req = doc.object();
                     const QString id = req.value("id").toString();
                     const QString method = req.value("method").toString();
@@ -91,13 +93,13 @@ private slots:
     }
 
 private:
-    QHash<QTcpSocket *, QByteArray> buffers_;
-    QList<QTcpSocket *> connectedSockets_;
+    QHash<QTcpSocket*, QByteArray> buffers_;
+    QList<QTcpSocket*> connectedSockets_;
     int acceptCount_ = 0;
 };
 
 // Spin the event loop until cond() is true or the timeout elapses.
-bool waitFor(std::function<bool()> cond, QCoreApplication &app, int timeoutMs = 5000) {
+bool waitFor(std::function<bool()> cond, QCoreApplication& app, int timeoutMs = 5000) {
     const int steps = timeoutMs / 50;
     for (int i = 0; i < steps && !cond(); ++i) {
         app.processEvents();
@@ -110,15 +112,16 @@ bool waitFor(std::function<bool()> cond, QCoreApplication &app, int timeoutMs = 
 
 #include "connection_recovery_test.moc"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     // ─── T1: reconnect to the SAME host/port after a forced drop ─────────
     {
         TestServer server;
-        const quint16 port = 17100;  // non-default: reconnect only works if the
-                                     // client remembers this exact port
-        if (!server.listen(QHostAddress::LocalHost, port)) fail("T1: server listen");
+        const quint16 port = 17100; // non-default: reconnect only works if the
+                                    // client remembers this exact port
+        if (!server.listen(QHostAddress::LocalHost, port))
+            fail("T1: server listen");
 
         EcatClient client;
         int reconnectedCount = 0;
@@ -126,14 +129,14 @@ int main(int argc, char *argv[]) {
         bool sawReconnecting = false;
         QObject::connect(&client, &EcatClient::reconnected, [&] { ++reconnectedCount; });
         QObject::connect(&client, &EcatClient::connectionLost, [&] { sawConnectionLost = true; });
-        QObject::connect(&client, &EcatClient::reconnecting,
-                         [&](int, int) { sawReconnecting = true; });
+        QObject::connect(&client, &EcatClient::reconnecting, [&](int, int) { sawReconnecting = true; });
 
         client.connectToHost(QHostAddress::LocalHost, port);
         if (!waitFor([&] { return client.isConnected(); }, app, 5000))
             fail("T1: initial connect timed out");
         const int initialReconnects = reconnectedCount;
-        if (initialReconnects < 1) fail("T1: initial connect did not signal");
+        if (initialReconnects < 1)
+            fail("T1: initial connect did not signal");
 
         server.dropAllClients();
         if (!waitFor([&] { return sawConnectionLost; }, app, 5000))
@@ -146,7 +149,8 @@ int main(int argc, char *argv[]) {
             fail("T1: client did not reconnect within 8s");
         if (reconnectedCount <= initialReconnects)
             fail("T1: no new reconnect after the drop");
-        if (!sawReconnecting) fail("T1: Reconnecting state was not observed");
+        if (!sawReconnecting)
+            fail("T1: Reconnecting state was not observed");
         if (server.connectionCount() < 2)
             fail("T1: server accepted only one connection (wrong host/port dialled?)");
         if (client.connectionState() != ConnectionState::Connected)
@@ -156,11 +160,12 @@ int main(int argc, char *argv[]) {
 
     // ─── T2: reconnect-on-initial-failure ─────────────────────────────────
     {
-        const quint16 port = 17101;  // nothing listening yet
+        const quint16 port = 17101; // nothing listening yet
         EcatClient client;
         bool sawRefused = false;
-        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString &m) {
-            if (m.contains("refused")) sawRefused = true;
+        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString& m) {
+            if (m.contains("refused"))
+                sawRefused = true;
         });
 
         client.connectToHost(QHostAddress::LocalHost, port);
@@ -169,7 +174,8 @@ int main(int argc, char *argv[]) {
 
         // The daemon comes up later on the same port.
         TestServer server;
-        if (!server.listen(QHostAddress::LocalHost, port)) fail("T2: server listen");
+        if (!server.listen(QHostAddress::LocalHost, port))
+            fail("T2: server listen");
 
         if (!waitFor([&] { return client.isConnected(); }, app, 10000))
             fail("T2: auto-reconnect after initial failure did not re-establish");
@@ -184,21 +190,19 @@ int main(int argc, char *argv[]) {
         EcatClient client;
         QStringList errors;
         bool sdoFired = false;
-        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString &m) {
-            errors << m;
-        });
+        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString& m) { errors << m; });
         QObject::connect(&client, &EcatClient::sdoValue,
-                         [&](int, const QString &, const QString &, const QString &) {
-                             sdoFired = true;
-                         });
+                         [&](int, const QString&, const QString&, const QString&) { sdoFired = true; });
 
-        client.upload(0, "0x1018", "0x01");  // must fail synchronously
-        if (errors.isEmpty()) fail("T3: no error emitted when disconnected");
+        client.upload(0, "0x1018", "0x01"); // must fail synchronously
+        if (errors.isEmpty())
+            fail("T3: no error emitted when disconnected");
         if (!errors.last().contains("not connected"))
             fail("T3: error should mention 'not connected'");
-        if (sdoFired) fail("T3: sdoValue must not fire on a failed send");
+        if (sdoFired)
+            fail("T3: sdoValue must not fire on a failed send");
 
-        client.ping();  // also fails fast, does not hang
+        client.ping(); // also fails fast, does not hang
         if (!errors.last().contains("not connected"))
             fail("T3: ping while disconnected should error too");
 
@@ -206,7 +210,8 @@ int main(int argc, char *argv[]) {
         // disconnected.
         TestServer server;
         const quint16 port = 17102;
-        if (!server.listen(QHostAddress::LocalHost, port)) fail("T3b: server listen");
+        if (!server.listen(QHostAddress::LocalHost, port))
+            fail("T3b: server listen");
 
         EcatClient client2;
         client2.enableAutoReconnect(false);
@@ -218,9 +223,7 @@ int main(int argc, char *argv[]) {
             fail("T3b: client did not drop");
 
         QStringList errors2;
-        QObject::connect(&client2, &EcatClient::errorMessage, [&](const QString &m) {
-            errors2 << m;
-        });
+        QObject::connect(&client2, &EcatClient::errorMessage, [&](const QString& m) { errors2 << m; });
         client2.upload(0, "0x1018", "0x01");
         if (errors2.isEmpty() || !errors2.last().contains("not connected"))
             fail("T3b: send after drop should error with 'not connected'");

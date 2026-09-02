@@ -7,13 +7,9 @@
 //   - Status progression: Open → InProgress → Completed/Blocked
 //   - Filtering by status, assignee, and tag-based queries
 
-TaskManagementService::TaskManagementService(QObject *parent)
-    : QObject(parent)
-{
-}
+TaskManagementService::TaskManagementService(QObject* parent) : QObject(parent) {}
 
-Task TaskManagementService::createTask(const TaskConfig &config)
-{
+Task TaskManagementService::createTask(const TaskConfig& config) {
     if (config.title.trimmed().isEmpty())
         return {};
 
@@ -35,8 +31,7 @@ Task TaskManagementService::createTask(const TaskConfig &config)
     return t;
 }
 
-bool TaskManagementService::assignTask(int taskId, const QString &assignee)
-{
+bool TaskManagementService::assignTask(int taskId, const QString& assignee) {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return false;
@@ -47,57 +42,61 @@ bool TaskManagementService::assignTask(int taskId, const QString &assignee)
     return true;
 }
 
-TaskStatusInfo TaskManagementService::trackTask(int taskId) const
-{
+TaskStatusInfo TaskManagementService::trackTask(int taskId) const {
     TaskStatusInfo info;
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return info;
 
-    const Task &t = *it;
+    const Task& t = *it;
     info.taskId = t.id;
     info.status = t.status;
     info.assignee = t.assignee;
     info.deadline = t.deadline;
     info.lastUpdated = t.updatedAt;
-    info.overdue = (t.deadline.isValid() && QDateTime::currentDateTime() > t.deadline
-                    && t.status != TaskStatus::Completed && t.status != TaskStatus::Cancelled);
+    info.overdue = (t.deadline.isValid() && QDateTime::currentDateTime() > t.deadline &&
+                    t.status != TaskStatus::Completed && t.status != TaskStatus::Cancelled);
     return info;
 }
 
-TaskReport TaskManagementService::generateTaskReport() const
-{
+TaskReport TaskManagementService::generateTaskReport() const {
     TaskReport report;
     report.generatedAt = QDateTime::currentDateTime();
     report.totalTasks = tasks_.size();
 
-    for (const auto &t : tasks_) {
+    for (const auto& t : tasks_) {
         switch (t.status) {
-        case TaskStatus::Open: report.openTasks++; break;
-        case TaskStatus::InProgress: report.inProgressTasks++; break;
-        case TaskStatus::Completed: report.completedTasks++; break;
-        default: break;
+            case TaskStatus::Open:
+                report.openTasks++;
+                break;
+            case TaskStatus::InProgress:
+                report.inProgressTasks++;
+                break;
+            case TaskStatus::Completed:
+                report.completedTasks++;
+                break;
+            default:
+                break;
         }
 
-        if (t.deadline.isValid() && QDateTime::currentDateTime() > t.deadline
-            && t.status != TaskStatus::Completed && t.status != TaskStatus::Cancelled)
+        if (t.deadline.isValid() && QDateTime::currentDateTime() > t.deadline && t.status != TaskStatus::Completed &&
+            t.status != TaskStatus::Cancelled)
             report.overdueTasks++;
 
         report.tasksByPriority.append(t);
     }
 
     std::sort(report.tasksByPriority.begin(), report.tasksByPriority.end(),
-              [](const Task &a, const Task &b) { return a.priority > b.priority; });
+              [](const Task& a, const Task& b) { return a.priority > b.priority; });
 
     report.tasksByAssignee = report.tasksByPriority;
     std::sort(report.tasksByAssignee.begin(), report.tasksByAssignee.end(),
-              [](const Task &a, const Task &b) { return a.assignee < b.assignee; });
+              [](const Task& a, const Task& b) { return a.assignee < b.assignee; });
 
     return report;
 }
 
-bool TaskManagementService::updateTaskStatus(int taskId, TaskStatus status)
-{
+bool TaskManagementService::updateTaskStatus(int taskId, TaskStatus status) {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return false;
@@ -111,8 +110,7 @@ bool TaskManagementService::updateTaskStatus(int taskId, TaskStatus status)
     return true;
 }
 
-bool TaskManagementService::addDependency(int taskId, int dependencyId)
-{
+bool TaskManagementService::addDependency(int taskId, int dependencyId) {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return false;
@@ -126,8 +124,7 @@ bool TaskManagementService::addDependency(int taskId, int dependencyId)
     return true;
 }
 
-bool TaskManagementService::addTag(int taskId, const QString &tag)
-{
+bool TaskManagementService::addTag(int taskId, const QString& tag) {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return false;
@@ -139,8 +136,7 @@ bool TaskManagementService::addTag(int taskId, const QString &tag)
     return true;
 }
 
-bool TaskManagementService::removeTag(int taskId, const QString &tag)
-{
+bool TaskManagementService::removeTag(int taskId, const QString& tag) {
     auto it = tasks_.find(taskId);
     if (it == tasks_.end())
         return false;
@@ -150,44 +146,39 @@ bool TaskManagementService::removeTag(int taskId, const QString &tag)
     return true;
 }
 
-Task TaskManagementService::task(int taskId) const
-{
+Task TaskManagementService::task(int taskId) const {
     auto it = tasks_.find(taskId);
     if (it != tasks_.end())
         return *it;
     return {};
 }
 
-QVector<Task> TaskManagementService::allTasks() const
-{
+QVector<Task> TaskManagementService::allTasks() const {
     QVector<Task> result;
     result.reserve(tasks_.size());
-    for (const auto &t : tasks_)
+    for (const auto& t : tasks_)
         result.append(t);
     return result;
 }
 
-QVector<Task> TaskManagementService::tasksByAssignee(const QString &assignee) const
-{
+QVector<Task> TaskManagementService::tasksByAssignee(const QString& assignee) const {
     QVector<Task> result;
-    for (const auto &t : tasks_) {
+    for (const auto& t : tasks_) {
         if (t.assignee == assignee)
             result.append(t);
     }
     return result;
 }
 
-QVector<Task> TaskManagementService::tasksByStatus(TaskStatus status) const
-{
+QVector<Task> TaskManagementService::tasksByStatus(TaskStatus status) const {
     QVector<Task> result;
-    for (const auto &t : tasks_) {
+    for (const auto& t : tasks_) {
         if (t.status == status)
             result.append(t);
     }
     return result;
 }
 
-int TaskManagementService::taskCount() const
-{
+int TaskManagementService::taskCount() const {
     return tasks_.size();
 }

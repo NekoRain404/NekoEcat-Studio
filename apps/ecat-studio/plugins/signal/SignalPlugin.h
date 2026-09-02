@@ -39,34 +39,34 @@ class SignalService;
 
 /// @brief Workspace plugin for real-time multi-channel signal analysis.
 class SignalPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  /// Constructs the Signal Analyzer plugin with fine-grained service injection.
-  /// @param service  SignalService for signal data acquisition
-  /// @param parent   Qt parent object (typically MainWindow)
-  explicit SignalPlugin(SignalService *service, QObject *parent = nullptr);
+    /// Constructs the Signal Analyzer plugin with fine-grained service injection.
+    /// @param service  SignalService for signal data acquisition
+    /// @param parent   Qt parent object (typically MainWindow)
+    explicit SignalPlugin(SignalService* service, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;           ///< Returns "signal"
-  QString displayName() const override;  ///< Returns "Signal Analyzer"
-  QString displayNameZh() const override; ///< Returns "信号分析"
-  QWidget *widget() override;            ///< Returns the root container widget
-  int defaultOrder() const override;     ///< Returns 67
-  bool visible() const override;         ///< Returns true (always visible)
+    // WorkspacePlugin identity
+    QString id() const override;            ///< Returns "signal"
+    QString displayName() const override;   ///< Returns "Signal Analyzer"
+    QString displayNameZh() const override; ///< Returns "信号分析"
+    QWidget* widget() override;             ///< Returns the root container widget
+    int defaultOrder() const override;      ///< Returns 67
+    bool visible() const override;          ///< Returns true (always visible)
 
 private slots:
-  void showAddChannelDialog(); ///< Opens the add-channel dialog for signal subscription
-  void removeSelectedChannel(); ///< Removes the selected channel from the chart
-  void refreshChart();          ///< Refreshes the chart with latest signal data
-  void updateStatsOverlay(int channelId); ///< Updates statistics overlay for the given channel
+    void showAddChannelDialog();            ///< Opens the add-channel dialog for signal subscription
+    void removeSelectedChannel();           ///< Removes the selected channel from the chart
+    void refreshChart();                    ///< Refreshes the chart with latest signal data
+    void updateStatsOverlay(int channelId); ///< Updates statistics overlay for the given channel
 
 private:
-  void buildUi();  ///< Builds the chart, channel list, window size combo, and stats layout
+    void buildUi(); ///< Builds the chart, channel list, window size combo, and stats layout
 
-  SignalService *service_;
-  QWidget *container_     = nullptr;
-  SignalChartWidget *chart_ = nullptr;
-  QListWidget *channelList_ = nullptr;
-  QComboBox *windowSizeCombo_ = nullptr;
-  QLabel *statsLabel_ = nullptr;
+    SignalService* service_;
+    QWidget* container_ = nullptr;
+    SignalChartWidget* chart_ = nullptr;
+    QListWidget* channelList_ = nullptr;
+    QComboBox* windowSizeCombo_ = nullptr;
+    QLabel* statsLabel_ = nullptr;
 };

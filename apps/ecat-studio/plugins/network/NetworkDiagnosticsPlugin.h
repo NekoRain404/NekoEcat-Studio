@@ -13,41 +13,40 @@ class QTimer;
 class NetworkDiagnosticsService;
 
 class NetworkDiagnosticsPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit NetworkDiagnosticsPlugin(NetworkDiagnosticsService *service,
-                                    QObject *parent = nullptr);
+    explicit NetworkDiagnosticsPlugin(NetworkDiagnosticsService* service, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  void activate() override;
-  void deactivate() override;
+    void activate() override;
+    void deactivate() override;
 
-  NetworkDiagnosticsService *service() const { return service_; }
-  QTableWidget *portTable() const { return portTable_; }
-  QTableWidget *errorTable() const { return errorTable_; }
-  bool exportReportToFile(const QString &path);
+    NetworkDiagnosticsService* service() const { return service_; }
+    QTableWidget* portTable() const { return portTable_; }
+    QTableWidget* errorTable() const { return errorTable_; }
+    bool exportReportToFile(const QString& path);
 
 private:
-  void buildUi();
-  void updateDisplay();
-  void exportReport();
+    void buildUi();
+    void updateDisplay();
+    void exportReport();
 
-  NetworkDiagnosticsService *service_;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *portTable_ = nullptr;
-  QTableWidget *errorTable_ = nullptr;
-  QPushButton *startStopBtn_ = nullptr;
-  QPushButton *resetBtn_ = nullptr;
-  QPushButton *exportBtn_ = nullptr;
-  QLabel *statusLabel_ = nullptr;
-  QLabel *healthLabel_ = nullptr;
-  QLabel *bandwidthLabel_ = nullptr;
-  QLabel *latencyLabel_ = nullptr;
+    NetworkDiagnosticsService* service_;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* portTable_ = nullptr;
+    QTableWidget* errorTable_ = nullptr;
+    QPushButton* startStopBtn_ = nullptr;
+    QPushButton* resetBtn_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
+    QLabel* statusLabel_ = nullptr;
+    QLabel* healthLabel_ = nullptr;
+    QLabel* bandwidthLabel_ = nullptr;
+    QLabel* latencyLabel_ = nullptr;
 };

@@ -1,9 +1,9 @@
 #include "ConfigurationService.h"
 
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 
 // ConfigurationService.cpp — EtherCAT network configuration with JSON persistence
 //
@@ -21,7 +21,7 @@ QJsonObject MasterConfig::toJson() const {
     return obj;
 }
 
-MasterConfig MasterConfig::fromJson(const QJsonObject &obj) {
+MasterConfig MasterConfig::fromJson(const QJsonObject& obj) {
     MasterConfig c;
     c.adapter = obj["adapter"].toString();
     c.cycleTimeUs = obj["cycleTimeUs"].toInt(1000);
@@ -40,7 +40,7 @@ QJsonObject SlaveConfig::toJson() const {
     return obj;
 }
 
-SlaveConfig SlaveConfig::fromJson(const QJsonObject &obj) {
+SlaveConfig SlaveConfig::fromJson(const QJsonObject& obj) {
     SlaveConfig c;
     c.position = obj["position"].toInt(-1);
     c.name = obj["name"].toString();
@@ -59,7 +59,7 @@ QJsonObject NetworkConfig::toJson() const {
     return obj;
 }
 
-NetworkConfig NetworkConfig::fromJson(const QJsonObject &obj) {
+NetworkConfig NetworkConfig::fromJson(const QJsonObject& obj) {
     NetworkConfig c;
     c.ipAddress = obj["ipAddress"].toString();
     c.subnetMask = obj["subnetMask"].toString();
@@ -78,7 +78,7 @@ QJsonObject TimingConfig::toJson() const {
     return obj;
 }
 
-TimingConfig TimingConfig::fromJson(const QJsonObject &obj) {
+TimingConfig TimingConfig::fromJson(const QJsonObject& obj) {
     TimingConfig c;
     c.cycleTimeUs = obj["cycleTimeUs"].toInt(1000);
     c.sync0Shift = obj["sync0Shift"].toInt(0);
@@ -97,7 +97,7 @@ QJsonObject SafetyConfig::toJson() const {
     return obj;
 }
 
-SafetyConfig SafetyConfig::fromJson(const QJsonObject &obj) {
+SafetyConfig SafetyConfig::fromJson(const QJsonObject& obj) {
     SafetyConfig c;
     c.watchdogTimeoutMs = obj["watchdogTimeoutMs"].toInt(5000);
     c.errorBehavior = obj["errorBehavior"].toString("safeop");
@@ -106,12 +106,9 @@ SafetyConfig SafetyConfig::fromJson(const QJsonObject &obj) {
     return c;
 }
 
-ConfigurationService::ConfigurationService(QObject *parent)
-    : QObject(parent)
-{
-}
+ConfigurationService::ConfigurationService(QObject* parent) : QObject(parent) {}
 
-bool ConfigurationService::loadConfiguration(const QString &filePath) {
+bool ConfigurationService::loadConfiguration(const QString& filePath) {
     if (filePath.isEmpty())
         return false;
 
@@ -124,17 +121,14 @@ bool ConfigurationService::loadConfiguration(const QString &filePath) {
         return false;
 
     QJsonObject root = doc.object();
-    if (!root.value("master").isObject() ||
-        !root.value("network").isObject() ||
-        !root.value("timing").isObject() ||
-        !root.value("safety").isObject() ||
-        !root.value("slaves").isArray()) {
+    if (!root.value("master").isObject() || !root.value("network").isObject() || !root.value("timing").isObject() ||
+        !root.value("safety").isObject() || !root.value("slaves").isArray()) {
         return false;
     }
 
     QVector<SlaveConfig> loadedSlaves;
     const QJsonArray slavesArray = root.value("slaves").toArray();
-    for (const auto &v : slavesArray) {
+    for (const auto& v : slavesArray) {
         if (!v.isObject())
             return false;
         loadedSlaves.append(SlaveConfig::fromJson(v.toObject()));
@@ -155,7 +149,7 @@ bool ConfigurationService::loadConfiguration(const QString &filePath) {
     return true;
 }
 
-bool ConfigurationService::saveConfiguration(const QString &filePath) {
+bool ConfigurationService::saveConfiguration(const QString& filePath) {
     if (filePath.isEmpty())
         return false;
 
@@ -166,7 +160,7 @@ bool ConfigurationService::saveConfiguration(const QString &filePath) {
     root["safety"] = safety_.toJson();
 
     QJsonArray slaveArr;
-    for (const auto &s : slaves_)
+    for (const auto& s : slaves_)
         slaveArr.append(s.toJson());
     root["slaves"] = slaveArr;
 
@@ -198,7 +192,7 @@ ConfigValidationResult ConfigurationService::validateConfiguration() const {
     if (master_.cycleTimeUs < 100)
         r.warnings.append("Cycle time < 100us may cause instability");
 
-    for (const auto &slave : slaves_) {
+    for (const auto& slave : slaves_) {
         if (slave.position < 0) {
             r.valid = false;
             r.errors.append(QString("Slave '%1' has invalid position").arg(slave.name));
@@ -227,42 +221,42 @@ void ConfigurationService::resetToDefaults() {
     emit configurationChanged();
 }
 
-MasterConfig &ConfigurationService::masterConfig() {
+MasterConfig& ConfigurationService::masterConfig() {
     return master_;
 }
 
-const MasterConfig &ConfigurationService::masterConfig() const {
+const MasterConfig& ConfigurationService::masterConfig() const {
     return master_;
 }
 
-QVector<SlaveConfig> &ConfigurationService::slaveConfigs() {
+QVector<SlaveConfig>& ConfigurationService::slaveConfigs() {
     return slaves_;
 }
 
-const QVector<SlaveConfig> &ConfigurationService::slaveConfigs() const {
+const QVector<SlaveConfig>& ConfigurationService::slaveConfigs() const {
     return slaves_;
 }
 
-NetworkConfig &ConfigurationService::networkConfig() {
+NetworkConfig& ConfigurationService::networkConfig() {
     return network_;
 }
 
-const NetworkConfig &ConfigurationService::networkConfig() const {
+const NetworkConfig& ConfigurationService::networkConfig() const {
     return network_;
 }
 
-TimingConfig &ConfigurationService::timingConfig() {
+TimingConfig& ConfigurationService::timingConfig() {
     return timing_;
 }
 
-const TimingConfig &ConfigurationService::timingConfig() const {
+const TimingConfig& ConfigurationService::timingConfig() const {
     return timing_;
 }
 
-SafetyConfig &ConfigurationService::safetyConfig() {
+SafetyConfig& ConfigurationService::safetyConfig() {
     return safety_;
 }
 
-const SafetyConfig &ConfigurationService::safetyConfig() const {
+const SafetyConfig& ConfigurationService::safetyConfig() const {
     return safety_;
 }

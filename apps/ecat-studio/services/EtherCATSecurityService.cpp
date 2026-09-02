@@ -8,9 +8,7 @@
 //   - Maintains audit log with timestamped entries and severity levels
 //   - Audit aggregates critical/warning counts from log entries
 
-EtherCATSecurityService::EtherCATSecurityService(QObject *parent)
-    : QObject(parent)
-{
+EtherCATSecurityService::EtherCATSecurityService(QObject* parent) : QObject(parent) {
     policy_.level = 2;
     policy_.encryptionEnabled = true;
     policy_.authenticationRequired = true;
@@ -26,25 +24,22 @@ EtherCATSecurityService::EtherCATSecurityService(QObject *parent)
     auditLog_.append(entry);
 }
 
-void EtherCATSecurityService::setSecurityPolicy(const SecurityPolicy &policy)
-{
+void EtherCATSecurityService::setSecurityPolicy(const SecurityPolicy& policy) {
     policy_ = policy;
     emit policyChanged();
 }
 
-SecurityPolicy EtherCATSecurityService::currentPolicy() const
-{
+SecurityPolicy EtherCATSecurityService::currentPolicy() const {
     return policy_;
 }
 
-SecurityAuditResult EtherCATSecurityService::runAudit()
-{
+SecurityAuditResult EtherCATSecurityService::runAudit() {
     SecurityAuditResult result;
     result.entries = auditLog_;
     result.totalEvents = auditLog_.size();
     result.criticalCount = 0;
     result.warningCount = 0;
-    for (const auto &e : auditLog_) {
+    for (const auto& e : auditLog_) {
         if (e.severity >= 3)
             result.criticalCount++;
         else if (e.severity >= 2)
@@ -54,8 +49,7 @@ SecurityAuditResult EtherCATSecurityService::runAudit()
     return result;
 }
 
-bool EtherCATSecurityService::validateAccess(const QString &userId, const QString &resource)
-{
+bool EtherCATSecurityService::validateAccess(const QString& userId, const QString& resource) {
     Q_UNUSED(resource);
     if (!policy_.authenticationRequired)
         return true;
@@ -73,8 +67,7 @@ bool EtherCATSecurityService::validateAccess(const QString &userId, const QStrin
     return false;
 }
 
-QVector<SecurityAuditEntry> EtherCATSecurityService::recentEvents(int count)
-{
+QVector<SecurityAuditEntry> EtherCATSecurityService::recentEvents(int count) {
     if (count >= auditLog_.size())
         return auditLog_;
     return auditLog_.mid(auditLog_.size() - count);

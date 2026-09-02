@@ -1,12 +1,8 @@
 #include "WorkflowMaintenanceService.h"
 
-WorkflowMaintenanceService::WorkflowMaintenanceService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowMaintenanceService::WorkflowMaintenanceService(QObject* parent) : QObject(parent) {}
 
-bool WorkflowMaintenanceService::scheduleMaintenance(const WfMaintenanceTask &task)
-{
+bool WorkflowMaintenanceService::scheduleMaintenance(const WfMaintenanceTask& task) {
     if (task.description.isEmpty())
         return false;
 
@@ -21,8 +17,7 @@ bool WorkflowMaintenanceService::scheduleMaintenance(const WfMaintenanceTask &ta
     return true;
 }
 
-bool WorkflowMaintenanceService::executeMaintenance(int taskId)
-{
+bool WorkflowMaintenanceService::executeMaintenance(int taskId) {
     for (int i = 0; i < tasks_.size(); ++i) {
         if (tasks_[i].taskId == taskId) {
             return false;
@@ -31,12 +26,10 @@ bool WorkflowMaintenanceService::executeMaintenance(int taskId)
     return false;
 }
 
-QVector<WfMaintenanceRecord> WorkflowMaintenanceService::maintenanceHistory() const
-{
+QVector<WfMaintenanceRecord> WorkflowMaintenanceService::maintenanceHistory() const {
     return history_;
 }
 
-QVector<WfMaintenanceTask> WorkflowMaintenanceService::maintenanceSchedule() const
-{
+QVector<WfMaintenanceTask> WorkflowMaintenanceService::maintenanceSchedule() const {
     return tasks_;
 }

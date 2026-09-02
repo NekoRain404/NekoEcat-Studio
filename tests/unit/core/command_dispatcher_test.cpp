@@ -19,28 +19,29 @@ namespace {
 
 int failures = 0;
 
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
 
-void expectTrue(bool cond, const QString &msg) {
-    if (!cond) fail(msg);
+void expectTrue(bool cond, const QString& msg) {
+    if (!cond)
+        fail(msg);
 }
 
-void expectEqual(const QString &actual, const QString &expected, const QString &msg) {
+void expectEqual(const QString& actual, const QString& expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: expected '%2', got '%3'").arg(msg, expected, actual));
 }
 
-void expectEqual(int actual, int expected, const QString &msg) {
+void expectEqual(int actual, int expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: expected %2, got %3").arg(msg).arg(expected).arg(actual));
 }
 
 } // namespace
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     // Test 1: dispatch returns unknown-method error for unregistered method
@@ -50,8 +51,7 @@ int main(int argc, char *argv[]) {
         QJsonObject response = dispatcher.dispatch(request);
         expectEqual(response["id"].toString(), QString("1"), "T1: id echoed");
         expectTrue(!response["ok"].toBool(), "T1: ok is false");
-        expectTrue(response["error"].toObject()["message"].toString()
-                       .contains("nonexistent"),
+        expectTrue(response["error"].toObject()["message"].toString().contains("nonexistent"),
                    "T1: error mentions method name");
     }
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     {
         CommandDispatcher dispatcher;
         bool called = false;
-        dispatcher.registerHandler("ping", [&](const QString &id, const QJsonObject &) -> QJsonObject {
+        dispatcher.registerHandler("ping", [&](const QString& id, const QJsonObject&) -> QJsonObject {
             called = true;
             return CommandDispatcher::success(id, {{"name", "ecatd"}});
         });
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     {
         CommandDispatcher dispatcher;
         QJsonObject receivedParams;
-        dispatcher.registerHandler("test", [&](const QString &id, const QJsonObject &params) -> QJsonObject {
+        dispatcher.registerHandler("test", [&](const QString& id, const QJsonObject& params) -> QJsonObject {
             receivedParams = params;
             return CommandDispatcher::success(id);
         });
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     // Test 4: handler returning failure propagates correctly
     {
         CommandDispatcher dispatcher;
-        dispatcher.registerHandler("fail", [](const QString &id, const QJsonObject &) -> QJsonObject {
+        dispatcher.registerHandler("fail", [](const QString& id, const QJsonObject&) -> QJsonObject {
             return CommandDispatcher::failure(id, "boom");
         });
         QJsonObject response = dispatcher.dispatch({{"id", "9"}, {"method", "fail"}, {"params", {}}});
@@ -96,10 +96,10 @@ int main(int argc, char *argv[]) {
     // Test 5: registerHandler overwrites previous handler
     {
         CommandDispatcher dispatcher;
-        dispatcher.registerHandler("dup", [](const QString &id, const QJsonObject &) -> QJsonObject {
+        dispatcher.registerHandler("dup", [](const QString& id, const QJsonObject&) -> QJsonObject {
             return CommandDispatcher::success(id, {{"v", 1}});
         });
-        dispatcher.registerHandler("dup", [](const QString &id, const QJsonObject &) -> QJsonObject {
+        dispatcher.registerHandler("dup", [](const QString& id, const QJsonObject&) -> QJsonObject {
             return CommandDispatcher::success(id, {{"v", 2}});
         });
         QJsonObject response = dispatcher.dispatch({{"id", "10"}, {"method", "dup"}, {"params", {}}});
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     // Test 7: missing id still produces valid response
     {
         CommandDispatcher dispatcher;
-        dispatcher.registerHandler("noop", [](const QString &id, const QJsonObject &) -> QJsonObject {
+        dispatcher.registerHandler("noop", [](const QString& id, const QJsonObject&) -> QJsonObject {
             return CommandDispatcher::success(id);
         });
         QJsonObject response = dispatcher.dispatch({{"method", "noop"}, {"params", {}}});

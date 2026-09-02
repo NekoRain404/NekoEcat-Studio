@@ -16,147 +16,146 @@
 //   - Monitoring signals and offline start/stop lifecycle
 //   - Idempotent offline start/stop monitoring
 
-#include <QTest>
-#include <QSignalSpy>
 #include "infra/EcatClient.h"
+#include "services/AlEventService.h"
+#include "services/DcSyncService.h"
+#include "services/EcatHealthService.h"
 #include "services/EventBus.h"
 #include "services/TopologyService.h"
-#include "services/DcSyncService.h"
-#include "services/AlEventService.h"
 #include "services/WatchdogService.h"
-#include "services/EcatHealthService.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class EcatHealthServiceTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private:
-  EcatClient *client_ = nullptr;
-  EventBus *bus_ = nullptr;
-  TopologyService *topology_ = nullptr;
-  DcSyncService *dcSync_ = nullptr;
-  AlEventService *alEvent_ = nullptr;
-  WatchdogService *watchdog_ = nullptr;
-  EcatHealthService *svc_ = nullptr;
+    EcatClient* client_ = nullptr;
+    EventBus* bus_ = nullptr;
+    TopologyService* topology_ = nullptr;
+    DcSyncService* dcSync_ = nullptr;
+    AlEventService* alEvent_ = nullptr;
+    WatchdogService* watchdog_ = nullptr;
+    EcatHealthService* svc_ = nullptr;
 
 private slots:
-  void init() {
-    client_ = new EcatClient(this);
-    bus_ = new EventBus(this);
-    topology_ = new TopologyService(client_, this);
-    dcSync_ = new DcSyncService(client_, this);
-    alEvent_ = new AlEventService(client_, this);
-    watchdog_ = new WatchdogService(bus_, client_, this);
-    svc_ = new EcatHealthService(client_, bus_, topology_, dcSync_,
-                                  alEvent_, watchdog_, this);
-  }
+    void init() {
+        client_ = new EcatClient(this);
+        bus_ = new EventBus(this);
+        topology_ = new TopologyService(client_, this);
+        dcSync_ = new DcSyncService(client_, this);
+        alEvent_ = new AlEventService(client_, this);
+        watchdog_ = new WatchdogService(bus_, client_, this);
+        svc_ = new EcatHealthService(client_, bus_, topology_, dcSync_, alEvent_, watchdog_, this);
+    }
 
-  void cleanup() {
-    delete svc_;
-    svc_ = nullptr;
-    delete watchdog_;
-    delete alEvent_;
-    delete dcSync_;
-    delete topology_;
-    delete bus_;
-    delete client_;
-    watchdog_ = nullptr;
-    alEvent_ = nullptr;
-    dcSync_ = nullptr;
-    topology_ = nullptr;
-    bus_ = nullptr;
-    client_ = nullptr;
-  }
+    void cleanup() {
+        delete svc_;
+        svc_ = nullptr;
+        delete watchdog_;
+        delete alEvent_;
+        delete dcSync_;
+        delete topology_;
+        delete bus_;
+        delete client_;
+        watchdog_ = nullptr;
+        alEvent_ = nullptr;
+        dcSync_ = nullptr;
+        topology_ = nullptr;
+        bus_ = nullptr;
+        client_ = nullptr;
+    }
 
-  // Verify default state is not monitoring with empty master state
-  void testDefaultState() {
-    QVERIFY(!svc_->isMonitoring());
-    auto master = svc_->masterState();
-    QVERIFY(master.state.isEmpty());
-    QVERIFY(!master.responsive);
-  }
+    // Verify default state is not monitoring with empty master state
+    void testDefaultState() {
+        QVERIFY(!svc_->isMonitoring());
+        auto master = svc_->masterState();
+        QVERIFY(master.state.isEmpty());
+        QVERIFY(!master.responsive);
+    }
 
-  // No sampled bus evidence must not be reported as healthy.
-  void testDefaultHealthScoreIsUnknownWithoutEvidence() {
-    auto health = svc_->overallHealth();
-    QCOMPARE(health.score, 0);
-    QCOMPARE(health.grade, QStringLiteral("Unknown"));
-    QCOMPARE(health.summary, QStringLiteral("No EtherCAT health evidence sampled"));
-    QVERIFY(health.totalSlaves == 0);
-    QCOMPARE(health.opSlaves, 0);
-    QCOMPARE(health.safeOpSlaves, 0);
-    QCOMPARE(health.preOpSlaves, 0);
-    QCOMPARE(health.initSlaves, 0);
-    QCOMPARE(health.errorSlaves, 0);
-  }
+    // No sampled bus evidence must not be reported as healthy.
+    void testDefaultHealthScoreIsUnknownWithoutEvidence() {
+        auto health = svc_->overallHealth();
+        QCOMPARE(health.score, 0);
+        QCOMPARE(health.grade, QStringLiteral("Unknown"));
+        QCOMPARE(health.summary, QStringLiteral("No EtherCAT health evidence sampled"));
+        QVERIFY(health.totalSlaves == 0);
+        QCOMPARE(health.opSlaves, 0);
+        QCOMPARE(health.safeOpSlaves, 0);
+        QCOMPARE(health.preOpSlaves, 0);
+        QCOMPARE(health.initSlaves, 0);
+        QCOMPARE(health.errorSlaves, 0);
+    }
 
-  // Verify default DC sync status is out-of-sync
-  // Verify default DC sync status is not in sync
-  void testDefaultDcSyncStatus() {
-    auto dc = svc_->dcSyncStatus();
-    QVERIFY(!dc.inSync);
-    QCOMPARE(dc.driftNs, 0.0);
-    QCOMPARE(dc.referencePort, 0);
-  }
+    // Verify default DC sync status is out-of-sync
+    // Verify default DC sync status is not in sync
+    void testDefaultDcSyncStatus() {
+        auto dc = svc_->dcSyncStatus();
+        QVERIFY(!dc.inSync);
+        QCOMPARE(dc.driftNs, 0.0);
+        QCOMPARE(dc.referencePort, 0);
+    }
 
-  // Verify default AL event status has no errors
-  // Verify default AL event status has no errors
-  void testDefaultAlEventStatus() {
-    auto al = svc_->alEventStatus();
-    QCOMPARE(al.events, quint32(0));
-    QVERIFY(!al.hasError);
-    QVERIFY(al.lastError.isEmpty());
-  }
+    // Verify default AL event status has no errors
+    // Verify default AL event status has no errors
+    void testDefaultAlEventStatus() {
+        auto al = svc_->alEventStatus();
+        QCOMPARE(al.events, quint32(0));
+        QVERIFY(!al.hasError);
+        QVERIFY(al.lastError.isEmpty());
+    }
 
-  // Verify default watchdog status is not triggered
-  // Verify default watchdog status is not triggered
-  void testDefaultWatchdogStatus() {
-    auto wd = svc_->watchdogStatus();
-    QVERIFY(!wd.triggered);
-    QCOMPARE(wd.expiredSlaves, 0);
-    QVERIFY(wd.detail.isEmpty());
-  }
+    // Verify default watchdog status is not triggered
+    // Verify default watchdog status is not triggered
+    void testDefaultWatchdogStatus() {
+        auto wd = svc_->watchdogStatus();
+        QVERIFY(!wd.triggered);
+        QCOMPARE(wd.expiredSlaves, 0);
+        QVERIFY(wd.detail.isEmpty());
+    }
 
-  // Verify slave state returns defaults for out-of-range position
-  // Verify slave state returns empty for out-of-range position
-  void testSlaveStateOutOfRange() {
-    auto ss = svc_->slaveState(99);
-    QCOMPARE(ss.position, -1);
-    QVERIFY(ss.state.isEmpty());
-    QVERIFY(!ss.responding);
-    QVERIFY(!ss.hasError);
-  }
+    // Verify slave state returns defaults for out-of-range position
+    // Verify slave state returns empty for out-of-range position
+    void testSlaveStateOutOfRange() {
+        auto ss = svc_->slaveState(99);
+        QCOMPARE(ss.position, -1);
+        QVERIFY(ss.state.isEmpty());
+        QVERIFY(!ss.responding);
+        QVERIFY(!ss.hasError);
+    }
 
-  // Verify health and state signals are valid
-  // Verify healthChanged and stateChanged signals are valid
-  void testMonitoringSignals() {
-    QSignalSpy healthSpy(svc_, &EcatHealthService::healthChanged);
-    QSignalSpy stateSpy(svc_, &EcatHealthService::stateChanged);
-    QVERIFY(healthSpy.isValid());
-    QVERIFY(stateSpy.isValid());
-  }
+    // Verify health and state signals are valid
+    // Verify healthChanged and stateChanged signals are valid
+    void testMonitoringSignals() {
+        QSignalSpy healthSpy(svc_, &EcatHealthService::healthChanged);
+        QSignalSpy stateSpy(svc_, &EcatHealthService::stateChanged);
+        QVERIFY(healthSpy.isValid());
+        QVERIFY(stateSpy.isValid());
+    }
 
-  // Offline start must not synthesize active health monitoring.
-  void testStartStopMonitoringOffline() {
-    svc_->startMonitoring(100);
-    QVERIFY(!svc_->isMonitoring());
-    svc_->stopMonitoring();
-    QVERIFY(!svc_->isMonitoring());
-  }
+    // Offline start must not synthesize active health monitoring.
+    void testStartStopMonitoringOffline() {
+        svc_->startMonitoring(100);
+        QVERIFY(!svc_->isMonitoring());
+        svc_->stopMonitoring();
+        QVERIFY(!svc_->isMonitoring());
+    }
 
-  // Verify repeated offline start remains inactive.
-  void testStartMonitoringIdempotentOffline() {
-    svc_->startMonitoring(100);
-    svc_->startMonitoring(100);
-    QVERIFY(!svc_->isMonitoring());
-    svc_->stopMonitoring();
-  }
+    // Verify repeated offline start remains inactive.
+    void testStartMonitoringIdempotentOffline() {
+        svc_->startMonitoring(100);
+        svc_->startMonitoring(100);
+        QVERIFY(!svc_->isMonitoring());
+        svc_->stopMonitoring();
+    }
 
-  // Verify stopping monitoring twice is idempotent
-  // Verify stopping monitoring twice is idempotent
-  void testStopMonitoringIdempotent() {
-    svc_->stopMonitoring();
-    svc_->stopMonitoring();
-    QVERIFY(!svc_->isMonitoring());
-  }
+    // Verify stopping monitoring twice is idempotent
+    // Verify stopping monitoring twice is idempotent
+    void testStopMonitoringIdempotent() {
+        svc_->stopMonitoring();
+        svc_->stopMonitoring();
+        QVERIFY(!svc_->isMonitoring());
+    }
 };
 
 QTEST_MAIN(EcatHealthServiceTest)

@@ -7,8 +7,7 @@
 #include <QRegularExpression>
 
 // Read an SoE IDN using `ethercat soe_read -p N [drive] <IDN> [--type T]`.
-QJsonObject SoEHandler::handleSoeRead(const QString &id, const QJsonObject &params)
-{
+QJsonObject SoEHandler::handleSoeRead(const QString& id, const QJsonObject& params) {
     const int position = params.value("position").toInt(-1);
     const QString idn = params.value("idn").toString().trimmed();
     const int drive = params.value("drive").toInt(0);
@@ -35,9 +34,8 @@ QJsonObject SoEHandler::handleSoeRead(const QString &id, const QJsonObject &para
     QString stdoutData, stderrData;
     const int exitCode = runEthercatCommand(args, &stdoutData, &stderrData);
     if (exitCode != 0) {
-        const QString msg = stderrData.trimmed().isEmpty()
-            ? QString("SoE read failed with exit code %1").arg(exitCode)
-            : stderrData.trimmed();
+        const QString msg = stderrData.trimmed().isEmpty() ? QString("SoE read failed with exit code %1").arg(exitCode)
+                                                           : stderrData.trimmed();
         return CommandDispatcher::failure(id, msg);
     }
 
@@ -50,8 +48,7 @@ QJsonObject SoEHandler::handleSoeRead(const QString &id, const QJsonObject &para
 }
 
 // Write an SoE IDN using `ethercat soe_write -p N [--type T] [drive] <IDN> <value>`.
-QJsonObject SoEHandler::handleSoeWrite(const QString &id, const QJsonObject &params)
-{
+QJsonObject SoEHandler::handleSoeWrite(const QString& id, const QJsonObject& params) {
     const int position = params.value("position").toInt(-1);
     const QString idn = params.value("idn").toString().trimmed();
     const QString value = params.value("value").toString();
@@ -81,9 +78,8 @@ QJsonObject SoEHandler::handleSoeWrite(const QString &id, const QJsonObject &par
     QString stdoutData, stderrData;
     const int exitCode = runEthercatCommand(args, &stdoutData, &stderrData);
     if (exitCode != 0) {
-        const QString msg = stderrData.trimmed().isEmpty()
-            ? QString("SoE write failed with exit code %1").arg(exitCode)
-            : stderrData.trimmed();
+        const QString msg = stderrData.trimmed().isEmpty() ? QString("SoE write failed with exit code %1").arg(exitCode)
+                                                           : stderrData.trimmed();
         return CommandDispatcher::failure(id, msg);
     }
 
@@ -91,22 +87,20 @@ QJsonObject SoEHandler::handleSoeWrite(const QString &id, const QJsonObject &par
     result["success"] = true;
     result["idn"] = idn;
     result["drive"] = drive;
-    result["message"] = QString("IDN %1 written to slave %2 (drive %3)")
-                            .arg(idn).arg(position).arg(drive);
+    result["message"] = QString("IDN %1 written to slave %2 (drive %3)").arg(idn).arg(position).arg(drive);
     return CommandDispatcher::success(id, result);
 }
 
 // Validate an IDN: either S-x-yyyy / P-x-yyyy form, or a numeric (dec/hex) value.
-bool SoEHandler::validateIdn(const QString &idn, QString *error) const
-{
+bool SoEHandler::validateIdn(const QString& idn, QString* error) const {
     if (idn.isEmpty()) {
-        if (error) *error = "Missing 'idn' parameter.";
+        if (error)
+            *error = "Missing 'idn' parameter.";
         return false;
     }
 
     // String form: [SP]-<paramset 0-7>-<datablock> e.g. "P-0-0150", "S-0-1000".
-    static QRegularExpression strRe(
-        R"(^[SsPp]-[0-7]-\d{1,5}$)");
+    static QRegularExpression strRe(R"(^[SsPp]-[0-7]-\d{1,5}$)");
     if (strRe.match(idn).hasMatch()) {
         return true;
     }
@@ -118,7 +112,8 @@ bool SoEHandler::validateIdn(const QString &idn, QString *error) const
     } else {
         idn.toUInt(&ok, 0);
     }
-    if (ok) return true;
+    if (ok)
+        return true;
 
     if (error) {
         *error = QString("Invalid IDN '%1'. Use S-x-yyyy, P-x-yyyy, or a numeric value.").arg(idn);
@@ -126,9 +121,8 @@ bool SoEHandler::validateIdn(const QString &idn, QString *error) const
     return false;
 }
 
-int SoEHandler::runEthercatCommand(const QStringList &args, QString *output,
-                                   QString *errorOutput, int timeoutMs) const
-{
+int SoEHandler::runEthercatCommand(const QStringList& args, QString* output, QString* errorOutput,
+                                   int timeoutMs) const {
     QProcess proc;
     proc.start("ethercat", args);
     if (!proc.waitForFinished(timeoutMs)) {

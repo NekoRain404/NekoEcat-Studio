@@ -14,21 +14,15 @@
 
 // ─── Construction ──────────────────────────────────────────────────────────
 
-DcSyncHandler::DcSyncHandler(EcatService *backend)
-    : backend_(backend)
-{
-}
+DcSyncHandler::DcSyncHandler(EcatService* backend) : backend_(backend) {}
 
-void DcSyncHandler::setBackend(EcatService *backend)
-{
+void DcSyncHandler::setBackend(EcatService* backend) {
     backend_ = backend;
 }
 
 // ─── CLI helper ────────────────────────────────────────────────────────────
 
-QString DcSyncHandler::runCliCommand(const QString &master,
-                                     const QStringList &args) const
-{
+QString DcSyncHandler::runCliCommand(const QString& master, const QStringList& args) const {
     // Prefer EcatService backend when available (consistent with other handlers).
     if (backend_ && args.size() == 1 && args.first() == "master") {
         return backend_->masterText(master);
@@ -54,25 +48,21 @@ QString DcSyncHandler::runCliCommand(const QString &master,
 
 // ─── JSON-RPC entry point ──────────────────────────────────────────────────
 
-QJsonObject DcSyncHandler::handle(const QString &id, const QJsonObject &params)
-{
+QJsonObject DcSyncHandler::handle(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
-    const QString slaveOutput = runCliCommand(
-        master, {"slaves", "-v"});
-    const QString masterOutput = runCliCommand(
-        master, {"master"});
+    const QString slaveOutput = runCliCommand(master, {"slaves", "-v"});
+    const QString masterOutput = runCliCommand(master, {"master"});
 
     if (slaveOutput.isEmpty() && masterOutput.isEmpty()) {
-        return CommandDispatcher::failure(id,
-            "Failed to query DC status. Is the EtherCAT master running?");
+        return CommandDispatcher::failure(id, "Failed to query DC status. Is the EtherCAT master running?");
     }
 
     const int refClock = detectRefClock(masterOutput);
     const auto slaves = queryDcStatus(slaveOutput);
 
     QJsonArray slaveArr;
-    for (const auto &info : slaves) {
+    for (const auto& info : slaves) {
         slaveArr.append(slaveInfoToJson(info));
     }
 
@@ -98,8 +88,7 @@ QJsonObject DcSyncHandler::handle(const QString &id, const QJsonObject &params)
 
 // ─── Optional ecrt enrichment ──────────────────────────────────────────────
 
-void DcSyncHandler::update(ec_master_t *master, int slaveCount)
-{
+void DcSyncHandler::update(ec_master_t* master, int slaveCount) {
     if (!master || slaveCount <= 0) {
         return;
     }
@@ -136,9 +125,7 @@ void DcSyncHandler::update(ec_master_t *master, int slaveCount)
 
 // ─── Parse DC info from `ethercat slaves -v` output ────────────────────────
 
-QVector<DcSyncSlaveInfo>
-DcSyncHandler::queryDcStatus(const QString &slaveVerboseOutput) const
-{
+QVector<DcSyncSlaveInfo> DcSyncHandler::queryDcStatus(const QString& slaveVerboseOutput) const {
     QVector<DcSyncSlaveInfo> result;
     if (slaveVerboseOutput.isEmpty())
         return result;
@@ -153,34 +140,27 @@ DcSyncHandler::queryDcStatus(const QString &slaveVerboseOutput) const
         QStringLiteral("Alias\\s+0x[0-9a-fA-F]+,\\s+Position\\s+0x([0-9a-fA-F]+)"));
 
     // Short-form header: "0  0:0   OP  +  EL1008"
-    static const QRegularExpression shortHeaderRe(
-        QStringLiteral("^(\\d+)\\s+\\d+:\\d+\\s+"));
+    static const QRegularExpression shortHeaderRe(QStringLiteral("^(\\d+)\\s+\\d+:\\d+\\s+"));
 
     // DC capability marker.
-    static const QRegularExpression dcCapableRe(
-        QStringLiteral("Distributed Clocks:"));
+    static const QRegularExpression dcCapableRe(QStringLiteral("Distributed Clocks:"));
 
     // Jitter line.
-    static const QRegularExpression jitterRe(
-        QStringLiteral("Jitter:\\s+(-?\\d+)\\s+ns"));
+    static const QRegularExpression jitterRe(QStringLiteral("Jitter:\\s+(-?\\d+)\\s+ns"));
 
     // Drift / offset line.
-    static const QRegularExpression driftRe(
-        QStringLiteral("(?:Drift|Offset):\\s+(-?\\d+)\\s+ns"));
+    static const QRegularExpression driftRe(QStringLiteral("(?:Drift|Offset):\\s+(-?\\d+)\\s+ns"));
 
     // Reference clock designation.
-    static const QRegularExpression refClkRe(
-        QStringLiteral("Reference Clock"));
+    static const QRegularExpression refClkRe(QStringLiteral("Reference Clock"));
 
     // System time line (non-zero implies syncing).
-    static const QRegularExpression sysTimeRe(
-        QStringLiteral("System Time:\\s+(-?\\d+)\\s+ns"));
+    static const QRegularExpression sysTimeRe(QStringLiteral("System Time:\\s+(-?\\d+)\\s+ns"));
 
     // Slave name from short-form lines: "+  EL1008"
-    static const QRegularExpression nameRe(
-        QStringLiteral("\\+\\s+(\\S+)$"));
+    static const QRegularExpression nameRe(QStringLiteral("\\+\\s+(\\S+)$"));
 
-    for (const QString &line : lines) {
+    for (const QString& line : lines) {
         // Detect new slave block via the long-form header.
         auto headerMatch = headerRe.match(line);
         if (headerMatch.hasMatch()) {
@@ -250,18 +230,15 @@ DcSyncHandler::queryDcStatus(const QString &slaveVerboseOutput) const
 
 // ─── Detect reference clock from `ethercat master` output ──────────────────
 
-int DcSyncHandler::detectRefClock(const QString &masterOutput) const
-{
+int DcSyncHandler::detectRefClock(const QString& masterOutput) const {
     if (masterOutput.isEmpty())
         return -1;
 
     // Pattern 1: "DC reference clock: Slave N"
-    static const QRegularExpression dcRefRe(
-        QStringLiteral("DC reference clock:\\s*Slave\\s+(\\d+)"));
+    static const QRegularExpression dcRefRe(QStringLiteral("DC reference clock:\\s*Slave\\s+(\\d+)"));
 
     // Pattern 2: "Slave N: ... reference clock" (inline designation)
-    static const QRegularExpression slaveRefRe(
-        QStringLiteral("Slave\\s+(\\d+)\\b.*reference clock"));
+    static const QRegularExpression slaveRefRe(QStringLiteral("Slave\\s+(\\d+)\\b.*reference clock"));
 
     auto m1 = dcRefRe.match(masterOutput);
     if (m1.hasMatch())
@@ -276,8 +253,7 @@ int DcSyncHandler::detectRefClock(const QString &masterOutput) const
 
 // ─── Convert slave info to JSON ────────────────────────────────────────────
 
-QJsonObject DcSyncHandler::slaveInfoToJson(const DcSyncSlaveInfo &info) const
-{
+QJsonObject DcSyncHandler::slaveInfoToJson(const DcSyncSlaveInfo& info) const {
     QJsonObject obj;
     obj["pos"] = info.position;
     obj["dcCapable"] = info.dcCapable;
@@ -294,8 +270,7 @@ QJsonObject DcSyncHandler::slaveInfoToJson(const DcSyncSlaveInfo &info) const
 
 // ─── Convert DC config to JSON ──────────────────────────────────────────────
 
-QJsonObject DcSyncHandler::dcConfigToJson(const DcConfig &config) const
-{
+QJsonObject DcSyncHandler::dcConfigToJson(const DcConfig& config) const {
     QJsonObject obj;
     obj["assignActivate"] = static_cast<qint64>(config.assignActivate);
     obj["sync0CycleNs"] = static_cast<qint64>(config.sync0CycleNs);
@@ -308,8 +283,7 @@ QJsonObject DcSyncHandler::dcConfigToJson(const DcConfig &config) const
 
 // ─── Parse DC configuration from ESI XML ────────────────────────────────────
 
-DcConfig DcSyncHandler::parseDcConfigFromXml(const QString &xmlText) const
-{
+DcConfig DcSyncHandler::parseDcConfigFromXml(const QString& xmlText) const {
     DcConfig config;
 
     // Walk the XML looking for the <Dc> element with assign-activate and
@@ -338,8 +312,7 @@ DcConfig DcSyncHandler::parseDcConfigFromXml(const QString &xmlText) const
 
             if (name == QLatin1String("Dc")) {
                 inDc = true;
-            } else if (inDc && (name == QLatin1String("OpMode") ||
-                                name == QLatin1String("OpModeData"))) {
+            } else if (inDc && (name == QLatin1String("OpMode") || name == QLatin1String("OpModeData"))) {
                 inOpMode = true;
             } else if (inOpMode) {
                 // The text content will be read by readElementText() below.
@@ -365,12 +338,11 @@ DcConfig DcSyncHandler::parseDcConfigFromXml(const QString &xmlText) const
             }
         } else if (xml.isEndElement()) {
             const QString name = xml.name().toString();
-            if (name == QLatin1String("OpMode") ||
-                name == QLatin1String("OpModeData")) {
+            if (name == QLatin1String("OpMode") || name == QLatin1String("OpModeData")) {
                 inOpMode = false;
             } else if (name == QLatin1String("Dc")) {
                 inDc = false;
-                break;  // First Dc block is sufficient.
+                break; // First Dc block is sufficient.
             }
         }
     }
@@ -386,24 +358,22 @@ DcConfig DcSyncHandler::parseDcConfigFromXml(const QString &xmlText) const
 
 // ─── DC Configure: query ESI XML and extract DC parameters ──────────────────
 
-QJsonObject DcSyncHandler::handleDcConfigure(const QString &id,
-                                              const QJsonObject &params)
-{
+QJsonObject DcSyncHandler::handleDcConfigure(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
     const int position = params.value("position").toInt(-1);
 
     if (position < 0) {
         return CommandDispatcher::failure(id,
-            "dcConfigure requires a 'position' parameter specifying the slave index.");
+                                          "dcConfigure requires a 'position' parameter specifying the slave index.");
     }
 
     // Query ESI XML for the slave to extract DC configuration.
     const QString xmlOutput = runCliCommand(master, {"xml", QString::number(position)});
 
     if (xmlOutput.isEmpty()) {
-        return CommandDispatcher::failure(id,
-            QString("Failed to query ESI XML for slave %1. "
-                    "Is the EtherCAT master running?").arg(position));
+        return CommandDispatcher::failure(id, QString("Failed to query ESI XML for slave %1. "
+                                                      "Is the EtherCAT master running?")
+                                                  .arg(position));
     }
 
     DcConfig config = parseDcConfigFromXml(xmlOutput);
@@ -415,7 +385,7 @@ QJsonObject DcSyncHandler::handleDcConfigure(const QString &id,
     // Find the target slave's current DC state.
     bool dcCapable = false;
     bool syncing = false;
-    for (const auto &info : slaves) {
+    for (const auto& info : slaves) {
         if (info.position == position) {
             dcCapable = info.dcCapable;
             syncing = info.syncing;
@@ -440,9 +410,7 @@ QJsonObject DcSyncHandler::handleDcConfigure(const QString &id,
 
 // ─── DC Activate: select reference clock and enable distributed clocks ──────
 
-QJsonObject DcSyncHandler::handleDcActivate(const QString &id,
-                                             const QJsonObject &params)
-{
+QJsonObject DcSyncHandler::handleDcActivate(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
     // refClockSlave: explicit slave index, or -1 (default) for auto-detect.
@@ -453,16 +421,16 @@ QJsonObject DcSyncHandler::handleDcActivate(const QString &id,
     if (refClockSlave < 0) {
         const QString slaveOutput = runCliCommand(master, {"slaves", "-v"});
         const auto slaves = queryDcStatus(slaveOutput);
-        for (const auto &info : slaves) {
+        for (const auto& info : slaves) {
             if (info.dcCapable) {
                 effectiveRef = info.position;
                 break;
             }
         }
         if (effectiveRef < 0) {
-            return CommandDispatcher::failure(id,
-                "No DC-capable slave found on the bus for reference clock selection. "
-                "Specify 'refClockSlave' explicitly or ensure a DC-capable slave is connected.");
+            return CommandDispatcher::failure(
+                id, "No DC-capable slave found on the bus for reference clock selection. "
+                    "Specify 'refClockSlave' explicitly or ensure a DC-capable slave is connected.");
         }
     }
 
@@ -479,7 +447,7 @@ QJsonObject DcSyncHandler::handleDcActivate(const QString &id,
         // how rtDataValid_ works — the daemon polls us, and we enrich with live data.
         dcRefClockSlave_ = effectiveRef;
         dcActivated_ = true;
-        ecrtRefSet = rtDataValid_;  // True if a live master is active.
+        ecrtRefSet = rtDataValid_; // True if a live master is active.
         assignActivate = activeDcConfig_.assignActivate;
         sync0CycleNs = activeDcConfig_.sync0CycleNs;
     }
@@ -504,9 +472,7 @@ QJsonObject DcSyncHandler::handleDcActivate(const QString &id,
 
 // ─── DC Deactivate: reset DC activation state ──────────────────────────────
 
-QJsonObject DcSyncHandler::handleDcDeactivate(const QString &id,
-                                               const QJsonObject &params)
-{
+QJsonObject DcSyncHandler::handleDcDeactivate(const QString& id, const QJsonObject& params) {
     Q_UNUSED(params);
 
     {

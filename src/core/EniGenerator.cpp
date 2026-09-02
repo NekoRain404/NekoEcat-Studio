@@ -4,18 +4,15 @@
 
 #include <QTextStream>
 
-void EniGenerator::addSlave(const EniSlaveConfig &slave)
-{
+void EniGenerator::addSlave(const EniSlaveConfig& slave) {
     slaves_.append(slave);
 }
 
-void EniGenerator::clear()
-{
+void EniGenerator::clear() {
     slaves_.clear();
 }
 
-QString EniGenerator::xmlEscape(const QString &text)
-{
+QString EniGenerator::xmlEscape(const QString& text) {
     QString out = text;
     out.replace('&', "&amp;");
     out.replace('<', "&lt;");
@@ -25,26 +22,27 @@ QString EniGenerator::xmlEscape(const QString &text)
     return out;
 }
 
-QString EniGenerator::buildMailbox(const EniSlaveConfig &slave) const
-{
-    if (!slave.supportsCoE && !slave.supportsEoE &&
-        !slave.supportsFoE && !slave.supportsSoE) {
+QString EniGenerator::buildMailbox(const EniSlaveConfig& slave) const {
+    if (!slave.supportsCoE && !slave.supportsEoE && !slave.supportsFoE && !slave.supportsSoE) {
         return {};
     }
 
     QString out;
     QTextStream s(&out);
     s << "      <Mailbox>\n";
-    if (slave.supportsCoE) s << "        <CoE/>\n";
-    if (slave.supportsEoE) s << "        <EoE/>\n";
-    if (slave.supportsFoE) s << "        <FoE/>\n";
-    if (slave.supportsSoE) s << "        <SoE/>\n";
+    if (slave.supportsCoE)
+        s << "        <CoE/>\n";
+    if (slave.supportsEoE)
+        s << "        <EoE/>\n";
+    if (slave.supportsFoE)
+        s << "        <FoE/>\n";
+    if (slave.supportsSoE)
+        s << "        <SoE/>\n";
     s << "      </Mailbox>\n";
     return out;
 }
 
-QString EniGenerator::buildProcessData(const EniSlaveConfig &slave) const
-{
+QString EniGenerator::buildProcessData(const EniSlaveConfig& slave) const {
     if (slave.pdos.isEmpty()) {
         return {};
     }
@@ -53,16 +51,14 @@ QString EniGenerator::buildProcessData(const EniSlaveConfig &slave) const
     QTextStream s(&out);
     s << "      <ProcessData>\n";
 
-    for (const auto &pdo : slave.pdos) {
-        const char *tag = pdo.isTxPdo ? "TxPdo" : "RxPdo";
+    for (const auto& pdo : slave.pdos) {
+        const char* tag = pdo.isTxPdo ? "TxPdo" : "RxPdo";
         s << "        <" << tag << " Fixed=\"1\" Mandatory=\"0\">\n";
-        s << "          <Index>#x" << QString::number(pdo.index, 16).rightJustified(4, '0')
-          << "</Index>\n";
+        s << "          <Index>#x" << QString::number(pdo.index, 16).rightJustified(4, '0') << "</Index>\n";
         s << "          <Name>" << xmlEscape(pdo.name) << "</Name>\n";
-        for (const auto &e : pdo.entries) {
+        for (const auto& e : pdo.entries) {
             s << "          <Entry>\n";
-            s << "            <Index>#x" << QString::number(e.index, 16).rightJustified(4, '0')
-              << "</Index>\n";
+            s << "            <Index>#x" << QString::number(e.index, 16).rightJustified(4, '0') << "</Index>\n";
             s << "            <SubIndex>" << e.subIndex << "</SubIndex>\n";
             s << "            <BitLen>" << e.bitLength << "</BitLen>\n";
             if (!e.name.isEmpty()) {
@@ -77,8 +73,7 @@ QString EniGenerator::buildProcessData(const EniSlaveConfig &slave) const
     return out;
 }
 
-QString EniGenerator::buildInitCmds(const EniSlaveConfig &slave) const
-{
+QString EniGenerator::buildInitCmds(const EniSlaveConfig& slave) const {
     if (slave.startupCmds.isEmpty()) {
         return {};
     }
@@ -86,11 +81,10 @@ QString EniGenerator::buildInitCmds(const EniSlaveConfig &slave) const
     QString out;
     QTextStream s(&out);
     s << "      <InitCmds>\n";
-    for (const auto &cmd : slave.startupCmds) {
+    for (const auto& cmd : slave.startupCmds) {
         s << "        <InitCmd>\n";
         s << "          <Transition>" << xmlEscape(cmd.transition) << "</Transition>\n";
-        s << "          <Index>#x" << QString::number(cmd.index, 16).rightJustified(4, '0')
-          << "</Index>\n";
+        s << "          <Index>#x" << QString::number(cmd.index, 16).rightJustified(4, '0') << "</Index>\n";
         s << "          <SubIndex>" << cmd.subIndex << "</SubIndex>\n";
         s << "          <Data>" << xmlEscape(cmd.dataHex) << "</Data>\n";
         if (!cmd.comment.isEmpty()) {
@@ -102,8 +96,7 @@ QString EniGenerator::buildInitCmds(const EniSlaveConfig &slave) const
     return out;
 }
 
-QString EniGenerator::buildSlaveElement(const EniSlaveConfig &slave) const
-{
+QString EniGenerator::buildSlaveElement(const EniSlaveConfig& slave) const {
     QString out;
     QTextStream s(&out);
     s << "    <Slave>\n";
@@ -127,8 +120,7 @@ QString EniGenerator::buildSlaveElement(const EniSlaveConfig &slave) const
     return out;
 }
 
-QString EniGenerator::generate() const
-{
+QString EniGenerator::generate() const {
     QString out;
     QTextStream s(&out);
 
@@ -153,7 +145,7 @@ QString EniGenerator::generate() const
     s << "    </Master>\n";
 
     // Slaves.
-    for (const auto &slave : slaves_) {
+    for (const auto& slave : slaves_) {
         s << buildSlaveElement(slave);
     }
 

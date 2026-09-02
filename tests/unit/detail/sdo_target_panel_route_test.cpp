@@ -13,79 +13,70 @@
 
 namespace {
 
-void fail(const char *message) {
-  std::cerr << message << '\n';
-  std::exit(1);
+void fail(const char* message) {
+    std::cerr << message << '\n';
+    std::exit(1);
 }
 
-void expectRoute(SdoTargetPanelRouteKind actual,
-                 SdoTargetPanelRouteKind expected, const char *message) {
-  if (actual != expected) {
-    fail(message);
-  }
+void expectRoute(SdoTargetPanelRouteKind actual, SdoTargetPanelRouteKind expected, const char* message) {
+    if (actual != expected) {
+        fail(message);
+    }
 }
 
-void expectCopyAction(SdoTargetPanelCopyActionKind actual,
-                      SdoTargetPanelCopyActionKind expected,
-                      const char *message) {
-  if (actual != expected) {
-    fail(message);
-  }
+void expectCopyAction(SdoTargetPanelCopyActionKind actual, SdoTargetPanelCopyActionKind expected, const char* message) {
+    if (actual != expected) {
+        fail(message);
+    }
 }
 
 // Verify evidence row routing (review, digest) and copy actions
 // Test evidence row routing and copy action selection
 void testEvidenceRows() {
-  auto decision = sdoTargetPanelRouteDecision("Evidence Set", true);
-  expectRoute(decision.routeKind, SdoTargetPanelRouteKind::EvidenceReview,
-              "Evidence Set routes to review when available");
-  expectCopyAction(decision.copyActionKind,
-                   SdoTargetPanelCopyActionKind::ReviewEvidence,
-                   "Evidence Set copy action reviews when available");
+    auto decision = sdoTargetPanelRouteDecision("Evidence Set", true);
+    expectRoute(decision.routeKind, SdoTargetPanelRouteKind::EvidenceReview,
+                "Evidence Set routes to review when available");
+    expectCopyAction(decision.copyActionKind, SdoTargetPanelCopyActionKind::ReviewEvidence,
+                     "Evidence Set copy action reviews when available");
 
-  decision = sdoTargetPanelRouteDecision("写入差异", false);
-  expectRoute(decision.routeKind, SdoTargetPanelRouteKind::EvidenceDigest,
-              "Write Delta routes to digest when review is unavailable");
-  expectCopyAction(decision.copyActionKind,
-                   SdoTargetPanelCopyActionKind::CopyDigestNoDelta,
-                   "Write Delta copy action explains no delta");
+    decision = sdoTargetPanelRouteDecision("写入差异", false);
+    expectRoute(decision.routeKind, SdoTargetPanelRouteKind::EvidenceDigest,
+                "Write Delta routes to digest when review is unavailable");
+    expectCopyAction(decision.copyActionKind, SdoTargetPanelCopyActionKind::CopyDigestNoDelta,
+                     "Write Delta copy action explains no delta");
 }
 
 // Verify link and dictionary row routing (Watch, Startup, Bookmark, Trail, OD)
 // Test evidence link and dictionary row routing
 void testEvidenceLinksAndDictionaryRows() {
-  expectRoute(sdoTargetPanelRouteDecision("Watch 关联", false).routeKind,
-              SdoTargetPanelRouteKind::Watch, "Watch link route");
-  expectRoute(sdoTargetPanelRouteDecision("Startup Link", false).routeKind,
-              SdoTargetPanelRouteKind::Startup, "Startup link route");
-  expectRoute(sdoTargetPanelRouteDecision("书签", false).routeKind,
-              SdoTargetPanelRouteKind::Bookmark, "Bookmark route");
-  expectRoute(sdoTargetPanelRouteDecision("目标轨迹", false).routeKind,
-              SdoTargetPanelRouteKind::TargetTrail, "Target Trail route");
-  expectRoute(sdoTargetPanelRouteDecision("OD Evidence", false).routeKind,
-              SdoTargetPanelRouteKind::ObjectDictionary, "OD Evidence route");
-  expectCopyAction(
-      sdoTargetPanelRouteDecision("Read Value", false).copyActionKind,
-      SdoTargetPanelCopyActionKind::FocusObjectDictionary,
-      "Read Value copy action focuses dictionary");
+    expectRoute(sdoTargetPanelRouteDecision("Watch 关联", false).routeKind, SdoTargetPanelRouteKind::Watch,
+                "Watch link route");
+    expectRoute(sdoTargetPanelRouteDecision("Startup Link", false).routeKind, SdoTargetPanelRouteKind::Startup,
+                "Startup link route");
+    expectRoute(sdoTargetPanelRouteDecision("书签", false).routeKind, SdoTargetPanelRouteKind::Bookmark,
+                "Bookmark route");
+    expectRoute(sdoTargetPanelRouteDecision("目标轨迹", false).routeKind, SdoTargetPanelRouteKind::TargetTrail,
+                "Target Trail route");
+    expectRoute(sdoTargetPanelRouteDecision("OD Evidence", false).routeKind, SdoTargetPanelRouteKind::ObjectDictionary,
+                "OD Evidence route");
+    expectCopyAction(sdoTargetPanelRouteDecision("Read Value", false).copyActionKind,
+                     SdoTargetPanelCopyActionKind::FocusObjectDictionary, "Read Value copy action focuses dictionary");
 }
 
 // Verify fallback routing for unknown row types
 // Test fallback routing for unknown row types
 void testFallbackRows() {
-  const auto decision = sdoTargetPanelRouteDecision("Safety", true);
-  expectRoute(decision.routeKind, SdoTargetPanelRouteKind::CopyDigest,
-              "Safety route falls back to digest");
-  expectCopyAction(decision.copyActionKind,
-                   SdoTargetPanelCopyActionKind::FullDigest,
-                   "Safety copy action uses full digest");
+    const auto decision = sdoTargetPanelRouteDecision("Safety", true);
+    expectRoute(decision.routeKind, SdoTargetPanelRouteKind::CopyDigest, "Safety route falls back to digest");
+    expectCopyAction(decision.copyActionKind, SdoTargetPanelCopyActionKind::FullDigest,
+                     "Safety copy action uses full digest");
 }
 
 } // namespace
 
 int main() {
-  testEvidenceRows();
-  testEvidenceLinksAndDictionaryRows();
-  testFallbackRows();
-  return 0;
+    testEvidenceRows();
+    testEvidenceLinksAndDictionaryRows();
+    testFallbackRows();
+    return 0;
 }

@@ -26,20 +26,20 @@
 
 #include "LanguageManager.h"
 
+#include <array>
 #include <QHash>
 #include <QString>
-#include <array>
 
 class TranslationRegistry {
 public:
     // Number of non-English languages (indexed by Language enum - 1).
     static constexpr int kLanguageCount = 7;
 
-    static TranslationRegistry &instance();
+    static TranslationRegistry& instance();
 
     // Look up the translation for `english` in the given language.
     // Returns `english` if no translation exists or lang is English.
-    QString translate(const QString &english, Language lang) const;
+    QString translate(const QString& english, Language lang) const;
 
 private:
     TranslationRegistry();

@@ -20,9 +20,9 @@ void updateActionAvailability();
 void showCommandPalette();
 
 // ── RT Stability Test ──────────────────────────────────────────
-QWidget *buildRtTestPage();
-void updateRtTestTelemetry(const QJsonObject &telemetry);
-void appendRtTestTimeline(const QJsonArray &recent, double avgUsec);
+QWidget* buildRtTestPage();
+void updateRtTestTelemetry(const QJsonObject& telemetry);
+void appendRtTestTimeline(const QJsonArray& recent, double avgUsec);
 void updateRtTestActionAvailability();
 QString formatDuration(double seconds) const;
 
@@ -31,19 +31,18 @@ void showManual();
 void showAbout();
 
 // ── Context Menus ─────────────────────────────────────────────
-void showTopologyContextMenu(const QPoint &position);
-void showTableContextMenu(QTableWidget *table, const QPoint &position);
-void showSdoTargetPanelContextMenu(const QPoint &position);
-bool runLocalEvidenceAction(QTableWidget *table);
-void copyTableToClipboard(QTableWidget *table, bool selectedOnly);
+void showTopologyContextMenu(const QPoint& position);
+void showTableContextMenu(QTableWidget* table, const QPoint& position);
+void showSdoTargetPanelContextMenu(const QPoint& position);
+bool runLocalEvidenceAction(QTableWidget* table);
+void copyTableToClipboard(QTableWidget* table, bool selectedOnly);
 
 // ── Online Data Lifecycle ─────────────────────────────────────
 void clearOnlineViews();
 
 // ── Generic Helpers ───────────────────────────────────────────
-void setTableRows(QTableWidget *table, const QStringList &headers,
-                  const QList<QStringList> &rows);
-void setMetricCard(QLabel *label, const QString &title, const QString &value);
+void setTableRows(QTableWidget* table, const QStringList& headers, const QList<QStringList>& rows);
+void setMetricCard(QLabel* label, const QString& title, const QString& value);
 
 // ── Custom Shortcuts ──────────────────────────────────────────
 void applyCustomShortcuts();

@@ -21,221 +21,219 @@
 #include "plugins/diagram/DiagramPlugin.h"
 
 class TestDiagramPlugin : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  void initTestCase();
-  void cleanupTestCase();
-  // Verify plugin id, display names, order, and visibility
-  void identity();
-  // Verify main widget is created
-  void widgetNotNull();
-  // Verify canvas widget exists with minimum width
-  void canvas();
-  // Verify shape library widget exists
-  void shapeLibrary();
-  // Verify property editor widget exists
-  void propertyEditor();
-  // Verify adding and removing shapes updates count correctly
-  void addAndRemoveShapes();
-  // Verify clearShapes resets count to zero
-  void clearShapes();
-  // Verify zoom level get/set
-  void zoom();
-  // Verify property text get/set
-  void propertyText();
-  // Verify export/import preserves shapes, zoom, and properties
-  void exportImport();
-  // Verify malformed diagram JSON is rejected without clearing current state
-  void rejectInvalidImport();
-  // Verify shapeAdded, shapeRemoved, and zoomChanged signals
-  void signalEmissions();
+    void initTestCase();
+    void cleanupTestCase();
+    // Verify plugin id, display names, order, and visibility
+    void identity();
+    // Verify main widget is created
+    void widgetNotNull();
+    // Verify canvas widget exists with minimum width
+    void canvas();
+    // Verify shape library widget exists
+    void shapeLibrary();
+    // Verify property editor widget exists
+    void propertyEditor();
+    // Verify adding and removing shapes updates count correctly
+    void addAndRemoveShapes();
+    // Verify clearShapes resets count to zero
+    void clearShapes();
+    // Verify zoom level get/set
+    void zoom();
+    // Verify property text get/set
+    void propertyText();
+    // Verify export/import preserves shapes, zoom, and properties
+    void exportImport();
+    // Verify malformed diagram JSON is rejected without clearing current state
+    void rejectInvalidImport();
+    // Verify shapeAdded, shapeRemoved, and zoomChanged signals
+    void signalEmissions();
 
 private:
-  DiagramPlugin *plugin_ = nullptr;
+    DiagramPlugin* plugin_ = nullptr;
 };
 
 void TestDiagramPlugin::initTestCase() {
-  plugin_ = new DiagramPlugin(this);
+    plugin_ = new DiagramPlugin(this);
 }
 
 void TestDiagramPlugin::cleanupTestCase() {
-  delete plugin_;
-  plugin_ = nullptr;
+    delete plugin_;
+    plugin_ = nullptr;
 }
 
 // Verify plugin id, display names, order, and visibility
 void TestDiagramPlugin::identity() {
-  QCOMPARE(plugin_->id(), QString("diagram"));
-  QCOMPARE(plugin_->displayName(), QString("Diagram Editor"));
-  QCOMPARE(plugin_->displayNameZh(), QString("图表编辑器"));
-  QCOMPARE(plugin_->defaultOrder(), 190);
-  QVERIFY(!plugin_->visible());
+    QCOMPARE(plugin_->id(), QString("diagram"));
+    QCOMPARE(plugin_->displayName(), QString("Diagram Editor"));
+    QCOMPARE(plugin_->displayNameZh(), QString("图表编辑器"));
+    QCOMPARE(plugin_->defaultOrder(), 190);
+    QVERIFY(!plugin_->visible());
 }
 
 // Verify main widget is created
 void TestDiagramPlugin::widgetNotNull() {
-  QVERIFY(plugin_->widget() != nullptr);
+    QVERIFY(plugin_->widget() != nullptr);
 }
 
 // Verify canvas exists and has minimum width
 void TestDiagramPlugin::canvas() {
-  QVERIFY(plugin_->canvas() != nullptr);
-  QVERIFY(plugin_->canvas()->minimumWidth() >= 400);
+    QVERIFY(plugin_->canvas() != nullptr);
+    QVERIFY(plugin_->canvas()->minimumWidth() >= 400);
 }
 
 // Verify shape library widget is created
 void TestDiagramPlugin::shapeLibrary() {
-  QVERIFY(plugin_->shapeLibrary() != nullptr);
+    QVERIFY(plugin_->shapeLibrary() != nullptr);
 }
 
 // Verify property editor widget is created
 void TestDiagramPlugin::propertyEditor() {
-  QVERIFY(plugin_->propertyEditor() != nullptr);
+    QVERIFY(plugin_->propertyEditor() != nullptr);
 }
 
 // Verify add, remove, and clear shape operations
 void TestDiagramPlugin::addAndRemoveShapes() {
-  plugin_->clearShapes();
-  QCOMPARE(plugin_->shapeCount(), 0);
+    plugin_->clearShapes();
+    QCOMPARE(plugin_->shapeCount(), 0);
 
-  plugin_->addShape("Basic", "Rectangle");
-  QCOMPARE(plugin_->shapeCount(), 1);
+    plugin_->addShape("Basic", "Rectangle");
+    QCOMPARE(plugin_->shapeCount(), 1);
 
-  plugin_->addShape("Basic", "Circle");
-  QCOMPARE(plugin_->shapeCount(), 2);
+    plugin_->addShape("Basic", "Circle");
+    QCOMPARE(plugin_->shapeCount(), 2);
 
-  plugin_->addShape("EtherCAT", "Slave Node");
-  QCOMPARE(plugin_->shapeCount(), 3);
+    plugin_->addShape("EtherCAT", "Slave Node");
+    QCOMPARE(plugin_->shapeCount(), 3);
 
-  plugin_->removeShape("Circle");
-  QCOMPARE(plugin_->shapeCount(), 2);
+    plugin_->removeShape("Circle");
+    QCOMPARE(plugin_->shapeCount(), 2);
 
-  plugin_->removeShape("NonExistent");
-  QCOMPARE(plugin_->shapeCount(), 2);
+    plugin_->removeShape("NonExistent");
+    QCOMPARE(plugin_->shapeCount(), 2);
 
-  plugin_->clearShapes();
+    plugin_->clearShapes();
 }
 
 // Verify clearShapes resets count to zero
 void TestDiagramPlugin::clearShapes() {
-  plugin_->addShape("Basic", "A");
-  plugin_->addShape("Basic", "B");
-  QCOMPARE(plugin_->shapeCount(), 2);
+    plugin_->addShape("Basic", "A");
+    plugin_->addShape("Basic", "B");
+    QCOMPARE(plugin_->shapeCount(), 2);
 
-  plugin_->clearShapes();
-  QCOMPARE(plugin_->shapeCount(), 0);
+    plugin_->clearShapes();
+    QCOMPARE(plugin_->shapeCount(), 0);
 }
 
 // Verify zoom level get/set
 void TestDiagramPlugin::zoom() {
-  plugin_->setZoom(1.0);
-  QCOMPARE(plugin_->zoom(), 1.0);
+    plugin_->setZoom(1.0);
+    QCOMPARE(plugin_->zoom(), 1.0);
 
-  plugin_->setZoom(2.5);
-  QCOMPARE(plugin_->zoom(), 2.5);
+    plugin_->setZoom(2.5);
+    QCOMPARE(plugin_->zoom(), 2.5);
 }
 
 // Verify property text get/set
 void TestDiagramPlugin::propertyText() {
-  plugin_->setPropertyText("width=100\nheight=50");
-  QCOMPARE(plugin_->propertyText(), QString("width=100\nheight=50"));
+    plugin_->setPropertyText("width=100\nheight=50");
+    QCOMPARE(plugin_->propertyText(), QString("width=100\nheight=50"));
 
-  plugin_->setPropertyText("");
-  QCOMPARE(plugin_->propertyText(), QString(""));
+    plugin_->setPropertyText("");
+    QCOMPARE(plugin_->propertyText(), QString(""));
 }
 
 // Verify JSON export/import round-trip preserves state
 void TestDiagramPlugin::exportImport() {
-  plugin_->clearShapes();
-  plugin_->addShape("Test", "ShapeA");
-  plugin_->setPropertyText("test properties");
-  plugin_->setZoom(1.5);
+    plugin_->clearShapes();
+    plugin_->addShape("Test", "ShapeA");
+    plugin_->setPropertyText("test properties");
+    plugin_->setZoom(1.5);
 
-  QTemporaryDir dir;
-  QVERIFY(dir.isValid());
-  const QString tmpPath = dir.filePath(QStringLiteral("diagram_test_export.json"));
-  QVERIFY(plugin_->exportToJson(tmpPath));
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString tmpPath = dir.filePath(QStringLiteral("diagram_test_export.json"));
+    QVERIFY(plugin_->exportToJson(tmpPath));
 
-  plugin_->clearShapes();
-  plugin_->setPropertyText("");
-  plugin_->setZoom(1.0);
+    plugin_->clearShapes();
+    plugin_->setPropertyText("");
+    plugin_->setZoom(1.0);
 
-  QVERIFY(plugin_->importFromJson(tmpPath));
-  QCOMPARE(plugin_->zoom(), 1.5);
-  QCOMPARE(plugin_->shapeCount(), 1);
-  QCOMPARE(plugin_->propertyText(), QString("test properties"));
+    QVERIFY(plugin_->importFromJson(tmpPath));
+    QCOMPARE(plugin_->zoom(), 1.5);
+    QCOMPARE(plugin_->shapeCount(), 1);
+    QCOMPARE(plugin_->propertyText(), QString("test properties"));
 
-  plugin_->clearShapes();
+    plugin_->clearShapes();
 }
 
 void TestDiagramPlugin::rejectInvalidImport() {
-  plugin_->clearShapes();
-  plugin_->addShape("Test", "ExistingShape");
-  plugin_->setPropertyText("keep me");
-  plugin_->setZoom(2.0);
+    plugin_->clearShapes();
+    plugin_->addShape("Test", "ExistingShape");
+    plugin_->setPropertyText("keep me");
+    plugin_->setZoom(2.0);
 
-  QVERIFY(!plugin_->exportToJson(QString()));
+    QVERIFY(!plugin_->exportToJson(QString()));
 
-  QTemporaryDir dir;
-  QVERIFY(dir.isValid());
-  QVERIFY(!plugin_->exportToJson(dir.path()));
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(!plugin_->exportToJson(dir.path()));
 
-  const QString invalidPath = dir.filePath(QStringLiteral("invalid.json"));
-  QFile invalidFile(invalidPath);
-  QVERIFY(invalidFile.open(QIODevice::WriteOnly));
-  QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
-  invalidFile.close();
+    const QString invalidPath = dir.filePath(QStringLiteral("invalid.json"));
+    QFile invalidFile(invalidPath);
+    QVERIFY(invalidFile.open(QIODevice::WriteOnly));
+    QCOMPARE(invalidFile.write(QByteArrayLiteral("[]")), 2);
+    invalidFile.close();
 
-  const QString emptyObjectPath = dir.filePath(QStringLiteral("empty-object.json"));
-  QFile emptyObjectFile(emptyObjectPath);
-  QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
-  QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
-  emptyObjectFile.close();
+    const QString emptyObjectPath = dir.filePath(QStringLiteral("empty-object.json"));
+    QFile emptyObjectFile(emptyObjectPath);
+    QVERIFY(emptyObjectFile.open(QIODevice::WriteOnly));
+    QCOMPARE(emptyObjectFile.write(QByteArrayLiteral("{}")), 2);
+    emptyObjectFile.close();
 
-  const QString emptyShapesPath = dir.filePath(QStringLiteral("empty-shapes.json"));
-  QFile emptyShapesFile(emptyShapesPath);
-  QVERIFY(emptyShapesFile.open(QIODevice::WriteOnly));
-  QVERIFY(emptyShapesFile.write(QByteArrayLiteral(
-              "{\"zoom\":0.5,\"shapes\":[],\"properties\":\"discard\"}")) > 0);
-  emptyShapesFile.close();
+    const QString emptyShapesPath = dir.filePath(QStringLiteral("empty-shapes.json"));
+    QFile emptyShapesFile(emptyShapesPath);
+    QVERIFY(emptyShapesFile.open(QIODevice::WriteOnly));
+    QVERIFY(emptyShapesFile.write(QByteArrayLiteral("{\"zoom\":0.5,\"shapes\":[],\"properties\":\"discard\"}")) > 0);
+    emptyShapesFile.close();
 
-  const QString missingShapesPath = dir.filePath(QStringLiteral("missing-shapes.json"));
-  QFile missingShapesFile(missingShapesPath);
-  QVERIFY(missingShapesFile.open(QIODevice::WriteOnly));
-  QVERIFY(missingShapesFile.write(QByteArrayLiteral(
-              "{\"zoom\":0.5,\"properties\":\"discard\"}")) > 0);
-  missingShapesFile.close();
+    const QString missingShapesPath = dir.filePath(QStringLiteral("missing-shapes.json"));
+    QFile missingShapesFile(missingShapesPath);
+    QVERIFY(missingShapesFile.open(QIODevice::WriteOnly));
+    QVERIFY(missingShapesFile.write(QByteArrayLiteral("{\"zoom\":0.5,\"properties\":\"discard\"}")) > 0);
+    missingShapesFile.close();
 
-  QVERIFY(!plugin_->importFromJson(QString()));
-  QVERIFY(!plugin_->importFromJson(invalidPath));
-  QVERIFY(!plugin_->importFromJson(emptyObjectPath));
-  QVERIFY(!plugin_->importFromJson(emptyShapesPath));
-  QVERIFY(!plugin_->importFromJson(missingShapesPath));
-  QCOMPARE(plugin_->shapeCount(), 1);
-  QCOMPARE(plugin_->propertyText(), QString("keep me"));
-  QCOMPARE(plugin_->zoom(), 2.0);
+    QVERIFY(!plugin_->importFromJson(QString()));
+    QVERIFY(!plugin_->importFromJson(invalidPath));
+    QVERIFY(!plugin_->importFromJson(emptyObjectPath));
+    QVERIFY(!plugin_->importFromJson(emptyShapesPath));
+    QVERIFY(!plugin_->importFromJson(missingShapesPath));
+    QCOMPARE(plugin_->shapeCount(), 1);
+    QCOMPARE(plugin_->propertyText(), QString("keep me"));
+    QCOMPARE(plugin_->zoom(), 2.0);
 
-  plugin_->clearShapes();
+    plugin_->clearShapes();
 }
 
 // Verify shapeAdded, shapeRemoved, and zoomChanged signals
 void TestDiagramPlugin::signalEmissions() {
-  QSignalSpy addSpy(plugin_, &DiagramPlugin::shapeAdded);
-  QSignalSpy removeSpy(plugin_, &DiagramPlugin::shapeRemoved);
-  QSignalSpy zoomSpy(plugin_, &DiagramPlugin::zoomChanged);
+    QSignalSpy addSpy(plugin_, &DiagramPlugin::shapeAdded);
+    QSignalSpy removeSpy(plugin_, &DiagramPlugin::shapeRemoved);
+    QSignalSpy zoomSpy(plugin_, &DiagramPlugin::zoomChanged);
 
-  plugin_->addShape("Test", "SignalShape");
-  QCOMPARE(addSpy.count(), 1);
-  QCOMPARE(addSpy.at(0).at(0).toString(), QString("SignalShape"));
+    plugin_->addShape("Test", "SignalShape");
+    QCOMPARE(addSpy.count(), 1);
+    QCOMPARE(addSpy.at(0).at(0).toString(), QString("SignalShape"));
 
-  plugin_->removeShape("SignalShape");
-  QCOMPARE(removeSpy.count(), 1);
+    plugin_->removeShape("SignalShape");
+    QCOMPARE(removeSpy.count(), 1);
 
-  plugin_->setZoom(3.0);
-  QCOMPARE(zoomSpy.count(), 1);
+    plugin_->setZoom(3.0);
+    QCOMPARE(zoomSpy.count(), 1);
 
-  plugin_->clearShapes();
-  plugin_->setZoom(1.0);
+    plugin_->clearShapes();
+    plugin_->setZoom(1.0);
 }
 
 QTEST_MAIN(TestDiagramPlugin)

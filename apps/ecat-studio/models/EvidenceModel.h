@@ -11,28 +11,28 @@
 // ── Evidence Severity ───────────────────────────────────────────────
 
 enum class DriveEvidenceSeverity {
-  Neutral,
-  Action,
-  Warning,
-  Error,
-  Ok,
+    Neutral,
+    Action,
+    Warning,
+    Error,
+    Ok,
 };
 
-bool hasStartupDiffEvidence(const QString &status);
-bool hasPdoMapIssueEvidence(const QString &status);
-DriveEvidenceSeverity driveEvidenceSeverity(const QString &evidence);
-bool hasDriveFaultEvidence(const QString &evidence);
+bool hasStartupDiffEvidence(const QString& status);
+bool hasPdoMapIssueEvidence(const QString& status);
+DriveEvidenceSeverity driveEvidenceSeverity(const QString& evidence);
+bool hasDriveFaultEvidence(const QString& evidence);
 
 // ── State Recommendation ────────────────────────────────────────────
 
 struct EthercatStateEvidence {
-  QString currentState;
-  bool pdoLoaded = false;
-  int watchValueRows = 0;
-  int startupDiffs = 0;
-  int freeRunRows = 0;
-  int mapIssues = 0;
-  bool consistencyOk = false;
+    QString currentState;
+    bool pdoLoaded = false;
+    int watchValueRows = 0;
+    int startupDiffs = 0;
+    int freeRunRows = 0;
+    int mapIssues = 0;
+    bool consistencyOk = false;
 };
 
-QString recommendedEthercatState(const EthercatStateEvidence &evidence);
+QString recommendedEthercatState(const EthercatStateEvidence& evidence);

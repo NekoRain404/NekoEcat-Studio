@@ -11,8 +11,8 @@ void newProject();
 void openProject();
 void saveProject();
 void saveProjectAs();
-bool writeProjectFile(const QString &path);
-bool readProjectFile(const QString &path);
+bool writeProjectFile(const QString& path);
+bool readProjectFile(const QString& path);
 
 // ── ESI Repository ────────────────────────────────────────────
 void importEsiFiles();
@@ -20,4 +20,4 @@ void refreshEsiRepository();
 
 // ── Recent Projects ───────────────────────────────────────────
 void updateRecentProjectsMenu();
-void addToRecentProjects(const QString &path);
+void addToRecentProjects(const QString& path);

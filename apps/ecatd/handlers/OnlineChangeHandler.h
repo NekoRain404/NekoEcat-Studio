@@ -23,40 +23,40 @@
 //   Called from the daemon event loop thread. State transitions and SDO writes
 //   block until complete or timeout.
 
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QString>
 
 class EcatService;
 
 class OnlineChangeHandler {
 public:
-    explicit OnlineChangeHandler(EcatService *backend);
+    explicit OnlineChangeHandler(EcatService* backend);
 
     // Preview an online change: compute which slaves are affected and what
     // operations would be performed, without applying anything.
     // params: { "master": string, "changes": [ {position, index, subIndex, value, type} ] }
     // Returns: { "affectedSlaves": [int], "operations": [...], "estimatedDowntimeMs": int }
-    QJsonObject handlePreview(const QString &id, const QJsonObject &params);
+    QJsonObject handlePreview(const QString& id, const QJsonObject& params);
 
     // Apply an online change: transition affected slaves to PREOP, write the
     // SDO changes, then return them to OP.
     // params: { "master": string, "changes": [...], "targetState": string (optional, default "OP") }
     // Returns: { "success": bool, "applied": int, "failed": int, "results": [...] }
-    QJsonObject handleApply(const QString &id, const QJsonObject &params);
+    QJsonObject handleApply(const QString& id, const QJsonObject& params);
 
     // Query whether an online change is currently in progress.
     // params: { "master": string }
     // Returns: { "inProgress": bool, "phase": string }
-    QJsonObject handleStatus(const QString &id, const QJsonObject &params);
+    QJsonObject handleStatus(const QString& id, const QJsonObject& params);
 
 private:
-    EcatService *backend_;
+    EcatService* backend_;
 
     // Tracks whether a change is mid-flight (guards against concurrent applies).
     bool inProgress_ = false;
     QString currentPhase_ = "idle";
 
     // Extract the unique set of affected slave positions from a changes array.
-    QJsonArray affectedSlaves(const QJsonArray &changes) const;
+    QJsonArray affectedSlaves(const QJsonArray& changes) const;
 };

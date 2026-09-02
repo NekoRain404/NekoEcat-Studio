@@ -19,5 +19,5 @@ void addSelectedOdToFreeRunChart();
 void filterFreeRunEntryTable();
 
 // ── Free Run Telemetry ────────────────────────────────────────
-void updateFreeRunTelemetry(const QJsonObject &telemetry);
-void updateFreeRunEntryTable(const QList<QStringList> &rows);
+void updateFreeRunTelemetry(const QJsonObject& telemetry);
+void updateFreeRunEntryTable(const QList<QStringList>& rows);

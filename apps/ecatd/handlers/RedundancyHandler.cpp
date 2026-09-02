@@ -12,15 +12,11 @@
 
 // ─── Construction ──────────────────────────────────────────────────────────
 
-RedundancyHandler::RedundancyHandler(EcatService *backend)
-    : backend_(backend)
-{
-}
+RedundancyHandler::RedundancyHandler(EcatService* backend) : backend_(backend) {}
 
 // ─── Status Query ──────────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleStatus(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleStatus(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
     // Query master info for link status.
@@ -68,8 +64,7 @@ QJsonObject RedundancyHandler::handleStatus(const QString &id, const QJsonObject
 
 // ─── Enable Redundancy ─────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleEnable(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleEnable(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
     // IgH master redundancy is configured at module load time via ec_master redundancy.
@@ -86,10 +81,7 @@ QJsonObject RedundancyHandler::handleEnable(const QString &id, const QJsonObject
 
     if (hasRedundancy) {
         addEvent("enable", 0, "Redundancy already active", true);
-        return CommandDispatcher::success(id, {
-            {"success", true},
-            {"message", "Redundancy is already active"}
-        });
+        return CommandDispatcher::success(id, {{"success", true}, {"message", "Redundancy is already active"}});
     }
 
     // Redundancy requires IgH master configuration (ec_master redundancy parameter).
@@ -102,8 +94,7 @@ QJsonObject RedundancyHandler::handleEnable(const QString &id, const QJsonObject
 
 // ─── Disable Redundancy ────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleDisable(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleDisable(const QString& id, const QJsonObject& params) {
     Q_UNUSED(params);
     const QString msg = "Redundancy cannot be disabled at runtime. "
                         "Restart the master without the redundancy parameter.";
@@ -113,8 +104,7 @@ QJsonObject RedundancyHandler::handleDisable(const QString &id, const QJsonObjec
 
 // ─── Failover ──────────────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleFailover(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleFailover(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
     // Check current state.
@@ -147,28 +137,18 @@ QJsonObject RedundancyHandler::handleFailover(const QString &id, const QJsonObje
         const QString msg = "Both paths are healthy. IgH handles failover automatically "
                             "when the primary link goes down.";
         addEvent("failover", 0, msg, true);
-        return CommandDispatcher::success(id, {
-            {"success", true},
-            {"fromPath", 0},
-            {"toPath", 1},
-            {"message", msg}
-        });
+        return CommandDispatcher::success(id, {{"success", true}, {"fromPath", 0}, {"toPath", 1}, {"message", msg}});
     }
 
     // Primary is down, already on secondary.
     addEvent("failover", 1, "Already failed over to secondary", true);
-    return CommandDispatcher::success(id, {
-        {"success", true},
-        {"fromPath", 0},
-        {"toPath", 1},
-        {"message", "Already operating on secondary path"}
-    });
+    return CommandDispatcher::success(
+        id, {{"success", true}, {"fromPath", 0}, {"toPath", 1}, {"message", "Already operating on secondary path"}});
 }
 
 // ─── Failback ──────────────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleFailback(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleFailback(const QString& id, const QJsonObject& params) {
     const QString master = params.value("master").toString("0").trimmed();
 
     QString error;
@@ -190,12 +170,10 @@ QJsonObject RedundancyHandler::handleFailback(const QString &id, const QJsonObje
     if (primaryUp) {
         // IgH automatically uses the primary path when it's available.
         addEvent("failback", 0, "Primary path is up, IgH uses it automatically", true);
-        return CommandDispatcher::success(id, {
-            {"success", true},
-            {"fromPath", 1},
-            {"toPath", 0},
-            {"message", "Primary path is active. IgH uses it automatically."}
-        });
+        return CommandDispatcher::success(id, {{"success", true},
+                                               {"fromPath", 1},
+                                               {"toPath", 0},
+                                               {"message", "Primary path is active. IgH uses it automatically."}});
     }
 
     const QString msg = "Primary path is still down. Cannot failback.";
@@ -205,14 +183,13 @@ QJsonObject RedundancyHandler::handleFailback(const QString &id, const QJsonObje
 
 // ─── History ───────────────────────────────────────────────────────────────
 
-QJsonObject RedundancyHandler::handleHistory(const QString &id, const QJsonObject &params)
-{
+QJsonObject RedundancyHandler::handleHistory(const QString& id, const QJsonObject& params) {
     const int limit = params.value("limit").toInt(100);
     const int start = qMax(0, history_.size() - limit);
 
     QJsonArray events;
     for (int i = start; i < history_.size(); ++i) {
-        const auto &evt = history_[i];
+        const auto& evt = history_[i];
         QJsonObject obj;
         obj["type"] = evt.type;
         obj["pathId"] = evt.pathId;
@@ -227,9 +204,7 @@ QJsonObject RedundancyHandler::handleHistory(const QString &id, const QJsonObjec
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
-void RedundancyHandler::addEvent(const QString &type, int pathId,
-                                  const QString &reason, bool success)
-{
+void RedundancyHandler::addEvent(const QString& type, int pathId, const QString& reason, bool success) {
     RedundancyEventRecord evt;
     evt.type = type;
     evt.pathId = pathId;
@@ -242,10 +217,7 @@ void RedundancyHandler::addEvent(const QString &type, int pathId,
     }
 }
 
-QString RedundancyHandler::runCliCommand(const QString &master,
-                                          const QStringList &args,
-                                          QString *error) const
-{
+QString RedundancyHandler::runCliCommand(const QString& master, const QStringList& args, QString* error) const {
     if (backend_ && args.size() == 1 && args.first() == "master") {
         return backend_->masterText(master, error);
     }
@@ -263,7 +235,8 @@ QString RedundancyHandler::runCliCommand(const QString &master,
     if (!proc.waitForFinished(5000)) {
         proc.kill();
         proc.waitForFinished(1000);
-        if (error) *error = "ethercat command timed out";
+        if (error)
+            *error = "ethercat command timed out";
         return {};
     }
     if (error && proc.exitCode() != 0) {
@@ -272,18 +245,17 @@ QString RedundancyHandler::runCliCommand(const QString &master,
     return QString::fromUtf8(proc.readAllStandardOutput());
 }
 
-bool RedundancyHandler::parseLinkStatus(const QString &masterOutput,
-                                         bool *primaryUp, bool *secondaryUp) const
-{
+bool RedundancyHandler::parseLinkStatus(const QString& masterOutput, bool* primaryUp, bool* secondaryUp) const {
     // Look for "Link" info in master output.
     // IgH reports: "Link: 0: up  1: up" or similar patterns.
-    static QRegularExpression linkRe(
-        R"(Link:\s*(\d+):\s*(up|down)\s+(\d+):\s*(up|down))",
-        QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression linkRe(R"(Link:\s*(\d+):\s*(up|down)\s+(\d+):\s*(up|down))",
+                                     QRegularExpression::CaseInsensitiveOption);
     const auto match = linkRe.match(masterOutput);
     if (match.hasMatch()) {
-        if (primaryUp) *primaryUp = (match.captured(2).toLower() == "up");
-        if (secondaryUp) *secondaryUp = (match.captured(4).toLower() == "up");
+        if (primaryUp)
+            *primaryUp = (match.captured(2).toLower() == "up");
+        if (secondaryUp)
+            *secondaryUp = (match.captured(4).toLower() == "up");
         return true;
     }
 
@@ -294,15 +266,19 @@ bool RedundancyHandler::parseLinkStatus(const QString &masterOutput,
     const auto redMatch = redRe.match(masterOutput);
 
     if (mainMatch.hasMatch()) {
-        if (primaryUp) *primaryUp = (mainMatch.captured(1).toLower() == "up");
+        if (primaryUp)
+            *primaryUp = (mainMatch.captured(1).toLower() == "up");
     }
     if (redMatch.hasMatch()) {
-        if (secondaryUp) *secondaryUp = (redMatch.captured(1).toLower() == "up");
-        return true;  // Has redundant link info.
+        if (secondaryUp)
+            *secondaryUp = (redMatch.captured(1).toLower() == "up");
+        return true; // Has redundant link info.
     }
 
     // No redundancy info found.
-    if (primaryUp) *primaryUp = true;  // Assume single path.
-    if (secondaryUp) *secondaryUp = false;
+    if (primaryUp)
+        *primaryUp = true; // Assume single path.
+    if (secondaryUp)
+        *secondaryUp = false;
     return false;
 }

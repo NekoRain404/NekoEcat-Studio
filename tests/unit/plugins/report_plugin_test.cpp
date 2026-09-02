@@ -6,249 +6,247 @@
 //   - Report generation, preview, and history
 //   - Format selection, export, and status updates
 
+#include "plugins/report/ReportPlugin.h"
 #include <QFile>
+#include <QLabel>
 #include <QRegularExpression>
-#include <QTemporaryDir>
-#include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
+#include <QTemporaryDir>
+#include <QTest>
 #include <QTextEdit>
-#include <QLabel>
-#include "plugins/report/ReportPlugin.h"
 
 class ReportPluginTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  // Verify plugin id, displayName, displayNameZh, defaultOrder, visible
-  // Plugin reports correct id, display names, order, and visibility
-  void testPluginIdentity() {
-    ReportPlugin plugin;
+    // Verify plugin id, displayName, displayNameZh, defaultOrder, visible
+    // Plugin reports correct id, display names, order, and visibility
+    void testPluginIdentity() {
+        ReportPlugin plugin;
 
-    QCOMPARE(plugin.id(), QString("report"));
-    QCOMPARE(plugin.displayName(), QString("Report Generator"));
-    QCOMPARE(plugin.displayNameZh(), QString("报告生成器"));
-    QCOMPARE(plugin.defaultOrder(), 230);
-    QCOMPARE(plugin.visible(), false);
-  }
+        QCOMPARE(plugin.id(), QString("report"));
+        QCOMPARE(plugin.displayName(), QString("Report Generator"));
+        QCOMPARE(plugin.displayNameZh(), QString("报告生成器"));
+        QCOMPARE(plugin.defaultOrder(), 230);
+        QCOMPARE(plugin.visible(), false);
+    }
 
-  // Verify widget is created and non-null
-  // Widget is created and not null
-  void testWidgetCreation() {
-    ReportPlugin plugin;
-    QVERIFY(plugin.widget() != nullptr);
-  }
+    // Verify widget is created and non-null
+    // Widget is created and not null
+    void testWidgetCreation() {
+        ReportPlugin plugin;
+        QVERIFY(plugin.widget() != nullptr);
+    }
 
-  // Verify initial template count, data source count, and report count
-  // Initial state has correct template, data source, and report counts
-  void testInitialState() {
-    ReportPlugin plugin;
+    // Verify initial template count, data source count, and report count
+    // Initial state has correct template, data source, and report counts
+    void testInitialState() {
+        ReportPlugin plugin;
 
-    QCOMPARE(plugin.reportTemplateCount(), 5);
-    QCOMPARE(plugin.dataSourceCount(), 6);
-    QCOMPARE(plugin.reportCount(), 0);
-  }
+        QCOMPARE(plugin.reportTemplateCount(), 5);
+        QCOMPARE(plugin.dataSourceCount(), 6);
+        QCOMPARE(plugin.reportCount(), 0);
+    }
 
-  // Verify template table has correct row and column counts
-  // Template table has correct row and column count
-  void testTemplateTable() {
-    ReportPlugin plugin;
+    // Verify template table has correct row and column counts
+    // Template table has correct row and column count
+    void testTemplateTable() {
+        ReportPlugin plugin;
 
-    QTableWidget *table = plugin.templateTable();
-    QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 5);
-    QCOMPARE(table->columnCount(), 3);
-  }
+        QTableWidget* table = plugin.templateTable();
+        QVERIFY(table != nullptr);
+        QCOMPARE(table->rowCount(), 5);
+        QCOMPARE(table->columnCount(), 3);
+    }
 
-  // Verify data source table has correct row and column counts
-  // Data source table has correct row and column count
-  void testDataSourceTable() {
-    ReportPlugin plugin;
+    // Verify data source table has correct row and column counts
+    // Data source table has correct row and column count
+    void testDataSourceTable() {
+        ReportPlugin plugin;
 
-    QTableWidget *table = plugin.dataSourceTable();
-    QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 6);
-    QCOMPARE(table->columnCount(), 3);
-  }
+        QTableWidget* table = plugin.dataSourceTable();
+        QVERIFY(table != nullptr);
+        QCOMPARE(table->rowCount(), 6);
+        QCOMPARE(table->columnCount(), 3);
+    }
 
-  // Select template and verify templateSelected signal
-  // Select template emits selection signal
-  void testSelectTemplate() {
-    ReportPlugin plugin;
-    QSignalSpy selectSpy(&plugin, &ReportPlugin::templateSelected);
+    // Select template and verify templateSelected signal
+    // Select template emits selection signal
+    void testSelectTemplate() {
+        ReportPlugin plugin;
+        QSignalSpy selectSpy(&plugin, &ReportPlugin::templateSelected);
 
-    plugin.selectTemplate(0);
-    QCOMPARE(selectSpy.count(), 1);
-  }
+        plugin.selectTemplate(0);
+        QCOMPARE(selectSpy.count(), 1);
+    }
 
-  // Verify preview view is read-only and shows content after template selection
-  // Preview view shows template content after selection
-  void testPreview() {
-    ReportPlugin plugin;
+    // Verify preview view is read-only and shows content after template selection
+    // Preview view shows template content after selection
+    void testPreview() {
+        ReportPlugin plugin;
 
-    QTextEdit *pv = plugin.previewView();
-    QVERIFY(pv != nullptr);
-    QVERIFY(pv->isReadOnly());
+        QTextEdit* pv = plugin.previewView();
+        QVERIFY(pv != nullptr);
+        QVERIFY(pv->isReadOnly());
 
-    plugin.selectTemplate(0);
-    QVERIFY(!pv->toPlainText().isEmpty());
-  }
+        plugin.selectTemplate(0);
+        QVERIFY(!pv->toPlainText().isEmpty());
+    }
 
-  // Generate report and verify reportCount and reportGenerated signal
-  // Generate report increments count and emits signal
-  void testGenerateReport() {
-    ReportPlugin plugin;
-    QSignalSpy genSpy(&plugin, &ReportPlugin::reportGenerated);
+    // Generate report and verify reportCount and reportGenerated signal
+    // Generate report increments count and emits signal
+    void testGenerateReport() {
+        ReportPlugin plugin;
+        QSignalSpy genSpy(&plugin, &ReportPlugin::reportGenerated);
 
-    plugin.selectTemplate(0);
-    plugin.generateReport();
+        plugin.selectTemplate(0);
+        plugin.generateReport();
 
-    QCOMPARE(plugin.reportCount(), 1);
-    QCOMPARE(genSpy.count(), 1);
-  }
+        QCOMPARE(plugin.reportCount(), 1);
+        QCOMPARE(genSpy.count(), 1);
+    }
 
-  // Verify history table shows generated reports with correct columns
-  // History table shows generated reports
-  void testHistoryTable() {
-    ReportPlugin plugin;
+    // Verify history table shows generated reports with correct columns
+    // History table shows generated reports
+    void testHistoryTable() {
+        ReportPlugin plugin;
 
-    plugin.selectTemplate(0);
-    plugin.generateReport();
+        plugin.selectTemplate(0);
+        plugin.generateReport();
 
-    QTableWidget *table = plugin.historyTable();
-    QVERIFY(table != nullptr);
-    QCOMPARE(table->rowCount(), 1);
-    QCOMPARE(table->columnCount(), 4);
-  }
+        QTableWidget* table = plugin.historyTable();
+        QVERIFY(table != nullptr);
+        QCOMPARE(table->rowCount(), 1);
+        QCOMPARE(table->columnCount(), 4);
+    }
 
-  // Add custom report template and verify count increments
-  // Add custom report template increments count
-  void testAddReportTemplate() {
-    ReportPlugin plugin;
-    int initial = plugin.reportTemplateCount();
+    // Add custom report template and verify count increments
+    // Add custom report template increments count
+    void testAddReportTemplate() {
+        ReportPlugin plugin;
+        int initial = plugin.reportTemplateCount();
 
-    ReportPlugin::ReportTemplate tmpl;
-    tmpl.id = "custom";
-    tmpl.name = "Custom Report";
-    tmpl.description = "Custom description";
-    tmpl.format = "HTML";
+        ReportPlugin::ReportTemplate tmpl;
+        tmpl.id = "custom";
+        tmpl.name = "Custom Report";
+        tmpl.description = "Custom description";
+        tmpl.format = "HTML";
 
-    plugin.addReportTemplate(tmpl);
-    QCOMPARE(plugin.reportTemplateCount(), initial + 1);
-  }
+        plugin.addReportTemplate(tmpl);
+        QCOMPARE(plugin.reportTemplateCount(), initial + 1);
+    }
 
-  // Add custom data source and verify count increments
-  // Add custom data source increments count
-  void testAddDataSource() {
-    ReportPlugin plugin;
-    int initial = plugin.dataSourceCount();
+    // Add custom data source and verify count increments
+    // Add custom data source increments count
+    void testAddDataSource() {
+        ReportPlugin plugin;
+        int initial = plugin.dataSourceCount();
 
-    ReportPlugin::DataSource ds;
-    ds.id = "custom";
-    ds.name = "Custom Source";
-    ds.type = "custom_type";
-    ds.enabled = true;
+        ReportPlugin::DataSource ds;
+        ds.id = "custom";
+        ds.name = "Custom Source";
+        ds.type = "custom_type";
+        ds.enabled = true;
 
-    plugin.addDataSource(ds);
-    QCOMPARE(plugin.dataSourceCount(), initial + 1);
-  }
+        plugin.addDataSource(ds);
+        QCOMPARE(plugin.dataSourceCount(), initial + 1);
+    }
 
-  // Toggle data source enabled state and verify table cell text
-  // Toggle data source updates enabled state in table
-  void testToggleDataSource() {
-    ReportPlugin plugin;
+    // Toggle data source enabled state and verify table cell text
+    // Toggle data source updates enabled state in table
+    void testToggleDataSource() {
+        ReportPlugin plugin;
 
-    plugin.toggleDataSource(0, false);
-    QCOMPARE(plugin.dataSourceTable()->item(0, 2)->text(), QString("No"));
+        plugin.toggleDataSource(0, false);
+        QCOMPARE(plugin.dataSourceTable()->item(0, 2)->text(), QString("No"));
 
-    plugin.toggleDataSource(0, true);
-    QCOMPARE(plugin.dataSourceTable()->item(0, 2)->text(), QString("Yes"));
-  }
+        plugin.toggleDataSource(0, true);
+        QCOMPARE(plugin.dataSourceTable()->item(0, 2)->text(), QString("Yes"));
+    }
 
-  // Select output format and verify preview reflects the format
-  // Select format updates preview content
-  void testSelectFormat() {
-    ReportPlugin plugin;
+    // Select output format and verify preview reflects the format
+    // Select format updates preview content
+    void testSelectFormat() {
+        ReportPlugin plugin;
 
-    plugin.selectTemplate(0);
-    plugin.selectFormat("PDF");
-    QVERIFY(plugin.previewView()->toPlainText().contains("PDF"));
-  }
+        plugin.selectTemplate(0);
+        plugin.selectFormat("PDF");
+        QVERIFY(plugin.previewView()->toPlainText().contains("PDF"));
+    }
 
-  // Verify status label updates after report generation
-  // Status label shows generated text after report creation
-  void testStatusLabel() {
-    ReportPlugin plugin;
+    // Verify status label updates after report generation
+    // Status label shows generated text after report creation
+    void testStatusLabel() {
+        ReportPlugin plugin;
 
-    QLabel *label = plugin.statusLabel();
-    QVERIFY(label != nullptr);
+        QLabel* label = plugin.statusLabel();
+        QVERIFY(label != nullptr);
 
-    plugin.selectTemplate(0);
-    plugin.generateReport();
-    QVERIFY(label->text().contains("Generated"));
-  }
+        plugin.selectTemplate(0);
+        plugin.generateReport();
+        QVERIFY(label->text().contains("Generated"));
+    }
 
-  // Generate multiple reports and verify reportCount
-  // Multiple reports can be generated sequentially
-  void testMultipleReports() {
-    ReportPlugin plugin;
+    // Generate multiple reports and verify reportCount
+    // Multiple reports can be generated sequentially
+    void testMultipleReports() {
+        ReportPlugin plugin;
 
-    plugin.selectTemplate(0);
-    plugin.generateReport();
-    plugin.selectTemplate(1);
-    plugin.generateReport();
+        plugin.selectTemplate(0);
+        plugin.generateReport();
+        plugin.selectTemplate(1);
+        plugin.generateReport();
 
-    QCOMPARE(plugin.reportCount(), 2);
-  }
+        QCOMPARE(plugin.reportCount(), 2);
+    }
 
-  // Export history to CSV and verify file exists
-  // Export history writes CSV file
-  void testExportHistory() {
-    ReportPlugin plugin;
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
+    // Export history to CSV and verify file exists
+    // Export history writes CSV file
+    void testExportHistory() {
+        ReportPlugin plugin;
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
 
-    plugin.selectTemplate(0);
-    plugin.generateReport();
+        plugin.selectTemplate(0);
+        plugin.generateReport();
 
-    const QString path = dir.filePath("report_history_test.csv");
-    QVERIFY(plugin.exportHistory(path));
-    QVERIFY(QFile::exists(path));
+        const QString path = dir.filePath("report_history_test.csv");
+        QVERIFY(plugin.exportHistory(path));
+        QVERIFY(QFile::exists(path));
 
-    QFile file(path);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString csv = QString::fromUtf8(file.readAll());
-    QVERIFY(csv.contains(QStringLiteral("Network Overview,HTML")));
-    QVERIFY(csv.contains(QStringLiteral("/tmp/report_")));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString csv = QString::fromUtf8(file.readAll());
+        QVERIFY(csv.contains(QStringLiteral("Network Overview,HTML")));
+        QVERIFY(csv.contains(QStringLiteral("/tmp/report_")));
 
-    QTest::failOnWarning(QRegularExpression(
-        QStringLiteral("QFSFileEngine::open: No file name specified")));
-    QVERIFY(!plugin.exportHistory(QString()));
-    QVERIFY(!plugin.exportHistory(dir.path()));
-  }
+        QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+        QVERIFY(!plugin.exportHistory(QString()));
+        QVERIFY(!plugin.exportHistory(dir.path()));
+    }
 
-  // Export report to file and verify file exists
-  // Export report writes file to disk
-  void testExportReport() {
-    ReportPlugin plugin;
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
+    // Export report to file and verify file exists
+    // Export report writes file to disk
+    void testExportReport() {
+        ReportPlugin plugin;
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
 
-    plugin.selectTemplate(0);
-    const QString path = dir.filePath("report_export_test.txt");
-    QVERIFY(plugin.exportReport(path));
-    QVERIFY(QFile::exists(path));
+        plugin.selectTemplate(0);
+        const QString path = dir.filePath("report_export_test.txt");
+        QVERIFY(plugin.exportReport(path));
+        QVERIFY(QFile::exists(path));
 
-    QFile file(path);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString text = QString::fromUtf8(file.readAll());
-    QVERIFY(text.contains(QStringLiteral("=== Network Overview ===")));
-    QVERIFY(text.contains(QStringLiteral("Data Sources:")));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString text = QString::fromUtf8(file.readAll());
+        QVERIFY(text.contains(QStringLiteral("=== Network Overview ===")));
+        QVERIFY(text.contains(QStringLiteral("Data Sources:")));
 
-    QTest::failOnWarning(QRegularExpression(
-        QStringLiteral("QFSFileEngine::open: No file name specified")));
-    QVERIFY(!plugin.exportReport(QString()));
-    QVERIFY(!plugin.exportReport(dir.path()));
-  }
+        QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+        QVERIFY(!plugin.exportReport(QString()));
+        QVERIFY(!plugin.exportReport(dir.path()));
+    }
 };
 
 QTEST_MAIN(ReportPluginTest)

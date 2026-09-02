@@ -37,43 +37,43 @@ class QLabel;
 class QPushButton;
 
 class AdvancedErrorAnalysisPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit AdvancedErrorAnalysisPlugin(QObject *parent = nullptr);
+    explicit AdvancedErrorAnalysisPlugin(QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  void activate() override;
-  void deactivate() override;
+    void activate() override;
+    void deactivate() override;
 
-  QTableWidget *errorTable() const;
-  ErrorTimelineWidget *timelineWidget() const;
-  ErrorCorrelationWidget *correlationWidget() const;
-  QLabel *summaryLabel() const;
+    QTableWidget* errorTable() const;
+    ErrorTimelineWidget* timelineWidget() const;
+    ErrorCorrelationWidget* correlationWidget() const;
+    QLabel* summaryLabel() const;
 
-  void runAnalysis();
-  void exportReport(QWidget *parentWidget);
-  bool exportReportToFile(const QString &path);
+    void runAnalysis();
+    void exportReport(QWidget* parentWidget);
+    bool exportReportToFile(const QString& path);
 
 private:
-  void buildUi();
-  void populateTestData();
+    void buildUi();
+    void populateTestData();
 
-  AdvancedErrorAnalysisService *analysisService_ = nullptr;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *errorTable_ = nullptr;
-  ErrorTimelineWidget *timelineWidget_ = nullptr;
-  ErrorCorrelationWidget *correlationWidget_ = nullptr;
-  QLineEdit *filter_ = nullptr;
-  QComboBox *severityFilter_ = nullptr;
-  QLabel *summaryLabel_ = nullptr;
-  QPushButton *analyzeBtn_ = nullptr;
-  QPushButton *exportBtn_ = nullptr;
-  QPushButton *clearBtn_ = nullptr;
+    AdvancedErrorAnalysisService* analysisService_ = nullptr;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* errorTable_ = nullptr;
+    ErrorTimelineWidget* timelineWidget_ = nullptr;
+    ErrorCorrelationWidget* correlationWidget_ = nullptr;
+    QLineEdit* filter_ = nullptr;
+    QComboBox* severityFilter_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
+    QPushButton* analyzeBtn_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
+    QPushButton* clearBtn_ = nullptr;
 };

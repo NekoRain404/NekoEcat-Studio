@@ -7,14 +7,9 @@
 //   - Tracks authenticated users in a QSet for session management
 //   - All security events logged to audit trail with timestamps and results
 
-WorkflowSecurityService::WorkflowSecurityService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowSecurityService::WorkflowSecurityService(QObject* parent) : QObject(parent) {}
 
-bool WorkflowSecurityService::authenticateUser(const QString &username,
-                                                const QString &password)
-{
+bool WorkflowSecurityService::authenticateUser(const QString& username, const QString& password) {
     AuditEvent event;
     event.timestamp = QDateTime::currentDateTime();
     event.user = username;
@@ -35,9 +30,7 @@ bool WorkflowSecurityService::authenticateUser(const QString &username,
     return true;
 }
 
-bool WorkflowSecurityService::authorizeAction(const QString &user,
-                                               const QString &action)
-{
+bool WorkflowSecurityService::authorizeAction(const QString& user, const QString& action) {
     AuditEvent event;
     event.timestamp = QDateTime::currentDateTime();
     event.user = user;
@@ -58,14 +51,12 @@ bool WorkflowSecurityService::authorizeAction(const QString &user,
     return true;
 }
 
-void WorkflowSecurityService::logAuditEvent(const AuditEvent &event)
-{
+void WorkflowSecurityService::logAuditEvent(const AuditEvent& event) {
     auditLog_.append(event);
     emit auditEventLogged(event);
 }
 
-QVector<AuditEvent> WorkflowSecurityService::auditHistory(int count) const
-{
+QVector<AuditEvent> WorkflowSecurityService::auditHistory(int count) const {
     if (count <= 0 || count >= auditLog_.size())
         return auditLog_;
 

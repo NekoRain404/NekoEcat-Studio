@@ -40,53 +40,51 @@ class PerformanceMonitorService;
 class WatchdogService;
 
 class DiagnosticReportService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  DiagnosticReportService(EventBus *bus, EcatClient *client,
-                          TopologyService *topology, DcSyncService *dcSync,
-                          PerformanceMonitorService *perfMonitor,
-                          WatchdogService *watchdog,
-                          QObject *parent = nullptr);
+    DiagnosticReportService(EventBus* bus, EcatClient* client, TopologyService* topology, DcSyncService* dcSync,
+                            PerformanceMonitorService* perfMonitor, WatchdogService* watchdog,
+                            QObject* parent = nullptr);
 
-  // Generate a comprehensive diagnostic report in Markdown format.
-  // @return Markdown-formatted diagnostic report
-  QString generateReport() const;
+    // Generate a comprehensive diagnostic report in Markdown format.
+    // @return Markdown-formatted diagnostic report
+    QString generateReport() const;
 
-  // Export the diagnostic report to a file in Markdown format.
-  // @param filePath  Path to the output file
-  // @return true if the report was written and flushed successfully
-  bool exportReport(const QString &filePath) const;
+    // Export the diagnostic report to a file in Markdown format.
+    // @param filePath  Path to the output file
+    // @return true if the report was written and flushed successfully
+    bool exportReport(const QString& filePath) const;
 
-  // Export the diagnostic report to a file in CSV format.
-  // @param filePath  Path to the output file
-  // @return true if the report was written and flushed successfully
-  bool exportReportCsv(const QString &filePath) const;
+    // Export the diagnostic report to a file in CSV format.
+    // @param filePath  Path to the output file
+    // @return true if the report was written and flushed successfully
+    bool exportReportCsv(const QString& filePath) const;
 
 signals:
-  // Emitted when a report is generated.
-  // @param report  Markdown-formatted report content
-  void reportGenerated(const QString &report);
+    // Emitted when a report is generated.
+    // @param report  Markdown-formatted report content
+    void reportGenerated(const QString& report);
 
 private:
-  // Generate the topology section of the report.
-  QString topologySection() const;
+    // Generate the topology section of the report.
+    QString topologySection() const;
 
-  // Generate the slave status section of the report.
-  QString slaveStatusSection() const;
+    // Generate the slave status section of the report.
+    QString slaveStatusSection() const;
 
-  // Generate the performance metrics section of the report.
-  QString performanceSection() const;
+    // Generate the performance metrics section of the report.
+    QString performanceSection() const;
 
-  // Generate the DC sync section of the report.
-  QString dcSyncSection() const;
+    // Generate the DC sync section of the report.
+    QString dcSyncSection() const;
 
-  // Generate the watchdog section of the report.
-  QString watchdogSection() const;
+    // Generate the watchdog section of the report.
+    QString watchdogSection() const;
 
-  EventBus *bus_;                           // Event bus for data access
-  EcatClient *client_;                      // TCP client to ecatd daemon
-  TopologyService *topology_;               // Topology data source
-  DcSyncService *dcSync_;                   // DC sync data source
-  PerformanceMonitorService *perfMonitor_;  // Performance data source
-  WatchdogService *watchdog_;               // Watchdog data source
+    EventBus* bus_;                          // Event bus for data access
+    EcatClient* client_;                     // TCP client to ecatd daemon
+    TopologyService* topology_;              // Topology data source
+    DcSyncService* dcSync_;                  // DC sync data source
+    PerformanceMonitorService* perfMonitor_; // Performance data source
+    WatchdogService* watchdog_;              // Watchdog data source
 };

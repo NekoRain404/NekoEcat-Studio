@@ -5,10 +5,10 @@
 
 #include <algorithm>
 #include <cerrno>
-#include <sched.h>
-#include <sys/mman.h>
 #include <chrono>
 #include <numeric>
+#include <sched.h>
+#include <sys/mman.h>
 #include <thread>
 
 namespace {
@@ -16,25 +16,19 @@ constexpr int64_t NsecPerSec = 1000000000LL;
 }
 
 // High-resolution monotonic clock — avoids NTP jumps that CLOCK_REALTIME would introduce.
-uint64_t RtTestController::monotonicNsec()
-{
+uint64_t RtTestController::monotonicNsec() {
     timespec ts{};
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return static_cast<uint64_t>(ts.tv_sec) * NsecPerSec + static_cast<uint64_t>(ts.tv_nsec);
 }
 
-RtTestController::RtTestController(QObject *parent)
-    : QObject(parent)
-{
-}
+RtTestController::RtTestController(QObject* parent) : QObject(parent) {}
 
-RtTestController::~RtTestController()
-{
+RtTestController::~RtTestController() {
     stop();
 }
 
-bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString *error)
-{
+bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString* error) {
     // Clamp the requested cycle time to a sane real-time range. A value of 0 or
     // negative would otherwise produce an invalid timespec busy-loop.
     if (cycleUsec < 500 || cycleUsec > 1000000) {
@@ -50,8 +44,7 @@ bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString *error
             return true;
         }
         if (error) {
-            *error = QString("RT test is already running on master %1.")
-                         .arg(activeMasterIndex_);
+            *error = QString("RT test is already running on master %1.").arg(activeMasterIndex_);
         }
         return false;
     }
@@ -111,8 +104,7 @@ bool RtTestController::start(uint32_t masterIndex, int cycleUsec, QString *error
     return true;
 }
 
-void RtTestController::stop()
-{
+void RtTestController::stop() {
     running_ = false;
     if (thread_.joinable()) {
         thread_.join();
@@ -124,19 +116,16 @@ void RtTestController::stop()
     }
 }
 
-bool RtTestController::running() const
-{
+bool RtTestController::running() const {
     return running_;
 }
 
-QString RtTestController::status() const
-{
+QString RtTestController::status() const {
     std::lock_guard<std::mutex> lock(statsMutex_);
     return status_;
 }
 
-QJsonObject RtTestController::telemetry() const
-{
+QJsonObject RtTestController::telemetry() const {
     unsigned long long cycles = 0;
     const unsigned long long errors = errorCount_.load();
 
@@ -150,7 +139,8 @@ QJsonObject RtTestController::telemetry() const
         minNs = minCycleNsec_;
         maxNs = maxCycleNsec_;
         statusSnapshot = status_;
-        if (minNs == INT64_MAX) minNs = 0;
+        if (minNs == INT64_MAX)
+            minNs = 0;
 
         if (cycles > 0) {
             avgNs = totalCycleNsec_ / static_cast<int64_t>(cycles);
@@ -163,9 +153,7 @@ QJsonObject RtTestController::telemetry() const
         }
     }
 
-    const double lossRate = cycles > 0
-        ? static_cast<double>(errors) / static_cast<double>(cycles) * 100.0
-        : 0.0;
+    const double lossRate = cycles > 0 ? static_cast<double>(errors) / static_cast<double>(cycles) * 100.0 : 0.0;
 
     QJsonObject obj;
     obj["running"] = running_.load();
@@ -181,10 +169,9 @@ QJsonObject RtTestController::telemetry() const
     return obj;
 }
 
-void RtTestController::loop(int cycleUsec)
-{
+void RtTestController::loop(int cycleUsec) {
     // Elevate to real-time scheduling — failure is non-fatal, just means less deterministic timing.
-    struct sched_param param{};
+    struct sched_param param {};
     param.sched_priority = 80;
     if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
         // Non-fatal: will still run, just with less deterministic timing.
@@ -202,7 +189,7 @@ void RtTestController::loop(int cycleUsec)
         wakeupTime += cycleNsec;
 
         // Sleep until next cycle — clock_nanosleep with TIMER_ABSTIME avoids drift.
-        struct timespec wake{};
+        struct timespec wake {};
         wake.tv_sec = static_cast<time_t>(wakeupTime / NsecPerSec);
         wake.tv_nsec = static_cast<long>(wakeupTime % NsecPerSec);
         int sleepErr = 0;
@@ -216,7 +203,8 @@ void RtTestController::loop(int cycleUsec)
             break;
         }
 
-        if (!running_) break;
+        if (!running_)
+            break;
 
         // Measure the actual cycle interval (wall-clock time since previous iteration).
         const uint64_t now = monotonicNsec();
@@ -234,8 +222,10 @@ void RtTestController::loop(int cycleUsec)
         // Track timing statistics.
         {
             std::lock_guard<std::mutex> lock(statsMutex_);
-            if (cycleDelta < minCycleNsec_) minCycleNsec_ = cycleDelta;
-            if (cycleDelta > maxCycleNsec_) maxCycleNsec_ = cycleDelta;
+            if (cycleDelta < minCycleNsec_)
+                minCycleNsec_ = cycleDelta;
+            if (cycleDelta > maxCycleNsec_)
+                maxCycleNsec_ = cycleDelta;
             totalCycleNsec_ += cycleDelta;
             if (static_cast<int>(recentCycles_.size()) < kRollingWindow) {
                 recentCycles_.push_back(cycleDelta);
@@ -253,12 +243,11 @@ void RtTestController::loop(int cycleUsec)
     munlockall();
 
     // Restore normal scheduling before exiting.
-    struct sched_param normal{};
+    struct sched_param normal {};
     sched_setscheduler(0, SCHED_OTHER, &normal);
 }
 
-void RtTestController::cleanup()
-{
+void RtTestController::cleanup() {
     if (master_) {
         ecrt_master_deactivate(master_);
         ecrt_release_master(master_);

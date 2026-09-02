@@ -41,62 +41,61 @@ class ServiceContainer;
 
 /// @brief Workspace plugin for Startup SDO management and configuration.
 class StartupSdoPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  /// Constructs the Startup SDO plugin, building the toolbar and table UI.
-  /// @param container  Service container for accessing domain services
-  /// @param parent     Qt parent object (typically MainWindow)
-  explicit StartupSdoPlugin(ServiceContainer *container,
-                            QObject *parent = nullptr);
+    /// Constructs the Startup SDO plugin, building the toolbar and table UI.
+    /// @param container  Service container for accessing domain services
+    /// @param parent     Qt parent object (typically MainWindow)
+    explicit StartupSdoPlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;           ///< Returns "startupsdo"
-  QString displayName() const override;  ///< Returns "Startup SDO"
-  QString displayNameZh() const override; ///< Returns "启动SDO"
-  QIcon icon() const override;           ///< Returns the Startup SDO theme icon
-  QWidget *widget() override;            ///< Returns the root container widget
-  int defaultOrder() const override;     ///< Returns 35
-  bool visible() const override;         ///< Returns true (always visible)
+    // WorkspacePlugin identity
+    QString id() const override;            ///< Returns "startupsdo"
+    QString displayName() const override;   ///< Returns "Startup SDO"
+    QString displayNameZh() const override; ///< Returns "启动SDO"
+    QIcon icon() const override;            ///< Returns the Startup SDO theme icon
+    QWidget* widget() override;             ///< Returns the root container widget
+    int defaultOrder() const override;      ///< Returns 35
+    bool visible() const override;          ///< Returns true (always visible)
 
-  // Lifecycle
-  void activate() override;              ///< Called when user switches to this tab
-  void deactivate() override;            ///< Called when user switches away
-  void onSettingsChanged(const AppSettings &settings) override; ///< Reacts to settings changes
-  void onConnectionChanged(bool connected) override; ///< Reacts to daemon connection state
+    // Lifecycle
+    void activate() override;                                     ///< Called when user switches to this tab
+    void deactivate() override;                                   ///< Called when user switches away
+    void onSettingsChanged(const AppSettings& settings) override; ///< Reacts to settings changes
+    void onConnectionChanged(bool connected) override;            ///< Reacts to daemon connection state
 
-  // ── Table Accessors ──────────────────────────────────────────────
-  QTableWidget *startupSdoTable() const; ///< Returns the startup SDO table widget
+    // ── Table Accessors ──────────────────────────────────────────────
+    QTableWidget* startupSdoTable() const; ///< Returns the startup SDO table widget
 
-  // ── Control Widgets ──────────────────────────────────────────────
-  QCheckBox *startupWatchDiffsOnly() const;  ///< Returns the watch-diffs-only filter checkbox
-  QLabel *startupWatchSummaryLabel() const;  ///< Returns the watch comparison summary label
-  QLabel *startupSdoDetailLabel() const;     ///< Returns the per-entry detail label
+    // ── Control Widgets ──────────────────────────────────────────────
+    QCheckBox* startupWatchDiffsOnly() const; ///< Returns the watch-diffs-only filter checkbox
+    QLabel* startupWatchSummaryLabel() const; ///< Returns the watch comparison summary label
+    QLabel* startupSdoDetailLabel() const;    ///< Returns the per-entry detail label
 
-  // ── Table Management ─────────────────────────────────────────────
-  void ensureStartupSdoTable();        ///< Creates the table if not yet built
-  /// Enables or disables controls based on daemon connection state.
-  /// @param connected  true if the daemon is connected
-  void updateStartupSdoControls(bool connected);
-  /// Filters the table to show only rows where live values differ from startup.
-  /// @param diffsOnly  true to show only differing rows
-  void filterStartupSdoTable(bool diffsOnly);
+    // ── Table Management ─────────────────────────────────────────────
+    void ensureStartupSdoTable(); ///< Creates the table if not yet built
+    /// Enables or disables controls based on daemon connection state.
+    /// @param connected  true if the daemon is connected
+    void updateStartupSdoControls(bool connected);
+    /// Filters the table to show only rows where live values differ from startup.
+    /// @param diffsOnly  true to show only differing rows
+    void filterStartupSdoTable(bool diffsOnly);
 
 signals:
-  void startupSdoTableSelectionChanged(); ///< Emitted when the table selection changes
+    void startupSdoTableSelectionChanged(); ///< Emitted when the table selection changes
 
 private:
-  void buildUi();                      ///< Builds the toolbar and table layout
-  void buildToolbar(QWidget *parent);  ///< Builds the toolbar with filter and summary controls
-  void buildTable(QWidget *parent);    ///< Builds the startup SDO table
+    void buildUi();                     ///< Builds the toolbar and table layout
+    void buildToolbar(QWidget* parent); ///< Builds the toolbar with filter and summary controls
+    void buildTable(QWidget* parent);   ///< Builds the startup SDO table
 
-  ServiceContainer *container_;
-  QWidget *containerWidget_ = nullptr;
+    ServiceContainer* container_;
+    QWidget* containerWidget_ = nullptr;
 
-  // Toolbar
-  QCheckBox *startupWatchDiffsOnly_ = nullptr;
-  QLabel *startupWatchSummaryLabel_ = nullptr;
-  QLabel *startupSdoDetailLabel_ = nullptr;
+    // Toolbar
+    QCheckBox* startupWatchDiffsOnly_ = nullptr;
+    QLabel* startupWatchSummaryLabel_ = nullptr;
+    QLabel* startupSdoDetailLabel_ = nullptr;
 
-  // Table
-  QTableWidget *startupSdoTable_ = nullptr;
+    // Table
+    QTableWidget* startupSdoTable_ = nullptr;
 };

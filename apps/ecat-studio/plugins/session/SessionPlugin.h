@@ -44,57 +44,54 @@ struct SessionBriefRow;
 struct SessionBriefUiRow;
 
 class SessionPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit SessionPlugin(ServiceContainer *container,
-                         QObject *parent = nullptr);
+    explicit SessionPlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Lifecycle
-  void activate() override;
-  void deactivate() override;
-  void onSettingsChanged(const AppSettings &settings) override;
-  void onConnectionChanged(bool connected) override;
+    // Lifecycle
+    void activate() override;
+    void deactivate() override;
+    void onSettingsChanged(const AppSettings& settings) override;
+    void onConnectionChanged(bool connected) override;
 
-  // Session brief table
-  QTableWidget *sessionBriefTable() const;
+    // Session brief table
+    QTableWidget* sessionBriefTable() const;
 
-  // Session brief copy button
-  QPushButton *sessionBriefCopyButton() const;
+    // Session brief copy button
+    QPushButton* sessionBriefCopyButton() const;
 
-  // Summary label
-  QLabel *sessionBriefSummaryLabel() const;
+    // Summary label
+    QLabel* sessionBriefSummaryLabel() const;
 
-  // Populate session brief table from MainWindow-gathered data.
-  // Each row is a QStringList of cells: area, status, evidence, next.
-  void updateSessionBrief(const QStringList &headers,
-                          const QList<QStringList> &rows,
-                          const QList<QColor> &rowColors);
+    // Populate session brief table from MainWindow-gathered data.
+    // Each row is a QStringList of cells: area, status, evidence, next.
+    void updateSessionBrief(const QStringList& headers, const QList<QStringList>& rows, const QList<QColor>& rowColors);
 
-  // Update copy button state based on current selection.
-  void updateCopyButtonState();
+    // Update copy button state based on current selection.
+    void updateCopyButtonState();
 
-  // Get the area text for the current row (for copy button label).
-  QString currentRowArea() const;
+    // Get the area text for the current row (for copy button label).
+    QString currentRowArea() const;
 
 signals:
-  void sessionBriefRowActivated(int row);
-  void sessionBriefRowCopyRequested(int row);
+    void sessionBriefRowActivated(int row);
+    void sessionBriefRowCopyRequested(int row);
 
 private:
-  void buildUi();
+    void buildUi();
 
-  ServiceContainer *container_;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *table_ = nullptr;
-  QPushButton *copyButton_ = nullptr;
-  QLabel *summaryLabel_ = nullptr;
+    ServiceContainer* container_;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* table_ = nullptr;
+    QPushButton* copyButton_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
 };

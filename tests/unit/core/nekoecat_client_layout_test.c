@@ -1,7 +1,7 @@
 #include "nekoecat_client.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 // Test the layout parse + byte_offset + full by_index roundtrips + wait/version (simulating attach path data).
@@ -9,24 +9,36 @@
 int main() {
     // Real layout sample from D507 slave shmInfo
     const char* real_sample = "{"
-        "\"shm_name\":\"/nekoecat_proc_0\","
-        "\"data_size\":30,"
-        "\"layout_version\":1,"
-        "\"layout\":["
-            "{\"slave\":0,\"index\":28675,\"subindex\":1,\"bitLength\":32,\"direction\":\"RxPDO\",\"offset\":0,\"name\":\"Flow SP [REAL]\"},"
-            "{\"slave\":0,\"index\":28680,\"subindex\":1,\"bitLength\":32,\"direction\":\"RxPDO\",\"offset\":4,\"name\":\"Ramp Time\"},"
-            "{\"slave\":0,\"index\":28681,\"subindex\":1,\"bitLength\":8,\"direction\":\"RxPDO\",\"offset\":8,\"name\":\"Actuator Control\"},"
-            "{\"slave\":0,\"index\":24576,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\",\"offset\":9,\"name\":\"Flow Reading [REAL]\"},"
-            "{\"slave\":0,\"index\":24577,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\",\"offset\":13,\"name\":\"Pressure Reading [REAL]\"},"
-            "{\"slave\":0,\"index\":24578,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\",\"offset\":17,\"name\":\"Temperature Reading [REAL]\"},"
-            "{\"slave\":0,\"index\":24585,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\",\"offset\":21,\"name\":\"Position Setpoint [REAL]\"},"
-            "{\"slave\":0,\"index\":24585,\"subindex\":2,\"bitLength\":32,\"direction\":\"TxPDO\",\"offset\":25,\"name\":\"Position Readback [REAL]\"},"
-            "{\"slave\":0,\"index\":62336,\"subindex\":0,\"bitLength\":8,\"direction\":\"TxPDO\",\"offset\":29,\"name\":\"Active Exception Status\"}"
-        "]"
-    "}";
+                              "\"shm_name\":\"/nekoecat_proc_0\","
+                              "\"data_size\":30,"
+                              "\"layout_version\":1,"
+                              "\"layout\":["
+                              "{\"slave\":0,\"index\":28675,\"subindex\":1,\"bitLength\":32,\"direction\":\"RxPDO\","
+                              "\"offset\":0,\"name\":\"Flow SP [REAL]\"},"
+                              "{\"slave\":0,\"index\":28680,\"subindex\":1,\"bitLength\":32,\"direction\":\"RxPDO\","
+                              "\"offset\":4,\"name\":\"Ramp Time\"},"
+                              "{\"slave\":0,\"index\":28681,\"subindex\":1,\"bitLength\":8,\"direction\":\"RxPDO\","
+                              "\"offset\":8,\"name\":\"Actuator Control\"},"
+                              "{\"slave\":0,\"index\":24576,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\","
+                              "\"offset\":9,\"name\":\"Flow Reading [REAL]\"},"
+                              "{\"slave\":0,\"index\":24577,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\","
+                              "\"offset\":13,\"name\":\"Pressure Reading [REAL]\"},"
+                              "{\"slave\":0,\"index\":24578,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\","
+                              "\"offset\":17,\"name\":\"Temperature Reading [REAL]\"},"
+                              "{\"slave\":0,\"index\":24585,\"subindex\":1,\"bitLength\":32,\"direction\":\"TxPDO\","
+                              "\"offset\":21,\"name\":\"Position Setpoint [REAL]\"},"
+                              "{\"slave\":0,\"index\":24585,\"subindex\":2,\"bitLength\":32,\"direction\":\"TxPDO\","
+                              "\"offset\":25,\"name\":\"Position Readback [REAL]\"},"
+                              "{\"slave\":0,\"index\":62336,\"subindex\":0,\"bitLength\":8,\"direction\":\"TxPDO\","
+                              "\"offset\":29,\"name\":\"Active Exception Status\"}"
+                              "]"
+                              "}";
 
     NekoEcatClient* c = nekoecat_client_create();
-    if (!c) { printf("create failed\n"); return 1; }
+    if (!c) {
+        printf("create failed\n");
+        return 1;
+    }
 
     // Exercise start_freerun (drives RPC + auto attach from clean C consumer)
     char serr[256] = {0};
@@ -76,7 +88,7 @@ int main() {
     nekoecat_client_write_u32_by_index(c, 0, 24577, 1, 0x33333333); // @13
     nekoecat_client_write_u32_by_index(c, 0, 24578, 1, 0x44444444); // @17
 
-    uint32_t v0=0, v9=0, v13=0, v17=0;
+    uint32_t v0 = 0, v9 = 0, v13 = 0, v17 = 0;
     nekoecat_client_read_u32_by_index(c, 0, 28675, 1, &v0);
     nekoecat_client_read_u32_by_index(c, 0, 24576, 1, &v9);
     nekoecat_client_read_u32_by_index(c, 0, 24577, 1, &v13);
@@ -93,7 +105,7 @@ int main() {
     nekoecat_client_wait_next_cycle(c, 100000);
     int tr = nekoecat_client_try_wait_next_cycle(c);
     // advance version
-    if (c && ((ShmHeader*)fake_shm)->version == 10) {  // after setup it's 10
+    if (c && ((ShmHeader*)fake_shm)->version == 10) { // after setup it's 10
         ((ShmHeader*)fake_shm)->version = 11;
     }
     int tr2 = nekoecat_client_try_wait_next_cycle(c);
@@ -153,7 +165,8 @@ int main() {
     NekoEcatState st = nekoecat_client_get_state(c);
     printf("ver=%llu cc=%lld st=%d\n", ver, cc, st);
 
-    printf("layout parse + byte_offset + by_index + attach surface + wait/gets OK (data via test arena due to env; RPC attach path called)\n");
+    printf("layout parse + byte_offset + by_index + attach surface + wait/gets OK (data via test arena due to env; RPC "
+           "attach path called)\n");
     nekoecat_client_destroy(c);
     printf("layout parse + byte_offset contract + by_index roundtrips on parsed offs OK\n");
     return 0;

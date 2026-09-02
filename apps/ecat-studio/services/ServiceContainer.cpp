@@ -35,54 +35,54 @@
 //   ensures services that depend on others are cleaned up first.
 
 #include "ServiceContainer.h"
-#include "infra/EcatClient.h"
-#include "EventBus.h"
-#include "SdoService.h"
-#include "WatchService.h"
-#include "TopologyService.h"
-#include "DcSyncService.h"
 #include "AlEventService.h"
-#include "SignalService.h"
-#include "PerformanceMonitorService.h"
-#include "EsiService.h"
 #include "BusStatsService.h"
-#include "WatchdogService.h"
-#include "SafetyController.h"
-#include "DiagnosticReportService.h"
-#include "ProjectManagerService.h"
-#include "ConfigurationService.h"
 #include "ChartService.h"
+#include "ConfigurationService.h"
+#include "DcSyncService.h"
+#include "DiagnosticReportService.h"
+#include "EsiService.h"
+#include "EventBus.h"
+#include "infra/EcatClient.h"
+#include "PerformanceMonitorService.h"
+#include "ProjectManagerService.h"
+#include "SafetyController.h"
+#include "SdoService.h"
+#include "SignalService.h"
+#include "TopologyService.h"
+#include "WatchdogService.h"
+#include "WatchService.h"
 #ifdef ECAT_EXPERIMENTAL_SERVICES
-#include "AlarmService.h"
-#include "LoggingService.h"
+    #include "AlarmService.h"
+    #include "LoggingService.h"
 #endif
 #ifdef ECAT_SCRIPTING_ENABLED
-#include "ScriptingService.h"
+    #include "ScriptingService.h"
 #endif
 #include "BatchOperationService.h"
-#include "NetworkDiagnosticsService.h"
+#include "CoEService.h"
+#include "DcSyncPrecisionService.h"
 #include "EcatHealthService.h"
+#include "EoEService.h"
+#include "ErrorHandlingService.h"
 #include "ExportService.h"
 #include "FirmwareUpdateService.h"
-#include "ReportGeneratorService.h"
-#include "DcSyncPrecisionService.h"
-#include "SdoCacheService.h"
-#include "PdoMappingService.h"
-#include "CoEService.h"
 #include "FoEService.h"
-#include "EoEService.h"
-#include "StateMachineService.h"
-#include "ErrorHandlingService.h"
-#include "HotConnectService.h"
-#include "RedundancyService.h"
-#include "OnlineDiagnosticsService.h"
-#include "RealtimePerformanceService.h"
 #include "FreeRunConfigurationService.h"
 #include "FreeRunMonitoringService.h"
-#include "PdoConfigurationService.h"
+#include "HotConnectService.h"
+#include "NetworkDiagnosticsService.h"
+#include "OnlineDiagnosticsService.h"
 #include "OpStateService.h"
+#include "PdoConfigurationService.h"
+#include "PdoMappingService.h"
 #include "plugins/oscilloscope/OscilloscopeService.h"
 #include "plugins/protocol/ProtocolAnalyzerService.h"
+#include "RealtimePerformanceService.h"
+#include "RedundancyService.h"
+#include "ReportGeneratorService.h"
+#include "SdoCacheService.h"
+#include "StateMachineService.h"
 
 // =============================================================================
 // ServiceContainer Constructor — Initialize all services in dependency order
@@ -100,15 +100,12 @@
 // All services use Qt's parent-child ownership model via `this` as parent.
 // This ensures automatic cleanup when the container is destroyed.
 
-ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObject *parent)
-    : QObject(parent)
-    , client_(client)
-    , eventBus_(eventBus)
-{
+ServiceContainer::ServiceContainer(EcatClient* client, EventBus* eventBus, QObject* parent)
+    : QObject(parent), client_(client), eventBus_(eventBus) {
     // ── Phase 1: Infrastructure (injected) ─────────────────────────────
 
     // ── Phase 2: Core services (depend on EcatClient) ─────────────────
-    sdo_ = new SdoService(client_, this);     // SDO read/write operations
+    sdo_ = new SdoService(client_, this); // SDO read/write operations
     watch_ = new WatchService(client_, this);
     topology_ = new TopologyService(client_, this);
     dcSync_ = new DcSyncService(client_, this);
@@ -119,8 +116,8 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     busStats_ = new BusStatsService(client_, this);
     watchdog_ = new WatchdogService(eventBus_, client_, this);
     safety_ = new SafetyController(this);
-    diagnosticReport_ = new DiagnosticReportService(
-        eventBus_, client_, topology_, dcSync_, perfMonitor_, watchdog_, this);
+    diagnosticReport_ =
+        new DiagnosticReportService(eventBus_, client_, topology_, dcSync_, perfMonitor_, watchdog_, this);
     projectManager_ = new ProjectManagerService(this);
     configuration_ = new ConfigurationService(this);
     chart_ = new ChartService(this);
@@ -133,8 +130,7 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
 #endif
     batch_ = new BatchOperationService(client_, sdo_, topology_, this);
     networkDiagnostics_ = new NetworkDiagnosticsService(client_, this);
-    ecatHealth_ = new EcatHealthService(client_, eventBus_, topology_,
-                                        dcSync_, alEvent_, watchdog_, this);
+    ecatHealth_ = new EcatHealthService(client_, eventBus_, topology_, dcSync_, alEvent_, watchdog_, this);
     exportService_ = new ExportService(this);
     firmwareUpdate_ = new FirmwareUpdateService(client_, this);
     reportGenerator_ = new ReportGeneratorService(this);
@@ -169,7 +165,7 @@ ServiceContainer::ServiceContainer(EcatClient *client, EventBus *eventBus, QObje
     initialized_ = initErrors_.isEmpty();
 }
 
-void ServiceContainer::validateService(QObject *service, const QString &name) {
+void ServiceContainer::validateService(QObject* service, const QString& name) {
     if (!service) {
         initErrors_.append(name);
         emit serviceInitFailed(name, "Service creation returned null");

@@ -50,55 +50,55 @@
 //   - QMap<QString, WorkspacePlugin*>: O(log n) id-based lookup
 //   - Both containers store the same plugin pointers (redundant for performance)
 
-#include <QObject>
-#include <QVector>
 #include <QMap>
+#include <QObject>
 #include <QString>
+#include <QVector>
 
 class WorkspacePlugin;
 
 class PluginRegistry : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit PluginRegistry(QObject *parent = nullptr) : QObject(parent) {}
+    explicit PluginRegistry(QObject* parent = nullptr) : QObject(parent) {}
 
-  // ── Registration ─────────────────────────────────────────────────────
-  // Adds a plugin to the registry with validation.
-  // Guards against:
-  //   - null plugin pointer
-  //   - empty plugin id
-  //   - duplicate plugin id (silently ignored)
-  // After registration, plugins are sorted by defaultOrder() ascending.
-  // Emits registrationFailed() on validation failures.
-  bool registerPlugin(WorkspacePlugin *plugin);
+    // ── Registration ─────────────────────────────────────────────────────
+    // Adds a plugin to the registry with validation.
+    // Guards against:
+    //   - null plugin pointer
+    //   - empty plugin id
+    //   - duplicate plugin id (silently ignored)
+    // After registration, plugins are sorted by defaultOrder() ascending.
+    // Emits registrationFailed() on validation failures.
+    bool registerPlugin(WorkspacePlugin* plugin);
 
-  // ── Access Methods ───────────────────────────────────────────────────
+    // ── Access Methods ───────────────────────────────────────────────────
 
-  /// Returns the total number of registered plugins (including hidden ones).
-  int count() const;
+    /// Returns the total number of registered plugins (including hidden ones).
+    int count() const;
 
-  /// Returns the plugin at the given index in sorted order, or nullptr if out of range.
-  /// Index 0 is the plugin with the lowest defaultOrder() value.
-  WorkspacePlugin *pluginAt(int index) const;
+    /// Returns the plugin at the given index in sorted order, or nullptr if out of range.
+    /// Index 0 is the plugin with the lowest defaultOrder() value.
+    WorkspacePlugin* pluginAt(int index) const;
 
-  /// Finds a plugin by its unique id string, or nullptr if not found.
-  /// Uses QMap for O(log n) lookup performance.
-  WorkspacePlugin *findById(const QString &id) const;
+    /// Finds a plugin by its unique id string, or nullptr if not found.
+    /// Uses QMap for O(log n) lookup performance.
+    WorkspacePlugin* findById(const QString& id) const;
 
-  /// Returns a list of all plugins where visible() returns true.
-  /// This is used by MainWindow to create only the visible tabs.
-  QVector<WorkspacePlugin *> visiblePlugins() const;
+    /// Returns a list of all plugins where visible() returns true.
+    /// This is used by MainWindow to create only the visible tabs.
+    QVector<WorkspacePlugin*> visiblePlugins() const;
 
 signals:
-  // Emitted when a plugin registration fails validation.
-  // @param reason  Human-readable description of why registration failed
-  // @param pluginId  The plugin id (may be empty if plugin was null)
-  void registrationFailed(const QString &reason, const QString &pluginId);
+    // Emitted when a plugin registration fails validation.
+    // @param reason  Human-readable description of why registration failed
+    // @param pluginId  The plugin id (may be empty if plugin was null)
+    void registrationFailed(const QString& reason, const QString& pluginId);
 
 private:
-  // Internal storage — both containers hold the same plugin pointers.
-  // plugins_ is sorted by defaultOrder() for ordered traversal.
-  // idMap_ provides O(log n) lookup by plugin id.
-  QVector<WorkspacePlugin *> plugins_;
-  QMap<QString, WorkspacePlugin *> idMap_;
+    // Internal storage — both containers hold the same plugin pointers.
+    // plugins_ is sorted by defaultOrder() for ordered traversal.
+    // idMap_ provides O(log n) lookup by plugin id.
+    QVector<WorkspacePlugin*> plugins_;
+    QMap<QString, WorkspacePlugin*> idMap_;
 };

@@ -28,7 +28,7 @@
 #include "EventBus.h"
 
 // Constructor — no special initialization needed beyond QObject parent.
-EventBus::EventBus(QObject *parent) : QObject(parent) {}
+EventBus::EventBus(QObject* parent) : QObject(parent) {}
 
 // ── Emitter Method Implementations ─────────────────────────────────────
 // Each method simply emits the corresponding Qt signal. The separation of
@@ -36,25 +36,41 @@ EventBus::EventBus(QObject *parent) : QObject(parent) {}
 // enhancements (e.g., logging, metrics) without changing the signal interface.
 
 // Topology scan results available (slave list updated)
-void EventBus::emitSlaveChanged(const QVector<SlaveInfo> &slaves) { emit slaveChanged(slaves); }
+void EventBus::emitSlaveChanged(const QVector<SlaveInfo>& slaves) {
+    emit slaveChanged(slaves);
+}
 
 // SDO value read from a slave device
-void EventBus::emitSdoValue(int pos, const QString &idx, const QString &sub, const QString &val) { emit sdoValueReceived(pos, idx, sub, val); }
+void EventBus::emitSdoValue(int pos, const QString& idx, const QString& sub, const QString& val) {
+    emit sdoValueReceived(pos, idx, sub, val);
+}
 
 // Daemon connection state changed (connected/disconnected)
-void EventBus::emitConnectionStateChanged(bool connected) { emit connectionStateChanged(connected); }
+void EventBus::emitConnectionStateChanged(bool connected) {
+    emit connectionStateChanged(connected);
+}
 
 // Free Run process data telemetry snapshot
-void EventBus::emitFreeRunTelemetry(const QJsonObject &tel) { emit freeRunTelemetry(tel); }
+void EventBus::emitFreeRunTelemetry(const QJsonObject& tel) {
+    emit freeRunTelemetry(tel);
+}
 
 // Topology change detected (diff from baseline)
-void EventBus::emitTopologyChanged(const QVector<SlaveInfo> &slaves) { emit topologyChanged(slaves); }
+void EventBus::emitTopologyChanged(const QVector<SlaveInfo>& slaves) {
+    emit topologyChanged(slaves);
+}
 
 // DC sync status update per slave
-void EventBus::emitDcSyncUpdate(const QJsonObject &data) { emit dcSyncUpdate(data); }
+void EventBus::emitDcSyncUpdate(const QJsonObject& data) {
+    emit dcSyncUpdate(data);
+}
 
 // Application Layer event log entry
-void EventBus::emitAlEvent(const QJsonObject &event) { emit alEvent(event); }
+void EventBus::emitAlEvent(const QJsonObject& event) {
+    emit alEvent(event);
+}
 
 // Multi-channel signal data for real-time visualization
-void EventBus::emitSignalData(int channel, const QVector<double> &values, const QVector<qint64> &timestamps) { emit signalData(channel, values, timestamps); }
+void EventBus::emitSignalData(int channel, const QVector<double>& values, const QVector<qint64>& timestamps) {
+    emit signalData(channel, values, timestamps);
+}

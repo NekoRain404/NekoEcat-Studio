@@ -38,22 +38,22 @@
 
 /// Represents an SDO value for test data generation.
 struct SdoValue {
-    int position = 0;      ///< Slave position on the bus
-    QString index;         ///< SDO index (e.g. "0x6040")
-    QString subIndex;      ///< SDO subindex (e.g. "0x00")
-    QString value;         ///< SDO value as string
-    QString type;          ///< SDO data type (e.g. "UINT16", "INT32")
+    int position = 0; ///< Slave position on the bus
+    QString index;    ///< SDO index (e.g. "0x6040")
+    QString subIndex; ///< SDO subindex (e.g. "0x00")
+    QString value;    ///< SDO value as string
+    QString type;     ///< SDO data type (e.g. "UINT16", "INT32")
 };
 
 /// Represents a PDO mapping entry for test data generation.
 struct PdoMapping {
-    int position = 0;      ///< Slave position on the bus
-    QString syncManager;   ///< Sync manager index (e.g. "SM2", "SM3")
-    QString pdoIndex;      ///< PDO index (e.g. "0x1600")
-    QString index;         ///< Mapped object index (e.g. "0x6040")
-    QString subIndex;      ///< Mapped object subindex (e.g. "0x00")
-    int bits = 0;          ///< Bit length of the mapping
-    QString name;          ///< Object name
+    int position = 0;    ///< Slave position on the bus
+    QString syncManager; ///< Sync manager index (e.g. "SM2", "SM3")
+    QString pdoIndex;    ///< PDO index (e.g. "0x1600")
+    QString index;       ///< Mapped object index (e.g. "0x6040")
+    QString subIndex;    ///< Mapped object subindex (e.g. "0x00")
+    int bits = 0;        ///< Bit length of the mapping
+    QString name;        ///< Object name
 };
 
 /// Enumerates the available data generation patterns.

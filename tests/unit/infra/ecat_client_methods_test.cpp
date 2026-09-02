@@ -30,21 +30,22 @@ namespace {
 
 int failures = 0;
 
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
 
-void expectTrue(bool cond, const QString &msg) {
-    if (!cond) fail(msg);
+void expectTrue(bool cond, const QString& msg) {
+    if (!cond)
+        fail(msg);
 }
 
-void expectEqual(const QString &actual, const QString &expected, const QString &msg) {
+void expectEqual(const QString& actual, const QString& expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: expected '%2', got '%3'").arg(msg, expected, actual));
 }
 
-void expectEqual(ConnectionState actual, ConnectionState expected, const QString &msg) {
+void expectEqual(ConnectionState actual, ConnectionState expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: unexpected state").arg(msg));
 }
@@ -54,7 +55,7 @@ void expectEqual(ConnectionState actual, ConnectionState expected, const QString
 class EchoServer : public QTcpServer {
     Q_OBJECT
 public:
-    explicit EchoServer(QObject *parent = nullptr) : QTcpServer(parent) {
+    explicit EchoServer(QObject* parent = nullptr) : QTcpServer(parent) {
         connect(this, &QTcpServer::newConnection, this, &EchoServer::acceptClient);
     }
 
@@ -63,7 +64,7 @@ public:
 
     // Force-close all connected client sockets (triggers disconnect on client).
     void forceCloseAll() {
-        for (auto *sock : connectedSockets_) {
+        for (auto* sock : connectedSockets_) {
             sock->close();
         }
         close();
@@ -71,17 +72,18 @@ public:
 
 private slots:
     void acceptClient() {
-        while (auto *socket = nextPendingConnection()) {
+        while (auto* socket = nextPendingConnection()) {
             connectedSockets_.append(socket);
             connect(socket, &QTcpSocket::readyRead, this, [this, socket] {
-                QByteArray &buf = buffers_[socket];
+                QByteArray& buf = buffers_[socket];
                 buf += socket->readAll();
                 int newline = -1;
                 while ((newline = buf.indexOf('\n')) >= 0) {
                     const auto line = buf.left(newline);
                     buf.remove(0, newline + 1);
                     const auto doc = QJsonDocument::fromJson(line);
-                    if (!doc.isObject()) continue;
+                    if (!doc.isObject())
+                        continue;
                     const auto req = doc.object();
                     lastRequest = req;
                     const QString id = req.value("id").toString();
@@ -127,34 +129,34 @@ private slots:
     }
 
 private:
-    QHash<QTcpSocket *, QByteArray> buffers_;
-    QList<QTcpSocket *> connectedSockets_;
+    QHash<QTcpSocket*, QByteArray> buffers_;
+    QList<QTcpSocket*> connectedSockets_;
 };
 
 // Server that always returns errors.
 class ErrorServer : public QTcpServer {
     Q_OBJECT
 public:
-    explicit ErrorServer(QObject *parent = nullptr) : QTcpServer(parent) {
+    explicit ErrorServer(QObject* parent = nullptr) : QTcpServer(parent) {
         connect(this, &QTcpServer::newConnection, this, &ErrorServer::acceptClient);
     }
 
 private slots:
     void acceptClient() {
-        while (auto *socket = nextPendingConnection()) {
+        while (auto* socket = nextPendingConnection()) {
             connect(socket, &QTcpSocket::readyRead, this, [this, socket] {
-                QByteArray &buf = buffers_[socket];
+                QByteArray& buf = buffers_[socket];
                 buf += socket->readAll();
                 int newline = -1;
                 while ((newline = buf.indexOf('\n')) >= 0) {
                     const auto line = buf.left(newline);
                     buf.remove(0, newline + 1);
                     const auto doc = QJsonDocument::fromJson(line);
-                    if (!doc.isObject()) continue;
+                    if (!doc.isObject())
+                        continue;
                     const auto req = doc.object();
                     const QString id = req.value("id").toString();
-                    socket->write(JsonProtocol::encode(
-                        JsonProtocol::failure(id, "Test error", -42)));
+                    socket->write(JsonProtocol::encode(JsonProtocol::failure(id, "Test error", -42)));
                     socket->flush();
                 }
             });
@@ -166,11 +168,11 @@ private slots:
     }
 
 private:
-    QHash<QTcpSocket *, QByteArray> buffers_;
+    QHash<QTcpSocket*, QByteArray> buffers_;
 };
 
 // Helper: spin event loop until condition is true or timeout.
-bool waitFor(std::function<bool()> cond, QCoreApplication &app, int timeoutMs = 3000) {
+bool waitFor(std::function<bool()> cond, QCoreApplication& app, int timeoutMs = 3000) {
     for (int i = 0; i < timeoutMs / 50 && !cond(); ++i) {
         app.processEvents();
         QThread::msleep(50);
@@ -182,7 +184,7 @@ bool waitFor(std::function<bool()> cond, QCoreApplication &app, int timeoutMs = 
 
 #include "ecat_client_methods_test.moc"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     // ─── T1: upload() emits sdoValue with correct params ────────────────
@@ -198,12 +200,12 @@ int main(int argc, char *argv[]) {
         QString gotIndex, gotSubIndex, gotValue;
         int gotPosition = -1;
         QObject::connect(&client, &EcatClient::sdoValue,
-            [&](int pos, const QString &idx, const QString &sub, const QString &val) {
-                gotPosition = pos;
-                gotIndex = idx;
-                gotSubIndex = sub;
-                gotValue = val;
-            });
+                         [&](int pos, const QString& idx, const QString& sub, const QString& val) {
+                             gotPosition = pos;
+                             gotIndex = idx;
+                             gotSubIndex = sub;
+                             gotValue = val;
+                         });
 
         client.upload(3, "0x1018", "0x01");
         expectTrue(waitFor([&] { return !gotIndex.isEmpty(); }, app), "T1: upload() emitted sdoValue");
@@ -225,10 +227,10 @@ int main(int argc, char *argv[]) {
 
         QString gotIndex, gotSubIndex;
         QObject::connect(&client, &EcatClient::sdoValue,
-            [&](int, const QString &idx, const QString &sub, const QString &) {
-                gotIndex = idx;
-                gotSubIndex = sub;
-            });
+                         [&](int, const QString& idx, const QString& sub, const QString&) {
+                             gotIndex = idx;
+                             gotSubIndex = sub;
+                         });
 
         client.upload(0, "0x6040", "0x00");
         expectTrue(waitFor([&] { return !gotIndex.isEmpty(); }, app), "T2: upload() with 0x6040");
@@ -247,16 +249,12 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         // upload is triggered by download; capture its value.
         QString readbackValue;
         QObject::connect(&client, &EcatClient::sdoValue,
-            [&](int, const QString &, const QString &, const QString &val) {
-                readbackValue = val;
-            });
+                         [&](int, const QString&, const QString&, const QString& val) { readbackValue = val; });
 
         client.download(1, "0x6040", "0x00", "0x000F", "UINT16");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T3: download() emitted commandSucceeded");
@@ -276,9 +274,7 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         client.download(5, "0x1600", "0x01", "0x1234", "UINT32");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T4: download accepted");
@@ -302,13 +298,10 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         QVector<SlaveInfo> slaves;
-        QObject::connect(&client, &EcatClient::slavesChanged,
-            [&](const QVector<SlaveInfo> &s) { slaves = s; });
+        QObject::connect(&client, &EcatClient::slavesChanged, [&](const QVector<SlaveInfo>& s) { slaves = s; });
 
         client.setState(2, "OP");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T5: setState() emitted commandSucceeded");
@@ -328,9 +321,7 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         client.setState(7, "PREOP");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T6: setState accepted");
@@ -352,13 +343,10 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         QVector<SlaveInfo> slaves;
-        QObject::connect(&client, &EcatClient::slavesChanged,
-            [&](const QVector<SlaveInfo> &s) { slaves = s; });
+        QObject::connect(&client, &EcatClient::slavesChanged, [&](const QVector<SlaveInfo>& s) { slaves = s; });
 
         client.setAllStates("INIT");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T7: setAllStates() emitted commandSucceeded");
@@ -377,13 +365,10 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         QVector<SlaveInfo> slaves;
-        QObject::connect(&client, &EcatClient::slavesChanged,
-            [&](const QVector<SlaveInfo> &s) { slaves = s; });
+        QObject::connect(&client, &EcatClient::slavesChanged, [&](const QVector<SlaveInfo>& s) { slaves = s; });
 
         client.rescan();
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T8: rescan() emitted commandSucceeded");
@@ -403,20 +388,16 @@ int main(int argc, char *argv[]) {
 
         bool gotRunning = false;
         QString runStatus;
-        QObject::connect(&client, &EcatClient::freeRunChanged,
-            [&](bool running, const QString &status) {
-                gotRunning = running;
-                runStatus = status;
-            });
+        QObject::connect(&client, &EcatClient::freeRunChanged, [&](bool running, const QString& status) {
+            gotRunning = running;
+            runStatus = status;
+        });
 
         bool gotTelemetry = false;
-        QObject::connect(&client, &EcatClient::freeRunTelemetry,
-            [&](const QJsonObject &) { gotTelemetry = true; });
+        QObject::connect(&client, &EcatClient::freeRunTelemetry, [&](const QJsonObject&) { gotTelemetry = true; });
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         client.freeRunStart();
         expectTrue(waitFor([&] { return gotRunning; }, app), "T9: freeRunStart() emitted freeRunChanged");
@@ -438,15 +419,13 @@ int main(int argc, char *argv[]) {
 
         bool gotRunning = true;
         QString runStatus;
-        QObject::connect(&client, &EcatClient::freeRunChanged,
-            [&](bool running, const QString &status) {
-                gotRunning = running;
-                runStatus = status;
-            });
+        QObject::connect(&client, &EcatClient::freeRunChanged, [&](bool running, const QString& status) {
+            gotRunning = running;
+            runStatus = status;
+        });
 
         bool gotTelemetry = false;
-        QObject::connect(&client, &EcatClient::freeRunTelemetry,
-            [&](const QJsonObject &) { gotTelemetry = true; });
+        QObject::connect(&client, &EcatClient::freeRunTelemetry, [&](const QJsonObject&) { gotTelemetry = true; });
 
         client.freeRunStop();
         expectTrue(waitFor([&] { return !gotRunning; }, app), "T10: freeRunStop() emitted freeRunChanged");
@@ -466,9 +445,7 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString errorMsg;
-        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString &msg) {
-            errorMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString& msg) { errorMsg = msg; });
 
         client.upload(0, "0x1018", "0x01");
         expectTrue(waitFor([&] { return !errorMsg.isEmpty(); }, app), "T11: error response emits errorMessage");
@@ -487,14 +464,16 @@ int main(int argc, char *argv[]) {
 
         bool sdoFired = false;
         QObject::connect(&client, &EcatClient::sdoValue,
-            [&](int, const QString &, const QString &, const QString &) { sdoFired = true; });
+                         [&](int, const QString&, const QString&, const QString&) { sdoFired = true; });
 
         bool cmdFired = false;
-        QObject::connect(&client, &EcatClient::commandSucceeded,
-            [&](const QString &) { cmdFired = true; });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString&) { cmdFired = true; });
 
         client.upload(0, "0x1018", "0x01");
-        for (int i = 0; i < 20; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 20; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
 
         expectTrue(!sdoFired, "T12: sdoValue not emitted on error");
         expectTrue(!cmdFired, "T12: commandSucceeded not emitted on error");
@@ -506,12 +485,13 @@ int main(int argc, char *argv[]) {
         // Do not connect.
 
         QString errorMsg;
-        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString &msg) {
-            errorMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::errorMessage, [&](const QString& msg) { errorMsg = msg; });
 
         client.ping();
-        for (int i = 0; i < 10; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 10; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
 
         expectTrue(!errorMsg.isEmpty(), "T13: error emitted when not connected");
         expectTrue(errorMsg.contains("not connected"), "T13: error mentions not connected");
@@ -529,8 +509,7 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded,
-            [&](const QString &) { successMsg = "ok"; });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString&) { successMsg = "ok"; });
 
         client.rescan();
         // rescan triggers rescan + scan; wait for the scan to complete.
@@ -564,21 +543,29 @@ int main(int argc, char *argv[]) {
         // Patch: we can't intercept send() directly, but we can observe
         // requests via the server. Send multiple requests and check IDs.
         QString s1, s2, s3;
-        QObject::connect(&client, &EcatClient::commandSucceeded,
-            [&](const QString &) {});
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString&) {});
 
         // Use a custom approach: monitor what the server receives.
         // Send 3 requests with known methods.
         client.upload(0, "0x1018", "0x01");
-        for (int i = 0; i < 10; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 10; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
         const QString id1 = server.lastRequest.value("id").toString();
 
         client.upload(0, "0x1018", "0x02");
-        for (int i = 0; i < 10; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 10; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
         const QString id2 = server.lastRequest.value("id").toString();
 
         client.upload(0, "0x1018", "0x03");
-        for (int i = 0; i < 10; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 10; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
         const QString id3 = server.lastRequest.value("id").toString();
 
         expectTrue(id1.toInt() < id2.toInt(), "T16: id1 < id2");
@@ -614,8 +601,7 @@ int main(int argc, char *argv[]) {
         expectEqual(client.connectionState(), ConnectionState::Disconnected, "T18: initial state");
 
         QList<ConnectionState> states;
-        QObject::connect(&client, &EcatClient::connectionStateChanged,
-            [&](ConnectionState s) { states.append(s); });
+        QObject::connect(&client, &EcatClient::connectionStateChanged, [&](ConnectionState s) { states.append(s); });
 
         client.connectToHost(QHostAddress::LocalHost, port);
         expectEqual(client.connectionState(), ConnectionState::Connecting, "T18: connecting state");
@@ -664,9 +650,7 @@ int main(int argc, char *argv[]) {
         waitFor([&] { return client.isConnected(); }, app);
 
         QString successMsg;
-        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString &msg) {
-            successMsg = msg;
-        });
+        QObject::connect(&client, &EcatClient::commandSucceeded, [&](const QString& msg) { successMsg = msg; });
 
         client.download(0, "0x2000", "0x00", "", "");
         expectTrue(waitFor([&] { return !successMsg.isEmpty(); }, app), "T22: download with empty value/type accepted");
@@ -684,9 +668,7 @@ int main(int argc, char *argv[]) {
 
         QStringList values;
         QObject::connect(&client, &EcatClient::sdoValue,
-            [&](int, const QString &, const QString &, const QString &val) {
-                values.append(val);
-            });
+                         [&](int, const QString&, const QString&, const QString& val) { values.append(val); });
 
         client.upload(0, "0x1018", "0x01");
         client.upload(0, "0x6040", "0x00");

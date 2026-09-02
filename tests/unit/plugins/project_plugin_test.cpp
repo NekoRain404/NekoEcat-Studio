@@ -8,19 +8,19 @@
 //   - Recent projects tracking
 //   - Stacked widget page count
 //   - Plugin activate/deactivate lifecycle
-#include <QTest>
-#include <QSignalSpy>
-#include <QTemporaryDir>
-#include <QTreeWidget>
-#include <QStackedWidget>
+#include <QFile>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QFile>
+#include <QSignalSpy>
+#include <QStackedWidget>
+#include <QTemporaryDir>
+#include <QTest>
+#include <QTreeWidget>
 
-#include "services/ProjectManagerService.h"
-#include "services/ConfigurationService.h"
 #include "plugins/project/ProjectPlugin.h"
+#include "services/ConfigurationService.h"
+#include "services/ProjectManagerService.h"
 
 class ProjectPluginTest : public QObject {
     Q_OBJECT
@@ -42,7 +42,7 @@ private slots:
         ProjectManagerService ps;
         ConfigurationService cs;
         ProjectPlugin plugin(&ps, &cs);
-        QWidget *w = plugin.widget();
+        QWidget* w = plugin.widget();
         QVERIFY(w != nullptr);
     }
 
@@ -53,15 +53,21 @@ private slots:
         ProjectPlugin plugin(&ps, &cs);
         plugin.widget();
 
-        QTreeWidget *tree = plugin.widget()->findChild<QTreeWidget *>();
+        QTreeWidget* tree = plugin.widget()->findChild<QTreeWidget*>();
         QVERIFY(tree != nullptr);
         QVERIFY(tree->topLevelItemCount() > 0);
 
-        QStringList expected = {"Overview", "Master Configuration",
-                                "Timing Configuration", "Network Configuration",
-                                "Safety Configuration", "Slave Configurations",
-                                "SDO Configurations", "Watch List",
-                                "Startup SDO List", "I/O Variables", "Notes"};
+        QStringList expected = {"Overview",
+                                "Master Configuration",
+                                "Timing Configuration",
+                                "Network Configuration",
+                                "Safety Configuration",
+                                "Slave Configurations",
+                                "SDO Configurations",
+                                "Watch List",
+                                "Startup SDO List",
+                                "I/O Variables",
+                                "Notes"};
         QCOMPARE(tree->topLevelItemCount(), expected.size());
         for (int i = 0; i < expected.size(); ++i)
             QCOMPARE(tree->topLevelItem(i)->text(0), expected[i]);
@@ -88,7 +94,7 @@ private slots:
         QSignalSpy savedSpy(&ps, &ProjectManagerService::projectSaved);
 
         ps.createProject("SaveTest");
-        auto &data = ps.projectData();
+        auto& data = ps.projectData();
         data.description = "Test description";
         data.version = "2.0.0";
 
@@ -223,8 +229,8 @@ private slots:
         const QString missingSlavesPath = dir.filePath("missing-slaves.json");
         QFile missingSlavesFile(missingSlavesPath);
         QVERIFY(missingSlavesFile.open(QIODevice::WriteOnly));
-        QVERIFY(missingSlavesFile.write(QByteArrayLiteral(
-                    "{\"master\":{},\"network\":{},\"timing\":{},\"safety\":{}}")) > 0);
+        QVERIFY(missingSlavesFile.write(
+                    QByteArrayLiteral("{\"master\":{},\"network\":{},\"timing\":{},\"safety\":{}}")) > 0);
         missingSlavesFile.close();
 
         QVERIFY(!cs.loadConfiguration(QString()));
@@ -266,7 +272,7 @@ private slots:
         ProjectPlugin plugin(&ps, &cs);
         plugin.widget();
 
-        QStackedWidget *stack = plugin.widget()->findChild<QStackedWidget *>();
+        QStackedWidget* stack = plugin.widget()->findChild<QStackedWidget*>();
         QVERIFY(stack != nullptr);
         QCOMPARE(stack->count(), 5);
     }

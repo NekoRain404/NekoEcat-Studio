@@ -28,14 +28,14 @@
 //   - Data aggregation is O(1) for each source
 //   - String generation is O(n) where n is number of details
 
-#include <QStringList>
 #include <functional>
+#include <QStringList>
 
 class QTableWidget;
 struct SlaveInfo;
 
 // Text function type for bilingual support.
-using TextFn = std::function<QString(const char *, const char *)>;
+using TextFn = std::function<QString(const char*, const char*)>;
 
 namespace ImpactAnalysisService {
 
@@ -49,14 +49,10 @@ namespace ImpactAnalysisService {
 // @param consistencyDetails   Consistency details list
 // @param uiText               Text function for bilingual support
 // @return QStringList of impact details
-QStringList freeRunImpactDetails(int selectedPosition,
-                                 const QVector<SlaveInfo> &slaves,
-                                 const QTableWidget *pdoTable,
-                                 const QTableWidget *freeRunEntryTable,
-                                 const QTableWidget *watchTable,
-                                 const QStringList &topologyIssues,
-                                 const QStringList &consistencyDetails,
-                                 const TextFn &uiText);
+QStringList freeRunImpactDetails(int selectedPosition, const QVector<SlaveInfo>& slaves, const QTableWidget* pdoTable,
+                                 const QTableWidget* freeRunEntryTable, const QTableWidget* watchTable,
+                                 const QStringList& topologyIssues, const QStringList& consistencyDetails,
+                                 const TextFn& uiText);
 
 // Analyze the impact of state transitions.
 // @param position                    Slave position
@@ -74,19 +70,12 @@ QStringList freeRunImpactDetails(int selectedPosition,
 // @param consistencyDetails          Consistency details list
 // @param uiText                      Text function for bilingual support
 // @return QStringList of impact details
-QStringList stateTransitionImpactDetails(int position,
-                                         const QString &requestedState,
-                                         int loadedSlaveInfoPosition,
-                                         int loadedSdoPosition,
-                                         int loadedPdoPosition,
-                                         const QTableWidget *identityTable,
-                                         const QTableWidget *sdoTable,
-                                         const QTableWidget *pdoTable,
-                                         const QTableWidget *watchTable,
-                                         const QTableWidget *startupSdoTable,
-                                         const QTableWidget *freeRunEntryTable,
-                                         const QStringList &topologyIssues,
-                                         const QStringList &consistencyDetails,
-                                         const TextFn &uiText);
+QStringList stateTransitionImpactDetails(int position, const QString& requestedState, int loadedSlaveInfoPosition,
+                                         int loadedSdoPosition, int loadedPdoPosition,
+                                         const QTableWidget* identityTable, const QTableWidget* sdoTable,
+                                         const QTableWidget* pdoTable, const QTableWidget* watchTable,
+                                         const QTableWidget* startupSdoTable, const QTableWidget* freeRunEntryTable,
+                                         const QStringList& topologyIssues, const QStringList& consistencyDetails,
+                                         const TextFn& uiText);
 
 } // namespace ImpactAnalysisService

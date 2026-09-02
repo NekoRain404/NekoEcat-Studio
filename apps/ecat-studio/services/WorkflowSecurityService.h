@@ -18,39 +18,39 @@
 //
 // Thread safety: main (GUI) thread only.
 
-#include <QObject>
-#include <QString>
-#include <QVector>
-#include <QSet>
 #include <QDateTime>
 #include <QJsonObject>
+#include <QObject>
+#include <QSet>
+#include <QString>
+#include <QVector>
 
 struct AuditEvent {
-  QDateTime timestamp;
-  QString user;
-  QString action;
-  QString resource;
-  QString result;
-  QString details;
-  QString ipAddress;
+    QDateTime timestamp;
+    QString user;
+    QString action;
+    QString resource;
+    QString result;
+    QString details;
+    QString ipAddress;
 };
 
 class WorkflowSecurityService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit WorkflowSecurityService(QObject *parent = nullptr);
+    explicit WorkflowSecurityService(QObject* parent = nullptr);
 
-  bool authenticateUser(const QString &username, const QString &password);
-  bool authorizeAction(const QString &user, const QString &action);
-  void logAuditEvent(const AuditEvent &event);
-  QVector<AuditEvent> auditHistory(int count) const;
+    bool authenticateUser(const QString& username, const QString& password);
+    bool authorizeAction(const QString& user, const QString& action);
+    void logAuditEvent(const AuditEvent& event);
+    QVector<AuditEvent> auditHistory(int count) const;
 
 signals:
-  void userAuthenticated(const QString &user);
-  void actionAuthorized(const QString &user, const QString &action);
-  void auditEventLogged(const AuditEvent &event);
+    void userAuthenticated(const QString& user);
+    void actionAuthorized(const QString& user, const QString& action);
+    void auditEventLogged(const AuditEvent& event);
 
 private:
-  QVector<AuditEvent> auditLog_;
-  QSet<QString> authenticatedUsers_;
+    QVector<AuditEvent> auditLog_;
+    QSet<QString> authenticatedUsers_;
 };

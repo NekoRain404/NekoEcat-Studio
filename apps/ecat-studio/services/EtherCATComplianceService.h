@@ -10,8 +10,8 @@
 // Thread safety: main (GUI) thread only.
 
 #include <QObject>
-#include <QVector>
 #include <QString>
+#include <QVector>
 
 struct ComplianceRule {
     QString ruleId;
@@ -39,18 +39,18 @@ struct ComplianceReport {
 class EtherCATComplianceService : public QObject {
     Q_OBJECT
 public:
-    explicit EtherCATComplianceService(QObject *parent = nullptr);
+    explicit EtherCATComplianceService(QObject* parent = nullptr);
 
-    void addRule(const ComplianceRule &rule);
-    bool removeRule(const QString &ruleId);
+    void addRule(const ComplianceRule& rule);
+    bool removeRule(const QString& ruleId);
     QVector<ComplianceRule> rules() const;
     ComplianceReport runComplianceCheck();
-    ComplianceReport checkCategory(const QString &category);
+    ComplianceReport checkCategory(const QString& category);
 
 signals:
-    void ruleAdded(const ComplianceRule &rule);
-    void ruleRemoved(const QString &ruleId);
-    void checkCompleted(const ComplianceReport &report);
+    void ruleAdded(const ComplianceRule& rule);
+    void ruleRemoved(const QString& ruleId);
+    void checkCompleted(const ComplianceReport& report);
 
 private:
     QVector<ComplianceRule> rules_;

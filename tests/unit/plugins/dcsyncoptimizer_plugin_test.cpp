@@ -8,29 +8,29 @@
 //   - Widget creation and tab count
 //   - Optimization result display
 
-#include <QTest>
 #include <QApplication>
-#include <QSignalSpy>
+#include <QFile>
 #include <QJsonObject>
+#include <QSignalSpy>
 #include <QTabWidget>
 #include <QTcpServer>
-#include <QFile>
+#include <QTest>
 
+#include "infra/EcatClient.h"
 #include "plugins/dcsyncoptimizer/DcSyncOptimizerPlugin.h"
-#include "plugins/dcsyncoptimizer/SyncOptimizerWidget.h"
 #include "plugins/dcsyncoptimizer/DriftOptimizerWidget.h"
+#include "plugins/dcsyncoptimizer/SyncOptimizerWidget.h"
 #include "services/DcSyncOptimizerService.h"
 #include "services/EventBus.h"
-#include "infra/EcatClient.h"
 
 class DcSyncOptimizerServiceTest : public QObject {
     Q_OBJECT
 private:
-    EcatClient *client_ = nullptr;
-    EventBus *bus_ = nullptr;
-    DcSyncOptimizerService *svc_ = nullptr;
+    EcatClient* client_ = nullptr;
+    EventBus* bus_ = nullptr;
+    DcSyncOptimizerService* svc_ = nullptr;
 
-    static bool waitForConnected(EcatClient &client) {
+    static bool waitForConnected(EcatClient& client) {
         for (int i = 0; i < 50 && !client.isConnected(); ++i) {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 20);
             QTest::qWait(10);
@@ -159,10 +159,8 @@ private slots:
     }
 
     void testImplementationDoesNotKeepSyntheticOptimizationSuccessPath() {
-        QFile source(QStringLiteral(SOURCE_ROOT
-                                    "/apps/ecat-studio/services/DcSyncOptimizerService.cpp"));
-        QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
-                 qPrintable(source.errorString()));
+        QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/DcSyncOptimizerService.cpp"));
+        QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text), qPrintable(source.errorString()));
         const QString text = QString::fromUtf8(source.readAll());
 
         QVERIFY2(!text.contains(QStringLiteral("result.improvement = 50.0")),
@@ -225,7 +223,7 @@ private slots:
         EcatClient client;
         EventBus bus;
         DcSyncOptimizerPlugin plugin(&client, &bus);
-        auto *tabs = plugin.widget()->findChild<QTabWidget *>();
+        auto* tabs = plugin.widget()->findChild<QTabWidget*>();
         QVERIFY(tabs != nullptr);
         QCOMPARE(tabs->count(), 4);
     }
@@ -255,12 +253,12 @@ private slots:
         EcatClient client;
         EventBus bus;
         DcSyncOptimizerPlugin plugin(&client, &bus);
-        auto *tabs = plugin.tabs();
+        auto* tabs = plugin.tabs();
         QVERIFY(tabs != nullptr);
     }
 };
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     QApplication app(argc, argv);
     int status = 0;
     {

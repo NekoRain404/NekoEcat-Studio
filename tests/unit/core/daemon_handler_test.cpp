@@ -14,14 +14,14 @@
 
 #include "CommandDispatcher.h"
 #include "EcatDaemon.h"
-#include "JsonProtocol.h"
-#include "FreeRunController.h"
 #include "freerun_rpc_handlers.h"
+#include "FreeRunController.h"
+#include "JsonProtocol.h"
 
-#include <QTest>
-#include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
+#include <QTest>
 
 class DaemonHandlerTest : public QObject {
     Q_OBJECT
@@ -30,12 +30,8 @@ private:
     CommandDispatcher dispatcher_;
 
     void registerPing() {
-        dispatcher_.registerHandler("ping", [](const QString &id, const QJsonObject &) {
-            return CommandDispatcher::success(id, {
-                {"name", "ecatd"},
-                {"version", "0.1.0"},
-                {"multiMaster", true}
-            });
+        dispatcher_.registerHandler("ping", [](const QString& id, const QJsonObject&) {
+            return CommandDispatcher::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}});
         });
     }
 
@@ -140,10 +136,10 @@ private slots:
     }
 
     void testMultipleHandlersDispatch() {
-        dispatcher_.registerHandler("a", [](const QString &id, const QJsonObject &) {
+        dispatcher_.registerHandler("a", [](const QString& id, const QJsonObject&) {
             return CommandDispatcher::success(id, {{"handler", "a"}});
         });
-        dispatcher_.registerHandler("b", [](const QString &id, const QJsonObject &) {
+        dispatcher_.registerHandler("b", [](const QString& id, const QJsonObject&) {
             return CommandDispatcher::success(id, {{"handler", "b"}});
         });
 
@@ -156,7 +152,7 @@ private slots:
 
     void testHandlerReceivesParams() {
         QJsonObject received;
-        dispatcher_.registerHandler("capture", [&](const QString &id, const QJsonObject &params) {
+        dispatcher_.registerHandler("capture", [&](const QString& id, const QJsonObject& params) {
             received = params;
             return CommandDispatcher::success(id);
         });
@@ -200,12 +196,8 @@ private slots:
         Q_UNUSED(daemon);
 
         CommandDispatcher d;
-        d.registerHandler("ping", [](const QString &id, const QJsonObject &) {
-            return CommandDispatcher::success(id, {
-                {"name", "ecatd"},
-                {"version", "0.1.0"},
-                {"multiMaster", true}
-            });
+        d.registerHandler("ping", [](const QString& id, const QJsonObject&) {
+            return CommandDispatcher::success(id, {{"name", "ecatd"}, {"version", "0.1.0"}, {"multiMaster", true}});
         });
 
         QJsonObject resp = d.dispatch({{"id", "dp1"}, {"method", "ping"}, {"params", {}}});
@@ -215,16 +207,14 @@ private slots:
 
     void testPingDiagnosticMetrics() {
         CommandDispatcher dispatcher;
-        dispatcher.registerHandler("ping", [](const QString &id, const QJsonObject &) {
-            return CommandDispatcher::success(id, {
-                {"name", "ecatd"},
-                {"version", "0.1.0"},
-                {"multiMaster", true},
-                {"uptimeMs", 12345},
-                {"requestCount", 100},
-                {"errorCount", 5},
-                {"activeConnections", 2}
-            });
+        dispatcher.registerHandler("ping", [](const QString& id, const QJsonObject&) {
+            return CommandDispatcher::success(id, {{"name", "ecatd"},
+                                                   {"version", "0.1.0"},
+                                                   {"multiMaster", true},
+                                                   {"uptimeMs", 12345},
+                                                   {"requestCount", 100},
+                                                   {"errorCount", 5},
+                                                   {"activeConnections", 2}});
         });
 
         QJsonObject request = JsonProtocol::request("ping-1", "ping", {});
@@ -262,18 +252,34 @@ private slots:
         info["version"] = 0;
         QJsonArray lay;
         {
-            QJsonObject e; e["slave"]=0; e["index"]=0x6000; e["subindex"]=0; e["bitLength"]=16; e["direction"]="TxPDO"; e["name"]=""; e["offset"]=0; lay.append(e);
+            QJsonObject e;
+            e["slave"] = 0;
+            e["index"] = 0x6000;
+            e["subindex"] = 0;
+            e["bitLength"] = 16;
+            e["direction"] = "TxPDO";
+            e["name"] = "";
+            e["offset"] = 0;
+            lay.append(e);
         }
         {
-            QJsonObject e; e["slave"]=0; e["index"]=0x7000; e["subindex"]=1; e["bitLength"]=16; e["direction"]="RxPDO"; e["name"]=""; e["offset"]=2; lay.append(e);
+            QJsonObject e;
+            e["slave"] = 0;
+            e["index"] = 0x7000;
+            e["subindex"] = 1;
+            e["bitLength"] = 16;
+            e["direction"] = "RxPDO";
+            e["name"] = "";
+            e["offset"] = 2;
+            lay.append(e);
         }
         info["layout"] = lay;
 
         // Use shared registration + dispatch, but override the shmInfo handler with pure built info to avoid ctrl state
         CommandDispatcher d;
-        registerFreeRunHandlers(d, ctrl);  // registers the real one, but we will override for this test
+        registerFreeRunHandlers(d, ctrl); // registers the real one, but we will override for this test
         // override to use our pure info (tests the dispatch path without relying on ctrl.test* for data)
-        d.registerHandler("freeRunShmInfo", [info](const QString &id, const QJsonObject &) {
+        d.registerHandler("freeRunShmInfo", [info](const QString& id, const QJsonObject&) {
             return CommandDispatcher::success(id, info);
         });
 

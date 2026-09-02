@@ -64,15 +64,13 @@ private slots:
     void structCopyPreservesPointers();
 };
 
-void WorkspaceWidgetsTest::sessionWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::sessionWidgetsDefaultNull() {
     SessionWorkspaceWidgets w;
     QVERIFY(w.sessionBriefTable == nullptr);
     QVERIFY(w.sessionBriefCopyButton == nullptr);
 }
 
-void WorkspaceWidgetsTest::watchWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::watchWidgetsDefaultNull() {
     WatchWorkspaceWidgets w;
     QVERIFY(w.watchTable == nullptr);
     QVERIFY(w.watchFilter == nullptr);
@@ -87,8 +85,7 @@ void WorkspaceWidgetsTest::watchWidgetsDefaultNull()
     QVERIFY(w.startupSdoDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::sdoWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::sdoWidgetsDefaultNull() {
     SdoWorkspaceWidgets w;
     QVERIFY(w.sdoTable == nullptr);
     QVERIFY(w.pdoTable == nullptr);
@@ -99,8 +96,7 @@ void WorkspaceWidgetsTest::sdoWidgetsDefaultNull()
     QVERIFY(w.pdoDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::freeRunWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::freeRunWidgetsDefaultNull() {
     FreeRunWorkspaceWidgets w;
     QVERIFY(w.freeRunEntryTable == nullptr);
     QVERIFY(w.freeRunTable == nullptr);
@@ -110,8 +106,7 @@ void WorkspaceWidgetsTest::freeRunWidgetsDefaultNull()
     QVERIFY(w.freeRunEntryDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::consistencyWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::consistencyWidgetsDefaultNull() {
     ConsistencyWorkspaceWidgets w;
     QVERIFY(w.consistencyTable == nullptr);
     QVERIFY(w.consistencyFilter == nullptr);
@@ -120,8 +115,7 @@ void WorkspaceWidgetsTest::consistencyWidgetsDefaultNull()
     QVERIFY(w.consistencyDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::diagnosticsWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::diagnosticsWidgetsDefaultNull() {
     DiagnosticsWorkspaceWidgets w;
     QVERIFY(w.diagnosticsTable == nullptr);
     QVERIFY(w.diagnosticsFilter == nullptr);
@@ -131,8 +125,7 @@ void WorkspaceWidgetsTest::diagnosticsWidgetsDefaultNull()
     QVERIFY(w.topologyBaselineLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::workflowWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::workflowWidgetsDefaultNull() {
     WorkflowWorkspaceWidgets w;
     QVERIFY(w.workflowTable == nullptr);
     QVERIFY(w.workflowSummaryLabel == nullptr);
@@ -144,8 +137,7 @@ void WorkspaceWidgetsTest::workflowWidgetsDefaultNull()
     QVERIFY(w.workflowStepCopyButton == nullptr);
 }
 
-void WorkspaceWidgetsTest::ioVarWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::ioVarWidgetsDefaultNull() {
     IoVariableWorkspaceWidgets w;
     QVERIFY(w.ioVariableTable == nullptr);
     QVERIFY(w.ioVariableFilter == nullptr);
@@ -154,16 +146,14 @@ void WorkspaceWidgetsTest::ioVarWidgetsDefaultNull()
     QVERIFY(w.ioVariableDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::stateMachineWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::stateMachineWidgetsDefaultNull() {
     StateMachineWorkspaceWidgets w;
     QVERIFY(w.stateMachineTable == nullptr);
     QVERIFY(w.stateMachineSummaryLabel == nullptr);
     QVERIFY(w.stateMachineDetailLabel == nullptr);
 }
 
-void WorkspaceWidgetsTest::slaveEvidenceWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::slaveEvidenceWidgetsDefaultNull() {
     SlaveEvidenceWorkspaceWidgets w;
     QVERIFY(w.slaveEvidenceMatrixTable == nullptr);
     QVERIFY(w.slaveEvidenceMatrixSummaryLabel == nullptr);
@@ -175,14 +165,12 @@ void WorkspaceWidgetsTest::slaveEvidenceWidgetsDefaultNull()
     QVERIFY(w.slaveEvidenceMatrixScopeFilter == nullptr);
 }
 
-void WorkspaceWidgetsTest::bookmarkWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::bookmarkWidgetsDefaultNull() {
     BookmarkWorkspaceWidgets w;
     QVERIFY(w.objectBookmarkTable == nullptr);
 }
 
-void WorkspaceWidgetsTest::sdoInspectorWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::sdoInspectorWidgetsDefaultNull() {
     SdoInspectorWidgets w;
     QVERIFY(w.sdoInspectorLabel == nullptr);
     QVERIFY(w.sdoTargetTable == nullptr);
@@ -194,8 +182,7 @@ void WorkspaceWidgetsTest::sdoInspectorWidgetsDefaultNull()
     QVERIFY(w.sdoType == nullptr);
 }
 
-void WorkspaceWidgetsTest::rawTextWidgetsDefaultNull()
-{
+void WorkspaceWidgetsTest::rawTextWidgetsDefaultNull() {
     RawTextWidgets w;
     QVERIFY(w.masterText == nullptr);
     QVERIFY(w.infoText == nullptr);
@@ -206,20 +193,19 @@ void WorkspaceWidgetsTest::rawTextWidgetsDefaultNull()
     QVERIFY(w.projectNotes == nullptr);
 }
 
-void WorkspaceWidgetsTest::canAllocateAndDelete()
-{
+void WorkspaceWidgetsTest::canAllocateAndDelete() {
     // Verify structs can be heap-allocated and deleted without crash.
-    auto *s = new SessionWorkspaceWidgets;
-    auto *w = new WatchWorkspaceWidgets;
-    auto *sd = new SdoWorkspaceWidgets;
-    auto *f = new FreeRunWorkspaceWidgets;
-    auto *c = new ConsistencyWorkspaceWidgets;
-    auto *d = new DiagnosticsWorkspaceWidgets;
-    auto *wf = new WorkflowWorkspaceWidgets;
-    auto *io = new IoVariableWorkspaceWidgets;
-    auto *sm = new StateMachineWorkspaceWidgets;
-    auto *se = new SlaveEvidenceWorkspaceWidgets;
-    auto *b = new BookmarkWorkspaceWidgets;
+    auto* s = new SessionWorkspaceWidgets;
+    auto* w = new WatchWorkspaceWidgets;
+    auto* sd = new SdoWorkspaceWidgets;
+    auto* f = new FreeRunWorkspaceWidgets;
+    auto* c = new ConsistencyWorkspaceWidgets;
+    auto* d = new DiagnosticsWorkspaceWidgets;
+    auto* wf = new WorkflowWorkspaceWidgets;
+    auto* io = new IoVariableWorkspaceWidgets;
+    auto* sm = new StateMachineWorkspaceWidgets;
+    auto* se = new SlaveEvidenceWorkspaceWidgets;
+    auto* b = new BookmarkWorkspaceWidgets;
     delete s;
     delete w;
     delete sd;
@@ -234,8 +220,7 @@ void WorkspaceWidgetsTest::canAllocateAndDelete()
     QVERIFY(true); // reached without crash
 }
 
-void WorkspaceWidgetsTest::widgetPointerValidity()
-{
+void WorkspaceWidgetsTest::widgetPointerValidity() {
     SdoWorkspaceWidgets w;
     QTableWidget table;
     QLineEdit filter;
@@ -263,8 +248,7 @@ void WorkspaceWidgetsTest::widgetPointerValidity()
     QCOMPARE(ww.watchScopeFilter, &scopeFilter);
 }
 
-void WorkspaceWidgetsTest::slaveEvidenceTriageButtonsVector()
-{
+void WorkspaceWidgetsTest::slaveEvidenceTriageButtonsVector() {
     SlaveEvidenceWorkspaceWidgets w;
     QVERIFY(w.slaveEvidenceMatrixTriageButtons.isEmpty());
     QCOMPARE(w.slaveEvidenceMatrixTriageButtons.size(), 0);
@@ -286,8 +270,7 @@ void WorkspaceWidgetsTest::slaveEvidenceTriageButtonsVector()
     QVERIFY(w.slaveEvidenceMatrixTriageButtons.isEmpty());
 }
 
-void WorkspaceWidgetsTest::structCopyPreservesPointers()
-{
+void WorkspaceWidgetsTest::structCopyPreservesPointers() {
     IoVariableWorkspaceWidgets w;
     QTableWidget table;
     QLineEdit filter;

@@ -20,10 +20,10 @@ class LanguageSwitchTest : public QObject {
     Q_OBJECT
 
     struct Expectation {
-        const char *display;
+        const char* display;
         Language lang;
-        const char *suffix;   // translation-file basename suffix (e.g. "zh")
-        const char *bcp47;    // localeCode (e.g. "zh-CN")
+        const char* suffix; // translation-file basename suffix (e.g. "zh")
+        const char* bcp47;  // localeCode (e.g. "zh-CN")
     };
 
     // Expected suffix / BCP-47 code per non-English language, matching the
@@ -48,11 +48,10 @@ const LanguageSwitchTest::Expectation LanguageSwitchTest::kExpected[7] = {
     {"Español", Language::Spanish, "es", "es"},
 };
 
-void LanguageSwitchTest::displayNameToEnumAndFiles()
-{
-    auto &mgr = LanguageManager::instance();
+void LanguageSwitchTest::displayNameToEnumAndFiles() {
+    auto& mgr = LanguageManager::instance();
 
-    for (const auto &e : kExpected) {
+    for (const auto& e : kExpected) {
         const Language lang = mgr.fromDisplayName(QString::fromUtf8(e.display));
         QCOMPARE(lang, e.lang);
 
@@ -60,7 +59,7 @@ void LanguageSwitchTest::displayNameToEnumAndFiles()
 
         // localeCode lives on the LanguageInfo entry in the languages() list.
         bool found = false;
-        for (const auto &info : mgr.languages()) {
+        for (const auto& info : mgr.languages()) {
             if (info.id == e.lang) {
                 QCOMPARE(info.localeCode, QString::fromUtf8(e.bcp47));
                 found = true;
@@ -76,9 +75,8 @@ void LanguageSwitchTest::displayNameToEnumAndFiles()
     QCOMPARE(mgr.fromDisplayName("Klingon"), Language::English);
 }
 
-void LanguageSwitchTest::legacyLocaleFallback()
-{
-    const auto &mgr = LanguageManager::instance();
+void LanguageSwitchTest::legacyLocaleFallback() {
+    const auto& mgr = LanguageManager::instance();
 
     QCOMPARE(mgr.fromLocaleCode("zh-CN"), Language::ChineseSimplified);
     QCOMPARE(mgr.fromLocaleCode("zh-TW"), Language::ChineseTraditional);
@@ -94,10 +92,9 @@ void LanguageSwitchTest::legacyLocaleFallback()
     QCOMPARE(mgr.fromLocaleCode(""), Language::English);
 }
 
-void LanguageSwitchTest::switchEmitsSignalAndReflects()
-{
-    auto &mgr = LanguageManager::instance();
-    mgr.setCurrentLanguage(Language::English);  // reset baseline
+void LanguageSwitchTest::switchEmitsSignalAndReflects() {
+    auto& mgr = LanguageManager::instance();
+    mgr.setCurrentLanguage(Language::English); // reset baseline
 
     // Use QSignalSpy: a plain lambda would capture stack locals that dangle
     // after this slot returns while remaining connected to the singleton.
@@ -123,15 +120,14 @@ void LanguageSwitchTest::switchEmitsSignalAndReflects()
     QCOMPARE(spy.takeFirst().at(0).value<Language>(), Language::ChineseSimplified);
     QCOMPARE(mgr.currentLanguage(), Language::ChineseSimplified);
 
-    mgr.setCurrentLanguage(Language::English);  // cleanup
+    mgr.setCurrentLanguage(Language::English); // cleanup
 }
 
-void LanguageSwitchTest::roundTrip()
-{
-    auto &mgr = LanguageManager::instance();
+void LanguageSwitchTest::roundTrip() {
+    auto& mgr = LanguageManager::instance();
     mgr.setCurrentLanguage(Language::English);
 
-    mgr.setCurrentLanguage("简体中文");  // switch to zh by display name
+    mgr.setCurrentLanguage("简体中文"); // switch to zh by display name
     QCOMPARE(mgr.currentLanguage(), Language::ChineseSimplified);
     QCOMPARE(mgr.displayName(mgr.currentLanguage()), QString::fromUtf8("简体中文"));
 
@@ -147,15 +143,14 @@ void LanguageSwitchTest::roundTrip()
     QVERIFY(!mgr.isCurrentLanguage(Language::ChineseSimplified));
 }
 
-void LanguageSwitchTest::registryTranslate()
-{
-    auto &reg = TranslationRegistry::instance();
+void LanguageSwitchTest::registryTranslate() {
+    auto& reg = TranslationRegistry::instance();
 
     // English is passthrough.
     QCOMPARE(reg.translate("About", Language::English), QString("About"));
 
     // Every non-English language has a non-empty translation for "About".
-    for (const auto &e : kExpected) {
+    for (const auto& e : kExpected) {
         const QString translated = reg.translate("About", e.lang);
         QVERIFY2(!translated.isEmpty() && translated != "About",
                  QString("missing translation for %1").arg(e.display).toUtf8());

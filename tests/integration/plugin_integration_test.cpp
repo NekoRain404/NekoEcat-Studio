@@ -7,100 +7,100 @@
 //   - Plugin widget creation
 //   - Plugin identity (id, display names)
 
-#include <QTest>
-#include "plugins/PluginRegistry.h"
-#include "plugins/WorkspacePlugin.h"
-#include "plugins/topology/TopologyPlugin.h"
-#include "plugins/statemachine/StateMachinePlugin.h"
-#include "services/ServiceContainer.h"
-#include "services/EventBus.h"
 #include "infra/EcatClient.h"
+#include "plugins/PluginRegistry.h"
+#include "plugins/statemachine/StateMachinePlugin.h"
+#include "plugins/topology/TopologyPlugin.h"
+#include "plugins/WorkspacePlugin.h"
+#include "services/EventBus.h"
+#include "services/ServiceContainer.h"
+#include <QTest>
 
 class PluginIntegrationTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private:
-  EcatClient *client_ = nullptr;
-  EventBus *bus_ = nullptr;
-  ServiceContainer *container_ = nullptr;
+    EcatClient* client_ = nullptr;
+    EventBus* bus_ = nullptr;
+    ServiceContainer* container_ = nullptr;
 
 private slots:
-  void init() {
-    client_ = new EcatClient(this);
-    bus_ = new EventBus(this);
-    container_ = new ServiceContainer(client_, bus_, this);
-  }
-  void cleanup() {
-    delete container_;
-    container_ = nullptr;
-  }
-
-  // Register plugins and verify lookup by id
-  void testPluginRegistration() {
-    PluginRegistry registry;
-    TopologyPlugin topo(bus_);
-    StateMachinePlugin sm(container_);
-
-    registry.registerPlugin(&topo);
-    registry.registerPlugin(&sm);
-
-    QCOMPARE(registry.count(), 2);
-    QVERIFY(registry.findById("topology") == &topo);
-    QVERIFY(registry.findById("statemachine") == &sm);
-  }
-
-  // Visible plugins are sorted by default order
-  void testPluginOrdering() {
-    PluginRegistry registry;
-    TopologyPlugin topo(bus_);
-    StateMachinePlugin sm(container_);
-
-    registry.registerPlugin(&topo);
-    registry.registerPlugin(&sm);
-
-    auto plugins = registry.visiblePlugins();
-    QCOMPARE(plugins.size(), 2);
-    QVERIFY(plugins[0]->defaultOrder() <= plugins[1]->defaultOrder());
-  }
-
-  // All registered plugins report visible
-  void testPluginVisibility() {
-    PluginRegistry registry;
-    TopologyPlugin topo(bus_);
-    StateMachinePlugin sm(container_);
-
-    registry.registerPlugin(&topo);
-    registry.registerPlugin(&sm);
-
-    auto visible = registry.visiblePlugins();
-    QCOMPARE(visible.size(), 2);
-    for (auto *p : visible) {
-      QVERIFY(p->visible());
+    void init() {
+        client_ = new EcatClient(this);
+        bus_ = new EventBus(this);
+        container_ = new ServiceContainer(client_, bus_, this);
     }
-  }
+    void cleanup() {
+        delete container_;
+        container_ = nullptr;
+    }
 
-  // Both plugins create non-null widgets
-  void testPluginWidgetCreation() {
-    TopologyPlugin topo(bus_);
-    StateMachinePlugin sm(container_);
+    // Register plugins and verify lookup by id
+    void testPluginRegistration() {
+        PluginRegistry registry;
+        TopologyPlugin topo(bus_);
+        StateMachinePlugin sm(container_);
 
-    QVERIFY(topo.widget() != nullptr);
-    QVERIFY(sm.widget() != nullptr);
-  }
+        registry.registerPlugin(&topo);
+        registry.registerPlugin(&sm);
 
-  // Plugins have correct id and display names
-  void testPluginIdentity() {
-    TopologyPlugin topo(bus_);
-    StateMachinePlugin sm(container_);
+        QCOMPARE(registry.count(), 2);
+        QVERIFY(registry.findById("topology") == &topo);
+        QVERIFY(registry.findById("statemachine") == &sm);
+    }
 
-    QCOMPARE(topo.id(), QString("topology"));
-    QCOMPARE(sm.id(), QString("statemachine"));
+    // Visible plugins are sorted by default order
+    void testPluginOrdering() {
+        PluginRegistry registry;
+        TopologyPlugin topo(bus_);
+        StateMachinePlugin sm(container_);
 
-    QVERIFY(!topo.displayName().isEmpty());
-    QVERIFY(!sm.displayName().isEmpty());
+        registry.registerPlugin(&topo);
+        registry.registerPlugin(&sm);
 
-    QVERIFY(!topo.displayNameZh().isEmpty());
-    QVERIFY(!sm.displayNameZh().isEmpty());
-  }
+        auto plugins = registry.visiblePlugins();
+        QCOMPARE(plugins.size(), 2);
+        QVERIFY(plugins[0]->defaultOrder() <= plugins[1]->defaultOrder());
+    }
+
+    // All registered plugins report visible
+    void testPluginVisibility() {
+        PluginRegistry registry;
+        TopologyPlugin topo(bus_);
+        StateMachinePlugin sm(container_);
+
+        registry.registerPlugin(&topo);
+        registry.registerPlugin(&sm);
+
+        auto visible = registry.visiblePlugins();
+        QCOMPARE(visible.size(), 2);
+        for (auto* p : visible) {
+            QVERIFY(p->visible());
+        }
+    }
+
+    // Both plugins create non-null widgets
+    void testPluginWidgetCreation() {
+        TopologyPlugin topo(bus_);
+        StateMachinePlugin sm(container_);
+
+        QVERIFY(topo.widget() != nullptr);
+        QVERIFY(sm.widget() != nullptr);
+    }
+
+    // Plugins have correct id and display names
+    void testPluginIdentity() {
+        TopologyPlugin topo(bus_);
+        StateMachinePlugin sm(container_);
+
+        QCOMPARE(topo.id(), QString("topology"));
+        QCOMPARE(sm.id(), QString("statemachine"));
+
+        QVERIFY(!topo.displayName().isEmpty());
+        QVERIFY(!sm.displayName().isEmpty());
+
+        QVERIFY(!topo.displayNameZh().isEmpty());
+        QVERIFY(!sm.displayNameZh().isEmpty());
+    }
 };
 
 QTEST_MAIN(PluginIntegrationTest)

@@ -18,26 +18,26 @@ namespace JsonProtocol {
 /// @brief Encode a JSON object to a newline-terminated byte array.
 /// @param object The JSON object to encode.
 /// @return Compact JSON bytes followed by '\n'.
-QByteArray encode(const QJsonObject &object);
+QByteArray encode(const QJsonObject& object);
 
 /// @brief Build a JSON-RPC-style request envelope.
 /// @param id Unique request identifier for response correlation.
 /// @param method The command name (e.g. "scan", "upload", "setState").
 /// @param params Optional parameters object.
 /// @return Request JSON object ready to encode and send.
-QJsonObject request(const QString &id, const QString &method, const QJsonObject &params = {});
+QJsonObject request(const QString& id, const QString& method, const QJsonObject& params = {});
 
 /// @brief Build a success response envelope.
 /// @param id The request ID this response correlates to.
 /// @param result Optional result payload.
 /// @return Success response JSON object.
-QJsonObject success(const QString &id, const QJsonObject &result = {});
+QJsonObject success(const QString& id, const QJsonObject& result = {});
 
 /// @brief Build a failure response envelope.
 /// @param id The request ID this response correlates to.
 /// @param error_message Human-readable error description.
 /// @param code Optional error code (default -1).
 /// @return Failure response JSON object with error.code and error.message.
-QJsonObject failure(const QString &id, const QString &error_message, int code = -1);
+QJsonObject failure(const QString& id, const QString& error_message, int code = -1);
 
-}
+} // namespace JsonProtocol

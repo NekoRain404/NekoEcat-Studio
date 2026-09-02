@@ -10,68 +10,62 @@
 
 // Localized text templates for the I/O variable detail panel.
 struct IoVariableDetailTexts {
-  QString unavailableText;
-  QString unavailableTip;
-  QString noSelectionText;
-  QString noSelectionTip;
-  QString readyText;
-  QString noValue;
-  QString directionFallback;
-  QString unnamedSignal;
-  QString noComparison;
-  QString noMapEvidence;
-  QString notReviewed;
-  QString startupMismatch;
-  QString mapIssue;
-  QString plcReview;
-  QString missingValue;
-  QString changed;
-  QString readyEvidence;
-  QString summaryPattern;
-  QString selectedTitle;
-  QString slaveLabel;
-  QString directionLabel;
-  QString symbolLabel;
-  QString aliasLabel;
-  QString objectLabel;
-  QString bitsLabel;
-  QString pdoLabel;
-  QString sourceLabel;
-  QString rawLabel;
-  QString decodedLabel;
-  QString meaningLabel;
-  QString watchLabel;
-  QString startupLabel;
-  QString mapLabel;
-  QString changedLabel;
-  QString plcLabel;
-  QString tagsLabel;
-  QString noteLabel;
-  QString signalStateLabel;
-  QString localBoundary;
-  QString executionBoundary;
+    QString unavailableText;
+    QString unavailableTip;
+    QString noSelectionText;
+    QString noSelectionTip;
+    QString readyText;
+    QString noValue;
+    QString directionFallback;
+    QString unnamedSignal;
+    QString noComparison;
+    QString noMapEvidence;
+    QString notReviewed;
+    QString startupMismatch;
+    QString mapIssue;
+    QString plcReview;
+    QString missingValue;
+    QString changed;
+    QString readyEvidence;
+    QString summaryPattern;
+    QString selectedTitle;
+    QString slaveLabel;
+    QString directionLabel;
+    QString symbolLabel;
+    QString aliasLabel;
+    QString objectLabel;
+    QString bitsLabel;
+    QString pdoLabel;
+    QString sourceLabel;
+    QString rawLabel;
+    QString decodedLabel;
+    QString meaningLabel;
+    QString watchLabel;
+    QString startupLabel;
+    QString mapLabel;
+    QString changedLabel;
+    QString plcLabel;
+    QString tagsLabel;
+    QString noteLabel;
+    QString signalStateLabel;
+    QString localBoundary;
+    QString executionBoundary;
 };
 
 // Resolved detail panel state with severity, signal state, and tooltip.
 struct IoVariableDetailState {
-  QString text;
-  QString severityKey;
-  QString signalState;
-  QStringList tooltipLines;
-  QString tooltip;
+    QString text;
+    QString severityKey;
+    QString signalState;
+    QStringList tooltipLines;
+    QString tooltip;
 };
 
-IoVariableDetailState
-ioVariableDetailUnavailableState(const IoVariableDetailTexts &texts);
-IoVariableDetailState
-ioVariableDetailNoSelectionState(const IoVariableDetailTexts &texts);
+IoVariableDetailState ioVariableDetailUnavailableState(const IoVariableDetailTexts& texts);
+IoVariableDetailState ioVariableDetailNoSelectionState(const IoVariableDetailTexts& texts);
 // Maps row issues to a severity key for styling.
-QString ioVariableDetailSeverityKey(const IoVariableTableRow &row,
-                                    const QString &readyText);
+QString ioVariableDetailSeverityKey(const IoVariableTableRow& row, const QString& readyText);
 // Localized signal state label for the detail panel.
-QString ioVariableDetailSignalState(const IoVariableTableRow &row,
-                                    const IoVariableDetailTexts &texts);
+QString ioVariableDetailSignalState(const IoVariableTableRow& row, const IoVariableDetailTexts& texts);
 // Assembles the full detail panel state.
-IoVariableDetailState
-buildIoVariableDetailState(const IoVariableTableRow &row,
-                             const IoVariableDetailTexts &texts);
+IoVariableDetailState buildIoVariableDetailState(const IoVariableTableRow& row, const IoVariableDetailTexts& texts);

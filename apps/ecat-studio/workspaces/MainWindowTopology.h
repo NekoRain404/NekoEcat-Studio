@@ -17,9 +17,8 @@ void updateTopologyBaselineSummary();
 QStringList topologyBaselineIssues() const;
 
 // ── Topology & Data Updates ───────────────────────────────────
-void reportTopologyChanges(const QVector<SlaveInfo> &previous,
-                           const QVector<SlaveInfo> &current);
-void updateSlaves(const QVector<SlaveInfo> &slaves);
-void updateMasterSummary(const QString &text);
-void updateSlaveInfo(const QString &text);
-void updatePdoTable(const QString &text);
+void reportTopologyChanges(const QVector<SlaveInfo>& previous, const QVector<SlaveInfo>& current);
+void updateSlaves(const QVector<SlaveInfo>& slaves);
+void updateMasterSummary(const QString& text);
+void updateSlaveInfo(const QString& text);
+void updatePdoTable(const QString& text);

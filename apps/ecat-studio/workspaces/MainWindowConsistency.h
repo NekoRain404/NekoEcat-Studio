@@ -16,6 +16,5 @@ void focusIoVariablesFromConsistency(int row = -1);
 int firstConsistencyBlockingIssueRow() const;
 int firstConsistencyIoIssueRow() const;
 bool consistencyCheckAvailable() const;
-void consistencyIssueCounts(int *errors, int *warnings, int *infos,
-                            int *ready) const;
-QStringList consistencyGateDetails(const QString &operation) const;
+void consistencyIssueCounts(int* errors, int* warnings, int* infos, int* ready) const;
+QStringList consistencyGateDetails(const QString& operation) const;

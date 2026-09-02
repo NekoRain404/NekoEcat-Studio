@@ -34,8 +34,8 @@
 
 /// @brief Result of a safety validation check.
 struct ValidationResult {
-  bool allowed = false;   ///< Whether the operation is allowed.
-  QString reason;         ///< Human-readable reason (empty if allowed).
+    bool allowed = false; ///< Whether the operation is allowed.
+    QString reason;       ///< Human-readable reason (empty if allowed).
 };
 
 /// @brief Implements safety boundaries for EtherCAT operations.
@@ -44,52 +44,51 @@ struct ValidationResult {
 /// Prevents dangerous operations without confirmation. Stateless; performs
 /// no I/O or network operations.
 class SafetyController : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  /// @brief Construct the safety controller.
-  /// @param parent  Parent QObject.
-  explicit SafetyController(QObject *parent = nullptr);
+    /// @brief Construct the safety controller.
+    /// @param parent  Parent QObject.
+    explicit SafetyController(QObject* parent = nullptr);
 
-  /// @brief Validate a slave state transition.
-  /// @param from  Current state (1=INIT, 2=PREOP, 4=SAFEOP, 8=OP).
-  /// @param to    Target state (1=INIT, 2=PREOP, 4=SAFEOP, 8=OP).
-  /// @return ValidationResult with allowed flag and reason.
-  ValidationResult validateStateTransition(int from, int to);
+    /// @brief Validate a slave state transition.
+    /// @param from  Current state (1=INIT, 2=PREOP, 4=SAFEOP, 8=OP).
+    /// @param to    Target state (1=INIT, 2=PREOP, 4=SAFEOP, 8=OP).
+    /// @return ValidationResult with allowed flag and reason.
+    ValidationResult validateStateTransition(int from, int to);
 
-  /// @brief Validate an SDO write operation.
-  /// @param position  Slave position on the bus.
-  /// @param index     SDO index in hex format.
-  /// @param value     Value to write.
-  /// @return ValidationResult with allowed flag and reason.
-  ValidationResult validateSdoWrite(int position, const QString &index,
-                                    const QString &value);
+    /// @brief Validate an SDO write operation.
+    /// @param position  Slave position on the bus.
+    /// @param index     SDO index in hex format.
+    /// @param value     Value to write.
+    /// @return ValidationResult with allowed flag and reason.
+    ValidationResult validateSdoWrite(int position, const QString& index, const QString& value);
 
-  /// @brief Validate Free Run start conditions.
-  /// @param opStateActive  Whether OP state is currently active.
-  /// @return ValidationResult with allowed flag and reason.
-  ValidationResult validateFreeRunStart(bool opStateActive);
+    /// @brief Validate Free Run start conditions.
+    /// @param opStateActive  Whether OP state is currently active.
+    /// @return ValidationResult with allowed flag and reason.
+    ValidationResult validateFreeRunStart(bool opStateActive);
 
-  /// @brief Validate SDO write during Free Run.
-  /// @param freeRunActive  Whether Free Run is currently active.
-  /// @return ValidationResult with allowed flag and reason.
-  ValidationResult validateSdoWriteDuringFreeRun(bool freeRunActive);
+    /// @brief Validate SDO write during Free Run.
+    /// @param freeRunActive  Whether Free Run is currently active.
+    /// @return ValidationResult with allowed flag and reason.
+    ValidationResult validateSdoWriteDuringFreeRun(bool freeRunActive);
 
 signals:
-  /// @brief Emitted when a safety violation is detected.
-  /// @param operation  The operation that was attempted.
-  /// @param reason     Human-readable reason for the violation.
-  void safetyViolation(const QString &operation, const QString &reason);
+    /// @brief Emitted when a safety violation is detected.
+    /// @param operation  The operation that was attempted.
+    /// @param reason     Human-readable reason for the violation.
+    void safetyViolation(const QString& operation, const QString& reason);
 
 private:
-  /// @brief EtherCAT state constant: INIT (value 1).
-  static constexpr int kStateInit = 1;
+    /// @brief EtherCAT state constant: INIT (value 1).
+    static constexpr int kStateInit = 1;
 
-  /// @brief EtherCAT state constant: PREOP (value 2).
-  static constexpr int kStatePreOp = 2;
+    /// @brief EtherCAT state constant: PREOP (value 2).
+    static constexpr int kStatePreOp = 2;
 
-  /// @brief EtherCAT state constant: SAFEOP (value 4).
-  static constexpr int kStateSafeOp = 4;
+    /// @brief EtherCAT state constant: SAFEOP (value 4).
+    static constexpr int kStateSafeOp = 4;
 
-  /// @brief EtherCAT state constant: OP (value 8).
-  static constexpr int kStateOp = 8;
+    /// @brief EtherCAT state constant: OP (value 8).
+    static constexpr int kStateOp = 8;
 };

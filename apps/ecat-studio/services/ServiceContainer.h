@@ -139,189 +139,189 @@ class ProtocolAnalyzerService;
 /// The container is passed to WorkspacePlugin constructors, keeping plugins
 /// decoupled from MainWindow. All access is expected from the main (GUI) thread.
 class ServiceContainer : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  // ── Construction ─────────────────────────────────────────────────────
-  // Creates all services in dependency order. Services that depend on other
-  // services receive their dependencies via constructor injection.
-  // The parent parameter enables Qt's parent-child ownership model.
-  explicit ServiceContainer(EcatClient *client, EventBus *eventBus, QObject *parent = nullptr);
+    // ── Construction ─────────────────────────────────────────────────────
+    // Creates all services in dependency order. Services that depend on other
+    // services receive their dependencies via constructor injection.
+    // The parent parameter enables Qt's parent-child ownership model.
+    explicit ServiceContainer(EcatClient* client, EventBus* eventBus, QObject* parent = nullptr);
 
-  // ── Initialization Validation ────────────────────────────────────────
-  // Returns true if all critical services were created successfully.
-  // Call after construction to verify the container is healthy.
-  bool isInitialized() const { return initialized_; }
+    // ── Initialization Validation ────────────────────────────────────────
+    // Returns true if all critical services were created successfully.
+    // Call after construction to verify the container is healthy.
+    bool isInitialized() const { return initialized_; }
 
-  // Returns a list of services that failed to initialize.
-  QStringList initializationErrors() const { return initErrors_; }
+    // Returns a list of services that failed to initialize.
+    QStringList initializationErrors() const { return initErrors_; }
 
-  // ── Core Service Accessors ───────────────────────────────────────────
-  // These provide access to the fundamental services that most plugins need.
-  // Each accessor returns a non-owning pointer; the container owns all instances.
+    // ── Core Service Accessors ───────────────────────────────────────────
+    // These provide access to the fundamental services that most plugins need.
+    // Each accessor returns a non-owning pointer; the container owns all instances.
 
-  /// TCP client to ecatd daemon. All bus communication goes through this.
-  EcatClient *client() const { return client_; }
+    /// TCP client to ecatd daemon. All bus communication goes through this.
+    EcatClient* client() const { return client_; }
 
-  /// Central event bus for inter-plugin communication (pub/sub).
-  EventBus *eventBus() const { return eventBus_; }
-  /// CoE SDO upload/download operations.
-  SdoService *sdo() const { return sdo_; }
-  /// CoE watchdog monitoring and configuration.
-  WatchService *watch() const { return watch_; }
-  /// EtherCAT bus topology discovery and management.
-  TopologyService *topology() const { return topology_; }
-  /// Distributed clock synchronization configuration and monitoring.
-  DcSyncService *dcSync() const { return dcSync_; }
-  /// AL event monitoring and notification.
-  AlEventService *alEvent() const { return alEvent_; }
-  /// Signal management and routing.
-  SignalService *signal() const { return signal_; }
-  /// Performance monitoring and metrics collection.
-  PerformanceMonitorService *perfMonitor() const { return perfMonitor_; }
-  /// ESI file parsing, validation, and device database management.
-  EsiService *esi() const { return esi_; }
-  /// EtherCAT bus statistics collection.
-  BusStatsService *busStats() const { return busStats_; }
-  /// Watchdog timer configuration and monitoring.
-  WatchdogService *watchdog() const { return watchdog_; }
-  /// Functional safety (FSoE) controller interface.
-  SafetyController *safety() const { return safety_; }
-  /// Diagnostic report generation and management.
-  DiagnosticReportService *diagnosticReport() const { return diagnosticReport_; }
-  /// Project file save/load and lifecycle management.
-  ProjectManagerService *projectManager() const { return projectManager_; }
-  /// Application-wide configuration storage and retrieval.
-  ConfigurationService *configuration() const { return configuration_; }
-  /// Chart and plot generation service.
+    /// Central event bus for inter-plugin communication (pub/sub).
+    EventBus* eventBus() const { return eventBus_; }
+    /// CoE SDO upload/download operations.
+    SdoService* sdo() const { return sdo_; }
+    /// CoE watchdog monitoring and configuration.
+    WatchService* watch() const { return watch_; }
+    /// EtherCAT bus topology discovery and management.
+    TopologyService* topology() const { return topology_; }
+    /// Distributed clock synchronization configuration and monitoring.
+    DcSyncService* dcSync() const { return dcSync_; }
+    /// AL event monitoring and notification.
+    AlEventService* alEvent() const { return alEvent_; }
+    /// Signal management and routing.
+    SignalService* signal() const { return signal_; }
+    /// Performance monitoring and metrics collection.
+    PerformanceMonitorService* perfMonitor() const { return perfMonitor_; }
+    /// ESI file parsing, validation, and device database management.
+    EsiService* esi() const { return esi_; }
+    /// EtherCAT bus statistics collection.
+    BusStatsService* busStats() const { return busStats_; }
+    /// Watchdog timer configuration and monitoring.
+    WatchdogService* watchdog() const { return watchdog_; }
+    /// Functional safety (FSoE) controller interface.
+    SafetyController* safety() const { return safety_; }
+    /// Diagnostic report generation and management.
+    DiagnosticReportService* diagnosticReport() const { return diagnosticReport_; }
+    /// Project file save/load and lifecycle management.
+    ProjectManagerService* projectManager() const { return projectManager_; }
+    /// Application-wide configuration storage and retrieval.
+    ConfigurationService* configuration() const { return configuration_; }
+    /// Chart and plot generation service.
 #ifdef ECAT_EXPERIMENTAL_SERVICES
-  /// Alarm management and notification.
-  AlarmService *alarm() const { return alarm_; }
-  /// Application logging service.
-  LoggingService *logging() const { return logging_; }
+    /// Alarm management and notification.
+    AlarmService* alarm() const { return alarm_; }
+    /// Application logging service.
+    LoggingService* logging() const { return logging_; }
 #endif
-  ChartService *chart() const { return chart_; }
+    ChartService* chart() const { return chart_; }
 #ifdef ECAT_SCRIPTING_ENABLED
-  /// Lua/Python scripting engine (compile-time optional).
-  ScriptingService *scripting() const { return scripting_; }
+    /// Lua/Python scripting engine (compile-time optional).
+    ScriptingService* scripting() const { return scripting_; }
 #endif
-  /// Batch operation execution and queuing.
-  BatchOperationService *batch() const { return batch_; }
-  /// Network diagnostics and link quality monitoring.
-  NetworkDiagnosticsService *networkDiagnostics() const { return networkDiagnostics_; }
-  /// EtherCAT network health monitoring.
-  EcatHealthService *ecatHealth() const { return ecatHealth_; }
-  /// Data export to file or external formats.
-  ExportService *exportService() const { return exportService_; }
-  /// Firmware update via FoE or vendor protocol.
-  FirmwareUpdateService *firmwareUpdate() const { return firmwareUpdate_; }
-  /// Report generation service.
-  ReportGeneratorService *reportGenerator() const { return reportGenerator_; }
-  /// DC synchronization precision monitoring.
-  DcSyncPrecisionService *dcSyncPrecision() const { return dcSyncPrecision_; }
-  /// SDO cache service for optimized repeated access.
-  SdoCacheService *sdoCache() const { return sdoCache_; }
-  /// PDO mapping configuration and validation.
-  PdoMappingService *pdoMapping() const { return pdoMapping_; }
-  /// CoE (CANopen over EtherCAT) protocol service.
-  CoEService *coe() const { return coe_; }
-  /// FoE (File over EtherCAT) protocol service.
-  FoEService *foe() const { return foe_; }
-  /// EoE (Ethernet over EtherCAT) protocol service.
-  EoEService *eoe() const { return eoe_; }
-  /// State machine management (bus state transitions).
-  StateMachineService *stateMachine() const { return stateMachine_; }
-  /// Error handling and recovery service.
-  ErrorHandlingService *errorHandling() const { return errorHandling_; }
-  /// Hot-connect (plug-and-play) support.
-  HotConnectService *hotConnect() const { return hotConnect_; }
-  /// Redundancy (cable/redundant master) management.
-  RedundancyService *redundancy() const { return redundancy_; }
-  /// Online diagnostics service.
-  OnlineDiagnosticsService *onlineDiagnostics() const { return onlineDiagnostics_; }
-  /// Realtime performance monitoring.
-  RealtimePerformanceService *realtimePerformance() const { return realtimePerformance_; }
-  /// FreeRun configuration service.
-  FreeRunConfigurationService *freeRunConfig() const { return freeRunConfig_; }
-  /// FreeRun monitoring service.
-  FreeRunMonitoringService *freeRunMonitor() const { return freeRunMonitor_; }
-  /// PDO configuration service.
-  PdoConfigurationService *pdoConfiguration() const { return pdoConfiguration_; }
-  /// Operational state service.
-  OpStateService *opState() const { return opState_; }
-  /// Oscilloscope service for signal capture.
-  OscilloscopeService *oscilloscope() const { return oscilloscope_; }
-  /// Protocol analyzer service.
-  ProtocolAnalyzerService *protocolAnalyzer() const { return protocolAnalyzer_; }
+    /// Batch operation execution and queuing.
+    BatchOperationService* batch() const { return batch_; }
+    /// Network diagnostics and link quality monitoring.
+    NetworkDiagnosticsService* networkDiagnostics() const { return networkDiagnostics_; }
+    /// EtherCAT network health monitoring.
+    EcatHealthService* ecatHealth() const { return ecatHealth_; }
+    /// Data export to file or external formats.
+    ExportService* exportService() const { return exportService_; }
+    /// Firmware update via FoE or vendor protocol.
+    FirmwareUpdateService* firmwareUpdate() const { return firmwareUpdate_; }
+    /// Report generation service.
+    ReportGeneratorService* reportGenerator() const { return reportGenerator_; }
+    /// DC synchronization precision monitoring.
+    DcSyncPrecisionService* dcSyncPrecision() const { return dcSyncPrecision_; }
+    /// SDO cache service for optimized repeated access.
+    SdoCacheService* sdoCache() const { return sdoCache_; }
+    /// PDO mapping configuration and validation.
+    PdoMappingService* pdoMapping() const { return pdoMapping_; }
+    /// CoE (CANopen over EtherCAT) protocol service.
+    CoEService* coe() const { return coe_; }
+    /// FoE (File over EtherCAT) protocol service.
+    FoEService* foe() const { return foe_; }
+    /// EoE (Ethernet over EtherCAT) protocol service.
+    EoEService* eoe() const { return eoe_; }
+    /// State machine management (bus state transitions).
+    StateMachineService* stateMachine() const { return stateMachine_; }
+    /// Error handling and recovery service.
+    ErrorHandlingService* errorHandling() const { return errorHandling_; }
+    /// Hot-connect (plug-and-play) support.
+    HotConnectService* hotConnect() const { return hotConnect_; }
+    /// Redundancy (cable/redundant master) management.
+    RedundancyService* redundancy() const { return redundancy_; }
+    /// Online diagnostics service.
+    OnlineDiagnosticsService* onlineDiagnostics() const { return onlineDiagnostics_; }
+    /// Realtime performance monitoring.
+    RealtimePerformanceService* realtimePerformance() const { return realtimePerformance_; }
+    /// FreeRun configuration service.
+    FreeRunConfigurationService* freeRunConfig() const { return freeRunConfig_; }
+    /// FreeRun monitoring service.
+    FreeRunMonitoringService* freeRunMonitor() const { return freeRunMonitor_; }
+    /// PDO configuration service.
+    PdoConfigurationService* pdoConfiguration() const { return pdoConfiguration_; }
+    /// Operational state service.
+    OpStateService* opState() const { return opState_; }
+    /// Oscilloscope service for signal capture.
+    OscilloscopeService* oscilloscope() const { return oscilloscope_; }
+    /// Protocol analyzer service.
+    ProtocolAnalyzerService* protocolAnalyzer() const { return protocolAnalyzer_; }
 
 signals:
-  /// Emitted when a service fails to initialize.
-  /// @param serviceName  Name of the service that failed
-  /// @param reason       Description of the failure
-  void serviceInitFailed(const QString &serviceName, const QString &reason);
+    /// Emitted when a service fails to initialize.
+    /// @param serviceName  Name of the service that failed
+    /// @param reason       Description of the failure
+    void serviceInitFailed(const QString& serviceName, const QString& reason);
 
 private:
-  /// @name Service Instance Pointers
-  /// Non-owning pointers to all created service instances.
-  /// Owned as QObject children; Qt handles their lifetime via the parent-child
-  /// tree. Each pointer corresponds to the public accessor above it.
-  ///@{
-  EcatClient *client_ = nullptr;
-  EventBus *eventBus_ = nullptr;
-  SdoService *sdo_ = nullptr;
-  WatchService *watch_ = nullptr;
-  TopologyService *topology_ = nullptr;
-  DcSyncService *dcSync_ = nullptr;
-  AlEventService *alEvent_ = nullptr;
-  SignalService *signal_ = nullptr;
-  PerformanceMonitorService *perfMonitor_ = nullptr;
-  EsiService *esi_ = nullptr;
-  BusStatsService *busStats_ = nullptr;
-  WatchdogService *watchdog_ = nullptr;
-  SafetyController *safety_ = nullptr;
-  DiagnosticReportService *diagnosticReport_ = nullptr;
-  ProjectManagerService *projectManager_ = nullptr;
-  ConfigurationService *configuration_ = nullptr;
-  ChartService *chart_ = nullptr;
+    /// @name Service Instance Pointers
+    /// Non-owning pointers to all created service instances.
+    /// Owned as QObject children; Qt handles their lifetime via the parent-child
+    /// tree. Each pointer corresponds to the public accessor above it.
+    ///@{
+    EcatClient* client_ = nullptr;
+    EventBus* eventBus_ = nullptr;
+    SdoService* sdo_ = nullptr;
+    WatchService* watch_ = nullptr;
+    TopologyService* topology_ = nullptr;
+    DcSyncService* dcSync_ = nullptr;
+    AlEventService* alEvent_ = nullptr;
+    SignalService* signal_ = nullptr;
+    PerformanceMonitorService* perfMonitor_ = nullptr;
+    EsiService* esi_ = nullptr;
+    BusStatsService* busStats_ = nullptr;
+    WatchdogService* watchdog_ = nullptr;
+    SafetyController* safety_ = nullptr;
+    DiagnosticReportService* diagnosticReport_ = nullptr;
+    ProjectManagerService* projectManager_ = nullptr;
+    ConfigurationService* configuration_ = nullptr;
+    ChartService* chart_ = nullptr;
 #ifdef ECAT_EXPERIMENTAL_SERVICES
-  AlarmService *alarm_ = nullptr;
-  LoggingService *logging_ = nullptr;
+    AlarmService* alarm_ = nullptr;
+    LoggingService* logging_ = nullptr;
 #endif
 #ifdef ECAT_SCRIPTING_ENABLED
-  ScriptingService *scripting_ = nullptr;
+    ScriptingService* scripting_ = nullptr;
 #endif
-  BatchOperationService *batch_ = nullptr;
-  NetworkDiagnosticsService *networkDiagnostics_ = nullptr;
-  EcatHealthService *ecatHealth_ = nullptr;
-  ExportService *exportService_ = nullptr;
-  FirmwareUpdateService *firmwareUpdate_ = nullptr;
-  ReportGeneratorService *reportGenerator_ = nullptr;
-  DcSyncPrecisionService *dcSyncPrecision_ = nullptr;
-  SdoCacheService *sdoCache_ = nullptr;
-  PdoMappingService *pdoMapping_ = nullptr;
-  CoEService *coe_ = nullptr;
-  FoEService *foe_ = nullptr;
-  EoEService *eoe_ = nullptr;
-  StateMachineService *stateMachine_ = nullptr;
-  ErrorHandlingService *errorHandling_ = nullptr;
-  HotConnectService *hotConnect_ = nullptr;
-  RedundancyService *redundancy_ = nullptr;
-  OnlineDiagnosticsService *onlineDiagnostics_ = nullptr;
-  RealtimePerformanceService *realtimePerformance_ = nullptr;
-  FreeRunConfigurationService *freeRunConfig_ = nullptr;
-  FreeRunMonitoringService *freeRunMonitor_ = nullptr;
-  PdoConfigurationService *pdoConfiguration_ = nullptr;
-  OpStateService *opState_ = nullptr;
-  OscilloscopeService *oscilloscope_ = nullptr;
-  ProtocolAnalyzerService *protocolAnalyzer_ = nullptr;
-  ///@}
+    BatchOperationService* batch_ = nullptr;
+    NetworkDiagnosticsService* networkDiagnostics_ = nullptr;
+    EcatHealthService* ecatHealth_ = nullptr;
+    ExportService* exportService_ = nullptr;
+    FirmwareUpdateService* firmwareUpdate_ = nullptr;
+    ReportGeneratorService* reportGenerator_ = nullptr;
+    DcSyncPrecisionService* dcSyncPrecision_ = nullptr;
+    SdoCacheService* sdoCache_ = nullptr;
+    PdoMappingService* pdoMapping_ = nullptr;
+    CoEService* coe_ = nullptr;
+    FoEService* foe_ = nullptr;
+    EoEService* eoe_ = nullptr;
+    StateMachineService* stateMachine_ = nullptr;
+    ErrorHandlingService* errorHandling_ = nullptr;
+    HotConnectService* hotConnect_ = nullptr;
+    RedundancyService* redundancy_ = nullptr;
+    OnlineDiagnosticsService* onlineDiagnostics_ = nullptr;
+    RealtimePerformanceService* realtimePerformance_ = nullptr;
+    FreeRunConfigurationService* freeRunConfig_ = nullptr;
+    FreeRunMonitoringService* freeRunMonitor_ = nullptr;
+    PdoConfigurationService* pdoConfiguration_ = nullptr;
+    OpStateService* opState_ = nullptr;
+    OscilloscopeService* oscilloscope_ = nullptr;
+    ProtocolAnalyzerService* protocolAnalyzer_ = nullptr;
+    ///@}
 
-  // ── Initialization Tracking ──────────────────────────────────────
-  /// Flag indicating whether all critical services initialized successfully.
-  bool initialized_ = false;
-  /// List of human-readable error messages from services that failed to init.
-  QStringList initErrors_;
-  /// Checks whether @p service was created non-null; records errors if not.
-  /// @param service  The newly-constructed service pointer to validate.
-  /// @param name     Human-readable name of the service (for error messages).
-  void validateService(QObject *service, const QString &name);
+    // ── Initialization Tracking ──────────────────────────────────────
+    /// Flag indicating whether all critical services initialized successfully.
+    bool initialized_ = false;
+    /// List of human-readable error messages from services that failed to init.
+    QStringList initErrors_;
+    /// Checks whether @p service was created non-null; records errors if not.
+    /// @param service  The newly-constructed service pointer to validate.
+    /// @param name     Human-readable name of the service (for error messages).
+    void validateService(QObject* service, const QString& name);
 };

@@ -9,30 +9,20 @@
 //   - Status and statistics queries via daemon JSON-RPC commands
 //   - Frame send/receive require daemon backend support (TAP/TUN integration)
 
-EoEService::EoEService(EcatClient *client, QObject *parent)
-    : QObject(parent), client_(client) {
+EoEService::EoEService(EcatClient* client, QObject* parent) : QObject(parent), client_(client) {
     // Forward EoE-specific signals from the client.
     connect(client_, &EcatClient::eoeStatusResult, this,
-            [this](int pos, const QJsonObject &data) {
-                emit statusReceived(pos, data);
-            });
+            [this](int pos, const QJsonObject& data) { emit statusReceived(pos, data); });
     connect(client_, &EcatClient::eoeIpConfigured, this,
-            [this](int pos, const QString &ip) {
-                emit ipConfigured(pos, ip);
-            });
+            [this](int pos, const QString& ip) { emit ipConfigured(pos, ip); });
     connect(client_, &EcatClient::eoeIpResult, this,
-            [this](int pos, const QJsonObject &data) {
-                emit ipReadback(pos, data);
-            });
+            [this](int pos, const QJsonObject& data) { emit ipReadback(pos, data); });
     connect(client_, &EcatClient::eoeStatsResult, this,
-            [this](int pos, const QJsonObject &data) {
-                emit statsReceived(pos, data);
-            });
-    connect(client_, &EcatClient::errorMessage, this,
-            [this](const QString &msg) { emit error(msg); });
+            [this](int pos, const QJsonObject& data) { emit statsReceived(pos, data); });
+    connect(client_, &EcatClient::errorMessage, this, [this](const QString& msg) { emit error(msg); });
 }
 
-bool EoEService::sendEthernetFrame(int position, const QByteArray &frame) {
+bool EoEService::sendEthernetFrame(int position, const QByteArray& frame) {
     if (frame.isEmpty()) {
         emit error("Cannot send empty Ethernet frame");
         return false;
@@ -58,8 +48,7 @@ void EoEService::receiveEthernetFrame(int position) {
     emit error("EoE frame receive requires TAP/TUN daemon backend support");
 }
 
-bool EoEService::configureIp(int position, const QString &ip,
-                              const QString &subnet) {
+bool EoEService::configureIp(int position, const QString& ip, const QString& subnet) {
     if (!client_ || !client_->isConnected()) {
         emit error("Cannot configure EoE IP: EtherCAT daemon is not connected");
         return false;

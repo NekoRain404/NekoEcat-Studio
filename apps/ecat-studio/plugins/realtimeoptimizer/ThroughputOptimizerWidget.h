@@ -8,25 +8,25 @@ class QPushButton;
 class QTextEdit;
 
 class ThroughputOptimizerWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ThroughputOptimizerWidget(QWidget *parent = nullptr);
+    explicit ThroughputOptimizerWidget(QWidget* parent = nullptr);
 
-  void updateResult(const OptimizationResult &result);
+    void updateResult(const OptimizationResult& result);
 
 signals:
-  void optimizeRequested();
+    void optimizeRequested();
 
 private:
-  void buildUi();
+    void buildUi();
 
-  QLabel *currentThroughputLabel_ = nullptr;
-  QLabel *optimizedThroughputLabel_ = nullptr;
-  QLabel *improvementLabel_ = nullptr;
-  QTextEdit *bottleneckEdit_ = nullptr;
-  QTextEdit *recommendationsEdit_ = nullptr;
-  QPushButton *optimizeBtn_ = nullptr;
-  QPushButton *applyBtn_ = nullptr;
+    QLabel* currentThroughputLabel_ = nullptr;
+    QLabel* optimizedThroughputLabel_ = nullptr;
+    QLabel* improvementLabel_ = nullptr;
+    QTextEdit* bottleneckEdit_ = nullptr;
+    QTextEdit* recommendationsEdit_ = nullptr;
+    QPushButton* optimizeBtn_ = nullptr;
+    QPushButton* applyBtn_ = nullptr;
 
-  OptimizationResult lastResult_;
+    OptimizationResult lastResult_;
 };

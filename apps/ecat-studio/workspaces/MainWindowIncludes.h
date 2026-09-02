@@ -50,6 +50,7 @@
 #include "detail/NextBestActionDetail.h"
 #include "detail/ObjectBookmarkDetail.h"
 #include "detail/PdoMapDetail.h"
+#include "detail/RealtimeChartDialog.h"
 #include "detail/SdoHistoryRowDetail.h"
 #include "detail/SdoTargetTrailDetail.h"
 #include "detail/SelectedDriveSummaryDetail.h"
@@ -60,18 +61,17 @@
 #include "detail/StateMachineRowDetail.h"
 #include "detail/WatchRowDetail.h"
 #include "detail/WatchStartupDetail.h"
+#include "detail/WorkflowStepDetail.h"
 #include "detail/WorkspaceBoundaryDetail.h"
 #include "detail/WorkspaceTabBadgeDetail.h"
-#include "detail/WorkflowStepDetail.h"
-#include "detail/RealtimeChartDialog.h"
 
 
 // ── Infrastructure ───────────────────────────────────────────────────
 #include "infra/LanguageManager.h"
 #include "services/SdoService.h"
-#include "services/WatchService.h"
-#include "services/TopologyService.h"
 #include "services/ServiceContainer.h"
+#include "services/TopologyService.h"
+#include "services/WatchService.h"
 // ── Utilities ────────────────────────────────────────────────────────
 #include "utils/Documentation.h"
 #include "utils/TableHelpers.h"
@@ -113,8 +113,8 @@
 
 // ── Qt Painting ───────────────────────────────────────────────────────
 #include <QLinearGradient>
-#include <QPaintEvent>
 #include <QPainter>
+#include <QPaintEvent>
 #include <QPen>
 #include <QResizeEvent>
 // ── Qt Widgets ───────────────────────────────────────────────────────
@@ -148,8 +148,8 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QStyle>
-#include <QTabWidget>
 #include <QTableWidget>
+#include <QTabWidget>
 #include <QTextBrowser>
 #include <QTextStream>
 #include <QToolBar>

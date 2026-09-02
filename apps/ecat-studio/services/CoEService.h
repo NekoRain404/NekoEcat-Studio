@@ -30,11 +30,11 @@
 //   - Dictionary upload is O(n) where n is number of SDOs
 //   - Segment transfer is O(n) where n is segment size
 
-#include <QObject>
-#include <QString>
 #include <QByteArray>
 #include <QDateTime>
 #include <QJsonObject>
+#include <QObject>
+#include <QString>
 #include <QStringList>
 
 class EcatClient;
@@ -42,10 +42,10 @@ class SdoCacheService;
 
 // SDO information structure.
 struct SdoInfo {
-    quint32 vendorId = 0;           // Vendor ID
-    quint32 productCode = 0;        // Product code
-    quint32 revisionNumber = 0;     // Revision number
-    quint32 serialNumber = 0;       // Serial number
+    quint32 vendorId = 0;            // Vendor ID
+    quint32 productCode = 0;         // Product code
+    quint32 revisionNumber = 0;      // Revision number
+    quint32 serialNumber = 0;        // Serial number
     QStringList supportedCoEObjects; // Supported CoE objects
 };
 Q_DECLARE_METATYPE(SdoInfo)
@@ -63,7 +63,7 @@ Q_DECLARE_METATYPE(CoESdoDictionary)
 class CoEService : public QObject {
     Q_OBJECT
 public:
-    explicit CoEService(EcatClient *client, SdoCacheService *sdoCache, QObject *parent = nullptr);
+    explicit CoEService(EcatClient* client, SdoCacheService* sdoCache, QObject* parent = nullptr);
 
     // Upload SDO information from a slave.
     // @param position  Slave position
@@ -78,15 +78,14 @@ public:
     // @param index     SDO index in hex format
     // @param offset    Segment offset in bytes
     // @param size      Segment size in bytes
-    void uploadSegment(int position, const QString &index, int offset, int size);
+    void uploadSegment(int position, const QString& index, int offset, int size);
 
     // Download a segment of an SDO.
     // @param position  Slave position
     // @param index     SDO index in hex format
     // @param offset    Segment offset in bytes
     // @param data      Segment data
-    void downloadSegment(int position, const QString &index, int offset,
-                         const QByteArray &data);
+    void downloadSegment(int position, const QString& index, int offset, const QByteArray& data);
 
     // Read Error Register (0x1001) — standard CANopen error register.
     // Returns a JSON object with "success", "value" (uint8), and decoded
@@ -111,44 +110,44 @@ signals:
     // Emitted when SDO information is received.
     // @param position  Slave position
     // @param info      SdoInfo structure
-    void sdoInfoReceived(int position, const SdoInfo &info);
+    void sdoInfoReceived(int position, const SdoInfo& info);
 
     // Emitted when SDO dictionary is received.
     // @param position  Slave position
     // @param entries   List of CoESdoDictionary entries
-    void dictionaryReceived(int position, const QList<CoESdoDictionary> &entries);
+    void dictionaryReceived(int position, const QList<CoESdoDictionary>& entries);
 
     // Emitted when a segment is received.
     // @param position  Slave position
     // @param index     SDO index
     // @param data      Segment data
-    void segmentReceived(int position, const QString &index, const QByteArray &data);
+    void segmentReceived(int position, const QString& index, const QByteArray& data);
 
     // Emitted when a segment download completes.
     // @param position  Slave position
     // @param index     SDO index
     // @param success   Whether download was successful
-    void segmentDownloaded(int position, const QString &index, bool success);
+    void segmentDownloaded(int position, const QString& index, bool success);
 
     // Emitted when an emergency object is received.
     // @param position   Slave position
     // @param errorCode  Emergency error code
     // @param data       Emergency data
-    void emergencyReceived(int position, int errorCode, const QByteArray &data);
+    void emergencyReceived(int position, int errorCode, const QByteArray& data);
 
     // Emitted when a timestamp object is received.
     // @param position   Slave position
     // @param timestamp  Timestamp value
-    void timestampReceived(int position, const QDateTime &timestamp);
+    void timestampReceived(int position, const QDateTime& timestamp);
 
     // Emitted when an error occurs.
     // @param message  Human-readable error message
-    void error(const QString &message);
+    void error(const QString& message);
 
 private:
-    EcatClient *client_;  // TCP client to ecatd daemon
-    SdoCacheService *sdoCache_ = nullptr;  // SDO dictionary/value cache
+    EcatClient* client_;                  // TCP client to ecatd daemon
+    SdoCacheService* sdoCache_ = nullptr; // SDO dictionary/value cache
 
 private slots:
-    void onSdoText(int position, const QString &title, const QString &text);
+    void onSdoText(int position, const QString& title, const QString& text);
 };

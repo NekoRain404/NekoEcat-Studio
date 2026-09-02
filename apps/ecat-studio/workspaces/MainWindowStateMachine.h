@@ -9,12 +9,11 @@
 // dialogs.
 
 // ── State Machine ─────────────────────────────────────────────
-QStringList stateTransitionImpactDetails(int position,
-                                         const QString &requestedState) const;
-QString recommendedEthercatState(const SlaveInfo &slave) const;
+QStringList stateTransitionImpactDetails(int position, const QString& requestedState) const;
+QString recommendedEthercatState(const SlaveInfo& slave) const;
 void updateStateMachineView();
 void updateStateMachineRowDetail();
 
 // ── Slave Operations ──────────────────────────────────────────
-void requestSlaveStateWithConfirmation(int position, const QString &state);
-void requestAllSlaveState(const QString &state);
+void requestSlaveStateWithConfirmation(int position, const QString& state);
+void requestAllSlaveState(const QString& state);

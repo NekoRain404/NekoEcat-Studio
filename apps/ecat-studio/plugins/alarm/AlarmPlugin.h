@@ -76,79 +76,78 @@ class LoggingService;
 /// The plugin communicates with AlarmService for alarm data and uses
 /// EventBus for real-time alarm notifications.
 class AlarmPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  /// @brief Constructs the Alarm plugin with fine-grained service injection.
-  /// @param alarmService  AlarmService instance for alarm data management
-  /// @param logService    LoggingService instance for audit trail integration
-  /// @param parent        Qt parent object (typically MainWindow)
-  explicit AlarmPlugin(AlarmService *alarmService, LoggingService *logService,
-                       QObject *parent = nullptr);
+    /// @brief Constructs the Alarm plugin with fine-grained service injection.
+    /// @param alarmService  AlarmService instance for alarm data management
+    /// @param logService    LoggingService instance for audit trail integration
+    /// @param parent        Qt parent object (typically MainWindow)
+    explicit AlarmPlugin(AlarmService* alarmService, LoggingService* logService, QObject* parent = nullptr);
 
-  // ── WorkspacePlugin Identity ──────────────────────────────────
-  QString id() const override;           ///< Returns "alarm"
-  QString displayName() const override;  ///< Returns "Alarm"
-  QString displayNameZh() const override; ///< Returns "告警"
-  QWidget *widget() override;            ///< Returns the root container widget
-  int defaultOrder() const override;     ///< Returns 110
-  bool visible() const override;         ///< Returns true (always visible)
+    // ── WorkspacePlugin Identity ──────────────────────────────────
+    QString id() const override;            ///< Returns "alarm"
+    QString displayName() const override;   ///< Returns "Alarm"
+    QString displayNameZh() const override; ///< Returns "告警"
+    QWidget* widget() override;             ///< Returns the root container widget
+    int defaultOrder() const override;      ///< Returns 110
+    bool visible() const override;          ///< Returns true (always visible)
 
-  bool exportHistoryToFile(const QString &path);
+    bool exportHistoryToFile(const QString& path);
 
 private slots:
-  /// @brief Handles new alarm raised events from AlarmService.
-  /// @param alarm  The newly raised alarm object
-  void onAlarmRaised(const Alarm &alarm);
+    /// @brief Handles new alarm raised events from AlarmService.
+    /// @param alarm  The newly raised alarm object
+    void onAlarmRaised(const Alarm& alarm);
 
-  /// @brief Handles alarm acknowledged events from AlarmService.
-  /// @param alarmId  ID of the acknowledged alarm
-  void onAlarmAcknowledged(int alarmId);
+    /// @brief Handles alarm acknowledged events from AlarmService.
+    /// @param alarmId  ID of the acknowledged alarm
+    void onAlarmAcknowledged(int alarmId);
 
-  /// @brief Handles alarm cleared events from AlarmService.
-  /// @param alarmId  ID of the cleared alarm
-  void onAlarmCleared(int alarmId);
+    /// @brief Handles alarm cleared events from AlarmService.
+    /// @param alarmId  ID of the cleared alarm
+    void onAlarmCleared(int alarmId);
 
-  /// @brief Applies current filter settings to the alarm table.
-  /// @details Filters alarms based on selected level, category, and state.
-  void applyFilter();
+    /// @brief Applies current filter settings to the alarm table.
+    /// @details Filters alarms based on selected level, category, and state.
+    void applyFilter();
 
-  /// @brief Acknowledges the selected alarm(s) in the table.
-  void acknowledgeSelected();
+    /// @brief Acknowledges the selected alarm(s) in the table.
+    void acknowledgeSelected();
 
-  /// @brief Clears the selected alarm(s) from the table.
-  void clearSelected();
+    /// @brief Clears the selected alarm(s) from the table.
+    void clearSelected();
 
-  /// @brief Exports alarm history to a file.
-  /// @details Opens a file dialog and exports all alarms to the selected format.
-  void exportHistory();
+    /// @brief Exports alarm history to a file.
+    /// @details Opens a file dialog and exports all alarms to the selected format.
+    void exportHistory();
 
 private:
-  /// @brief Builds the UI layout with filter controls and alarm table.
-  void buildUi();
+    /// @brief Builds the UI layout with filter controls and alarm table.
+    void buildUi();
 
-  /// @brief Populates a table row with alarm data.
-  /// @param row    Row index to populate
-  /// @param alarm  Alarm data to display
-  void populateRow(int row, const Alarm &alarm);
+    /// @brief Populates a table row with alarm data.
+    /// @param row    Row index to populate
+    /// @param alarm  Alarm data to display
+    void populateRow(int row, const Alarm& alarm);
 
-  /// @brief Updates the visual state of a table row.
-  /// @param row    Row index to update
-  /// @param state  New alarm state to display
-  void updateRowState(int row, AlarmState state);
+    /// @brief Updates the visual state of a table row.
+    /// @param row    Row index to update
+    /// @param state  New alarm state to display
+    void updateRowState(int row, AlarmState state);
 
-  /// @brief Finds the table row index for a given alarm ID.
-  /// @param alarmId  ID of the alarm to find
-  /// @return Row index, or -1 if not found
-  int findRowById(int alarmId) const;
+    /// @brief Finds the table row index for a given alarm ID.
+    /// @param alarmId  ID of the alarm to find
+    /// @return Row index, or -1 if not found
+    int findRowById(int alarmId) const;
 
-  AlarmService *alarmService_;           ///< Alarm service for alarm data management
-  LoggingService *logService_;           ///< Logging service for audit trail integration
-  QWidget *container_ = nullptr;         ///< Root container widget
-  QTableWidget *table_ = nullptr;        ///< Alarm table widget
-  QComboBox *levelFilter_ = nullptr;     ///< Severity level filter combo box
-  QComboBox *categoryFilter_ = nullptr;  ///< Category filter combo box
-  QComboBox *stateFilter_ = nullptr;     ///< State filter combo box
-  QPushButton *ackBtn_ = nullptr;        ///< Acknowledge selected alarms button
-  QPushButton *clearBtn_ = nullptr;      ///< Clear selected alarms button
-  QPushButton *exportBtn_ = nullptr;     ///< Export alarm history button
+    AlarmService* alarmService_;          ///< Alarm service for alarm data management
+    LoggingService* logService_;          ///< Logging service for audit trail integration
+    QWidget* container_ = nullptr;        ///< Root container widget
+    QTableWidget* table_ = nullptr;       ///< Alarm table widget
+    QComboBox* levelFilter_ = nullptr;    ///< Severity level filter combo box
+    QComboBox* categoryFilter_ = nullptr; ///< Category filter combo box
+    QComboBox* stateFilter_ = nullptr;    ///< State filter combo box
+    QPushButton* ackBtn_ = nullptr;       ///< Acknowledge selected alarms button
+    QPushButton* clearBtn_ = nullptr;     ///< Clear selected alarms button
+    QPushButton* exportBtn_ = nullptr;    ///< Export alarm history button
 };

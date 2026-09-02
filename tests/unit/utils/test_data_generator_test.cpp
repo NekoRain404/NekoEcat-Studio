@@ -8,10 +8,10 @@
 //   - PDO mapping generation
 //   - Topology generation with branches
 //   - Zero count edge case
-#include <QTest>
-#include <QSignalSpy>
-#include "utils/TestDataGenerator.h"
 #include "EthercatTypes.h"
+#include "utils/TestDataGenerator.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class TestDataGeneratorTest : public QObject {
     Q_OBJECT

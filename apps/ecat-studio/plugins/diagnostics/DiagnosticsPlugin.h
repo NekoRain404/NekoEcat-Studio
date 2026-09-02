@@ -38,56 +38,55 @@ class QTableWidget;
 class ServiceContainer;
 
 class DiagnosticsPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit DiagnosticsPlugin(ServiceContainer *container,
-                             QObject *parent = nullptr);
+    explicit DiagnosticsPlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Lifecycle
-  void activate() override;
-  void deactivate() override;
-  void onSettingsChanged(const AppSettings &settings) override;
-  void onConnectionChanged(bool connected) override;
+    // Lifecycle
+    void activate() override;
+    void deactivate() override;
+    void onSettingsChanged(const AppSettings& settings) override;
+    void onConnectionChanged(bool connected) override;
 
-  // Table access
-  QTableWidget *diagnosticsTable() const;
-  QLineEdit *diagnosticsFilter() const;
-  QComboBox *diagnosticsLevelFilter() const;
-  QLabel *diagnosticsSummaryLabel() const;
+    // Table access
+    QTableWidget* diagnosticsTable() const;
+    QLineEdit* diagnosticsFilter() const;
+    QComboBox* diagnosticsLevelFilter() const;
+    QLabel* diagnosticsSummaryLabel() const;
 
-  // Topology baseline
-  QLabel *topologyBaselineLabel() const;
-  QPushButton *captureBaselineButton() const;
-  QPushButton *clearBaselineButton() const;
+    // Topology baseline
+    QLabel* topologyBaselineLabel() const;
+    QPushButton* captureBaselineButton() const;
+    QPushButton* clearBaselineButton() const;
 
-  // Apply filter to diagnostics table
-  void filterDiagnosticsTable();
+    // Apply filter to diagnostics table
+    void filterDiagnosticsTable();
 
-  // Update diagnostics summary label
-  void updateDiagnosticsSummary();
+    // Update diagnostics summary label
+    void updateDiagnosticsSummary();
 
-  // Export diagnostics report to file
-  void exportDiagnosticsReport(QWidget *parentWidget);
+    // Export diagnostics report to file
+    void exportDiagnosticsReport(QWidget* parentWidget);
 
 private:
-  void buildUi();
+    void buildUi();
 
-  ServiceContainer *container_;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *table_ = nullptr;
-  QLineEdit *filter_ = nullptr;
-  QComboBox *levelFilter_ = nullptr;
-  QLabel *summaryLabel_ = nullptr;
-  QLabel *baselineLabel_ = nullptr;
-  QPushButton *captureBtn_ = nullptr;
-  QPushButton *clearBtn_ = nullptr;
+    ServiceContainer* container_;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* table_ = nullptr;
+    QLineEdit* filter_ = nullptr;
+    QComboBox* levelFilter_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
+    QLabel* baselineLabel_ = nullptr;
+    QPushButton* captureBtn_ = nullptr;
+    QPushButton* clearBtn_ = nullptr;
 };

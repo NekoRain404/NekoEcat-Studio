@@ -27,42 +27,42 @@
 //   - Each poll sends a single JSON request to the daemon
 //   - Event log is limited by daemon-side buffer size
 
-#include <QObject>
 #include <QJsonObject>
+#include <QObject>
 
 class QTimer;
 class EcatClient;
 
 class AlEventService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit AlEventService(EcatClient *client, QObject *parent = nullptr);
+    explicit AlEventService(EcatClient* client, QObject* parent = nullptr);
 
-  // Start periodic polling of AL event log.
-  // @param intervalMs  Polling interval in milliseconds (default: 2000ms)
-  void startPolling(int intervalMs = 2000);
+    // Start periodic polling of AL event log.
+    // @param intervalMs  Polling interval in milliseconds (default: 2000ms)
+    void startPolling(int intervalMs = 2000);
 
-  // Stop periodic polling.
-  void stopPolling();
+    // Stop periodic polling.
+    void stopPolling();
 
-  // Issue a single event log request to the daemon.
-  // Emits alEventUpdate() on success, error() on failure.
-  void requestUpdate();
+    // Issue a single event log request to the daemon.
+    // Emits alEventUpdate() on success, error() on failure.
+    void requestUpdate();
 
-  // Clear all AL events on the daemon side.
-  // Emits alEventUpdate() with empty log on success.
-  void clearEvents();
+    // Clear all AL events on the daemon side.
+    // Emits alEventUpdate() with empty log on success.
+    void clearEvents();
 
 signals:
-  // Emitted after each successful daemon log response.
-  // @param data  JSON object containing AL event log entries
-  void alEventUpdate(const QJsonObject &data);
+    // Emitted after each successful daemon log response.
+    // @param data  JSON object containing AL event log entries
+    void alEventUpdate(const QJsonObject& data);
 
-  // Emitted when an AL event request fails.
-  // @param message  Human-readable error description
-  void error(const QString &message);
+    // Emitted when an AL event request fails.
+    // @param message  Human-readable error description
+    void error(const QString& message);
 
 private:
-  EcatClient *client_;  // TCP client to ecatd daemon
-  QTimer *pollTimer_;   // Timer for periodic polling
+    EcatClient* client_; // TCP client to ecatd daemon
+    QTimer* pollTimer_;  // Timer for periodic polling
 };

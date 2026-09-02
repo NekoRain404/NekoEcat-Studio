@@ -29,21 +29,21 @@ public:
         QVector<MatchResult> results;
     };
 
-    explicit EsiDeviceMatcher(EsiService *esiService, QObject *parent = nullptr);
-    explicit EsiDeviceMatcher(EsiParser *esiParser, QObject *parent = nullptr);
+    explicit EsiDeviceMatcher(EsiService* esiService, QObject* parent = nullptr);
+    explicit EsiDeviceMatcher(EsiParser* esiParser, QObject* parent = nullptr);
 
     MatchResult matchDevice(int vendorId, int productCode, int revisionNo = 0);
-    MatchReport generateReport(const QVector<QPair<int, int>> &connectedDevices);
+    MatchReport generateReport(const QVector<QPair<int, int>>& connectedDevices);
 
     bool hasMatch(int vendorId, int productCode) const;
     EsiDeviceInfo matchedDeviceInfo(int vendorId, int productCode) const;
 
 signals:
-    void matchFound(const QString &deviceName, int vendorId, int productCode);
+    void matchFound(const QString& deviceName, int vendorId, int productCode);
 
 private:
-    MatchResult compareDevices(const EsiDeviceInfo &esi, int vendorId, int productCode, int revisionNo);
+    MatchResult compareDevices(const EsiDeviceInfo& esi, int vendorId, int productCode, int revisionNo);
 
-    EsiService *esiService_ = nullptr;
-    EsiParser *esiParser_ = nullptr;
+    EsiService* esiService_ = nullptr;
+    EsiParser* esiParser_ = nullptr;
 };

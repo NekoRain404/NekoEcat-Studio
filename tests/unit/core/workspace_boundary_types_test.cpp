@@ -38,8 +38,7 @@ private slots:
     void buildWithNonZeroCounts();
 };
 
-void WorkspaceBoundaryTypesTest::boundaryKindEnumValues()
-{
+void WorkspaceBoundaryTypesTest::boundaryKindEnumValues() {
     QCOMPARE(static_cast<int>(WorkspaceBoundaryKind::Overview), 0);
     QCOMPARE(static_cast<int>(WorkspaceBoundaryKind::ObjectDictionary), 1);
     QCOMPARE(static_cast<int>(WorkspaceBoundaryKind::PdoMap), 2);
@@ -56,8 +55,7 @@ void WorkspaceBoundaryTypesTest::boundaryKindEnumValues()
     QCOMPARE(static_cast<int>(WorkspaceBoundaryKind::RawEvidence), 13);
 }
 
-void WorkspaceBoundaryTypesTest::boundaryCountsDefaultZero()
-{
+void WorkspaceBoundaryTypesTest::boundaryCountsDefaultZero() {
     WorkspaceBoundaryCounts c;
     QCOMPARE(c.matrixP0, 0);
     QCOMPARE(c.matrixP1, 0);
@@ -65,8 +63,7 @@ void WorkspaceBoundaryTypesTest::boundaryCountsDefaultZero()
     QCOMPARE(c.matrixP3, 0);
 }
 
-void WorkspaceBoundaryTypesTest::boundaryCountsAssignment()
-{
+void WorkspaceBoundaryTypesTest::boundaryCountsAssignment() {
     WorkspaceBoundaryCounts c;
     c.matrixP0 = 3;
     c.matrixP1 = 5;
@@ -78,8 +75,7 @@ void WorkspaceBoundaryTypesTest::boundaryCountsAssignment()
     QCOMPARE(c.matrixP3, 7);
 }
 
-void WorkspaceBoundaryTypesTest::boundaryDetailDefaultState()
-{
+void WorkspaceBoundaryTypesTest::boundaryDetailDefaultState() {
     WorkspaceBoundaryDetail d;
     QVERIFY(d.label.isEmpty());
     QVERIFY(d.severityKey.isEmpty());
@@ -87,8 +83,7 @@ void WorkspaceBoundaryTypesTest::boundaryDetailDefaultState()
     QVERIFY(d.tooltip.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::boundaryTextsDefaultEmpty()
-{
+void WorkspaceBoundaryTypesTest::boundaryTextsDefaultEmpty() {
     WorkspaceBoundaryTexts t;
     QVERIFY(t.workspacePattern.isEmpty());
     QVERIFY(t.overviewLabel.isEmpty());
@@ -107,8 +102,7 @@ void WorkspaceBoundaryTypesTest::boundaryTextsDefaultEmpty()
     QVERIFY(t.rawEvidenceLabel.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildOverviewBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildOverviewBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.overviewLabel = QStringLiteral("Overview");
@@ -117,14 +111,13 @@ void WorkspaceBoundaryTypesTest::buildOverviewBoundary()
     texts.overviewMatrixPattern = QStringLiteral("P0:%1 P1:%2 P2:%3 P3:%4");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Overview, "Overview", counts, texts);
+    WorkspaceBoundaryDetail d =
+        buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Overview, "Overview", counts, texts);
     QVERIFY(!d.label.isEmpty());
     QVERIFY(!d.severityKey.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildObjectDictionaryBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildObjectDictionaryBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.objectDictionaryLabel = QStringLiteral("Object Dictionary");
@@ -132,13 +125,12 @@ void WorkspaceBoundaryTypesTest::buildObjectDictionaryBoundary()
     texts.objectDictionaryOnlineAccess = QStringLiteral("online");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::ObjectDictionary, "OD", counts, texts);
+    WorkspaceBoundaryDetail d =
+        buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::ObjectDictionary, "OD", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildPdoMapBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildPdoMapBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.pdoMapLabel = QStringLiteral("PDO Map");
@@ -146,13 +138,11 @@ void WorkspaceBoundaryTypesTest::buildPdoMapBoundary()
     texts.pdoMapLocalFill = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::PdoMap, "PDO", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::PdoMap, "PDO", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildWatchBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildWatchBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.watchLabel = QStringLiteral("Watch");
@@ -160,13 +150,11 @@ void WorkspaceBoundaryTypesTest::buildWatchBoundary()
     texts.watchStartupLocal = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Watch, "Watch", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Watch, "Watch", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildStartupSdoBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildStartupSdoBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.startupSdoLabel = QStringLiteral("Startup SDO");
@@ -174,13 +162,12 @@ void WorkspaceBoundaryTypesTest::buildStartupSdoBoundary()
     texts.startupSdoOnlineApply = QStringLiteral("online");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::StartupSdo, "Startup", counts, texts);
+    WorkspaceBoundaryDetail d =
+        buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::StartupSdo, "Startup", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildFreeRunBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildFreeRunBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.freeRunLabel = QStringLiteral("Free Run");
@@ -188,13 +175,11 @@ void WorkspaceBoundaryTypesTest::buildFreeRunBoundary()
     texts.freeRunLocalFiltering = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::FreeRun, "FreeRun", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::FreeRun, "FreeRun", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildIoVariablesBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildIoVariablesBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.ioVariablesLabel = QStringLiteral("I/O Variables");
@@ -202,13 +187,11 @@ void WorkspaceBoundaryTypesTest::buildIoVariablesBoundary()
     texts.ioVariablesLocalEditing = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::IoVariables, "IO", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::IoVariables, "IO", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildConsistencyBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildConsistencyBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.consistencyLabel = QStringLiteral("Consistency");
@@ -216,13 +199,12 @@ void WorkspaceBoundaryTypesTest::buildConsistencyBoundary()
     texts.consistencyLocalNavigation = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Consistency, "Consistency", counts, texts);
+    WorkspaceBoundaryDetail d =
+        buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Consistency, "Consistency", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildStateMachineBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildStateMachineBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.stateMachineLabel = QStringLiteral("State Machine");
@@ -230,13 +212,11 @@ void WorkspaceBoundaryTypesTest::buildStateMachineBoundary()
     texts.stateMachineConfirmation = QStringLiteral("confirm");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::StateMachine, "SM", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::StateMachine, "SM", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildDiagnosticsBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildDiagnosticsBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.diagnosticsLabel = QStringLiteral("Diagnostics");
@@ -244,13 +224,11 @@ void WorkspaceBoundaryTypesTest::buildDiagnosticsBoundary()
     texts.diagnosticsHostCheck = QStringLiteral("check");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Diagnostics, "Diag", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Diagnostics, "Diag", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildRtTestBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildRtTestBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.rtTestLabel = QStringLiteral("RT Test");
@@ -258,13 +236,11 @@ void WorkspaceBoundaryTypesTest::buildRtTestBoundary()
     texts.rtTestLocalStats = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::RtTest, "RT", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::RtTest, "RT", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildEsiBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildEsiBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.esiLabel = QStringLiteral("ESI");
@@ -272,39 +248,33 @@ void WorkspaceBoundaryTypesTest::buildEsiBoundary()
     texts.esiImportAction = QStringLiteral("import");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Esi, "ESI", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Esi, "ESI", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildNotesBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildNotesBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.notesLabel = QStringLiteral("Notes");
     texts.notesLocalRecords = QStringLiteral("local");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Notes, "Notes", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Notes, "Notes", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildRawEvidenceBoundary()
-{
+void WorkspaceBoundaryTypesTest::buildRawEvidenceBoundary() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.rawEvidenceLabel = QStringLiteral("Raw Evidence");
     texts.rawEvidenceCachedOutput = QStringLiteral("cached");
 
     WorkspaceBoundaryCounts counts;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::RawEvidence, "Raw", counts, texts);
+    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::RawEvidence, "Raw", counts, texts);
     QVERIFY(!d.label.isEmpty());
 }
 
-void WorkspaceBoundaryTypesTest::buildWithNonZeroCounts()
-{
+void WorkspaceBoundaryTypesTest::buildWithNonZeroCounts() {
     WorkspaceBoundaryTexts texts;
     texts.workspacePattern = QStringLiteral("Workspace: %1");
     texts.overviewLabel = QStringLiteral("Overview");
@@ -317,8 +287,8 @@ void WorkspaceBoundaryTypesTest::buildWithNonZeroCounts()
     counts.matrixP1 = 3;
     counts.matrixP2 = 1;
     counts.matrixP3 = 0;
-    WorkspaceBoundaryDetail d = buildWorkspaceBoundaryDetail(
-        WorkspaceBoundaryKind::Overview, "Overview", counts, texts);
+    WorkspaceBoundaryDetail d =
+        buildWorkspaceBoundaryDetail(WorkspaceBoundaryKind::Overview, "Overview", counts, texts);
     QVERIFY(!d.label.isEmpty());
     QVERIFY(!d.severityKey.isEmpty());
     QVERIFY(!d.details.isEmpty());

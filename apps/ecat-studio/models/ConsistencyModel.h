@@ -15,65 +15,61 @@
 // ── Gate State ──────────────────────────────────────────────────────
 
 enum class ConsistencyIssueLevel {
-  Error,
-  Warning,
-  Ready,
-  Info,
-  Empty,
+    Error,
+    Warning,
+    Ready,
+    Info,
+    Empty,
 };
 
 enum class ConsistencyGateState {
-  NotRun,
-  Stale,
-  Blocking,
-  Passed,
+    NotRun,
+    Stale,
+    Blocking,
+    Passed,
 };
 
 struct ConsistencyIssueCounts {
-  int errors = 0;
-  int warnings = 0;
-  int infos = 0;
-  int ready = 0;
+    int errors = 0;
+    int warnings = 0;
+    int infos = 0;
+    int ready = 0;
 };
 
-ConsistencyIssueLevel consistencyIssueLevelFromText(const QString &level);
-void addConsistencyIssueLevel(ConsistencyIssueCounts *counts,
-                              ConsistencyIssueLevel level);
-bool consistencyHasBlockingIssues(const ConsistencyIssueCounts &counts);
-ConsistencyGateState consistencyGateState(bool available, bool fresh,
-                                          const ConsistencyIssueCounts &counts);
+ConsistencyIssueLevel consistencyIssueLevelFromText(const QString& level);
+void addConsistencyIssueLevel(ConsistencyIssueCounts* counts, ConsistencyIssueLevel level);
+bool consistencyHasBlockingIssues(const ConsistencyIssueCounts& counts);
+ConsistencyGateState consistencyGateState(bool available, bool fresh, const ConsistencyIssueCounts& counts);
 
 // ── Evidence Routing ────────────────────────────────────────────────
 
 enum class ConsistencyEvidenceRouteKind {
-  Topology,
-  Startup,
-  Watch,
-  IoVariables,
+    Topology,
+    Startup,
+    Watch,
+    IoVariables,
 };
 
 struct ConsistencyEvidenceAddress {
-  int position = -1;
-  QString index;
-  QString subIndex;
+    int position = -1;
+    QString index;
+    QString subIndex;
 };
 
 struct ConsistencyEvidenceRouteDecision {
-  ConsistencyEvidenceRouteKind kind = ConsistencyEvidenceRouteKind::IoVariables;
-  ConsistencyEvidenceAddress address;
-  int startupRow = -1;
-  QString ioScope;
+    ConsistencyEvidenceRouteKind kind = ConsistencyEvidenceRouteKind::IoVariables;
+    ConsistencyEvidenceAddress address;
+    int startupRow = -1;
+    QString ioScope;
 };
 
-inline constexpr const char *kConsistencyIoScopeAll = "all";
-inline constexpr const char *kConsistencyIoScopePdo = "pdo";
-inline constexpr const char *kConsistencyIoScopeStartupDiff = "startupDiff";
-inline constexpr const char *kConsistencyIoScopeMissingValue = "missingValue";
-inline constexpr const char *kConsistencyIoScopePlcIssues = "plcIssues";
+inline constexpr const char* kConsistencyIoScopeAll = "all";
+inline constexpr const char* kConsistencyIoScopePdo = "pdo";
+inline constexpr const char* kConsistencyIoScopeStartupDiff = "startupDiff";
+inline constexpr const char* kConsistencyIoScopeMissingValue = "missingValue";
+inline constexpr const char* kConsistencyIoScopePlcIssues = "plcIssues";
 
-ConsistencyEvidenceAddress
-parseConsistencyEvidenceAddress(const QString &target);
-int parseConsistencyStartupRow(const QString &target);
-QString consistencyEvidenceIoScope(const ConsistencyDetailRow &row);
-ConsistencyEvidenceRouteDecision
-consistencyEvidenceRouteDecision(const ConsistencyDetailRow &row);
+ConsistencyEvidenceAddress parseConsistencyEvidenceAddress(const QString& target);
+int parseConsistencyStartupRow(const QString& target);
+QString consistencyEvidenceIoScope(const ConsistencyDetailRow& row);
+ConsistencyEvidenceRouteDecision consistencyEvidenceRouteDecision(const ConsistencyDetailRow& row);

@@ -1,12 +1,12 @@
 #include "ProjectManagerService.h"
 
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QSettings>
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSettings>
 
 // ProjectData ───────────────────────────────────────────────────────────
 
@@ -18,8 +18,7 @@ QByteArray ProjectData::computeChecksum() const {
     QJsonObject obj = toJson();
     obj.remove("checksum");
     QJsonDocument doc(obj);
-    return QCryptographicHash::hash(doc.toJson(QJsonDocument::Compact),
-                                     QCryptographicHash::Sha256).toHex();
+    return QCryptographicHash::hash(doc.toJson(QJsonDocument::Compact), QCryptographicHash::Sha256).toHex();
 }
 
 QJsonObject ProjectData::toJson() const {
@@ -46,7 +45,7 @@ QJsonObject ProjectData::toJson() const {
     return root;
 }
 
-ProjectData ProjectData::fromJson(const QJsonObject &obj, QString *error) {
+ProjectData ProjectData::fromJson(const QJsonObject& obj, QString* error) {
     ProjectData data;
     data.fileVersion = obj["fileVersion"].toInt(1);
     data.name = obj["name"].toString("Untitled");
@@ -69,14 +68,16 @@ ProjectData ProjectData::fromJson(const QJsonObject &obj, QString *error) {
     data.annotations = obj["annotations"].toObject();
 
     if (!data.isValid()) {
-        if (error) *error = "Invalid project data: missing required fields";
+        if (error)
+            *error = "Invalid project data: missing required fields";
         return ProjectData();
     }
     return data;
 }
 
-bool ProjectData::migrate(ProjectData &data, int fromVersion, QString *error) {
-    if (fromVersion >= kCurrentVersion) return true;
+bool ProjectData::migrate(ProjectData& data, int fromVersion, QString* error) {
+    if (fromVersion >= kCurrentVersion)
+        return true;
 
     if (fromVersion < 2) {
         if (data.dashboardConfigs.isEmpty())
@@ -97,14 +98,12 @@ bool ProjectData::migrate(ProjectData &data, int fromVersion, QString *error) {
 
 // ProjectManagerService ─────────────────────────────────────────────────
 
-ProjectManagerService::ProjectManagerService(QObject *parent)
-    : QObject(parent)
-{
+ProjectManagerService::ProjectManagerService(QObject* parent) : QObject(parent) {
     QSettings s("NekoEcatStudio", "NekoEcatStudio");
     recentProjects_ = s.value("recentProjects").toStringList();
 }
 
-bool ProjectManagerService::createProject(const QString &name) {
+bool ProjectManagerService::createProject(const QString& name) {
     if (name.isEmpty())
         return false;
     data_ = ProjectData();
@@ -118,7 +117,7 @@ bool ProjectManagerService::createProject(const QString &name) {
     return true;
 }
 
-bool ProjectManagerService::openProject(const QString &filePath) {
+bool ProjectManagerService::openProject(const QString& filePath) {
     if (!readProjectFile(filePath))
         return false;
     filePath_ = filePath;
@@ -139,7 +138,7 @@ bool ProjectManagerService::saveProject() {
     return true;
 }
 
-bool ProjectManagerService::saveProjectAs(const QString &filePath) {
+bool ProjectManagerService::saveProjectAs(const QString& filePath) {
     updateTimestamps();
     if (!writeProjectFile(filePath))
         return false;
@@ -150,37 +149,41 @@ bool ProjectManagerService::saveProjectAs(const QString &filePath) {
     return true;
 }
 
-bool ProjectManagerService::exportProject(const QString &filePath) {
+bool ProjectManagerService::exportProject(const QString& filePath) {
     updateTimestamps();
     return writeProjectFile(filePath);
 }
 
-bool ProjectManagerService::importProject(const QString &filePath) {
+bool ProjectManagerService::importProject(const QString& filePath) {
     return openProject(filePath);
 }
 
-bool ProjectManagerService::validateProject(const QString &filePath, QString *errorOut) const {
+bool ProjectManagerService::validateProject(const QString& filePath, QString* errorOut) const {
     if (filePath.isEmpty()) {
-        if (errorOut) *errorOut = QStringLiteral("Project path is empty");
+        if (errorOut)
+            *errorOut = QStringLiteral("Project path is empty");
         return false;
     }
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        if (errorOut) *errorOut = QStringLiteral("Cannot open file: %1").arg(filePath);
+        if (errorOut)
+            *errorOut = QStringLiteral("Cannot open file: %1").arg(filePath);
         return false;
     }
 
     QByteArray content = file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(content);
     if (doc.isNull() || !doc.isObject()) {
-        if (errorOut) *errorOut = "Invalid JSON format";
+        if (errorOut)
+            *errorOut = "Invalid JSON format";
         return false;
     }
 
     QJsonObject root = doc.object();
     if (!root.contains("name") || !root.contains("fileVersion")) {
-        if (errorOut) *errorOut = "Missing required project fields";
+        if (errorOut)
+            *errorOut = "Missing required project fields";
         return false;
     }
 
@@ -189,19 +192,21 @@ bool ProjectManagerService::validateProject(const QString &filePath, QString *er
         QJsonObject checkObj = root;
         checkObj.remove("checksum");
         QJsonDocument checkDoc(checkObj);
-        QByteArray computed = QCryptographicHash::hash(
-            checkDoc.toJson(QJsonDocument::Compact),
-            QCryptographicHash::Sha256).toHex();
+        QByteArray computed =
+            QCryptographicHash::hash(checkDoc.toJson(QJsonDocument::Compact), QCryptographicHash::Sha256).toHex();
         if (storedChecksum.toLatin1() != computed) {
-            if (errorOut) *errorOut = "Checksum mismatch — file may be corrupted";
+            if (errorOut)
+                *errorOut = "Checksum mismatch — file may be corrupted";
             return false;
         }
     }
 
     int fileVersion = root["fileVersion"].toInt(0);
     if (fileVersion > ProjectData::kCurrentVersion) {
-        if (errorOut) *errorOut = QStringLiteral("Unsupported file version: %1 (max: %2)")
-            .arg(fileVersion).arg(ProjectData::kCurrentVersion);
+        if (errorOut)
+            *errorOut = QStringLiteral("Unsupported file version: %1 (max: %2)")
+                            .arg(fileVersion)
+                            .arg(ProjectData::kCurrentVersion);
         return false;
     }
 
@@ -228,16 +233,16 @@ int ProjectManagerService::projectFileVersion() const {
     return data_.fileVersion;
 }
 
-ProjectData &ProjectManagerService::projectData() {
+ProjectData& ProjectManagerService::projectData() {
     modified_ = true;
     return data_;
 }
 
-const ProjectData &ProjectManagerService::projectData() const {
+const ProjectData& ProjectManagerService::projectData() const {
     return data_;
 }
 
-bool ProjectManagerService::writeProjectFile(const QString &path) {
+bool ProjectManagerService::writeProjectFile(const QString& path) {
     if (path.isEmpty()) {
         emit projectError(QStringLiteral("Project path is empty"));
         return false;
@@ -261,7 +266,7 @@ bool ProjectManagerService::writeProjectFile(const QString &path) {
     return true;
 }
 
-bool ProjectManagerService::readProjectFile(const QString &path) {
+bool ProjectManagerService::readProjectFile(const QString& path) {
     if (path.isEmpty()) {
         emit projectError(QStringLiteral("Project path is empty"));
         return false;
@@ -283,8 +288,8 @@ bool ProjectManagerService::readProjectFile(const QString &path) {
     const int fileVersion = root["fileVersion"].toInt(0);
     if (fileVersion > ProjectData::kCurrentVersion) {
         emit projectError(QStringLiteral("Unsupported file version: %1 (max: %2)")
-                          .arg(fileVersion)
-                          .arg(ProjectData::kCurrentVersion));
+                              .arg(fileVersion)
+                              .arg(ProjectData::kCurrentVersion));
         return false;
     }
 
@@ -293,9 +298,8 @@ bool ProjectManagerService::readProjectFile(const QString &path) {
         QJsonObject checkObj = root;
         checkObj.remove("checksum");
         QJsonDocument checkDoc(checkObj);
-        QByteArray computed = QCryptographicHash::hash(
-            checkDoc.toJson(QJsonDocument::Compact),
-            QCryptographicHash::Sha256).toHex();
+        QByteArray computed =
+            QCryptographicHash::hash(checkDoc.toJson(QJsonDocument::Compact), QCryptographicHash::Sha256).toHex();
         if (storedChecksum.toLatin1() != computed) {
             emit projectError("Checksum mismatch — file may be corrupted");
             return false;
@@ -320,11 +324,11 @@ bool ProjectManagerService::readProjectFile(const QString &path) {
     return true;
 }
 
-bool ProjectManagerService::migrateProject(ProjectData &data) {
+bool ProjectManagerService::migrateProject(ProjectData& data) {
     return ProjectData::migrate(data, data.fileVersion, nullptr);
 }
 
-void ProjectManagerService::addRecentProject(const QString &path) {
+void ProjectManagerService::addRecentProject(const QString& path) {
     recentProjects_.removeAll(path);
     recentProjects_.prepend(path);
     while (recentProjects_.size() > kMaxRecentProjects)

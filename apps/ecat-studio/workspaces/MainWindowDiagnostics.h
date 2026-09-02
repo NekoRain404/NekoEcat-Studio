@@ -17,11 +17,10 @@ void updateDriveNextButton();
 void exportDiagnosticsReport();
 
 // ── Host Health & Diagnostics ─────────────────────────────────
-void updateHostHealth(const QJsonArray &checks);
-void updateDiagnostics(const QString &level, const QString &source,
-                       const QString &message);
+void updateHostHealth(const QJsonArray& checks);
+void updateDiagnostics(const QString& level, const QString& source, const QString& message);
 void updateDiagnosticsSummary();
-void styleDiagnosticsRow(int row, const QString &level);
+void styleDiagnosticsRow(int row, const QString& level);
 
 // ── Host Diagnostics ──────────────────────────────────────────
 void runHostDiagnostics();

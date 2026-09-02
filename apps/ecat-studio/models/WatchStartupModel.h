@@ -8,81 +8,75 @@
 
 // A single watch entry with baseline, startup, and live value comparisons
 struct WatchStartupWatchRow {
-  int row = -1;
-  int position = -1;
-  QString index;
-  QString subIndex;
-  QString value;
-  QString time;
-  QString decoded;
-  QString type;
-  QString mode;
-  QString baseline;
-  QString baselineDelta;
-  QString startup;
-  QString startupDelta;
-  bool changed = false;
+    int row = -1;
+    int position = -1;
+    QString index;
+    QString subIndex;
+    QString value;
+    QString time;
+    QString decoded;
+    QString type;
+    QString mode;
+    QString baseline;
+    QString baselineDelta;
+    QString startup;
+    QString startupDelta;
+    bool changed = false;
 };
 
 // A single startup SDO entry with watch comparison fields
 struct WatchStartupStartupRow {
-  int row = -1;
-  int position = -1;
-  QString index;
-  QString subIndex;
-  QString value;
-  QString type;
-  QString positionText;
-  QString status;
-  QString detail;
-  QString watchValue;
-  QString watchDelta;
+    int row = -1;
+    int position = -1;
+    QString index;
+    QString subIndex;
+    QString value;
+    QString type;
+    QString positionText;
+    QString status;
+    QString detail;
+    QString watchValue;
+    QString watchDelta;
 };
 
 // State of comparison between watch and startup values
 enum class WatchStartupDeltaState {
-  NoTarget,
-  NoStartup,
-  MissingWatch,
-  Pending,
-  Match,
-  Diff,
+    NoTarget,
+    NoStartup,
+    MissingWatch,
+    Pending,
+    Match,
+    Diff,
 };
 
 // Result of matching a watch row against startup rows
 struct WatchStartupWatchMatch {
-  int matchingStartupRows = 0;
-  QString expectedValue;
-  QString expectedType;
-  WatchStartupDeltaState state = WatchStartupDeltaState::NoStartup;
+    int matchingStartupRows = 0;
+    QString expectedValue;
+    QString expectedType;
+    WatchStartupDeltaState state = WatchStartupDeltaState::NoStartup;
 };
 
 // Delta state for a startup row compared to watch data
 struct WatchStartupStartupDelta {
-  int startupRow = -1;
-  QString watchValue;
-  WatchStartupDeltaState state = WatchStartupDeltaState::NoTarget;
+    int startupRow = -1;
+    QString watchValue;
+    WatchStartupDeltaState state = WatchStartupDeltaState::NoTarget;
 };
 
 // Aggregate counts of delta states across all startup rows
 struct WatchStartupSummary {
-  int matched = 0;
-  int diff = 0;
-  int pending = 0;
-  int missingWatch = 0;
+    int matched = 0;
+    int diff = 0;
+    int pending = 0;
+    int missingWatch = 0;
 };
 
-bool watchStartupHasTarget(int position, const QString &index,
-                           const QString &subIndex);
-QString watchStartupTargetKey(int position, const QString &index,
-                              const QString &subIndex);
-WatchStartupWatchMatch
-watchStartupMatchForWatchRow(const QVector<WatchStartupStartupRow> &startupRows,
-                             const WatchStartupWatchRow &watchRow);
-QVector<WatchStartupStartupDelta>
-evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow> &startupRows,
-                           const QVector<WatchStartupWatchRow> &watchRows);
-WatchStartupSummary
-summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta> &deltas);
-QVector<int>
-startupRowsWithWatchDiffs(const QVector<WatchStartupStartupDelta> &deltas);
+bool watchStartupHasTarget(int position, const QString& index, const QString& subIndex);
+QString watchStartupTargetKey(int position, const QString& index, const QString& subIndex);
+WatchStartupWatchMatch watchStartupMatchForWatchRow(const QVector<WatchStartupStartupRow>& startupRows,
+                                                    const WatchStartupWatchRow& watchRow);
+QVector<WatchStartupStartupDelta> evaluateStartupWatchDeltas(const QVector<WatchStartupStartupRow>& startupRows,
+                                                             const QVector<WatchStartupWatchRow>& watchRows);
+WatchStartupSummary summarizeStartupWatchDeltas(const QVector<WatchStartupStartupDelta>& deltas);
+QVector<int> startupRowsWithWatchDiffs(const QVector<WatchStartupStartupDelta>& deltas);

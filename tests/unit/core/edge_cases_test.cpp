@@ -24,26 +24,24 @@
 
 namespace {
 
-void fail(const QString &message) {
+void fail(const QString& message) {
     std::cerr << message.toStdString() << '\n';
     std::exit(1);
 }
 
-void expectTrue(bool condition, const QString &message) {
+void expectTrue(bool condition, const QString& message) {
     if (!condition) {
         fail(message);
     }
 }
 
-void expectEqual(int actual, int expected, const QString &message) {
+void expectEqual(int actual, int expected, const QString& message) {
     if (actual != expected) {
-        fail(QString("%1: expected %2, got %3")
-                 .arg(message, QString::number(expected), QString::number(actual)));
+        fail(QString("%1: expected %2, got %3").arg(message, QString::number(expected), QString::number(actual)));
     }
 }
 
-void expectEqual(const QString &actual, const QString &expected,
-                 const QString &message) {
+void expectEqual(const QString& actual, const QString& expected, const QString& message) {
     if (actual != expected) {
         fail(QString("%1: expected '%2', got '%3'").arg(message, expected, actual));
     }
@@ -94,8 +92,8 @@ void testSlaveInfoNullBytesInRawLine() {
     s.name = "EL1008";
     s.state = "OP";
     s.flags = "--";
-    s.rawLine = QString("0") + QChar('\0') + QString("OP") + QChar('\0')
-              + QString("--") + QChar('\0') + QString("EL1008");
+    s.rawLine =
+        QString("0") + QChar('\0') + QString("OP") + QChar('\0') + QString("--") + QChar('\0') + QString("EL1008");
 
     expectTrue(s.rawLine.contains(QChar('\0')), "rawLine contains null byte");
 
@@ -243,8 +241,7 @@ void testStateInvalidString() {
 
     QJsonObject obj = toJson(s);
     SlaveInfo restored = slaveFromJson(obj);
-    expectEqual(restored.state, QString("INVALID_STATE_123!@#"),
-                "invalid state string preserved through round-trip");
+    expectEqual(restored.state, QString("INVALID_STATE_123!@#"), "invalid state string preserved through round-trip");
 }
 
 void testStateEmptyString() {
@@ -266,8 +263,7 @@ void testStateWhitespaceOnly() {
 
     QJsonObject obj = toJson(s);
     SlaveInfo restored = slaveFromJson(obj);
-    expectEqual(restored.state, QString("   \t\n  "),
-                "whitespace-only state preserved");
+    expectEqual(restored.state, QString("   \t\n  "), "whitespace-only state preserved");
 }
 
 void testStateVeryLongStateString() {
@@ -342,7 +338,7 @@ void testEventBusDisconnectedState() {
 
 } // namespace
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
 

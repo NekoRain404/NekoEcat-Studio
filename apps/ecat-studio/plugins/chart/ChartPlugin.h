@@ -28,34 +28,34 @@ class EcatChartWidget;
 class ChartService;
 
 class ChartPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ChartPlugin(ChartService *service, QObject *parent = nullptr);
+    explicit ChartPlugin(ChartService* service, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  ChartService *service() const { return service_; }
+    ChartService* service() const { return service_; }
 
 private slots:
-  void onChartTypeChanged(int index);
-  void onDataSourceChanged(int index);
-  void exportChart();
-  void refreshChart();
+    void onChartTypeChanged(int index);
+    void onDataSourceChanged(int index);
+    void exportChart();
+    void refreshChart();
 
 private:
-  void buildUi();
-  void loadSampleData();
+    void buildUi();
+    void loadSampleData();
 
-  ChartService *service_;
-  QWidget *container_ = nullptr;
-  EcatChartWidget *chart_ = nullptr;
-  QComboBox *chartTypeCombo_ = nullptr;
-  QComboBox *dataSourceCombo_ = nullptr;
-  QPushButton *exportBtn_ = nullptr;
-  int currentChartId_ = -1;
+    ChartService* service_;
+    QWidget* container_ = nullptr;
+    EcatChartWidget* chart_ = nullptr;
+    QComboBox* chartTypeCombo_ = nullptr;
+    QComboBox* dataSourceCombo_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
+    int currentChartId_ = -1;
 };

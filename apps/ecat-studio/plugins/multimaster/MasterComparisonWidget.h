@@ -13,29 +13,29 @@ struct MmMasterInfo;
 struct MmMasterStatus;
 
 class MasterComparisonWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit MasterComparisonWidget(QWidget *parent = nullptr);
+    explicit MasterComparisonWidget(QWidget* parent = nullptr);
 
-  void setLeftMaster(const MmMasterInfo &info, const MmMasterStatus &status);
-  void setRightMaster(const MmMasterInfo &info, const MmMasterStatus &status);
-  void clearComparison();
-  int differenceCount() const;
+    void setLeftMaster(const MmMasterInfo& info, const MmMasterStatus& status);
+    void setRightMaster(const MmMasterInfo& info, const MmMasterStatus& status);
+    void clearComparison();
+    int differenceCount() const;
 
 signals:
-  void mergeRequested(int sourceId, int targetId);
+    void mergeRequested(int sourceId, int targetId);
 
 private:
-  void buildUi();
-  void updateDiffHighlight();
+    void buildUi();
+    void updateDiffHighlight();
 
-  QComboBox *leftCombo_ = nullptr;
-  QComboBox *rightCombo_ = nullptr;
-  QTableWidget *leftTable_ = nullptr;
-  QTableWidget *rightTable_ = nullptr;
-  QTableWidget *diffTable_ = nullptr;
-  QLabel *diffCountLabel_ = nullptr;
-  QPushButton *mergeBtn_ = nullptr;
-  int leftMasterId_ = -1;
-  int rightMasterId_ = -1;
+    QComboBox* leftCombo_ = nullptr;
+    QComboBox* rightCombo_ = nullptr;
+    QTableWidget* leftTable_ = nullptr;
+    QTableWidget* rightTable_ = nullptr;
+    QTableWidget* diffTable_ = nullptr;
+    QLabel* diffCountLabel_ = nullptr;
+    QPushButton* mergeBtn_ = nullptr;
+    int leftMasterId_ = -1;
+    int rightMasterId_ = -1;
 };

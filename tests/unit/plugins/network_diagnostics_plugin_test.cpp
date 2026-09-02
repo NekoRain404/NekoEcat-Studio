@@ -6,172 +6,171 @@
 //   - Plugin identity, order, visibility, and widget creation
 //   - Plugin service accessor and table widgets
 
-#include <QTest>
+#include "infra/EcatClient.h"
+#include "plugins/network/NetworkDiagnosticsPlugin.h"
+#include "services/NetworkDiagnosticsService.h"
 #include <QFile>
 #include <QRegularExpression>
 #include <QTableWidget>
 #include <QTemporaryDir>
-#include "infra/EcatClient.h"
-#include "services/NetworkDiagnosticsService.h"
-#include "plugins/network/NetworkDiagnosticsPlugin.h"
+#include <QTest>
 
 class NetworkDiagnosticsPluginTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  // Service has correct default monitoring and health state
-  // Verify service default health state
-  void testServiceDefaultState() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    QVERIFY(!svc.isMonitoring());
-    auto health = svc.currentHealth();
-    QCOMPARE(health.portCount, 0);
-    QCOMPARE(health.activePorts, 0);
-    QCOMPARE(health.errorCount, 0);
-  }
+    // Service has correct default monitoring and health state
+    // Verify service default health state
+    void testServiceDefaultState() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        QVERIFY(!svc.isMonitoring());
+        auto health = svc.currentHealth();
+        QCOMPARE(health.portCount, 0);
+        QCOMPARE(health.activePorts, 0);
+        QCOMPARE(health.errorCount, 0);
+    }
 
-  // Error counters are zero by default
-  // Verify error counters default to zero
-  void testServiceErrorCounters() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    auto errors = svc.errorCounters();
-    QCOMPARE(errors.crc, quint64(0));
-    QCOMPARE(errors.frame, quint64(0));
-    QCOMPARE(errors.lost, quint64(0));
-    QCOMPARE(errors.overrun, quint64(0));
-  }
+    // Error counters are zero by default
+    // Verify error counters default to zero
+    void testServiceErrorCounters() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        auto errors = svc.errorCounters();
+        QCOMPARE(errors.crc, quint64(0));
+        QCOMPARE(errors.frame, quint64(0));
+        QCOMPARE(errors.lost, quint64(0));
+        QCOMPARE(errors.overrun, quint64(0));
+    }
 
-  // Bandwidth utilization is zero by default
-  // Verify bandwidth utilization defaults to zero
-  void testServiceBandwidthUtilization() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    QCOMPARE(svc.bandwidthUtilization(), 0.0);
-  }
+    // Bandwidth utilization is zero by default
+    // Verify bandwidth utilization defaults to zero
+    void testServiceBandwidthUtilization() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        QCOMPARE(svc.bandwidthUtilization(), 0.0);
+    }
 
-  // Reset error counters clears all counters
-  // Test reset error counters
-  void testServiceResetErrorCounters() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    svc.resetErrorCounters();
-    auto errors = svc.errorCounters();
-    QCOMPARE(errors.crc, quint64(0));
-    QCOMPARE(errors.frame, quint64(0));
-    QCOMPARE(errors.lost, quint64(0));
-    QCOMPARE(errors.overrun, quint64(0));
-  }
+    // Reset error counters clears all counters
+    // Test reset error counters
+    void testServiceResetErrorCounters() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        svc.resetErrorCounters();
+        auto errors = svc.errorCounters();
+        QCOMPARE(errors.crc, quint64(0));
+        QCOMPARE(errors.frame, quint64(0));
+        QCOMPARE(errors.lost, quint64(0));
+        QCOMPARE(errors.overrun, quint64(0));
+    }
 
-  // Port status returns invalid for out-of-range port
-  // Verify port status for out-of-range index
-  void testServicePortStatusOutOfRange() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    auto ps = svc.portStatus(99);
-    QCOMPARE(ps.port, -1);
-    QVERIFY(!ps.linkUp);
-  }
+    // Port status returns invalid for out-of-range port
+    // Verify port status for out-of-range index
+    void testServicePortStatusOutOfRange() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        auto ps = svc.portStatus(99);
+        QCOMPARE(ps.port, -1);
+        QVERIFY(!ps.linkUp);
+    }
 
-  // Plugin reports correct id, display names
-  // Verify plugin id, display names
-  void testPluginIdentity() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QCOMPARE(plugin.id(), QString("network"));
-    QCOMPARE(plugin.displayName(), QString("Network Diagnostics"));
-    QCOMPARE(plugin.displayNameZh(), QStringLiteral("网络诊断"));
-  }
+    // Plugin reports correct id, display names
+    // Verify plugin id, display names
+    void testPluginIdentity() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QCOMPARE(plugin.id(), QString("network"));
+        QCOMPARE(plugin.displayName(), QString("Network Diagnostics"));
+        QCOMPARE(plugin.displayNameZh(), QStringLiteral("网络诊断"));
+    }
 
-  // Plugin has expected default order
-  // Verify default order is 135
-  void testPluginDefaultOrder() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QCOMPARE(plugin.defaultOrder(), 135);
-  }
+    // Plugin has expected default order
+    // Verify default order is 135
+    void testPluginDefaultOrder() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QCOMPARE(plugin.defaultOrder(), 135);
+    }
 
-  // Plugin is visible by default
-  // Verify plugin is visible
-  void testPluginVisible() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QVERIFY(!plugin.visible());
-  }
+    // Plugin is visible by default
+    // Verify plugin is visible
+    void testPluginVisible() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QVERIFY(!plugin.visible());
+    }
 
-  // Widget is created and not null
-  // Check widget is created
-  void testPluginWidgetNotNull() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QVERIFY(plugin.widget() != nullptr);
-  }
+    // Widget is created and not null
+    // Check widget is created
+    void testPluginWidgetNotNull() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QVERIFY(plugin.widget() != nullptr);
+    }
 
-  // Service accessor returns injected instance
-  // Verify service accessor returns correct pointer
-  void testPluginServiceAccessor() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QCOMPARE(plugin.service(), &svc);
-  }
+    // Service accessor returns injected instance
+    // Verify service accessor returns correct pointer
+    void testPluginServiceAccessor() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QCOMPARE(plugin.service(), &svc);
+    }
 
-  // Port table widget is created and not null
-  // Check port table is created
-  void testPluginPortTableNotNull() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QVERIFY(plugin.portTable() != nullptr);
-  }
+    // Port table widget is created and not null
+    // Check port table is created
+    void testPluginPortTableNotNull() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QVERIFY(plugin.portTable() != nullptr);
+    }
 
-  // Error table widget is created and not null
-  // Check error table is created
-  void testPluginErrorTableNotNull() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    QVERIFY(plugin.errorTable() != nullptr);
-  }
+    // Error table widget is created and not null
+    // Check error table is created
+    void testPluginErrorTableNotNull() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        QVERIFY(plugin.errorTable() != nullptr);
+    }
 
-  // Error table has correct row and column count
-  // Verify error table has 4 rows and 2 columns
-  void testPluginErrorTableCounters() {
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
-    auto *table = plugin.errorTable();
-    QCOMPARE(table->rowCount(), 4);
-    QCOMPARE(table->columnCount(), 2);
-  }
+    // Error table has correct row and column count
+    // Verify error table has 4 rows and 2 columns
+    void testPluginErrorTableCounters() {
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
+        auto* table = plugin.errorTable();
+        QCOMPARE(table->rowCount(), 4);
+        QCOMPARE(table->columnCount(), 2);
+    }
 
-  void testExportReportReportsPersistenceOutcome() {
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
+    void testExportReportReportsPersistenceOutcome() {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
 
-    EcatClient client;
-    NetworkDiagnosticsService svc(&client);
-    NetworkDiagnosticsPlugin plugin(&svc);
+        EcatClient client;
+        NetworkDiagnosticsService svc(&client);
+        NetworkDiagnosticsPlugin plugin(&svc);
 
-    const QString path = dir.filePath("network_diagnostics.csv");
-    QVERIFY(plugin.exportReportToFile(path));
-    QVERIFY(QFile::exists(path));
+        const QString path = dir.filePath("network_diagnostics.csv");
+        QVERIFY(plugin.exportReportToFile(path));
+        QVERIFY(QFile::exists(path));
 
-    QFile file(path);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString csv = QString::fromUtf8(file.readAll());
-    QVERIFY(csv.startsWith(QStringLiteral("Port,Link,Speed,Duplex,Errors\n")));
-    QVERIFY(csv.contains(QStringLiteral("Counter,Value")));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString csv = QString::fromUtf8(file.readAll());
+        QVERIFY(csv.startsWith(QStringLiteral("Port,Link,Speed,Duplex,Errors\n")));
+        QVERIFY(csv.contains(QStringLiteral("Counter,Value")));
 
-    QTest::failOnWarning(QRegularExpression(
-        QStringLiteral("QFSFileEngine::open: No file name specified")));
-    QVERIFY(!plugin.exportReportToFile(QString()));
-    QVERIFY(!plugin.exportReportToFile(dir.path()));
-  }
+        QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+        QVERIFY(!plugin.exportReportToFile(QString()));
+        QVERIFY(!plugin.exportReportToFile(dir.path()));
+    }
 };
 
 QTEST_MAIN(NetworkDiagnosticsPluginTest)

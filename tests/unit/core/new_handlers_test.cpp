@@ -5,13 +5,13 @@
 // the online-change preview computation (affected slaves, operation count).
 // Operations that require a backend return failure envelopes, which we assert.
 
-#include <QTest>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTest>
 
 #include "handlers/EoEHandler.h"
-#include "handlers/RedundancyHandler.h"
 #include "handlers/OnlineChangeHandler.h"
+#include "handlers/RedundancyHandler.h"
 
 class NewHandlersTest : public QObject {
     Q_OBJECT
@@ -28,8 +28,7 @@ private slots:
     // ConfigureIp with invalid IP must fail before touching the backend.
     void testEoeConfigureInvalidIp() {
         EoEHandler h(nullptr);
-        QJsonObject params{
-            {"position", 0}, {"ip", "999.1.1.1"}, {"subnet", "255.255.255.0"}};
+        QJsonObject params{{"position", 0}, {"ip", "999.1.1.1"}, {"subnet", "255.255.255.0"}};
         QJsonObject resp = h.handleEoeConfigureIp("1", params);
         QVERIFY(!resp.value("ok").toBool());
     }
@@ -72,12 +71,12 @@ private slots:
     void testOnlineChangePreviewAffectedSlaves() {
         OnlineChangeHandler h(nullptr);
         QJsonArray changes;
-        changes.append(QJsonObject{{"position", 2}, {"index", "0x6000"},
-                                   {"subIndex", "0x01"}, {"value", "1"}, {"type", "uint8"}});
-        changes.append(QJsonObject{{"position", 0}, {"index", "0x6001"},
-                                   {"subIndex", "0x00"}, {"value", "2"}, {"type", "uint8"}});
-        changes.append(QJsonObject{{"position", 2}, {"index", "0x6002"},
-                                   {"subIndex", "0x00"}, {"value", "3"}, {"type", "uint8"}});
+        changes.append(
+            QJsonObject{{"position", 2}, {"index", "0x6000"}, {"subIndex", "0x01"}, {"value", "1"}, {"type", "uint8"}});
+        changes.append(
+            QJsonObject{{"position", 0}, {"index", "0x6001"}, {"subIndex", "0x00"}, {"value", "2"}, {"type", "uint8"}});
+        changes.append(
+            QJsonObject{{"position", 2}, {"index", "0x6002"}, {"subIndex", "0x00"}, {"value", "3"}, {"type", "uint8"}});
         QJsonObject resp = h.handlePreview("1", QJsonObject{{"changes", changes}});
         QVERIFY(resp.value("ok").toBool());
         const QJsonObject result = resp.value("result").toObject();
@@ -96,8 +95,8 @@ private slots:
     void testOnlineChangeApplyNoBackend() {
         OnlineChangeHandler h(nullptr);
         QJsonArray changes;
-        changes.append(QJsonObject{{"position", 0}, {"index", "0x6000"},
-                                   {"subIndex", "0x00"}, {"value", "1"}, {"type", "uint8"}});
+        changes.append(
+            QJsonObject{{"position", 0}, {"index", "0x6000"}, {"subIndex", "0x00"}, {"value", "1"}, {"type", "uint8"}});
         QJsonObject resp = h.handleApply("1", QJsonObject{{"changes", changes}});
         QVERIFY(!resp.value("ok").toBool());
     }

@@ -15,14 +15,15 @@
 
 namespace {
 int failures = 0;
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
-void expectTrue(bool cond, const QString &msg) {
-    if (!cond) fail(msg);
+void expectTrue(bool cond, const QString& msg) {
+    if (!cond)
+        fail(msg);
 }
-}
+} // namespace
 
 void testAbsolutePathRequired() {
     FoEHandler handler;
@@ -64,7 +65,7 @@ void testNonExistentDirectoryRejected() {
     expectTrue(error.contains("does not exist"), "T5: error mentions missing dir");
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     testAbsolutePathRequired();

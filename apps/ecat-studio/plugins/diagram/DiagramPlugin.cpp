@@ -16,220 +16,254 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-DiagramPlugin::DiagramPlugin(QObject *parent) {
-  if (parent) setParent(parent);
-  buildUi();
+DiagramPlugin::DiagramPlugin(QObject* parent) {
+    if (parent)
+        setParent(parent);
+    buildUi();
 }
 
-QString DiagramPlugin::id() const { return "diagram"; }
-QString DiagramPlugin::displayName() const { return "Diagram Editor"; }
-QString DiagramPlugin::displayNameZh() const { return QStringLiteral("图表编辑器"); }
-QIcon DiagramPlugin::icon() const { return QIcon::fromTheme("x-office-drawing"); }
-int DiagramPlugin::defaultOrder() const { return 190; }
-bool DiagramPlugin::visible() const { return false; }
+QString DiagramPlugin::id() const {
+    return "diagram";
+}
+QString DiagramPlugin::displayName() const {
+    return "Diagram Editor";
+}
+QString DiagramPlugin::displayNameZh() const {
+    return QStringLiteral("图表编辑器");
+}
+QIcon DiagramPlugin::icon() const {
+    return QIcon::fromTheme("x-office-drawing");
+}
+int DiagramPlugin::defaultOrder() const {
+    return 190;
+}
+bool DiagramPlugin::visible() const {
+    return false;
+}
 
 void DiagramPlugin::activate() {}
 void DiagramPlugin::deactivate() {}
 
-QWidget *DiagramPlugin::widget() { return containerWidget_; }
-QWidget *DiagramPlugin::canvas() const { return canvas_; }
-QListWidget *DiagramPlugin::shapeLibrary() const { return shapeLibrary_; }
-QTextEdit *DiagramPlugin::propertyEditor() const { return propertyEditor_; }
+QWidget* DiagramPlugin::widget() {
+    return containerWidget_;
+}
+QWidget* DiagramPlugin::canvas() const {
+    return canvas_;
+}
+QListWidget* DiagramPlugin::shapeLibrary() const {
+    return shapeLibrary_;
+}
+QTextEdit* DiagramPlugin::propertyEditor() const {
+    return propertyEditor_;
+}
 
 void DiagramPlugin::buildUi() {
-  containerWidget_ = new QWidget;
-  auto *mainLayout = new QHBoxLayout(containerWidget_);
-  mainLayout->setContentsMargins(0, 0, 0, 0);
+    containerWidget_ = new QWidget;
+    auto* mainLayout = new QHBoxLayout(containerWidget_);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-  auto *splitter = new QSplitter;
+    auto* splitter = new QSplitter;
 
-  auto *leftPanel = new QWidget;
-  auto *leftLayout = new QVBoxLayout(leftPanel);
-  leftLayout->setContentsMargins(4, 4, 4, 4);
+    auto* leftPanel = new QWidget;
+    auto* leftLayout = new QVBoxLayout(leftPanel);
+    leftLayout->setContentsMargins(4, 4, 4, 4);
 
-  auto *shapeLabel = new QLabel(tr("Shape Library"));
-  leftLayout->addWidget(shapeLabel);
+    auto* shapeLabel = new QLabel(tr("Shape Library"));
+    leftLayout->addWidget(shapeLabel);
 
-  shapeTree_ = new QTreeWidget;
-  shapeTree_->setHeaderLabel(tr("Shapes"));
-  auto *basicCategory = new QTreeWidgetItem(shapeTree_, {tr("Basic Shapes")});
-  new QTreeWidgetItem(basicCategory, {tr("Rectangle")});
-  new QTreeWidgetItem(basicCategory, {tr("Circle")});
-  new QTreeWidgetItem(basicCategory, {tr("Line")});
-  new QTreeWidgetItem(basicCategory, {tr("Arrow")});
-  auto *ethercatCategory = new QTreeWidgetItem(shapeTree_, {tr("EtherCAT")});
-  new QTreeWidgetItem(ethercatCategory, {tr("Slave Node")});
-  new QTreeWidgetItem(ethercatCategory, {tr("Master Node")});
-  new QTreeWidgetItem(ethercatCategory, {tr("Bus Segment")});
-  shapeTree_->expandAll();
-  leftLayout->addWidget(shapeTree_);
+    shapeTree_ = new QTreeWidget;
+    shapeTree_->setHeaderLabel(tr("Shapes"));
+    auto* basicCategory = new QTreeWidgetItem(shapeTree_, {tr("Basic Shapes")});
+    new QTreeWidgetItem(basicCategory, {tr("Rectangle")});
+    new QTreeWidgetItem(basicCategory, {tr("Circle")});
+    new QTreeWidgetItem(basicCategory, {tr("Line")});
+    new QTreeWidgetItem(basicCategory, {tr("Arrow")});
+    auto* ethercatCategory = new QTreeWidgetItem(shapeTree_, {tr("EtherCAT")});
+    new QTreeWidgetItem(ethercatCategory, {tr("Slave Node")});
+    new QTreeWidgetItem(ethercatCategory, {tr("Master Node")});
+    new QTreeWidgetItem(ethercatCategory, {tr("Bus Segment")});
+    shapeTree_->expandAll();
+    leftLayout->addWidget(shapeTree_);
 
-  shapeLibrary_ = new QListWidget;
-  shapeLibrary_->setDragEnabled(true);
-  leftLayout->addWidget(shapeLibrary_);
+    shapeLibrary_ = new QListWidget;
+    shapeLibrary_->setDragEnabled(true);
+    leftLayout->addWidget(shapeLibrary_);
 
-  splitter->addWidget(leftPanel);
+    splitter->addWidget(leftPanel);
 
-  canvas_ = new QWidget;
-  canvas_->setMinimumSize(400, 300);
-  canvas_->setStyleSheet("background-color: white; border: 1px solid #ccc;");
-  splitter->addWidget(canvas_);
+    canvas_ = new QWidget;
+    canvas_->setMinimumSize(400, 300);
+    canvas_->setStyleSheet("background-color: white; border: 1px solid #ccc;");
+    splitter->addWidget(canvas_);
 
-  auto *rightPanel = new QWidget;
-  auto *rightLayout = new QVBoxLayout(rightPanel);
-  rightLayout->setContentsMargins(4, 4, 4, 4);
+    auto* rightPanel = new QWidget;
+    auto* rightLayout = new QVBoxLayout(rightPanel);
+    rightLayout->setContentsMargins(4, 4, 4, 4);
 
-  auto *propLabel = new QLabel(tr("Properties"));
-  rightLayout->addWidget(propLabel);
+    auto* propLabel = new QLabel(tr("Properties"));
+    rightLayout->addWidget(propLabel);
 
-  propertyEditor_ = new QTextEdit;
-  propertyEditor_->setPlaceholderText(tr("Select a shape to edit properties..."));
-  rightLayout->addWidget(propertyEditor_);
+    propertyEditor_ = new QTextEdit;
+    propertyEditor_->setPlaceholderText(tr("Select a shape to edit properties..."));
+    rightLayout->addWidget(propertyEditor_);
 
-  auto *zoomRow = new QHBoxLayout;
-  zoomLabel_ = new QLabel(tr("Zoom:"));
-  zoomRow->addWidget(zoomLabel_);
-  zoomInput_ = new QLineEdit;
-  zoomInput_->setText("100%");
-  zoomInput_->setMaximumWidth(80);
-  zoomRow->addWidget(zoomInput_);
-  auto *zoomInBtn = new QPushButton(tr("+"));
-  zoomInBtn->setMaximumWidth(30);
-  zoomRow->addWidget(zoomInBtn);
-  auto *zoomOutBtn = new QPushButton(tr("-"));
-  zoomOutBtn->setMaximumWidth(30);
-  zoomRow->addWidget(zoomOutBtn);
-  zoomRow->addStretch();
-  rightLayout->addLayout(zoomRow);
+    auto* zoomRow = new QHBoxLayout;
+    zoomLabel_ = new QLabel(tr("Zoom:"));
+    zoomRow->addWidget(zoomLabel_);
+    zoomInput_ = new QLineEdit;
+    zoomInput_->setText("100%");
+    zoomInput_->setMaximumWidth(80);
+    zoomRow->addWidget(zoomInput_);
+    auto* zoomInBtn = new QPushButton(tr("+"));
+    zoomInBtn->setMaximumWidth(30);
+    zoomRow->addWidget(zoomInBtn);
+    auto* zoomOutBtn = new QPushButton(tr("-"));
+    zoomOutBtn->setMaximumWidth(30);
+    zoomRow->addWidget(zoomOutBtn);
+    zoomRow->addStretch();
+    rightLayout->addLayout(zoomRow);
 
-  auto *exportRow = new QHBoxLayout;
-  exportFormat_ = new QComboBox;
-  exportFormat_->addItem("PNG");
-  exportFormat_->addItem("SVG");
-  exportFormat_->addItem("PDF");
-  exportRow->addWidget(exportFormat_);
-  exportButton_ = new QPushButton(tr("Export"));
-  exportRow->addWidget(exportButton_);
-  importButton_ = new QPushButton(tr("Import JSON"));
-  exportRow->addWidget(importButton_);
-  rightLayout->addLayout(exportRow);
+    auto* exportRow = new QHBoxLayout;
+    exportFormat_ = new QComboBox;
+    exportFormat_->addItem("PNG");
+    exportFormat_->addItem("SVG");
+    exportFormat_->addItem("PDF");
+    exportRow->addWidget(exportFormat_);
+    exportButton_ = new QPushButton(tr("Export"));
+    exportRow->addWidget(exportButton_);
+    importButton_ = new QPushButton(tr("Import JSON"));
+    exportRow->addWidget(importButton_);
+    rightLayout->addLayout(exportRow);
 
-  splitter->addWidget(rightPanel);
-  splitter->setStretchFactor(0, 1);
-  splitter->setStretchFactor(1, 3);
-  splitter->setStretchFactor(2, 1);
+    splitter->addWidget(rightPanel);
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 3);
+    splitter->setStretchFactor(2, 1);
 
-  mainLayout->addWidget(splitter);
+    mainLayout->addWidget(splitter);
 
-  connect(zoomInBtn, &QPushButton::clicked, this, [this]() {
-    setZoom(zoomFactor_ * 1.25);
-  });
-  connect(zoomOutBtn, &QPushButton::clicked, this, [this]() {
-    setZoom(zoomFactor_ / 1.25);
-  });
-  connect(zoomInput_, &QLineEdit::editingFinished, this, [this]() {
-    QString text = zoomInput_->text();
-    text.remove('%');
-    bool ok = false;
-    double val = text.toDouble(&ok);
-    if (ok && val > 0) setZoom(val / 100.0);
-  });
-  connect(exportButton_, &QPushButton::clicked, this, &DiagramPlugin::exportRequested);
-  connect(importButton_, &QPushButton::clicked, this, [this]() {
-    QString path = QFileDialog::getOpenFileName(containerWidget_, tr("Import Diagram"), QString(), "JSON (*.json)");
-    if (!path.isEmpty()) importFromJson(path);
-  });
+    connect(zoomInBtn, &QPushButton::clicked, this, [this]() { setZoom(zoomFactor_ * 1.25); });
+    connect(zoomOutBtn, &QPushButton::clicked, this, [this]() { setZoom(zoomFactor_ / 1.25); });
+    connect(zoomInput_, &QLineEdit::editingFinished, this, [this]() {
+        QString text = zoomInput_->text();
+        text.remove('%');
+        bool ok = false;
+        double val = text.toDouble(&ok);
+        if (ok && val > 0)
+            setZoom(val / 100.0);
+    });
+    connect(exportButton_, &QPushButton::clicked, this, &DiagramPlugin::exportRequested);
+    connect(importButton_, &QPushButton::clicked, this, [this]() {
+        QString path = QFileDialog::getOpenFileName(containerWidget_, tr("Import Diagram"), QString(), "JSON (*.json)");
+        if (!path.isEmpty())
+            importFromJson(path);
+    });
 }
 
-void DiagramPlugin::addShape(const QString &category, const QString &name) {
-  shapeLibrary_->addItem(category + ": " + name);
-  emit shapeAdded(name);
+void DiagramPlugin::addShape(const QString& category, const QString& name) {
+    shapeLibrary_->addItem(category + ": " + name);
+    emit shapeAdded(name);
 }
 
-void DiagramPlugin::removeShape(const QString &name) {
-  for (int i = 0; i < shapeLibrary_->count(); ++i) {
-    if (shapeLibrary_->item(i)->text().endsWith(name)) {
-      delete shapeLibrary_->takeItem(i);
-      emit shapeRemoved(name);
-      return;
+void DiagramPlugin::removeShape(const QString& name) {
+    for (int i = 0; i < shapeLibrary_->count(); ++i) {
+        if (shapeLibrary_->item(i)->text().endsWith(name)) {
+            delete shapeLibrary_->takeItem(i);
+            emit shapeRemoved(name);
+            return;
+        }
     }
-  }
 }
 
-void DiagramPlugin::clearShapes() { shapeLibrary_->clear(); }
-int DiagramPlugin::shapeCount() const { return shapeLibrary_->count(); }
+void DiagramPlugin::clearShapes() {
+    shapeLibrary_->clear();
+}
+int DiagramPlugin::shapeCount() const {
+    return shapeLibrary_->count();
+}
 
 void DiagramPlugin::setZoom(double factor) {
-  zoomFactor_ = factor;
-  zoomInput_->setText(QString("%1%").arg(static_cast<int>(factor * 100)));
-  emit zoomChanged(factor);
+    zoomFactor_ = factor;
+    zoomInput_->setText(QString("%1%").arg(static_cast<int>(factor * 100)));
+    emit zoomChanged(factor);
 }
 
-double DiagramPlugin::zoom() const { return zoomFactor_; }
+double DiagramPlugin::zoom() const {
+    return zoomFactor_;
+}
 
-void DiagramPlugin::setPropertyText(const QString &text) {
-  propertyEditor_->setPlainText(text);
+void DiagramPlugin::setPropertyText(const QString& text) {
+    propertyEditor_->setPlainText(text);
 }
 
 QString DiagramPlugin::propertyText() const {
-  return propertyEditor_->toPlainText();
+    return propertyEditor_->toPlainText();
 }
 
-bool DiagramPlugin::exportToJson(const QString &filePath) {
-  if (filePath.isEmpty()) return false;
+bool DiagramPlugin::exportToJson(const QString& filePath) {
+    if (filePath.isEmpty())
+        return false;
 
-  QJsonObject root;
-  root["version"] = 1;
-  root["zoom"] = zoomFactor_;
-  QJsonArray shapes;
-  for (int i = 0; i < shapeLibrary_->count(); ++i) {
-    shapes.append(shapeLibrary_->item(i)->text());
-  }
-  root["shapes"] = shapes;
-  root["properties"] = propertyEditor_->toPlainText();
+    QJsonObject root;
+    root["version"] = 1;
+    root["zoom"] = zoomFactor_;
+    QJsonArray shapes;
+    for (int i = 0; i < shapeLibrary_->count(); ++i) {
+        shapes.append(shapeLibrary_->item(i)->text());
+    }
+    root["shapes"] = shapes;
+    root["properties"] = propertyEditor_->toPlainText();
 
-  QFile file(filePath);
-  if (!file.open(QIODevice::WriteOnly)) return false;
-  const QByteArray bytes = QJsonDocument(root).toJson();
-  if (file.write(bytes) != bytes.size() || !file.flush()) return false;
-  return true;
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly))
+        return false;
+    const QByteArray bytes = QJsonDocument(root).toJson();
+    if (file.write(bytes) != bytes.size() || !file.flush())
+        return false;
+    return true;
 }
 
-bool DiagramPlugin::importFromJson(const QString &filePath) {
-  if (filePath.isEmpty()) return false;
+bool DiagramPlugin::importFromJson(const QString& filePath) {
+    if (filePath.isEmpty())
+        return false;
 
-  QFile file(filePath);
-  if (!file.open(QIODevice::ReadOnly)) return false;
-  QJsonParseError parseError;
-  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
-  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return false;
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject())
+        return false;
 
-  QJsonObject root = doc.object();
-  if (!root.value("shapes").isArray()) return false;
+    QJsonObject root = doc.object();
+    if (!root.value("shapes").isArray())
+        return false;
 
-  const double importedZoom =
-      root.contains("zoom") ? root["zoom"].toDouble(1.0) : 1.0;
-  if (importedZoom <= 0.0) return false;
+    const double importedZoom = root.contains("zoom") ? root["zoom"].toDouble(1.0) : 1.0;
+    if (importedZoom <= 0.0)
+        return false;
 
-  QStringList importedShapes;
-  for (const auto &s : root["shapes"].toArray()) {
-    if (!s.isString()) return false;
-    const QString shape = s.toString().trimmed();
-    if (shape.isEmpty()) return false;
-    importedShapes.append(shape);
-  }
-  if (importedShapes.isEmpty()) return false;
+    QStringList importedShapes;
+    for (const auto& s : root["shapes"].toArray()) {
+        if (!s.isString())
+            return false;
+        const QString shape = s.toString().trimmed();
+        if (shape.isEmpty())
+            return false;
+        importedShapes.append(shape);
+    }
+    if (importedShapes.isEmpty())
+        return false;
 
-  const QString importedProperties =
-      root.contains("properties") ? root["properties"].toString() : QString();
+    const QString importedProperties = root.contains("properties") ? root["properties"].toString() : QString();
 
-  setZoom(importedZoom);
-  shapeLibrary_->clear();
-  for (const auto &shape : importedShapes)
-    shapeLibrary_->addItem(shape);
+    setZoom(importedZoom);
+    shapeLibrary_->clear();
+    for (const auto& shape : importedShapes)
+        shapeLibrary_->addItem(shape);
 
-  if (root.contains("properties")) {
-    propertyEditor_->setPlainText(importedProperties);
-  }
-  return true;
+    if (root.contains("properties")) {
+        propertyEditor_->setPlainText(importedProperties);
+    }
+    return true;
 }

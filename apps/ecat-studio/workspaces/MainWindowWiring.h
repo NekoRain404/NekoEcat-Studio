@@ -10,7 +10,7 @@
 
 // ── Signal Wiring & Daemon ────────────────────────────────────
 void wire();
-QAction *findAction(const char *name) const;
+QAction* findAction(const char* name) const;
 void wireMenuActions();
 void wireTopologyAndStateButtons();
 void wireSdoInspector();

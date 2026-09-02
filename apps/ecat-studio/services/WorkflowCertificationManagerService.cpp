@@ -1,13 +1,9 @@
 #include "WorkflowCertificationManagerService.h"
 
-WorkflowCertificationManagerService::WorkflowCertificationManagerService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowCertificationManagerService::WorkflowCertificationManagerService(QObject* parent) : QObject(parent) {}
 
-QString WorkflowCertificationManagerService::addRequirement(
-    const QString &name, const QString &standard, const QDateTime &expiry)
-{
+QString WorkflowCertificationManagerService::addRequirement(const QString& name, const QString& standard,
+                                                            const QDateTime& expiry) {
     WfCertRequirement r;
     r.id = QStringLiteral("cm-%1").arg(nextId_++);
     r.name = name;
@@ -20,8 +16,7 @@ QString WorkflowCertificationManagerService::addRequirement(
     return r.id;
 }
 
-bool WorkflowCertificationManagerService::removeRequirement(const QString &reqId)
-{
+bool WorkflowCertificationManagerService::removeRequirement(const QString& reqId) {
     for (int i = 0; i < requirements_.size(); ++i) {
         if (requirements_[i].id == reqId) {
             requirements_.removeAt(i);
@@ -32,16 +27,13 @@ bool WorkflowCertificationManagerService::removeRequirement(const QString &reqId
     return false;
 }
 
-bool WorkflowCertificationManagerService::updateStatus(const QString &reqId,
-                                                        const QString &status)
-{
-    if (status == QStringLiteral("approved") ||
-        status == QStringLiteral("renewed") ||
+bool WorkflowCertificationManagerService::updateStatus(const QString& reqId, const QString& status) {
+    if (status == QStringLiteral("approved") || status == QStringLiteral("renewed") ||
         status == QStringLiteral("valid")) {
         return false;
     }
 
-    for (auto &r : requirements_) {
+    for (auto& r : requirements_) {
         if (r.id == reqId) {
             r.status = status;
             emit statusUpdated(reqId, status);
@@ -51,49 +43,40 @@ bool WorkflowCertificationManagerService::updateStatus(const QString &reqId,
     return false;
 }
 
-WfCertRequirement WorkflowCertificationManagerService::requirement(
-    const QString &reqId) const
-{
-    for (const auto &r : requirements_) {
+WfCertRequirement WorkflowCertificationManagerService::requirement(const QString& reqId) const {
+    for (const auto& r : requirements_) {
         if (r.id == reqId)
             return r;
     }
     return {};
 }
 
-QVector<WfCertRequirement> WorkflowCertificationManagerService::allRequirements() const
-{
+QVector<WfCertRequirement> WorkflowCertificationManagerService::allRequirements() const {
     return requirements_;
 }
 
-int WorkflowCertificationManagerService::requirementCount() const
-{
+int WorkflowCertificationManagerService::requirementCount() const {
     return requirements_.size();
 }
 
-QVector<WfCertRequirement> WorkflowCertificationManagerService::requirementsByStandard(
-    const QString &standard) const
-{
+QVector<WfCertRequirement> WorkflowCertificationManagerService::requirementsByStandard(const QString& standard) const {
     QVector<WfCertRequirement> result;
-    for (const auto &r : requirements_) {
+    for (const auto& r : requirements_) {
         if (r.standard == standard)
             result.append(r);
     }
     return result;
 }
 
-bool WorkflowCertificationManagerService::renewRequirement(
-    const QString &reqId, const QDateTime &newExpiry)
-{
+bool WorkflowCertificationManagerService::renewRequirement(const QString& reqId, const QDateTime& newExpiry) {
     Q_UNUSED(reqId);
     Q_UNUSED(newExpiry);
     return false;
 }
 
-int WorkflowCertificationManagerService::pendingCount() const
-{
+int WorkflowCertificationManagerService::pendingCount() const {
     int count = 0;
-    for (const auto &r : requirements_) {
+    for (const auto& r : requirements_) {
         if (r.status == QStringLiteral("pending"))
             ++count;
     }

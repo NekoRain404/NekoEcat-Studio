@@ -39,35 +39,34 @@ class AlEventService;
 
 /// @brief Workspace plugin for Application-Layer (AL) event log viewing.
 class AlEventPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  /// Constructs the AL Event plugin with fine-grained service injection.
-  /// @param bus      EventBus for receiving AL event signals
-  /// @param service  AlEventService for event data
-  /// @param parent   Qt parent object (typically MainWindow)
-  explicit AlEventPlugin(EventBus *bus, AlEventService *service,
-                         QObject *parent = nullptr);
+    /// Constructs the AL Event plugin with fine-grained service injection.
+    /// @param bus      EventBus for receiving AL event signals
+    /// @param service  AlEventService for event data
+    /// @param parent   Qt parent object (typically MainWindow)
+    explicit AlEventPlugin(EventBus* bus, AlEventService* service, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;           ///< Returns "alevent"
-  QString displayName() const override;  ///< Returns "AL Events"
-  QString displayNameZh() const override; ///< Returns "应用层事件"
-  QWidget *widget() override;            ///< Returns the root container widget
-  int defaultOrder() const override;     ///< Returns 65
-  bool visible() const override;         ///< Returns true (always visible)
+    // WorkspacePlugin identity
+    QString id() const override;            ///< Returns "alevent"
+    QString displayName() const override;   ///< Returns "AL Events"
+    QString displayNameZh() const override; ///< Returns "应用层事件"
+    QWidget* widget() override;             ///< Returns the root container widget
+    int defaultOrder() const override;      ///< Returns 65
+    bool visible() const override;          ///< Returns true (always visible)
 
 private slots:
-  void handleAlEventUpdate(const QJsonObject &data); ///< Handles incoming AL event data from EventBus
-  void applySeverityFilter();  ///< Applies the current severity filter to table rows
+    void handleAlEventUpdate(const QJsonObject& data); ///< Handles incoming AL event data from EventBus
+    void applySeverityFilter();                        ///< Applies the current severity filter to table rows
 
 private:
-  void buildUi();  ///< Builds the toolbar (severity combo + clear button) and event table
-  void populateTable(const QJsonObject &data); ///< Parses the JSON payload and appends rows
-  void updateFilterVisibility(); ///< Re-applies the current severity filter to every row
+    void buildUi();                              ///< Builds the toolbar (severity combo + clear button) and event table
+    void populateTable(const QJsonObject& data); ///< Parses the JSON payload and appends rows
+    void updateFilterVisibility();               ///< Re-applies the current severity filter to every row
 
-  EventBus *bus_;
-  AlEventService *service_;
-  QWidget *container_     = nullptr;
-  QTableWidget *table_    = nullptr;
-  QComboBox *filterCombo_ = nullptr;
+    EventBus* bus_;
+    AlEventService* service_;
+    QWidget* container_ = nullptr;
+    QTableWidget* table_ = nullptr;
+    QComboBox* filterCombo_ = nullptr;
 };

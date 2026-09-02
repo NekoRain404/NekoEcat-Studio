@@ -7,23 +7,23 @@ class QPlainTextEdit;
 struct AppSettings;
 
 class NotesPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit NotesPlugin(QObject *parent = nullptr);
+    explicit NotesPlugin(QObject* parent = nullptr);
 
-  // WorkspacePlugin interface
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin interface
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Project data
-  QString notesText() const;
-  void setNotesText(const QString &text);
+    // Project data
+    QString notesText() const;
+    void setNotesText(const QString& text);
 
 private:
-  QPlainTextEdit *editor_ = nullptr;
-  QWidget *container_ = nullptr;
+    QPlainTextEdit* editor_ = nullptr;
+    QWidget* container_ = nullptr;
 };

@@ -29,41 +29,41 @@ class ChartService;
 class EcatChartWidget;
 
 class DashboardPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit DashboardPlugin(ChartService *service, QObject *parent = nullptr);
+    explicit DashboardPlugin(ChartService* service, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  ChartService *service() const { return service_; }
+    ChartService* service() const { return service_; }
 
-  int gaugeCount() const;
-  int counterCount() const;
+    int gaugeCount() const;
+    int counterCount() const;
 
 public slots:
-  void refresh();
+    void refresh();
 
 private:
-  void buildUi();
-  void setupDashboard();
-  struct GaugeWidget {
-    EcatChartWidget *chart;
-    QLabel *label;
-  };
+    void buildUi();
+    void setupDashboard();
+    struct GaugeWidget {
+        EcatChartWidget* chart;
+        QLabel* label;
+    };
 
-  ChartService *service_;
-  QWidget *container_ = nullptr;
-  QWidget *dashboardGrid_ = nullptr;
-  QGridLayout *gridLayout_ = nullptr;
-  QSpinBox *refreshSpin_ = nullptr;
-  QTimer *refreshTimer_ = nullptr;
-  QPushButton *refreshBtn_ = nullptr;
+    ChartService* service_;
+    QWidget* container_ = nullptr;
+    QWidget* dashboardGrid_ = nullptr;
+    QGridLayout* gridLayout_ = nullptr;
+    QSpinBox* refreshSpin_ = nullptr;
+    QTimer* refreshTimer_ = nullptr;
+    QPushButton* refreshBtn_ = nullptr;
 
-  QVector<GaugeWidget> gauges_;
-  QVector<QLabel *> counters_;
+    QVector<GaugeWidget> gauges_;
+    QVector<QLabel*> counters_;
 };

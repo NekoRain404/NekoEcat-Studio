@@ -10,56 +10,52 @@
 
 // Localized text templates for the object bookmark detail panel.
 struct ObjectBookmarkDetailTexts {
-  QString unavailableText;
-  QString unavailableTip;
-  QString noSelectionText;
-  QString noSelectionTip;
-  QString readOnlyText;
-  QString typeFallback;
-  QString accessFallback;
-  QString unnamed;
-  QString noValue;
-  QString projectSource;
-  QString fillTarget;
-  QString readyForWatchStartup;
-  QString readOnlyWatchOnly;
-  QString missingAddress;
-  QString noSavedValue;
-  QString summaryPattern;
-  QString selectedTitle;
-  QString slaveLabel;
-  QString objectLabel;
-  QString accessLabel;
-  QString typeLabel;
-  QString bitsLabel;
-  QString nameLabel;
-  QString lastValueLabel;
-  QString sourceLabel;
-  QString reuseLabel;
-  QString localBoundary;
-  QString executionBoundary;
+    QString unavailableText;
+    QString unavailableTip;
+    QString noSelectionText;
+    QString noSelectionTip;
+    QString readOnlyText;
+    QString typeFallback;
+    QString accessFallback;
+    QString unnamed;
+    QString noValue;
+    QString projectSource;
+    QString fillTarget;
+    QString readyForWatchStartup;
+    QString readOnlyWatchOnly;
+    QString missingAddress;
+    QString noSavedValue;
+    QString summaryPattern;
+    QString selectedTitle;
+    QString slaveLabel;
+    QString objectLabel;
+    QString accessLabel;
+    QString typeLabel;
+    QString bitsLabel;
+    QString nameLabel;
+    QString lastValueLabel;
+    QString sourceLabel;
+    QString reuseLabel;
+    QString localBoundary;
+    QString executionBoundary;
 };
 
 // Resolved bookmark detail state with severity, reuse guidance, and tooltip.
 struct ObjectBookmarkDetailState {
-  QString text;
-  QString severityKey;
-  QString reuse;
-  bool readOnly = false;
-  bool hasTarget = false;
-  bool hasValue = false;
-  QStringList tooltipLines;
-  QString tooltip;
+    QString text;
+    QString severityKey;
+    QString reuse;
+    bool readOnly = false;
+    bool hasTarget = false;
+    bool hasValue = false;
+    QStringList tooltipLines;
+    QString tooltip;
 };
 
-ObjectBookmarkDetailState
-objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts &texts);
-ObjectBookmarkDetailState
-objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts &texts);
+ObjectBookmarkDetailState objectBookmarkDetailUnavailableState(const ObjectBookmarkDetailTexts& texts);
+ObjectBookmarkDetailState objectBookmarkDetailNoSelectionState(const ObjectBookmarkDetailTexts& texts);
 // Maps row attributes to a severity key.
-QString objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow &row,
-                                        const ObjectBookmarkDetailTexts &texts);
+QString objectBookmarkDetailSeverityKey(const SdoObjectBookmarkRow& row, const ObjectBookmarkDetailTexts& texts);
 // Assembles the full bookmark detail state.
-ObjectBookmarkDetailState
-buildObjectBookmarkDetailState(const SdoObjectBookmarkRow &row,
-                                 const ObjectBookmarkDetailTexts &texts);
+ObjectBookmarkDetailState buildObjectBookmarkDetailState(const SdoObjectBookmarkRow& row,
+                                                         const ObjectBookmarkDetailTexts& texts);

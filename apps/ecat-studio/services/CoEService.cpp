@@ -28,8 +28,7 @@ struct SdoResult {
     QString error;
 };
 
-SdoResult syncSdoUpload(EcatClient *client, int position,
-                        const QString &index, const QString &subIndex,
+SdoResult syncSdoUpload(EcatClient* client, int position, const QString& index, const QString& subIndex,
                         int timeoutMs = 3000) {
     SdoResult result;
 
@@ -43,8 +42,7 @@ SdoResult syncSdoUpload(EcatClient *client, int position,
 
     // Capture the sdoValue signal filtered to our specific request.
     QMetaObject::Connection valueConn = QObject::connect(
-        client, &EcatClient::sdoValue,
-        [&](int pos, const QString &idx, const QString &sub, const QString &val) {
+        client, &EcatClient::sdoValue, [&](int pos, const QString& idx, const QString& sub, const QString& val) {
             if (pos == position && idx == index && sub == subIndex) {
                 result.value = val;
                 gotResponse = true;
@@ -79,7 +77,7 @@ SdoResult syncSdoUpload(EcatClient *client, int position,
 
 // Parse a string value from the daemon into a quint64.
 // Handles both hex ("0x1F") and decimal ("31") formats.
-quint64 parseValue(const QString &str, bool *ok = nullptr) {
+quint64 parseValue(const QString& str, bool* ok = nullptr) {
     QString trimmed = str.trimmed();
     if (trimmed.startsWith("0x", Qt::CaseInsensitive)) {
         return trimmed.toULongLong(ok, 16);
@@ -89,16 +87,13 @@ quint64 parseValue(const QString &str, bool *ok = nullptr) {
 
 } // anonymous namespace
 
-CoEService::CoEService(EcatClient *client, SdoCacheService *sdoCache, QObject *parent)
+CoEService::CoEService(EcatClient* client, SdoCacheService* sdoCache, QObject* parent)
     : QObject(parent), client_(client), sdoCache_(sdoCache) {
-    connect(client_, &EcatClient::errorMessage, this,
-            [this](const QString &msg) { emit error(msg); });
+    connect(client_, &EcatClient::errorMessage, this, [this](const QString& msg) { emit error(msg); });
 
     // Connect slaveTextResult to our parser; reorder args to match slot signature.
     connect(client_, &EcatClient::slaveTextResult, this,
-            [this](const QString &title, int position, const QString &text) {
-                onSdoText(position, title, text);
-            });
+            [this](const QString& title, int position, const QString& text) { onSdoText(position, title, text); });
 }
 
 void CoEService::uploadSdoInfo(int position) {
@@ -120,7 +115,7 @@ void CoEService::uploadDictionary(int position) {
 }
 
 // ─── SDO text result parser (IgH ethercat sdos format) ─────────────────────
-void CoEService::onSdoText(int position, const QString &title, const QString &text) {
+void CoEService::onSdoText(int position, const QString& title, const QString& text) {
     if (title != "SDO") {
         return;
     }
@@ -136,17 +131,17 @@ void CoEService::onSdoText(int position, const QString &title, const QString &te
     QList<CoESdoDictionary> entries;
 
     const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
-    for (const QString &line : lines) {
+    for (const QString& line : lines) {
         QRegularExpressionMatch match = re.match(line);
         if (!match.hasMatch()) {
             continue;
         }
 
-        const QString index    = match.captured(1);
-        QString subIndex       = match.captured(2);
-        const QString name     = match.captured(3).trimmed();
+        const QString index = match.captured(1);
+        QString subIndex = match.captured(2);
+        const QString name = match.captured(3).trimmed();
         const QString dataType = match.captured(4);
-        const QString access   = match.captured(5);
+        const QString access = match.captured(5);
 
         // Lines without a subindex specify the top-level index entry (subindex 0x00).
         if (subIndex.isEmpty()) {
@@ -155,21 +150,20 @@ void CoEService::onSdoText(int position, const QString &title, const QString &te
 
         // Build cache entry.
         SdoDictionaryEntry cacheEntry;
-        cacheEntry.index      = index;
-        cacheEntry.subIndex   = subIndex;
-        cacheEntry.name       = name;
-        cacheEntry.dataType   = dataType;
+        cacheEntry.index = index;
+        cacheEntry.subIndex = subIndex;
+        cacheEntry.name = name;
+        cacheEntry.dataType = dataType;
         cacheEntry.accessType = access;
         dict.append(cacheEntry);
 
         // Build signal entry.
         CoESdoDictionary sdoEntry;
-        sdoEntry.index      = index;
-        sdoEntry.name       = name;
-        sdoEntry.type       = dataType;
-        sdoEntry.bitSize    = 0;  // IgH format doesn't convey bit size directly
-        sdoEntry.accessType = (access == QStringLiteral("ro") ? 1 :
-                               access == QStringLiteral("wo") ? 2 : 3);
+        sdoEntry.index = index;
+        sdoEntry.name = name;
+        sdoEntry.type = dataType;
+        sdoEntry.bitSize = 0; // IgH format doesn't convey bit size directly
+        sdoEntry.accessType = (access == QStringLiteral("ro") ? 1 : access == QStringLiteral("wo") ? 2 : 3);
         entries.append(sdoEntry);
     }
 
@@ -184,8 +178,7 @@ void CoEService::onSdoText(int position, const QString &title, const QString &te
     emit dictionaryReceived(position, entries);
 }
 
-void CoEService::uploadSegment(int position, const QString &index,
-                                int offset, int size) {
+void CoEService::uploadSegment(int position, const QString& index, int offset, int size) {
     Q_UNUSED(position);
     Q_UNUSED(index);
     Q_UNUSED(offset);
@@ -197,8 +190,7 @@ void CoEService::uploadSegment(int position, const QString &index,
     emit error("CoE segmented upload requires daemon backend support");
 }
 
-void CoEService::downloadSegment(int position, const QString &index,
-                                  int offset, const QByteArray &data) {
+void CoEService::downloadSegment(int position, const QString& index, int offset, const QByteArray& data) {
     Q_UNUSED(offset);
     Q_UNUSED(data);
     if (!client_ || !client_->isConnected()) {
@@ -225,10 +217,9 @@ QJsonObject CoEService::readErrorRegister(int slavePosition) {
             res.error.contains("0x06020000", Qt::CaseInsensitive) ||
             res.error.contains("not found", Qt::CaseInsensitive)) {
             response["success"] = false;
-            response["error"] = QString(
-                "Slave %1 does not support CoE Error Register (0x1001). "
-                "The device may not be a CANopen-over-EtherCAT device.")
-                .arg(slavePosition);
+            response["error"] = QString("Slave %1 does not support CoE Error Register (0x1001). "
+                                        "The device may not be a CANopen-over-EtherCAT device.")
+                                    .arg(slavePosition);
         } else {
             response["success"] = false;
             response["error"] = res.error;
@@ -240,8 +231,7 @@ QJsonObject CoEService::readErrorRegister(int slavePosition) {
     quint8 errorByte = static_cast<quint8>(parseValue(res.value, &ok));
     if (!ok) {
         response["success"] = false;
-        response["error"] = QString("Failed to parse Error Register value: %1")
-                                .arg(res.value);
+        response["error"] = QString("Failed to parse Error Register value: %1").arg(res.value);
         return response;
     }
 
@@ -250,13 +240,13 @@ QJsonObject CoEService::readErrorRegister(int slavePosition) {
     response["valueHex"] = QString("0x%1").arg(errorByte, 2, 16, QChar('0'));
 
     // Decode individual bits per CANopen specification (DS301 / DS402).
-    response["genericError"]          = static_cast<bool>(errorByte & 0x01);
-    response["current"]               = static_cast<bool>(errorByte & 0x02);
-    response["voltage"]               = static_cast<bool>(errorByte & 0x04);
-    response["temperature"]           = static_cast<bool>(errorByte & 0x08);
-    response["communicationError"]    = static_cast<bool>(errorByte & 0x10);
+    response["genericError"] = static_cast<bool>(errorByte & 0x01);
+    response["current"] = static_cast<bool>(errorByte & 0x02);
+    response["voltage"] = static_cast<bool>(errorByte & 0x04);
+    response["temperature"] = static_cast<bool>(errorByte & 0x08);
+    response["communicationError"] = static_cast<bool>(errorByte & 0x10);
     response["deviceProfileSpecific"] = static_cast<bool>(errorByte & 0x20);
-    response["manufacturerSpecific"]  = static_cast<bool>(errorByte & 0x40);
+    response["manufacturerSpecific"] = static_cast<bool>(errorByte & 0x40);
 
     return response;
 }
@@ -273,10 +263,9 @@ QJsonObject CoEService::readErrorHistory(int slavePosition, int maxEntries) {
             countRes.error.contains("0x06020000", Qt::CaseInsensitive) ||
             countRes.error.contains("not found", Qt::CaseInsensitive)) {
             response["success"] = false;
-            response["error"] = QString(
-                "Slave %1 does not support Pre-defined Error Field (0x1003). "
-                "The device may not be a CANopen-over-EtherCAT device.")
-                .arg(slavePosition);
+            response["error"] = QString("Slave %1 does not support Pre-defined Error Field (0x1003). "
+                                        "The device may not be a CANopen-over-EtherCAT device.")
+                                    .arg(slavePosition);
         } else {
             response["success"] = false;
             response["error"] = countRes.error;
@@ -288,8 +277,7 @@ QJsonObject CoEService::readErrorHistory(int slavePosition, int maxEntries) {
     int errorCount = static_cast<int>(parseValue(countRes.value, &ok));
     if (!ok) {
         response["success"] = false;
-        response["error"] = QString("Failed to parse error count: %1")
-                                .arg(countRes.value);
+        response["error"] = QString("Failed to parse error count: %1").arg(countRes.value);
         return response;
     }
 
@@ -336,22 +324,21 @@ QJsonObject CoEService::readEmergencyInfo(int slavePosition) {
     response["slavePosition"] = slavePosition;
 
     QJsonObject errorRegister = readErrorRegister(slavePosition);
-    QJsonObject errorHistory  = readErrorHistory(slavePosition);
+    QJsonObject errorHistory = readErrorHistory(slavePosition);
 
     bool regOk = errorRegister.value("success").toBool();
     bool histOk = errorHistory.value("success").toBool();
 
     response["errorRegister"] = errorRegister;
-    response["errorHistory"]  = errorHistory;
+    response["errorHistory"] = errorHistory;
 
     // Overall success only if both sub-reads succeeded.
     response["success"] = regOk && histOk;
 
     if (!regOk && !histOk) {
-        response["error"] = QString(
-            "Slave %1 does not appear to support CoE Emergency objects "
-            "(0x1001 Error Register and 0x1003 Error Field are both unavailable).")
-            .arg(slavePosition);
+        response["error"] = QString("Slave %1 does not appear to support CoE Emergency objects "
+                                    "(0x1001 Error Register and 0x1003 Error Field are both unavailable).")
+                                .arg(slavePosition);
     } else if (!regOk) {
         response["error"] = errorRegister.value("error").toString();
     } else if (!histOk) {

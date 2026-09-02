@@ -2,10 +2,11 @@
 
 #include "EniExportPlugin.h"
 
+#include "EniGenerator.h"
 #include "infra/EcatClient.h"
 #include "services/EventBus.h"
-#include "EniGenerator.h"
 
+#include <QFile>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -17,31 +18,41 @@
 #include <QSpinBox>
 #include <QTextStream>
 #include <QVBoxLayout>
-#include <QFile>
 
-EniExportPlugin::EniExportPlugin(EcatClient *client, EventBus *eventBus, QObject *parent)
-    : client_(client), eventBus_(eventBus)
-{
-    if (parent) setParent(parent);
+EniExportPlugin::EniExportPlugin(EcatClient* client, EventBus* eventBus, QObject* parent)
+    : client_(client), eventBus_(eventBus) {
+    if (parent)
+        setParent(parent);
     connect(eventBus_, &EventBus::topologyChanged, this, &EniExportPlugin::onTopologyChanged);
 }
 
-QString EniExportPlugin::id() const { return "eni"; }
-QString EniExportPlugin::displayName() const { return "ENI Export"; }
-QString EniExportPlugin::displayNameZh() const { return QStringLiteral("ENI 导出"); }
-int EniExportPlugin::defaultOrder() const { return 157; }
-bool EniExportPlugin::visible() const { return true; }
+QString EniExportPlugin::id() const {
+    return "eni";
+}
+QString EniExportPlugin::displayName() const {
+    return "ENI Export";
+}
+QString EniExportPlugin::displayNameZh() const {
+    return QStringLiteral("ENI 导出");
+}
+int EniExportPlugin::defaultOrder() const {
+    return 157;
+}
+bool EniExportPlugin::visible() const {
+    return true;
+}
 
-QWidget *EniExportPlugin::widget() {
-    if (!container_) buildUi();
+QWidget* EniExportPlugin::widget() {
+    if (!container_)
+        buildUi();
     return container_;
 }
 
 void EniExportPlugin::buildUi() {
     container_ = new QWidget();
-    auto *layout = new QVBoxLayout(container_);
+    auto* layout = new QVBoxLayout(container_);
 
-    auto *form = new QFormLayout;
+    auto* form = new QFormLayout;
     masterNameEdit_ = new QLineEdit("NekoEcat Master");
     form->addRow(tr("Master Name:"), masterNameEdit_);
 
@@ -55,7 +66,7 @@ void EniExportPlugin::buildUi() {
     form->addRow(tr("Topology:"), slaveCountLabel_);
     layout->addLayout(form);
 
-    auto *btnRow = new QHBoxLayout;
+    auto* btnRow = new QHBoxLayout;
     generateBtn_ = new QPushButton(tr("Generate ENI"));
     saveBtn_ = new QPushButton(tr("Save to File..."));
     saveBtn_->setEnabled(false);
@@ -75,19 +86,19 @@ void EniExportPlugin::buildUi() {
     layout->addWidget(preview_, 1);
 }
 
-void EniExportPlugin::onTopologyChanged(const QVector<SlaveInfo> &slaves) {
+void EniExportPlugin::onTopologyChanged(const QVector<SlaveInfo>& slaves) {
     slaves_ = slaves;
     if (slaveCountLabel_) {
         slaveCountLabel_->setText(tr("%1 slaves detected").arg(slaves.size()));
     }
 }
 
-QString EniExportPlugin::generateEni(const QVector<SlaveInfo> &slaves) const {
+QString EniExportPlugin::generateEni(const QVector<SlaveInfo>& slaves) const {
     EniGenerator gen;
     gen.setMasterName(masterNameEdit_ ? masterNameEdit_->text() : "EtherCAT Master");
     gen.setCycleTimeUs(cycleTimeSpin_ ? cycleTimeSpin_->value() : 1000);
 
-    for (const auto &s : slaves) {
+    for (const auto& s : slaves) {
         EniSlaveConfig cfg;
         cfg.position = s.position;
         cfg.name = s.name;
@@ -101,7 +112,7 @@ QString EniExportPlugin::generateEni(const QVector<SlaveInfo> &slaves) const {
 void EniExportPlugin::doGenerate() {
     if (slaves_.isEmpty()) {
         QMessageBox::information(container_, tr("No Topology"),
-            tr("No slaves detected. Scan the bus before generating ENI."));
+                                 tr("No slaves detected. Scan the bus before generating ENI."));
         return;
     }
     const QString xml = generateEni(slaves_);
@@ -111,23 +122,22 @@ void EniExportPlugin::doGenerate() {
 
 void EniExportPlugin::doSave() {
     const QString xml = preview_->toPlainText();
-    if (xml.isEmpty()) return;
+    if (xml.isEmpty())
+        return;
 
-    const QString path = QFileDialog::getSaveFileName(
-        container_, tr("Save ENI File"), "network.xml",
-        tr("ENI XML files (*.xml);;All files (*)"));
-    if (path.isEmpty()) return;
+    const QString path = QFileDialog::getSaveFileName(container_, tr("Save ENI File"), "network.xml",
+                                                      tr("ENI XML files (*.xml);;All files (*)"));
+    if (path.isEmpty())
+        return;
 
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(container_, tr("Save Failed"),
-            tr("Could not write to %1").arg(path));
+        QMessageBox::warning(container_, tr("Save Failed"), tr("Could not write to %1").arg(path));
         return;
     }
     QTextStream out(&file);
     out << xml;
     file.close();
 
-    QMessageBox::information(container_, tr("ENI Saved"),
-        tr("ENI file saved to %1").arg(path));
+    QMessageBox::information(container_, tr("ENI Saved"), tr("ENI file saved to %1").arg(path));
 }

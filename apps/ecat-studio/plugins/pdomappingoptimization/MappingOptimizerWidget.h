@@ -1,37 +1,37 @@
 #pragma once
 
-#include <QWidget>
 #include "services/PdoMappingOptimizationService.h"
+#include <QWidget>
 
 class QLabel;
 class QPushButton;
 class QGroupBox;
 
 class MappingOptimizerWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit MappingOptimizerWidget(QWidget *parent = nullptr);
+    explicit MappingOptimizerWidget(QWidget* parent = nullptr);
 
-  void updateCurrentMapping(int totalPdos, int totalEntries, int duplicateEntries, int unusedEntries);
-  void showOptimizationResult(const PdoMappingOptimizationResult &result);
-  void setOptimized();
+    void updateCurrentMapping(int totalPdos, int totalEntries, int duplicateEntries, int unusedEntries);
+    void showOptimizationResult(const PdoMappingOptimizationResult& result);
+    void setOptimized();
 
-  QLabel *totalPdosLabel() const { return totalPdosValue_; }
-  QLabel *totalEntriesLabel() const { return totalEntriesValue_; }
-  QPushButton *optimizeButton() const { return optimizeBtn_; }
+    QLabel* totalPdosLabel() const { return totalPdosValue_; }
+    QLabel* totalEntriesLabel() const { return totalEntriesValue_; }
+    QPushButton* optimizeButton() const { return optimizeBtn_; }
 
 signals:
-  void optimizeRequested();
+    void optimizeRequested();
 
 private:
-  void buildUi();
+    void buildUi();
 
-  QLabel *totalPdosValue_ = nullptr;
-  QLabel *totalEntriesValue_ = nullptr;
-  QLabel *duplicateEntriesValue_ = nullptr;
-  QLabel *unusedEntriesValue_ = nullptr;
-  QLabel *beforeLabel_ = nullptr;
-  QLabel *afterLabel_ = nullptr;
-  QLabel *improvementLabel_ = nullptr;
-  QPushButton *optimizeBtn_ = nullptr;
+    QLabel* totalPdosValue_ = nullptr;
+    QLabel* totalEntriesValue_ = nullptr;
+    QLabel* duplicateEntriesValue_ = nullptr;
+    QLabel* unusedEntriesValue_ = nullptr;
+    QLabel* beforeLabel_ = nullptr;
+    QLabel* afterLabel_ = nullptr;
+    QLabel* improvementLabel_ = nullptr;
+    QPushButton* optimizeBtn_ = nullptr;
 };

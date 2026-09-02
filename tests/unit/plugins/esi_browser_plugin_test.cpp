@@ -1,12 +1,12 @@
-#include <QTest>
+#include <QFile>
 #include <QSignalSpy>
 #include <QTemporaryDir>
-#include <QFile>
+#include <QTest>
 #include <QTextStream>
 
-#include "plugins/esi/EsiParser.h"
-#include "plugins/esi/EsiDeviceMatcher.h"
 #include "plugins/esi/EsiBrowserPlugin.h"
+#include "plugins/esi/EsiDeviceMatcher.h"
+#include "plugins/esi/EsiParser.h"
 #include "services/EsiService.h"
 
 class EsiBrowserPluginTest : public QObject {
@@ -32,7 +32,7 @@ private slots:
     void pluginIdentityIsUnique();
 };
 
-static const char *kTestEsiXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+static const char* kTestEsiXml = R"(<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Descriptions>
     <Device>
@@ -52,7 +52,7 @@ static const char *kTestEsiXml = R"(<?xml version="1.0" encoding="UTF-8"?>
 </EtherCATInfo>
 )";
 
-static QString writeToTempFile(const QByteArray &data) {
+static QString writeToTempFile(const QByteArray& data) {
     static QTemporaryDir dir;
     QString path = dir.path() + "/esi_test.xml";
     QFile f(path);
@@ -229,7 +229,7 @@ void EsiBrowserPluginTest::serviceImportsAndMatches() {
 }
 
 void EsiBrowserPluginTest::serviceImportsHashPrefixedHexIds() {
-    static const char *hashPrefixedXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+    static const char* hashPrefixedXml = R"(<?xml version="1.0" encoding="UTF-8"?>
 <EtherCATInfo>
   <Descriptions>
     <Device>
@@ -272,8 +272,7 @@ void EsiBrowserPluginTest::serviceRejectsInvalidPersistence() {
     const QString noDevicePath = dir.filePath("no-device.xml");
     QFile noDeviceFile(noDevicePath);
     QVERIFY(noDeviceFile.open(QIODevice::WriteOnly));
-    QVERIFY(noDeviceFile.write(QByteArrayLiteral(
-                "<EtherCATInfo><Descriptions></Descriptions></EtherCATInfo>")) > 0);
+    QVERIFY(noDeviceFile.write(QByteArrayLiteral("<EtherCATInfo><Descriptions></Descriptions></EtherCATInfo>")) > 0);
     noDeviceFile.close();
 
     QVERIFY(!service.importEsi(noDevicePath));

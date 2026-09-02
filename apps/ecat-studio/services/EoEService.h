@@ -29,24 +29,24 @@
 //   - IP configuration is O(1) SDO writes
 //   - Frame send/receive is O(n) where n is frame size (when implemented)
 
+#include <QByteArray>
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
-#include <QByteArray>
 #include <QStringList>
-#include <QJsonObject>
 
 class EcatClient;
 
 class EoEService : public QObject {
     Q_OBJECT
 public:
-    explicit EoEService(EcatClient *client, QObject *parent = nullptr);
+    explicit EoEService(EcatClient* client, QObject* parent = nullptr);
 
     // Send an Ethernet frame to a slave.
     // @param position  Slave position
     // @param frame     Ethernet frame data
     // @return true if frame was sent successfully (currently always false)
-    bool sendEthernetFrame(int position, const QByteArray &frame);
+    bool sendEthernetFrame(int position, const QByteArray& frame);
 
     // Receive an Ethernet frame from a slave.
     // @param position  Slave position
@@ -57,7 +57,7 @@ public:
     // @param ip        IP address (e.g. "192.168.1.100")
     // @param subnet    Subnet mask (e.g. "255.255.255.0")
     // @return true if request was sent successfully
-    bool configureIp(int position, const QString &ip, const QString &subnet);
+    bool configureIp(int position, const QString& ip, const QString& subnet);
 
     // Get learned MAC addresses from a slave.
     // @param position  Slave position
@@ -82,22 +82,22 @@ signals:
     // Emitted when EoE status query completes.
     // @param position  Slave position
     // @param data      Status JSON: { supported, hasIpConfig, currentIp }
-    void statusReceived(int position, const QJsonObject &data);
+    void statusReceived(int position, const QJsonObject& data);
 
     // Emitted when IP configuration succeeds.
     // @param position  Slave position
     // @param ip        Configured IP address
-    void ipConfigured(int position, const QString &ip);
+    void ipConfigured(int position, const QString& ip);
 
     // Emitted when IP readback query completes.
     // @param position  Slave position
     // @param data      IP config JSON: { ip, subnet, gateway, dns }
-    void ipReadback(int position, const QJsonObject &data);
+    void ipReadback(int position, const QJsonObject& data);
 
     // Emitted when EoE statistics query completes.
     // @param position  Slave position
     // @param data      Stats JSON: { txFrames, rxFrames, txErrors, rxErrors }
-    void statsReceived(int position, const QJsonObject &data);
+    void statsReceived(int position, const QJsonObject& data);
 
     // Emitted when a frame is sent.
     // @param position  Slave position
@@ -107,12 +107,12 @@ signals:
     // Emitted when a frame is received.
     // @param position  Slave position
     // @param frame     Ethernet frame data
-    void frameReceived(int position, const QByteArray &frame);
+    void frameReceived(int position, const QByteArray& frame);
 
     // Emitted when an error occurs.
     // @param message  Human-readable error message
-    void error(const QString &message);
+    void error(const QString& message);
 
 private:
-    EcatClient *client_;  // TCP client to ecatd daemon
+    EcatClient* client_; // TCP client to ecatd daemon
 };

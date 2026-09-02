@@ -7,13 +7,9 @@
 //   - Utilization tracked as currentLoad vs capacity percentage
 //   - Optimization analyzes usage patterns and generates recommendations
 
-ResourceManagementService::ResourceManagementService(QObject *parent)
-    : QObject(parent)
-{
-}
+ResourceManagementService::ResourceManagementService(QObject* parent) : QObject(parent) {}
 
-Resource ResourceManagementService::allocateResource(const ResourceConfig &config)
-{
+Resource ResourceManagementService::allocateResource(const ResourceConfig& config) {
     if (config.name.trimmed().isEmpty() || config.capacity <= 0 || config.costPerHour < 0.0)
         return {};
 
@@ -36,14 +32,13 @@ Resource ResourceManagementService::allocateResource(const ResourceConfig &confi
     return r;
 }
 
-ResourceStatusInfo ResourceManagementService::trackResource(int resourceId) const
-{
+ResourceStatusInfo ResourceManagementService::trackResource(int resourceId) const {
     ResourceStatusInfo info;
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return info;
 
-    const Resource &r = *it;
+    const Resource& r = *it;
     info.resourceId = r.id;
     info.status = r.status;
     info.currentLoad = r.currentLoad;
@@ -54,12 +49,11 @@ ResourceStatusInfo ResourceManagementService::trackResource(int resourceId) cons
     return info;
 }
 
-ResourceOptimizationResult ResourceManagementService::optimizeResources() const
-{
+ResourceOptimizationResult ResourceManagementService::optimizeResources() const {
     ResourceOptimizationResult result;
     result.generatedAt = QDateTime::currentDateTime();
 
-    for (const auto &r : resources_) {
+    for (const auto& r : resources_) {
         if (r.status == ResourceStatus::Unavailable)
             continue;
 
@@ -88,33 +82,38 @@ ResourceOptimizationResult ResourceManagementService::optimizeResources() const
     return result;
 }
 
-ResourceReport ResourceManagementService::generateResourceReport() const
-{
+ResourceReport ResourceManagementService::generateResourceReport() const {
     ResourceReport report;
     report.generatedAt = QDateTime::currentDateTime();
     report.totalResources = resources_.size();
 
-    for (const auto &r : resources_) {
+    for (const auto& r : resources_) {
         switch (r.status) {
-        case ResourceStatus::Available: report.availableResources++; break;
-        case ResourceStatus::Allocated: report.allocatedResources++; break;
-        case ResourceStatus::Maintenance: report.maintenanceResources++; break;
-        default: break;
+            case ResourceStatus::Available:
+                report.availableResources++;
+                break;
+            case ResourceStatus::Allocated:
+                report.allocatedResources++;
+                break;
+            case ResourceStatus::Maintenance:
+                report.maintenanceResources++;
+                break;
+            default:
+                break;
         }
         report.totalCostPerHour += r.costPerHour;
         report.resources.append(r);
     }
 
-    for (const auto &allocs : allocations_) {
-        for (const auto &a : allocs)
+    for (const auto& allocs : allocations_) {
+        for (const auto& a : allocs)
             report.allocations.append(a);
     }
 
     return report;
 }
 
-bool ResourceManagementService::updateResourceStatus(int resourceId, ResourceStatus status)
-{
+bool ResourceManagementService::updateResourceStatus(int resourceId, ResourceStatus status) {
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return false;
@@ -125,8 +124,7 @@ bool ResourceManagementService::updateResourceStatus(int resourceId, ResourceSta
     return true;
 }
 
-bool ResourceManagementService::allocateToProject(int resourceId, int projectId, int percent)
-{
+bool ResourceManagementService::allocateToProject(int resourceId, int projectId, int percent) {
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return false;
@@ -151,8 +149,7 @@ bool ResourceManagementService::allocateToProject(int resourceId, int projectId,
     return true;
 }
 
-bool ResourceManagementService::releaseFromProject(int resourceId, int projectId)
-{
+bool ResourceManagementService::releaseFromProject(int resourceId, int projectId) {
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return false;
@@ -161,7 +158,7 @@ bool ResourceManagementService::releaseFromProject(int resourceId, int projectId
     if (allocIt == allocations_.end())
         return false;
 
-    for (auto &entry : *allocIt) {
+    for (auto& entry : *allocIt) {
         if (entry.projectId == projectId && entry.active) {
             entry.active = false;
             it->currentLoad -= entry.allocationPercent;
@@ -170,8 +167,11 @@ bool ResourceManagementService::releaseFromProject(int resourceId, int projectId
             it->updatedAt = QDateTime::currentDateTime();
 
             bool hasActive = false;
-            for (const auto &e : *allocIt) {
-                if (e.active) { hasActive = true; break; }
+            for (const auto& e : *allocIt) {
+                if (e.active) {
+                    hasActive = true;
+                    break;
+                }
             }
             if (!hasActive)
                 it->status = ResourceStatus::Available;
@@ -183,8 +183,7 @@ bool ResourceManagementService::releaseFromProject(int resourceId, int projectId
     return false;
 }
 
-bool ResourceManagementService::updateLoad(int resourceId, int load)
-{
+bool ResourceManagementService::updateLoad(int resourceId, int load) {
     auto it = resources_.find(resourceId);
     if (it == resources_.end())
         return false;
@@ -197,52 +196,46 @@ bool ResourceManagementService::updateLoad(int resourceId, int load)
     return true;
 }
 
-Resource ResourceManagementService::resource(int resourceId) const
-{
+Resource ResourceManagementService::resource(int resourceId) const {
     auto it = resources_.find(resourceId);
     if (it != resources_.end())
         return *it;
     return {};
 }
 
-QVector<Resource> ResourceManagementService::allResources() const
-{
+QVector<Resource> ResourceManagementService::allResources() const {
     QVector<Resource> result;
     result.reserve(resources_.size());
-    for (const auto &r : resources_)
+    for (const auto& r : resources_)
         result.append(r);
     return result;
 }
 
-QVector<Resource> ResourceManagementService::resourcesByType(ResourceType type) const
-{
+QVector<Resource> ResourceManagementService::resourcesByType(ResourceType type) const {
     QVector<Resource> result;
-    for (const auto &r : resources_) {
+    for (const auto& r : resources_) {
         if (r.type == type)
             result.append(r);
     }
     return result;
 }
 
-QVector<Resource> ResourceManagementService::availableResources() const
-{
+QVector<Resource> ResourceManagementService::availableResources() const {
     QVector<Resource> result;
-    for (const auto &r : resources_) {
+    for (const auto& r : resources_) {
         if (r.status == ResourceStatus::Available)
             result.append(r);
     }
     return result;
 }
 
-QVector<ResourceAllocationEntry> ResourceManagementService::resourceAllocations(int resourceId) const
-{
+QVector<ResourceAllocationEntry> ResourceManagementService::resourceAllocations(int resourceId) const {
     auto it = allocations_.find(resourceId);
     if (it != allocations_.end())
         return *it;
     return {};
 }
 
-int ResourceManagementService::resourceCount() const
-{
+int ResourceManagementService::resourceCount() const {
     return resources_.size();
 }

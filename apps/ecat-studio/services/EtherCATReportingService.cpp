@@ -1,6 +1,6 @@
 #include "EtherCATReportingService.h"
-#include "infra/EcatClient.h"
 #include "EventBus.h"
+#include "infra/EcatClient.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -12,18 +12,12 @@
 //   - Each report has titled sections with per-section recommendations
 //   - Export supports HTML (full page) and plain text (RST-like) formats
 
-EtherCATReportingService::EtherCATReportingService(EventBus *bus,
-                                                   EcatClient *client,
-                                                   QObject *parent)
-    : QObject(parent), bus_(bus), client_(client)
-{
-}
+EtherCATReportingService::EtherCATReportingService(EventBus* bus, EcatClient* client, QObject* parent)
+    : QObject(parent), bus_(bus), client_(client) {}
 
-Report EtherCATReportingService::makeReport(
-    const QString &title, const QString &summary,
-    const QVector<ReportSection> &sections,
-    const QStringList &recommendations)
-{
+Report EtherCATReportingService::makeReport(const QString& title, const QString& summary,
+                                            const QVector<ReportSection>& sections,
+                                            const QStringList& recommendations) {
     Report r;
     r.title = title;
     r.summary = summary;
@@ -34,14 +28,12 @@ Report EtherCATReportingService::makeReport(
     return r;
 }
 
-Report EtherCATReportingService::generateSystemReport()
-{
+Report EtherCATReportingService::generateSystemReport() {
     QVector<ReportSection> sections;
 
     ReportSection overview;
     overview.title = QStringLiteral("System Overview");
-    overview.content = QStringLiteral(
-        "Comprehensive system health and configuration report.");
+    overview.content = QStringLiteral("Comprehensive system health and configuration report.");
     overview.recommendations << QStringLiteral("Review all active slaves")
                              << QStringLiteral("Verify DC synchronization");
     sections << overview;
@@ -52,16 +44,13 @@ Report EtherCATReportingService::generateSystemReport()
     sections << config;
 
     QStringList recs;
-    recs << QStringLiteral("Keep firmware up to date")
-         << QStringLiteral("Monitor system health regularly");
+    recs << QStringLiteral("Keep firmware up to date") << QStringLiteral("Monitor system health regularly");
 
-    return makeReport(QStringLiteral("System Report"),
-                      QStringLiteral("System overview and configuration analysis"),
+    return makeReport(QStringLiteral("System Report"), QStringLiteral("System overview and configuration analysis"),
                       sections, recs);
 }
 
-Report EtherCATReportingService::generatePerformanceReport()
-{
+Report EtherCATReportingService::generatePerformanceReport() {
     QVector<ReportSection> sections;
 
     ReportSection timing;
@@ -77,23 +66,19 @@ Report EtherCATReportingService::generatePerformanceReport()
     sections << throughput;
 
     QStringList recs;
-    recs << QStringLiteral("Profile cycle time distribution")
-         << QStringLiteral("Check for frame loss under load");
+    recs << QStringLiteral("Profile cycle time distribution") << QStringLiteral("Check for frame loss under load");
 
-    return makeReport(QStringLiteral("Performance Report"),
-                      QStringLiteral("Network timing and throughput analysis"),
+    return makeReport(QStringLiteral("Performance Report"), QStringLiteral("Network timing and throughput analysis"),
                       sections, recs);
 }
 
-Report EtherCATReportingService::generateErrorReport()
-{
+Report EtherCATReportingService::generateErrorReport() {
     QVector<ReportSection> sections;
 
     ReportSection errors;
     errors.title = QStringLiteral("Error Summary");
     errors.content = QStringLiteral("Categorized error counts and trends.");
-    errors.recommendations << QStringLiteral("Address CRC errors first")
-                           << QStringLiteral("Check cable integrity");
+    errors.recommendations << QStringLiteral("Address CRC errors first") << QStringLiteral("Check cable integrity");
     sections << errors;
 
     ReportSection history;
@@ -102,16 +87,13 @@ Report EtherCATReportingService::generateErrorReport()
     sections << history;
 
     QStringList recs;
-    recs << QStringLiteral("Set up automated error alerting")
-         << QStringLiteral("Log errors for trend analysis");
+    recs << QStringLiteral("Set up automated error alerting") << QStringLiteral("Log errors for trend analysis");
 
-    return makeReport(QStringLiteral("Error Report"),
-                      QStringLiteral("Error analysis and trend reporting"),
-                      sections, recs);
+    return makeReport(QStringLiteral("Error Report"), QStringLiteral("Error analysis and trend reporting"), sections,
+                      recs);
 }
 
-Report EtherCATReportingService::generateComplianceReport()
-{
+Report EtherCATReportingService::generateComplianceReport() {
     QVector<ReportSection> sections;
 
     ReportSection ethercat;
@@ -131,20 +113,14 @@ Report EtherCATReportingService::generateComplianceReport()
          << QStringLiteral("Document compliance status for audits");
 
     return makeReport(QStringLiteral("Compliance Report"),
-                      QStringLiteral("Standards and safety compliance verification"),
-                      sections, recs);
+                      QStringLiteral("Standards and safety compliance verification"), sections, recs);
 }
 
-bool EtherCATReportingService::exportReport(const Report &report,
-                                            const QString &format)
-{
+bool EtherCATReportingService::exportReport(const Report& report, const QString& format) {
     return !renderReport(report, format).isEmpty();
 }
 
-bool EtherCATReportingService::exportReport(const Report &report,
-                                            const QString &filePath,
-                                            const QString &format)
-{
+bool EtherCATReportingService::exportReport(const Report& report, const QString& filePath, const QString& format) {
     if (filePath.isEmpty())
         return false;
 
@@ -161,58 +137,51 @@ bool EtherCATReportingService::exportReport(const Report &report,
     return out.status() == QTextStream::Ok;
 }
 
-QString EtherCATReportingService::renderReport(const Report &report,
-                                               const QString &format) const
-{
+QString EtherCATReportingService::renderReport(const Report& report, const QString& format) const {
     if (report.title.isEmpty())
         return {};
 
     QString content;
     if (format == QStringLiteral("html")) {
-        content = QStringLiteral(
-            "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-            "<title>%1</title></head><body>\n"
-            "<h1>%1</h1>\n<p>%2</p>\n")
+        content = QStringLiteral("<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+                                 "<title>%1</title></head><body>\n"
+                                 "<h1>%1</h1>\n<p>%2</p>\n")
                       .arg(report.title, report.summary);
 
-        for (const auto &section : report.sections) {
-            content += QStringLiteral("<h2>%1</h2>\n<p>%2</p>\n")
-                           .arg(section.title, section.content);
-            for (const auto &rec : section.recommendations)
+        for (const auto& section : report.sections) {
+            content += QStringLiteral("<h2>%1</h2>\n<p>%2</p>\n").arg(section.title, section.content);
+            for (const auto& rec : section.recommendations)
                 content += QStringLiteral("<li>%1</li>\n").arg(rec);
         }
 
         if (!report.recommendations.isEmpty()) {
             content += QStringLiteral("<h2>Recommendations</h2>\n<ul>\n");
-            for (const auto &rec : report.recommendations)
+            for (const auto& rec : report.recommendations)
                 content += QStringLiteral("<li>%1</li>\n").arg(rec);
             content += QStringLiteral("</ul>\n");
         }
 
-        content += QStringLiteral(
-            "<hr><p>Generated: %1</p></body></html>")
-                       .arg(report.timestamp.toString(Qt::ISODate));
+        content += QStringLiteral("<hr><p>Generated: %1</p></body></html>").arg(report.timestamp.toString(Qt::ISODate));
     } else if (format == QStringLiteral("text")) {
         content = report.title + QStringLiteral("\n");
         content += QString(report.title.size(), '=') + QStringLiteral("\n\n");
         content += report.summary + QStringLiteral("\n\n");
 
-        for (const auto &section : report.sections) {
+        for (const auto& section : report.sections) {
             content += section.title + QStringLiteral("\n");
             content += QString(section.title.size(), '-') + QStringLiteral("\n");
             content += section.content + QStringLiteral("\n\n");
-            for (const auto &rec : section.recommendations)
+            for (const auto& rec : section.recommendations)
                 content += QStringLiteral("  * %1\n").arg(rec);
         }
 
         if (!report.recommendations.isEmpty()) {
             content += QStringLiteral("\nRecommendations:\n");
-            for (const auto &rec : report.recommendations)
+            for (const auto& rec : report.recommendations)
                 content += QStringLiteral("  * %1\n").arg(rec);
         }
 
-        content += QStringLiteral("\nGenerated: %1\n")
-                       .arg(report.timestamp.toString(Qt::ISODate));
+        content += QStringLiteral("\nGenerated: %1\n").arg(report.timestamp.toString(Qt::ISODate));
     } else {
         return {};
     }

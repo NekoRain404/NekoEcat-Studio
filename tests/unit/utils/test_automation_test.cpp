@@ -5,9 +5,9 @@
 //   - Coverage calculation
 //   - Test discovery with invalid paths
 
-#include <QTest>
-#include <QSignalSpy>
 #include "utils/TestAutomation.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class TestAutomationTest : public QObject {
     Q_OBJECT

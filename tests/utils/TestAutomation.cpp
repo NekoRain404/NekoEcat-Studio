@@ -7,15 +7,14 @@
 #include <QProcess>
 #include <QTextStream>
 
-QStringList TestAutomation::discoverTests(const QString &directory)
-{
+QStringList TestAutomation::discoverTests(const QString& directory) {
     QStringList result;
     QDir dir(directory);
     if (!dir.exists())
         return result;
 
     const auto entries = dir.entryInfoList(QDir::Files | QDir::Executable);
-    for (const QFileInfo &fi : entries) {
+    for (const QFileInfo& fi : entries) {
         if (fi.fileName().endsWith("_test") || fi.fileName().endsWith("_test.exe")) {
             result.append(fi.absoluteFilePath());
         }
@@ -24,14 +23,13 @@ QStringList TestAutomation::discoverTests(const QString &directory)
     return result;
 }
 
-TestResults TestAutomation::executeTests(const QStringList &tests, int parallel)
-{
+TestResults TestAutomation::executeTests(const QStringList& tests, int parallel) {
     TestResults results;
     results.startTime = QDateTime::currentDateTime();
     QElapsedTimer timer;
     timer.start();
 
-    for (const QString &test : tests) {
+    for (const QString& test : tests) {
         QProcess proc;
         proc.start(test, QStringList() << "-o" << "/dev/null,txt");
         proc.waitForFinished(60000);
@@ -53,8 +51,7 @@ TestResults TestAutomation::executeTests(const QStringList &tests, int parallel)
     return results;
 }
 
-QString TestAutomation::generateReport(const TestResults &results)
-{
+QString TestAutomation::generateReport(const TestResults& results) {
     QString out;
     QTextStream ts(&out);
 
@@ -70,7 +67,7 @@ QString TestAutomation::generateReport(const TestResults &results)
 
     if (!results.failures.isEmpty()) {
         ts << "--- Failures ---\n";
-        for (const Failure &f : results.failures) {
+        for (const Failure& f : results.failures) {
             ts << "  " << f.testName << ": " << f.message << "\n";
             if (!f.file.isEmpty())
                 ts << "    at " << f.file << ":" << f.line << "\n";
@@ -80,8 +77,7 @@ QString TestAutomation::generateReport(const TestResults &results)
     return out;
 }
 
-CoverageReport TestAutomation::calculateCoverage(const TestResults &results)
-{
+CoverageReport TestAutomation::calculateCoverage(const TestResults& results) {
     CoverageReport report;
     if (results.total == 0)
         return report;

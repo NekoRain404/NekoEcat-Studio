@@ -118,22 +118,24 @@ jobs:
 
   format-check:
     runs-on: ubuntu-latest
-    # Pre-existing debt: ~300 files predate the committed .clang-format and fail
-    # this check (it has been red since July 2026). Keep it running so the
-    # violations stay visible, but don't block the pipeline until a dedicated
-    # formatting commit lands. Add "continue-on-error: false" back once clean.
-    continue-on-error: true
+    # The whole tree is now formatted with clang-format-18 (pinned below), so
+    # this is a hard gate: any formatting drift fails the pipeline.
     steps:
       - uses: actions/checkout@v4
 
       - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+        # Pin clang-format-18: the whole tree is formatted with 18.1.8 (the
+        # version used to reformat the codebase). Do NOT install the
+        # version-agnostic 'clang-format' alias, which drifts with the distro.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-18
 
       - name: Check formatting
         run: |
-          find src apps tests -name '*.cpp' -o -name '*.h' | \
-            xargs -r clang-format --dry-run --Werror 2>&1 || {
-              echo "::error::Code formatting issues found. Run: find src apps tests -name '*.cpp' -o -name '*.h' | xargs clang-format -i"
+          find src apps tests -name '*.cpp' -o -name '*.h' -o -name '*.c' | \
+            xargs -r clang-format-18 --dry-run --Werror 2>&1 || {
+              echo "::error::Code formatting issues found. Run: find src apps tests -name '*.cpp' -o -name '*.h' -o -name '*.c' | xargs clang-format-18 -i"
               exit 1
             }
 

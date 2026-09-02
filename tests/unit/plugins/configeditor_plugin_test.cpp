@@ -8,212 +8,210 @@
 //   - Config validation
 //   - Import/export functionality
 
+#include "plugins/configeditor/ConfigurationEditorPlugin.h"
 #include <QFile>
+#include <QLabel>
 #include <QRegularExpression>
-#include <QTemporaryDir>
-#include <QTest>
 #include <QSignalSpy>
 #include <QTableWidget>
+#include <QTemporaryDir>
+#include <QTest>
 #include <QTextEdit>
 #include <QTreeWidget>
-#include <QLabel>
-#include "plugins/configeditor/ConfigurationEditorPlugin.h"
 
 class ConfigurationEditorPluginTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  // Verify plugin id, display names, and default order
-  void testPluginIdentity() {
-    ConfigurationEditorPlugin plugin;
-    QCOMPARE(plugin.id(), QString("configeditor"));
-    QCOMPARE(plugin.displayName(), QString("Configuration Editor"));
-    QCOMPARE(plugin.displayNameZh(), QString("配置编辑器"));
-    QCOMPARE(plugin.defaultOrder(), 265);
-    QCOMPARE(plugin.visible(), false);
-  }
+    // Verify plugin id, display names, and default order
+    void testPluginIdentity() {
+        ConfigurationEditorPlugin plugin;
+        QCOMPARE(plugin.id(), QString("configeditor"));
+        QCOMPARE(plugin.displayName(), QString("Configuration Editor"));
+        QCOMPARE(plugin.displayNameZh(), QString("配置编辑器"));
+        QCOMPARE(plugin.defaultOrder(), 265);
+        QCOMPARE(plugin.visible(), false);
+    }
 
-  // Verify widget is created
-  void testWidgetCreation() {
-    ConfigurationEditorPlugin plugin;
-    QVERIFY(plugin.widget() != nullptr);
-  }
+    // Verify widget is created
+    void testWidgetCreation() {
+        ConfigurationEditorPlugin plugin;
+        QVERIFY(plugin.widget() != nullptr);
+    }
 
-  // Verify initial config count and selection state
-  void testInitialState() {
-    ConfigurationEditorPlugin plugin;
-    QCOMPARE(plugin.configCount(), 6);
-    QCOMPARE(plugin.selectedConfig(), -1);
-    QCOMPARE(plugin.errorCount(), 0);
-  }
+    // Verify initial config count and selection state
+    void testInitialState() {
+        ConfigurationEditorPlugin plugin;
+        QCOMPARE(plugin.configCount(), 6);
+        QCOMPARE(plugin.selectedConfig(), -1);
+        QCOMPARE(plugin.errorCount(), 0);
+    }
 
-  // Verify config tree widget exists with items
-  void testConfigTree() {
-    ConfigurationEditorPlugin plugin;
-    QTreeWidget *tree = plugin.configTree();
-    QVERIFY(tree != nullptr);
-    QVERIFY(tree->topLevelItemCount() > 0);
-  }
+    // Verify config tree widget exists with items
+    void testConfigTree() {
+        ConfigurationEditorPlugin plugin;
+        QTreeWidget* tree = plugin.configTree();
+        QVERIFY(tree != nullptr);
+        QVERIFY(tree->topLevelItemCount() > 0);
+    }
 
-  // Verify select config updates selection and editor
-  void testSelectConfig() {
-    ConfigurationEditorPlugin plugin;
-    QSignalSpy selectSpy(&plugin, &ConfigurationEditorPlugin::configSelected);
+    // Verify select config updates selection and editor
+    void testSelectConfig() {
+        ConfigurationEditorPlugin plugin;
+        QSignalSpy selectSpy(&plugin, &ConfigurationEditorPlugin::configSelected);
 
-    plugin.selectConfig(0);
-    QCOMPARE(plugin.selectedConfig(), 0);
-    QCOMPARE(selectSpy.count(), 1);
+        plugin.selectConfig(0);
+        QCOMPARE(plugin.selectedConfig(), 0);
+        QCOMPARE(selectSpy.count(), 1);
 
-    QTextEdit *editor = plugin.configEditor();
-    QVERIFY(editor != nullptr);
-    QVERIFY(!editor->toPlainText().isEmpty());
-  }
+        QTextEdit* editor = plugin.configEditor();
+        QVERIFY(editor != nullptr);
+        QVERIFY(!editor->toPlainText().isEmpty());
+    }
 
-  // Verify adding a config entry increments count
-  void testAddConfig() {
-    ConfigurationEditorPlugin plugin;
-    int initial = plugin.configCount();
+    // Verify adding a config entry increments count
+    void testAddConfig() {
+        ConfigurationEditorPlugin plugin;
+        int initial = plugin.configCount();
 
-    ConfigurationEditorPlugin::ConfigEntry entry;
-    entry.category = "Test";
-    entry.key = "test.key";
-    entry.value = "test_value";
-    entry.description = "Test entry";
+        ConfigurationEditorPlugin::ConfigEntry entry;
+        entry.category = "Test";
+        entry.key = "test.key";
+        entry.value = "test_value";
+        entry.description = "Test entry";
 
-    plugin.addConfig(entry);
-    QCOMPARE(plugin.configCount(), initial + 1);
-  }
+        plugin.addConfig(entry);
+        QCOMPARE(plugin.configCount(), initial + 1);
+    }
 
-  // Verify removing a config entry decrements count
-  void testRemoveConfig() {
-    ConfigurationEditorPlugin plugin;
-    int initial = plugin.configCount();
+    // Verify removing a config entry decrements count
+    void testRemoveConfig() {
+        ConfigurationEditorPlugin plugin;
+        int initial = plugin.configCount();
 
-    plugin.removeConfig(0);
-    QCOMPARE(plugin.configCount(), initial - 1);
-  }
+        plugin.removeConfig(0);
+        QCOMPARE(plugin.configCount(), initial - 1);
+    }
 
-  // Verify updating config emits change signal
-  void testUpdateConfig() {
-    ConfigurationEditorPlugin plugin;
-    QSignalSpy changeSpy(&plugin, &ConfigurationEditorPlugin::configChanged);
+    // Verify updating config emits change signal
+    void testUpdateConfig() {
+        ConfigurationEditorPlugin plugin;
+        QSignalSpy changeSpy(&plugin, &ConfigurationEditorPlugin::configChanged);
 
-    plugin.updateConfig(0, "new_value");
-    QCOMPARE(changeSpy.count(), 1);
-  }
+        plugin.updateConfig(0, "new_value");
+        QCOMPARE(changeSpy.count(), 1);
+    }
 
-  // Verify validate passes with valid config
-  void testValidate() {
-    ConfigurationEditorPlugin plugin;
-    QSignalSpy validSpy(&plugin, &ConfigurationEditorPlugin::validationCompleted);
+    // Verify validate passes with valid config
+    void testValidate() {
+        ConfigurationEditorPlugin plugin;
+        QSignalSpy validSpy(&plugin, &ConfigurationEditorPlugin::validationCompleted);
 
-    plugin.validate();
-    QCOMPARE(validSpy.count(), 1);
-    QCOMPARE(plugin.errorCount(), 0);
-  }
+        plugin.validate();
+        QCOMPARE(validSpy.count(), 1);
+        QCOMPARE(plugin.errorCount(), 0);
+    }
 
-  // Verify validate detects empty value
-  void testValidateEmptyValue() {
-    ConfigurationEditorPlugin plugin;
+    // Verify validate detects empty value
+    void testValidateEmptyValue() {
+        ConfigurationEditorPlugin plugin;
 
-    ConfigurationEditorPlugin::ConfigEntry entry;
-    entry.category = "Test";
-    entry.key = "empty.key";
-    entry.value = "";
-    entry.description = "Empty value";
-    plugin.addConfig(entry);
+        ConfigurationEditorPlugin::ConfigEntry entry;
+        entry.category = "Test";
+        entry.key = "empty.key";
+        entry.value = "";
+        entry.description = "Empty value";
+        plugin.addConfig(entry);
 
-    plugin.validate();
-    QVERIFY(plugin.errorCount() > 0);
-  }
+        plugin.validate();
+        QVERIFY(plugin.errorCount() > 0);
+    }
 
-  // Verify validation table structure
-  void testValidationTable() {
-    ConfigurationEditorPlugin plugin;
-    QTableWidget *table = plugin.validationTable();
-    QVERIFY(table != nullptr);
-    QCOMPARE(table->columnCount(), 2);
-  }
+    // Verify validation table structure
+    void testValidationTable() {
+        ConfigurationEditorPlugin plugin;
+        QTableWidget* table = plugin.validationTable();
+        QVERIFY(table != nullptr);
+        QCOMPARE(table->columnCount(), 2);
+    }
 
-  // Verify preview shows config content
-  void testPreview() {
-    ConfigurationEditorPlugin plugin;
-    QTextEdit *pv = plugin.configPreview();
-    QVERIFY(pv != nullptr);
+    // Verify preview shows config content
+    void testPreview() {
+        ConfigurationEditorPlugin plugin;
+        QTextEdit* pv = plugin.configPreview();
+        QVERIFY(pv != nullptr);
 
-    plugin.selectConfig(0);
-    QVERIFY(!pv->toPlainText().isEmpty());
-  }
+        plugin.selectConfig(0);
+        QVERIFY(!pv->toPlainText().isEmpty());
+    }
 
-  // Verify refresh preview updates content
-  void testRefreshPreview() {
-    ConfigurationEditorPlugin plugin;
-    plugin.refreshPreview();
-    QVERIFY(!plugin.configPreview()->toPlainText().isEmpty());
-  }
+    // Verify refresh preview updates content
+    void testRefreshPreview() {
+        ConfigurationEditorPlugin plugin;
+        plugin.refreshPreview();
+        QVERIFY(!plugin.configPreview()->toPlainText().isEmpty());
+    }
 
-  // Verify status label updates on validation
-  void testStatusLabel() {
-    ConfigurationEditorPlugin plugin;
-    QLabel *label = plugin.statusLabel();
-    QVERIFY(label != nullptr);
+    // Verify status label updates on validation
+    void testStatusLabel() {
+        ConfigurationEditorPlugin plugin;
+        QLabel* label = plugin.statusLabel();
+        QVERIFY(label != nullptr);
 
-    plugin.validate();
-    QVERIFY(label->text().contains("Validation"));
-  }
+        plugin.validate();
+        QVERIFY(label->text().contains("Validation"));
+    }
 
-  // Verify export config creates file
-  void testExportConfig() {
-    ConfigurationEditorPlugin plugin;
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
+    // Verify export config creates file
+    void testExportConfig() {
+        ConfigurationEditorPlugin plugin;
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
 
-    const QString path = dir.filePath("config_export_test.txt");
-    QVERIFY(plugin.exportConfig(path));
-    QVERIFY(QFile::exists(path));
+        const QString path = dir.filePath("config_export_test.txt");
+        QVERIFY(plugin.exportConfig(path));
+        QVERIFY(QFile::exists(path));
 
-    QFile file(path);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString text = QString::fromUtf8(file.readAll());
-    QVERIFY(text.contains(QStringLiteral("Network.master.name = ecat0\n")));
-    QVERIFY(text.contains(QStringLiteral("Timing.dc.sync0_cycle = 1000\n")));
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString text = QString::fromUtf8(file.readAll());
+        QVERIFY(text.contains(QStringLiteral("Network.master.name = ecat0\n")));
+        QVERIFY(text.contains(QStringLiteral("Timing.dc.sync0_cycle = 1000\n")));
 
-    QTest::failOnWarning(QRegularExpression(
-        QStringLiteral("QFSFileEngine::open: No file name specified")));
-    QVERIFY(!plugin.exportConfig(QString()));
-    QVERIFY(!plugin.exportConfig(dir.path()));
-  }
+        QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+        QVERIFY(!plugin.exportConfig(QString()));
+        QVERIFY(!plugin.exportConfig(dir.path()));
+    }
 
-  // Verify import config adds entries
-  void testImportConfig() {
-    ConfigurationEditorPlugin plugin;
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
+    // Verify import config adds entries
+    void testImportConfig() {
+        ConfigurationEditorPlugin plugin;
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
 
-    const int initial = plugin.configCount();
+        const int initial = plugin.configCount();
 
-    const QString path = dir.filePath("config_import_test.txt");
-    QFile f(path);
-    QVERIFY(f.open(QIODevice::WriteOnly | QIODevice::Text));
-    QTextStream out(&f);
-    out << "imported.key = imported_value\n";
-    f.close();
+        const QString path = dir.filePath("config_import_test.txt");
+        QFile f(path);
+        QVERIFY(f.open(QIODevice::WriteOnly | QIODevice::Text));
+        QTextStream out(&f);
+        out << "imported.key = imported_value\n";
+        f.close();
 
-    QVERIFY(plugin.importConfig(path));
-    QCOMPARE(plugin.configCount(), initial + 1);
+        QVERIFY(plugin.importConfig(path));
+        QCOMPARE(plugin.configCount(), initial + 1);
 
-    const QString commentsOnlyPath = dir.filePath("comments_only.txt");
-    QFile commentsOnly(commentsOnlyPath);
-    QVERIFY(commentsOnly.open(QIODevice::WriteOnly | QIODevice::Text));
-    commentsOnly.write("# comment only\n\nmissing equals\n");
-    commentsOnly.close();
-    QVERIFY(!plugin.importConfig(commentsOnlyPath));
+        const QString commentsOnlyPath = dir.filePath("comments_only.txt");
+        QFile commentsOnly(commentsOnlyPath);
+        QVERIFY(commentsOnly.open(QIODevice::WriteOnly | QIODevice::Text));
+        commentsOnly.write("# comment only\n\nmissing equals\n");
+        commentsOnly.close();
+        QVERIFY(!plugin.importConfig(commentsOnlyPath));
 
-    QTest::failOnWarning(QRegularExpression(
-        QStringLiteral("QFSFileEngine::open: No file name specified")));
-    QVERIFY(!plugin.importConfig(QString()));
-    QVERIFY(!plugin.importConfig(dir.path()));
-    QVERIFY(!plugin.importConfig(dir.filePath("missing_config.txt")));
-  }
+        QTest::failOnWarning(QRegularExpression(QStringLiteral("QFSFileEngine::open: No file name specified")));
+        QVERIFY(!plugin.importConfig(QString()));
+        QVERIFY(!plugin.importConfig(dir.path()));
+        QVERIFY(!plugin.importConfig(dir.filePath("missing_config.txt")));
+    }
 };
 
 QTEST_MAIN(ConfigurationEditorPluginTest)

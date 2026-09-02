@@ -33,65 +33,65 @@
 class EcatClient;
 
 class SdoService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit SdoService(EcatClient *client, QObject *parent = nullptr);
+    explicit SdoService(EcatClient* client, QObject* parent = nullptr);
 
-  // Upload (read) an SDO value from a slave.
-  // @param position  Slave position on the bus (0-based)
-  // @param index     SDO index in hex format (e.g., "0x6000")
-  // @param subIndex  SDO subindex in hex format (e.g., "0x01")
-  // Emits sdoValueReceived() on success, error() on failure.
-  void upload(int position, const QString &index, const QString &subIndex);
+    // Upload (read) an SDO value from a slave.
+    // @param position  Slave position on the bus (0-based)
+    // @param index     SDO index in hex format (e.g., "0x6000")
+    // @param subIndex  SDO subindex in hex format (e.g., "0x01")
+    // Emits sdoValueReceived() on success, error() on failure.
+    void upload(int position, const QString& index, const QString& subIndex);
 
-  // Download (write) an SDO value to a slave.
-  // @param position  Slave position on the bus (0-based)
-  // @param index     SDO index in hex format (e.g., "0x6000")
-  // @param subIndex  SDO subindex in hex format (e.g., "0x01")
-  // @param value     Value to write (string representation)
-  // @param type      Data type (e.g., "UINT8", "INT16", "STRING")
-  // Emits sdoValueReceived() on success, error() on failure.
-  void download(int position, const QString &index, const QString &subIndex,
-                const QString &value, const QString &type);
+    // Download (write) an SDO value to a slave.
+    // @param position  Slave position on the bus (0-based)
+    // @param index     SDO index in hex format (e.g., "0x6000")
+    // @param subIndex  SDO subindex in hex format (e.g., "0x01")
+    // @param value     Value to write (string representation)
+    // @param type      Data type (e.g., "UINT8", "INT16", "STRING")
+    // Emits sdoValueReceived() on success, error() on failure.
+    void download(int position, const QString& index, const QString& subIndex, const QString& value,
+                  const QString& type);
 
-  // Translate an SDO error code or message into a user-friendly description.
-  // @param rawError  The raw error string from the daemon
-  // @return Human-readable error description with suggested action
-  static QString translateSdoError(const QString &rawError);
+    // Translate an SDO error code or message into a user-friendly description.
+    // @param rawError  The raw error string from the daemon
+    // @return Human-readable error description with suggested action
+    static QString translateSdoError(const QString& rawError);
 
 signals:
-  // Emitted when an SDO value is successfully read or written.
-  // @param position  Slave position
-  // @param index     SDO index
-  // @param subIndex  SDO subindex
-  // @param value     The value read/written
-  void sdoValueReceived(int position, const QString &index, const QString &subIndex, const QString &value);
+    // Emitted when an SDO value is successfully read or written.
+    // @param position  Slave position
+    // @param index     SDO index
+    // @param subIndex  SDO subindex
+    // @param value     The value read/written
+    void sdoValueReceived(int position, const QString& index, const QString& subIndex, const QString& value);
 
-  // Emitted when an SDO operation fails.
-  // @param message  Human-readable error description
-  void error(const QString &message);
+    // Emitted when an SDO operation fails.
+    // @param message  Human-readable error description
+    void error(const QString& message);
 
-  // Emitted when an SDO operation is taking longer than expected.
-  // @param position  Slave position
-  // @param index     SDO index
-  // @param subIndex  SDO subindex
-  // @param elapsedMs How long the operation has been pending
-  void sdoTimeoutWarning(int position, const QString &index, const QString &subIndex, int elapsedMs);
+    // Emitted when an SDO operation is taking longer than expected.
+    // @param position  Slave position
+    // @param index     SDO index
+    // @param subIndex  SDO subindex
+    // @param elapsedMs How long the operation has been pending
+    void sdoTimeoutWarning(int position, const QString& index, const QString& subIndex, int elapsedMs);
 
 private:
-  void trackPendingOperation(int position, const QString &index, const QString &subIndex, const QString &opType);
-  void clearPendingOperation(int position, const QString &index, const QString &subIndex);
+    void trackPendingOperation(int position, const QString& index, const QString& subIndex, const QString& opType);
+    void clearPendingOperation(int position, const QString& index, const QString& subIndex);
 
-  EcatClient *client_;  // TCP client to ecatd daemon
-  QTimer *timeoutCheckTimer_;  // Periodic check for slow SDO operations
+    EcatClient* client_;        // TCP client to ecatd daemon
+    QTimer* timeoutCheckTimer_; // Periodic check for slow SDO operations
 
-  struct PendingOp {
-    int position;
-    QString index;
-    QString subIndex;
-    QString opType;
-    qint64 startTimeMs;
-  };
-  QVector<PendingOp> pendingOps_;
-  static constexpr int kSdoTimeoutWarningMs = 5000;  // Warn after 5s
+    struct PendingOp {
+        int position;
+        QString index;
+        QString subIndex;
+        QString opType;
+        qint64 startTimeMs;
+    };
+    QVector<PendingOp> pendingOps_;
+    static constexpr int kSdoTimeoutWarningMs = 5000; // Warn after 5s
 };

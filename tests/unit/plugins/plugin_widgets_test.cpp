@@ -52,16 +52,14 @@ private slots:
 
 // ── LatencyOptimizerWidget ──────────────────────────────────────────
 
-void PluginWidgetsTest::latencyWidgetCreation()
-{
+void PluginWidgetsTest::latencyWidgetCreation() {
     LatencyOptimizerWidget w;
     QVERIFY(w.isVisible() == false);
     w.show();
     QVERIFY(w.isVisible());
 }
 
-void PluginWidgetsTest::latencyWidgetUpdateResult()
-{
+void PluginWidgetsTest::latencyWidgetUpdateResult() {
     LatencyOptimizerWidget w;
     OptimizationResult r;
     r.before = 150.0;
@@ -72,8 +70,7 @@ void PluginWidgetsTest::latencyWidgetUpdateResult()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::latencyWidgetEmptyRecommendations()
-{
+void PluginWidgetsTest::latencyWidgetEmptyRecommendations() {
     LatencyOptimizerWidget w;
     OptimizationResult r;
     r.before = 100.0;
@@ -84,8 +81,7 @@ void PluginWidgetsTest::latencyWidgetEmptyRecommendations()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::latencyWidgetZeroValues()
-{
+void PluginWidgetsTest::latencyWidgetZeroValues() {
     LatencyOptimizerWidget w;
     OptimizationResult r;
     r.before = 0.0;
@@ -95,8 +91,7 @@ void PluginWidgetsTest::latencyWidgetZeroValues()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::latencyWidgetLargeValues()
-{
+void PluginWidgetsTest::latencyWidgetLargeValues() {
     LatencyOptimizerWidget w;
     OptimizationResult r;
     r.before = 999999.9;
@@ -107,23 +102,21 @@ void PluginWidgetsTest::latencyWidgetLargeValues()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::latencyWidgetSignalEmission()
-{
+void PluginWidgetsTest::latencyWidgetSignalEmission() {
     LatencyOptimizerWidget w;
     QSignalSpy spy(&w, &LatencyOptimizerWidget::optimizeRequested);
     QVERIFY(spy.isValid());
     QCOMPARE(spy.count(), 0);
-    auto *btn = w.findChild<QPushButton *>();
+    auto* btn = w.findChild<QPushButton*>();
     if (btn) {
         QTest::mouseClick(btn, Qt::LeftButton);
         QCOMPARE(spy.count(), 1);
     }
 }
 
-void PluginWidgetsTest::latencyWidgetParentOwnership()
-{
-    auto *parent = new QWidget;
-    auto *child = new LatencyOptimizerWidget(parent);
+void PluginWidgetsTest::latencyWidgetParentOwnership() {
+    auto* parent = new QWidget;
+    auto* child = new LatencyOptimizerWidget(parent);
     QVERIFY(child->parent() == parent);
     delete parent;
     QVERIFY(true);
@@ -131,16 +124,14 @@ void PluginWidgetsTest::latencyWidgetParentOwnership()
 
 // ── ThroughputOptimizerWidget ────────────────────────────────────────
 
-void PluginWidgetsTest::throughputWidgetCreation()
-{
+void PluginWidgetsTest::throughputWidgetCreation() {
     ThroughputOptimizerWidget w;
     QVERIFY(w.isVisible() == false);
     w.show();
     QVERIFY(w.isVisible());
 }
 
-void PluginWidgetsTest::throughputWidgetUpdateResult()
-{
+void PluginWidgetsTest::throughputWidgetUpdateResult() {
     ThroughputOptimizerWidget w;
     OptimizationResult r;
     r.before = 1000.0;
@@ -151,8 +142,7 @@ void PluginWidgetsTest::throughputWidgetUpdateResult()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::throughputWidgetEmptyRecommendations()
-{
+void PluginWidgetsTest::throughputWidgetEmptyRecommendations() {
     ThroughputOptimizerWidget w;
     OptimizationResult r;
     r.before = 500.0;
@@ -163,8 +153,7 @@ void PluginWidgetsTest::throughputWidgetEmptyRecommendations()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::throughputWidgetZeroValues()
-{
+void PluginWidgetsTest::throughputWidgetZeroValues() {
     ThroughputOptimizerWidget w;
     OptimizationResult r;
     r.before = 0.0;
@@ -174,8 +163,7 @@ void PluginWidgetsTest::throughputWidgetZeroValues()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::throughputWidgetLargeValues()
-{
+void PluginWidgetsTest::throughputWidgetLargeValues() {
     ThroughputOptimizerWidget w;
     OptimizationResult r;
     r.before = 1e9;
@@ -186,23 +174,21 @@ void PluginWidgetsTest::throughputWidgetLargeValues()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::throughputWidgetSignalEmission()
-{
+void PluginWidgetsTest::throughputWidgetSignalEmission() {
     ThroughputOptimizerWidget w;
     QSignalSpy spy(&w, &ThroughputOptimizerWidget::optimizeRequested);
     QVERIFY(spy.isValid());
     QCOMPARE(spy.count(), 0);
-    auto *btn = w.findChild<QPushButton *>();
+    auto* btn = w.findChild<QPushButton*>();
     if (btn) {
         QTest::mouseClick(btn, Qt::LeftButton);
         QCOMPARE(spy.count(), 1);
     }
 }
 
-void PluginWidgetsTest::throughputWidgetParentOwnership()
-{
-    auto *parent = new QWidget;
-    auto *child = new ThroughputOptimizerWidget(parent);
+void PluginWidgetsTest::throughputWidgetParentOwnership() {
+    auto* parent = new QWidget;
+    auto* child = new ThroughputOptimizerWidget(parent);
     QVERIFY(child->parent() == parent);
     delete parent;
     QVERIFY(true);
@@ -210,16 +196,14 @@ void PluginWidgetsTest::throughputWidgetParentOwnership()
 
 // ── ErrorTimelineWidget ─────────────────────────────────────────────
 
-void PluginWidgetsTest::errorTimelineCreation()
-{
+void PluginWidgetsTest::errorTimelineCreation() {
     ErrorTimelineWidget w;
     QCOMPARE(w.eventCount(), 0);
     w.show();
     QVERIFY(w.isVisible());
 }
 
-void PluginWidgetsTest::errorTimelineSetEvents()
-{
+void PluginWidgetsTest::errorTimelineSetEvents() {
     ErrorTimelineWidget w;
     QVector<TimelineEvent> events;
     TimelineEvent e1;
@@ -240,8 +224,7 @@ void PluginWidgetsTest::errorTimelineSetEvents()
     QCOMPARE(w.eventCount(), 2);
 }
 
-void PluginWidgetsTest::errorTimelineClearEvents()
-{
+void PluginWidgetsTest::errorTimelineClearEvents() {
     ErrorTimelineWidget w;
     QVector<TimelineEvent> events;
     TimelineEvent e;
@@ -256,8 +239,7 @@ void PluginWidgetsTest::errorTimelineClearEvents()
     QCOMPARE(w.eventCount(), 0);
 }
 
-void PluginWidgetsTest::errorTimelineEventCount()
-{
+void PluginWidgetsTest::errorTimelineEventCount() {
     ErrorTimelineWidget w;
     QCOMPARE(w.eventCount(), 0);
 
@@ -273,16 +255,14 @@ void PluginWidgetsTest::errorTimelineEventCount()
     QCOMPARE(w.eventCount(), 50);
 }
 
-void PluginWidgetsTest::errorTimelineEmptyEvents()
-{
+void PluginWidgetsTest::errorTimelineEmptyEvents() {
     ErrorTimelineWidget w;
     QVector<TimelineEvent> events;
     w.setEvents(events);
     QCOMPARE(w.eventCount(), 0);
 }
 
-void PluginWidgetsTest::errorTimelineLargeDataSet()
-{
+void PluginWidgetsTest::errorTimelineLargeDataSet() {
     ErrorTimelineWidget w;
     QVector<TimelineEvent> events;
     for (int i = 0; i < 10000; ++i) {
@@ -297,24 +277,21 @@ void PluginWidgetsTest::errorTimelineLargeDataSet()
     QCOMPARE(w.eventCount(), 10000);
 }
 
-void PluginWidgetsTest::errorTimelineZoomIn()
-{
+void PluginWidgetsTest::errorTimelineZoomIn() {
     ErrorTimelineWidget w;
     w.zoomIn();
     w.zoomIn();
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::errorTimelineZoomOut()
-{
+void PluginWidgetsTest::errorTimelineZoomOut() {
     ErrorTimelineWidget w;
     w.zoomOut();
     w.zoomOut();
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::errorTimelineResetZoom()
-{
+void PluginWidgetsTest::errorTimelineResetZoom() {
     ErrorTimelineWidget w;
     w.zoomIn();
     w.zoomIn();
@@ -323,8 +300,7 @@ void PluginWidgetsTest::errorTimelineResetZoom()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::errorTimelineZoomLimits()
-{
+void PluginWidgetsTest::errorTimelineZoomLimits() {
     ErrorTimelineWidget w;
     for (int i = 0; i < 100; ++i)
         w.zoomIn();
@@ -336,8 +312,7 @@ void PluginWidgetsTest::errorTimelineZoomLimits()
     QVERIFY(true);
 }
 
-void PluginWidgetsTest::errorTimelineEventsSortedByTimestamp()
-{
+void PluginWidgetsTest::errorTimelineEventsSortedByTimestamp() {
     ErrorTimelineWidget w;
     QVector<TimelineEvent> events;
     auto base = QDateTime::currentDateTime();
@@ -358,10 +333,9 @@ void PluginWidgetsTest::errorTimelineEventsSortedByTimestamp()
     QCOMPARE(w.eventCount(), 2);
 }
 
-void PluginWidgetsTest::errorTimelineParentOwnership()
-{
-    auto *parent = new QWidget;
-    auto *child = new ErrorTimelineWidget(parent);
+void PluginWidgetsTest::errorTimelineParentOwnership() {
+    auto* parent = new QWidget;
+    auto* child = new ErrorTimelineWidget(parent);
     QVERIFY(child->parent() == parent);
     delete parent;
     QVERIFY(true);

@@ -21,16 +21,14 @@ private slots:
 };
 
 // Verify MasterProfile has correct default name and target
-void SettingsPersistenceTest::masterProfileDefaults()
-{
+void SettingsPersistenceTest::masterProfileDefaults() {
     MasterProfile p;
     QCOMPARE(p.name, QString("Master 0"));
     QCOMPARE(p.target, QString("0"));
 }
 
 // Verify AppSettings has correct default theme, language, scale, and masters
-void SettingsPersistenceTest::appSettingsDefaults()
-{
+void SettingsPersistenceTest::appSettingsDefaults() {
     AppSettings s;
     QCOMPARE(s.theme, QString("Dark"));
     QCOMPARE(s.language, QString("English"));
@@ -40,8 +38,7 @@ void SettingsPersistenceTest::appSettingsDefaults()
 }
 
 // Test MasterProfile field assignment
-void SettingsPersistenceTest::masterProfileFields()
-{
+void SettingsPersistenceTest::masterProfileFields() {
     MasterProfile p;
     p.name = "Custom Master";
     p.target = "3";
@@ -50,8 +47,7 @@ void SettingsPersistenceTest::masterProfileFields()
 }
 
 // Test AppSettings with multiple master profiles
-void SettingsPersistenceTest::appSettingsMultipleMasters()
-{
+void SettingsPersistenceTest::appSettingsMultipleMasters() {
     AppSettings s;
     MasterProfile p1;
     p1.name = "Master A";

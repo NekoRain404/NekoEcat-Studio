@@ -23,60 +23,59 @@ class CycleTimeOptimizerWidget;
 class DataMappingOptimizerWidget;
 
 class FreeRunOptimizationPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit FreeRunOptimizationPlugin(EcatClient *client, EventBus *bus,
-                                     QObject *parent = nullptr);
+    explicit FreeRunOptimizationPlugin(EcatClient* client, EventBus* bus, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  void activate() override;
-  void deactivate() override;
-  void onConnectionChanged(bool connected) override;
+    void activate() override;
+    void deactivate() override;
+    void onConnectionChanged(bool connected) override;
 
-  CycleTimeOptimizerWidget *cycleTimeOptimizer() const { return cycleTimeWidget_; }
-  DataMappingOptimizerWidget *dataMappingOptimizer() const { return dataMappingWidget_; }
-  QPushButton *exportButton() const { return exportBtn_; }
-  bool exportReportToFile(const QString &path);
+    CycleTimeOptimizerWidget* cycleTimeOptimizer() const { return cycleTimeWidget_; }
+    DataMappingOptimizerWidget* dataMappingOptimizer() const { return dataMappingWidget_; }
+    QPushButton* exportButton() const { return exportBtn_; }
+    bool exportReportToFile(const QString& path);
 
 private slots:
-  void handleCycleTimeOptimize();
-  void handleDataMappingOptimize();
-  void handlePerformanceOptimize();
-  void handleErrorHandlingOptimize();
-  void handleOptimizationCompleted(const FreeRunOptimizationResult &result);
-  void handleOptimizationApplied(const FreeRunOptimizationResult &result);
-  void handleExport();
+    void handleCycleTimeOptimize();
+    void handleDataMappingOptimize();
+    void handlePerformanceOptimize();
+    void handleErrorHandlingOptimize();
+    void handleOptimizationCompleted(const FreeRunOptimizationResult& result);
+    void handleOptimizationApplied(const FreeRunOptimizationResult& result);
+    void handleExport();
 
 private:
-  void buildUi();
-  QWidget *buildCycleTimeTab();
-  QWidget *buildDataMappingTab();
-  QWidget *buildPerformanceTab();
-  QWidget *buildErrorHandlerTab();
+    void buildUi();
+    QWidget* buildCycleTimeTab();
+    QWidget* buildDataMappingTab();
+    QWidget* buildPerformanceTab();
+    QWidget* buildErrorHandlerTab();
 
-  FreeRunOptimizationService *service_;
-  QWidget *containerWidget_ = nullptr;
-  QTabWidget *tabs_ = nullptr;
+    FreeRunOptimizationService* service_;
+    QWidget* containerWidget_ = nullptr;
+    QTabWidget* tabs_ = nullptr;
 
-  CycleTimeOptimizerWidget *cycleTimeWidget_ = nullptr;
-  DataMappingOptimizerWidget *dataMappingWidget_ = nullptr;
+    CycleTimeOptimizerWidget* cycleTimeWidget_ = nullptr;
+    DataMappingOptimizerWidget* dataMappingWidget_ = nullptr;
 
-  QLabel *perfCpuLabel_ = nullptr;
-  QLabel *perfBusLabel_ = nullptr;
-  QLabel *perfFrameLabel_ = nullptr;
-  QPushButton *perfOptimizeBtn_ = nullptr;
+    QLabel* perfCpuLabel_ = nullptr;
+    QLabel* perfBusLabel_ = nullptr;
+    QLabel* perfFrameLabel_ = nullptr;
+    QPushButton* perfOptimizeBtn_ = nullptr;
 
-  QLabel *errorRecoveryLabel_ = nullptr;
-  QLabel *errorRetryLabel_ = nullptr;
-  QLabel *errorRateLabel_ = nullptr;
-  QPushButton *errorOptimizeBtn_ = nullptr;
+    QLabel* errorRecoveryLabel_ = nullptr;
+    QLabel* errorRetryLabel_ = nullptr;
+    QLabel* errorRateLabel_ = nullptr;
+    QPushButton* errorOptimizeBtn_ = nullptr;
 
-  QLabel *statusLabel_ = nullptr;
-  QPushButton *exportBtn_ = nullptr;
+    QLabel* statusLabel_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
 };

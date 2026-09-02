@@ -37,19 +37,19 @@
 
 /// Records a single signal emission with its name and arguments.
 struct SignalRecord {
-    QString name;       ///< Signal name (e.g. "slaveChanged", "sdoValueReceived")
-    QVariantList args;  ///< Signal arguments as QVariant list
+    QString name;      ///< Signal name (e.g. "slaveChanged", "sdoValueReceived")
+    QVariantList args; ///< Signal arguments as QVariant list
 };
 
 class MockEventBus : public EventBus {
     Q_OBJECT
 public:
-    explicit MockEventBus(QObject *parent = nullptr);
+    explicit MockEventBus(QObject* parent = nullptr);
 
     /// Returns all recorded signal emissions.
     QVector<SignalRecord> records() const;
     /// Returns the number of times a specific signal was emitted.
-    int signalCount(const QString &name) const;
+    int signalCount(const QString& name) const;
     /// Clears all recorded signals.
     void clearRecords();
     /// Sets an artificial delay (in ms) before recording each signal.
@@ -57,17 +57,17 @@ public:
 
 private:
     /// Records a signal emission with its name and arguments.
-    void recordSignal(const QString &name, const QVariantList &args);
+    void recordSignal(const QString& name, const QVariantList& args);
 
-    QVector<SignalRecord> records_;  ///< All recorded signal emissions
+    QVector<SignalRecord> records_; ///< All recorded signal emissions
     int delayMs_ = 0;               ///< Artificial delay before recording (ms)
 
     /// Connects all EventBus signals to recording slots.
     void connectSignals();
 
 private slots:
-    void onSlaveChanged(const QVector<SlaveInfo> &slaves);
-    void onSdoValueReceived(int pos, const QString &idx, const QString &sub, const QString &val);
+    void onSlaveChanged(const QVector<SlaveInfo>& slaves);
+    void onSdoValueReceived(int pos, const QString& idx, const QString& sub, const QString& val);
     void onConnectionStateChanged(bool connected);
-    void onTopologyChanged(const QVector<SlaveInfo> &slaves);
+    void onTopologyChanged(const QVector<SlaveInfo>& slaves);
 };

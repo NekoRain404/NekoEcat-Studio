@@ -7,9 +7,7 @@
 //   - Rules have severity levels (1-3) for prioritization
 //   - Checks fail closed until a real evidence-producing backend exists
 
-EtherCATComplianceService::EtherCATComplianceService(QObject *parent)
-    : QObject(parent)
-{
+EtherCATComplianceService::EtherCATComplianceService(QObject* parent) : QObject(parent) {
     ComplianceRule r1;
     r1.ruleId = QStringLiteral("SAFETY-001");
     r1.category = QStringLiteral("Safety");
@@ -39,14 +37,12 @@ EtherCATComplianceService::EtherCATComplianceService(QObject *parent)
     rules_.append(r4);
 }
 
-void EtherCATComplianceService::addRule(const ComplianceRule &rule)
-{
+void EtherCATComplianceService::addRule(const ComplianceRule& rule) {
     rules_.append(rule);
     emit ruleAdded(rule);
 }
 
-bool EtherCATComplianceService::removeRule(const QString &ruleId)
-{
+bool EtherCATComplianceService::removeRule(const QString& ruleId) {
     for (int i = 0; i < rules_.size(); ++i) {
         if (rules_[i].ruleId == ruleId) {
             rules_.removeAt(i);
@@ -57,22 +53,21 @@ bool EtherCATComplianceService::removeRule(const QString &ruleId)
     return false;
 }
 
-QVector<ComplianceRule> EtherCATComplianceService::rules() const
-{
+QVector<ComplianceRule> EtherCATComplianceService::rules() const {
     return rules_;
 }
 
-ComplianceReport EtherCATComplianceService::runComplianceCheck()
-{
+ComplianceReport EtherCATComplianceService::runComplianceCheck() {
     ComplianceReport report;
-    for (const auto &rule : rules_) {
+    for (const auto& rule : rules_) {
         if (!rule.enabled)
             continue;
         ComplianceCheckResult result;
         result.ruleId = rule.ruleId;
         result.passed = false;
         result.details = rule.description + QStringLiteral(" — requires a real compliance backend.");
-        result.recommendation = QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
+        result.recommendation =
+            QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
         report.results.append(result);
     }
     report.totalRules = report.results.size();
@@ -82,17 +77,17 @@ ComplianceReport EtherCATComplianceService::runComplianceCheck()
     return report;
 }
 
-ComplianceReport EtherCATComplianceService::checkCategory(const QString &category)
-{
+ComplianceReport EtherCATComplianceService::checkCategory(const QString& category) {
     ComplianceReport report;
-    for (const auto &rule : rules_) {
+    for (const auto& rule : rules_) {
         if (!rule.enabled || rule.category != category)
             continue;
         ComplianceCheckResult result;
         result.ruleId = rule.ruleId;
         result.passed = false;
         result.details = rule.description + QStringLiteral(" — requires a real compliance backend.");
-        result.recommendation = QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
+        result.recommendation =
+            QStringLiteral("Run this rule against a live compliance backend before claiming compliance.");
         report.results.append(result);
     }
     report.totalRules = report.results.size();

@@ -54,21 +54,18 @@ inline constexpr int kIoVariableTagsColumn = 17;
 inline constexpr int kIoVariableNoteColumn = 18;
 
 // Extracts PDO map row for detail display and navigation.
-PdoMapTableRow pdoMapTableRowFromTable(QTableWidget *table, int row);
+PdoMapTableRow pdoMapTableRowFromTable(QTableWidget* table, int row);
 // Extracts free-run entry with decoded values and change tracking.
-FreeRunEntryTableRow freeRunEntryTableRowFromTable(QTableWidget *table,
-                                                   int row);
+FreeRunEntryTableRow freeRunEntryTableRowFromTable(QTableWidget* table, int row);
 // Extracts complete I/O variable row for comparison and export.
-IoVariableTableRow ioVariableTableRowFromTable(QTableWidget *table, int row);
+IoVariableTableRow ioVariableTableRowFromTable(QTableWidget* table, int row);
 // Whether a visible row carries a populated value.
-bool ioVariableTableRowHasValue(QTableWidget *table, int row);
+bool ioVariableTableRowHasValue(QTableWidget* table, int row);
 // Stable unique key for tracking rows across refreshes.
-QString ioVariableTableRowKey(QTableWidget *table, int row);
+QString ioVariableTableRowKey(QTableWidget* table, int row);
 // Selected row indices, optionally limited to visible rows.
-QVector<int> selectedIoVariableTableRows(QTableWidget *table,
-                                         bool visibleOnly = false);
+QVector<int> selectedIoVariableTableRows(QTableWidget* table, bool visibleOnly = false);
 // Indices of all non-hidden rows for batch operations.
-QVector<int> visibleIoVariableTableRows(QTableWidget *table);
+QVector<int> visibleIoVariableTableRows(QTableWidget* table);
 // Whether any of the given visible rows carry a populated value.
-bool ioVariableTableRowsContainValue(QTableWidget *table,
-                                     const QVector<int> &rows);
+bool ioVariableTableRowsContainValue(QTableWidget* table, const QVector<int>& rows);

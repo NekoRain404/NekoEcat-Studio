@@ -4,8 +4,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
     // Headless daemon that bridges local TCP clients to the IgH EtherCAT stack.
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName("ecatd");

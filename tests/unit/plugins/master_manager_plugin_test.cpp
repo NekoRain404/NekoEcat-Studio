@@ -7,304 +7,295 @@
 //   - DC sync service defaults and configuration
 //   - Master state changed signal behavior
 
-#include <QTest>
+#include "infra/EcatClient.h"
+#include "plugins/master/MasterManagerPlugin.h"
+#include "services/DistributedClockService.h"
+#include "services/MasterManagerService.h"
 #include <QApplication>
+#include <QFile>
+#include <QRegularExpression>
 #include <QSignalSpy>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QFile>
-#include <QRegularExpression>
-#include "infra/EcatClient.h"
-#include "services/MasterManagerService.h"
-#include "services/DistributedClockService.h"
-#include "plugins/master/MasterManagerPlugin.h"
+#include <QTest>
 
 class MasterManagerPluginTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private:
-  EcatClient *client_ = nullptr;
-  MasterManagerService *masterSvc_ = nullptr;
-  DistributedClockService *dcSvc_ = nullptr;
+    EcatClient* client_ = nullptr;
+    MasterManagerService* masterSvc_ = nullptr;
+    DistributedClockService* dcSvc_ = nullptr;
 
-  bool connectToFakeDaemon(QTcpServer &server) {
-    if (!server.listen(QHostAddress::LocalHost, 0)) return false;
+    bool connectToFakeDaemon(QTcpServer& server) {
+        if (!server.listen(QHostAddress::LocalHost, 0))
+            return false;
 
-    QSignalSpy clientConnected(client_, &EcatClient::connected);
-    client_->connectToHost(QHostAddress::LocalHost, server.serverPort());
+        QSignalSpy clientConnected(client_, &EcatClient::connected);
+        client_->connectToHost(QHostAddress::LocalHost, server.serverPort());
 
-    if (!server.waitForNewConnection(1000)) return false;
-    QTcpSocket *socket = server.nextPendingConnection();
-    if (!socket) return false;
-    socket->setParent(&server);
+        if (!server.waitForNewConnection(1000))
+            return false;
+        QTcpSocket* socket = server.nextPendingConnection();
+        if (!socket)
+            return false;
+        socket->setParent(&server);
 
-    if (clientConnected.isEmpty()) {
-      clientConnected.wait(1000);
+        if (clientConnected.isEmpty()) {
+            clientConnected.wait(1000);
+        }
+        return client_->isConnected();
     }
-    return client_->isConnected();
-  }
 
 private slots:
-  void init() {
-    client_ = new EcatClient(this);
-    masterSvc_ = new MasterManagerService(client_, this);
-    dcSvc_ = new DistributedClockService(client_, this);
-  }
-  void cleanup() {
-    delete dcSvc_;
-    dcSvc_ = nullptr;
-    delete masterSvc_;
-    masterSvc_ = nullptr;
-    delete client_;
-    client_ = nullptr;
-  }
+    void init() {
+        client_ = new EcatClient(this);
+        masterSvc_ = new MasterManagerService(client_, this);
+        dcSvc_ = new DistributedClockService(client_, this);
+    }
+    void cleanup() {
+        delete dcSvc_;
+        dcSvc_ = nullptr;
+        delete masterSvc_;
+        masterSvc_ = nullptr;
+        delete client_;
+        client_ = nullptr;
+    }
 
-  void testServiceHandlesNullClient() {
-    MasterManagerService svc(nullptr);
-    MasterMgrConfig config;
-    config.adapterName = "eth0";
+    void testServiceHandlesNullClient() {
+        MasterManagerService svc(nullptr);
+        MasterMgrConfig config;
+        config.adapterName = "eth0";
 
-    QVERIFY(!svc.configureMaster(config));
-    QVERIFY(!svc.restartMaster());
-    MasterMgrDiagnosticResult result = svc.diagnoseMaster();
-    QVERIFY(!result.success);
-    QCOMPARE(svc.masterState(), MasterMgrState::Unknown);
-  }
+        QVERIFY(!svc.configureMaster(config));
+        QVERIFY(!svc.restartMaster());
+        MasterMgrDiagnosticResult result = svc.diagnoseMaster();
+        QVERIFY(!result.success);
+        QCOMPARE(svc.masterState(), MasterMgrState::Unknown);
+    }
 
-  void testDcServiceHandlesNullClient() {
-    DistributedClockService svc(nullptr);
-    QSignalSpy spy(&svc, &DistributedClockService::syncChanged);
-    QSignalSpy rejectedSpy(&svc, &DistributedClockService::syncConfigRejected);
+    void testDcServiceHandlesNullClient() {
+        DistributedClockService svc(nullptr);
+        QSignalSpy spy(&svc, &DistributedClockService::syncChanged);
+        QSignalSpy rejectedSpy(&svc, &DistributedClockService::syncConfigRejected);
 
-    QVERIFY(!svc.configureSync(0, 1000, 0));
-    svc.requestUpdate();
+        QVERIFY(!svc.configureSync(0, 1000, 0));
+        svc.requestUpdate();
 
-    QCOMPARE(svc.referenceClock(), -1);
-    QCOMPARE(svc.jitterStatistics().sampleCount, 0);
-    QCOMPARE(spy.count(), 0);
-    QCOMPARE(rejectedSpy.count(), 1);
-  }
+        QCOMPARE(svc.referenceClock(), -1);
+        QCOMPARE(svc.jitterStatistics().sampleCount, 0);
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(rejectedSpy.count(), 1);
+    }
 
-  // Verify plugin id, display names
-  void testIdentity() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QCOMPARE(p.id(), QString("master"));
-    QCOMPARE(p.displayName(), QString("Master Manager"));
-    QCOMPARE(p.displayNameZh(), QString::fromUtf8("主站管理"));
-  }
+    // Verify plugin id, display names
+    void testIdentity() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        QCOMPARE(p.id(), QString("master"));
+        QCOMPARE(p.displayName(), QString("Master Manager"));
+        QCOMPARE(p.displayNameZh(), QString::fromUtf8("主站管理"));
+    }
 
-  // Plugin has expected default order
-  // Verify default order is 155
-  void testDefaultOrder() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QCOMPARE(p.defaultOrder(), 155);
-  }
+    // Plugin has expected default order
+    // Verify default order is 155
+    void testDefaultOrder() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        QCOMPARE(p.defaultOrder(), 155);
+    }
 
-  // Plugin is visible by default
-  // Verify plugin is visible
-  void testVisible() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QVERIFY(!p.visible());
-  }
+    // Plugin is visible by default
+    // Verify plugin is visible
+    void testVisible() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        QVERIFY(!p.visible());
+    }
 
-  // Widget is created and not null
-  // Check widget is created
-  void testWidgetNotNull() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QVERIFY(p.widget() != nullptr);
-  }
+    // Widget is created and not null
+    // Check widget is created
+    void testWidgetNotNull() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        QVERIFY(p.widget() != nullptr);
+    }
 
-  // Activate and deactivate lifecycle completes without error
-  // Test activate and deactivate cycle
-  void testActivateDeactivate() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    p.activate();
-    p.deactivate();
-  }
+    // Activate and deactivate lifecycle completes without error
+    // Test activate and deactivate cycle
+    void testActivateDeactivate() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        p.activate();
+        p.deactivate();
+    }
 
-  // Service accessors return injected instances
-  // Verify service accessors return correct pointers
-  void testServiceAccessors() {
-    MasterManagerPlugin p(masterSvc_, dcSvc_);
-    QCOMPARE(p.masterService(), masterSvc_);
-    QCOMPARE(p.dcService(), dcSvc_);
-  }
+    // Service accessors return injected instances
+    // Verify service accessors return correct pointers
+    void testServiceAccessors() {
+        MasterManagerPlugin p(masterSvc_, dcSvc_);
+        QCOMPARE(p.masterService(), masterSvc_);
+        QCOMPARE(p.dcService(), dcSvc_);
+    }
 
-  // Master state defaults to Unknown
-  // Verify default master state is Unknown
-  void testMasterStateDefault() {
-    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Unknown);
-  }
+    // Master state defaults to Unknown
+    // Verify default master state is Unknown
+    void testMasterStateDefault() { QCOMPARE(masterSvc_->masterState(), MasterMgrState::Unknown); }
 
-  // Master info has zero slave count by default
-  // Verify default master info values
-  void testMasterInfoDefault() {
-    MasterMgrInfo info = masterSvc_->masterInfo();
-    QCOMPARE(info.slaveCount, 0);
-    QCOMPARE(info.masterState, MasterMgrState::Unknown);
-  }
+    // Master info has zero slave count by default
+    // Verify default master info values
+    void testMasterInfoDefault() {
+        MasterMgrInfo info = masterSvc_->masterInfo();
+        QCOMPARE(info.slaveCount, 0);
+        QCOMPARE(info.masterState, MasterMgrState::Unknown);
+    }
 
-  // Diagnostic fails when disconnected
-  // Test diagnostic fails when disconnected
-  void testDiagnosticWhenDisconnected() {
-    MasterMgrDiagnosticResult result = masterSvc_->diagnoseMaster();
-    QVERIFY(!result.success);
-    QVERIFY(!result.summary.isEmpty());
-  }
+    // Diagnostic fails when disconnected
+    // Test diagnostic fails when disconnected
+    void testDiagnosticWhenDisconnected() {
+        MasterMgrDiagnosticResult result = masterSvc_->diagnoseMaster();
+        QVERIFY(!result.success);
+        QVERIFY(!result.summary.isEmpty());
+    }
 
-  // Configure fails when disconnected
-  // Test configure fails when disconnected
-  void testConfigureWhenDisconnected() {
-    MasterMgrConfig config;
-    config.adapterName = "eth0";
-    QVERIFY(!masterSvc_->configureMaster(config));
-  }
+    // Configure fails when disconnected
+    // Test configure fails when disconnected
+    void testConfigureWhenDisconnected() {
+        MasterMgrConfig config;
+        config.adapterName = "eth0";
+        QVERIFY(!masterSvc_->configureMaster(config));
+    }
 
-  void testRejectInvalidMasterConfigBeforeBackendAck() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
+    void testRejectInvalidMasterConfigBeforeBackendAck() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
 
-    QSignalSpy spy(masterSvc_, &MasterManagerService::masterError);
+        QSignalSpy spy(masterSvc_, &MasterManagerService::masterError);
 
-    MasterMgrConfig config;
-    config.adapterName = "   ";
-    QVERIFY(!masterSvc_->configureMaster(config));
+        MasterMgrConfig config;
+        config.adapterName = "   ";
+        QVERIFY(!masterSvc_->configureMaster(config));
 
-    config.adapterName = "eth0";
-    config.cycleTime = 0;
-    QVERIFY(!masterSvc_->configureMaster(config));
+        config.adapterName = "eth0";
+        config.cycleTime = 0;
+        QVERIFY(!masterSvc_->configureMaster(config));
 
-    config.cycleTime = 1000;
-    config.sync0Time = -1;
-    QVERIFY(!masterSvc_->configureMaster(config));
+        config.cycleTime = 1000;
+        config.sync0Time = -1;
+        QVERIFY(!masterSvc_->configureMaster(config));
 
-    config.sync0Time = 0;
-    config.watchdogTimeout = -1;
-    QVERIFY(!masterSvc_->configureMaster(config));
+        config.sync0Time = 0;
+        config.watchdogTimeout = -1;
+        QVERIFY(!masterSvc_->configureMaster(config));
 
-    config.watchdogTimeout = 1000;
-    config.debugLevel = 4;
-    QVERIFY(!masterSvc_->configureMaster(config));
+        config.watchdogTimeout = 1000;
+        config.debugLevel = 4;
+        QVERIFY(!masterSvc_->configureMaster(config));
 
-    QCOMPARE(spy.count(), 5);
-    for (const auto &args : spy)
-      QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid master configuration")));
-    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
-  }
+        QCOMPARE(spy.count(), 5);
+        for (const auto& args : spy)
+            QVERIFY(args.at(0).toString().contains(QStringLiteral("Invalid master configuration")));
+        QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
+    }
 
-  // Restart fails when disconnected
-  // Test restart fails when disconnected
-  void testRestartWhenDisconnected() {
-    QVERIFY(!masterSvc_->restartMaster());
-  }
+    // Restart fails when disconnected
+    // Test restart fails when disconnected
+    void testRestartWhenDisconnected() { QVERIFY(!masterSvc_->restartMaster()); }
 
-  void testConfigureDoesNotSucceedWithoutBackendAck() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
+    void testConfigureDoesNotSucceedWithoutBackendAck() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
 
-    MasterMgrConfig config;
-    config.adapterName = "eth0";
-    QVERIFY(!masterSvc_->configureMaster(config));
-    QVERIFY(masterSvc_->masterInfo().adapterName != config.adapterName);
-    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
-  }
+        MasterMgrConfig config;
+        config.adapterName = "eth0";
+        QVERIFY(!masterSvc_->configureMaster(config));
+        QVERIFY(masterSvc_->masterInfo().adapterName != config.adapterName);
+        QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
+    }
 
-  void testDiagnosticDoesNotPassWithoutMasterEvidence() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
+    void testDiagnosticDoesNotPassWithoutMasterEvidence() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
 
-    MasterMgrDiagnosticResult result = masterSvc_->diagnoseMaster();
-    QVERIFY(!result.success);
-    QVERIFY(result.summary.contains(QStringLiteral("evidence"),
-                                    Qt::CaseInsensitive));
-  }
+        MasterMgrDiagnosticResult result = masterSvc_->diagnoseMaster();
+        QVERIFY(!result.success);
+        QVERIFY(result.summary.contains(QStringLiteral("evidence"), Qt::CaseInsensitive));
+    }
 
-  void testRestartDoesNotSucceedWithoutBackendAck() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
+    void testRestartDoesNotSucceedWithoutBackendAck() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
 
-    QVERIFY(!masterSvc_->restartMaster());
-    QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
-  }
+        QVERIFY(!masterSvc_->restartMaster());
+        QCOMPARE(masterSvc_->masterState(), MasterMgrState::Idle);
+    }
 
-  // DC service has correct default values
-  // Verify DC service default values
-  void testDcServiceDefaults() {
-    QCOMPARE(dcSvc_->referenceClock(), -1);
-    DriftStatus drift = dcSvc_->driftStatus();
-    QCOMPARE(drift.slave, -1);
-    JitterStats jitter = dcSvc_->jitterStatistics();
-    QCOMPARE(jitter.sampleCount, 0);
-  }
+    // DC service has correct default values
+    // Verify DC service default values
+    void testDcServiceDefaults() {
+        QCOMPARE(dcSvc_->referenceClock(), -1);
+        DriftStatus drift = dcSvc_->driftStatus();
+        QCOMPARE(drift.slave, -1);
+        JitterStats jitter = dcSvc_->jitterStatistics();
+        QCOMPARE(jitter.sampleCount, 0);
+    }
 
-  // DC configure fails when disconnected
-  // Test DC configure fails when disconnected
-  void testDcConfigureWhenDisconnected() {
-    QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
-  }
+    // DC configure fails when disconnected
+    // Test DC configure fails when disconnected
+    void testDcConfigureWhenDisconnected() { QVERIFY(!dcSvc_->configureSync(0, 1000, 0)); }
 
-  void testDcConfigureDoesNotSucceedWithoutBackendAck() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
+    void testDcConfigureDoesNotSucceedWithoutBackendAck() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
 
-    QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
-    QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
-    QCOMPARE(spy.count(), 0);
-  }
+        QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
+        QVERIFY(!dcSvc_->configureSync(0, 1000, 0));
+        QCOMPARE(spy.count(), 0);
+    }
 
-  void testRejectInvalidDcConfigBeforeBackendAck() {
-    QTcpServer server;
-    QVERIFY(connectToFakeDaemon(server));
-    QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
-    QSignalSpy rejectedSpy(dcSvc_, &DistributedClockService::syncConfigRejected);
+    void testRejectInvalidDcConfigBeforeBackendAck() {
+        QTcpServer server;
+        QVERIFY(connectToFakeDaemon(server));
+        QSignalSpy spy(dcSvc_, &DistributedClockService::syncChanged);
+        QSignalSpy rejectedSpy(dcSvc_, &DistributedClockService::syncConfigRejected);
 
-    QVERIFY(!dcSvc_->configureSync(-1, 1000, 0));
-    QVERIFY(!dcSvc_->configureSync(0, 0, 0));
-    QVERIFY(!dcSvc_->configureSync(0, 1000, -1));
+        QVERIFY(!dcSvc_->configureSync(-1, 1000, 0));
+        QVERIFY(!dcSvc_->configureSync(0, 0, 0));
+        QVERIFY(!dcSvc_->configureSync(0, 1000, -1));
 
-    QCOMPARE(spy.count(), 0);
-    QCOMPARE(rejectedSpy.count(), 3);
-    for (const auto &args : rejectedSpy)
-      QVERIFY(args.at(1).toString().contains(QStringLiteral("Invalid DC sync configuration")));
-  }
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(rejectedSpy.count(), 3);
+        for (const auto& args : rejectedSpy)
+            QVERIFY(args.at(1).toString().contains(QStringLiteral("Invalid DC sync configuration")));
+    }
 
-  void testSourceDoesNotContainSyntheticMasterSuccess() {
-    QFile file(QStringLiteral(SOURCE_ROOT
-                              "/apps/ecat-studio/services/MasterManagerService.cpp"));
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString source = QString::fromUtf8(file.readAll());
+    void testSourceDoesNotContainSyntheticMasterSuccess() {
+        QFile file(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/MasterManagerService.cpp"));
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString source = QString::fromUtf8(file.readAll());
 
-    QVERIFY2(!source.contains(QStringLiteral("result.success = true")),
-             "Master diagnostics must not synthesize a passing result.");
-    QVERIFY2(!source.contains(QStringLiteral("Master operational")),
-             "Master diagnostics must not report operational without evidence.");
-    QVERIFY2(!source.contains(QRegularExpression(
-                 QStringLiteral(R"(client_->setAdapter\s*\()"))),
-             "Master configuration must not claim local setAdapter as success.");
-    QVERIFY2(!source.contains(QRegularExpression(
-                 QStringLiteral(R"(client_->rescan\s*\(\s*\))"))),
-             "Master restart must not claim rescan request as restart success.");
-  }
+        QVERIFY2(!source.contains(QStringLiteral("result.success = true")),
+                 "Master diagnostics must not synthesize a passing result.");
+        QVERIFY2(!source.contains(QStringLiteral("Master operational")),
+                 "Master diagnostics must not report operational without evidence.");
+        QVERIFY2(!source.contains(QRegularExpression(QStringLiteral(R"(client_->setAdapter\s*\()"))),
+                 "Master configuration must not claim local setAdapter as success.");
+        QVERIFY2(!source.contains(QRegularExpression(QStringLiteral(R"(client_->rescan\s*\(\s*\))"))),
+                 "Master restart must not claim rescan request as restart success.");
+    }
 
-  void testSourceDoesNotContainSyntheticDcConfigSuccess() {
-    QFile file(QStringLiteral(
-        SOURCE_ROOT "/apps/ecat-studio/services/DistributedClockService.cpp"));
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-    const QString source = QString::fromUtf8(file.readAll());
+    void testSourceDoesNotContainSyntheticDcConfigSuccess() {
+        QFile file(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/DistributedClockService.cpp"));
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+        const QString source = QString::fromUtf8(file.readAll());
 
-    QVERIFY2(!source.contains(QStringLiteral("emit syncChanged")),
-             "DC syncChanged must not be emitted without backend acknowledgement.");
-    QVERIFY2(!source.contains(QRegularExpression(
-                 QStringLiteral(R"(configureSync[\s\S]*return\s+true\s*;)"))),
-             "DC configureSync must not return true without backend acknowledgement.");
-  }
+        QVERIFY2(!source.contains(QStringLiteral("emit syncChanged")),
+                 "DC syncChanged must not be emitted without backend acknowledgement.");
+        QVERIFY2(!source.contains(QRegularExpression(QStringLiteral(R"(configureSync[\s\S]*return\s+true\s*;)"))),
+                 "DC configureSync must not return true without backend acknowledgement.");
+    }
 
-  // Master state changed signal not emitted on refresh when disconnected
-  // Verify master state changed signal on refresh
-  void testMasterStateChangedSignal() {
-    QSignalSpy spy(masterSvc_, &MasterManagerService::masterStateChanged);
-    masterSvc_->refresh();
-    QCOMPARE(spy.count(), 0);
-  }
+    // Master state changed signal not emitted on refresh when disconnected
+    // Verify master state changed signal on refresh
+    void testMasterStateChangedSignal() {
+        QSignalSpy spy(masterSvc_, &MasterManagerService::masterStateChanged);
+        masterSvc_->refresh();
+        QCOMPARE(spy.count(), 0);
+    }
 };
 
 QTEST_MAIN(MasterManagerPluginTest)

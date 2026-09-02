@@ -1,10 +1,10 @@
-#include <QTest>
+#include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QSignalSpy>
 #include <QTemporaryDir>
-#include <QFile>
+#include <QTest>
 #include <QTextStream>
 
 #include "services/ProjectManagerService.h"
@@ -256,8 +256,7 @@ void ProjectPersistenceTest::serviceDashboardConfigs() {
     ProjectManagerService reader;
     QVERIFY(reader.openProject(path));
     QCOMPARE(reader.projectData().dashboardConfigs.size(), 2);
-    QCOMPARE(reader.projectData().dashboardConfigs[0].toObject()["title"].toString(),
-             QString("Speed"));
+    QCOMPARE(reader.projectData().dashboardConfigs[0].toObject()["title"].toString(), QString("Speed"));
 }
 
 void ProjectPersistenceTest::servicePluginStates() {
@@ -287,8 +286,7 @@ void ProjectPersistenceTest::servicePluginStates() {
     QVERIFY(reader.openProject(path));
     QVERIFY(reader.projectData().pluginStates.contains("esi"));
     QVERIFY(reader.projectData().pluginStates.contains("alarm"));
-    QCOMPARE(reader.projectData().pluginStates["esi"].toObject()["lastFile"].toString(),
-             QString("/path/to/esi.xml"));
+    QCOMPARE(reader.projectData().pluginStates["esi"].toObject()["lastFile"].toString(), QString("/path/to/esi.xml"));
 }
 
 void ProjectPersistenceTest::serviceRecentProjects() {
@@ -335,10 +333,8 @@ void ProjectPersistenceTest::serviceAnnotations() {
 
     ProjectManagerService reader;
     QVERIFY(reader.openProject(path));
-    QCOMPARE(reader.projectData().notes["general"].toString(),
-             QString("This is a test project"));
-    QCOMPARE(reader.projectData().annotations["slave1"].toString(),
-             QString("Drive at station 1"));
+    QCOMPARE(reader.projectData().notes["general"].toString(), QString("This is a test project"));
+    QCOMPARE(reader.projectData().annotations["slave1"].toString(), QString("Drive at station 1"));
 }
 
 QTEST_MAIN(ProjectPersistenceTest)

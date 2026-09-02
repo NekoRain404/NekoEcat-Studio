@@ -41,32 +41,32 @@ class PluginTestFixture : public QObject {
     Q_OBJECT
 public:
     /// Constructs the fixture, creating a ServiceContainer and PluginRegistry.
-    explicit PluginTestFixture(QObject *parent = nullptr);
+    explicit PluginTestFixture(QObject* parent = nullptr);
     /// Destroys the fixture and all owned objects.
     ~PluginTestFixture() override;
 
     /// Returns the ServiceContainer instance (never null after construction).
-    ServiceContainer *container() const;
+    ServiceContainer* container() const;
     /// Returns the PluginRegistry instance (never null after construction).
-    PluginRegistry *registry() const;
+    PluginRegistry* registry() const;
 
     /// Registers a plugin with the internal registry.
     /// @param plugin  The plugin to register (must not be null)
-    void registerPlugin(WorkspacePlugin *plugin);
+    void registerPlugin(WorkspacePlugin* plugin);
     /// Activates a plugin by its id (calls WorkspacePlugin::activate()).
     /// @param id  The plugin id to activate
-    void activatePlugin(const QString &id);
+    void activatePlugin(const QString& id);
     /// Deactivates a plugin by its id (calls WorkspacePlugin::deactivate()).
     /// @param id  The plugin id to deactivate
-    void deactivatePlugin(const QString &id);
+    void deactivatePlugin(const QString& id);
 
     /// Finds a registered plugin by id, or nullptr if not found.
-    WorkspacePlugin *findPlugin(const QString &id) const;
+    WorkspacePlugin* findPlugin(const QString& id) const;
     /// Returns the total number of registered plugins.
     int pluginCount() const;
 
 private:
-    ServiceContainer *container_ = nullptr; ///< Service container instance
-    PluginRegistry *registry_ = nullptr;    ///< Plugin registry instance
-    EcatClient *client_ = nullptr;
+    ServiceContainer* container_ = nullptr; ///< Service container instance
+    PluginRegistry* registry_ = nullptr;    ///< Plugin registry instance
+    EcatClient* client_ = nullptr;
 };

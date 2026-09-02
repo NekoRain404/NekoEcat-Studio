@@ -7,14 +7,10 @@
 //   - Start/stop controls simulation running state
 //   - Emits state change signals when slaves are added/removed during active simulation
 
-EtherCATSimulationService::EtherCATSimulationService(QObject *parent)
-    : QObject(parent)
-{
-}
+EtherCATSimulationService::EtherCATSimulationService(QObject* parent) : QObject(parent) {}
 
-int EtherCATSimulationService::createVirtualSlave(const SimulationSlaveConfig &config)
-{
-    for (const auto &s : slaves_) {
+int EtherCATSimulationService::createVirtualSlave(const SimulationSlaveConfig& config) {
+    for (const auto& s : slaves_) {
         if (s.config.position == config.position)
             return -1;
     }
@@ -33,8 +29,7 @@ int EtherCATSimulationService::createVirtualSlave(const SimulationSlaveConfig &c
     return config.position;
 }
 
-bool EtherCATSimulationService::removeVirtualSlave(int position)
-{
+bool EtherCATSimulationService::removeVirtualSlave(int position) {
     for (int i = 0; i < slaves_.size(); ++i) {
         if (slaves_[i].config.position == position) {
             slaves_.removeAt(i);
@@ -49,8 +44,7 @@ bool EtherCATSimulationService::removeVirtualSlave(int position)
     return false;
 }
 
-bool EtherCATSimulationService::startSimulation()
-{
+bool EtherCATSimulationService::startSimulation() {
     if (running_)
         return false;
     if (slaves_.isEmpty())
@@ -68,8 +62,7 @@ bool EtherCATSimulationService::startSimulation()
     return true;
 }
 
-bool EtherCATSimulationService::stopSimulation()
-{
+bool EtherCATSimulationService::stopSimulation() {
     if (!running_)
         return false;
 
@@ -79,8 +72,7 @@ bool EtherCATSimulationService::stopSimulation()
     return true;
 }
 
-SimulationState EtherCATSimulationService::simulationState() const
-{
+SimulationState EtherCATSimulationService::simulationState() const {
     SimulationState state;
     state.running = running_;
     state.slaveCount = slaves_.size();
@@ -91,14 +83,12 @@ SimulationState EtherCATSimulationService::simulationState() const
     return state;
 }
 
-QVector<VirtualSlave> EtherCATSimulationService::virtualSlaves() const
-{
+QVector<VirtualSlave> EtherCATSimulationService::virtualSlaves() const {
     return slaves_;
 }
 
-VirtualSlave EtherCATSimulationService::virtualSlaveAt(int position) const
-{
-    for (const auto &s : slaves_) {
+VirtualSlave EtherCATSimulationService::virtualSlaveAt(int position) const {
+    for (const auto& s : slaves_) {
         if (s.config.position == position)
             return s;
     }

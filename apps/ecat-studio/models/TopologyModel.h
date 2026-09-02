@@ -14,42 +14,39 @@
 // ── Baseline Comparison ─────────────────────────────────────────────
 
 enum class TopologyBaselineIssueKind {
-  MissingSlave,
-  UnexpectedSlave,
-  NameChanged,
-  StateChanged,
+    MissingSlave,
+    UnexpectedSlave,
+    NameChanged,
+    StateChanged,
 };
 
 struct TopologyBaselineIssue {
-  TopologyBaselineIssueKind kind = TopologyBaselineIssueKind::MissingSlave;
-  int position = -1;
-  SlaveInfo baseline;
-  SlaveInfo current;
+    TopologyBaselineIssueKind kind = TopologyBaselineIssueKind::MissingSlave;
+    int position = -1;
+    SlaveInfo baseline;
+    SlaveInfo current;
 };
 
-QVector<TopologyBaselineIssue>
-compareTopologyBaseline(const QVector<SlaveInfo> &baseline,
-                        const QVector<SlaveInfo> &current);
+QVector<TopologyBaselineIssue> compareTopologyBaseline(const QVector<SlaveInfo>& baseline,
+                                                       const QVector<SlaveInfo>& current);
 
-QString topologySlaveDisplayName(const SlaveInfo &slave);
+QString topologySlaveDisplayName(const SlaveInfo& slave);
 
 // ── Change Detection ────────────────────────────────────────────────
 
 enum class TopologyChangeKind {
-  Added,
-  Removed,
-  NameChanged,
-  StateChanged,
-  FlagsChanged,
+    Added,
+    Removed,
+    NameChanged,
+    StateChanged,
+    FlagsChanged,
 };
 
 struct TopologyChange {
-  TopologyChangeKind kind = TopologyChangeKind::Added;
-  int position = -1;
-  SlaveInfo previous;
-  SlaveInfo current;
+    TopologyChangeKind kind = TopologyChangeKind::Added;
+    int position = -1;
+    SlaveInfo previous;
+    SlaveInfo current;
 };
 
-QVector<TopologyChange>
-detectTopologyChanges(const QVector<SlaveInfo> &previous,
-                      const QVector<SlaveInfo> &current);
+QVector<TopologyChange> detectTopologyChanges(const QVector<SlaveInfo>& previous, const QVector<SlaveInfo>& current);

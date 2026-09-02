@@ -1,9 +1,9 @@
 #include "WorkflowOptimizationService.h"
+#include <algorithm>
 #include <QJsonArray>
-#include <QSet>
 #include <QMap>
 #include <QQueue>
-#include <algorithm>
+#include <QSet>
 
 // WorkflowOptimizationService.cpp — Optimizes workflow task scheduling, allocation, and parallelism
 //
@@ -12,17 +12,10 @@
 //   - Resource allocation detects overloads and computes utilization percentage
 //   - Parallel execution identifies critical path and calculates speedup ratio vs sequential
 
-WorkflowOptimizationService::WorkflowOptimizationService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowOptimizationService::WorkflowOptimizationService(QObject* parent) : QObject(parent) {}
 
-void WorkflowOptimizationService::emitResult(const QString &category,
-                                              const QString &description,
-                                              double improvement,
-                                              const QStringList &recommendations,
-                                              const QJsonObject &metrics)
-{
+void WorkflowOptimizationService::emitResult(const QString& category, const QString& description, double improvement,
+                                             const QStringList& recommendations, const QJsonObject& metrics) {
     WorkflowOptimizationResult r;
     r.category = category;
     r.description = description;
@@ -32,11 +25,10 @@ void WorkflowOptimizationService::emitResult(const QString &category,
     emit optimizationCompleted(r);
 }
 
-static QJsonObject resourceUsageMap(const QVector<WfTask> &tasks)
-{
+static QJsonObject resourceUsageMap(const QVector<WfTask>& tasks) {
     QJsonObject usage;
-    for (const auto &t : tasks) {
-        for (const auto &res : t.requiredResources) {
+    for (const auto& t : tasks) {
+        for (const auto& res : t.requiredResources) {
             double current = usage.value(res).toDouble();
             usage[res] = current + t.estimatedDurationMs;
         }
@@ -44,9 +36,7 @@ static QJsonObject resourceUsageMap(const QVector<WfTask> &tasks)
     return usage;
 }
 
-OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
-    const QVector<WfTask> &tasks)
-{
+OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(const QVector<WfTask>& tasks) {
     OptimizedSchedule schedule;
     schedule.tasks = tasks;
 
@@ -54,12 +44,12 @@ OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
     QMap<QString, int> inDegree;
     QMap<QString, QStringList> adjacency;
 
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         taskIds.insert(t.id);
         inDegree[t.id] = 0;
     }
-    for (const auto &t : tasks) {
-        for (const auto &dep : t.dependencies) {
+    for (const auto& t : tasks) {
+        for (const auto& dep : t.dependencies) {
             if (taskIds.contains(dep)) {
                 adjacency[dep].append(t.id);
                 inDegree[t.id]++;
@@ -75,9 +65,10 @@ OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
     }
 
     // Sort queue by priority (higher first) for tie-breaking
-    auto priorityOf = [&tasks](const QString &id) -> int {
-        for (const auto &t : tasks)
-            if (t.id == id) return t.priority;
+    auto priorityOf = [&tasks](const QString& id) -> int {
+        for (const auto& t : tasks)
+            if (t.id == id)
+                return t.priority;
         return 0;
     };
 
@@ -94,13 +85,11 @@ OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
             level.append(queue.dequeue());
 
         std::sort(level.begin(), level.end(),
-                  [&priorityOf](const QString &a, const QString &b) {
-                      return priorityOf(a) > priorityOf(b);
-                  });
+                  [&priorityOf](const QString& a, const QString& b) { return priorityOf(a) > priorityOf(b); });
 
         double stageTime = 0.0;
-        for (const auto &id : level) {
-            for (const auto &t : tasks) {
+        for (const auto& id : level) {
+            for (const auto& t : tasks) {
                 if (t.id == id) {
                     stageTime = qMax(stageTime, t.estimatedDurationMs);
                     break;
@@ -114,7 +103,7 @@ OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
             order.append(current);
 
             if (adjacency.contains(current)) {
-                for (const auto &neighbor : adjacency[current]) {
+                for (const auto& neighbor : adjacency[current]) {
                     inDegree[neighbor]--;
                     if (inDegree[neighbor] == 0)
                         queue.enqueue(neighbor);
@@ -145,28 +134,25 @@ OptimizedSchedule WorkflowOptimizationService::optimizeTaskSchedule(
     if (schedule.parallelism < 2.0)
         recs << QStringLiteral("Low parallelism detected — review task dependencies");
 
-    emitResult(QStringLiteral("TaskSchedule"),
-               QStringLiteral("Task scheduling optimization"),
-               (tasks.size() > order.size()) ? 0.0 : 15.0,
-               recs, schedule.resourceUsage);
+    emitResult(QStringLiteral("TaskSchedule"), QStringLiteral("Task scheduling optimization"),
+               (tasks.size() > order.size()) ? 0.0 : 15.0, recs, schedule.resourceUsage);
 
     return schedule;
 }
 
-AllocationPlan WorkflowOptimizationService::optimizeResourceAllocation(
-    const QVector<WfResource> &resources, const QVector<WfTask> &tasks)
-{
+AllocationPlan WorkflowOptimizationService::optimizeResourceAllocation(const QVector<WfResource>& resources,
+                                                                       const QVector<WfTask>& tasks) {
     AllocationPlan plan;
 
     QJsonObject allocations;
     QJsonObject load;
-    for (const auto &r : resources)
+    for (const auto& r : resources)
         load[r.id] = r.currentLoad;
 
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         QJsonArray assigned;
-        for (const auto &req : t.requiredResources) {
-            for (const auto &r : resources) {
+        for (const auto& req : t.requiredResources) {
+            for (const auto& r : resources) {
                 if (r.id == req || r.capabilities.contains(req)) {
                     assigned.append(r.id);
                     load[r.id] = load[r.id].toDouble() + t.estimatedDurationMs;
@@ -182,7 +168,7 @@ AllocationPlan WorkflowOptimizationService::optimizeResourceAllocation(
     // Calculate utilization
     double totalCap = 0.0;
     double totalLoad = 0.0;
-    for (const auto &r : resources) {
+    for (const auto& r : resources) {
         totalCap += r.capacity;
         totalLoad += load[r.id].toDouble();
     }
@@ -190,7 +176,7 @@ AllocationPlan WorkflowOptimizationService::optimizeResourceAllocation(
 
     // Detect conflicts
     QStringList conflicts;
-    for (const auto &r : resources) {
+    for (const auto& r : resources) {
         if (load[r.id].toDouble() > r.capacity * 100.0)
             conflicts.append(QStringLiteral("Resource %1 overloaded").arg(r.id));
     }
@@ -202,16 +188,13 @@ AllocationPlan WorkflowOptimizationService::optimizeResourceAllocation(
     if (plan.utilization > 80.0)
         recs << QStringLiteral("High resource utilization — consider load balancing");
 
-    emitResult(QStringLiteral("ResourceAllocation"),
-               QStringLiteral("Resource allocation optimization"),
+    emitResult(QStringLiteral("ResourceAllocation"), QStringLiteral("Resource allocation optimization"),
                conflicts.isEmpty() ? 20.0 : 5.0, recs, allocations);
 
     return plan;
 }
 
-ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
-    const QVector<WfTask> &tasks)
-{
+ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(const QVector<WfTask>& tasks) {
     ExecutionPlan plan;
 
     QSet<QString> taskIds;
@@ -219,13 +202,13 @@ ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
     QMap<QString, QStringList> adjacency;
     QMap<QString, double> taskDuration;
 
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         taskIds.insert(t.id);
         inDegree[t.id] = 0;
         taskDuration[t.id] = t.estimatedDurationMs;
     }
-    for (const auto &t : tasks) {
-        for (const auto &dep : t.dependencies) {
+    for (const auto& t : tasks) {
+        for (const auto& dep : t.dependencies) {
             if (taskIds.contains(dep)) {
                 adjacency[dep].append(t.id);
                 inDegree[t.id]++;
@@ -255,7 +238,7 @@ ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
 
         double stageMaxDuration = 0.0;
         QString stageCritical;
-        for (const auto &id : stage) {
+        for (const auto& id : stage) {
             double dur = taskDuration.value(id, 0.0);
             if (dur > stageMaxDuration) {
                 stageMaxDuration = dur;
@@ -264,7 +247,7 @@ ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
             processed.append(id);
 
             if (adjacency.contains(id)) {
-                for (const auto &neighbor : adjacency[id]) {
+                for (const auto& neighbor : adjacency[id]) {
                     inDegree[neighbor]--;
                     if (inDegree[neighbor] == 0)
                         queue.enqueue(neighbor);
@@ -280,12 +263,10 @@ ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
 
     // Calculate speedup vs sequential
     double sequentialDuration = 0.0;
-    for (const auto &t : tasks)
+    for (const auto& t : tasks)
         sequentialDuration += t.estimatedDurationMs;
 
-    plan.speedupRatio = (criticalPathDuration > 0.0)
-                            ? sequentialDuration / criticalPathDuration
-                            : 1.0;
+    plan.speedupRatio = (criticalPathDuration > 0.0) ? sequentialDuration / criticalPathDuration : 1.0;
 
     QStringList recs;
     if (plan.speedupRatio < 2.0)
@@ -298,28 +279,25 @@ ExecutionPlan WorkflowOptimizationService::optimizeParallelExecution(
     metrics[QStringLiteral("maxConcurrency")] = plan.maxConcurrency;
     metrics[QStringLiteral("speedupRatio")] = plan.speedupRatio;
 
-    emitResult(QStringLiteral("ParallelExecution"),
-               QStringLiteral("Parallel execution optimization"),
+    emitResult(QStringLiteral("ParallelExecution"), QStringLiteral("Parallel execution optimization"),
                (plan.speedupRatio - 1.0) * 100.0, recs, metrics);
 
     return plan;
 }
 
-DependencyGraph WorkflowOptimizationService::resolveDependencies(
-    const QVector<WfTask> &tasks)
-{
+DependencyGraph WorkflowOptimizationService::resolveDependencies(const QVector<WfTask>& tasks) {
     DependencyGraph graph;
 
     QSet<QString> taskIds;
     QMap<QString, int> inDegree;
     QMap<QString, QStringList> adjacency;
 
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         taskIds.insert(t.id);
         inDegree[t.id] = 0;
     }
-    for (const auto &t : tasks) {
-        for (const auto &dep : t.dependencies) {
+    for (const auto& t : tasks) {
+        for (const auto& dep : t.dependencies) {
             if (taskIds.contains(dep)) {
                 adjacency[dep].append(t.id);
                 inDegree[t.id]++;
@@ -329,7 +307,7 @@ DependencyGraph WorkflowOptimizationService::resolveDependencies(
 
     // Build JSON representation
     QJsonObject nodes;
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         QJsonObject node;
         node[QStringLiteral("name")] = t.name;
         node[QStringLiteral("inDegree")] = inDegree[t.id];
@@ -339,10 +317,10 @@ DependencyGraph WorkflowOptimizationService::resolveDependencies(
     graph.nodes = nodes;
 
     QJsonObject edges;
-    for (const auto &t : tasks) {
+    for (const auto& t : tasks) {
         if (adjacency.contains(t.id)) {
             QJsonArray targets;
-            for (const auto &target : adjacency[t.id])
+            for (const auto& target : adjacency[t.id])
                 targets.append(target);
             edges[t.id] = targets;
         }
@@ -362,7 +340,7 @@ DependencyGraph WorkflowOptimizationService::resolveDependencies(
         topoOrder.append(current);
 
         if (adjacency.contains(current)) {
-            for (const auto &neighbor : adjacency[current]) {
+            for (const auto& neighbor : adjacency[current]) {
                 inDegree[neighbor]--;
                 if (inDegree[neighbor] == 0)
                     queue.enqueue(neighbor);
@@ -392,8 +370,7 @@ DependencyGraph WorkflowOptimizationService::resolveDependencies(
     metrics[QStringLiteral("topoOrderSize")] = static_cast<int>(topoOrder.size());
     metrics[QStringLiteral("hasCycles")] = graph.hasCycles;
 
-    emitResult(QStringLiteral("DependencyResolution"),
-               QStringLiteral("Dependency graph analysis"),
+    emitResult(QStringLiteral("DependencyResolution"), QStringLiteral("Dependency graph analysis"),
                graph.hasCycles ? 0.0 : 100.0, recs, metrics);
 
     return graph;

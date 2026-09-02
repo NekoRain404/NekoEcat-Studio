@@ -10,11 +10,11 @@
 //
 // Thread safety: main (GUI) thread only.
 
-#include <QObject>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QVector>
 #include <QDateTime>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QObject>
+#include <QVector>
 
 class EcatClient;
 class EventBus;
@@ -33,8 +33,7 @@ struct DcSyncOptimizationResult {
 class DcSyncOptimizerService : public QObject {
     Q_OBJECT
 public:
-    explicit DcSyncOptimizerService(EcatClient *client, EventBus *eventBus,
-                                    QObject *parent = nullptr);
+    explicit DcSyncOptimizerService(EcatClient* client, EventBus* eventBus, QObject* parent = nullptr);
 
     DcSyncOptimizationResult optimizeSync();
     DcSyncOptimizationResult optimizeDrift();
@@ -43,23 +42,22 @@ public:
 
     // Apply an optimization to live hardware-backed DC configuration.
     // Returns false offline and leaves pending results unmodified.
-    bool applyOptimization(const DcSyncOptimizationResult &result);
+    bool applyOptimization(const DcSyncOptimizationResult& result);
 
     QVector<DcSyncOptimizationResult> pendingResults() const { return results_; }
     void clearResults();
 
 signals:
-    void optimizationCompleted(const DcSyncOptimizationResult &result);
-    void optimizationApplied(const DcSyncOptimizationResult &result);
-    void error(const QString &message);
+    void optimizationCompleted(const DcSyncOptimizationResult& result);
+    void optimizationApplied(const DcSyncOptimizationResult& result);
+    void error(const QString& message);
 
 private:
-    DcSyncOptimizationResult offlineResult(const QString &category,
-                                           const QString &description) const;
+    DcSyncOptimizationResult offlineResult(const QString& category, const QString& description) const;
     bool hasDcTelemetry() const;
     QJsonObject collectSyncStatus() const;
 
-    EcatClient *client_;
-    EventBus *eventBus_;
+    EcatClient* client_;
+    EventBus* eventBus_;
     QVector<DcSyncOptimizationResult> results_;
 };

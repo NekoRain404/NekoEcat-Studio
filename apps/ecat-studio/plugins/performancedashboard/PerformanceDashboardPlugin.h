@@ -30,72 +30,71 @@ class QTimer;
 class PerformanceMonitorService;
 
 class PerformanceDashboardPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit PerformanceDashboardPlugin(PerformanceMonitorService *service,
-                                      QObject *parent = nullptr);
+    explicit PerformanceDashboardPlugin(PerformanceMonitorService* service, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  void activate() override;
-  void deactivate() override;
+    void activate() override;
+    void deactivate() override;
 
 public slots:
-  void refresh();
-  void generateReport();
+    void refresh();
+    void generateReport();
 
 private:
-  void buildUi();
-  void buildOverviewTab();
-  void buildStartupTab();
-  void buildRuntimeTab();
-  void buildMemoryTab();
-  void buildHistoryTab();
-  void buildReportsTab();
+    void buildUi();
+    void buildOverviewTab();
+    void buildStartupTab();
+    void buildRuntimeTab();
+    void buildMemoryTab();
+    void buildHistoryTab();
+    void buildReportsTab();
 
-  void updateOverview();
-  void updateStartup();
-  void updateRuntime();
-  void updateMemory();
-  void updateHistory();
+    void updateOverview();
+    void updateStartup();
+    void updateRuntime();
+    void updateMemory();
+    void updateHistory();
 
-  PerformanceMonitorService *service_;
-  QWidget *container_ = nullptr;
-  QTabWidget *tabs_ = nullptr;
-  QTimer *refreshTimer_ = nullptr;
+    PerformanceMonitorService* service_;
+    QWidget* container_ = nullptr;
+    QTabWidget* tabs_ = nullptr;
+    QTimer* refreshTimer_ = nullptr;
 
-  // Overview tab
-  QLabel *startupStatus_ = nullptr;
-  QLabel *totalStartupTime_ = nullptr;
-  QLabel *sdoReadLatencyLabel_ = nullptr;
-  QLabel *sdoWriteLatencyLabel_ = nullptr;
-  QLabel *stateTransitionLabel_ = nullptr;
-  QLabel *freeRunCycleLabel_ = nullptr;
-  QLabel *uiUpdateLabel_ = nullptr;
-  QLabel *memoryUsageLabel_ = nullptr;
-  QTableWidget *alertsTable_ = nullptr;
+    // Overview tab
+    QLabel* startupStatus_ = nullptr;
+    QLabel* totalStartupTime_ = nullptr;
+    QLabel* sdoReadLatencyLabel_ = nullptr;
+    QLabel* sdoWriteLatencyLabel_ = nullptr;
+    QLabel* stateTransitionLabel_ = nullptr;
+    QLabel* freeRunCycleLabel_ = nullptr;
+    QLabel* uiUpdateLabel_ = nullptr;
+    QLabel* memoryUsageLabel_ = nullptr;
+    QTableWidget* alertsTable_ = nullptr;
 
-  // Startup tab
-  QTableWidget *startupPhasesTable_ = nullptr;
-  QLabel *startupTotalLabel_ = nullptr;
+    // Startup tab
+    QTableWidget* startupPhasesTable_ = nullptr;
+    QLabel* startupTotalLabel_ = nullptr;
 
-  // Runtime tab
-  QTableWidget *runtimeTable_ = nullptr;
+    // Runtime tab
+    QTableWidget* runtimeTable_ = nullptr;
 
-  // Memory tab
-  QTableWidget *serviceMemoryTable_ = nullptr;
-  QTableWidget *pluginMemoryTable_ = nullptr;
-  QTableWidget *cacheMemoryTable_ = nullptr;
-  QLabel *totalMemoryLabel_ = nullptr;
+    // Memory tab
+    QTableWidget* serviceMemoryTable_ = nullptr;
+    QTableWidget* pluginMemoryTable_ = nullptr;
+    QTableWidget* cacheMemoryTable_ = nullptr;
+    QLabel* totalMemoryLabel_ = nullptr;
 
-  // History tab
-  QTableWidget *historyTable_ = nullptr;
+    // History tab
+    QTableWidget* historyTable_ = nullptr;
 
-  // Reports tab
-  QLabel *reportLabel_ = nullptr;
+    // Reports tab
+    QLabel* reportLabel_ = nullptr;
 };

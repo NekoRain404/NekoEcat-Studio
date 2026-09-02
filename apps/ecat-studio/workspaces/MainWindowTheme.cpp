@@ -5,9 +5,9 @@
 // See ThemeManager.h for the public API.
 
 #include "MainWindowIncludes.h"
-#include "themes/ThemeManager.h"
 #include "plugins/PluginRegistry.h"
 #include "plugins/WorkspacePlugin.h"
+#include "themes/ThemeManager.h"
 
 #include <QApplication>
 #include <QFont>
@@ -15,15 +15,13 @@
 
 /* ── Theme application ───────────────────────────────────────────────
    Delegates to ThemeManager which loads .qss from Qt resources. */
-void MainWindow::applyTheme()
-{
+void MainWindow::applyTheme() {
     ThemeManager::applyTheme(this, settings_.theme);
 }
 
 /* ── Apply all user settings ─────────────────────────────────────────
    Theme, font scale, language, master selector, action availability, status bar. */
-void MainWindow::applySettings()
-{
+void MainWindow::applySettings() {
     applyTheme();
     QFont font = qApp->font();
     font.setPointSizeF(10.0 * settings_.scale);
@@ -42,10 +40,9 @@ void MainWindow::applySettings()
    (e.g. "简体中文") as stored by the settings dialog.  It is resolved to a
    Language enum, and the BCP-47/translation-file suffix is derived from the
    enum so both the LanguageManager and the .qm basename use the right code. */
-void MainWindow::applyLanguage(const QString &displayName)
-{
+void MainWindow::applyLanguage(const QString& displayName) {
     // Map display name (or a legacy persisted locale code) to Language enum.
-    const auto &mgr = LanguageManager::instance();
+    const auto& mgr = LanguageManager::instance();
     Language lang = mgr.fromDisplayName(displayName);
     if (lang == Language::English && displayName != QStringLiteral("English")) {
         lang = mgr.fromLocaleCode(displayName);
@@ -85,20 +82,19 @@ void MainWindow::applyLanguage(const QString &displayName)
    Destroys and recreates the workspace tab pages so every plugin
    widget picks up the new tr() translations.  Called on language
    switch and when the plugin registry changes. */
-void MainWindow::rebuildWorkbench()
-{
+void MainWindow::rebuildWorkbench() {
     // Clear existing workspace pages
     int count = tabs_->count();
     for (int i = count - 1; i >= 0; --i) {
-        QWidget *page = tabs_->widget(i);
+        QWidget* page = tabs_->widget(i);
         tabs_->removeTab(i);
         page->deleteLater();
     }
 
     // Re-populate from plugin registry
     const auto plugins = pluginRegistry_->visiblePlugins();
-    for (auto *plugin : plugins) {
-        QWidget *w = plugin->widget();
+    for (auto* plugin : plugins) {
+        QWidget* w = plugin->widget();
         if (w) {
             tabs_->addTab(w, plugin->icon(), plugin->displayName());
         }

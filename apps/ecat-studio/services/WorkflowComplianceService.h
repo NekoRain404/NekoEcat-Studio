@@ -21,24 +21,24 @@
 #include <QStringList>
 
 struct ComplianceResult {
-  QString standard;
-  QString version;
-  bool compliant = false;
-  QStringList violations;
-  QStringList recommendations;
-  double score = 0.0;
+    QString standard;
+    QString version;
+    bool compliant = false;
+    QStringList violations;
+    QStringList recommendations;
+    double score = 0.0;
 };
 
 class WorkflowComplianceService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit WorkflowComplianceService(QObject *parent = nullptr);
+    explicit WorkflowComplianceService(QObject* parent = nullptr);
 
-  ComplianceResult checkStandardCompliance();
-  ComplianceResult checkRegulatoryCompliance();
-  ComplianceResult checkSafetyCompliance();
-  ComplianceResult checkQualityCompliance();
+    ComplianceResult checkStandardCompliance();
+    ComplianceResult checkRegulatoryCompliance();
+    ComplianceResult checkSafetyCompliance();
+    ComplianceResult checkQualityCompliance();
 
 signals:
-  void complianceChecked(const ComplianceResult &result);
+    void complianceChecked(const ComplianceResult& result);
 };

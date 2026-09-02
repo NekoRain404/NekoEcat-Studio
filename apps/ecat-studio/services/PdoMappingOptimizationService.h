@@ -11,49 +11,48 @@
 //   PdoMappingOptimizationResult result = svc->optimizeMapping();
 //   svc->applyOptimization(result);
 
-#include <QObject>
-#include <QJsonObject>
-#include <QVector>
 #include <QDateTime>
+#include <QJsonObject>
+#include <QObject>
 #include <QString>
+#include <QVector>
 
 struct PdoMappingOptimizationResult {
-  QString category;
-  QString description;
-  QJsonObject before;
-  QJsonObject after;
-  double improvement = 0.0;
-  QStringList recommendations;
-  bool applied = false;
-  QDateTime timestamp;
+    QString category;
+    QString description;
+    QJsonObject before;
+    QJsonObject after;
+    double improvement = 0.0;
+    QStringList recommendations;
+    bool applied = false;
+    QDateTime timestamp;
 };
 
 Q_DECLARE_METATYPE(PdoMappingOptimizationResult)
 
 class PdoMappingOptimizationService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit PdoMappingOptimizationService(QObject *parent = nullptr);
+    explicit PdoMappingOptimizationService(QObject* parent = nullptr);
 
-  PdoMappingOptimizationResult optimizeMapping();
-  PdoMappingOptimizationResult optimizeSize();
-  PdoMappingOptimizationResult optimizeAlignment();
-  PdoMappingOptimizationResult optimizePerformance();
+    PdoMappingOptimizationResult optimizeMapping();
+    PdoMappingOptimizationResult optimizeSize();
+    PdoMappingOptimizationResult optimizeAlignment();
+    PdoMappingOptimizationResult optimizePerformance();
 
-  // Apply an optimization through a real PDO mapping backend.
-  // Returns false until such a backend is wired in.
-  bool applyOptimization(const PdoMappingOptimizationResult &result);
+    // Apply an optimization through a real PDO mapping backend.
+    // Returns false until such a backend is wired in.
+    bool applyOptimization(const PdoMappingOptimizationResult& result);
 
-  QVector<PdoMappingOptimizationResult> optimizationHistory() const { return history_; }
-  void clearHistory();
+    QVector<PdoMappingOptimizationResult> optimizationHistory() const { return history_; }
+    void clearHistory();
 
 signals:
-  void optimizationCompleted(const PdoMappingOptimizationResult &result);
-  void optimizationApplied(const PdoMappingOptimizationResult &result);
+    void optimizationCompleted(const PdoMappingOptimizationResult& result);
+    void optimizationApplied(const PdoMappingOptimizationResult& result);
 
 private:
-  PdoMappingOptimizationResult createRejectedResult(
-      const QString &category, const QStringList &recommendations);
+    PdoMappingOptimizationResult createRejectedResult(const QString& category, const QStringList& recommendations);
 
-  QVector<PdoMappingOptimizationResult> history_;
+    QVector<PdoMappingOptimizationResult> history_;
 };

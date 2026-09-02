@@ -7,28 +7,28 @@
 
 #include "services/EtherCATMonitorService.h"
 
-#include <QWidget>
 #include <QVector>
+#include <QWidget>
 
 class BusMonitorWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit BusMonitorWidget(QWidget *parent = nullptr);
+    explicit BusMonitorWidget(QWidget* parent = nullptr);
 
-  void updateTraffic(const BusTraffic &traffic);
-  void updateErrorRate(const ErrorRate &rate);
+    void updateTraffic(const BusTraffic& traffic);
+    void updateErrorRate(const ErrorRate& rate);
 
 protected:
-  void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent* event) override;
 
 private:
-  void drawBackground(QPainter &p, const QRect &rect);
-  void drawTrafficGraph(QPainter &p, const QRect &rect);
-  void drawMetrics(QPainter &p, const QRect &rect);
+    void drawBackground(QPainter& p, const QRect& rect);
+    void drawTrafficGraph(QPainter& p, const QRect& rect);
+    void drawMetrics(QPainter& p, const QRect& rect);
 
-  BusTraffic traffic_;
-  ErrorRate errorRate_;
-  QVector<double> trafficHistory_;
-  QVector<double> errorHistory_;
-  static constexpr int kMaxHistory = 120;
+    BusTraffic traffic_;
+    ErrorRate errorRate_;
+    QVector<double> trafficHistory_;
+    QVector<double> errorHistory_;
+    static constexpr int kMaxHistory = 120;
 };

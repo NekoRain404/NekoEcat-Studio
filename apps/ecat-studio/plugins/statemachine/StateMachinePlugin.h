@@ -42,63 +42,62 @@ class QLabel;
 class ServiceContainer;
 
 class StateMachinePlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit StateMachinePlugin(ServiceContainer *container,
-                              QObject *parent = nullptr);
+    explicit StateMachinePlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Lifecycle
-  void activate() override;
-  void deactivate() override;
-  void onSettingsChanged(const AppSettings &settings) override;
-  void onConnectionChanged(bool connected) override;
+    // Lifecycle
+    void activate() override;
+    void deactivate() override;
+    void onSettingsChanged(const AppSettings& settings) override;
+    void onConnectionChanged(bool connected) override;
 
-  // UI update surface — MainWindow calls these with pre-computed data.
-  void setRows(const QStringList &headers, const QList<QStringList> &rows);
-  void setSummary(const QString &text, const QString &severity = QString());
-  void setSummaryToolTip(const QString &tip);
-  void setDetail(const QString &text, const QString &severity = QString());
-  void setDetailToolTip(const QString &tip);
+    // UI update surface — MainWindow calls these with pre-computed data.
+    void setRows(const QStringList& headers, const QList<QStringList>& rows);
+    void setSummary(const QString& text, const QString& severity = QString());
+    void setSummaryToolTip(const QString& tip);
+    void setDetail(const QString& text, const QString& severity = QString());
+    void setDetailToolTip(const QString& tip);
 
-  // Selection
-  int currentRow() const;
-  void setCurrentCell(int row, int column);
-  int rowCount() const;
-  bool isRowHidden(int row) const;
-  void resizeColumnsToContents();
+    // Selection
+    int currentRow() const;
+    void setCurrentCell(int row, int column);
+    int rowCount() const;
+    bool isRowHidden(int row) const;
+    void resizeColumnsToContents();
 
-  // Table accessor for MainWindow integration.
-  QTableWidget *table() const;
-  QLabel *summaryLabel() const;
-  QLabel *detailLabel() const;
+    // Table accessor for MainWindow integration.
+    QTableWidget* table() const;
+    QLabel* summaryLabel() const;
+    QLabel* detailLabel() const;
 
-  // Color scheme for state machine rows.
-  static constexpr const char *kOkColor = "#22c55e";
-  static constexpr const char *kActionColor = "#f59e0b";
-  static constexpr const char *kWarningColor = "#ef4444";
-  static constexpr const char *kInfoColor = "#60a5fa";
+    // Color scheme for state machine rows.
+    static constexpr const char* kOkColor = "#22c55e";
+    static constexpr const char* kActionColor = "#f59e0b";
+    static constexpr const char* kWarningColor = "#ef4444";
+    static constexpr const char* kInfoColor = "#60a5fa";
 
 signals:
-  void stateChangeRequested(int position, const QString &state);
-  void allStateChangeRequested(const QString &state);
+    void stateChangeRequested(int position, const QString& state);
+    void allStateChangeRequested(const QString& state);
 
 private:
-  void buildUi();
-  void updateStateCell(int position, int state);
-  QString stateToString(int state) const;
+    void buildUi();
+    void updateStateCell(int position, int state);
+    QString stateToString(int state) const;
 
-  ServiceContainer *container_;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *table_ = nullptr;
-  QLabel *summaryLabel_ = nullptr;
-  QLabel *detailLabel_ = nullptr;
+    ServiceContainer* container_;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* table_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
+    QLabel* detailLabel_ = nullptr;
 };

@@ -4,15 +4,14 @@
 #include <QBuffer>
 #include <QFile>
 #include <QTemporaryDir>
-#include <QXmlStreamReader>
 #include <QTextStream>
+#include <QXmlStreamReader>
 
-EsiParser::EsiParser(QObject *parent) : QObject(parent) {}
+EsiParser::EsiParser(QObject* parent) : QObject(parent) {}
 
-int EsiParser::parseHexOrDec(const QString &s) const {
+int EsiParser::parseHexOrDec(const QString& s) const {
     QString trimmed = s.trimmed();
-    if (trimmed.startsWith("0x", Qt::CaseInsensitive) ||
-        trimmed.startsWith("#x", Qt::CaseInsensitive)) {
+    if (trimmed.startsWith("0x", Qt::CaseInsensitive) || trimmed.startsWith("#x", Qt::CaseInsensitive)) {
         int start = trimmed.startsWith("0x", Qt::CaseInsensitive) ? 2 : 2;
         return trimmed.mid(start).toInt(nullptr, 16);
     }
@@ -21,7 +20,7 @@ int EsiParser::parseHexOrDec(const QString &s) const {
     return ok ? val : trimmed.toInt();
 }
 
-EsiParser::ParseResult EsiParser::parseFile(const QString &filePath) {
+EsiParser::ParseResult EsiParser::parseFile(const QString& filePath) {
     if (filePath.isEmpty()) {
         ParseResult r;
         r.valid = false;
@@ -58,7 +57,7 @@ EsiParser::ParseResult EsiParser::parseFile(const QString &filePath) {
     return ParseResult{true, {}, {}};
 }
 
-EsiParser::ParseResult EsiParser::parseXml(const QString &xmlContent) {
+EsiParser::ParseResult EsiParser::parseXml(const QString& xmlContent) {
     if (xmlContent.trimmed().isEmpty()) {
         ParseResult r;
         r.valid = false;
@@ -100,20 +99,19 @@ EsiParser::ParseResult EsiParser::parseXml(const QString &xmlContent) {
 }
 
 EsiDeviceInfo EsiParser::deviceAt(int index) const {
-    if (index < 0 || index >= devices_.size()) return EsiDeviceInfo();
+    if (index < 0 || index >= devices_.size())
+        return EsiDeviceInfo();
     return devices_[index];
 }
 
 EsiDeviceInfo EsiParser::matchDevice(int vendorId, int productCode) const {
-    QString key = QString("%1:%2")
-        .arg(vendorId, 8, 16, QChar('0'))
-        .arg(productCode, 8, 16, QChar('0'));
+    QString key = QString("%1:%2").arg(vendorId, 8, 16, QChar('0')).arg(productCode, 8, 16, QChar('0'));
     if (deviceIndex_.contains(key))
         return devices_[deviceIndex_[key]];
     return EsiDeviceInfo();
 }
 
-bool EsiParser::validateStructure(const QString &filePath) const {
+bool EsiParser::validateStructure(const QString& filePath) const {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return false;
@@ -125,8 +123,10 @@ bool EsiParser::validateStructure(const QString &filePath) const {
     while (!xml.atEnd()) {
         xml.readNext();
         if (xml.isStartElement()) {
-            if (QStringView(xml.name()) == QStringLiteral("Descriptions")) hasDescriptions = true;
-            if (hasDescriptions && QStringView(xml.name()) == QStringLiteral("Device")) hasDevice = true;
+            if (QStringView(xml.name()) == QStringLiteral("Descriptions"))
+                hasDescriptions = true;
+            if (hasDescriptions && QStringView(xml.name()) == QStringLiteral("Device"))
+                hasDevice = true;
         }
     }
 

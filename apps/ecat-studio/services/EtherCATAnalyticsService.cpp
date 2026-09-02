@@ -1,9 +1,9 @@
 #include "EtherCATAnalyticsService.h"
-#include "infra/EcatClient.h"
 #include "EventBus.h"
-#include <QDateTime>
+#include "infra/EcatClient.h"
 #include <algorithm>
 #include <cmath>
+#include <QDateTime>
 
 // EtherCATAnalyticsService.cpp — Statistical analytics for EtherCAT data streams
 //
@@ -12,18 +12,13 @@
 //   - Uses 2-sigma threshold for anomaly detection on data point buffers
 //   - Provides time-windowed analysis for performance, errors, and resource usage
 
-EtherCATAnalyticsService::EtherCATAnalyticsService(EventBus *bus,
-                                                    EcatClient *client,
-                                                    QObject *parent)
-    : QObject(parent), bus_(bus), client_(client)
-{
-}
+EtherCATAnalyticsService::EtherCATAnalyticsService(EventBus* bus, EcatClient* client, QObject* parent)
+    : QObject(parent), bus_(bus), client_(client) {}
 
-AnalysisResult EtherCATAnalyticsService::makeResult(
-    const QString &category, const QString &summary,
-    const QVector<QString> &trends, const QVector<QString> &patterns,
-    const QVector<QString> &anomalies, const QVector<QString> &recommendations)
-{
+AnalysisResult EtherCATAnalyticsService::makeResult(const QString& category, const QString& summary,
+                                                    const QVector<QString>& trends, const QVector<QString>& patterns,
+                                                    const QVector<QString>& anomalies,
+                                                    const QVector<QString>& recommendations) {
     AnalysisResult r;
     r.category = category;
     r.summary = summary;
@@ -35,17 +30,14 @@ AnalysisResult EtherCATAnalyticsService::makeResult(
     return r;
 }
 
-AnalysisResult EtherCATAnalyticsService::analyzeData(
-    const QVector<DataPoint> &data)
-{
+AnalysisResult EtherCATAnalyticsService::analyzeData(const QVector<DataPoint>& data) {
     if (data.isEmpty()) {
-        return makeResult(QStringLiteral("Data"),
-                          QStringLiteral("No data points to analyze"),
-                          {}, {}, {}, {QStringLiteral("Collect data before analysis")});
+        return makeResult(QStringLiteral("Data"), QStringLiteral("No data points to analyze"), {}, {}, {},
+                          {QStringLiteral("Collect data before analysis")});
     }
 
     double sum = 0.0, minVal = data.first().value, maxVal = data.first().value;
-    for (const auto &dp : data) {
+    for (const auto& dp : data) {
         sum += dp.value;
         minVal = std::min(minVal, dp.value);
         maxVal = std::max(maxVal, dp.value);
@@ -53,7 +45,7 @@ AnalysisResult EtherCATAnalyticsService::analyzeData(
     double mean = sum / data.size();
 
     double variance = 0.0;
-    for (const auto &dp : data)
+    for (const auto& dp : data)
         variance += (dp.value - mean) * (dp.value - mean);
     variance /= data.size();
     double stddev = std::sqrt(variance);
@@ -77,11 +69,9 @@ AnalysisResult EtherCATAnalyticsService::analyzeData(
     }
 
     QVector<QString> anomalies;
-    for (const auto &dp : data) {
+    for (const auto& dp : data) {
         if (std::abs(dp.value - mean) > 2.0 * stddev)
-            anomalies << QStringLiteral("Anomaly at %1: value %2")
-                             .arg(dp.timestamp)
-                             .arg(dp.value);
+            anomalies << QStringLiteral("Anomaly at %1: value %2").arg(dp.timestamp).arg(dp.value);
     }
 
     QVector<QString> patterns;
@@ -105,28 +95,25 @@ AnalysisResult EtherCATAnalyticsService::analyzeData(
                           .arg(minVal, 0, 'f', 2)
                           .arg(maxVal, 0, 'f', 2);
 
-    return makeResult(QStringLiteral("Data"), summary, trends, patterns,
-                      anomalies, recommendations);
+    return makeResult(QStringLiteral("Data"), summary, trends, patterns, anomalies, recommendations);
 }
 
-AnalysisResult EtherCATAnalyticsService::analyzePerformance(int durationSec)
-{
+AnalysisResult EtherCATAnalyticsService::analyzePerformance(int durationSec) {
     qint64 cutoff = QDateTime::currentMSecsSinceEpoch() - (durationSec * 1000LL);
     QVector<DataPoint> filtered;
-    for (const auto &dp : perfBuffer_) {
+    for (const auto& dp : perfBuffer_) {
         if (dp.timestamp >= cutoff)
             filtered.append(dp);
     }
 
     if (filtered.isEmpty()) {
         return makeResult(QStringLiteral("Performance"),
-                          QStringLiteral("No performance data for the specified duration"),
-                          {}, {}, {},
+                          QStringLiteral("No performance data for the specified duration"), {}, {}, {},
                           {QStringLiteral("Start performance monitoring to collect data")});
     }
 
     double sum = 0.0;
-    for (const auto &dp : filtered)
+    for (const auto& dp : filtered)
         sum += dp.value;
     double avg = sum / filtered.size();
 
@@ -142,15 +129,14 @@ AnalysisResult EtherCATAnalyticsService::analyzePerformance(int durationSec)
         recommendations << QStringLiteral("Acceptable cycle time - monitor for degradation");
 
     return makeResult(QStringLiteral("Performance"),
-                      QStringLiteral("Performance analysis over %1 seconds").arg(durationSec),
-                      trends, {}, {}, recommendations);
+                      QStringLiteral("Performance analysis over %1 seconds").arg(durationSec), trends, {}, {},
+                      recommendations);
 }
 
-AnalysisResult EtherCATAnalyticsService::analyzeErrors(int durationSec)
-{
+AnalysisResult EtherCATAnalyticsService::analyzeErrors(int durationSec) {
     qint64 cutoff = QDateTime::currentMSecsSinceEpoch() - (durationSec * 1000LL);
     QVector<DataPoint> filtered;
-    for (const auto &dp : errorBuffer_) {
+    for (const auto& dp : errorBuffer_) {
         if (dp.timestamp >= cutoff)
             filtered.append(dp);
     }
@@ -173,23 +159,20 @@ AnalysisResult EtherCATAnalyticsService::analyzeErrors(int durationSec)
         recommendations << QStringLiteral("Error rate within acceptable limits");
 
     return makeResult(QStringLiteral("Errors"),
-                      QStringLiteral("Error analysis: %1 errors in %2 seconds")
-                          .arg(totalErrors)
-                          .arg(durationSec),
+                      QStringLiteral("Error analysis: %1 errors in %2 seconds").arg(totalErrors).arg(durationSec),
                       trends, {}, {}, recommendations);
 }
 
-AnalysisResult EtherCATAnalyticsService::analyzeUsage(int durationSec)
-{
+AnalysisResult EtherCATAnalyticsService::analyzeUsage(int durationSec) {
     qint64 cutoff = QDateTime::currentMSecsSinceEpoch() - (durationSec * 1000LL);
     QVector<DataPoint> filtered;
-    for (const auto &dp : usageBuffer_) {
+    for (const auto& dp : usageBuffer_) {
         if (dp.timestamp >= cutoff)
             filtered.append(dp);
     }
 
     double sum = 0.0;
-    for (const auto &dp : filtered)
+    for (const auto& dp : filtered)
         sum += dp.value;
     double avg = filtered.isEmpty() ? 0.0 : sum / filtered.size();
 
@@ -204,7 +187,6 @@ AnalysisResult EtherCATAnalyticsService::analyzeUsage(int durationSec)
     else
         recommendations << QStringLiteral("Resource usage is healthy");
 
-    return makeResult(QStringLiteral("Usage"),
-                      QStringLiteral("Usage analysis over %1 seconds").arg(durationSec),
+    return makeResult(QStringLiteral("Usage"), QStringLiteral("Usage analysis over %1 seconds").arg(durationSec),
                       trends, {}, {}, recommendations);
 }

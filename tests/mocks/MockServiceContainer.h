@@ -37,16 +37,16 @@ class MockServiceContainer : public ServiceContainer {
     Q_OBJECT
 public:
     /// Constructs the container with MockEcatClient and MockEventBus.
-    explicit MockServiceContainer(QObject *parent = nullptr);
+    explicit MockServiceContainer(QObject* parent = nullptr);
     /// Destroys the container and all owned mock objects.
     ~MockServiceContainer() override;
 
     /// Returns the MockEcatClient instance for configuring test scenarios.
-    MockEcatClient *mockClient() const;
+    MockEcatClient* mockClient() const;
     /// Returns the MockEventBus instance for verifying signal emissions.
-    MockEventBus *mockEventBus() const;
+    MockEventBus* mockEventBus() const;
 
 private:
-    MockEcatClient *mockClient_ = nullptr;   ///< Mock EcatClient instance
-    MockEventBus *mockEventBus_ = nullptr;   ///< Mock EventBus instance
+    MockEcatClient* mockClient_ = nullptr; ///< Mock EcatClient instance
+    MockEventBus* mockEventBus_ = nullptr; ///< Mock EventBus instance
 };

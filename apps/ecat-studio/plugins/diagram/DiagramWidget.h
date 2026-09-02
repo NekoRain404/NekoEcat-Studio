@@ -4,25 +4,25 @@
 #include <QWidget>
 
 struct DiagramNode {
-  double x;
-  double y;
-  QString name;
-  QString type;
+    double x;
+    double y;
+    QString name;
+    QString type;
 };
 
 class DiagramWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit DiagramWidget(QWidget *parent = nullptr);
+    explicit DiagramWidget(QWidget* parent = nullptr);
 
-  void addNode(double x, double y, const QString &name, const QString &type);
-  void clearNodes();
-  int nodeCount() const;
-  const QVector<DiagramNode> &nodes() const;
+    void addNode(double x, double y, const QString& name, const QString& type);
+    void clearNodes();
+    int nodeCount() const;
+    const QVector<DiagramNode>& nodes() const;
 
 protected:
-  void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent* event) override;
 
 private:
-  QVector<DiagramNode> nodes_;
+    QVector<DiagramNode> nodes_;
 };

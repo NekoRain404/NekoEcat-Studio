@@ -10,9 +10,9 @@ struct DcSyncOptimizationResult;
 class SyncOptimizerWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit SyncOptimizerWidget(QWidget *parent = nullptr);
+    explicit SyncOptimizerWidget(QWidget* parent = nullptr);
 
-    void displayResult(const DcSyncOptimizationResult &result);
+    void displayResult(const DcSyncOptimizationResult& result);
     void clear();
 
 signals:
@@ -21,9 +21,9 @@ signals:
 private:
     void buildUi();
 
-    QTableWidget *beforeTable_ = nullptr;
-    QTableWidget *afterTable_ = nullptr;
-    QLabel *improvementLabel_ = nullptr;
-    QLabel *recommendationsLabel_ = nullptr;
-    QPushButton *applyBtn_ = nullptr;
+    QTableWidget* beforeTable_ = nullptr;
+    QTableWidget* afterTable_ = nullptr;
+    QLabel* improvementLabel_ = nullptr;
+    QLabel* recommendationsLabel_ = nullptr;
+    QPushButton* applyBtn_ = nullptr;
 };

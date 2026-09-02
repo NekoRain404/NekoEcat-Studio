@@ -8,10 +8,10 @@
 //
 // Thread safety: main (GUI) thread only.
 
-#include <QObject>
-#include <QVector>
-#include <QString>
 #include <QDateTime>
+#include <QObject>
+#include <QString>
+#include <QVector>
 
 struct SecurityPolicy {
     int level = 1;
@@ -38,18 +38,18 @@ struct SecurityAuditResult {
 class EtherCATSecurityService : public QObject {
     Q_OBJECT
 public:
-    explicit EtherCATSecurityService(QObject *parent = nullptr);
+    explicit EtherCATSecurityService(QObject* parent = nullptr);
 
-    void setSecurityPolicy(const SecurityPolicy &policy);
+    void setSecurityPolicy(const SecurityPolicy& policy);
     SecurityPolicy currentPolicy() const;
     SecurityAuditResult runAudit();
-    bool validateAccess(const QString &userId, const QString &resource);
+    bool validateAccess(const QString& userId, const QString& resource);
     QVector<SecurityAuditEntry> recentEvents(int count);
 
 signals:
     void policyChanged();
-    void auditCompleted(const SecurityAuditResult &result);
-    void accessViolation(const SecurityAuditEntry &entry);
+    void auditCompleted(const SecurityAuditResult& result);
+    void accessViolation(const SecurityAuditEntry& entry);
 
 private:
     SecurityPolicy policy_;

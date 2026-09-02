@@ -10,38 +10,35 @@
 
 // Localized text templates for the slave evidence summary card.
 struct SlaveEvidenceSummaryTexts {
-  QString selectSlaveText;
-  QString ready;
-  QString missing;
-  QString summaryPattern;
-  QString scorePattern;
-  QString missingIdentity;
-  QString missingOd;
-  QString missingPdo;
-  QString missingWatch;
-  QString missingProcess;
-  QString startupDiffPattern;
-  QString mapIssuePattern;
-  QString topologyIssuePattern;
+    QString selectSlaveText;
+    QString ready;
+    QString missing;
+    QString summaryPattern;
+    QString scorePattern;
+    QString missingIdentity;
+    QString missingOd;
+    QString missingPdo;
+    QString missingWatch;
+    QString missingProcess;
+    QString startupDiffPattern;
+    QString mapIssuePattern;
+    QString topologyIssuePattern;
 };
 
 // Resolved summary card state with evidence group count, severity, and tooltips.
 struct SlaveEvidenceSummaryDetail {
-  QString text;
-  QString severityKey;
-  int evidenceGroups = 0;
-  QStringList tooltipLines;
-  QString tooltip;
+    QString text;
+    QString severityKey;
+    int evidenceGroups = 0;
+    QStringList tooltipLines;
+    QString tooltip;
 };
 
-SlaveEvidenceSummaryDetail slaveEvidenceNoSelectionState(
-    const SlaveEvidenceSummaryTexts &texts);
+SlaveEvidenceSummaryDetail slaveEvidenceNoSelectionState(const SlaveEvidenceSummaryTexts& texts);
 // Counts evidence categories with at least one row.
-int slaveEvidenceSummaryGroupCount(const SlaveEvidenceInput &input);
+int slaveEvidenceSummaryGroupCount(const SlaveEvidenceInput& input);
 // Maps evidence completeness and issues to a severity key.
-QString slaveEvidenceSummarySeverityKey(const SlaveEvidenceInput &input,
-                                                int topologyIssueCount);
+QString slaveEvidenceSummarySeverityKey(const SlaveEvidenceInput& input, int topologyIssueCount);
 // Assembles the evidence summary card state.
-SlaveEvidenceSummaryDetail buildSlaveEvidenceSummaryDetail(
-    const SlaveEvidenceInput &input, int topologyIssueCount,
-    const SlaveEvidenceSummaryTexts &texts);
+SlaveEvidenceSummaryDetail buildSlaveEvidenceSummaryDetail(const SlaveEvidenceInput& input, int topologyIssueCount,
+                                                           const SlaveEvidenceSummaryTexts& texts);

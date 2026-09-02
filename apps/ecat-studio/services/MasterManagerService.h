@@ -42,94 +42,93 @@ class EcatClient;
 
 // Master state enumeration.
 enum class MasterMgrState {
-  Unknown,      // State is unknown
-  Idle,         // Master is idle (no active communication)
-  Active,       // Master is actively communicating
-  Error,        // Master is in error state
-  Configuring,  // Master is being configured
+    Unknown,     // State is unknown
+    Idle,        // Master is idle (no active communication)
+    Active,      // Master is actively communicating
+    Error,       // Master is in error state
+    Configuring, // Master is being configured
 };
 
 // Master information structure.
 struct MasterMgrInfo {
-  QString version;         // Master software version
-  QString buildDate;       // Master build date
-  QString adapterName;     // Network adapter name
-  QString adapterMac;      // Network adapter MAC address
-  int slaveCount = 0;      // Number of connected slaves
-  MasterMgrState masterState = MasterMgrState::Unknown;  // Master state
-  int cycleTime = 0;       // Cycle time in microseconds
-  int sync0Time = 0;       // SYNC0 time in microseconds
-  int errorCount = 0;      // Error count
+    QString version;                                      // Master software version
+    QString buildDate;                                    // Master build date
+    QString adapterName;                                  // Network adapter name
+    QString adapterMac;                                   // Network adapter MAC address
+    int slaveCount = 0;                                   // Number of connected slaves
+    MasterMgrState masterState = MasterMgrState::Unknown; // Master state
+    int cycleTime = 0;                                    // Cycle time in microseconds
+    int sync0Time = 0;                                    // SYNC0 time in microseconds
+    int errorCount = 0;                                   // Error count
 };
 
 // Master configuration structure.
 struct MasterMgrConfig {
-  QString adapterName;     // Network adapter name
-  int cycleTime = 1000;    // Cycle time in microseconds
-  int sync0Time = 0;       // SYNC0 time in microseconds
-  int watchdogTimeout = 1000;  // Watchdog timeout in milliseconds
-  int debugLevel = 0;      // Debug level (0-3)
+    QString adapterName;        // Network adapter name
+    int cycleTime = 1000;       // Cycle time in microseconds
+    int sync0Time = 0;          // SYNC0 time in microseconds
+    int watchdogTimeout = 1000; // Watchdog timeout in milliseconds
+    int debugLevel = 0;         // Debug level (0-3)
 };
 
 // Master diagnostic result structure.
 struct MasterMgrDiagnosticResult {
-  bool success = false;    // Whether diagnostics passed
-  QString summary;         // Diagnostic summary
-  QStringList details;     // Detailed diagnostic information
-  int errorCode = 0;       // Error code (if failed)
+    bool success = false; // Whether diagnostics passed
+    QString summary;      // Diagnostic summary
+    QStringList details;  // Detailed diagnostic information
+    int errorCode = 0;    // Error code (if failed)
 };
 
 class MasterManagerService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit MasterManagerService(EcatClient *client,
-                                QObject *parent = nullptr);
+    explicit MasterManagerService(EcatClient* client, QObject* parent = nullptr);
 
-  // Get the current master state.
-  // @return MasterMgrState enumeration
-  MasterMgrState masterState() const { return state_; }
+    // Get the current master state.
+    // @return MasterMgrState enumeration
+    MasterMgrState masterState() const { return state_; }
 
-  // Configure the master with new settings.
-  // @param config  MasterMgrConfig structure
-  // @return true only after a backend-confirmed configuration is available.
-  bool configureMaster(const MasterMgrConfig &config);
+    // Configure the master with new settings.
+    // @param config  MasterMgrConfig structure
+    // @return true only after a backend-confirmed configuration is available.
+    bool configureMaster(const MasterMgrConfig& config);
 
-  // Run diagnostics on the master.
-  // @return MasterMgrDiagnosticResult with diagnostic information
-  MasterMgrDiagnosticResult diagnoseMaster();
+    // Run diagnostics on the master.
+    // @return MasterMgrDiagnosticResult with diagnostic information
+    MasterMgrDiagnosticResult diagnoseMaster();
 
-  // Restart the master.
-  // @return true only after a backend-confirmed restart is available.
-  bool restartMaster();
+    // Restart the master.
+    // @return true only after a backend-confirmed restart is available.
+    bool restartMaster();
 
-  // Get the current master information.
-  // @return MasterMgrInfo structure
-  MasterMgrInfo masterInfo() const { return info_; }
+    // Get the current master information.
+    // @return MasterMgrInfo structure
+    MasterMgrInfo masterInfo() const { return info_; }
 
-  // Refresh master information from the daemon.
-  void refresh();
+    // Refresh master information from the daemon.
+    void refresh();
 
 signals:
-  // Emitted when the master state changes.
-  // @param state  New master state
-  void masterStateChanged(const MasterMgrState &state);
+    // Emitted when the master state changes.
+    // @param state  New master state
+    void masterStateChanged(const MasterMgrState& state);
 
-  // Emitted when a master error occurs.
-  // @param error  Human-readable error message
-  void masterError(const QString &error);
+    // Emitted when a master error occurs.
+    // @param error  Human-readable error message
+    void masterError(const QString& error);
 
-  // Emitted when master information is updated.
-  // @param info  Updated MasterMgrInfo structure
-  void masterInfoUpdated(const MasterMgrInfo &info);
+    // Emitted when master information is updated.
+    // @param info  Updated MasterMgrInfo structure
+    void masterInfoUpdated(const MasterMgrInfo& info);
 
 private:
-  // Update master information from daemon response text.
-  void updateFromMasterText(const QString &text);
+    // Update master information from daemon response text.
+    void updateFromMasterText(const QString& text);
 
-  // Set the master state and emit signal if changed.
-  void setState(MasterMgrState state);
+    // Set the master state and emit signal if changed.
+    void setState(MasterMgrState state);
 
-  EcatClient *client_;                      // TCP client to ecatd daemon
-  MasterMgrState state_ = MasterMgrState::Unknown;  // Current master state
-  MasterMgrInfo info_;                      // Cached master information
+    EcatClient* client_;                             // TCP client to ecatd daemon
+    MasterMgrState state_ = MasterMgrState::Unknown; // Current master state
+    MasterMgrInfo info_;                             // Cached master information
 };

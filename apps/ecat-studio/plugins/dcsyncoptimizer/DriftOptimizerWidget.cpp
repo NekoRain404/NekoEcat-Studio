@@ -1,27 +1,27 @@
 #include "DriftOptimizerWidget.h"
 #include "services/DcSyncOptimizerService.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGroupBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QFormLayout>
-#include <QTableWidget>
+#include <QGroupBox>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
-#include <QComboBox>
-#include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QTableWidget>
+#include <QVBoxLayout>
 
-DriftOptimizerWidget::DriftOptimizerWidget(QWidget *parent) : QWidget(parent) {
+DriftOptimizerWidget::DriftOptimizerWidget(QWidget* parent) : QWidget(parent) {
     buildUi();
 }
 
 void DriftOptimizerWidget::buildUi() {
-    auto *mainLayout = new QVBoxLayout(this);
+    auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(4, 4, 4, 4);
 
-    auto *algoGroup = new QGroupBox(tr("Compensation Algorithm"));
-    auto *algoLayout = new QFormLayout(algoGroup);
+    auto* algoGroup = new QGroupBox(tr("Compensation Algorithm"));
+    auto* algoLayout = new QFormLayout(algoGroup);
 
     algorithmCombo_ = new QComboBox;
     algorithmCombo_->addItems({"PID", "Linear Regression", "Kalman Filter"});
@@ -58,8 +58,8 @@ void DriftOptimizerWidget::buildUi() {
 
     mainLayout->addWidget(algoGroup);
 
-    auto *resultsGroup = new QGroupBox(tr("Optimization Results"));
-    auto *resultsLayout = new QVBoxLayout(resultsGroup);
+    auto* resultsGroup = new QGroupBox(tr("Optimization Results"));
+    auto* resultsLayout = new QVBoxLayout(resultsGroup);
 
     paramsTable_ = new QTableWidget;
     paramsTable_->setColumnCount(2);
@@ -81,33 +81,27 @@ void DriftOptimizerWidget::buildUi() {
     mainLayout->addWidget(resultsGroup);
 
     applyBtn_ = new QPushButton(tr("Apply Optimization"));
-    applyBtn_->setStyleSheet(
-        "QPushButton { background: #3b82f6; color: white; padding: 8px 16px;"
-        "border-radius: 4px; font-weight: bold; }"
-        "QPushButton:hover { background: #2563eb; }");
-    connect(applyBtn_, &QPushButton::clicked, this,
-            &DriftOptimizerWidget::applyRequested);
+    applyBtn_->setStyleSheet("QPushButton { background: #3b82f6; color: white; padding: 8px 16px;"
+                             "border-radius: 4px; font-weight: bold; }"
+                             "QPushButton:hover { background: #2563eb; }");
+    connect(applyBtn_, &QPushButton::clicked, this, &DriftOptimizerWidget::applyRequested);
     mainLayout->addWidget(applyBtn_);
 }
 
-void DriftOptimizerWidget::displayResult(const DcSyncOptimizationResult &result) {
+void DriftOptimizerWidget::displayResult(const DcSyncOptimizationResult& result) {
     paramsTable_->setRowCount(0);
     const auto keys = result.after.keys();
-    for (const auto &key : keys) {
+    for (const auto& key : keys) {
         int row = paramsTable_->rowCount();
         paramsTable_->insertRow(row);
         paramsTable_->setItem(row, 0, new QTableWidgetItem(key));
-        paramsTable_->setItem(
-            row, 1,
-            new QTableWidgetItem(
-                result.after[key].toVariant().toString()));
+        paramsTable_->setItem(row, 1, new QTableWidgetItem(result.after[key].toVariant().toString()));
     }
 
-    improvementLabel_->setText(
-        tr("Improvement: %1%").arg(result.improvement, 0, 'f', 1));
+    improvementLabel_->setText(tr("Improvement: %1%").arg(result.improvement, 0, 'f', 1));
 
     QString recs;
-    for (const auto &rec : result.recommendations)
+    for (const auto& rec : result.recommendations)
         recs += "  " + rec + "\n";
     recommendationsLabel_->setText(tr("Recommendations:\n") + recs);
 }

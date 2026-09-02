@@ -4,8 +4,8 @@
 // Actual soe_read/soe_write invocations shell out to the ethercat CLI, which
 // is covered by integration tests against real slaves.
 
-#include <QTest>
 #include <QJsonObject>
+#include <QTest>
 
 #include "handlers/SoEHandler.h"
 
@@ -35,7 +35,7 @@ private slots:
         QString err;
         QVERIFY(!h.validateIdn("", &err));
         QVERIFY(!h.validateIdn("X-0-100", &err));
-        QVERIFY(!h.validateIdn("P-9-100", &err));   // param set out of range
+        QVERIFY(!h.validateIdn("P-9-100", &err)); // param set out of range
         QVERIFY(!h.validateIdn("notanidn", &err));
     }
 
@@ -49,24 +49,21 @@ private slots:
     // Read with invalid IDN fails.
     void testReadInvalidIdn() {
         SoEHandler h;
-        QJsonObject resp = h.handleSoeRead("1", QJsonObject{
-            {"position", 0}, {"idn", "bad-idn"}});
+        QJsonObject resp = h.handleSoeRead("1", QJsonObject{{"position", 0}, {"idn", "bad-idn"}});
         QVERIFY(!resp.value("ok").toBool());
     }
 
     // Write with missing value fails.
     void testWriteMissingValue() {
         SoEHandler h;
-        QJsonObject resp = h.handleSoeWrite("1", QJsonObject{
-            {"position", 0}, {"idn", "P-0-0150"}});
+        QJsonObject resp = h.handleSoeWrite("1", QJsonObject{{"position", 0}, {"idn", "P-0-0150"}});
         QVERIFY(!resp.value("ok").toBool());
     }
 
     // Drive number out of range fails.
     void testInvalidDrive() {
         SoEHandler h;
-        QJsonObject resp = h.handleSoeRead("1", QJsonObject{
-            {"position", 0}, {"idn", "P-0-0150"}, {"drive", 9}});
+        QJsonObject resp = h.handleSoeRead("1", QJsonObject{{"position", 0}, {"idn", "P-0-0150"}, {"drive", 9}});
         QVERIFY(!resp.value("ok").toBool());
     }
 };

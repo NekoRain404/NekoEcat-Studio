@@ -25,56 +25,56 @@
 //   - Baseline comparison is O(n) where n is number of slaves
 //   - Topology changes are detected via EventBus notifications
 
+#include "EthercatTypes.h"
 #include <QObject>
 #include <QVector>
-#include "EthercatTypes.h"
 
 class EcatClient;
 
 class TopologyService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit TopologyService(EcatClient *client, QObject *parent = nullptr);
+    explicit TopologyService(EcatClient* client, QObject* parent = nullptr);
 
-  // Scan the EtherCAT bus for connected slaves.
-  // Emits scanComplete() with the discovered slaves.
-  void scan();
+    // Scan the EtherCAT bus for connected slaves.
+    // Emits scanComplete() with the discovered slaves.
+    void scan();
 
-  // Force a rescan of the EtherCAT bus, ignoring cached results.
-  // Emits scanComplete() with the discovered slaves.
-  void rescan();
+    // Force a rescan of the EtherCAT bus, ignoring cached results.
+    // Emits scanComplete() with the discovered slaves.
+    void rescan();
 
-  // Get the current list of slaves from the last scan.
-  // @return Vector of SlaveInfo structures
-  QVector<SlaveInfo> currentSlaves() const;
+    // Get the current list of slaves from the last scan.
+    // @return Vector of SlaveInfo structures
+    QVector<SlaveInfo> currentSlaves() const;
 
-  // Get the baseline topology for comparison.
-  // @return Vector of SlaveInfo structures from baseline capture
-  QVector<SlaveInfo> baselineSlaves() const;
+    // Get the baseline topology for comparison.
+    // @return Vector of SlaveInfo structures from baseline capture
+    QVector<SlaveInfo> baselineSlaves() const;
 
-  // Capture the current topology as the baseline for change detection.
-  // Emits baselineChanged() after capture.
-  void captureBaseline();
+    // Capture the current topology as the baseline for change detection.
+    // Emits baselineChanged() after capture.
+    void captureBaseline();
 
-  // Clear the captured baseline topology.
-  // Emits baselineChanged() after clearing.
-  void clearBaseline();
+    // Clear the captured baseline topology.
+    // Emits baselineChanged() after clearing.
+    void clearBaseline();
 
-  // Check if a baseline topology has been captured.
-  // @return true if baseline is available
-  bool baselineCaptured() const;
+    // Check if a baseline topology has been captured.
+    // @return true if baseline is available
+    bool baselineCaptured() const;
 
 signals:
-  // Emitted when a bus scan completes successfully.
-  // @param slaves  Vector of discovered slave information
-  void scanComplete(const QVector<SlaveInfo> &slaves);
+    // Emitted when a bus scan completes successfully.
+    // @param slaves  Vector of discovered slave information
+    void scanComplete(const QVector<SlaveInfo>& slaves);
 
-  // Emitted when the baseline topology is captured or cleared.
-  void baselineChanged();
+    // Emitted when the baseline topology is captured or cleared.
+    void baselineChanged();
 
 private:
-  EcatClient *client_;           // TCP client to ecatd daemon
-  QVector<SlaveInfo> slaves_;    // Current slave list from last scan
-  QVector<SlaveInfo> baseline_;  // Captured baseline topology
-  bool baselineCaptured_ = false; // Whether baseline has been captured
+    EcatClient* client_;            // TCP client to ecatd daemon
+    QVector<SlaveInfo> slaves_;     // Current slave list from last scan
+    QVector<SlaveInfo> baseline_;   // Captured baseline topology
+    bool baselineCaptured_ = false; // Whether baseline has been captured
 };

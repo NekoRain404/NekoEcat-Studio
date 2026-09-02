@@ -6,12 +6,12 @@
 //   - Slave change simulation
 //   - SDO value simulation
 
-#include <QTest>
-#include <QSignalSpy>
 #include "fixtures/ServiceTestFixture.h"
-#include "services/ServiceContainer.h"
-#include "services/EventBus.h"
 #include "infra/EcatClient.h"
+#include "services/EventBus.h"
+#include "services/ServiceContainer.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class ServiceTestFixtureTest : public QObject {
     Q_OBJECT

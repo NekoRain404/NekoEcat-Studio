@@ -17,65 +17,64 @@
 //   svc->applyConfiguration();
 
 #include <QObject>
-#include <QVector>
 #include <QString>
+#include <QVector>
 
 class EcatClient;
 class EventBus;
 
 struct ProcessDataConfig {
-  QVector<int> inputs;
-  QVector<int> outputs;
-  int cycleTimeUs = 1000;
-  QString syncMode = QStringLiteral("DC");
-  int watchdogTimeoutMs = 5000;
+    QVector<int> inputs;
+    QVector<int> outputs;
+    int cycleTimeUs = 1000;
+    QString syncMode = QStringLiteral("DC");
+    int watchdogTimeoutMs = 5000;
 };
 
 struct DataMappingConfig {
-  QVector<int> inputOffsets;
-  QVector<int> outputOffsets;
-  QVector<int> inputSizes;
-  QVector<int> outputSizes;
-  bool autoMap = true;
+    QVector<int> inputOffsets;
+    QVector<int> outputOffsets;
+    QVector<int> inputSizes;
+    QVector<int> outputSizes;
+    bool autoMap = true;
 };
 
 struct ErrorHandlingConfig {
-  bool retryOnFailure = true;
-  int maxRetries = 3;
-  int retryDelayMs = 100;
-  bool haltOnError = false;
-  bool logErrors = true;
+    bool retryOnFailure = true;
+    int maxRetries = 3;
+    int retryDelayMs = 100;
+    bool haltOnError = false;
+    bool logErrors = true;
 };
 
 class FreeRunConfigurationService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit FreeRunConfigurationService(EcatClient *client, EventBus *bus,
-                                       QObject *parent = nullptr);
+    explicit FreeRunConfigurationService(EcatClient* client, EventBus* bus, QObject* parent = nullptr);
 
-  bool configureProcessData(const ProcessDataConfig &config);
-  bool configureCycleTime(int cycleTimeUs);
-  bool configureDataMapping(const DataMappingConfig &config);
-  bool configureErrorHandling(const ErrorHandlingConfig &config);
+    bool configureProcessData(const ProcessDataConfig& config);
+    bool configureCycleTime(int cycleTimeUs);
+    bool configureDataMapping(const DataMappingConfig& config);
+    bool configureErrorHandling(const ErrorHandlingConfig& config);
 
-  // Apply the staged Free Run configuration to the live daemon.
-  // Returns false until a backend acknowledgement path is wired.
-  bool applyConfiguration();
+    // Apply the staged Free Run configuration to the live daemon.
+    // Returns false until a backend acknowledgement path is wired.
+    bool applyConfiguration();
 
-  ProcessDataConfig processDataConfig() const { return pdConfig_; }
-  DataMappingConfig dataMappingConfig() const { return mappingConfig_; }
-  ErrorHandlingConfig errorHandlingConfig() const { return errorConfig_; }
-  bool isApplied() const { return applied_; }
+    ProcessDataConfig processDataConfig() const { return pdConfig_; }
+    DataMappingConfig dataMappingConfig() const { return mappingConfig_; }
+    ErrorHandlingConfig errorHandlingConfig() const { return errorConfig_; }
+    bool isApplied() const { return applied_; }
 
 signals:
-  void configurationApplied();
-  void configurationChanged();
+    void configurationApplied();
+    void configurationChanged();
 
 private:
-  EcatClient *client_;
-  EventBus *bus_;
-  ProcessDataConfig pdConfig_;
-  DataMappingConfig mappingConfig_;
-  ErrorHandlingConfig errorConfig_;
-  bool applied_ = false;
+    EcatClient* client_;
+    EventBus* bus_;
+    ProcessDataConfig pdConfig_;
+    DataMappingConfig mappingConfig_;
+    ErrorHandlingConfig errorConfig_;
+    bool applied_ = false;
 };

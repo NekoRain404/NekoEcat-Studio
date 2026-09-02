@@ -42,49 +42,48 @@ class ServiceContainer;
 struct ConsistencyIssueCounts;
 
 class ConsistencyPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ConsistencyPlugin(ServiceContainer *container,
-                             QObject *parent = nullptr);
+    explicit ConsistencyPlugin(ServiceContainer* container, QObject* parent = nullptr);
 
-  // WorkspacePlugin identity
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QIcon icon() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    // WorkspacePlugin identity
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QIcon icon() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  // Lifecycle
-  void activate() override;
-  void deactivate() override;
-  void onSettingsChanged(const AppSettings &settings) override;
-  void onConnectionChanged(bool connected) override;
+    // Lifecycle
+    void activate() override;
+    void deactivate() override;
+    void onSettingsChanged(const AppSettings& settings) override;
+    void onConnectionChanged(bool connected) override;
 
-  // Table access
-  QTableWidget *consistencyTable() const;
+    // Table access
+    QTableWidget* consistencyTable() const;
 
-  // Populate the consistency table from MainWindow-gathered data.
-  // Each row is a QStringList of 7 cells: level, scope, target, evidence,
-  // expected, actual, action.
-  void updateConsistencyView(const QList<QStringList> &rows);
+    // Populate the consistency table from MainWindow-gathered data.
+    // Each row is a QStringList of 7 cells: level, scope, target, evidence,
+    // expected, actual, action.
+    void updateConsistencyView(const QList<QStringList>& rows);
 
-  // Query issue counts by severity.
-  ConsistencyIssueCounts consistencyIssueCounts() const;
+    // Query issue counts by severity.
+    ConsistencyIssueCounts consistencyIssueCounts() const;
 
-  // Filter management
-  QLineEdit *consistencyFilter() const;
-  QComboBox *consistencyScopeFilter() const;
-  QLabel *consistencySummaryLabel() const;
+    // Filter management
+    QLineEdit* consistencyFilter() const;
+    QComboBox* consistencyScopeFilter() const;
+    QLabel* consistencySummaryLabel() const;
 
 private:
-  void buildUi();
+    void buildUi();
 
-  ServiceContainer *container_;
-  QWidget *containerWidget_ = nullptr;
-  QTableWidget *table_ = nullptr;
-  QLineEdit *filter_ = nullptr;
-  QComboBox *scopeFilter_ = nullptr;
-  QLabel *summaryLabel_ = nullptr;
+    ServiceContainer* container_;
+    QWidget* containerWidget_ = nullptr;
+    QTableWidget* table_ = nullptr;
+    QLineEdit* filter_ = nullptr;
+    QComboBox* scopeFilter_ = nullptr;
+    QLabel* summaryLabel_ = nullptr;
 };

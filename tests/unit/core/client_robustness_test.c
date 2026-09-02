@@ -20,25 +20,25 @@
 
 #include "nekoecat_client.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
 static int failures = 0;
 
-static void fail(const char *what) {
+static void fail(const char* what) {
     fprintf(stderr, "FAIL: %s\n", what);
     ++failures;
 }
 
-static void check_true(int cond, const char *what) {
-    if (!cond) fail(what);
+static void check_true(int cond, const char* what) {
+    if (!cond)
+        fail(what);
 }
 
 /* Build a ShmLayout with a single entry.  Returns it via out. */
-static void make_single_entry_layout(struct ShmLayout *out, uint16_t index,
-                                     uint8_t sub, uint32_t offset,
+static void make_single_entry_layout(struct ShmLayout* out, uint16_t index, uint8_t sub, uint32_t offset,
                                      uint8_t bitLength, uint32_t data_size) {
     memset(out, 0, sizeof(*out));
     out->data_size = data_size;
@@ -58,12 +58,12 @@ static void test_oob_by_index(void) {
     struct ShmLayout l;
     make_single_entry_layout(&l, 0x6000, 1, 7 /* 7 + 2 > data_size 8 */, 16, 8);
 
-    NekoEcatClient *c = nekoecat_client_create();
+    NekoEcatClient* c = nekoecat_client_create();
     check_true(c != NULL, "1: create");
-    if (!c) return;
+    if (!c)
+        return;
 
-    check_true(nekoecat_client_test_attach_to_shm(c, NULL, arena, 8),
-               "1: attach");
+    check_true(nekoecat_client_test_attach_to_shm(c, NULL, arena, 8), "1: attach");
     nekoecat_client_test_set_layout(c, &l);
 
     /* by-index write must be rejected (offset 7 + 2 > 8). */
@@ -83,14 +83,14 @@ static void test_oob_by_index(void) {
         fail("1: oob raw read must return false");
     }
     /* last_error must be populated. */
-    const char *err = nekoecat_client_get_last_error(c);
+    const char* err = nekoecat_client_get_last_error(c);
     check_true(err != NULL && err[0] != '\0', "1: last_error populated");
     if (err && err[0]) {
         printf("1: oob error = '%s'\n", err);
     }
 
     /* The arena bytes at the oob offset must be untouched. */
-    uint8_t *buf0 = arena + sizeof(ShmHeader);
+    uint8_t* buf0 = arena + sizeof(ShmHeader);
     check_true(buf0[7] == 0 && buf0[8] == 0, "1: oob bytes untouched");
 
     nekoecat_client_destroy(c);
@@ -102,17 +102,20 @@ static void test_corrupt_active_buffer(void) {
     struct ShmLayout l;
     make_single_entry_layout(&l, 0x6000, 1, 0, 32, 16);
 
-    NekoEcatClient *c = nekoecat_client_create();
-    if (!c) { fail("2: create"); return; }
+    NekoEcatClient* c = nekoecat_client_create();
+    if (!c) {
+        fail("2: create");
+        return;
+    }
     check_true(nekoecat_client_test_attach_to_shm(c, NULL, arena, 16), "2: attach");
     nekoecat_client_test_set_layout(c, &l);
 
-    ShmHeader *hdr = (ShmHeader *)arena;
+    ShmHeader* hdr = (ShmHeader*)arena;
     nekoecat_shm_store(&hdr->active_buffer, 2, NEKOECAT_MO_RELAXED);
 
     /* get_process_data_ptr must not index out of bounds. */
     int buf = -1;
-    uint8_t *p = nekoecat_client_get_process_data_ptr(c, &buf);
+    uint8_t* p = nekoecat_client_get_process_data_ptr(c, &buf);
     if (p != NULL) {
         fail("2: get_process_data_ptr must return NULL for active_buffer=2");
     }
@@ -128,7 +131,7 @@ static void test_corrupt_active_buffer(void) {
     if (nekoecat_client_read_u32_by_index(c, 0, 0x6000, 1, &v)) {
         fail("2: by-index read with corrupt active_buffer must return false");
     }
-    const char *err = nekoecat_client_get_last_error(c);
+    const char* err = nekoecat_client_get_last_error(c);
     if (err && strstr(err, "invalid active buffer") == NULL) {
         printf("2: unexpected error text: '%s'\n", err);
     }
@@ -149,8 +152,11 @@ static void test_unaligned_offsets(void) {
     struct ShmLayout l;
     make_single_entry_layout(&l, 0x6100, 1, 3 /* not 4-byte aligned */, 32, 32);
 
-    NekoEcatClient *c = nekoecat_client_create();
-    if (!c) { fail("3: create"); return; }
+    NekoEcatClient* c = nekoecat_client_create();
+    if (!c) {
+        fail("3: create");
+        return;
+    }
     check_true(nekoecat_client_test_attach_to_shm(c, NULL, arena, 32), "3: attach");
     nekoecat_client_test_set_layout(c, &l);
 
@@ -178,18 +184,19 @@ static void test_unaligned_offsets(void) {
 
     /* memory layout: little-endian bytes must sit at 3..6 (memcpy, not an
      * aligned u32 store). */
-    uint8_t *buf0 = arena + sizeof(ShmHeader);
+    uint8_t* buf0 = arena + sizeof(ShmHeader);
     if (buf0[3] != 0x44 || buf0[4] != 0x33 || buf0[5] != 0x22 || buf0[6] != 0x11) {
-        printf("3: bytes at 3..6 = %02x %02x %02x %02x\n",
-               buf0[3], buf0[4], buf0[5], buf0[6]);
+        printf("3: bytes at 3..6 = %02x %02x %02x %02x\n", buf0[3], buf0[4], buf0[5], buf0[6]);
         fail("3: unaligned bytes not memcpy'd into place");
     }
 
     /* unaligned float access too. */
     float f = 3.5f;
-    if (!nekoecat_client_write_float_at(c, 5, f)) fail("3: unaligned float write failed");
+    if (!nekoecat_client_write_float_at(c, 5, f))
+        fail("3: unaligned float write failed");
     float fr = 0.0f;
-    if (!nekoecat_client_read_float_at(c, 5, &fr)) fail("3: unaligned float read failed");
+    if (!nekoecat_client_read_float_at(c, 5, &fr))
+        fail("3: unaligned float read failed");
     if (fr != f) {
         printf("3: float got %f\n", fr);
         fail("3: unaligned float roundtrip mismatch");
@@ -204,8 +211,11 @@ static void test_unknown_entries(void) {
     struct ShmLayout l;
     make_single_entry_layout(&l, 0x6000, 1, 0, 16, 16);
 
-    NekoEcatClient *c = nekoecat_client_create();
-    if (!c) { fail("4: create"); return; }
+    NekoEcatClient* c = nekoecat_client_create();
+    if (!c) {
+        fail("4: create");
+        return;
+    }
     check_true(nekoecat_client_test_attach_to_shm(c, NULL, arena, 16), "4: attach");
     nekoecat_client_test_set_layout(c, &l);
 
@@ -224,7 +234,7 @@ static void test_unknown_entries(void) {
     if (nekoecat_client_read_u16_by_index(c, 3, 0x6000, 1, &v)) {
         fail("4: unknown slave read must fail");
     }
-    const char *err = nekoecat_client_get_last_error(c);
+    const char* err = nekoecat_client_get_last_error(c);
     if (err && strstr(err, "not found") == NULL) {
         printf("4: unexpected error text: '%s'\n", err);
     }
@@ -237,37 +247,45 @@ static void test_unknown_entries(void) {
 static void test_layout_truncation(void) {
     char json[8192];
     size_t off = 0;
-    const char *head = "{\"data_size\":1024,\"layout\":[";
+    const char* head = "{\"data_size\":1024,\"layout\":[";
     strcpy(json, head);
     off = strlen(head);
 
     const int total = 70;
     for (int i = 0; i < total; ++i) {
-        int n = snprintf(json + off, sizeof(json) - off,
-                         "%s{\"slave\":0,\"index\":%d,\"subindex\":1,\"bitLength\":8,\"offset\":%d,\"direction\":\"TxPDO\"}",
-                         (i == 0) ? "" : ",", 0x7000 + i, i);
-        if (n <= 0 || (size_t)n >= sizeof(json) - off) { fail("5: json build overflow"); return; }
+        int n = snprintf(
+            json + off, sizeof(json) - off,
+            "%s{\"slave\":0,\"index\":%d,\"subindex\":1,\"bitLength\":8,\"offset\":%d,\"direction\":\"TxPDO\"}",
+            (i == 0) ? "" : ",", 0x7000 + i, i);
+        if (n <= 0 || (size_t)n >= sizeof(json) - off) {
+            fail("5: json build overflow");
+            return;
+        }
         off += (size_t)n;
     }
-    if (off + 2 >= sizeof(json)) { fail("5: json build overflow"); return; }
+    if (off + 2 >= sizeof(json)) {
+        fail("5: json build overflow");
+        return;
+    }
     strcpy(json + off, "]}");
 
     struct ShmLayout parsed;
     memset(&parsed, 0, sizeof(parsed));
     int ok = layout_parse_from_shm_info_json(json, &parsed);
     check_true(ok, "5: parse ok");
-    check_true(parsed.count == NEKOECAT_SHM_LAYOUT_MAX_ENTRIES,
-               "5: count capped at 64");
+    check_true(parsed.count == NEKOECAT_SHM_LAYOUT_MAX_ENTRIES, "5: count capped at 64");
     check_true(parsed.truncated == 1, "5: truncation surfaced (truncated==1)");
     check_true(parsed.data_size == 1024, "5: data_size parsed");
-    printf("5: parsed count=%zu truncated=%d (source had %d entries)\n",
-           parsed.count, parsed.truncated, total);
+    printf("5: parsed count=%zu truncated=%d (source had %d entries)\n", parsed.count, parsed.truncated, total);
 }
 
 /* Extra: operations on a client that was never attached must fail cleanly. */
 static void test_not_attached(void) {
-    NekoEcatClient *c = nekoecat_client_create();
-    if (!c) { fail("extra: create"); return; }
+    NekoEcatClient* c = nekoecat_client_create();
+    if (!c) {
+        fail("extra: create");
+        return;
+    }
     uint32_t v = 0;
     if (nekoecat_client_read_u32_at(c, 0, &v)) {
         fail("extra: read on detached client must fail");
@@ -278,7 +296,7 @@ static void test_not_attached(void) {
     if (nekoecat_client_get_process_data_ptr(c, NULL) != NULL) {
         fail("extra: get_process_data_ptr on detached client must be NULL");
     }
-    const char *err = nekoecat_client_get_last_error(c);
+    const char* err = nekoecat_client_get_last_error(c);
     check_true(err != NULL && err[0] != '\0', "extra: last_error populated");
     nekoecat_client_destroy(c);
 }

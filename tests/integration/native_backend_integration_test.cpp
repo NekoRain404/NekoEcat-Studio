@@ -1,16 +1,16 @@
-#include <QtTest>
+#include "EthercatCliBackend.h"
+#include "EthercatNativeBackend.h"
+#include "EthercatTypes.h"
 #include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonObject>
-#include "EthercatNativeBackend.h"
-#include "EthercatCliBackend.h"
-#include "EthercatTypes.h"
+#include <QtTest>
 
 class NativeBackendIntegrationTest : public QObject {
     Q_OBJECT
 
 private:
-    bool hasHardware(const EcatService &backend) {
+    bool hasHardware(const EcatService& backend) {
         QString error;
         backend.scanSlaves("0", &error);
         return error.isEmpty();
@@ -99,7 +99,7 @@ void NativeBackendIntegrationTest::testBackendSwitching() {
     EthercatNativeBackend native;
     EthercatCliBackend cli;
 
-    EcatService *backend = &native;
+    EcatService* backend = &native;
     QVERIFY(backend->isNative());
 
     backend = &cli;
@@ -133,7 +133,7 @@ void NativeBackendIntegrationTest::testDualBackendMode() {
     bool nativeAvailable = nativeErr.isEmpty();
     bool cliAvailable = cliErr.isEmpty();
 
-    EcatService *activeBackend = nullptr;
+    EcatService* activeBackend = nullptr;
     QString mode;
 
     if (nativeAvailable) {

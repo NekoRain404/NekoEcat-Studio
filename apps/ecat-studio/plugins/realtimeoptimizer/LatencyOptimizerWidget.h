@@ -8,24 +8,24 @@ class QPushButton;
 class QTextEdit;
 
 class LatencyOptimizerWidget : public QWidget {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit LatencyOptimizerWidget(QWidget *parent = nullptr);
+    explicit LatencyOptimizerWidget(QWidget* parent = nullptr);
 
-  void updateResult(const OptimizationResult &result);
+    void updateResult(const OptimizationResult& result);
 
 signals:
-  void optimizeRequested();
+    void optimizeRequested();
 
 private:
-  void buildUi();
+    void buildUi();
 
-  QLabel *currentLatencyLabel_ = nullptr;
-  QLabel *optimizedLatencyLabel_ = nullptr;
-  QLabel *improvementLabel_ = nullptr;
-  QTextEdit *recommendationsEdit_ = nullptr;
-  QPushButton *optimizeBtn_ = nullptr;
-  QPushButton *applyBtn_ = nullptr;
+    QLabel* currentLatencyLabel_ = nullptr;
+    QLabel* optimizedLatencyLabel_ = nullptr;
+    QLabel* improvementLabel_ = nullptr;
+    QTextEdit* recommendationsEdit_ = nullptr;
+    QPushButton* optimizeBtn_ = nullptr;
+    QPushButton* applyBtn_ = nullptr;
 
-  OptimizationResult lastResult_;
+    OptimizationResult lastResult_;
 };

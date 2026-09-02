@@ -9,164 +9,162 @@
 //   - Apply configuration
 //   - Signal emission
 
-#include <QTest>
-#include <QSignalSpy>
-#include "services/FreeRunConfigurationService.h"
 #include "infra/EcatClient.h"
+#include "services/FreeRunConfigurationService.h"
+#include <QSignalSpy>
+#include <QTest>
 
 class FreeRunConfigurationServiceTest : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 private slots:
-  void testDefaultState() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QVERIFY(!svc.isApplied());
-    QCOMPARE(svc.processDataConfig().cycleTimeUs, 1000);
-    QCOMPARE(svc.processDataConfig().watchdogTimeoutMs, 5000);
-    QCOMPARE(svc.processDataConfig().syncMode, QStringLiteral("DC"));
-  }
+    void testDefaultState() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QVERIFY(!svc.isApplied());
+        QCOMPARE(svc.processDataConfig().cycleTimeUs, 1000);
+        QCOMPARE(svc.processDataConfig().watchdogTimeoutMs, 5000);
+        QCOMPARE(svc.processDataConfig().syncMode, QStringLiteral("DC"));
+    }
 
-  void testConfigureProcessData() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
-    ProcessDataConfig config;
-    config.inputs = {0x6000, 0x6010};
-    config.outputs = {0x7000, 0x7010};
-    config.cycleTimeUs = 500;
-    QVERIFY(svc.configureProcessData(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(svc.processDataConfig().inputs.size(), 2);
-    QCOMPARE(svc.processDataConfig().cycleTimeUs, 500);
-  }
+    void testConfigureProcessData() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
+        ProcessDataConfig config;
+        config.inputs = {0x6000, 0x6010};
+        config.outputs = {0x7000, 0x7010};
+        config.cycleTimeUs = 500;
+        QVERIFY(svc.configureProcessData(config));
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(svc.processDataConfig().inputs.size(), 2);
+        QCOMPARE(svc.processDataConfig().cycleTimeUs, 500);
+    }
 
-  void testConfigureProcessDataEmptyFails() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    ProcessDataConfig config;
-    QVERIFY(!svc.configureProcessData(config));
-  }
+    void testConfigureProcessDataEmptyFails() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        ProcessDataConfig config;
+        QVERIFY(!svc.configureProcessData(config));
+    }
 
-  void testConfigureProcessDataInvalidCycleTime() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    ProcessDataConfig config;
-    config.inputs = {0x6000};
-    config.cycleTimeUs = -1;
-    QVERIFY(!svc.configureProcessData(config));
-  }
+    void testConfigureProcessDataInvalidCycleTime() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        ProcessDataConfig config;
+        config.inputs = {0x6000};
+        config.cycleTimeUs = -1;
+        QVERIFY(!svc.configureProcessData(config));
+    }
 
-  void testConfigureCycleTime() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
-    QVERIFY(svc.configureCycleTime(2000));
-    QCOMPARE(svc.processDataConfig().cycleTimeUs, 2000);
-    QCOMPARE(spy.count(), 1);
-  }
+    void testConfigureCycleTime() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
+        QVERIFY(svc.configureCycleTime(2000));
+        QCOMPARE(svc.processDataConfig().cycleTimeUs, 2000);
+        QCOMPARE(spy.count(), 1);
+    }
 
-  void testConfigureCycleTimeInvalid() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QVERIFY(!svc.configureCycleTime(0));
-    QVERIFY(!svc.configureCycleTime(-100));
-  }
+    void testConfigureCycleTimeInvalid() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QVERIFY(!svc.configureCycleTime(0));
+        QVERIFY(!svc.configureCycleTime(-100));
+    }
 
-  void testConfigureDataMapping() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
-    DataMappingConfig config;
-    config.inputOffsets = {0, 8, 16};
-    config.outputOffsets = {0, 4};
-    config.inputSizes = {8, 8, 4};
-    config.outputSizes = {4, 4};
-    config.autoMap = false;
-    QVERIFY(svc.configureDataMapping(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(svc.dataMappingConfig().inputOffsets.size(), 3);
-  }
+    void testConfigureDataMapping() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
+        DataMappingConfig config;
+        config.inputOffsets = {0, 8, 16};
+        config.outputOffsets = {0, 4};
+        config.inputSizes = {8, 8, 4};
+        config.outputSizes = {4, 4};
+        config.autoMap = false;
+        QVERIFY(svc.configureDataMapping(config));
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(svc.dataMappingConfig().inputOffsets.size(), 3);
+    }
 
-  void testConfigureDataMappingAutoMap() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    DataMappingConfig config;
-    config.autoMap = true;
-    QVERIFY(svc.configureDataMapping(config));
-  }
+    void testConfigureDataMappingAutoMap() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        DataMappingConfig config;
+        config.autoMap = true;
+        QVERIFY(svc.configureDataMapping(config));
+    }
 
-  void testConfigureDataMappingEmptyFails() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    DataMappingConfig config;
-    config.autoMap = false;
-    QVERIFY(!svc.configureDataMapping(config));
-  }
+    void testConfigureDataMappingEmptyFails() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        DataMappingConfig config;
+        config.autoMap = false;
+        QVERIFY(!svc.configureDataMapping(config));
+    }
 
-  void testConfigureErrorHandling() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
-    ErrorHandlingConfig config;
-    config.maxRetries = 5;
-    config.retryDelayMs = 200;
-    config.haltOnError = true;
-    QVERIFY(svc.configureErrorHandling(config));
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(svc.errorHandlingConfig().maxRetries, 5);
-    QVERIFY(svc.errorHandlingConfig().haltOnError);
-  }
+    void testConfigureErrorHandling() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationChanged);
+        ErrorHandlingConfig config;
+        config.maxRetries = 5;
+        config.retryDelayMs = 200;
+        config.haltOnError = true;
+        QVERIFY(svc.configureErrorHandling(config));
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(svc.errorHandlingConfig().maxRetries, 5);
+        QVERIFY(svc.errorHandlingConfig().haltOnError);
+    }
 
-  void testConfigureErrorHandlingInvalid() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    ErrorHandlingConfig config;
-    config.maxRetries = -1;
-    QVERIFY(!svc.configureErrorHandling(config));
-  }
+    void testConfigureErrorHandlingInvalid() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        ErrorHandlingConfig config;
+        config.maxRetries = -1;
+        QVERIFY(!svc.configureErrorHandling(config));
+    }
 
-  void testApplyConfigurationFailsClosedWithoutBackend() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
-    ProcessDataConfig pdConfig;
-    pdConfig.inputs = {0x6000};
-    svc.configureProcessData(pdConfig);
-    QVERIFY(!svc.applyConfiguration());
-    QVERIFY(!svc.isApplied());
-    QCOMPARE(spy.count(), 0);
-  }
+    void testApplyConfigurationFailsClosedWithoutBackend() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
+        ProcessDataConfig pdConfig;
+        pdConfig.inputs = {0x6000};
+        svc.configureProcessData(pdConfig);
+        QVERIFY(!svc.applyConfiguration());
+        QVERIFY(!svc.isApplied());
+        QCOMPARE(spy.count(), 0);
+    }
 
-  void testApplyConfigurationFailsClosedWithDisconnectedClient() {
-    EcatClient client;
-    FreeRunConfigurationService svc(&client, nullptr);
-    QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
+    void testApplyConfigurationFailsClosedWithDisconnectedClient() {
+        EcatClient client;
+        FreeRunConfigurationService svc(&client, nullptr);
+        QSignalSpy spy(&svc, &FreeRunConfigurationService::configurationApplied);
 
-    ProcessDataConfig pdConfig;
-    pdConfig.inputs = {0x6000};
-    QVERIFY(svc.configureProcessData(pdConfig));
-    QVERIFY(!svc.applyConfiguration());
-    QVERIFY(!svc.isApplied());
-    QCOMPARE(spy.count(), 0);
-  }
+        ProcessDataConfig pdConfig;
+        pdConfig.inputs = {0x6000};
+        QVERIFY(svc.configureProcessData(pdConfig));
+        QVERIFY(!svc.applyConfiguration());
+        QVERIFY(!svc.isApplied());
+        QCOMPARE(spy.count(), 0);
+    }
 
-  void testApplyConfigurationDoesNotSynthesizeBackendAck() {
-    QFile source(QStringLiteral(SOURCE_ROOT
-                                "/apps/ecat-studio/services/FreeRunConfigurationService.cpp"));
-    QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text),
-             qPrintable(source.errorString()));
-    const QString code = QString::fromUtf8(source.readAll());
+    void testApplyConfigurationDoesNotSynthesizeBackendAck() {
+        QFile source(QStringLiteral(SOURCE_ROOT "/apps/ecat-studio/services/FreeRunConfigurationService.cpp"));
+        QVERIFY2(source.open(QIODevice::ReadOnly | QIODevice::Text), qPrintable(source.errorString()));
+        const QString code = QString::fromUtf8(source.readAll());
 
-    QVERIFY2(!code.contains(QStringLiteral("applied_ = true")),
-             "FreeRun configuration must not mark applied without daemon acknowledgement");
-    QVERIFY2(!code.contains(QStringLiteral("emit configurationApplied()")),
-             "FreeRun configuration must not emit applied without daemon acknowledgement");
-  }
+        QVERIFY2(!code.contains(QStringLiteral("applied_ = true")),
+                 "FreeRun configuration must not mark applied without daemon acknowledgement");
+        QVERIFY2(!code.contains(QStringLiteral("emit configurationApplied()")),
+                 "FreeRun configuration must not emit applied without daemon acknowledgement");
+    }
 
-  void testApplyWithoutConfigFails() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    QVERIFY(!svc.applyConfiguration());
-  }
+    void testApplyWithoutConfigFails() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        QVERIFY(!svc.applyConfiguration());
+    }
 
-  void testConfigChangeResetsApplied() {
-    FreeRunConfigurationService svc(nullptr, nullptr);
-    ProcessDataConfig pdConfig;
-    pdConfig.inputs = {0x6000};
-    svc.configureProcessData(pdConfig);
-    QVERIFY(!svc.applyConfiguration());
-    QVERIFY(!svc.isApplied());
+    void testConfigChangeResetsApplied() {
+        FreeRunConfigurationService svc(nullptr, nullptr);
+        ProcessDataConfig pdConfig;
+        pdConfig.inputs = {0x6000};
+        svc.configureProcessData(pdConfig);
+        QVERIFY(!svc.applyConfiguration());
+        QVERIFY(!svc.isApplied());
 
-    svc.configureCycleTime(2000);
-    QVERIFY(!svc.isApplied());
-  }
+        svc.configureCycleTime(2000);
+        QVERIFY(!svc.isApplied());
+    }
 };
 
 QTEST_MAIN(FreeRunConfigurationServiceTest)

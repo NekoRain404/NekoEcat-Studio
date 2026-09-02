@@ -7,8 +7,8 @@
 //   - Disconnect transitions
 //   - Connection timeout handling
 
-#include "EcatClient.h"
 #include "CommandDispatcher.h"
+#include "EcatClient.h"
 #include "JsonProtocol.h"
 
 #include <QCoreApplication>
@@ -25,16 +25,17 @@ namespace {
 
 int failures = 0;
 
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
 
-void expectTrue(bool cond, const QString &msg) {
-    if (!cond) fail(msg);
+void expectTrue(bool cond, const QString& msg) {
+    if (!cond)
+        fail(msg);
 }
 
-void expectEqual(ConnectionState actual, ConnectionState expected, const QString &msg) {
+void expectEqual(ConnectionState actual, ConnectionState expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: unexpected state").arg(msg));
 }
@@ -43,7 +44,7 @@ void expectEqual(ConnectionState actual, ConnectionState expected, const QString
 
 #include "connection_lifecycle_test.moc"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     // --- Test 1: initial state is Disconnected ---
@@ -64,8 +65,10 @@ int main(int argc, char *argv[]) {
         EcatClient client;
         bool stateChanged = false;
         ConnectionState lastState = ConnectionState::Disconnected;
-        QObject::connect(&client, &EcatClient::connectionStateChanged,
-            [&](ConnectionState s) { stateChanged = true; lastState = s; });
+        QObject::connect(&client, &EcatClient::connectionStateChanged, [&](ConnectionState s) {
+            stateChanged = true;
+            lastState = s;
+        });
 
         client.connectToHost(QHostAddress::LocalHost, 15878);
         // Should be Connecting immediately.
@@ -94,10 +97,9 @@ int main(int argc, char *argv[]) {
         }
 
         int changeCount = 0;
-        QObject::connect(&client, &EcatClient::connectionStateChanged,
-            [&](ConnectionState) { ++changeCount; });
+        QObject::connect(&client, &EcatClient::connectionStateChanged, [&](ConnectionState) { ++changeCount; });
 
-        client.connectToDaemon();  // Should be no-op.
+        client.connectToDaemon(); // Should be no-op.
         expectEqual(client.connectionState(), ConnectionState::Connected, "T3: still connected");
         expectTrue(changeCount == 0, "T3: no state change on double connect");
     }
@@ -117,9 +119,12 @@ int main(int argc, char *argv[]) {
 
         // Send a ping to register a handler.
         QString info;
-        QObject::connect(&client, &EcatClient::daemonInfo, [&](const QString &text) { info = text; });
+        QObject::connect(&client, &EcatClient::daemonInfo, [&](const QString& text) { info = text; });
         client.ping();
-        for (int i = 0; i < 10; ++i) { app.processEvents(); QThread::msleep(50); }
+        for (int i = 0; i < 10; ++i) {
+            app.processEvents();
+            QThread::msleep(50);
+        }
 
         // Close the server to trigger disconnect.
         server.close();

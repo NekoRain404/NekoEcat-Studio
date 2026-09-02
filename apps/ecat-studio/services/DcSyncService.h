@@ -26,68 +26,68 @@
 //   - Each poll sends a single JSON request to the daemon
 //   - Response parsing is O(n) where n is number of slaves
 
-#include <QObject>
 #include <QJsonObject>
+#include <QObject>
 
 class QTimer;
 class EcatClient;
 
 class DcSyncService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit DcSyncService(EcatClient *client, QObject *parent = nullptr);
+    explicit DcSyncService(EcatClient* client, QObject* parent = nullptr);
 
-  // Start periodic polling of DC sync status.
-  // @param intervalMs  Polling interval in milliseconds (default: 2000ms)
-  void startPolling(int intervalMs = 2000);
+    // Start periodic polling of DC sync status.
+    // @param intervalMs  Polling interval in milliseconds (default: 2000ms)
+    void startPolling(int intervalMs = 2000);
 
-  // Stop periodic polling.
-  void stopPolling();
+    // Stop periodic polling.
+    void stopPolling();
 
-  // Issue a single DC sync status request to the daemon.
-  // Emits dcSyncUpdate() on success, error() on failure.
-  void requestUpdate();
+    // Issue a single DC sync status request to the daemon.
+    // Emits dcSyncUpdate() on success, error() on failure.
+    void requestUpdate();
 
-  // Query DC configuration from a slave's ESI XML descriptor.
-  // @param position  Slave index on the bus
-  // Emits dcConfigureResult() on success, error() on failure.
-  void configure(int position);
+    // Query DC configuration from a slave's ESI XML descriptor.
+    // @param position  Slave index on the bus
+    // Emits dcConfigureResult() on success, error() on failure.
+    void configure(int position);
 
-  // Activate DC synchronization with the specified reference clock slave.
-  // @param refClockSlave  Slave index to use as reference clock (-1 for auto-detect)
-  // Emits dcActivateResult() on success, error() on failure.
-  void activate(int refClockSlave);
+    // Activate DC synchronization with the specified reference clock slave.
+    // @param refClockSlave  Slave index to use as reference clock (-1 for auto-detect)
+    // Emits dcActivateResult() on success, error() on failure.
+    void activate(int refClockSlave);
 
-  // Deactivate DC synchronization.
-  // Emits dcDeactivateResult() on success, error() on failure.
-  void deactivate();
+    // Deactivate DC synchronization.
+    // Emits dcDeactivateResult() on success, error() on failure.
+    void deactivate();
 
 signals:
-  // Emitted after each successful daemon response with DC sync data.
-  // @param data  JSON object containing per-slave DC sync information
-  void dcSyncUpdate(const QJsonObject &data);
+    // Emitted after each successful daemon response with DC sync data.
+    // @param data  JSON object containing per-slave DC sync information
+    void dcSyncUpdate(const QJsonObject& data);
 
-  // Emitted after a successful dcConfigure response with DC parameters.
-  // @param data  JSON object containing parsed DC configuration
-  void dcConfigureResult(const QJsonObject &data);
+    // Emitted after a successful dcConfigure response with DC parameters.
+    // @param data  JSON object containing parsed DC configuration
+    void dcConfigureResult(const QJsonObject& data);
 
-  // Emitted after a successful dcActivate response.
-  // @param data  JSON object containing activation status
-  void dcActivateResult(const QJsonObject &data);
+    // Emitted after a successful dcActivate response.
+    // @param data  JSON object containing activation status
+    void dcActivateResult(const QJsonObject& data);
 
-  // Emitted after a successful dcDeactivate response.
-  // @param data  JSON object containing deactivation status
-  void dcDeactivateResult(const QJsonObject &data);
+    // Emitted after a successful dcDeactivate response.
+    // @param data  JSON object containing deactivation status
+    void dcDeactivateResult(const QJsonObject& data);
 
-  // Emitted when a DC sync request fails.
-  // @param message  Human-readable error description
-  void error(const QString &message);
+    // Emitted when a DC sync request fails.
+    // @param message  Human-readable error description
+    void error(const QString& message);
 
-  // Emitted when polling cannot be started due to invalid parameters.
-  // @param reason  Human-readable rejection reason
-  void pollingRejected(const QString &reason);
+    // Emitted when polling cannot be started due to invalid parameters.
+    // @param reason  Human-readable rejection reason
+    void pollingRejected(const QString& reason);
 
 private:
-  EcatClient *client_;  // TCP client to ecatd daemon
-  QTimer *pollTimer_;   // Timer for periodic polling
+    EcatClient* client_; // TCP client to ecatd daemon
+    QTimer* pollTimer_;  // Timer for periodic polling
 };

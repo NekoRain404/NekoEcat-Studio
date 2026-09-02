@@ -18,32 +18,30 @@ class EcatClient;
 class EventBus;
 
 struct OptimizationResult {
-  QString category;
-  QString description;
-  double before = 0.0;
-  double after = 0.0;
-  double improvement = 0.0;
-  QStringList recommendations;
+    QString category;
+    QString description;
+    double before = 0.0;
+    double after = 0.0;
+    double improvement = 0.0;
+    QStringList recommendations;
 };
 
 class EtherCATOptimizerService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit EtherCATOptimizerService(EventBus *bus, EcatClient *client,
-                                    QObject *parent = nullptr);
+    explicit EtherCATOptimizerService(EventBus* bus, EcatClient* client, QObject* parent = nullptr);
 
-  OptimizationResult optimizeConfiguration();
-  OptimizationResult optimizeTiming();
-  OptimizationResult optimizeBuffers();
-  OptimizationResult optimizePriorities();
+    OptimizationResult optimizeConfiguration();
+    OptimizationResult optimizeTiming();
+    OptimizationResult optimizeBuffers();
+    OptimizationResult optimizePriorities();
 
 signals:
-  void optimizationCompleted(const OptimizationResult &result);
+    void optimizationCompleted(const OptimizationResult& result);
 
 private:
-  OptimizationResult makeRejectedResult(const QString &category,
-                                        const QStringList &recommendations);
+    OptimizationResult makeRejectedResult(const QString& category, const QStringList& recommendations);
 
-  EventBus *bus_;
-  EcatClient *client_;
+    EventBus* bus_;
+    EcatClient* client_;
 };

@@ -29,40 +29,39 @@ class QPushButton;
 class QSpinBox;
 
 class ProtocolAnalyzerPlugin : public WorkspacePlugin {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit ProtocolAnalyzerPlugin(ProtocolAnalyzerService *service,
-                                   QObject *parent = nullptr);
+    explicit ProtocolAnalyzerPlugin(ProtocolAnalyzerService* service, QObject* parent = nullptr);
 
-  QString id() const override;
-  QString displayName() const override;
-  QString displayNameZh() const override;
-  QWidget *widget() override;
-  int defaultOrder() const override;
-  bool visible() const override;
+    QString id() const override;
+    QString displayName() const override;
+    QString displayNameZh() const override;
+    QWidget* widget() override;
+    int defaultOrder() const override;
+    bool visible() const override;
 
-  ProtocolAnalyzerService *service() const { return service_; }
+    ProtocolAnalyzerService* service() const { return service_; }
 
 private slots:
-  void toggleCapture();
-  void clearFrames();
-  void applyFilter();
-  void onFrameCaptured(const ProtocolFrame &frame);
-  void updateStatistics(const ProtocolStatistics &stats);
-  void exportPcap();
+    void toggleCapture();
+    void clearFrames();
+    void applyFilter();
+    void onFrameCaptured(const ProtocolFrame& frame);
+    void updateStatistics(const ProtocolStatistics& stats);
+    void exportPcap();
 
 private:
-  void buildUi();
+    void buildUi();
 
-  ProtocolAnalyzerService *service_;
-  QWidget *container_ = nullptr;
-  QTableWidget *frameTable_ = nullptr;
-  QLabel *statsLabel_ = nullptr;
-  QPushButton *captureBtn_ = nullptr;
-  QComboBox *filterTypeCombo_ = nullptr;
-  QComboBox *filterDirCombo_ = nullptr;
-  QSpinBox *filterSlaveSpin_ = nullptr;
-  QPushButton *filterBtn_ = nullptr;
-  QPushButton *clearBtn_ = nullptr;
-  QPushButton *exportBtn_ = nullptr;
+    ProtocolAnalyzerService* service_;
+    QWidget* container_ = nullptr;
+    QTableWidget* frameTable_ = nullptr;
+    QLabel* statsLabel_ = nullptr;
+    QPushButton* captureBtn_ = nullptr;
+    QComboBox* filterTypeCombo_ = nullptr;
+    QComboBox* filterDirCombo_ = nullptr;
+    QSpinBox* filterSlaveSpin_ = nullptr;
+    QPushButton* filterBtn_ = nullptr;
+    QPushButton* clearBtn_ = nullptr;
+    QPushButton* exportBtn_ = nullptr;
 };

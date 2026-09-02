@@ -7,9 +7,7 @@
 //   - Tracks certification status per requirement with mandatory/optional flags
 //   - Rejects certification checks until a real evidence-producing backend exists
 
-EtherCATCertificationService::EtherCATCertificationService(QObject *parent)
-    : QObject(parent)
-{
+EtherCATCertificationService::EtherCATCertificationService(QObject* parent) : QObject(parent) {
     CertificationRequirement r1;
     r1.requirementId = QStringLiteral("CONF-001");
     r1.category = QStringLiteral("Conformance");
@@ -39,14 +37,12 @@ EtherCATCertificationService::EtherCATCertificationService(QObject *parent)
     requirements_.append(r4);
 }
 
-void EtherCATCertificationService::addRequirement(const CertificationRequirement &req)
-{
+void EtherCATCertificationService::addRequirement(const CertificationRequirement& req) {
     requirements_.append(req);
     emit requirementAdded();
 }
 
-bool EtherCATCertificationService::removeRequirement(const QString &reqId)
-{
+bool EtherCATCertificationService::removeRequirement(const QString& reqId) {
     for (int i = 0; i < requirements_.size(); ++i) {
         if (requirements_[i].requirementId == reqId) {
             requirements_.removeAt(i);
@@ -57,15 +53,13 @@ bool EtherCATCertificationService::removeRequirement(const QString &reqId)
     return false;
 }
 
-QVector<CertificationRequirement> EtherCATCertificationService::requirements() const
-{
+QVector<CertificationRequirement> EtherCATCertificationService::requirements() const {
     return requirements_;
 }
 
-CertificationReport EtherCATCertificationService::runCertification()
-{
+CertificationReport EtherCATCertificationService::runCertification() {
     CertificationReport report;
-    for (const auto &req : requirements_) {
+    for (const auto& req : requirements_) {
         CertificationTestResult result;
         result.requirementId = req.requirementId;
         result.status = CertificationTestStatus::NotTested;
@@ -81,9 +75,8 @@ CertificationReport EtherCATCertificationService::runCertification()
     return report;
 }
 
-CertificationTestResult EtherCATCertificationService::testRequirement(const QString &reqId)
-{
-    for (const auto &req : requirements_) {
+CertificationTestResult EtherCATCertificationService::testRequirement(const QString& reqId) {
+    for (const auto& req : requirements_) {
         if (req.requirementId == reqId) {
             CertificationTestResult result;
             result.requirementId = reqId;
@@ -100,30 +93,25 @@ CertificationTestResult EtherCATCertificationService::testRequirement(const QStr
     return result;
 }
 
-CertificationResult EtherCATCertificationService::certifyDevice(int position)
-{
+CertificationResult EtherCATCertificationService::certifyDevice(int position) {
     Q_UNUSED(position);
     return createRejectedCert(QStringLiteral("Device"));
 }
 
-CertificationResult EtherCATCertificationService::certifyNetwork()
-{
+CertificationResult EtherCATCertificationService::certifyNetwork() {
     return createRejectedCert(QStringLiteral("Network"));
 }
 
-CertificationResult EtherCATCertificationService::certifySystem()
-{
+CertificationResult EtherCATCertificationService::certifySystem() {
     return createRejectedCert(QStringLiteral("System"));
 }
 
-CertificationResult EtherCATCertificationService::certifyOperator(const QString &operatorName)
-{
+CertificationResult EtherCATCertificationService::certifyOperator(const QString& operatorName) {
     Q_UNUSED(operatorName);
     return createRejectedCert(QStringLiteral("Operator"));
 }
 
-CertificationResult EtherCATCertificationService::createRejectedCert(const QString &scope)
-{
+CertificationResult EtherCATCertificationService::createRejectedCert(const QString& scope) {
     CertificationResult result;
     result.timestamp = QDateTime::currentDateTime();
     result.valid = false;

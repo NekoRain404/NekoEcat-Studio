@@ -33,10 +33,10 @@
 namespace {
 
 struct SharedState {
-    uint8_t *arena = nullptr;   // header + 2*stride
-    ShmHeader *hdr = nullptr;
-    uint8_t *data[2] = {nullptr, nullptr};
-    uint8_t *domain = nullptr;  // publisher's "ecrt process image"
+    uint8_t* arena = nullptr; // header + 2*stride
+    ShmHeader* hdr = nullptr;
+    uint8_t* data[2] = {nullptr, nullptr};
+    uint8_t* domain = nullptr; // publisher's "ecrt process image"
     size_t stride = 0;
     uint64_t baseVersion = 0;
     uint64_t cycles = 0;
@@ -46,8 +46,8 @@ struct SharedState {
 };
 
 struct ReaderStats {
-    uint64_t reads = 0;          // accepted (v1 == v2) snapshots
-    uint64_t retries = 0;        // snapshots rejected because version moved
+    uint64_t reads = 0;   // accepted (v1 == v2) snapshots
+    uint64_t retries = 0; // snapshots rejected because version moved
     uint64_t maxV1 = 0;
     uint64_t minV1 = ~0ULL;
     uint64_t lastAcceptedV1 = 0; // version of the most recent accepted read
@@ -65,13 +65,13 @@ struct ReaderStats {
 };
 
 struct ReaderCtx {
-    SharedState *s = nullptr;
+    SharedState* s = nullptr;
     ReaderStats st;
 };
 
 // One full double-read protocol read, exactly like nekoecat_client_read_raw_at.
 // Returns true when the snapshot was accepted (v1 == v2); false on contention.
-static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
+static bool doubleRead(SharedState* s, uint8_t* snap, ReaderStats* st) {
     const uint64_t v1 = nekoecat_shm_load(&s->hdr->version, NEKOECAT_MO_ACQUIRE);
     const uint32_t b = nekoecat_shm_load(&s->hdr->active_buffer, NEKOECAT_MO_ACQUIRE);
     if (b > 1) {
@@ -79,7 +79,7 @@ static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
         st->badActive = b;
     }
     // Never index out of bounds even if the header is corrupt (b > 1).
-    const uint8_t *src = (b <= 1) ? s->data[b] : s->data[0];
+    const uint8_t* src = (b <= 1) ? s->data[b] : s->data[0];
     std::memcpy(snap, src, s->stride);
     const uint64_t v2 = nekoecat_shm_load(&s->hdr->version, NEKOECAT_MO_ACQUIRE);
     if (v1 != v2) {
@@ -88,8 +88,10 @@ static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
     }
 
     ++st->reads;
-    if (v1 < st->minV1) st->minV1 = v1;
-    if (v1 > st->maxV1) st->maxV1 = v1;
+    if (v1 < st->minV1)
+        st->minV1 = v1;
+    if (v1 > st->maxV1)
+        st->maxV1 = v1;
     st->lastAcceptedV1 = v1;
 
     // Per-cycle marker is stored little-endian at offset 0.
@@ -101,14 +103,18 @@ static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
     // active buffer just before bumping the version).
     if (marker < v1 || marker > v1 + 1) {
         st->markerInRange = false;
-        if (st->badByteIndex < 0) { st->badV1 = v1; st->badMarker = marker; }
+        if (st->badByteIndex < 0) {
+            st->badV1 = v1;
+            st->badMarker = marker;
+        }
     }
 
     // Homogeneity: every byte of the buffer (except marker bytes 1..7) must
     // equal (marker & 0xFF) -- any two-cycle mix would show a mismatch.
     const uint8_t expect = static_cast<uint8_t>(marker & 0xFF);
     for (size_t i = 0; i < s->stride; ++i) {
-        if (i >= 1 && i <= 7) continue;  // high bytes of the marker u64
+        if (i >= 1 && i <= 7)
+            continue; // high bytes of the marker u64
         if (snap[i] != expect) {
             st->homogeneous = false;
             if (st->badByteIndex < 0) {
@@ -122,9 +128,9 @@ static bool doubleRead(SharedState *s, uint8_t *snap, ReaderStats *st) {
     return true;
 }
 
-static void *readerLoop(void *arg) {
-    ReaderCtx *rc = static_cast<ReaderCtx *>(arg);
-    SharedState *s = rc->s;
+static void* readerLoop(void* arg) {
+    ReaderCtx* rc = static_cast<ReaderCtx*>(arg);
+    SharedState* s = rc->s;
 
     std::vector<uint8_t> snap(s->stride);
     uint64_t prevV1 = 0;
@@ -135,28 +141,32 @@ static void *readerLoop(void *arg) {
         if (s->stop.load(std::memory_order_relaxed)) {
             // Flush the final version so the floor assertion is deterministic:
             // keep reading until we observe the last publish's version.
-            if (rc->st.maxV1 >= s->targetFloor) break;
+            if (rc->st.maxV1 >= s->targetFloor)
+                break;
         }
-        if (++totalAttempts > kMaxAttempts) break;  // safety, should never hit
+        if (++totalAttempts > kMaxAttempts)
+            break; // safety, should never hit
 
         const bool accepted = doubleRead(s, snap.data(), &rc->st);
-        if (!accepted) continue;
+        if (!accepted)
+            continue;
 
         // Accepted reads in one thread see non-decreasing versions. Track the
         // version of the last ACCEPTED read (not maxV1, which only grows and
         // would make this comparison a tautology).
-        if (rc->st.reads > 1 && rc->st.lastAcceptedV1 < prevV1) rc->st.monotonic = false;
+        if (rc->st.reads > 1 && rc->st.lastAcceptedV1 < prevV1)
+            rc->st.monotonic = false;
         prevV1 = rc->st.lastAcceptedV1;
     }
     return nullptr;
 }
 
-static void *publisherLoop(void *arg) {
+static void* publisherLoop(void* arg) {
     struct PubCtx {
-        SharedState *s;
+        SharedState* s;
         uint64_t cycles;
-    } *pc = static_cast<PubCtx *>(arg);
-    SharedState *s = pc->s;
+    }* pc = static_cast<PubCtx*>(arg);
+    SharedState* s = pc->s;
 
     ShmMirrorContext ctx{};
     ctx.domainData = s->domain;
@@ -188,8 +198,9 @@ static void *publisherLoop(void *arg) {
 
 // Runs one scenario: stride bytes, `cycles` publishes, `nReaders` readers.
 // Returns 0 on success.
-int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) {
-    if (stride > NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE) stride = NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE;
+int runScenario(const char* name, size_t stride, uint64_t cycles, int nReaders) {
+    if (stride > NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE)
+        stride = NEKOECAT_SHM_MAX_PROCESS_DATA_SIZE;
     const uint64_t baseVersion = 1000;
 
     SharedState s;
@@ -199,13 +210,20 @@ int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) 
     s.targetFloor = baseVersion + cycles;
 
     const size_t arenaSize = sizeof(ShmHeader) + 2 * stride;
-    s.arena = static_cast<uint8_t *>(std::calloc(1, arenaSize));
-    if (!s.arena) { std::fprintf(stderr, "%s: calloc failed\n", name); return 1; }
-    s.hdr = reinterpret_cast<ShmHeader *>(s.arena);
+    s.arena = static_cast<uint8_t*>(std::calloc(1, arenaSize));
+    if (!s.arena) {
+        std::fprintf(stderr, "%s: calloc failed\n", name);
+        return 1;
+    }
+    s.hdr = reinterpret_cast<ShmHeader*>(s.arena);
     s.data[0] = s.arena + sizeof(ShmHeader);
     s.data[1] = s.data[0] + stride;
-    s.domain = static_cast<uint8_t *>(std::calloc(1, stride));
-    if (!s.domain) { std::free(s.arena); std::fprintf(stderr, "%s: domain calloc failed\n", name); return 1; }
+    s.domain = static_cast<uint8_t*>(std::calloc(1, stride));
+    if (!s.domain) {
+        std::free(s.arena);
+        std::fprintf(stderr, "%s: domain calloc failed\n", name);
+        return 1;
+    }
 
     // Pre-seed a consistent "cycle 0" state so readers may start immediately:
     // version == baseVersion, active == 0, buffer 0 carries marker == baseVersion.
@@ -227,36 +245,41 @@ int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) 
         if (pthread_create(&tids[i], nullptr, readerLoop, &rcs[i]) != 0) {
             std::fprintf(stderr, "%s: pthread_create failed\n", name);
             s.stop.store(true, std::memory_order_relaxed);
-            for (int j = 0; j < i; ++j) pthread_join(tids[j], nullptr);
+            for (int j = 0; j < i; ++j)
+                pthread_join(tids[j], nullptr);
             std::free(s.domain);
             std::free(s.arena);
             return 1;
         }
     }
 
-    struct PubCtx { SharedState *s; uint64_t cycles; } pc{&s, cycles};
+    struct PubCtx {
+        SharedState* s;
+        uint64_t cycles;
+    } pc{&s, cycles};
     pthread_t pthr;
     if (pthread_create(&pthr, nullptr, publisherLoop, &pc) != 0) {
         std::fprintf(stderr, "%s: pthread_create(publisher) failed\n", name);
         s.stop.store(true, std::memory_order_relaxed);
-        for (int j = 0; j < nReaders; ++j) pthread_join(tids[j], nullptr);
+        for (int j = 0; j < nReaders; ++j)
+            pthread_join(tids[j], nullptr);
         std::free(s.domain);
         std::free(s.arena);
         return 1;
     }
     pthread_join(pthr, nullptr);
-    for (int i = 0; i < nReaders; ++i) pthread_join(tids[i], nullptr);
+    for (int i = 0; i < nReaders; ++i)
+        pthread_join(tids[i], nullptr);
 
     // Merge + report.
     int rc = 0;
-    std::printf("=== %s: stride=%zu cycles=%llu readers=%d ===\n",
-                name, stride, (unsigned long long)cycles, nReaders);
+    std::printf("=== %s: stride=%zu cycles=%llu readers=%d ===\n", name, stride, (unsigned long long)cycles, nReaders);
     for (int i = 0; i < nReaders; ++i) {
-        const ReaderStats &st = rcs[i].st;
-        std::printf("  reader %d: reads=%llu retries=%llu v1=[%llu..%llu] floor=%llu monotonic=%d homogeneous=%d activeValid=%d markerInRange=%d\n",
-                    i, (unsigned long long)st.reads, (unsigned long long)st.retries,
-                    (unsigned long long)st.minV1, (unsigned long long)st.maxV1,
-                    (unsigned long long)s.targetFloor, st.monotonic, st.homogeneous,
+        const ReaderStats& st = rcs[i].st;
+        std::printf("  reader %d: reads=%llu retries=%llu v1=[%llu..%llu] floor=%llu monotonic=%d homogeneous=%d "
+                    "activeValid=%d markerInRange=%d\n",
+                    i, (unsigned long long)st.reads, (unsigned long long)st.retries, (unsigned long long)st.minV1,
+                    (unsigned long long)st.maxV1, (unsigned long long)s.targetFloor, st.monotonic, st.homogeneous,
                     st.activeValid, st.markerInRange);
         if (st.reads == 0) {
             std::fprintf(stderr, "  reader %d: accepted no snapshots\n", i);
@@ -264,15 +287,15 @@ int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) 
             continue;
         }
         if (!st.homogeneous) {
-            std::fprintf(stderr, "  reader %d: TORN VIEW: marker=%llu v1=%llu first bad byte @%d = 0x%02x (expected 0x%02x)\n",
-                         i, (unsigned long long)st.badMarker, (unsigned long long)st.badV1,
-                         st.badByteIndex, st.badByteValue,
-                         static_cast<int>(st.badMarker & 0xFF));
+            std::fprintf(stderr,
+                         "  reader %d: TORN VIEW: marker=%llu v1=%llu first bad byte @%d = 0x%02x (expected 0x%02x)\n",
+                         i, (unsigned long long)st.badMarker, (unsigned long long)st.badV1, st.badByteIndex,
+                         st.badByteValue, static_cast<int>(st.badMarker & 0xFF));
             rc = 1;
         }
         if (!st.markerInRange) {
-            std::fprintf(stderr, "  reader %d: marker=%llu outside {v1, v1+1} with v1=%llu\n",
-                         i, (unsigned long long)st.badMarker, (unsigned long long)st.badV1);
+            std::fprintf(stderr, "  reader %d: marker=%llu outside {v1, v1+1} with v1=%llu\n", i,
+                         (unsigned long long)st.badMarker, (unsigned long long)st.badV1);
             rc = 1;
         }
         if (!st.activeValid) {
@@ -284,14 +307,14 @@ int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) 
             rc = 1;
         }
         if (st.maxV1 < s.targetFloor) {
-            std::fprintf(stderr, "  reader %d: max version %llu below floor %llu\n",
-                         i, (unsigned long long)st.maxV1, (unsigned long long)s.targetFloor);
+            std::fprintf(stderr, "  reader %d: max version %llu below floor %llu\n", i, (unsigned long long)st.maxV1,
+                         (unsigned long long)s.targetFloor);
             rc = 1;
         }
     }
     if (s.hdr->version != baseVersion + cycles) {
-        std::fprintf(stderr, "  final version %llu != expected %llu\n",
-                     (unsigned long long)s.hdr->version, (unsigned long long)(baseVersion + cycles));
+        std::fprintf(stderr, "  final version %llu != expected %llu\n", (unsigned long long)s.hdr->version,
+                     (unsigned long long)(baseVersion + cycles));
         rc = 1;
     }
 
@@ -300,7 +323,7 @@ int runScenario(const char *name, size_t stride, uint64_t cycles, int nReaders) 
     return rc;
 }
 
-}  // namespace
+} // namespace
 
 int main() {
     int rc = 0;

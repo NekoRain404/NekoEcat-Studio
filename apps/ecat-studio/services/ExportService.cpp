@@ -15,142 +15,145 @@
 //   - JSON export converts QTableWidget rows to array-of-objects with header keys
 //   - Text export dumps QPlainTextEdit content as-is to file
 
-ExportService::ExportService(QObject *parent) : QObject(parent) {}
+ExportService::ExportService(QObject* parent) : QObject(parent) {}
 
-bool ExportService::exportToCsv(QTableWidget *table, const QString &path) {
-  if (!table) {
-    emit exportFailed(QStringLiteral("Null table widget"));
-    return false;
-  }
-  if (path.isEmpty()) {
-    emit exportFailed(QStringLiteral("Export path is empty"));
-    return false;
-  }
-
-  QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
-    return false;
-  }
-
-  QTextStream out(&file);
-  const int rows = table->rowCount();
-  const int cols = table->columnCount();
-
-  if (options_.includeHeaders) {
-    for (int c = 0; c < cols; ++c) {
-      if (c > 0) out << options_.delimiter;
-      auto *item = table->horizontalHeaderItem(c);
-      QString text = item ? item->text() : QString();
-      if (options_.quoteStrings)
-        out << "\"" << text.replace("\"", "\"\"") << "\"";
-      else
-        out << text;
+bool ExportService::exportToCsv(QTableWidget* table, const QString& path) {
+    if (!table) {
+        emit exportFailed(QStringLiteral("Null table widget"));
+        return false;
     }
-    out << options_.lineEnding;
-  }
-
-  for (int r = 0; r < rows; ++r) {
-    for (int c = 0; c < cols; ++c) {
-      if (c > 0) out << options_.delimiter;
-      auto *item = table->item(r, c);
-      QString text = item ? item->text() : QString();
-      if (options_.quoteStrings)
-        out << "\"" << text.replace("\"", "\"\"") << "\"";
-      else
-        out << text;
+    if (path.isEmpty()) {
+        emit exportFailed(QStringLiteral("Export path is empty"));
+        return false;
     }
-    out << options_.lineEnding;
-  }
 
-  out.flush();
-  if (out.status() != QTextStream::Ok || !file.flush()) {
-    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
-    return false;
-  }
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
+        return false;
+    }
 
-  file.close();
-  emit exportCompleted(path);
-  return true;
+    QTextStream out(&file);
+    const int rows = table->rowCount();
+    const int cols = table->columnCount();
+
+    if (options_.includeHeaders) {
+        for (int c = 0; c < cols; ++c) {
+            if (c > 0)
+                out << options_.delimiter;
+            auto* item = table->horizontalHeaderItem(c);
+            QString text = item ? item->text() : QString();
+            if (options_.quoteStrings)
+                out << "\"" << text.replace("\"", "\"\"") << "\"";
+            else
+                out << text;
+        }
+        out << options_.lineEnding;
+    }
+
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            if (c > 0)
+                out << options_.delimiter;
+            auto* item = table->item(r, c);
+            QString text = item ? item->text() : QString();
+            if (options_.quoteStrings)
+                out << "\"" << text.replace("\"", "\"\"") << "\"";
+            else
+                out << text;
+        }
+        out << options_.lineEnding;
+    }
+
+    out.flush();
+    if (out.status() != QTextStream::Ok || !file.flush()) {
+        emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+        return false;
+    }
+
+    file.close();
+    emit exportCompleted(path);
+    return true;
 }
 
-bool ExportService::exportToJson(QTableWidget *table, const QString &path) {
-  if (!table) {
-    emit exportFailed(QStringLiteral("Null table widget"));
-    return false;
-  }
-  if (path.isEmpty()) {
-    emit exportFailed(QStringLiteral("Export path is empty"));
-    return false;
-  }
-
-  QJsonArray rows;
-  const int rowCount = table->rowCount();
-  const int colCount = table->columnCount();
-
-  QStringList headers;
-  if (options_.includeHeaders) {
-    for (int c = 0; c < colCount; ++c) {
-      auto *item = table->horizontalHeaderItem(c);
-      headers << (item ? item->text() : QString());
+bool ExportService::exportToJson(QTableWidget* table, const QString& path) {
+    if (!table) {
+        emit exportFailed(QStringLiteral("Null table widget"));
+        return false;
     }
-  }
-
-  for (int r = 0; r < rowCount; ++r) {
-    QJsonObject row;
-    for (int c = 0; c < colCount; ++c) {
-      auto *item = table->item(r, c);
-      QString value = item ? item->text() : QString();
-      QString key = (c < headers.size()) ? headers[c]
-                                         : QString::number(c);
-      row[key] = value;
+    if (path.isEmpty()) {
+        emit exportFailed(QStringLiteral("Export path is empty"));
+        return false;
     }
-    rows.append(row);
-  }
 
-  QJsonDocument doc(rows);
-  QFile file(path);
-  if (!file.open(QIODevice::WriteOnly)) {
-    emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
-    return false;
-  }
-  const QByteArray bytes = doc.toJson(QJsonDocument::Indented);
-  if (file.write(bytes) != bytes.size() || !file.flush()) {
-    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
-    return false;
-  }
-  file.close();
-  emit exportCompleted(path);
-  return true;
+    QJsonArray rows;
+    const int rowCount = table->rowCount();
+    const int colCount = table->columnCount();
+
+    QStringList headers;
+    if (options_.includeHeaders) {
+        for (int c = 0; c < colCount; ++c) {
+            auto* item = table->horizontalHeaderItem(c);
+            headers << (item ? item->text() : QString());
+        }
+    }
+
+    for (int r = 0; r < rowCount; ++r) {
+        QJsonObject row;
+        for (int c = 0; c < colCount; ++c) {
+            auto* item = table->item(r, c);
+            QString value = item ? item->text() : QString();
+            QString key = (c < headers.size()) ? headers[c] : QString::number(c);
+            row[key] = value;
+        }
+        rows.append(row);
+    }
+
+    QJsonDocument doc(rows);
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
+        return false;
+    }
+    const QByteArray bytes = doc.toJson(QJsonDocument::Indented);
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+        return false;
+    }
+    file.close();
+    emit exportCompleted(path);
+    return true;
 }
 
-bool ExportService::exportToText(QPlainTextEdit *editor, const QString &path) {
-  if (!editor) {
-    emit exportFailed(QStringLiteral("Null editor widget"));
-    return false;
-  }
-  if (path.isEmpty()) {
-    emit exportFailed(QStringLiteral("Export path is empty"));
-    return false;
-  }
+bool ExportService::exportToText(QPlainTextEdit* editor, const QString& path) {
+    if (!editor) {
+        emit exportFailed(QStringLiteral("Null editor widget"));
+        return false;
+    }
+    if (path.isEmpty()) {
+        emit exportFailed(QStringLiteral("Export path is empty"));
+        return false;
+    }
 
-  QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
-    return false;
-  }
-  const QByteArray bytes = editor->toPlainText().toUtf8();
-  if (file.write(bytes) != bytes.size() || !file.flush()) {
-    emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
-    return false;
-  }
-  file.close();
-  emit exportCompleted(path);
-  return true;
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        emit exportFailed(QStringLiteral("Cannot open file: %1").arg(path));
+        return false;
+    }
+    const QByteArray bytes = editor->toPlainText().toUtf8();
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        emit exportFailed(QStringLiteral("Cannot write file: %1").arg(path));
+        return false;
+    }
+    file.close();
+    emit exportCompleted(path);
+    return true;
 }
 
-void ExportService::setExportOptions(const ExportOptions &options) {
-  options_ = options;
+void ExportService::setExportOptions(const ExportOptions& options) {
+    options_ = options;
 }
 
-ExportOptions ExportService::exportOptions() const { return options_; }
+ExportOptions ExportService::exportOptions() const {
+    return options_;
+}

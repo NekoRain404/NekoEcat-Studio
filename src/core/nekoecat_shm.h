@@ -68,24 +68,24 @@ typedef struct ShmMirrorEntry {
     uint16_t index;
     uint8_t sub;
     uint8_t bitLength;
-    char direction[8];       /* "RxPDO" or "TxPDO" */
+    char direction[8]; /* "RxPDO" or "TxPDO" */
     uint32_t offset;
 } ShmMirrorEntry;
 
 /* Everything mirrorToShm() needs; the daemon fills this once per cycle. */
 typedef struct ShmMirrorContext {
-    uint8_t* domainData;         /* ecrt process-data image              */
-    uint8_t* shmData[2];         /* shm buffers; stride == dataSize      */
-    ShmMirrorEntry* entries;     /* precomputed layout                   */
+    uint8_t* domainData;     /* ecrt process-data image              */
+    uint8_t* shmData[2];     /* shm buffers; stride == dataSize      */
+    ShmMirrorEntry* entries; /* precomputed layout                   */
     size_t entryCount;
-    size_t dataSize;             /* clamped process-data size            */
-    uint64_t timestampNs;        /* value to publish into timestamp_ns   */
-    uint32_t* activeBuffer;      /* -> ShmHeader.active_buffer           */
-    uint64_t* version;           /* -> ShmHeader.version                 */
-    uint64_t* cycleCount;        /* -> ShmHeader.cycle_count             */
-    uint64_t* timestampNsField;  /* -> ShmHeader.timestamp_ns            */
-    uint32_t* statusFlags;       /* -> ShmHeader.status_flags            */
-    uint32_t* ignoredWrites;     /* -> ShmHeader.ignored_writes          */
+    size_t dataSize;            /* clamped process-data size            */
+    uint64_t timestampNs;       /* value to publish into timestamp_ns   */
+    uint32_t* activeBuffer;     /* -> ShmHeader.active_buffer           */
+    uint64_t* version;          /* -> ShmHeader.version                 */
+    uint64_t* cycleCount;       /* -> ShmHeader.cycle_count             */
+    uint64_t* timestampNsField; /* -> ShmHeader.timestamp_ns            */
+    uint32_t* statusFlags;      /* -> ShmHeader.status_flags            */
+    uint32_t* ignoredWrites;    /* -> ShmHeader.ignored_writes          */
 } ShmMirrorContext;
 
 /* ------------------------------------------------------------------ */
@@ -105,7 +105,7 @@ typedef struct ShmLayout {
     ShmLayoutEntry entries[NEKOECAT_SHM_LAYOUT_MAX_ENTRIES];
     size_t count;
     uint32_t data_size;
-    int truncated;  /* set when the source had more entries than the cap */
+    int truncated; /* set when the source had more entries than the cap */
 } ShmLayout;
 
 /* ------------------------------------------------------------------ */
@@ -119,10 +119,10 @@ typedef struct ShmLayout {
 #define NEKOECAT_MO_ACQUIRE __ATOMIC_ACQUIRE
 #define NEKOECAT_MO_RELEASE __ATOMIC_RELEASE
 
-#define nekoecat_shm_load(ptr, mo)          __atomic_load_n((ptr), (mo))
-#define nekoecat_shm_store(ptr, val, mo)    __atomic_store_n((ptr), (val), (mo))
+#define nekoecat_shm_load(ptr, mo) __atomic_load_n((ptr), (mo))
+#define nekoecat_shm_store(ptr, val, mo) __atomic_store_n((ptr), (val), (mo))
 #define nekoecat_shm_fetch_add(ptr, val, mo) __atomic_fetch_add((ptr), (val), (mo))
-#define nekoecat_shm_fetch_or(ptr, val, mo)  __atomic_fetch_or((ptr), (val), (mo))
+#define nekoecat_shm_fetch_or(ptr, val, mo) __atomic_fetch_or((ptr), (val), (mo))
 #define nekoecat_shm_fetch_and(ptr, val, mo) __atomic_fetch_and((ptr), (val), (mo))
 
 /* ------------------------------------------------------------------ */
@@ -148,9 +148,9 @@ void mirrorToShm(const ShmMirrorContext* ctx);
 /* ------------------------------------------------------------------ */
 
 #if defined(__cplusplus)
-#define NEKOECAT_SHM_STATIC_ASSERT(cond, msg) static_assert((cond), msg)
+    #define NEKOECAT_SHM_STATIC_ASSERT(cond, msg) static_assert((cond), msg)
 #else
-#define NEKOECAT_SHM_STATIC_ASSERT(cond, msg) _Static_assert((cond), msg)
+    #define NEKOECAT_SHM_STATIC_ASSERT(cond, msg) _Static_assert((cond), msg)
 #endif
 
 NEKOECAT_SHM_STATIC_ASSERT(sizeof(ShmHeader) == 56, "ShmHeader must be 56 bytes");

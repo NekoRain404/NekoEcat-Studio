@@ -10,33 +10,32 @@
 
 #include "EtherCATOptimizerService.h"
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 #include <QVector>
 
 class RealtimeOptimizerService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit RealtimeOptimizerService(QObject *parent = nullptr);
+    explicit RealtimeOptimizerService(QObject* parent = nullptr);
 
-  OptimizationResult optimizeLatency();
-  OptimizationResult optimizeThroughput();
-  OptimizationResult optimizeResources();
-  OptimizationResult optimizePriorities();
+    OptimizationResult optimizeLatency();
+    OptimizationResult optimizeThroughput();
+    OptimizationResult optimizeResources();
+    OptimizationResult optimizePriorities();
 
-  // Returns false until a privileged host realtime execution backend is wired.
-  bool applyOptimization(const OptimizationResult &result);
+    // Returns false until a privileged host realtime execution backend is wired.
+    bool applyOptimization(const OptimizationResult& result);
 
-  QVector<OptimizationResult> optimizationHistory() const;
-  void clearHistory();
+    QVector<OptimizationResult> optimizationHistory() const;
+    void clearHistory();
 
 signals:
-  void optimizationCompleted(const OptimizationResult &result);
-  void optimizationApplied(const OptimizationResult &result);
+    void optimizationCompleted(const OptimizationResult& result);
+    void optimizationApplied(const OptimizationResult& result);
 
 private:
-  OptimizationResult createRejectedResult(const QString &category,
-                                          const QStringList &recommendations) const;
+    OptimizationResult createRejectedResult(const QString& category, const QStringList& recommendations) const;
 
-  QVector<OptimizationResult> history_;
+    QVector<OptimizationResult> history_;
 };

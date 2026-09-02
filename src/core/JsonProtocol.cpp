@@ -6,14 +6,12 @@
 namespace JsonProtocol {
 
 // Compact JSON + newline delimiter; the trailing '\n' is the frame boundary.
-QByteArray encode(const QJsonObject &object)
-{
+QByteArray encode(const QJsonObject& object) {
     return QJsonDocument(object).toJson(QJsonDocument::Compact) + '\n';
 }
 
 // JSON-RPC-style request envelope: id correlates request to response.
-QJsonObject request(const QString &id, const QString &method, const QJsonObject &params)
-{
+QJsonObject request(const QString& id, const QString& method, const QJsonObject& params) {
     return {
         {"id", id},
         {"method", method},
@@ -22,8 +20,7 @@ QJsonObject request(const QString &id, const QString &method, const QJsonObject 
 }
 
 // Positive response envelope — "ok":true signals success to the client.
-QJsonObject success(const QString &id, const QJsonObject &result)
-{
+QJsonObject success(const QString& id, const QJsonObject& result) {
     return {
         {"id", id},
         {"ok", true},
@@ -32,8 +29,7 @@ QJsonObject success(const QString &id, const QJsonObject &result)
 }
 
 // Error response; code defaults to -1 for generic/uncategorized failures.
-QJsonObject failure(const QString &id, const QString &message, int code)
-{
+QJsonObject failure(const QString& id, const QString& message, int code) {
     return {
         {"id", id},
         {"ok", false},
@@ -41,4 +37,4 @@ QJsonObject failure(const QString &id, const QString &message, int code)
     };
 }
 
-}
+} // namespace JsonProtocol

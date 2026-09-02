@@ -13,19 +13,14 @@
 //   - Validates profile name and parameter names; warns on read-only parameter values
 //   - Supports add/remove/update of individual ConfigParameter entries
 
-EtherCATConfigService::EtherCATConfigService(QObject *parent)
-    : QObject(parent)
-{
-}
+EtherCATConfigService::EtherCATConfigService(QObject* parent) : QObject(parent) {}
 
-void EtherCATConfigService::setCurrentProfile(const ConfigProfile &profile)
-{
+void EtherCATConfigService::setCurrentProfile(const ConfigProfile& profile) {
     profile_ = profile;
     emit configurationChanged(profile_);
 }
 
-ConfigValidation EtherCATConfigService::validateProfile(const ConfigProfile &profile) const
-{
+ConfigValidation EtherCATConfigService::validateProfile(const ConfigProfile& profile) const {
     ConfigValidation result;
     result.valid = true;
 
@@ -34,22 +29,20 @@ ConfigValidation EtherCATConfigService::validateProfile(const ConfigProfile &pro
         result.errors.append(QStringLiteral("Profile name is empty"));
     }
 
-    for (const ConfigParameter &p : profile.parameters) {
+    for (const ConfigParameter& p : profile.parameters) {
         if (p.name.isEmpty()) {
             result.valid = false;
             result.errors.append(QStringLiteral("Parameter has empty name"));
         }
         if (p.readOnly && !p.value.isEmpty()) {
-            result.warnings.append(
-                QStringLiteral("Read-only parameter '%1' has a value set").arg(p.name));
+            result.warnings.append(QStringLiteral("Read-only parameter '%1' has a value set").arg(p.name));
         }
     }
 
     return result;
 }
 
-bool EtherCATConfigService::saveProfile(const QString &name)
-{
+bool EtherCATConfigService::saveProfile(const QString& name) {
     if (name.isEmpty())
         return false;
 
@@ -72,9 +65,8 @@ bool EtherCATConfigService::saveProfile(const QString &name)
     return true;
 }
 
-bool EtherCATConfigService::loadProfile(const QString &name)
-{
-    for (const ConfigProfile &p : savedProfiles_) {
+bool EtherCATConfigService::loadProfile(const QString& name) {
+    for (const ConfigProfile& p : savedProfiles_) {
         if (p.name == name) {
             profile_ = p;
             emit profileLoaded(name);
@@ -85,8 +77,7 @@ bool EtherCATConfigService::loadProfile(const QString &name)
     return false;
 }
 
-bool EtherCATConfigService::deleteProfile(const QString &name)
-{
+bool EtherCATConfigService::deleteProfile(const QString& name) {
     for (int i = 0; i < savedProfiles_.size(); ++i) {
         if (savedProfiles_.at(i).name == name) {
             savedProfiles_.removeAt(i);
@@ -96,13 +87,12 @@ bool EtherCATConfigService::deleteProfile(const QString &name)
     return false;
 }
 
-bool EtherCATConfigService::exportProfile(const QString &name, const QString &path) const
-{
+bool EtherCATConfigService::exportProfile(const QString& name, const QString& path) const {
     if (name.isEmpty() || path.isEmpty())
         return false;
 
-    const ConfigProfile *profile = nullptr;
-    for (const ConfigProfile &p : savedProfiles_) {
+    const ConfigProfile* profile = nullptr;
+    for (const ConfigProfile& p : savedProfiles_) {
         if (p.name == name) {
             profile = &p;
             break;
@@ -112,7 +102,7 @@ bool EtherCATConfigService::exportProfile(const QString &name, const QString &pa
         return false;
 
     QJsonArray params;
-    for (const ConfigParameter &param : profile->parameters) {
+    for (const ConfigParameter& param : profile->parameters) {
         QJsonObject obj;
         obj[QStringLiteral("name")] = param.name;
         obj[QStringLiteral("value")] = param.value;
@@ -136,8 +126,7 @@ bool EtherCATConfigService::exportProfile(const QString &name, const QString &pa
     return file.write(bytes) == bytes.size() && file.flush();
 }
 
-bool EtherCATConfigService::importProfile(const QString &path)
-{
+bool EtherCATConfigService::importProfile(const QString& path) {
     if (path.isEmpty())
         return false;
 
@@ -151,8 +140,7 @@ bool EtherCATConfigService::importProfile(const QString &path)
         return false;
 
     const QJsonObject root = doc.object();
-    if (!root.contains(QStringLiteral("parameters")) ||
-        !root.value(QStringLiteral("parameters")).isArray()) {
+    if (!root.contains(QStringLiteral("parameters")) || !root.value(QStringLiteral("parameters")).isArray()) {
         return false;
     }
 
@@ -160,12 +148,11 @@ bool EtherCATConfigService::importProfile(const QString &path)
     profile.name = root.value(QStringLiteral("name")).toString();
     profile.description = root.value(QStringLiteral("description")).toString();
     const auto timestampValue = root.value(QStringLiteral("timestampMs"));
-    profile.timestampMs = timestampValue.isDouble()
-                              ? static_cast<qint64>(timestampValue.toDouble())
-                              : timestampValue.toString().toLongLong();
+    profile.timestampMs = timestampValue.isDouble() ? static_cast<qint64>(timestampValue.toDouble())
+                                                    : timestampValue.toString().toLongLong();
 
     const QJsonArray params = root.value(QStringLiteral("parameters")).toArray();
-    for (const QJsonValue &value : params) {
+    for (const QJsonValue& value : params) {
         if (!value.isObject())
             return false;
         const QJsonObject obj = value.toObject();
@@ -199,14 +186,12 @@ bool EtherCATConfigService::importProfile(const QString &path)
     return true;
 }
 
-void EtherCATConfigService::addParameter(const ConfigParameter &param)
-{
+void EtherCATConfigService::addParameter(const ConfigParameter& param) {
     profile_.parameters.append(param);
     emit configurationChanged(profile_);
 }
 
-void EtherCATConfigService::removeParameter(const QString &name)
-{
+void EtherCATConfigService::removeParameter(const QString& name) {
     for (int i = 0; i < profile_.parameters.size(); ++i) {
         if (profile_.parameters.at(i).name == name) {
             profile_.parameters.removeAt(i);
@@ -216,8 +201,7 @@ void EtherCATConfigService::removeParameter(const QString &name)
     }
 }
 
-void EtherCATConfigService::updateParameter(const QString &name, const QString &value)
-{
+void EtherCATConfigService::updateParameter(const QString& name, const QString& value) {
     for (int i = 0; i < profile_.parameters.size(); ++i) {
         if (profile_.parameters.at(i).name == name) {
             profile_.parameters[i].value = value;

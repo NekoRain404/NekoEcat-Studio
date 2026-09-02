@@ -1,13 +1,13 @@
 /* Pure gating test for AC2+AC3 on same arena.
  * Includes BOTH the daemon mirror header and the client header so any ABI
  * drift between the two sides fails this TU at compile time. */
-#include "nekoecat_client.h"
 #include "../../../apps/ecatd/freerun_shm_mirror.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include "nekoecat_client.h"
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // ABI drift guards: both sides must agree with the canonical layout.
 static_assert(sizeof(ShmHeader) == 56, "ShmHeader size");
@@ -23,19 +23,31 @@ static_assert(sizeof(ShmLayoutEntry) == 20, "ShmLayoutEntry size");
 
 int main(void) {
     ShmMirrorEntry entries[2];
-    entries[0].slave = 0; entries[0].index = 0x6000; entries[0].sub = 0; entries[0].bitLength = 16; strncpy(entries[0].direction, "TxPDO", 7); entries[0].offset = 0;
-    entries[1].slave = 0; entries[1].index = 0x6000; entries[1].sub = 1; entries[1].bitLength = 16; strncpy(entries[1].direction, "RxPDO", 7); entries[1].offset = 2;
+    entries[0].slave = 0;
+    entries[0].index = 0x6000;
+    entries[0].sub = 0;
+    entries[0].bitLength = 16;
+    strncpy(entries[0].direction, "TxPDO", 7);
+    entries[0].offset = 0;
+    entries[1].slave = 0;
+    entries[1].index = 0x6000;
+    entries[1].sub = 1;
+    entries[1].bitLength = 16;
+    strncpy(entries[1].direction, "RxPDO", 7);
+    entries[1].offset = 2;
 
     size_t dsize = computeProcessDataSize(entries, 2);
-    if (dsize == 0) return 1;
+    if (dsize == 0)
+        return 1;
 
     size_t arena_sz = sizeof(ShmHeader) + 2 * dsize;
-    uint8_t *arena = (uint8_t*)calloc(1, arena_sz);
-    if (!arena) return 1;
+    uint8_t* arena = (uint8_t*)calloc(1, arena_sz);
+    if (!arena)
+        return 1;
 
-    ShmHeader *hdr = (ShmHeader*)arena;
-    uint8_t *buf0 = arena + sizeof(ShmHeader);
-    uint8_t *buf1 = buf0 + dsize;
+    ShmHeader* hdr = (ShmHeader*)arena;
+    uint8_t* buf0 = arena + sizeof(ShmHeader);
+    uint8_t* buf1 = buf0 + dsize;
 
     uint8_t domain[4] = {0x11, 0x22, 0x00, 0x00};
 
@@ -60,13 +72,19 @@ int main(void) {
     ctx.statusFlags = &flags;
     ctx.ignoredWrites = &ignored;
 
-    NekoEcatClient *c = nekoecat_client_create();
-    if (!c) { free(arena); return 1; }
+    NekoEcatClient* c = nekoecat_client_create();
+    if (!c) {
+        free(arena);
+        return 1;
+    }
 
-    /* Attach client view to the arena SHM (test helper for pure unit drive of mirror+client wait; no full RPC/daemon needed) */
+    /* Attach client view to the arena SHM (test helper for pure unit drive of mirror+client wait; no full RPC/daemon
+     * needed) */
     hdr->version = 10;
     if (!nekoecat_client_test_attach_to_shm(c, NULL, arena, dsize)) {
-        nekoecat_client_destroy(c); free(arena); return 1;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 1;
     }
     // helper sets last = ver-1
 
@@ -77,7 +95,9 @@ int main(void) {
     int try_false = nekoecat_client_try_wait_next_cycle(c);
     printf("try_false=%d\n", try_false);
     if (try_false != 0) {
-        nekoecat_client_destroy(c); free(arena); return 3;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 3;
     }
 
     mirrorToShm(&ctx); /* bumps to 12 */
@@ -85,19 +105,27 @@ int main(void) {
     int try2 = nekoecat_client_try_wait_next_cycle(c);
     printf("try2=%d\n", try2);
     if (try2 == 0) {
-        nekoecat_client_destroy(c); free(arena); return 4;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 4;
     }
     if (nekoecat_client_get_current_version(c) != 12) {
-        nekoecat_client_destroy(c); free(arena); return 5;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 5;
     }
 
     // The daemon publishes the RUNNING flag and the timestamp as part of the
     // atomic publish sequence.
     if ((flags & NEKOECAT_FLAG_RUNNING) == 0) {
-        nekoecat_client_destroy(c); free(arena); return 6;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 6;
     }
     if (tsField != 42) {
-        nekoecat_client_destroy(c); free(arena); return 7;
+        nekoecat_client_destroy(c);
+        free(arena);
+        return 7;
     }
 
     nekoecat_client_destroy(c);

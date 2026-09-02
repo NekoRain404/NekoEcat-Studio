@@ -8,10 +8,10 @@
 //
 // Thread safety: main (GUI) thread only.
 
-#include <QObject>
-#include <QVector>
-#include <QString>
 #include <QDateTime>
+#include <QObject>
+#include <QString>
+#include <QVector>
 
 struct SimulationSlaveConfig {
     int position = 0;
@@ -42,9 +42,9 @@ struct SimulationState {
 class EtherCATSimulationService : public QObject {
     Q_OBJECT
 public:
-    explicit EtherCATSimulationService(QObject *parent = nullptr);
+    explicit EtherCATSimulationService(QObject* parent = nullptr);
 
-    int createVirtualSlave(const SimulationSlaveConfig &config);
+    int createVirtualSlave(const SimulationSlaveConfig& config);
     bool removeVirtualSlave(int position);
     bool startSimulation();
     bool stopSimulation();
@@ -58,7 +58,7 @@ signals:
     void simulationStopped();
     void virtualSlaveCreated(int position);
     void virtualSlaveRemoved(int position);
-    void simulationStateChanged(const SimulationState &state);
+    void simulationStateChanged(const SimulationState& state);
 
 private:
     QVector<VirtualSlave> slaves_;

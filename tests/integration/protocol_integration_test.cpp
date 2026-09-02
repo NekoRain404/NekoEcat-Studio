@@ -7,8 +7,8 @@
 
 // Integration test: EcatClient ↔ test server over localhost TCP.
 // Tests JSON protocol framing, dispatch, and error handling end-to-end.
-#include "EcatClient.h"
 #include "CommandDispatcher.h"
+#include "EcatClient.h"
 #include "JsonProtocol.h"
 
 #include <QCoreApplication>
@@ -26,16 +26,17 @@ namespace {
 
 int failures = 0;
 
-void fail(const QString &msg) {
+void fail(const QString& msg) {
     std::cerr << msg.toStdString() << '\n';
     ++failures;
 }
 
-void expectTrue(bool cond, const QString &msg) {
-    if (!cond) fail(msg);
+void expectTrue(bool cond, const QString& msg) {
+    if (!cond)
+        fail(msg);
 }
 
-void expectEqual(const QString &actual, const QString &expected, const QString &msg) {
+void expectEqual(const QString& actual, const QString& expected, const QString& msg) {
     if (actual != expected)
         fail(QString("%1: expected '%2', got '%3'").arg(msg, expected, actual));
 }
@@ -44,12 +45,12 @@ void expectEqual(const QString &actual, const QString &expected, const QString &
 class TestServer : public QTcpServer {
     Q_OBJECT
 public:
-    explicit TestServer(QObject *parent = nullptr) : QTcpServer(parent) {
-        dispatcher_.registerHandler("ping", [](const QString &id, const QJsonObject &) {
+    explicit TestServer(QObject* parent = nullptr) : QTcpServer(parent) {
+        dispatcher_.registerHandler("ping", [](const QString& id, const QJsonObject&) {
             return CommandDispatcher::success(id, {{"name", "ecatd-test"}, {"version", "0.0.1"}});
         });
 
-        dispatcher_.registerHandler("echo", [](const QString &id, const QJsonObject &params) {
+        dispatcher_.registerHandler("echo", [](const QString& id, const QJsonObject& params) {
             return CommandDispatcher::success(id, {{"echo", params}});
         });
 
@@ -59,9 +60,9 @@ public:
 private slots:
     // Accept client connection and dispatch JSON requests
     void acceptClient() {
-        while (auto *socket = nextPendingConnection()) {
+        while (auto* socket = nextPendingConnection()) {
             connect(socket, &QTcpSocket::readyRead, this, [this, socket] {
-                QByteArray &buf = buffers_[socket];
+                QByteArray& buf = buffers_[socket];
                 buf += socket->readAll();
                 int newline = -1;
                 while ((newline = buf.indexOf('\n')) >= 0) {
@@ -83,14 +84,14 @@ private slots:
 
 private:
     CommandDispatcher dispatcher_;
-    QHash<QTcpSocket *, QByteArray> buffers_;
+    QHash<QTcpSocket*, QByteArray> buffers_;
 };
 
 } // namespace
 
 #include "protocol_integration_test.moc"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QCoreApplication app(argc, argv);
 
     // Start test server on a high port.
@@ -119,9 +120,7 @@ int main(int argc, char *argv[]) {
 
     // Test ping.
     QString daemonInfoText;
-    QObject::connect(&client, &EcatClient::daemonInfo, [&](const QString &text) {
-        daemonInfoText = text;
-    });
+    QObject::connect(&client, &EcatClient::daemonInfo, [&](const QString& text) { daemonInfoText = text; });
     client.ping();
 
     for (int i = 0; i < 30 && daemonInfoText.isEmpty(); ++i) {

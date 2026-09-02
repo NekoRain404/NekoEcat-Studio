@@ -1,7 +1,7 @@
-#include <QtTest>
+#include "EthercatNativeBackend.h"
 #include <QJsonArray>
 #include <QJsonObject>
-#include "EthercatNativeBackend.h"
+#include <QtTest>
 
 class NativeBackendTest : public QObject {
     Q_OBJECT

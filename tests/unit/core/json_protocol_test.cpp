@@ -43,22 +43,19 @@ private slots:
 
 // ── encode() ─────────────────────────────────────────────────────────
 
-void JsonProtocolTest::encodeProducesValidJson()
-{
+void JsonProtocolTest::encodeProducesValidJson() {
     auto bytes = JsonProtocol::encode({{"key", "value"}});
     auto doc = QJsonDocument::fromJson(bytes.trimmed());
     QVERIFY(!doc.isNull());
     QVERIFY(doc.isObject());
 }
 
-void JsonProtocolTest::encodeEndsWithNewline()
-{
+void JsonProtocolTest::encodeEndsWithNewline() {
     auto bytes = JsonProtocol::encode({{"a", 1}});
     QVERIFY(bytes.endsWith('\n'));
 }
 
-void JsonProtocolTest::encodeIsCompact()
-{
+void JsonProtocolTest::encodeIsCompact() {
     auto bytes = JsonProtocol::encode({{"a", 1}});
     QCOMPARE(bytes.count('\n'), 1);
     QVERIFY(!bytes.contains(" \n"));
@@ -66,23 +63,20 @@ void JsonProtocolTest::encodeIsCompact()
 
 // ── request() ────────────────────────────────────────────────────────
 
-void JsonProtocolTest::requestHasIdMethodParams()
-{
+void JsonProtocolTest::requestHasIdMethodParams() {
     auto obj = JsonProtocol::request("1", "getStatus");
     QCOMPARE(obj["id"].toString(), QString("1"));
     QCOMPARE(obj["method"].toString(), QString("getStatus"));
     QVERIFY(obj.contains("params"));
 }
 
-void JsonProtocolTest::requestWithEmptyMethod()
-{
+void JsonProtocolTest::requestWithEmptyMethod() {
     auto obj = JsonProtocol::request("42", "");
     QCOMPARE(obj["id"].toString(), QString("42"));
     QCOMPARE(obj["method"].toString(), QString(""));
 }
 
-void JsonProtocolTest::requestWithParams()
-{
+void JsonProtocolTest::requestWithParams() {
     QJsonObject params{{"index", 0x1000}, {"subindex", 1}};
     auto obj = JsonProtocol::request("7", "sdoRead", params);
     QCOMPARE(obj["params"].toObject()["index"].toInt(), 0x1000);
@@ -91,53 +85,46 @@ void JsonProtocolTest::requestWithParams()
 
 // ── success() ────────────────────────────────────────────────────────
 
-void JsonProtocolTest::successHasIdOkResult()
-{
+void JsonProtocolTest::successHasIdOkResult() {
     auto obj = JsonProtocol::success("5", {{"value", 42}});
     QCOMPARE(obj["id"].toString(), QString("5"));
     QVERIFY(obj.contains("ok"));
     QVERIFY(obj.contains("result"));
 }
 
-void JsonProtocolTest::successWithEmptyResult()
-{
+void JsonProtocolTest::successWithEmptyResult() {
     auto obj = JsonProtocol::success("10");
     QCOMPARE(obj["id"].toString(), QString("10"));
     QVERIFY(obj["result"].isObject());
     QVERIFY(obj["result"].toObject().isEmpty());
 }
 
-void JsonProtocolTest::successOkIsTrue()
-{
+void JsonProtocolTest::successOkIsTrue() {
     auto obj = JsonProtocol::success("1");
     QCOMPARE(obj["ok"].toBool(), true);
 }
 
 // ── failure() ────────────────────────────────────────────────────────
 
-void JsonProtocolTest::failureHasIdOkError()
-{
+void JsonProtocolTest::failureHasIdOkError() {
     auto obj = JsonProtocol::failure("3", "not found");
     QCOMPARE(obj["id"].toString(), QString("3"));
     QVERIFY(obj.contains("ok"));
     QVERIFY(obj.contains("error"));
 }
 
-void JsonProtocolTest::failureOkIsFalse()
-{
+void JsonProtocolTest::failureOkIsFalse() {
     auto obj = JsonProtocol::failure("1", "err");
     QCOMPARE(obj["ok"].toBool(), false);
 }
 
-void JsonProtocolTest::failureDefaultCode()
-{
+void JsonProtocolTest::failureDefaultCode() {
     auto obj = JsonProtocol::failure("2", "generic error");
     QCOMPARE(obj["error"].toObject()["code"].toInt(), -1);
     QCOMPARE(obj["error"].toObject()["message"].toString(), QString("generic error"));
 }
 
-void JsonProtocolTest::failureCustomCode()
-{
+void JsonProtocolTest::failureCustomCode() {
     auto obj = JsonProtocol::failure("9", "timeout", 408);
     QCOMPARE(obj["error"].toObject()["code"].toInt(), 408);
     QCOMPARE(obj["error"].toObject()["message"].toString(), QString("timeout"));
@@ -145,8 +132,7 @@ void JsonProtocolTest::failureCustomCode()
 
 // ── Parsing ──────────────────────────────────────────────────────────
 
-void JsonProtocolTest::parseEncodedRequest()
-{
+void JsonProtocolTest::parseEncodedRequest() {
     auto bytes = JsonProtocol::encode(JsonProtocol::request("1", "ping"));
     auto doc = QJsonDocument::fromJson(bytes.trimmed());
     auto obj = doc.object();
@@ -154,8 +140,7 @@ void JsonProtocolTest::parseEncodedRequest()
     QCOMPARE(obj["method"].toString(), QString("ping"));
 }
 
-void JsonProtocolTest::parseEncodedSuccess()
-{
+void JsonProtocolTest::parseEncodedSuccess() {
     auto bytes = JsonProtocol::encode(JsonProtocol::success("2", {{"data", "ok"}}));
     auto doc = QJsonDocument::fromJson(bytes.trimmed());
     auto obj = doc.object();
@@ -163,8 +148,7 @@ void JsonProtocolTest::parseEncodedSuccess()
     QCOMPARE(obj["result"].toObject()["data"].toString(), QString("ok"));
 }
 
-void JsonProtocolTest::parseEncodedFailure()
-{
+void JsonProtocolTest::parseEncodedFailure() {
     auto bytes = JsonProtocol::encode(JsonProtocol::failure("3", "bad", 400));
     auto doc = QJsonDocument::fromJson(bytes.trimmed());
     auto obj = doc.object();
@@ -174,8 +158,7 @@ void JsonProtocolTest::parseEncodedFailure()
 
 // ── Round-trip ───────────────────────────────────────────────────────
 
-void JsonProtocolTest::roundTripRequest()
-{
+void JsonProtocolTest::roundTripRequest() {
     QJsonObject params{{"slave", 1}};
     auto encoded = JsonProtocol::encode(JsonProtocol::request("r1", "readState", params));
     auto decoded = QJsonDocument::fromJson(encoded.trimmed()).object();
@@ -184,16 +167,14 @@ void JsonProtocolTest::roundTripRequest()
     QCOMPARE(decoded["params"].toObject()["slave"].toInt(), 1);
 }
 
-void JsonProtocolTest::roundTripSuccess()
-{
+void JsonProtocolTest::roundTripSuccess() {
     auto encoded = JsonProtocol::encode(JsonProtocol::success("r2", {{"state", "OP"}}));
     auto decoded = QJsonDocument::fromJson(encoded.trimmed()).object();
     QCOMPARE(decoded["ok"].toBool(), true);
     QCOMPARE(decoded["result"].toObject()["state"].toString(), QString("OP"));
 }
 
-void JsonProtocolTest::roundTripFailure()
-{
+void JsonProtocolTest::roundTripFailure() {
     auto encoded = JsonProtocol::encode(JsonProtocol::failure("r3", "not ready", 503));
     auto decoded = QJsonDocument::fromJson(encoded.trimmed()).object();
     QCOMPARE(decoded["ok"].toBool(), false);
@@ -203,21 +184,18 @@ void JsonProtocolTest::roundTripFailure()
 
 // ── Edge cases ───────────────────────────────────────────────────────
 
-void JsonProtocolTest::requestWithSpecialChars()
-{
+void JsonProtocolTest::requestWithSpecialChars() {
     auto obj = JsonProtocol::request("s1", "cmd\"with\nescapes");
     auto encoded = JsonProtocol::encode(obj);
     auto decoded = QJsonDocument::fromJson(encoded.trimmed()).object();
     QCOMPARE(decoded["method"].toString(), QString("cmd\"with\nescapes"));
 }
 
-void JsonProtocolTest::failureWithSpecialChars()
-{
+void JsonProtocolTest::failureWithSpecialChars() {
     auto obj = JsonProtocol::failure("s2", "error: \"value\" not found\nretry");
     auto encoded = JsonProtocol::encode(obj);
     auto decoded = QJsonDocument::fromJson(encoded.trimmed()).object();
-    QCOMPARE(decoded["error"].toObject()["message"].toString(),
-             QString("error: \"value\" not found\nretry"));
+    QCOMPARE(decoded["error"].toObject()["message"].toString(), QString("error: \"value\" not found\nretry"));
 }
 
 QTEST_MAIN(JsonProtocolTest)

@@ -7,13 +7,9 @@
 //   - Returns ComplianceResult with score, compliance flag, and recommendations
 //   - All check* methods emit complianceChecked for UI consumption
 
-WorkflowComplianceService::WorkflowComplianceService(QObject *parent)
-    : QObject(parent)
-{
-}
+WorkflowComplianceService::WorkflowComplianceService(QObject* parent) : QObject(parent) {}
 
-ComplianceResult WorkflowComplianceService::checkStandardCompliance()
-{
+ComplianceResult WorkflowComplianceService::checkStandardCompliance() {
     ComplianceResult r;
     r.standard = QStringLiteral("IEC 61131-3");
     r.version = QStringLiteral("2013");
@@ -25,21 +21,18 @@ ComplianceResult WorkflowComplianceService::checkStandardCompliance()
     return r;
 }
 
-ComplianceResult WorkflowComplianceService::checkRegulatoryCompliance()
-{
+ComplianceResult WorkflowComplianceService::checkRegulatoryCompliance() {
     ComplianceResult r;
     r.standard = QStringLiteral("CE/UL");
     r.version = QStringLiteral("2024");
     r.compliant = true;
     r.score = 88.0;
-    r.recommendations << QStringLiteral("Maintain EMC test records")
-                      << QStringLiteral("Update safety labeling");
+    r.recommendations << QStringLiteral("Maintain EMC test records") << QStringLiteral("Update safety labeling");
     emit complianceChecked(r);
     return r;
 }
 
-ComplianceResult WorkflowComplianceService::checkSafetyCompliance()
-{
+ComplianceResult WorkflowComplianceService::checkSafetyCompliance() {
     ComplianceResult r;
     r.standard = QStringLiteral("IEC 61508");
     r.version = QStringLiteral("2010");
@@ -51,8 +44,7 @@ ComplianceResult WorkflowComplianceService::checkSafetyCompliance()
     return r;
 }
 
-ComplianceResult WorkflowComplianceService::checkQualityCompliance()
-{
+ComplianceResult WorkflowComplianceService::checkQualityCompliance() {
     ComplianceResult r;
     r.standard = QStringLiteral("ISO 9001");
     r.version = QStringLiteral("2015");

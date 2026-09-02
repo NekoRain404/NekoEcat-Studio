@@ -39,46 +39,46 @@ struct AppSettings {
     // ── EtherCAT Masters ──────────────────────────────────────────
     QVector<MasterProfile> masters = {MasterProfile{}};
     QString activeMaster = "0";
-    QString networkAdapter;               // selected NIC for IgH (e.g. "eth0")
-    QString backendMode = "auto";         // "native", "cli", "auto"
+    QString networkAdapter;       // selected NIC for IgH (e.g. "eth0")
+    QString backendMode = "auto"; // "native", "cli", "auto"
 
     // ── Refresh & Timing ──────────────────────────────────────────
-    int watchAutoRefreshMs = 0;        // 0=off, 250, 500, 1000, 2000
-    int overviewAutoRefreshMs = 0;     // 0=off, 1000, 2000, 5000
-    int sdoReadTimeoutMs = 3000;       // SDO read timeout
-    int sdoWriteTimeoutMs = 5000;      // SDO write timeout
-    int topologyPollIntervalMs = 0;    // 0=off, 5000, 10000, 30000
+    int watchAutoRefreshMs = 0;     // 0=off, 250, 500, 1000, 2000
+    int overviewAutoRefreshMs = 0;  // 0=off, 1000, 2000, 5000
+    int sdoReadTimeoutMs = 3000;    // SDO read timeout
+    int sdoWriteTimeoutMs = 5000;   // SDO write timeout
+    int topologyPollIntervalMs = 0; // 0=off, 5000, 10000, 30000
 
     // ── Free Run ──────────────────────────────────────────────────
-    int freeRunCycleUs = 1000;         // cycle time in microseconds
-    bool freeRunAutoName = true;       // auto-name entries from OD
+    int freeRunCycleUs = 1000;   // cycle time in microseconds
+    bool freeRunAutoName = true; // auto-name entries from OD
     bool freeRunHighlightChanges = true;
 
     // ── Display ───────────────────────────────────────────────────
-    bool showRawTabs = false;          // show Master/Slave/PDO/SDO Raw tabs
-    bool showColumnGrid = false;       // show grid lines in tables
-    int detailPanelWidth = 360;        // detail panel width in pixels
-    int tableRowHeight = 28;           // table row height in pixels
+    bool showRawTabs = false;    // show Master/Slave/PDO/SDO Raw tabs
+    bool showColumnGrid = false; // show grid lines in tables
+    int detailPanelWidth = 360;  // detail panel width in pixels
+    int tableRowHeight = 28;     // table row height in pixels
     bool alternatingRowColors = true;
-    bool compactMode = false;          // tighter spacing for small screens
-    int maxHistoryEntries = 200;       // SDO history max entries
+    bool compactMode = false;    // tighter spacing for small screens
+    int maxHistoryEntries = 200; // SDO history max entries
 
     // ── Notifications ─────────────────────────────────────────────
-    bool notifyOnStateChange = true;   // notify when slave state changes
-    bool notifyOnError = true;         // notify on errors
-    bool notifyOnWatchDrift = false;   // notify when watch values drift
-    bool soundEnabled = false;         // play sound on critical events
-    int toastDurationMs = 3000;        // toast notification duration
+    bool notifyOnStateChange = true; // notify when slave state changes
+    bool notifyOnError = true;       // notify on errors
+    bool notifyOnWatchDrift = false; // notify when watch values drift
+    bool soundEnabled = false;       // play sound on critical events
+    int toastDurationMs = 3000;      // toast notification duration
 
     // ── Export & Paths ────────────────────────────────────────────
-    QString defaultExportDir;          // default directory for exports
-    QString esiRepositoryPath;         // ESI file repository path
+    QString defaultExportDir;           // default directory for exports
+    QString esiRepositoryPath;          // ESI file repository path
     bool exportIncludeTimestamp = true; // include timestamp in exports
-    bool exportIncludeMetadata = true; // include metadata in exports
-    QString csvDelimiter = ",";        // CSV delimiter: "," or ";"
+    bool exportIncludeMetadata = true;  // include metadata in exports
+    QString csvDelimiter = ",";         // CSV delimiter: "," or ";"
 
     // ── Custom Shortcuts ────────────────────────────────────────
-    QMap<QString, QString> customShortcuts;  // actionId → key sequence string
+    QMap<QString, QString> customShortcuts; // actionId → key sequence string
 };
 
 // ── Settings Dialog ──────────────────────────────────────────────────
@@ -88,17 +88,17 @@ class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit SettingsDialog(const AppSettings &settings, QWidget *parent = nullptr);
+    explicit SettingsDialog(const AppSettings& settings, QWidget* parent = nullptr);
     AppSettings settings() const;
 
     // Populate the network adapter dropdown with detected NICs.
     // Each entry: "name|mac|driver|linkStatus" (e.g. "eth0|AA:BB:CC:DD:EE:FF|r8169|Up").
-    void setAvailableAdapters(const QStringList &adapters);
+    void setAvailableAdapters(const QStringList& adapters);
 
 signals:
     // Emitted when the user selects a different theme in the combo box.
     // MainWindow connects to this for live preview before confirmation.
-    void themePreviewRequested(const QString &themeName);
+    void themePreviewRequested(const QString& themeName);
 
     // Emitted when the user clicks "Refresh" next to the network adapter combo.
     // MainWindow connects this to a real adapter re-query (not a theme change).
@@ -106,62 +106,62 @@ signals:
 
 private:
     // ── Tab builders ──────────────────────────────────────────────
-    QWidget *buildAppearanceTab(const AppSettings &s, bool zh);
-    QWidget *buildEthercatTab(const AppSettings &s, bool zh);
-    QWidget *buildTimingTab(const AppSettings &s, bool zh);
-    QWidget *buildFreeRunTab(const AppSettings &s, bool zh);
-    QWidget *buildDisplayTab(const AppSettings &s, bool zh);
-    QWidget *buildNotificationTab(const AppSettings &s, bool zh);
-    QWidget *buildExportTab(const AppSettings &s, bool zh);
-    QWidget *buildShortcutsTab(const AppSettings &s, bool zh);
+    QWidget* buildAppearanceTab(const AppSettings& s, bool zh);
+    QWidget* buildEthercatTab(const AppSettings& s, bool zh);
+    QWidget* buildTimingTab(const AppSettings& s, bool zh);
+    QWidget* buildFreeRunTab(const AppSettings& s, bool zh);
+    QWidget* buildDisplayTab(const AppSettings& s, bool zh);
+    QWidget* buildNotificationTab(const AppSettings& s, bool zh);
+    QWidget* buildExportTab(const AppSettings& s, bool zh);
+    QWidget* buildShortcutsTab(const AppSettings& s, bool zh);
 
     // ── Appearance widgets ────────────────────────────────────────
-    QComboBox *themeCombo_ = nullptr;
-    QComboBox *languageCombo_ = nullptr;
-    QDoubleSpinBox *scaleSpin_ = nullptr;
+    QComboBox* themeCombo_ = nullptr;
+    QComboBox* languageCombo_ = nullptr;
+    QDoubleSpinBox* scaleSpin_ = nullptr;
 
     // ── Adapter widgets ─────────────────────────────────────────────
-    QComboBox *adapterCombo_ = nullptr;
+    QComboBox* adapterCombo_ = nullptr;
 
     // ── EtherCAT widgets ──────────────────────────────────────────
-    QTableWidget *masterTable_ = nullptr;
-    QComboBox *backendModeCombo_ = nullptr;
+    QTableWidget* masterTable_ = nullptr;
+    QComboBox* backendModeCombo_ = nullptr;
 
     // ── Timing widgets ────────────────────────────────────────────
-    QComboBox *watchRefreshCombo_ = nullptr;
-    QComboBox *overviewRefreshCombo_ = nullptr;
-    QSpinBox *sdoReadTimeoutSpin_ = nullptr;
-    QSpinBox *sdoWriteTimeoutSpin_ = nullptr;
-    QComboBox *topologyPollCombo_ = nullptr;
+    QComboBox* watchRefreshCombo_ = nullptr;
+    QComboBox* overviewRefreshCombo_ = nullptr;
+    QSpinBox* sdoReadTimeoutSpin_ = nullptr;
+    QSpinBox* sdoWriteTimeoutSpin_ = nullptr;
+    QComboBox* topologyPollCombo_ = nullptr;
 
     // ── Free Run widgets ──────────────────────────────────────────
-    QSpinBox *freeRunCycleSpin_ = nullptr;
-    QCheckBox *freeRunAutoNameCheck_ = nullptr;
-    QCheckBox *freeRunHighlightCheck_ = nullptr;
+    QSpinBox* freeRunCycleSpin_ = nullptr;
+    QCheckBox* freeRunAutoNameCheck_ = nullptr;
+    QCheckBox* freeRunHighlightCheck_ = nullptr;
 
     // ── Display widgets ───────────────────────────────────────────
-    QCheckBox *showRawTabsCheck_ = nullptr;
-    QCheckBox *showGridCheck_ = nullptr;
-    QSpinBox *detailWidthSpin_ = nullptr;
-    QSpinBox *rowHeightSpin_ = nullptr;
-    QCheckBox *alternatingRowsCheck_ = nullptr;
-    QCheckBox *compactModeCheck_ = nullptr;
-    QSpinBox *maxHistorySpin_ = nullptr;
+    QCheckBox* showRawTabsCheck_ = nullptr;
+    QCheckBox* showGridCheck_ = nullptr;
+    QSpinBox* detailWidthSpin_ = nullptr;
+    QSpinBox* rowHeightSpin_ = nullptr;
+    QCheckBox* alternatingRowsCheck_ = nullptr;
+    QCheckBox* compactModeCheck_ = nullptr;
+    QSpinBox* maxHistorySpin_ = nullptr;
 
     // ── Notification widgets ──────────────────────────────────────
-    QCheckBox *notifyStateCheck_ = nullptr;
-    QCheckBox *notifyErrorCheck_ = nullptr;
-    QCheckBox *notifyDriftCheck_ = nullptr;
-    QCheckBox *soundCheck_ = nullptr;
-    QSpinBox *toastDurationSpin_ = nullptr;
+    QCheckBox* notifyStateCheck_ = nullptr;
+    QCheckBox* notifyErrorCheck_ = nullptr;
+    QCheckBox* notifyDriftCheck_ = nullptr;
+    QCheckBox* soundCheck_ = nullptr;
+    QSpinBox* toastDurationSpin_ = nullptr;
 
     // ── Export widgets ────────────────────────────────────────────
-    QLineEdit *exportDirEdit_ = nullptr;
-    QLineEdit *esiPathEdit_ = nullptr;
-    QCheckBox *exportTimestampCheck_ = nullptr;
-    QCheckBox *exportMetadataCheck_ = nullptr;
-    QComboBox *csvDelimiterCombo_ = nullptr;
+    QLineEdit* exportDirEdit_ = nullptr;
+    QLineEdit* esiPathEdit_ = nullptr;
+    QCheckBox* exportTimestampCheck_ = nullptr;
+    QCheckBox* exportMetadataCheck_ = nullptr;
+    QComboBox* csvDelimiterCombo_ = nullptr;
 
-    QTableWidget *shortcutsTable_ = nullptr;
-    QTabWidget *tabWidget_ = nullptr;
+    QTableWidget* shortcutsTable_ = nullptr;
+    QTabWidget* tabWidget_ = nullptr;
 };

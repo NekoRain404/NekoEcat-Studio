@@ -11,55 +11,53 @@
 //   OptimizationResult result = svc->optimizeCache();
 //   svc->applyOptimization(result);
 
-#include <QObject>
-#include <QJsonObject>
-#include <QVector>
 #include <QDateTime>
+#include <QJsonObject>
+#include <QObject>
 #include <QString>
+#include <QVector>
 
 class EcatClient;
 class EventBus;
 
 struct SdoOptimizationResult {
-  QString category;
-  QString description;
-  QJsonObject before;
-  QJsonObject after;
-  double improvement = 0.0;
-  QStringList recommendations;
-  bool applied = false;
-  QDateTime timestamp;
+    QString category;
+    QString description;
+    QJsonObject before;
+    QJsonObject after;
+    double improvement = 0.0;
+    QStringList recommendations;
+    bool applied = false;
+    QDateTime timestamp;
 };
 
 Q_DECLARE_METATYPE(SdoOptimizationResult)
 
 class SdoOptimizationService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit SdoOptimizationService(EcatClient *client, EventBus *bus,
-                                  QObject *parent = nullptr);
+    explicit SdoOptimizationService(EcatClient* client, EventBus* bus, QObject* parent = nullptr);
 
-  SdoOptimizationResult optimizeCache();
-  SdoOptimizationResult optimizeBatch();
-  SdoOptimizationResult optimizePerformance();
-  SdoOptimizationResult optimizeErrorHandling();
+    SdoOptimizationResult optimizeCache();
+    SdoOptimizationResult optimizeBatch();
+    SdoOptimizationResult optimizePerformance();
+    SdoOptimizationResult optimizeErrorHandling();
 
-  // Apply an optimization to live SDO communication settings.
-  // Returns false until a backend can confirm the change.
-  bool applyOptimization(const SdoOptimizationResult &result);
+    // Apply an optimization to live SDO communication settings.
+    // Returns false until a backend can confirm the change.
+    bool applyOptimization(const SdoOptimizationResult& result);
 
-  QVector<SdoOptimizationResult> optimizationHistory() const { return history_; }
-  void clearHistory();
+    QVector<SdoOptimizationResult> optimizationHistory() const { return history_; }
+    void clearHistory();
 
 signals:
-  void optimizationCompleted(const SdoOptimizationResult &result);
-  void optimizationApplied(const SdoOptimizationResult &result);
+    void optimizationCompleted(const SdoOptimizationResult& result);
+    void optimizationApplied(const SdoOptimizationResult& result);
 
 private:
-  SdoOptimizationResult createRejectedResult(
-      const QString &category, const QStringList &recommendations);
+    SdoOptimizationResult createRejectedResult(const QString& category, const QStringList& recommendations);
 
-  EcatClient *client_;
-  EventBus *bus_;
-  QVector<SdoOptimizationResult> history_;
+    EcatClient* client_;
+    EventBus* bus_;
+    QVector<SdoOptimizationResult> history_;
 };

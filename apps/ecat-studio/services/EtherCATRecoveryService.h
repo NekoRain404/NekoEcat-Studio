@@ -32,75 +32,75 @@
 
 // Defines a recovery action that can be executed.
 struct RecoveryAction {
-  QString id;               // Unique action identifier (e.g., "reset-master")
-  QString name;             // Human-readable action name
-  QString description;      // Detailed description of what the action does
-  int priority = 0;         // Execution priority (higher = preferred)
-  bool automatic = false;   // Whether action can be auto-selected
+    QString id;             // Unique action identifier (e.g., "reset-master")
+    QString name;           // Human-readable action name
+    QString description;    // Detailed description of what the action does
+    int priority = 0;       // Execution priority (higher = preferred)
+    bool automatic = false; // Whether action can be auto-selected
 };
 
 // Result of a recovery action execution.
 struct RecoveryResult {
-  bool success = false;      // Whether recovery succeeded
-  QString message;           // Human-readable result message
-  QString actionId;          // ID of the action that was executed
-  int stepsPerformed = 0;    // Number of recovery steps completed
+    bool success = false;   // Whether recovery succeeded
+    QString message;        // Human-readable result message
+    QString actionId;       // ID of the action that was executed
+    int stepsPerformed = 0; // Number of recovery steps completed
 };
 
 // Current recovery operation status.
 struct RecoveryStatus {
-  bool inProgress = false;    // Whether a recovery is currently running
-  int totalSteps = 0;         // Total steps in current recovery
-  int completedSteps = 0;     // Steps completed so far
-  QString currentAction;      // ID of action currently being executed
-  QStringList log;            // Recovery operation log entries
+    bool inProgress = false; // Whether a recovery is currently running
+    int totalSteps = 0;      // Total steps in current recovery
+    int completedSteps = 0;  // Steps completed so far
+    QString currentAction;   // ID of action currently being executed
+    QStringList log;         // Recovery operation log entries
 };
 
 class EtherCATRecoveryService : public QObject {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  explicit EtherCATRecoveryService(QObject *parent = nullptr);
+    explicit EtherCATRecoveryService(QObject* parent = nullptr);
 
-  // Get all available recovery actions.
-  // @return Vector of RecoveryAction definitions
-  QVector<RecoveryAction> availableActions() const { return actions_; }
+    // Get all available recovery actions.
+    // @return Vector of RecoveryAction definitions
+    QVector<RecoveryAction> availableActions() const { return actions_; }
 
-  // Get the current recovery operation status.
-  // @return Current RecoveryStatus
-  RecoveryStatus status() const { return status_; }
+    // Get the current recovery operation status.
+    // @return Current RecoveryStatus
+    RecoveryStatus status() const { return status_; }
 
-  // Execute a specific recovery action by ID.
-  // @param actionId  ID of the recovery action to execute
-  // @return Result of the recovery attempt; currently failed without backend
-  RecoveryResult executeRecovery(const QString &actionId);
+    // Execute a specific recovery action by ID.
+    // @param actionId  ID of the recovery action to execute
+    // @return Result of the recovery attempt; currently failed without backend
+    RecoveryResult executeRecovery(const QString& actionId);
 
-  // Automatically select and execute the best recovery action.
-  // Selects the highest-priority automatic action.
-  // @return Result of the recovery attempt; currently failed without backend
-  RecoveryResult executeAutoRecovery();
+    // Automatically select and execute the best recovery action.
+    // Selects the highest-priority automatic action.
+    // @return Result of the recovery attempt; currently failed without backend
+    RecoveryResult executeAutoRecovery();
 
-  // Cancel the currently running recovery operation.
-  // @return true if cancellation was successful
-  bool cancelRecovery();
+    // Cancel the currently running recovery operation.
+    // @return true if cancellation was successful
+    bool cancelRecovery();
 
-  // Diagnose current system errors and return suggestions.
-  // @return List of error descriptions with recovery suggestions
-  QStringList diagnoseErrors() const;
+    // Diagnose current system errors and return suggestions.
+    // @return List of error descriptions with recovery suggestions
+    QStringList diagnoseErrors() const;
 
-  // Reset recovery status to idle state.
-  void resetStatus();
+    // Reset recovery status to idle state.
+    void resetStatus();
 
 signals:
-  // Emitted when a recovery action begins execution.
-  void recoveryStarted(const QString &actionId);
-  // Emitted on each recovery step completion.
-  void recoveryProgress(int completed, int total);
-  // Emitted when recovery completes (success or failure).
-  void recoveryCompleted(const RecoveryResult &result);
-  // Emitted for each diagnosed error with a recovery suggestion.
-  void errorDiagnosed(const QString &error, const QString &suggestion);
+    // Emitted when a recovery action begins execution.
+    void recoveryStarted(const QString& actionId);
+    // Emitted on each recovery step completion.
+    void recoveryProgress(int completed, int total);
+    // Emitted when recovery completes (success or failure).
+    void recoveryCompleted(const RecoveryResult& result);
+    // Emitted for each diagnosed error with a recovery suggestion.
+    void errorDiagnosed(const QString& error, const QString& suggestion);
 
 private:
-  QVector<RecoveryAction> actions_;   // Registered recovery actions
-  RecoveryStatus status_;             // Current recovery operation status
+    QVector<RecoveryAction> actions_; // Registered recovery actions
+    RecoveryStatus status_;           // Current recovery operation status
 };
